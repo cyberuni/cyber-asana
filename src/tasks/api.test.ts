@@ -4,14 +4,20 @@ import path from 'node:path'
 import Asana from 'asana'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
+	addDependencies,
+	addDependents,
 	createSubtask,
 	createTask,
 	deleteTask,
+	getDependencies,
+	getDependents,
 	getMyTasks,
 	getTask,
 	listSubtasks,
 	listTasks,
 	listTasksForSection,
+	removeDependencies,
+	removeDependents,
 	scanTodos,
 	searchTasks,
 	updateTask,
@@ -390,6 +396,60 @@ describe('tasks/api', () => {
 			completed_since: undefined,
 			limit: 100,
 		})
+	})
+
+	it('getDependencies calls getDependenciesForTask and returns data', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'getDependenciesForTask').mockResolvedValue({
+			data: [mockTask],
+		} as never)
+		const result = await getDependencies('456')
+		expect(result).toEqual([mockTask])
+		expect(Asana.TasksApi.prototype.getDependenciesForTask).toHaveBeenCalledWith('456', {})
+	})
+
+	it('getDependents calls getDependentsForTask and returns data', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'getDependentsForTask').mockResolvedValue({
+			data: [mockTask],
+		} as never)
+		const result = await getDependents('456')
+		expect(result).toEqual([mockTask])
+		expect(Asana.TasksApi.prototype.getDependentsForTask).toHaveBeenCalledWith('456', {})
+	})
+
+	it('addDependencies calls addDependenciesForTask with wrapped gids', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'addDependenciesForTask').mockResolvedValue(undefined as never)
+		await addDependencies('456', ['111', '222'])
+		expect(Asana.TasksApi.prototype.addDependenciesForTask).toHaveBeenCalledWith(
+			{ data: { dependencies: [{ gid: '111' }, { gid: '222' }] } },
+			'456',
+		)
+	})
+
+	it('addDependents calls addDependentsForTask with wrapped gids', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'addDependentsForTask').mockResolvedValue(undefined as never)
+		await addDependents('456', ['333', '444'])
+		expect(Asana.TasksApi.prototype.addDependentsForTask).toHaveBeenCalledWith(
+			{ data: { dependents: [{ gid: '333' }, { gid: '444' }] } },
+			'456',
+		)
+	})
+
+	it('removeDependencies calls removeDependenciesForTask with wrapped gids', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'removeDependenciesForTask').mockResolvedValue(undefined as never)
+		await removeDependencies('456', ['111'])
+		expect(Asana.TasksApi.prototype.removeDependenciesForTask).toHaveBeenCalledWith(
+			{ data: { dependencies: [{ gid: '111' }] } },
+			'456',
+		)
+	})
+
+	it('removeDependents calls removeDependentsForTask with wrapped gids', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'removeDependentsForTask').mockResolvedValue(undefined as never)
+		await removeDependents('456', ['333'])
+		expect(Asana.TasksApi.prototype.removeDependentsForTask).toHaveBeenCalledWith(
+			{ data: { dependents: [{ gid: '333' }] } },
+			'456',
+		)
 	})
 })
 

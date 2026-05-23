@@ -157,6 +157,38 @@ export async function deleteTask(taskGid: string) {
 	await api.deleteTask(taskGid)
 }
 
+export async function getDependencies(taskGid: string) {
+	const api = new Asana.TasksApi(createClient())
+	const res = await api.getDependenciesForTask(taskGid, {})
+	return res.data
+}
+
+export async function getDependents(taskGid: string) {
+	const api = new Asana.TasksApi(createClient())
+	const res = await api.getDependentsForTask(taskGid, {})
+	return res.data
+}
+
+export async function addDependencies(taskGid: string, dependencyGids: string[]) {
+	const api = new Asana.TasksApi(createClient())
+	await api.addDependenciesForTask({ data: { dependencies: dependencyGids.map((gid) => ({ gid })) } }, taskGid)
+}
+
+export async function addDependents(taskGid: string, dependentGids: string[]) {
+	const api = new Asana.TasksApi(createClient())
+	await api.addDependentsForTask({ data: { dependents: dependentGids.map((gid) => ({ gid })) } }, taskGid)
+}
+
+export async function removeDependencies(taskGid: string, dependencyGids: string[]) {
+	const api = new Asana.TasksApi(createClient())
+	await api.removeDependenciesForTask({ data: { dependencies: dependencyGids.map((gid) => ({ gid })) } }, taskGid)
+}
+
+export async function removeDependents(taskGid: string, dependentGids: string[]) {
+	const api = new Asana.TasksApi(createClient())
+	await api.removeDependentsForTask({ data: { dependents: dependentGids.map((gid) => ({ gid })) } }, taskGid)
+}
+
 export type SearchTasksOptions = {
 	text?: string
 	completed?: boolean

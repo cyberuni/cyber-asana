@@ -2,13 +2,19 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import { paginationOptions, paginationParams } from '../mcp-options.js'
 import {
+	addDependencies,
+	addDependents,
 	createSubtask,
 	createTask,
 	deleteTask,
+	getDependencies,
+	getDependents,
 	getMyTasks,
 	getTask,
 	listSubtasks,
 	listTasks,
+	removeDependencies,
+	removeDependents,
 	scanTodos,
 	searchTasks,
 	updateTask,
@@ -374,6 +380,80 @@ export function registerTaskTools(server: McpServer) {
 				},
 			],
 		}),
+	)
+
+	server.tool(
+		'asana_task_dependency_list',
+		'List dependencies of an Asana task (tasks this task depends on)',
+		{ task_gid: z.string().describe('Task GID') },
+		async ({ task_gid }) => ({
+			content: [{ type: 'text', text: JSON.stringify(await getDependencies(task_gid)) }],
+		}),
+	)
+
+	server.tool(
+		'asana_task_dependency_add',
+		'Add dependencies to an Asana task',
+		{
+			task_gid: z.string().describe('Task GID'),
+			dependency_gids: z.array(z.string()).describe('GIDs of tasks to add as dependencies'),
+		},
+		async ({ task_gid, dependency_gids }) => {
+			await addDependencies(task_gid, dependency_gids)
+			return { content: [{ type: 'text', text: `Added ${dependency_gids.length} dependency(s) to task ${task_gid}` }] }
+		},
+	)
+
+	server.tool(
+		'asana_task_dependency_remove',
+		'Remove dependencies from an Asana task',
+		{
+			task_gid: z.string().describe('Task GID'),
+			dependency_gids: z.array(z.string()).describe('GIDs of tasks to remove as dependencies'),
+		},
+		async ({ task_gid, dependency_gids }) => {
+			await removeDependencies(task_gid, dependency_gids)
+			return {
+				content: [{ type: 'text', text: `Removed ${dependency_gids.length} dependency(s) from task ${task_gid}` }],
+			}
+		},
+	)
+
+	server.tool(
+		'asana_task_dependent_list',
+		'List dependents of an Asana task (tasks that depend on this task)',
+		{ task_gid: z.string().describe('Task GID') },
+		async ({ task_gid }) => ({
+			content: [{ type: 'text', text: JSON.stringify(await getDependents(task_gid)) }],
+		}),
+	)
+
+	server.tool(
+		'asana_task_dependent_add',
+		'Add dependents to an Asana task',
+		{
+			task_gid: z.string().describe('Task GID'),
+			dependent_gids: z.array(z.string()).describe('GIDs of tasks to add as dependents'),
+		},
+		async ({ task_gid, dependent_gids }) => {
+			await addDependents(task_gid, dependent_gids)
+			return { content: [{ type: 'text', text: `Added ${dependent_gids.length} dependent(s) to task ${task_gid}` }] }
+		},
+	)
+
+	server.tool(
+		'asana_task_dependent_remove',
+		'Remove dependents from an Asana task',
+		{
+			task_gid: z.string().describe('Task GID'),
+			dependent_gids: z.array(z.string()).describe('GIDs of tasks to remove as dependents'),
+		},
+		async ({ task_gid, dependent_gids }) => {
+			await removeDependents(task_gid, dependent_gids)
+			return {
+				content: [{ type: 'text', text: `Removed ${dependent_gids.length} dependent(s) from task ${task_gid}` }],
+			}
+		},
 	)
 
 	server.tool(

@@ -10,13 +10,19 @@ import {
 } from '../cli-options.js'
 import { output, printFields, printTable } from '../output.js'
 import {
+	addDependencies,
+	addDependents,
 	createSubtask,
 	createTask,
 	deleteTask,
+	getDependencies,
+	getDependents,
 	getMyTasks,
 	getTask,
 	listSubtasks,
 	listTasks,
+	removeDependencies,
+	removeDependents,
 	type SearchTasksOptions,
 	scanTodos,
 	searchTasks,
@@ -448,6 +454,58 @@ export function taskCommand() {
 				output(data, () => fmtTaskList(data))
 			},
 		)
+
+	const dependencyCmd = cmd.command('dependency').description('Manage task dependencies (tasks this task depends on)')
+
+	dependencyCmd
+		.command('list <task-gid>')
+		.description('List dependencies of a task')
+		.action(async (taskGid: string) => {
+			const data = await getDependencies(taskGid)
+			output(data, () => fmtTaskList(data))
+		})
+
+	dependencyCmd
+		.command('add <task-gid> <dep-gids...>')
+		.description('Add dependencies to a task (space-separated GIDs)')
+		.action(async (taskGid: string, depGids: string[]) => {
+			await addDependencies(taskGid, depGids)
+			console.log(`Added ${depGids.length} dependency(s) to task ${taskGid}`)
+		})
+
+	dependencyCmd
+		.command('remove <task-gid> <dep-gids...>')
+		.description('Remove dependencies from a task (space-separated GIDs)')
+		.action(async (taskGid: string, depGids: string[]) => {
+			await removeDependencies(taskGid, depGids)
+			console.log(`Removed ${depGids.length} dependency(s) from task ${taskGid}`)
+		})
+
+	const dependentCmd = cmd.command('dependent').description('Manage task dependents (tasks that depend on this task)')
+
+	dependentCmd
+		.command('list <task-gid>')
+		.description('List dependents of a task')
+		.action(async (taskGid: string) => {
+			const data = await getDependents(taskGid)
+			output(data, () => fmtTaskList(data))
+		})
+
+	dependentCmd
+		.command('add <task-gid> <dep-gids...>')
+		.description('Add dependents to a task (space-separated GIDs)')
+		.action(async (taskGid: string, depGids: string[]) => {
+			await addDependents(taskGid, depGids)
+			console.log(`Added ${depGids.length} dependent(s) to task ${taskGid}`)
+		})
+
+	dependentCmd
+		.command('remove <task-gid> <dep-gids...>')
+		.description('Remove dependents from a task (space-separated GIDs)')
+		.action(async (taskGid: string, depGids: string[]) => {
+			await removeDependents(taskGid, depGids)
+			console.log(`Removed ${depGids.length} dependent(s) from task ${taskGid}`)
+		})
 
 	cmd
 		.command('scan-todos [dir]')
