@@ -8,7 +8,13 @@ const workspaceOpt = () =>
 type Goal = { gid: string; name: string; permalink_url?: string; due_on?: string | null; status?: string | null }
 
 function fmtGoal(g: Goal) {
-	printFields({ Name: g.name, ID: g.gid, URL: g.permalink_url ?? null, Due: g.due_on ?? null, Status: g.status ?? null })
+	printFields({
+		Name: g.name,
+		ID: g.gid,
+		URL: g.permalink_url ?? null,
+		Due: g.due_on ?? null,
+		Status: g.status ?? null,
+	})
 }
 
 export function goalCommand() {

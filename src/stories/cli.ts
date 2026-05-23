@@ -5,7 +5,13 @@ import { createStory, listStories } from './api.js'
 type Story = { gid: string; type?: string; text?: string; created_by?: { name: string } | null; created_at?: string }
 
 function fmtStory(s: Story) {
-	printFields({ ID: s.gid, Type: s.type ?? null, By: s.created_by?.name ?? null, At: s.created_at ?? null, Text: s.text ?? null })
+	printFields({
+		ID: s.gid,
+		Type: s.type ?? null,
+		By: s.created_by?.name ?? null,
+		At: s.created_at ?? null,
+		Text: s.text ?? null,
+	})
 }
 
 export function storyCommand() {
