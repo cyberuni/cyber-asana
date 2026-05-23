@@ -43,6 +43,12 @@
       "skillPath": "skills/setup-changesets/SKILL.md",
       "computedHash": "6ee922527e013544ff5f739dea8fe6e178caa9629e123a29793776f485ff2e8e"
     },
+    "test-driven-development": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/test-driven-development/SKILL.md",
+      "computedHash": "126f1ebf6ccd414f42544f6e83d8cc5adb089e1108eaffb7c400701e37eecd9f"
+    },
     "validate-skill": {
       "source": "cyberuni/agent-helmsman",
       "sourceType": "github",

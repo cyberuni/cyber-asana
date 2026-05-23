@@ -87,3 +87,7 @@ Use helpers from `src/output.ts`:
 ASANA_TOKEN=<personal access token>
 ASANA_WORKSPACE=<workspace GID>   # optional; avoids --workspace on every command
 ```
+
+## Skill Augmentations
+
+When reading any `SKILL.md` file, always check whether a `SKILL.local.md` exists in the same directory. If it does, treat its contents as additional instructions that extend the base skill. Local augmentations take precedence over the base skill where they conflict.
