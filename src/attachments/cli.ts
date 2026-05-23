@@ -1,5 +1,12 @@
 import { Command } from 'commander'
-import { addPaginationOptions, itemsForOutput, paginationOptionsFromCli, printNextPageHint } from '../cli-options.js'
+import {
+	addGidOption,
+	addPaginationOptions,
+	itemsForOutput,
+	paginationOptionsFromCli,
+	printNextPageHint,
+	requiredGid,
+} from '../cli-options.js'
 import { output, printFields, printTable } from '../output.js'
 import { getAttachment, listAttachments } from './api.js'
 
@@ -9,9 +16,9 @@ export function attachmentCommand() {
 	const cmd = new Command('attachment').description('Manage Asana attachments')
 
 	addPaginationOptions(
-		cmd.command('list').description('List attachments for a task').requiredOption('--task <gid>', 'Task GID'),
-	).action(async (opts: { task: string; limit?: number; offset?: string; optFields?: string }) => {
-		const data = await listAttachments(opts.task, paginationOptionsFromCli(opts))
+		addGidOption(cmd.command('list').description('List attachments for a task'), 'task', 'Task GID'),
+	).action(async (opts: { task?: string; taskGid?: string; limit?: number; offset?: string; optFields?: string }) => {
+		const data = await listAttachments(requiredGid(opts, 'task', 'Task GID'), paginationOptionsFromCli(opts))
 		output(data, () => {
 			printTable(itemsForOutput(data), [
 				{ label: 'Name', get: (a: Attachment) => a.name },

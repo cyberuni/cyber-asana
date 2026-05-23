@@ -1,10 +1,14 @@
-import { Command, Option } from 'commander'
-import { addPaginationOptions, itemsForOutput, paginationOptionsFromCli, printNextPageHint } from '../cli-options.js'
+import { Command } from 'commander'
+import {
+	addGidOption,
+	addPaginationOptions,
+	itemsForOutput,
+	paginationOptionsFromCli,
+	printNextPageHint,
+	requiredGid,
+} from '../cli-options.js'
 import { output, printFields, printTable } from '../output.js'
 import { createPortfolio, deletePortfolio, getPortfolio, listPortfolios, updatePortfolio } from './api.js'
-
-const workspaceOpt = () =>
-	new Option('--workspace <gid>', 'Workspace GID (or set ASANA_WORKSPACE)').env('ASANA_WORKSPACE').makeOptionMandatory()
 
 type Portfolio = { gid: string; name: string; permalink_url?: string }
 
@@ -16,17 +20,27 @@ export function portfolioCommand() {
 	const cmd = new Command('portfolio').description('Manage Asana portfolios')
 
 	addPaginationOptions(
-		cmd.command('list').description('List portfolios in a workspace').addOption(workspaceOpt()),
-	).action(async (opts: { workspace: string; limit?: number; offset?: string; optFields?: string }) => {
-		const data = await listPortfolios(opts.workspace, paginationOptionsFromCli(opts))
-		output(data, () => {
-			printTable(itemsForOutput(data), [
-				{ label: 'Name', get: (p: Portfolio) => p.name },
-				{ label: 'ID', get: (p: Portfolio) => p.gid },
-			])
-			printNextPageHint(data)
-		})
-	})
+		addGidOption(cmd.command('list').description('List portfolios in a workspace'), 'workspace', 'Workspace GID', {
+			env: 'ASANA_WORKSPACE',
+		}),
+	).action(
+		async (opts: {
+			workspace?: string
+			workspaceGid?: string
+			limit?: number
+			offset?: string
+			optFields?: string
+		}) => {
+			const data = await listPortfolios(requiredGid(opts, 'workspace', 'Workspace GID'), paginationOptionsFromCli(opts))
+			output(data, () => {
+				printTable(itemsForOutput(data), [
+					{ label: 'Name', get: (p: Portfolio) => p.name },
+					{ label: 'ID', get: (p: Portfolio) => p.gid },
+				])
+				printNextPageHint(data)
+			})
+		},
+	)
 
 	cmd
 		.command('get <gid>')
@@ -36,14 +50,18 @@ export function portfolioCommand() {
 			output(data, () => fmtPortfolio(data))
 		})
 
-	cmd
-		.command('create <name>')
-		.description('Create a portfolio')
-		.addOption(workspaceOpt())
-		.action(async (name: string, opts: { workspace: string }) => {
-			const data = await createPortfolio(opts.workspace, name)
-			output(data, () => fmtPortfolio(data))
-		})
+	const createCmd = addGidOption(
+		cmd.command('create <name>').description('Create a portfolio'),
+		'workspace',
+		'Workspace GID',
+		{
+			env: 'ASANA_WORKSPACE',
+		},
+	)
+	createCmd.action(async (name: string, opts: { workspace?: string; workspaceGid?: string }) => {
+		const data = await createPortfolio(requiredGid(opts, 'workspace', 'Workspace GID'), name)
+		output(data, () => fmtPortfolio(data))
+	})
 
 	cmd
 		.command('update <gid>')

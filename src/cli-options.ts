@@ -1,4 +1,4 @@
-import { type Command, InvalidArgumentError } from 'commander'
+import { type Command, InvalidArgumentError, Option } from 'commander'
 import type { ListResult, PaginationOptions } from './pagination.js'
 import { listItems, nextPageOffset } from './pagination.js'
 
@@ -9,6 +9,8 @@ export type PaginationCliOptions = {
 	all?: boolean
 	maxPages?: number
 }
+
+export type CliGidOptions = Record<string, unknown>
 
 function parseLimit(value: string) {
 	const limit = Number(value)
@@ -58,4 +60,33 @@ export function itemsForOutput<T = any>(result: ListResult<T>) {
 export function printNextPageHint<T>(result: ListResult<T>) {
 	const offset = nextPageOffset(result)
 	if (offset) console.log(`\nNext offset: ${offset}`)
+}
+
+export function addGidOption<T extends Command>(
+	cmd: T,
+	baseName: string,
+	description: string,
+	opts?: { env?: string },
+) {
+	const normalizedOption = new Option(`--${baseName}-gid <gid>`, description)
+	if (opts?.env) normalizedOption.env(opts.env)
+	cmd.addOption(normalizedOption)
+	cmd.addOption(new Option(`--${baseName} <gid>`, `${description} (legacy alias)`))
+
+	return cmd
+}
+
+export function normalizedGid(opts: CliGidOptions, baseName: string) {
+	const gidKey = `${baseName}Gid`
+	const normalized = opts[gidKey]
+	if (typeof normalized === 'string' && normalized.length > 0) return normalized
+	const legacy = opts[baseName]
+	if (typeof legacy === 'string' && legacy.length > 0) return legacy
+	return undefined
+}
+
+export function requiredGid(opts: CliGidOptions, baseName: string, label: string) {
+	const gid = normalizedGid(opts, baseName)
+	if (!gid) throw new InvalidArgumentError(`${label} is required`)
+	return gid
 }

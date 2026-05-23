@@ -1,10 +1,14 @@
-import { Command, Option } from 'commander'
-import { addPaginationOptions, itemsForOutput, paginationOptionsFromCli, printNextPageHint } from '../cli-options.js'
+import { Command } from 'commander'
+import {
+	addGidOption,
+	addPaginationOptions,
+	itemsForOutput,
+	paginationOptionsFromCli,
+	printNextPageHint,
+	requiredGid,
+} from '../cli-options.js'
 import { output, printFields, printTable } from '../output.js'
 import { createGoal, deleteGoal, getGoal, listGoals, updateGoal } from './api.js'
-
-const workspaceOpt = () =>
-	new Option('--workspace <gid>', 'Workspace GID (or set ASANA_WORKSPACE)').env('ASANA_WORKSPACE').makeOptionMandatory()
 
 type Goal = { gid: string; name: string; permalink_url?: string; due_on?: string | null; status?: string | null }
 
@@ -21,9 +25,19 @@ function fmtGoal(g: Goal) {
 export function goalCommand() {
 	const cmd = new Command('goal').description('Manage Asana goals')
 
-	addPaginationOptions(cmd.command('list').description('List goals in a workspace').addOption(workspaceOpt())).action(
-		async (opts: { workspace: string; limit?: number; offset?: string; optFields?: string }) => {
-			const data = await listGoals(opts.workspace, paginationOptionsFromCli(opts))
+	addPaginationOptions(
+		addGidOption(cmd.command('list').description('List goals in a workspace'), 'workspace', 'Workspace GID', {
+			env: 'ASANA_WORKSPACE',
+		}),
+	).action(
+		async (opts: {
+			workspace?: string
+			workspaceGid?: string
+			limit?: number
+			offset?: string
+			optFields?: string
+		}) => {
+			const data = await listGoals(requiredGid(opts, 'workspace', 'Workspace GID'), paginationOptionsFromCli(opts))
 			output(data, () => {
 				printTable(itemsForOutput(data), [
 					{ label: 'Name', get: (g: Goal) => g.name },
@@ -43,16 +57,26 @@ export function goalCommand() {
 			output(data, () => fmtGoal(data))
 		})
 
-	cmd
-		.command('create <name>')
-		.description('Create a goal')
-		.addOption(workspaceOpt())
+	const createCmd = addGidOption(
+		cmd.command('create <name>').description('Create a goal'),
+		'workspace',
+		'Workspace GID',
+		{
+			env: 'ASANA_WORKSPACE',
+		},
+	)
+	createCmd
 		.option('--notes <text>', 'Goal notes')
 		.option('--due-on <date>', 'Due date (YYYY-MM-DD)')
-		.action(async (name: string, opts: { workspace: string; notes?: string; dueOn?: string }) => {
-			const data = await createGoal(opts.workspace, name, { notes: opts.notes, due_on: opts.dueOn })
-			output(data, () => fmtGoal(data))
-		})
+		.action(
+			async (name: string, opts: { workspace?: string; workspaceGid?: string; notes?: string; dueOn?: string }) => {
+				const data = await createGoal(requiredGid(opts, 'workspace', 'Workspace GID'), name, {
+					notes: opts.notes,
+					due_on: opts.dueOn,
+				})
+				output(data, () => fmtGoal(data))
+			},
+		)
 
 	cmd
 		.command('update <gid>')

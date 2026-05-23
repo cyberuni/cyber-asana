@@ -1,5 +1,12 @@
 import { Command } from 'commander'
-import { addPaginationOptions, itemsForOutput, paginationOptionsFromCli, printNextPageHint } from '../cli-options.js'
+import {
+	addGidOption,
+	addPaginationOptions,
+	itemsForOutput,
+	paginationOptionsFromCli,
+	printNextPageHint,
+	requiredGid,
+} from '../cli-options.js'
 import { output, printFields, printTable } from '../output.js'
 import { createStory, listStories } from './api.js'
 
@@ -19,9 +26,9 @@ export function storyCommand() {
 	const cmd = new Command('story').description('Manage Asana stories (comments)')
 
 	addPaginationOptions(
-		cmd.command('list').description('List stories for a task').requiredOption('--task <gid>', 'Task GID'),
-	).action(async (opts: { task: string; limit?: number; offset?: string; optFields?: string }) => {
-		const data = await listStories(opts.task, paginationOptionsFromCli(opts))
+		addGidOption(cmd.command('list').description('List stories for a task'), 'task', 'Task GID'),
+	).action(async (opts: { task?: string; taskGid?: string; limit?: number; offset?: string; optFields?: string }) => {
+		const data = await listStories(requiredGid(opts, 'task', 'Task GID'), paginationOptionsFromCli(opts))
 		output(data, () => {
 			printTable(itemsForOutput(data), [
 				{ label: 'ID', get: (s: Story) => s.gid },
@@ -33,12 +40,12 @@ export function storyCommand() {
 		})
 	})
 
-	cmd
-		.command('create <text>')
-		.description('Add a comment to a task')
-		.requiredOption('--task <gid>', 'Task GID')
-		.action(async (text: string, opts: { task: string }) => {
-			const data = await createStory(opts.task, text)
+	addGidOption(
+		cmd.command('create <text>').description('Add a comment to a task'),
+		'task',
+		'Task GID',
+	).action(async (text: string, opts: { task?: string; taskGid?: string }) => {
+			const data = await createStory(requiredGid(opts, 'task', 'Task GID'), text)
 			output(data, () => fmtStory(data))
 		})
 

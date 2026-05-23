@@ -1,5 +1,13 @@
-import { Command, Option } from 'commander'
-import { addPaginationOptions, itemsForOutput, paginationOptionsFromCli, printNextPageHint } from '../cli-options.js'
+import { Command } from 'commander'
+import {
+	addGidOption,
+	addPaginationOptions,
+	itemsForOutput,
+	normalizedGid,
+	paginationOptionsFromCli,
+	printNextPageHint,
+	requiredGid,
+} from '../cli-options.js'
 import { output, printFields, printTable } from '../output.js'
 import {
 	createTask,
@@ -8,12 +16,10 @@ import {
 	listTasks,
 	scanTodos,
 	searchTasks,
+	type SearchTasksOptions,
 	type TodoMatch,
 	updateTask,
 } from './api.js'
-
-const workspaceOpt = () =>
-	new Option('--workspace <gid>', 'Workspace GID (or set ASANA_WORKSPACE)').env('ASANA_WORKSPACE').makeOptionMandatory()
 
 type Task = {
 	gid: string
@@ -50,17 +56,20 @@ export function taskCommand() {
 	const cmd = new Command('task').description('Manage Asana tasks')
 
 	addPaginationOptions(
-		cmd
-			.command('list')
-			.description('List tasks in a project')
-			.requiredOption('--project <gid>', 'Project GID')
-			.option(
-				'--completed-since <date>',
-				'Only include tasks completed on or after this date (ISO 8601 or "now" for incomplete only)',
-			),
+		addGidOption(cmd.command('list').description('List tasks in a project'), 'project', 'Project GID').option(
+			'--completed-since <date>',
+			'Only include tasks completed on or after this date (ISO 8601 or "now" for incomplete only)',
+		),
 	).action(
-		async (opts: { project: string; completedSince?: string; limit?: number; offset?: string; optFields?: string }) => {
-			const data = await listTasks(opts.project, {
+		async (opts: {
+			project?: string
+			projectGid?: string
+			completedSince?: string
+			limit?: number
+			offset?: string
+			optFields?: string
+		}) => {
+			const data = await listTasks(requiredGid(opts, 'project', 'Project GID'), {
 				completedSince: opts.completedSince,
 				...paginationOptionsFromCli(opts),
 			})
@@ -79,48 +88,74 @@ export function taskCommand() {
 			output(data, () => fmtTask(data))
 		})
 
-	cmd
-		.command('create <name>')
-		.description('Create a new task')
-		.addOption(workspaceOpt())
-		.option('--project <gid>', 'Project GID')
-		.option('--assignee <gid>', 'Assignee user GID')
+	addGidOption(
+		addGidOption(
+			addGidOption(
+				cmd.command('create <name>').description('Create a new task'),
+				'workspace',
+				'Workspace GID',
+				{ env: 'ASANA_WORKSPACE' },
+			),
+			'project',
+			'Project GID',
+		),
+		'assignee',
+		'Assignee user GID',
+	)
 		.option('--notes <text>', 'Task notes')
 		.option('--due-on <date>', 'Due date (YYYY-MM-DD)')
 		.action(
 			async (
 				name: string,
-				opts: { workspace: string; project?: string; assignee?: string; notes?: string; dueOn?: string },
+				opts: {
+					workspace?: string
+					workspaceGid?: string
+					project?: string
+					projectGid?: string
+					assignee?: string
+					assigneeGid?: string
+					notes?: string
+					dueOn?: string
+				},
 			) => {
-				const data = await createTask(opts.workspace, name, {
+				const data = await createTask(requiredGid(opts, 'workspace', 'Workspace GID'), name, {
 					notes: opts.notes,
-					assignee: opts.assignee,
-					projects: opts.project ? [opts.project] : undefined,
+					assignee: normalizedGid(opts, 'assignee'),
+					projects: opts.projectGid || opts.project ? [requiredGid(opts, 'project', 'Project GID')] : undefined,
 					due_on: opts.dueOn,
 				})
 				output(data, () => fmtTask(data))
 			},
 		)
 
-	cmd
-		.command('update <gid>')
-		.description('Update a task')
-		.option('--name <name>', 'New name')
-		.option('--notes <text>', 'New notes')
-		.option('--completed', 'Mark as completed')
-		.option('--due-on <date>', 'Due date (YYYY-MM-DD)')
-		.option('--assignee <gid>', 'Assignee user GID')
-		.action(
+	addGidOption(
+		cmd
+			.command('update <gid>')
+			.description('Update a task')
+			.option('--name <name>', 'New name')
+			.option('--notes <text>', 'New notes')
+			.option('--completed', 'Mark as completed')
+			.option('--due-on <date>', 'Due date (YYYY-MM-DD)'),
+		'assignee',
+		'Assignee user GID',
+	).action(
 			async (
 				gid: string,
-				opts: { name?: string; notes?: string; completed?: boolean; dueOn?: string; assignee?: string },
+				opts: {
+					name?: string
+					notes?: string
+					completed?: boolean
+					dueOn?: string
+					assignee?: string
+					assigneeGid?: string
+				},
 			) => {
 				const data = await updateTask(gid, {
 					name: opts.name,
 					notes: opts.notes,
 					completed: opts.completed,
 					due_on: opts.dueOn,
-					assignee: opts.assignee,
+					assignee: normalizedGid(opts, 'assignee'),
 				})
 				output(data, () => fmtTask(data))
 			},
@@ -134,14 +169,71 @@ export function taskCommand() {
 			console.log(`Deleted task ${gid}`)
 		})
 
-	cmd
-		.command('search <text>')
-		.description('Search tasks in a workspace')
-		.addOption(workspaceOpt())
-		.action(async (text: string, opts: { workspace: string }) => {
-			const data = await searchTasks(opts.workspace, text)
-			output(data, () => fmtTaskList(data))
-		})
+	addGidOption(
+		cmd.command('search [text]').description('Search tasks in a workspace'),
+		'workspace',
+		'Workspace GID',
+		{ env: 'ASANA_WORKSPACE' },
+	)
+		.option('--completed', 'Only completed tasks')
+		.option('--no-completed', 'Only incomplete tasks')
+		.option('--subtask', 'Only subtasks')
+		.option('--no-subtask', 'Exclude subtasks')
+		.option('--has-attachment', 'Only tasks with attachments')
+		.option('--is-blocking', 'Only tasks blocking others')
+		.option('--is-blocked', 'Only tasks blocked by others')
+		.option('--assignee <gids>', 'Comma-separated assignee GIDs (any match)')
+		.option('--project <gids>', 'Comma-separated project GIDs (any match)')
+		.option('--section <gids>', 'Comma-separated section GIDs (any match)')
+		.option('--tag <gids>', 'Comma-separated tag GIDs (any match)')
+		.option('--team <gids>', 'Comma-separated team GIDs (any match)')
+		.option('--subtype <subtype>', 'Resource subtype filter (e.g. milestone)')
+		.option('--sort-by <field>', 'Sort field: due_date, created_at, completed_at, likes, modified_at')
+		.option('--sort-asc', 'Sort ascending (default: descending)')
+		.option('--opt-fields <fields>', 'Comma-separated optional Asana fields to include')
+		.action(
+			async (
+				text: string | undefined,
+				opts: {
+					workspace?: string
+					workspaceGid?: string
+					completed?: boolean
+					subtask?: boolean
+					hasAttachment?: boolean
+					isBlocking?: boolean
+					isBlocked?: boolean
+					assignee?: string
+					project?: string
+					section?: string
+					tag?: string
+					team?: string
+					subtype?: string
+					sortBy?: string
+					sortAsc?: boolean
+					optFields?: string
+				},
+			) => {
+				const searchOpts: SearchTasksOptions = {
+					text,
+					completed: opts.completed,
+					isSubtask: opts.subtask,
+					hasAttachment: opts.hasAttachment,
+					isBlocking: opts.isBlocking,
+					isBlocked: opts.isBlocked,
+					assigneeAny: opts.assignee,
+					projectsAny: opts.project,
+					sectionsAny: opts.section,
+					tagsAny: opts.tag,
+					teamsAny: opts.team,
+					resourceSubtype: opts.subtype,
+					sortBy: opts.sortBy,
+					sortAscending: opts.sortAsc,
+					optFields: opts.optFields,
+				}
+				const data = await searchTasks(requiredGid(opts, 'workspace', 'Workspace GID'), searchOpts)
+				output(data, () => fmtTaskList(data))
+			},
+		)
 
 	cmd
 		.command('scan-todos [dir]')

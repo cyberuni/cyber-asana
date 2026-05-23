@@ -1,6 +1,13 @@
 import { writeFile } from 'node:fs/promises'
-import { Command, Option } from 'commander'
-import { addPaginationOptions, itemsForOutput, paginationOptionsFromCli, printNextPageHint } from '../cli-options.js'
+import { Command } from 'commander'
+import {
+	addGidOption,
+	addPaginationOptions,
+	itemsForOutput,
+	paginationOptionsFromCli,
+	printNextPageHint,
+	requiredGid,
+} from '../cli-options.js'
 import { output, printFields, printTable } from '../output.js'
 import {
 	createProject,
@@ -11,9 +18,6 @@ import {
 	renderProjectMarkdown,
 	updateProject,
 } from './api.js'
-
-const workspaceOpt = () =>
-	new Option('--workspace <gid>', 'Workspace GID (or set ASANA_WORKSPACE)').env('ASANA_WORKSPACE').makeOptionMandatory()
 
 type Project = { gid: string; name: string; permalink_url?: string; color?: string; notes?: string }
 
@@ -32,14 +36,24 @@ export function projectCommand() {
 	const cmd = new Command('project').description('Manage Asana projects')
 
 	addPaginationOptions(
-		cmd.command('list').description('List projects in a workspace').addOption(workspaceOpt()),
-	).action(async (opts: { workspace: string; limit?: number; offset?: string; optFields?: string }) => {
-		const data = await listProjects(opts.workspace, paginationOptionsFromCli(opts))
-		output(data, () => {
-			fmtProjectList(itemsForOutput(data))
-			printNextPageHint(data)
-		})
-	})
+		addGidOption(cmd.command('list').description('List projects in a workspace'), 'workspace', 'Workspace GID', {
+			env: 'ASANA_WORKSPACE',
+		}),
+	).action(
+		async (opts: {
+			workspace?: string
+			workspaceGid?: string
+			limit?: number
+			offset?: string
+			optFields?: string
+		}) => {
+			const data = await listProjects(requiredGid(opts, 'workspace', 'Workspace GID'), paginationOptionsFromCli(opts))
+			output(data, () => {
+				fmtProjectList(itemsForOutput(data))
+				printNextPageHint(data)
+			})
+		},
+	)
 
 	cmd
 		.command('get <gid>')
@@ -49,16 +63,26 @@ export function projectCommand() {
 			output(data, () => fmtProject(data))
 		})
 
-	cmd
-		.command('create <name>')
-		.description('Create a new project')
-		.addOption(workspaceOpt())
+	const createCmd = addGidOption(
+		cmd.command('create <name>').description('Create a new project'),
+		'workspace',
+		'Workspace GID',
+		{
+			env: 'ASANA_WORKSPACE',
+		},
+	)
+	createCmd
 		.option('--notes <text>', 'Project notes')
 		.option('--color <color>', 'Project color')
-		.action(async (name: string, opts: { workspace: string; notes?: string; color?: string }) => {
-			const data = await createProject(opts.workspace, name, { notes: opts.notes, color: opts.color })
-			output(data, () => fmtProject(data))
-		})
+		.action(
+			async (name: string, opts: { workspace?: string; workspaceGid?: string; notes?: string; color?: string }) => {
+				const data = await createProject(requiredGid(opts, 'workspace', 'Workspace GID'), name, {
+					notes: opts.notes,
+					color: opts.color,
+				})
+				output(data, () => fmtProject(data))
+			},
+		)
 
 	cmd
 		.command('update <gid>')

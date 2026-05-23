@@ -1,5 +1,12 @@
 import { Command } from 'commander'
-import { addPaginationOptions, itemsForOutput, paginationOptionsFromCli, printNextPageHint } from '../cli-options.js'
+import {
+	addGidOption,
+	addPaginationOptions,
+	itemsForOutput,
+	paginationOptionsFromCli,
+	printNextPageHint,
+	requiredGid,
+} from '../cli-options.js'
 import { output, printFields, printTable } from '../output.js'
 import { createSection, deleteSection, getSection, listSections, updateSection } from './api.js'
 
@@ -13,17 +20,19 @@ export function sectionCommand() {
 	const cmd = new Command('section').description('Manage Asana sections')
 
 	addPaginationOptions(
-		cmd.command('list').description('List sections in a project').requiredOption('--project <gid>', 'Project GID'),
-	).action(async (opts: { project: string; limit?: number; offset?: string; optFields?: string }) => {
-		const data = await listSections(opts.project, paginationOptionsFromCli(opts))
-		output(data, () => {
-			printTable(itemsForOutput(data), [
-				{ label: 'Name', get: (s: Section) => s.name },
-				{ label: 'ID', get: (s: Section) => s.gid },
-			])
-			printNextPageHint(data)
-		})
-	})
+		addGidOption(cmd.command('list').description('List sections in a project'), 'project', 'Project GID'),
+	).action(
+		async (opts: { project?: string; projectGid?: string; limit?: number; offset?: string; optFields?: string }) => {
+			const data = await listSections(requiredGid(opts, 'project', 'Project GID'), paginationOptionsFromCli(opts))
+			output(data, () => {
+				printTable(itemsForOutput(data), [
+					{ label: 'Name', get: (s: Section) => s.name },
+					{ label: 'ID', get: (s: Section) => s.gid },
+				])
+				printNextPageHint(data)
+			})
+		},
+	)
 
 	cmd
 		.command('get <gid>')
@@ -33,12 +42,12 @@ export function sectionCommand() {
 			output(data, () => fmtSection(data))
 		})
 
-	cmd
-		.command('create <name>')
-		.description('Create a section in a project')
-		.requiredOption('--project <gid>', 'Project GID')
-		.action(async (name: string, opts: { project: string }) => {
-			const data = await createSection(opts.project, name)
+	addGidOption(
+		cmd.command('create <name>').description('Create a section in a project'),
+		'project',
+		'Project GID',
+	).action(async (name: string, opts: { project?: string; projectGid?: string }) => {
+			const data = await createSection(requiredGid(opts, 'project', 'Project GID'), name)
 			output(data, () => fmtSection(data))
 		})
 

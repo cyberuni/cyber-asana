@@ -57,6 +57,35 @@ Use `--all` to fetch multiple pages intentionally; `--max-pages` caps the number
 | `attachment` | `list`, `get` |
 | `story` | `list`, `create` |
 
+### GID options
+
+Commands that accept a resource GID support both a canonical `--foo-gid` flag and a shorter legacy alias `--foo`:
+
+```sh
+cyber-asana task list --project-gid <gid>
+cyber-asana task list --project <gid>      # legacy alias
+```
+
+### Task search filters
+
+`task search` accepts an optional text query plus filters:
+
+```sh
+# Text search
+cyber-asana task search "login"
+
+# Incomplete tasks in a project
+cyber-asana task search --no-completed --project <gid>
+
+# Overdue milestones assigned to a user
+cyber-asana task search --assignee <user-gid> --subtype milestone
+
+# Blocked tasks, sorted by due date
+cyber-asana task search --is-blocked --sort-by due_date --json
+```
+
+Available filters: `--completed/--no-completed`, `--subtask/--no-subtask`, `--has-attachment`, `--is-blocking`, `--is-blocked`, `--assignee <gids>`, `--project <gids>`, `--section <gids>`, `--tag <gids>`, `--team <gids>`, `--subtype <subtype>`, `--sort-by <field>`, `--sort-asc`, `--opt-fields <fields>`.
+
 ### Examples
 
 ```sh
@@ -64,7 +93,7 @@ Use `--all` to fetch multiple pages intentionally; `--max-pages` caps the number
 cyber-asana project list
 
 # Create a task
-cyber-asana task create "Fix the bug" --project <gid> --due-on 2026-06-01
+cyber-asana task create "Fix the bug" --project-gid <gid> --due-on 2026-06-01
 
 # Search tasks
 cyber-asana task search "login" --json

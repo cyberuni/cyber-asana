@@ -1,19 +1,33 @@
-import { Command, Option } from 'commander'
-import { addPaginationOptions, itemsForOutput, paginationOptionsFromCli, printNextPageHint } from '../cli-options.js'
+import { Command } from 'commander'
+import {
+	addGidOption,
+	addPaginationOptions,
+	itemsForOutput,
+	paginationOptionsFromCli,
+	printNextPageHint,
+	requiredGid,
+} from '../cli-options.js'
 import { output, printFields, printTable } from '../output.js'
 import { getTeam, listTeams } from './api.js'
-
-const workspaceOpt = () =>
-	new Option('--workspace <gid>', 'Workspace GID (or set ASANA_WORKSPACE)').env('ASANA_WORKSPACE').makeOptionMandatory()
 
 type Team = { gid: string; name: string }
 
 export function teamCommand() {
 	const cmd = new Command('team').description('Manage Asana teams')
 
-	addPaginationOptions(cmd.command('list').description('List teams in a workspace').addOption(workspaceOpt())).action(
-		async (opts: { workspace: string; limit?: number; offset?: string; optFields?: string }) => {
-			const data = await listTeams(opts.workspace, paginationOptionsFromCli(opts))
+	addPaginationOptions(
+		addGidOption(cmd.command('list').description('List teams in a workspace'), 'workspace', 'Workspace GID', {
+			env: 'ASANA_WORKSPACE',
+		}),
+	).action(
+		async (opts: {
+			workspace?: string
+			workspaceGid?: string
+			limit?: number
+			offset?: string
+			optFields?: string
+		}) => {
+			const data = await listTeams(requiredGid(opts, 'workspace', 'Workspace GID'), paginationOptionsFromCli(opts))
 			output(data, () => {
 				printTable(itemsForOutput(data), [
 					{ label: 'Name', get: (t: Team) => t.name },

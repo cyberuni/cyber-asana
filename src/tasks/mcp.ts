@@ -100,10 +100,50 @@ export function registerTaskTools(server: McpServer) {
 		'Search Asana tasks in a workspace',
 		{
 			workspace_gid: z.string().describe('Workspace GID'),
-			text: z.string().describe('Search text'),
+			text: z.string().optional().describe('Search text'),
+			completed: z.boolean().optional().describe('Filter by completion status'),
+			is_subtask: z.boolean().optional().describe('Filter subtasks only (true) or exclude subtasks (false)'),
+			has_attachment: z.boolean().optional().describe('Only tasks with attachments'),
+			is_blocking: z.boolean().optional().describe('Only tasks blocking other tasks'),
+			is_blocked: z.boolean().optional().describe('Only tasks blocked by other tasks'),
+			assignee_any: z.string().optional().describe('Comma-separated assignee GIDs (any match)'),
+			projects_any: z.string().optional().describe('Comma-separated project GIDs (any match)'),
+			sections_any: z.string().optional().describe('Comma-separated section GIDs (any match)'),
+			tags_any: z.string().optional().describe('Comma-separated tag GIDs (any match)'),
+			teams_any: z.string().optional().describe('Comma-separated team GIDs (any match)'),
+			resource_subtype: z.string().optional().describe('Resource subtype filter (e.g. milestone)'),
+			sort_by: z
+				.string()
+				.optional()
+				.describe('Sort field: due_date, created_at, completed_at, likes, modified_at'),
+			sort_ascending: z.boolean().optional().describe('Sort ascending (default: descending)'),
+			opt_fields: z.string().optional().describe('Comma-separated optional Asana fields to include'),
 		},
-		async ({ workspace_gid, text }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await searchTasks(workspace_gid, text)) }],
+		async ({ workspace_gid, text, assignee_any, projects_any, sections_any, tags_any, teams_any, ...rest }) => ({
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(
+						await searchTasks(workspace_gid, {
+							text,
+							assigneeAny: assignee_any,
+							projectsAny: projects_any,
+							sectionsAny: sections_any,
+							tagsAny: tags_any,
+							teamsAny: teams_any,
+							completed: rest.completed,
+							isSubtask: rest.is_subtask,
+							hasAttachment: rest.has_attachment,
+							isBlocking: rest.is_blocking,
+							isBlocked: rest.is_blocked,
+							resourceSubtype: rest.resource_subtype,
+							sortBy: rest.sort_by,
+							sortAscending: rest.sort_ascending,
+							optFields: rest.opt_fields,
+						}),
+					),
+				},
+			],
 		}),
 	)
 

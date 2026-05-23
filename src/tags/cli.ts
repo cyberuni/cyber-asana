@@ -1,10 +1,14 @@
-import { Command, Option } from 'commander'
-import { addPaginationOptions, itemsForOutput, paginationOptionsFromCli, printNextPageHint } from '../cli-options.js'
+import { Command } from 'commander'
+import {
+	addGidOption,
+	addPaginationOptions,
+	itemsForOutput,
+	paginationOptionsFromCli,
+	printNextPageHint,
+	requiredGid,
+} from '../cli-options.js'
 import { output, printFields, printTable } from '../output.js'
 import { createTag, getTag, listTags } from './api.js'
-
-const workspaceOpt = () =>
-	new Option('--workspace <gid>', 'Workspace GID (or set ASANA_WORKSPACE)').env('ASANA_WORKSPACE').makeOptionMandatory()
 
 type Tag = { gid: string; name: string; color?: string | null }
 
@@ -15,9 +19,19 @@ function fmtTag(t: Tag) {
 export function tagCommand() {
 	const cmd = new Command('tag').description('Manage Asana tags')
 
-	addPaginationOptions(cmd.command('list').description('List tags in a workspace').addOption(workspaceOpt())).action(
-		async (opts: { workspace: string; limit?: number; offset?: string; optFields?: string }) => {
-			const data = await listTags(opts.workspace, paginationOptionsFromCli(opts))
+	addPaginationOptions(
+		addGidOption(cmd.command('list').description('List tags in a workspace'), 'workspace', 'Workspace GID', {
+			env: 'ASANA_WORKSPACE',
+		}),
+	).action(
+		async (opts: {
+			workspace?: string
+			workspaceGid?: string
+			limit?: number
+			offset?: string
+			optFields?: string
+		}) => {
+			const data = await listTags(requiredGid(opts, 'workspace', 'Workspace GID'), paginationOptionsFromCli(opts))
 			output(data, () => {
 				printTable(itemsForOutput(data), [
 					{ label: 'Name', get: (t: Tag) => t.name },
@@ -37,14 +51,18 @@ export function tagCommand() {
 			output(data, () => fmtTag(data))
 		})
 
-	cmd
-		.command('create <name>')
-		.description('Create a tag')
-		.addOption(workspaceOpt())
-		.action(async (name: string, opts: { workspace: string }) => {
-			const data = await createTag(opts.workspace, name)
-			output(data, () => fmtTag(data))
-		})
+	const createCmd = addGidOption(
+		cmd.command('create <name>').description('Create a tag'),
+		'workspace',
+		'Workspace GID',
+		{
+			env: 'ASANA_WORKSPACE',
+		},
+	)
+	createCmd.action(async (name: string, opts: { workspace?: string; workspaceGid?: string }) => {
+		const data = await createTag(requiredGid(opts, 'workspace', 'Workspace GID'), name)
+		output(data, () => fmtTag(data))
+	})
 
 	return cmd
 }

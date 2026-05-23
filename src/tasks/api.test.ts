@@ -68,9 +68,9 @@ describe('tasks/api', () => {
 		vi.spyOn(Asana.TasksApi.prototype, 'searchTasksForWorkspace').mockResolvedValue({
 			data: [mockTask],
 		} as never)
-		const result = await searchTasks('ws1', 'query')
+		const result = await searchTasks('ws1', { text: 'query' })
 		expect(result).toEqual([mockTask])
-		expect(Asana.TasksApi.prototype.searchTasksForWorkspace).toHaveBeenCalledWith('ws1', { text: 'query' })
+		expect(Asana.TasksApi.prototype.searchTasksForWorkspace).toHaveBeenCalledWith('ws1', expect.objectContaining({ text: 'query' }))
 	})
 
 	it('listTasks passes completed_since to SDK', async () => {

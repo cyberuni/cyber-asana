@@ -115,8 +115,42 @@ export async function deleteTask(taskGid: string) {
 	await api.deleteTask(taskGid)
 }
 
-export async function searchTasks(workspaceGid: string, text: string) {
+export type SearchTasksOptions = {
+	text?: string
+	completed?: boolean
+	isSubtask?: boolean
+	hasAttachment?: boolean
+	isBlocking?: boolean
+	isBlocked?: boolean
+	assigneeAny?: string
+	projectsAny?: string
+	sectionsAny?: string
+	tagsAny?: string
+	teamsAny?: string
+	resourceSubtype?: string
+	sortBy?: string
+	sortAscending?: boolean
+	optFields?: string
+}
+
+export async function searchTasks(workspaceGid: string, opts?: SearchTasksOptions) {
 	const api = new Asana.TasksApi(createClient())
-	const res = await api.searchTasksForWorkspace(workspaceGid, { text })
+	const res = await api.searchTasksForWorkspace(workspaceGid, {
+		text: opts?.text,
+		completed: opts?.completed,
+		is_subtask: opts?.isSubtask,
+		has_attachment: opts?.hasAttachment,
+		is_blocking: opts?.isBlocking,
+		is_blocked: opts?.isBlocked,
+		'assignee.any': opts?.assigneeAny,
+		'projects.any': opts?.projectsAny,
+		'sections.any': opts?.sectionsAny,
+		'tags.any': opts?.tagsAny,
+		'teams.any': opts?.teamsAny,
+		resource_subtype: opts?.resourceSubtype,
+		sort_by: opts?.sortBy,
+		sort_ascending: opts?.sortAscending,
+		opt_fields: opts?.optFields,
+	})
 	return res.data
 }
