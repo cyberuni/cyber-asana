@@ -1,0 +1,56 @@
+{
+	"name": "asana-agent",
+	"version": "0.0.0",
+	"description": "Asana CLI and MCP server for AI agents",
+	"type": "module",
+	"bin": {
+		"cyber-asana": "./dist/cli.js"
+	},
+	"exports": {
+		".": {
+			"import": "./dist/index.js",
+			"types": "./dist/index.d.ts"
+		},
+		"./mcp": {
+			"import": "./dist/mcp.js",
+			"types": "./dist/mcp.d.ts"
+		}
+	},
+	"scripts": {
+		"build": "tsc",
+		"dev": "tsx src/cli/index.ts",
+		"typecheck": "tsc --noEmit",
+		"lint": "biome check .",
+		"format": "biome format --write .",
+		"check": "biome check --write .",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"cs": "changeset",
+		"release": "changeset publish",
+		"version": "changeset version"
+	},
+	"dependencies": {
+		"@modelcontextprotocol/sdk": "^1.12.0",
+		"asana": "^3.0.12",
+		"commander": "^14.0.0",
+		"zod": "^3.25.28"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.4.15",
+		"@changesets/cli": "^2.29.4",
+		"@repobuddy/biome": "^2.3.1",
+		"@types/node": "^22.15.21",
+		"tsx": "^4.19.4",
+		"typescript": "^5.8.3",
+		"vitest": "^3.2.2"
+	},
+	"engines": {
+		"node": ">=20"
+	},
+	"packageManager": "pnpm@10.11.0",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/cyberuni/asana-agent.git"
+	},
+	"license": "MIT"
+}
