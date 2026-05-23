@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { createClient } from './client.js'
+import { createClient, setTokenOverride } from './client.js'
 
 describe('createClient', () => {
 	const original = process.env.ASANA_TOKEN
@@ -11,17 +11,26 @@ describe('createClient', () => {
 	afterEach(() => {
 		if (original !== undefined) process.env.ASANA_TOKEN = original
 		else delete process.env.ASANA_TOKEN
+		// reset override between tests
+		setTokenOverride(undefined)
 	})
 
 	it('throws with setup instructions when ASANA_TOKEN is not set', () => {
 		expect(() => createClient()).toThrowError(/ASANA_TOKEN environment variable is not set/)
 		expect(() => createClient()).toThrowError(/app\.asana\.com\/0\/my-apps/)
-		expect(() => createClient()).toThrowError(/export ASANA_TOKEN/)
+		expect(() => createClient()).toThrowError(/--token/)
 	})
 
 	it('returns a configured client when ASANA_TOKEN is set', () => {
-		process.env.ASANA_TOKEN = 'test-token'
+		process.env.ASANA_TOKEN = 'env-token'
 		const client = createClient()
-		expect(client.authentications['token'].accessToken).toBe('test-token')
+		expect(client.authentications['token'].accessToken).toBe('env-token')
+	})
+
+	it('prefers setTokenOverride over ASANA_TOKEN env var', () => {
+		process.env.ASANA_TOKEN = 'env-token'
+		setTokenOverride('override-token')
+		const client = createClient()
+		expect(client.authentications['token'].accessToken).toBe('override-token')
 	})
 })

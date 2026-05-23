@@ -1,7 +1,13 @@
 import Asana from 'asana'
 
+let tokenOverride: string | undefined
+
+export function setTokenOverride(token: string | undefined) {
+	tokenOverride = token
+}
+
 export function createClient(): Asana.ApiClient {
-	const token = process.env.ASANA_TOKEN
+	const token = tokenOverride ?? process.env.ASANA_TOKEN
 	if (!token)
 		throw new Error(
 			`ASANA_TOKEN environment variable is not set.
@@ -15,7 +21,8 @@ To create a Personal Access Token (PAT):
 Then set it in your shell:
   export ASANA_TOKEN=<your-token>
 
-Or add it to your .env file and source it before running.`,
+Or pass it inline with --token:
+  cyber-asana --token <your-token> <command>`,
 		)
 	const client = new Asana.ApiClient()
 	client.authentications['token'].accessToken = token

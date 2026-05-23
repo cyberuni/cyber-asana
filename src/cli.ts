@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { Command } from 'commander'
 import { attachmentCommand } from './attachments/cli.js'
+import { setTokenOverride } from './client.js'
 import { goalCommand } from './goals/cli.js'
 import { portfolioCommand } from './portfolios/cli.js'
 import { projectCommand } from './projects/cli.js'
@@ -18,7 +19,12 @@ program
 	.name('cyber-asana')
 	.description('Asana CLI for AI agents')
 	.version('0.0.0')
-	.addHelpText('after', '\nSet ASANA_TOKEN env var to authenticate.')
+	.option('--token <token>', 'Asana PAT — overrides ASANA_TOKEN env var')
+	.addHelpText('after', '\nAuthentication: set ASANA_TOKEN env var or pass --token <pat>.')
+	.hook('preAction', () => {
+		const { token } = program.opts<{ token?: string }>()
+		if (token) setTokenOverride(token)
+	})
 
 program.addCommand(workspaceCommand())
 program.addCommand(projectCommand())
