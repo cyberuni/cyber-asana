@@ -2,17 +2,9 @@
 
 ## Commit After Every Cycle
 
-After REFACTOR, with all tests green, commit before moving to the next RED:
+After REFACTOR, with all tests green, commit before moving to the next RED. Follow the project commit discipline in `AGENTS.md`.
 
-```bash
-git add -p   # stage only relevant changes
-git commit -m "<type>: <what changed>"
-```
-
-- Use conventional commit prefix: `feat:`, `fix:`, `refactor:`, `test:`
-- Message describes the behavior added, not the implementation
 - One commit per completed red-green-refactor cycle; do not batch cycles
-- Never commit with red tests
 
 ## Changeset When a Unit of Work Is Complete
 

@@ -2,6 +2,24 @@
 
 This file provides guidance to AI coding assistants when working with code in this repository.
 
+## Development Workflow
+
+Before writing any production code, invoke the `test-driven-development` skill. This applies whether coding starts from a user request or from your own initiative after plan approval.
+
+## Commit Discipline
+
+Commit every self-contained unit of work — code, docs, config, skills — as its own commit before moving on.
+
+```bash
+git add -p   # stage only relevant changes
+git commit -m "<type>: <what changed>"
+```
+
+- Conventional commit prefix: `feat:`, `fix:`, `refactor:`, `test:`, `docs:`, `chore:`
+- Message describes the behavior or change, not the implementation
+- Never batch unrelated changes into one commit
+- Never commit with red tests
+
 ## Skill Augmentations
 
 When reading any `SKILL.md` file, always check whether a `SKILL.local.md` exists in the same directory. If it does, treat its contents as additional instructions that extend the base skill. Local augmentations take precedence over the base skill where they conflict.
