@@ -398,22 +398,46 @@ describe('tasks/api', () => {
 		})
 	})
 
-	it('getDependencies calls getDependenciesForTask and returns data', async () => {
+	it('getDependencies calls getDependenciesForTask with default opt_fields', async () => {
 		vi.spyOn(Asana.TasksApi.prototype, 'getDependenciesForTask').mockResolvedValue({
 			data: [mockTask],
 		} as never)
 		const result = await getDependencies('456')
 		expect(result).toEqual([mockTask])
-		expect(Asana.TasksApi.prototype.getDependenciesForTask).toHaveBeenCalledWith('456', {})
+		expect(Asana.TasksApi.prototype.getDependenciesForTask).toHaveBeenCalledWith('456', {
+			opt_fields: 'gid,name,completed,due_on',
+		})
 	})
 
-	it('getDependents calls getDependentsForTask and returns data', async () => {
+	it('getDependencies passes custom opt_fields when provided', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'getDependenciesForTask').mockResolvedValue({
+			data: [mockTask],
+		} as never)
+		await getDependencies('456', { optFields: 'gid,name' })
+		expect(Asana.TasksApi.prototype.getDependenciesForTask).toHaveBeenCalledWith('456', {
+			opt_fields: 'gid,name',
+		})
+	})
+
+	it('getDependents calls getDependentsForTask with default opt_fields', async () => {
 		vi.spyOn(Asana.TasksApi.prototype, 'getDependentsForTask').mockResolvedValue({
 			data: [mockTask],
 		} as never)
 		const result = await getDependents('456')
 		expect(result).toEqual([mockTask])
-		expect(Asana.TasksApi.prototype.getDependentsForTask).toHaveBeenCalledWith('456', {})
+		expect(Asana.TasksApi.prototype.getDependentsForTask).toHaveBeenCalledWith('456', {
+			opt_fields: 'gid,name,completed,due_on',
+		})
+	})
+
+	it('getDependents passes custom opt_fields when provided', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'getDependentsForTask').mockResolvedValue({
+			data: [mockTask],
+		} as never)
+		await getDependents('456', { optFields: 'gid,name' })
+		expect(Asana.TasksApi.prototype.getDependentsForTask).toHaveBeenCalledWith('456', {
+			opt_fields: 'gid,name',
+		})
 	})
 
 	it('addDependencies calls addDependenciesForTask with wrapped gids', async () => {

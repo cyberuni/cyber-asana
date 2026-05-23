@@ -157,15 +157,17 @@ export async function deleteTask(taskGid: string) {
 	await api.deleteTask(taskGid)
 }
 
-export async function getDependencies(taskGid: string) {
+const DEFAULT_DEP_FIELDS = 'gid,name,completed,due_on'
+
+export async function getDependencies(taskGid: string, opts?: { optFields?: string }) {
 	const api = new Asana.TasksApi(createClient())
-	const res = await api.getDependenciesForTask(taskGid, {})
+	const res = await api.getDependenciesForTask(taskGid, { opt_fields: opts?.optFields ?? DEFAULT_DEP_FIELDS })
 	return res.data
 }
 
-export async function getDependents(taskGid: string) {
+export async function getDependents(taskGid: string, opts?: { optFields?: string }) {
 	const api = new Asana.TasksApi(createClient())
-	const res = await api.getDependentsForTask(taskGid, {})
+	const res = await api.getDependentsForTask(taskGid, { opt_fields: opts?.optFields ?? DEFAULT_DEP_FIELDS })
 	return res.data
 }
 

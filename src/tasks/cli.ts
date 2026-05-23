@@ -460,8 +460,9 @@ export function taskCommand() {
 	dependencyCmd
 		.command('list <task-gid>')
 		.description('List dependencies of a task')
-		.action(async (taskGid: string) => {
-			const data = await getDependencies(taskGid)
+		.option('--opt-fields <fields>', 'Comma-separated Asana fields to include')
+		.action(async (taskGid: string, opts: { optFields?: string }) => {
+			const data = await getDependencies(taskGid, { optFields: opts.optFields })
 			output(data, () => fmtTaskList(data))
 		})
 
@@ -486,8 +487,9 @@ export function taskCommand() {
 	dependentCmd
 		.command('list <task-gid>')
 		.description('List dependents of a task')
-		.action(async (taskGid: string) => {
-			const data = await getDependents(taskGid)
+		.option('--opt-fields <fields>', 'Comma-separated Asana fields to include')
+		.action(async (taskGid: string, opts: { optFields?: string }) => {
+			const data = await getDependents(taskGid, { optFields: opts.optFields })
 			output(data, () => fmtTaskList(data))
 		})
 

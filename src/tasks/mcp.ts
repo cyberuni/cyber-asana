@@ -385,9 +385,12 @@ export function registerTaskTools(server: McpServer) {
 	server.tool(
 		'asana_task_dependency_list',
 		'List dependencies of an Asana task (tasks this task depends on)',
-		{ task_gid: z.string().describe('Task GID') },
-		async ({ task_gid }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await getDependencies(task_gid)) }],
+		{
+			task_gid: z.string().describe('Task GID'),
+			opt_fields: z.string().optional().describe('Comma-separated Asana fields to include'),
+		},
+		async ({ task_gid, opt_fields }) => ({
+			content: [{ type: 'text', text: JSON.stringify(await getDependencies(task_gid, { optFields: opt_fields })) }],
 		}),
 	)
 
@@ -422,9 +425,12 @@ export function registerTaskTools(server: McpServer) {
 	server.tool(
 		'asana_task_dependent_list',
 		'List dependents of an Asana task (tasks that depend on this task)',
-		{ task_gid: z.string().describe('Task GID') },
-		async ({ task_gid }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await getDependents(task_gid)) }],
+		{
+			task_gid: z.string().describe('Task GID'),
+			opt_fields: z.string().optional().describe('Comma-separated Asana fields to include'),
+		},
+		async ({ task_gid, opt_fields }) => ({
+			content: [{ type: 'text', text: JSON.stringify(await getDependents(task_gid, { optFields: opt_fields })) }],
 		}),
 	)
 
