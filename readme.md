@@ -68,7 +68,9 @@ cyber-asana task list --project <gid>      # legacy alias
 
 ### Task search filters
 
-`task search` accepts an optional text query plus filters:
+`task search` accepts an optional text query plus filters.
+
+Filters that accept `<gid[,gid...]>` take one or more comma-separated GIDs.
 
 ```sh
 # Text search
@@ -78,13 +80,36 @@ cyber-asana task search "login"
 cyber-asana task search --no-completed --project <gid>
 
 # Overdue milestones assigned to a user
-cyber-asana task search --assignee <user-gid> --subtype milestone
+cyber-asana task search --assignee <user-gid> --subtype milestone --due-on-before 2026-01-01
 
 # Blocked tasks, sorted by due date
 cyber-asana task search --is-blocked --sort-by due_date --json
+
+# Tasks modified this week, excluding a specific project
+cyber-asana task search --modified-on-after 2026-05-17 --project-not <gid>
 ```
 
-Available filters: `--completed/--no-completed`, `--subtask/--no-subtask`, `--has-attachment`, `--is-blocking`, `--is-blocked`, `--assignee <gids>`, `--project <gids>`, `--section <gids>`, `--tag <gids>`, `--team <gids>`, `--subtype <subtype>`, `--sort-by <field>`, `--sort-asc`, `--opt-fields <fields>`.
+**Status filters:** `--completed/--no-completed`, `--subtask/--no-subtask`, `--has-attachment`, `--is-blocking`, `--is-blocked`
+
+**Resource filters** (accept `<gid[,gid...]>`):
+- `--assignee`, `--assignee-not`
+- `--project`, `--project-not`, `--project-all`
+- `--section`, `--section-not`, `--section-all`
+- `--tag`, `--tag-not`, `--tag-all`
+- `--team`, `--portfolio`
+- `--follower`, `--follower-not`
+- `--created-by`, `--created-by-not`
+- `--assigned-by`, `--assigned-by-not`
+- `--liked-by-not`, `--commented-on-by-not`
+
+**Date filters** (YYYY-MM-DD for `*-on`, ISO 8601 for `*-at`):
+- `--due-on`, `--due-on-before`, `--due-on-after`, `--due-at-before`, `--due-at-after`
+- `--start-on`, `--start-on-before`, `--start-on-after`
+- `--created-on`, `--created-on-before`, `--created-on-after`, `--created-at-before`, `--created-at-after`
+- `--completed-on`, `--completed-on-before`, `--completed-on-after`, `--completed-at-before`, `--completed-at-after`
+- `--modified-on`, `--modified-on-before`, `--modified-on-after`, `--modified-at-before`, `--modified-at-after`
+
+**Other:** `--subtype <subtype>`, `--sort-by <field>`, `--sort-asc`, `--opt-fields <fields>`
 
 ### Examples
 

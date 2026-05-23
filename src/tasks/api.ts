@@ -123,10 +123,49 @@ export type SearchTasksOptions = {
 	isBlocking?: boolean
 	isBlocked?: boolean
 	assigneeAny?: string
+	assigneeNot?: string
 	projectsAny?: string
+	projectsNot?: string
+	projectsAll?: string
 	sectionsAny?: string
+	sectionsNot?: string
+	sectionsAll?: string
 	tagsAny?: string
+	tagsNot?: string
+	tagsAll?: string
 	teamsAny?: string
+	portfoliosAny?: string
+	followersAny?: string
+	followersNot?: string
+	createdByAny?: string
+	createdByNot?: string
+	assignedByAny?: string
+	assignedByNot?: string
+	likedByNot?: string
+	commentedOnByNot?: string
+	dueOn?: string
+	dueOnBefore?: string
+	dueOnAfter?: string
+	dueAtBefore?: string
+	dueAtAfter?: string
+	startOn?: string
+	startOnBefore?: string
+	startOnAfter?: string
+	createdOn?: string
+	createdOnBefore?: string
+	createdOnAfter?: string
+	createdAtBefore?: string
+	createdAtAfter?: string
+	completedOn?: string
+	completedOnBefore?: string
+	completedOnAfter?: string
+	completedAtBefore?: string
+	completedAtAfter?: string
+	modifiedOn?: string
+	modifiedOnBefore?: string
+	modifiedOnAfter?: string
+	modifiedAtBefore?: string
+	modifiedAtAfter?: string
 	resourceSubtype?: string
 	sortBy?: string
 	sortAscending?: boolean
@@ -143,10 +182,49 @@ export async function searchTasks(workspaceGid: string, opts?: SearchTasksOption
 		is_blocking: opts?.isBlocking,
 		is_blocked: opts?.isBlocked,
 		'assignee.any': opts?.assigneeAny,
+		'assignee.not': opts?.assigneeNot,
 		'projects.any': opts?.projectsAny,
+		'projects.not': opts?.projectsNot,
+		'projects.all': opts?.projectsAll,
 		'sections.any': opts?.sectionsAny,
+		'sections.not': opts?.sectionsNot,
+		'sections.all': opts?.sectionsAll,
 		'tags.any': opts?.tagsAny,
+		'tags.not': opts?.tagsNot,
+		'tags.all': opts?.tagsAll,
 		'teams.any': opts?.teamsAny,
+		'portfolios.any': opts?.portfoliosAny,
+		'followers.any': opts?.followersAny,
+		'followers.not': opts?.followersNot,
+		'created_by.any': opts?.createdByAny,
+		'created_by.not': opts?.createdByNot,
+		'assigned_by.any': opts?.assignedByAny,
+		'assigned_by.not': opts?.assignedByNot,
+		'liked_by.not': opts?.likedByNot,
+		'commented_on_by.not': opts?.commentedOnByNot,
+		due_on: opts?.dueOn,
+		'due_on.before': opts?.dueOnBefore,
+		'due_on.after': opts?.dueOnAfter,
+		'due_at.before': opts?.dueAtBefore,
+		'due_at.after': opts?.dueAtAfter,
+		start_on: opts?.startOn,
+		'start_on.before': opts?.startOnBefore,
+		'start_on.after': opts?.startOnAfter,
+		created_on: opts?.createdOn,
+		'created_on.before': opts?.createdOnBefore,
+		'created_on.after': opts?.createdOnAfter,
+		'created_at.before': opts?.createdAtBefore,
+		'created_at.after': opts?.createdAtAfter,
+		completed_on: opts?.completedOn,
+		'completed_on.before': opts?.completedOnBefore,
+		'completed_on.after': opts?.completedOnAfter,
+		'completed_at.before': opts?.completedAtBefore,
+		'completed_at.after': opts?.completedAtAfter,
+		modified_on: opts?.modifiedOn,
+		'modified_on.before': opts?.modifiedOnBefore,
+		'modified_on.after': opts?.modifiedOnAfter,
+		'modified_at.before': opts?.modifiedAtBefore,
+		'modified_at.after': opts?.modifiedAtAfter,
 		resource_subtype: opts?.resourceSubtype,
 		sort_by: opts?.sortBy,
 		sort_ascending: opts?.sortAscending,

@@ -119,6 +119,123 @@ describe('tasks/api', () => {
 		)
 	})
 
+	it('searchTasks forwards .not and .all variants to SDK', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'searchTasksForWorkspace').mockResolvedValue({
+			data: [mockTask],
+		} as never)
+		await searchTasks('ws1', {
+			assigneeNot: 'u3',
+			projectsNot: 'p2',
+			projectsAll: 'p3,p4',
+			sectionsNot: 's2',
+			sectionsAll: 's3',
+			tagsNot: 't2',
+			tagsAll: 't3',
+		})
+		expect(Asana.TasksApi.prototype.searchTasksForWorkspace).toHaveBeenCalledWith(
+			'ws1',
+			expect.objectContaining({
+				'assignee.not': 'u3',
+				'projects.not': 'p2',
+				'projects.all': 'p3,p4',
+				'sections.not': 's2',
+				'sections.all': 's3',
+				'tags.not': 't2',
+				'tags.all': 't3',
+			}),
+		)
+	})
+
+	it('searchTasks forwards portfolio and user interaction filters to SDK', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'searchTasksForWorkspace').mockResolvedValue({
+			data: [mockTask],
+		} as never)
+		await searchTasks('ws1', {
+			portfoliosAny: 'pf1',
+			followersAny: 'u1',
+			followersNot: 'u2',
+			createdByAny: 'u3',
+			createdByNot: 'u4',
+			assignedByAny: 'u5',
+			assignedByNot: 'u6',
+			likedByNot: 'u7',
+			commentedOnByNot: 'u8',
+		})
+		expect(Asana.TasksApi.prototype.searchTasksForWorkspace).toHaveBeenCalledWith(
+			'ws1',
+			expect.objectContaining({
+				'portfolios.any': 'pf1',
+				'followers.any': 'u1',
+				'followers.not': 'u2',
+				'created_by.any': 'u3',
+				'created_by.not': 'u4',
+				'assigned_by.any': 'u5',
+				'assigned_by.not': 'u6',
+				'liked_by.not': 'u7',
+				'commented_on_by.not': 'u8',
+			}),
+		)
+	})
+
+	it('searchTasks forwards date range filters to SDK', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'searchTasksForWorkspace').mockResolvedValue({
+			data: [mockTask],
+		} as never)
+		await searchTasks('ws1', {
+			dueOn: '2026-06-01',
+			dueOnBefore: '2026-07-01',
+			dueOnAfter: '2026-05-01',
+			dueAtBefore: '2026-07-01T00:00:00Z',
+			dueAtAfter: '2026-05-01T00:00:00Z',
+			startOn: '2026-05-01',
+			startOnBefore: '2026-06-01',
+			startOnAfter: '2026-04-01',
+			createdOn: '2026-01-01',
+			createdOnBefore: '2026-02-01',
+			createdOnAfter: '2025-12-01',
+			createdAtBefore: '2026-02-01T00:00:00Z',
+			createdAtAfter: '2025-12-01T00:00:00Z',
+			completedOn: '2026-03-01',
+			completedOnBefore: '2026-04-01',
+			completedOnAfter: '2026-02-01',
+			completedAtBefore: '2026-04-01T00:00:00Z',
+			completedAtAfter: '2026-02-01T00:00:00Z',
+			modifiedOn: '2026-05-01',
+			modifiedOnBefore: '2026-05-15',
+			modifiedOnAfter: '2026-04-15',
+			modifiedAtBefore: '2026-05-15T00:00:00Z',
+			modifiedAtAfter: '2026-04-15T00:00:00Z',
+		})
+		expect(Asana.TasksApi.prototype.searchTasksForWorkspace).toHaveBeenCalledWith(
+			'ws1',
+			expect.objectContaining({
+				due_on: '2026-06-01',
+				'due_on.before': '2026-07-01',
+				'due_on.after': '2026-05-01',
+				'due_at.before': '2026-07-01T00:00:00Z',
+				'due_at.after': '2026-05-01T00:00:00Z',
+				start_on: '2026-05-01',
+				'start_on.before': '2026-06-01',
+				'start_on.after': '2026-04-01',
+				created_on: '2026-01-01',
+				'created_on.before': '2026-02-01',
+				'created_on.after': '2025-12-01',
+				'created_at.before': '2026-02-01T00:00:00Z',
+				'created_at.after': '2025-12-01T00:00:00Z',
+				completed_on: '2026-03-01',
+				'completed_on.before': '2026-04-01',
+				'completed_on.after': '2026-02-01',
+				'completed_at.before': '2026-04-01T00:00:00Z',
+				'completed_at.after': '2026-02-01T00:00:00Z',
+				modified_on: '2026-05-01',
+				'modified_on.before': '2026-05-15',
+				'modified_on.after': '2026-04-15',
+				'modified_at.before': '2026-05-15T00:00:00Z',
+				'modified_at.after': '2026-04-15T00:00:00Z',
+			}),
+		)
+	})
+
 	it('listTasks passes completed_since to SDK', async () => {
 		vi.spyOn(Asana.TasksApi.prototype, 'getTasksForProject').mockResolvedValue({
 			data: [mockTask],

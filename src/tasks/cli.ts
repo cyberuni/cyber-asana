@@ -176,11 +176,50 @@ export function taskCommand() {
 		.option('--has-attachment', 'Only tasks with attachments')
 		.option('--is-blocking', 'Only tasks blocking others')
 		.option('--is-blocked', 'Only tasks blocked by others')
-		.option('--assignee <gids>', 'Comma-separated assignee GIDs (any match)')
-		.option('--project <gids>', 'Comma-separated project GIDs (any match)')
-		.option('--section <gids>', 'Comma-separated section GIDs (any match)')
-		.option('--tag <gids>', 'Comma-separated tag GIDs (any match)')
-		.option('--team <gids>', 'Comma-separated team GIDs (any match)')
+		.option('--assignee <gid[,gid...]>', 'Assignee GIDs (any match)')
+		.option('--assignee-not <gid[,gid...]>', 'Assignee GIDs to exclude')
+		.option('--project <gid[,gid...]>', 'Project GIDs (any match)')
+		.option('--project-not <gid[,gid...]>', 'Project GIDs to exclude')
+		.option('--project-all <gid[,gid...]>', 'Project GIDs (all must match)')
+		.option('--section <gid[,gid...]>', 'Section GIDs (any match)')
+		.option('--section-not <gid[,gid...]>', 'Section GIDs to exclude')
+		.option('--section-all <gid[,gid...]>', 'Section GIDs (all must match)')
+		.option('--tag <gid[,gid...]>', 'Tag GIDs (any match)')
+		.option('--tag-not <gid[,gid...]>', 'Tag GIDs to exclude')
+		.option('--tag-all <gid[,gid...]>', 'Tag GIDs (all must match)')
+		.option('--team <gid[,gid...]>', 'Team GIDs (any match)')
+		.option('--portfolio <gid[,gid...]>', 'Portfolio GIDs (any match)')
+		.option('--follower <gid[,gid...]>', 'Follower user GIDs (any match)')
+		.option('--follower-not <gid[,gid...]>', 'Follower user GIDs to exclude')
+		.option('--created-by <gid[,gid...]>', 'Created-by user GIDs (any match)')
+		.option('--created-by-not <gid[,gid...]>', 'Created-by user GIDs to exclude')
+		.option('--assigned-by <gid[,gid...]>', 'Assigned-by user GIDs (any match)')
+		.option('--assigned-by-not <gid[,gid...]>', 'Assigned-by user GIDs to exclude')
+		.option('--liked-by-not <gid[,gid...]>', 'User GIDs who did not like the task')
+		.option('--commented-on-by-not <gid[,gid...]>', 'User GIDs who did not comment on the task')
+		.option('--due-on <date>', 'Exact due date (YYYY-MM-DD)')
+		.option('--due-on-before <date>', 'Due date before (YYYY-MM-DD)')
+		.option('--due-on-after <date>', 'Due date after (YYYY-MM-DD)')
+		.option('--due-at-before <datetime>', 'Due datetime before (ISO 8601)')
+		.option('--due-at-after <datetime>', 'Due datetime after (ISO 8601)')
+		.option('--start-on <date>', 'Exact start date (YYYY-MM-DD)')
+		.option('--start-on-before <date>', 'Start date before (YYYY-MM-DD)')
+		.option('--start-on-after <date>', 'Start date after (YYYY-MM-DD)')
+		.option('--created-on <date>', 'Exact creation date (YYYY-MM-DD)')
+		.option('--created-on-before <date>', 'Creation date before (YYYY-MM-DD)')
+		.option('--created-on-after <date>', 'Creation date after (YYYY-MM-DD)')
+		.option('--created-at-before <datetime>', 'Creation datetime before (ISO 8601)')
+		.option('--created-at-after <datetime>', 'Creation datetime after (ISO 8601)')
+		.option('--completed-on <date>', 'Exact completion date (YYYY-MM-DD)')
+		.option('--completed-on-before <date>', 'Completion date before (YYYY-MM-DD)')
+		.option('--completed-on-after <date>', 'Completion date after (YYYY-MM-DD)')
+		.option('--completed-at-before <datetime>', 'Completion datetime before (ISO 8601)')
+		.option('--completed-at-after <datetime>', 'Completion datetime after (ISO 8601)')
+		.option('--modified-on <date>', 'Exact modification date (YYYY-MM-DD)')
+		.option('--modified-on-before <date>', 'Modification date before (YYYY-MM-DD)')
+		.option('--modified-on-after <date>', 'Modification date after (YYYY-MM-DD)')
+		.option('--modified-at-before <datetime>', 'Modification datetime before (ISO 8601)')
+		.option('--modified-at-after <datetime>', 'Modification datetime after (ISO 8601)')
 		.option('--subtype <subtype>', 'Resource subtype filter (e.g. milestone)')
 		.option('--sort-by <field>', 'Sort field: due_date, created_at, completed_at, likes, modified_at')
 		.option('--sort-asc', 'Sort ascending (default: descending)')
@@ -197,10 +236,49 @@ export function taskCommand() {
 					isBlocking?: boolean
 					isBlocked?: boolean
 					assignee?: string
+					assigneeNot?: string
 					project?: string
+					projectNot?: string
+					projectAll?: string
 					section?: string
+					sectionNot?: string
+					sectionAll?: string
 					tag?: string
+					tagNot?: string
+					tagAll?: string
 					team?: string
+					portfolio?: string
+					follower?: string
+					followerNot?: string
+					createdBy?: string
+					createdByNot?: string
+					assignedBy?: string
+					assignedByNot?: string
+					likedByNot?: string
+					commentedOnByNot?: string
+					dueOn?: string
+					dueOnBefore?: string
+					dueOnAfter?: string
+					dueAtBefore?: string
+					dueAtAfter?: string
+					startOn?: string
+					startOnBefore?: string
+					startOnAfter?: string
+					createdOn?: string
+					createdOnBefore?: string
+					createdOnAfter?: string
+					createdAtBefore?: string
+					createdAtAfter?: string
+					completedOn?: string
+					completedOnBefore?: string
+					completedOnAfter?: string
+					completedAtBefore?: string
+					completedAtAfter?: string
+					modifiedOn?: string
+					modifiedOnBefore?: string
+					modifiedOnAfter?: string
+					modifiedAtBefore?: string
+					modifiedAtAfter?: string
 					subtype?: string
 					sortBy?: string
 					sortAsc?: boolean
@@ -215,10 +293,49 @@ export function taskCommand() {
 					isBlocking: opts.isBlocking,
 					isBlocked: opts.isBlocked,
 					assigneeAny: opts.assignee,
+					assigneeNot: opts.assigneeNot,
 					projectsAny: opts.project,
+					projectsNot: opts.projectNot,
+					projectsAll: opts.projectAll,
 					sectionsAny: opts.section,
+					sectionsNot: opts.sectionNot,
+					sectionsAll: opts.sectionAll,
 					tagsAny: opts.tag,
+					tagsNot: opts.tagNot,
+					tagsAll: opts.tagAll,
 					teamsAny: opts.team,
+					portfoliosAny: opts.portfolio,
+					followersAny: opts.follower,
+					followersNot: opts.followerNot,
+					createdByAny: opts.createdBy,
+					createdByNot: opts.createdByNot,
+					assignedByAny: opts.assignedBy,
+					assignedByNot: opts.assignedByNot,
+					likedByNot: opts.likedByNot,
+					commentedOnByNot: opts.commentedOnByNot,
+					dueOn: opts.dueOn,
+					dueOnBefore: opts.dueOnBefore,
+					dueOnAfter: opts.dueOnAfter,
+					dueAtBefore: opts.dueAtBefore,
+					dueAtAfter: opts.dueAtAfter,
+					startOn: opts.startOn,
+					startOnBefore: opts.startOnBefore,
+					startOnAfter: opts.startOnAfter,
+					createdOn: opts.createdOn,
+					createdOnBefore: opts.createdOnBefore,
+					createdOnAfter: opts.createdOnAfter,
+					createdAtBefore: opts.createdAtBefore,
+					createdAtAfter: opts.createdAtAfter,
+					completedOn: opts.completedOn,
+					completedOnBefore: opts.completedOnBefore,
+					completedOnAfter: opts.completedOnAfter,
+					completedAtBefore: opts.completedAtBefore,
+					completedAtAfter: opts.completedAtAfter,
+					modifiedOn: opts.modifiedOn,
+					modifiedOnBefore: opts.modifiedOnBefore,
+					modifiedOnAfter: opts.modifiedOnAfter,
+					modifiedAtBefore: opts.modifiedAtBefore,
+					modifiedAtAfter: opts.modifiedAtAfter,
 					resourceSubtype: opts.subtype,
 					sortBy: opts.sortBy,
 					sortAscending: opts.sortAsc,
