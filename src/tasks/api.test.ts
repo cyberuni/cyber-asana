@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
 	createTask,
 	deleteTask,
+	getMyTasks,
 	getTask,
 	listTasks,
 	listTasksForSection,
@@ -117,6 +118,37 @@ describe('tasks/api', () => {
 				opt_fields: 'gid,name',
 			}),
 		)
+	})
+
+	it('getMyTasks fetches user task list for me then returns tasks', async () => {
+		vi.spyOn(Asana.UserTaskListsApi.prototype, 'getUserTaskListForUser').mockResolvedValue({
+			data: { gid: 'utl1' },
+		} as never)
+		vi.spyOn(Asana.TasksApi.prototype, 'getTasksForUserTaskList').mockResolvedValue({
+			data: [mockTask],
+		} as never)
+		const result = await getMyTasks('ws1')
+		expect(result).toEqual({ data: [mockTask], next_page: null, limit: 100 })
+		expect(Asana.UserTaskListsApi.prototype.getUserTaskListForUser).toHaveBeenCalledWith('me', 'ws1', {})
+		expect(Asana.TasksApi.prototype.getTasksForUserTaskList).toHaveBeenCalledWith('utl1', {
+			completed_since: undefined,
+			limit: 100,
+		})
+	})
+
+	it('getMyTasks passes completed_since and pagination options', async () => {
+		vi.spyOn(Asana.UserTaskListsApi.prototype, 'getUserTaskListForUser').mockResolvedValue({
+			data: { gid: 'utl1' },
+		} as never)
+		vi.spyOn(Asana.TasksApi.prototype, 'getTasksForUserTaskList').mockResolvedValue({
+			data: [mockTask],
+		} as never)
+		await getMyTasks('ws1', { completedSince: '2026-01-01', limit: 25, optFields: 'gid,name' })
+		expect(Asana.TasksApi.prototype.getTasksForUserTaskList).toHaveBeenCalledWith('utl1', {
+			completed_since: '2026-01-01',
+			limit: 25,
+			opt_fields: 'gid,name',
+		})
 	})
 
 	it('searchTasks forwards .not and .all variants to SDK', async () => {

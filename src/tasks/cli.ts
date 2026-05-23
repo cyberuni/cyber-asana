@@ -12,6 +12,7 @@ import { output, printFields, printTable } from '../output.js'
 import {
 	createTask,
 	deleteTask,
+	getMyTasks,
 	getTask,
 	listTasks,
 	type SearchTasksOptions,
@@ -70,6 +71,36 @@ export function taskCommand() {
 			optFields?: string
 		}) => {
 			const data = await listTasks(requiredGid(opts, 'project', 'Project GID'), {
+				completedSince: opts.completedSince,
+				...paginationOptionsFromCli(opts),
+			})
+			output(data, () => {
+				fmtTaskList(itemsForOutput(data))
+				printNextPageHint(data)
+			})
+		},
+	)
+
+	addPaginationOptions(
+		addGidOption(
+			cmd.command('my-tasks').description('List My Tasks for the authenticated user'),
+			'workspace',
+			'Workspace GID',
+			{ env: 'ASANA_WORKSPACE' },
+		).option(
+			'--completed-since <date>',
+			'Only include tasks completed on or after this date (ISO 8601 or "now" for incomplete only)',
+		),
+	).action(
+		async (opts: {
+			workspace?: string
+			workspaceGid?: string
+			completedSince?: string
+			limit?: number
+			offset?: string
+			optFields?: string
+		}) => {
+			const data = await getMyTasks(requiredGid(opts, 'workspace', 'Workspace GID'), {
 				completedSince: opts.completedSince,
 				...paginationOptionsFromCli(opts),
 			})

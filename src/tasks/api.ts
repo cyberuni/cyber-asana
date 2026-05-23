@@ -110,6 +110,18 @@ export async function updateTask(
 	return res.data
 }
 
+export async function getMyTasks(workspaceGid: string, opts?: PaginationOptions & { completedSince?: string }) {
+	const utlApi = new Asana.UserTaskListsApi(createClient())
+	const utlRes = await utlApi.getUserTaskListForUser('me', workspaceGid, {})
+	const userTaskListGid = utlRes.data.gid
+	const tasksApi = new Asana.TasksApi(createClient())
+	const res = await tasksApi.getTasksForUserTaskList(userTaskListGid, {
+		completed_since: opts?.completedSince,
+		...toAsanaPaginationOptions(opts),
+	})
+	return await collectListResponse(res, opts)
+}
+
 export async function deleteTask(taskGid: string) {
 	const api = new Asana.TasksApi(createClient())
 	await api.deleteTask(taskGid)

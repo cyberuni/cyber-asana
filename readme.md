@@ -47,7 +47,7 @@ Use `--all` to fetch multiple pages intentionally; `--max-pages` caps the number
 |---|---|
 | `workspace` | `list`, `get` |
 | `project` | `list`, `get`, `create`, `update`, `delete` |
-| `task` | `list`, `get`, `create`, `update`, `delete`, `search` |
+| `task` | `list`, `my-tasks`, `get`, `create`, `update`, `delete`, `search` |
 | `section` | `list`, `get`, `create`, `update`, `delete` |
 | `user` | `list`, `get`, `me` |
 | `team` | `list`, `get` |

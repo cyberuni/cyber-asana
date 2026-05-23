@@ -1,7 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import { paginationOptions, paginationParams } from '../mcp-options.js'
-import { createTask, deleteTask, getTask, listTasks, scanTodos, searchTasks, updateTask } from './api.js'
+import { createTask, deleteTask, getMyTasks, getTask, listTasks, scanTodos, searchTasks, updateTask } from './api.js'
 
 export function registerTaskTools(server: McpServer) {
 	server.tool(
@@ -21,6 +21,29 @@ export function registerTaskTools(server: McpServer) {
 					type: 'text',
 					text: JSON.stringify(
 						await listTasks(project_gid, { completedSince: completed_since, ...paginationOptions(params) }),
+					),
+				},
+			],
+		}),
+	)
+
+	server.tool(
+		'asana_task_my_tasks',
+		'List My Tasks for the authenticated user',
+		{
+			workspace_gid: z.string().describe('Workspace GID'),
+			completed_since: z
+				.string()
+				.optional()
+				.describe('Only include tasks completed on or after this date (ISO 8601, or "now" for incomplete only)'),
+			...paginationParams,
+		},
+		async ({ workspace_gid, completed_since, ...params }) => ({
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(
+						await getMyTasks(workspace_gid, { completedSince: completed_since, ...paginationOptions(params) }),
 					),
 				},
 			],
