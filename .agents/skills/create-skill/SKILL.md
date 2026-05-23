@@ -1,6 +1,8 @@
 ---
 name: create-skill
 description: Use this skill when the user asks to create a new agent skill. Creates the skill directory under ~/.agents/skills/ and links it into all detected agents so they can pick it up.
+metadata:
+  internal: true
 ---
 
 # Create Skill

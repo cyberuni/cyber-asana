@@ -1,6 +1,8 @@
 ---
 name: merge-dep-prs
 description: "Merge pending dependency update PRs — Renovate, Dependabot, or manual bumps for packages, dev dependencies, and repository tooling. Use this skill when asked to 'merge pending PRs', 'land dependency updates', 'process dep PRs', or 'clean up the PR queue'. Diagnoses and fixes CI failures, handles changesets where required, and never merges release PRs."
+metadata:
+  internal: true
 ---
 
 # Merge Dependency PRs

@@ -1,6 +1,8 @@
 ---
 name: update-asana-sdk
 description: Use this skill when updating the `asana` npm package to its latest version in the asana-agent repo. After upgrading, reviews the SDK changelog and TypeScript types to identify new resources, new actions, changed parameters, and deprecated methods — then adds or updates the corresponding CLI commands and MCP tools.
+metadata:
+  internal: true
 ---
 
 # Update Asana SDK

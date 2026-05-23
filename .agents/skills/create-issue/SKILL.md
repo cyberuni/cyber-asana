@@ -1,6 +1,8 @@
 ---
 name: create-issue
 description: "Create a bug report or feature request on GitHub, GitLab, or similar platforms. Searches for existing similar issues first to avoid duplicates. Use when asked to 'create an issue', 'file a bug', 'open a feature request', or 'report a problem'."
+metadata:
+  internal: true
 ---
 
 # Create Issue

@@ -1,6 +1,8 @@
 ---
 name: validate-skill
 description: Validate a SKILL.md file for structure, quality, and security before committing or publishing. Use this skill when reviewing a new or modified skill — catches broken references, vague triggers, baked-in assumptions, scope creep, and security risks in one pass.
+metadata:
+  internal: true
 ---
 
 # Validate Skill
