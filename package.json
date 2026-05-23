@@ -6,7 +6,7 @@
 		"type": "git",
 		"url": "https://github.com/cyberuni/asana-agent.git"
 	},
-	"author": "Unional <unional.with.ai@gmail.com>",
+	"author": "unional <homawong@gmail.com>",
 	"license": "MIT",
 	"type": "module",
 	"exports": {
