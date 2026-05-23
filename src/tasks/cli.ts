@@ -10,10 +10,12 @@ import {
 } from '../cli-options.js'
 import { output, printFields, printTable } from '../output.js'
 import {
+	createSubtask,
 	createTask,
 	deleteTask,
 	getMyTasks,
 	getTask,
+	listSubtasks,
 	listTasks,
 	type SearchTasksOptions,
 	scanTodos,
@@ -196,6 +198,39 @@ export function taskCommand() {
 			await deleteTask(gid)
 			console.log(`Deleted task ${gid}`)
 		})
+
+	addPaginationOptions(cmd.command('subtask-list <task-gid>').description('List subtasks of a task')).action(
+		async (taskGid: string, opts: { limit?: number; offset?: string; optFields?: string }) => {
+			const data = await listSubtasks(taskGid, paginationOptionsFromCli(opts))
+			output(data, () => {
+				fmtTaskList(itemsForOutput(data))
+				printNextPageHint(data)
+			})
+		},
+	)
+
+	addGidOption(
+		cmd
+			.command('subtask-create <task-gid> <name>')
+			.description('Create a subtask under a task')
+			.option('--notes <text>', 'Task notes')
+			.option('--due-on <date>', 'Due date (YYYY-MM-DD)'),
+		'assignee',
+		'Assignee user GID',
+	).action(
+		async (
+			taskGid: string,
+			name: string,
+			opts: { notes?: string; dueOn?: string; assignee?: string; assigneeGid?: string },
+		) => {
+			const data = await createSubtask(taskGid, name, {
+				notes: opts.notes,
+				assignee: normalizedGid(opts, 'assignee'),
+				dueOn: opts.dueOn,
+			})
+			output(data, () => fmtTask(data))
+		},
+	)
 
 	addGidOption(cmd.command('search [text]').description('Search tasks in a workspace'), 'workspace', 'Workspace GID', {
 		env: 'ASANA_WORKSPACE',

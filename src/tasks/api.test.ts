@@ -4,10 +4,12 @@ import path from 'node:path'
 import Asana from 'asana'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
+	createSubtask,
 	createTask,
 	deleteTask,
 	getMyTasks,
 	getTask,
+	listSubtasks,
 	listTasks,
 	listTasksForSection,
 	scanTodos,
@@ -57,6 +59,40 @@ describe('tasks/api', () => {
 		} as never)
 		const result = await updateTask('456', { completed: true })
 		expect(result).toEqual({ ...mockTask, completed: true })
+	})
+
+	it('listSubtasks calls getSubtasksForTask', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'getSubtasksForTask').mockResolvedValue({
+			data: [mockTask],
+		} as never)
+		const result = await listSubtasks('456')
+		expect(result).toEqual({ data: [mockTask], next_page: null, limit: 100 })
+		expect(Asana.TasksApi.prototype.getSubtasksForTask).toHaveBeenCalledWith('456', { limit: 100 })
+	})
+
+	it('createSubtask calls createSubtaskForTask with body', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'createSubtaskForTask').mockResolvedValue({
+			data: mockTask,
+		} as never)
+		const result = await createSubtask('parent1', 'Sub Task')
+		expect(result).toEqual(mockTask)
+		expect(Asana.TasksApi.prototype.createSubtaskForTask).toHaveBeenCalledWith(
+			expect.objectContaining({ data: expect.objectContaining({ name: 'Sub Task' }) }),
+			'parent1',
+			{},
+		)
+	})
+
+	it('createSubtask forwards optional fields', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'createSubtaskForTask').mockResolvedValue({
+			data: mockTask,
+		} as never)
+		await createSubtask('parent1', 'Sub Task', { notes: 'note', assignee: 'u1', dueOn: '2026-06-01' })
+		expect(Asana.TasksApi.prototype.createSubtaskForTask).toHaveBeenCalledWith(
+			{ data: { name: 'Sub Task', notes: 'note', assignee: 'u1', due_on: '2026-06-01' } },
+			'parent1',
+			{},
+		)
 	})
 
 	it('deleteTask calls deleteTask', async () => {

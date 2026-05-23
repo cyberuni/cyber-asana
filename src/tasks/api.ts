@@ -122,6 +122,33 @@ export async function getMyTasks(workspaceGid: string, opts?: PaginationOptions 
 	return await collectListResponse(res, opts)
 }
 
+export async function listSubtasks(taskGid: string, opts?: PaginationOptions) {
+	const api = new Asana.TasksApi(createClient())
+	const res = await api.getSubtasksForTask(taskGid, toAsanaPaginationOptions(opts))
+	return await collectListResponse(res, opts)
+}
+
+export async function createSubtask(
+	parentTaskGid: string,
+	name: string,
+	opts?: { notes?: string; assignee?: string; dueOn?: string },
+) {
+	const api = new Asana.TasksApi(createClient())
+	const res = await api.createSubtaskForTask(
+		{
+			data: {
+				name,
+				...(opts?.notes !== undefined && { notes: opts.notes }),
+				...(opts?.assignee !== undefined && { assignee: opts.assignee }),
+				...(opts?.dueOn !== undefined && { due_on: opts.dueOn }),
+			},
+		},
+		parentTaskGid,
+		{},
+	)
+	return res.data
+}
+
 export async function deleteTask(taskGid: string) {
 	const api = new Asana.TasksApi(createClient())
 	await api.deleteTask(taskGid)

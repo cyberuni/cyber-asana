@@ -1,7 +1,18 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import { paginationOptions, paginationParams } from '../mcp-options.js'
-import { createTask, deleteTask, getMyTasks, getTask, listTasks, scanTodos, searchTasks, updateTask } from './api.js'
+import {
+	createSubtask,
+	createTask,
+	deleteTask,
+	getMyTasks,
+	getTask,
+	listSubtasks,
+	listTasks,
+	scanTodos,
+	searchTasks,
+	updateTask,
+} from './api.js'
 
 export function registerTaskTools(server: McpServer) {
 	server.tool(
@@ -45,6 +56,43 @@ export function registerTaskTools(server: McpServer) {
 					text: JSON.stringify(
 						await getMyTasks(workspace_gid, { completedSince: completed_since, ...paginationOptions(params) }),
 					),
+				},
+			],
+		}),
+	)
+
+	server.tool(
+		'asana_task_subtask_list',
+		'List subtasks of an Asana task',
+		{
+			task_gid: z.string().describe('Parent task GID'),
+			...paginationParams,
+		},
+		async ({ task_gid, ...params }) => ({
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(await listSubtasks(task_gid, paginationOptions(params))),
+				},
+			],
+		}),
+	)
+
+	server.tool(
+		'asana_task_subtask_create',
+		'Create a subtask under an Asana task',
+		{
+			task_gid: z.string().describe('Parent task GID'),
+			name: z.string().describe('Subtask name'),
+			notes: z.string().optional().describe('Subtask notes'),
+			due_on: z.string().optional().describe('Due date (YYYY-MM-DD)'),
+			assignee_gid: z.string().optional().describe('Assignee user GID'),
+		},
+		async ({ task_gid, name, notes, due_on, assignee_gid }) => ({
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(await createSubtask(task_gid, name, { notes, dueOn: due_on, assignee: assignee_gid })),
 				},
 			],
 		}),
