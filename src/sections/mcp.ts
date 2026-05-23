@@ -1,14 +1,15 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
+import { paginationOptions, paginationParams } from '../mcp-options.js'
 import { createSection, deleteSection, getSection, listSections, updateSection } from './api.js'
 
 export function registerSectionTools(server: McpServer) {
 	server.tool(
 		'asana_section_list',
 		'List Asana sections in a project',
-		{ project_gid: z.string().describe('Project GID') },
-		async ({ project_gid }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await listSections(project_gid)) }],
+		{ project_gid: z.string().describe('Project GID'), ...paginationParams },
+		async ({ project_gid, ...params }) => ({
+			content: [{ type: 'text', text: JSON.stringify(await listSections(project_gid, paginationOptions(params))) }],
 		}),
 	)
 

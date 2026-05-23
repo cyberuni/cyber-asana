@@ -1,5 +1,6 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
+import { paginationOptions, paginationParams } from '../mcp-options.js'
 import {
 	createProject,
 	deleteProject,
@@ -14,9 +15,9 @@ export function registerProjectTools(server: McpServer) {
 	server.tool(
 		'asana_project_list',
 		'List Asana projects in a workspace',
-		{ workspace_gid: z.string().describe('Workspace GID') },
-		async ({ workspace_gid }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await listProjects(workspace_gid)) }],
+		{ workspace_gid: z.string().describe('Workspace GID'), ...paginationParams },
+		async ({ workspace_gid, ...params }) => ({
+			content: [{ type: 'text', text: JSON.stringify(await listProjects(workspace_gid, paginationOptions(params))) }],
 		}),
 	)
 

@@ -1,4 +1,5 @@
 import { Command, Option } from 'commander'
+import { addPaginationOptions, itemsForOutput, paginationOptionsFromCli, printNextPageHint } from '../cli-options.js'
 import { output, printFields, printTable } from '../output.js'
 import { createPortfolio, deletePortfolio, getPortfolio, listPortfolios, updatePortfolio } from './api.js'
 
@@ -14,19 +15,18 @@ function fmtPortfolio(p: Portfolio) {
 export function portfolioCommand() {
 	const cmd = new Command('portfolio').description('Manage Asana portfolios')
 
-	cmd
-		.command('list')
-		.description('List portfolios in a workspace')
-		.addOption(workspaceOpt())
-		.action(async (opts: { workspace: string }) => {
-			const data = await listPortfolios(opts.workspace)
-			output(data, () =>
-				printTable(data, [
-					{ label: 'Name', get: (p: Portfolio) => p.name },
-					{ label: 'ID', get: (p: Portfolio) => p.gid },
-				]),
-			)
+	addPaginationOptions(
+		cmd.command('list').description('List portfolios in a workspace').addOption(workspaceOpt()),
+	).action(async (opts: { workspace: string; limit?: number; offset?: string; optFields?: string }) => {
+		const data = await listPortfolios(opts.workspace, paginationOptionsFromCli(opts))
+		output(data, () => {
+			printTable(itemsForOutput(data), [
+				{ label: 'Name', get: (p: Portfolio) => p.name },
+				{ label: 'ID', get: (p: Portfolio) => p.gid },
+			])
+			printNextPageHint(data)
 		})
+	})
 
 	cmd
 		.command('get <gid>')

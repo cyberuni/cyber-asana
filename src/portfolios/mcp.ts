@@ -1,14 +1,15 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
+import { paginationOptions, paginationParams } from '../mcp-options.js'
 import { createPortfolio, deletePortfolio, getPortfolio, listPortfolios, updatePortfolio } from './api.js'
 
 export function registerPortfolioTools(server: McpServer) {
 	server.tool(
 		'asana_portfolio_list',
 		'List Asana portfolios in a workspace',
-		{ workspace_gid: z.string().describe('Workspace GID') },
-		async ({ workspace_gid }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await listPortfolios(workspace_gid)) }],
+		{ workspace_gid: z.string().describe('Workspace GID'), ...paginationParams },
+		async ({ workspace_gid, ...params }) => ({
+			content: [{ type: 'text', text: JSON.stringify(await listPortfolios(workspace_gid, paginationOptions(params))) }],
 		}),
 	)
 

@@ -1,12 +1,16 @@
 import Asana from 'asana'
 import { createClient } from '../client.js'
+import { listItems, type PaginationOptions, toAsanaPaginationOptions, unwrapListResponse } from '../pagination.js'
 import { listSections } from '../sections/api.js'
 import { listTasksForSection } from '../tasks/api.js'
 
-export async function listProjects(workspaceGid: string) {
+export async function listProjects(workspaceGid: string, opts?: PaginationOptions & { archived?: boolean }) {
 	const api = new Asana.ProjectsApi(createClient())
-	const res = await api.getProjectsForWorkspace(workspaceGid, {})
-	return res.data
+	const res = await api.getProjectsForWorkspace(workspaceGid, {
+		archived: opts?.archived,
+		...toAsanaPaginationOptions(opts),
+	})
+	return unwrapListResponse(res, opts)
 }
 
 export async function getProject(projectGid: string) {
@@ -58,12 +62,12 @@ export type ProjectExport = {
 
 export async function exportProject(projectGid: string): Promise<ProjectExport> {
 	const project = await getProject(projectGid)
-	const sections = await listSections(projectGid)
+	const sections = listItems(await listSections(projectGid))
 	const exportedSections: ExportedSection[] = await Promise.all(
 		sections.map(async (section: { gid: string; name: string }) => ({
 			gid: section.gid,
 			name: section.name,
-			tasks: await listTasksForSection(section.gid),
+			tasks: listItems(await listTasksForSection(section.gid)),
 		})),
 	)
 	return {

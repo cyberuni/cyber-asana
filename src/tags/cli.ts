@@ -1,4 +1,5 @@
 import { Command, Option } from 'commander'
+import { addPaginationOptions, itemsForOutput, paginationOptionsFromCli, printNextPageHint } from '../cli-options.js'
 import { output, printFields, printTable } from '../output.js'
 import { createTag, getTag, listTags } from './api.js'
 
@@ -14,20 +15,19 @@ function fmtTag(t: Tag) {
 export function tagCommand() {
 	const cmd = new Command('tag').description('Manage Asana tags')
 
-	cmd
-		.command('list')
-		.description('List tags in a workspace')
-		.addOption(workspaceOpt())
-		.action(async (opts: { workspace: string }) => {
-			const data = await listTags(opts.workspace)
-			output(data, () =>
-				printTable(data, [
+	addPaginationOptions(cmd.command('list').description('List tags in a workspace').addOption(workspaceOpt())).action(
+		async (opts: { workspace: string; limit?: number; offset?: string; optFields?: string }) => {
+			const data = await listTags(opts.workspace, paginationOptionsFromCli(opts))
+			output(data, () => {
+				printTable(itemsForOutput(data), [
 					{ label: 'Name', get: (t: Tag) => t.name },
 					{ label: 'ID', get: (t: Tag) => t.gid },
 					{ label: 'Color', get: (t: Tag) => t.color ?? '' },
-				]),
-			)
-		})
+				])
+				printNextPageHint(data)
+			})
+		},
+	)
 
 	cmd
 		.command('get <gid>')

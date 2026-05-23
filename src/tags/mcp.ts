@@ -1,14 +1,15 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
+import { paginationOptions, paginationParams } from '../mcp-options.js'
 import { createTag, getTag, listTags } from './api.js'
 
 export function registerTagTools(server: McpServer) {
 	server.tool(
 		'asana_tag_list',
 		'List Asana tags in a workspace',
-		{ workspace_gid: z.string().describe('Workspace GID') },
-		async ({ workspace_gid }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await listTags(workspace_gid)) }],
+		{ workspace_gid: z.string().describe('Workspace GID'), ...paginationParams },
+		async ({ workspace_gid, ...params }) => ({
+			content: [{ type: 'text', text: JSON.stringify(await listTags(workspace_gid, paginationOptions(params))) }],
 		}),
 	)
 

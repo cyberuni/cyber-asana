@@ -1,5 +1,6 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
+import { paginationOptions, paginationParams } from '../mcp-options.js'
 import { createTask, deleteTask, getTask, listTasks, scanTodos, searchTasks, updateTask } from './api.js'
 
 export function registerTaskTools(server: McpServer) {
@@ -12,10 +13,16 @@ export function registerTaskTools(server: McpServer) {
 				.string()
 				.optional()
 				.describe('Only include tasks completed on or after this date (ISO 8601, or "now" for incomplete only)'),
+			...paginationParams,
 		},
-		async ({ project_gid, completed_since }) => ({
+		async ({ project_gid, completed_since, ...params }) => ({
 			content: [
-				{ type: 'text', text: JSON.stringify(await listTasks(project_gid, { completedSince: completed_since })) },
+				{
+					type: 'text',
+					text: JSON.stringify(
+						await listTasks(project_gid, { completedSince: completed_since, ...paginationOptions(params) }),
+					),
+				},
 			],
 		}),
 	)

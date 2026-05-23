@@ -79,6 +79,28 @@ describe('tasks/api', () => {
 		})
 	})
 
+	it('listTasks forwards pagination options and returns next page metadata', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'getTasksForProject').mockResolvedValue({
+			data: [mockTask],
+			_response: { next_page: { offset: 'next-offset' } },
+		} as never)
+
+		const result = await listTasks('proj1', {
+			completedSince: 'now',
+			limit: 25,
+			offset: 'current-offset',
+			optFields: 'gid,name',
+		} as never)
+
+		expect(result).toEqual({ data: [mockTask], next_page: { offset: 'next-offset' } })
+		expect(Asana.TasksApi.prototype.getTasksForProject).toHaveBeenCalledWith('proj1', {
+			completed_since: 'now',
+			limit: 25,
+			offset: 'current-offset',
+			opt_fields: 'gid,name',
+		})
+	})
+
 	it('listTasksForSection calls getTasksForSection', async () => {
 		vi.spyOn(Asana.TasksApi.prototype, 'getTasksForSection').mockResolvedValue({
 			data: [mockTask],

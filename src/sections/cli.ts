@@ -1,4 +1,5 @@
 import { Command } from 'commander'
+import { addPaginationOptions, itemsForOutput, paginationOptionsFromCli, printNextPageHint } from '../cli-options.js'
 import { output, printFields, printTable } from '../output.js'
 import { createSection, deleteSection, getSection, listSections, updateSection } from './api.js'
 
@@ -11,19 +12,18 @@ function fmtSection(s: Section) {
 export function sectionCommand() {
 	const cmd = new Command('section').description('Manage Asana sections')
 
-	cmd
-		.command('list')
-		.description('List sections in a project')
-		.requiredOption('--project <gid>', 'Project GID')
-		.action(async (opts: { project: string }) => {
-			const data = await listSections(opts.project)
-			output(data, () =>
-				printTable(data, [
-					{ label: 'Name', get: (s: Section) => s.name },
-					{ label: 'ID', get: (s: Section) => s.gid },
-				]),
-			)
+	addPaginationOptions(
+		cmd.command('list').description('List sections in a project').requiredOption('--project <gid>', 'Project GID'),
+	).action(async (opts: { project: string; limit?: number; offset?: string; optFields?: string }) => {
+		const data = await listSections(opts.project, paginationOptionsFromCli(opts))
+		output(data, () => {
+			printTable(itemsForOutput(data), [
+				{ label: 'Name', get: (s: Section) => s.name },
+				{ label: 'ID', get: (s: Section) => s.gid },
+			])
+			printNextPageHint(data)
 		})
+	})
 
 	cmd
 		.command('get <gid>')

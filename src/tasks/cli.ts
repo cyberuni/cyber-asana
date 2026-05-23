@@ -1,4 +1,5 @@
 import { Command, Option } from 'commander'
+import { addPaginationOptions, itemsForOutput, paginationOptionsFromCli, printNextPageHint } from '../cli-options.js'
 import { output, printFields, printTable } from '../output.js'
 import {
 	createTask,
@@ -48,18 +49,27 @@ function fmtTaskList(tasks: Task[]) {
 export function taskCommand() {
 	const cmd = new Command('task').description('Manage Asana tasks')
 
-	cmd
-		.command('list')
-		.description('List tasks in a project')
-		.requiredOption('--project <gid>', 'Project GID')
-		.option(
-			'--completed-since <date>',
-			'Only include tasks completed on or after this date (ISO 8601 or "now" for incomplete only)',
-		)
-		.action(async (opts: { project: string; completedSince?: string }) => {
-			const data = await listTasks(opts.project, { completedSince: opts.completedSince })
-			output(data, () => fmtTaskList(data))
-		})
+	addPaginationOptions(
+		cmd
+			.command('list')
+			.description('List tasks in a project')
+			.requiredOption('--project <gid>', 'Project GID')
+			.option(
+				'--completed-since <date>',
+				'Only include tasks completed on or after this date (ISO 8601 or "now" for incomplete only)',
+			),
+	).action(
+		async (opts: { project: string; completedSince?: string; limit?: number; offset?: string; optFields?: string }) => {
+			const data = await listTasks(opts.project, {
+				completedSince: opts.completedSince,
+				...paginationOptionsFromCli(opts),
+			})
+			output(data, () => {
+				fmtTaskList(itemsForOutput(data))
+				printNextPageHint(data)
+			})
+		},
+	)
 
 	cmd
 		.command('get <gid>')

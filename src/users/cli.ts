@@ -1,4 +1,5 @@
 import { Command, Option } from 'commander'
+import { addPaginationOptions, itemsForOutput, paginationOptionsFromCli, printNextPageHint } from '../cli-options.js'
 import { output, printFields, printTable } from '../output.js'
 import { getMe, getUser, listUsers } from './api.js'
 
@@ -22,14 +23,15 @@ function fmtUserList(users: User[]) {
 export function userCommand() {
 	const cmd = new Command('user').description('Manage Asana users')
 
-	cmd
-		.command('list')
-		.description('List users in a workspace')
-		.addOption(workspaceOpt())
-		.action(async (opts: { workspace: string }) => {
-			const data = await listUsers(opts.workspace)
-			output(data, () => fmtUserList(data))
+	addPaginationOptions(cmd.command('list').description('List users in a workspace').addOption(workspaceOpt()), {
+		limit: false,
+	}).action(async (opts: { workspace: string; offset?: string; optFields?: string }) => {
+		const data = await listUsers(opts.workspace, paginationOptionsFromCli(opts))
+		output(data, () => {
+			fmtUserList(itemsForOutput(data))
+			printNextPageHint(data)
 		})
+	})
 
 	cmd
 		.command('get <gid>')

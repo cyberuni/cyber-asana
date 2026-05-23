@@ -1,4 +1,5 @@
 import { Command, Option } from 'commander'
+import { addPaginationOptions, itemsForOutput, paginationOptionsFromCli, printNextPageHint } from '../cli-options.js'
 import { output, printFields, printTable } from '../output.js'
 import { createGoal, deleteGoal, getGoal, listGoals, updateGoal } from './api.js'
 
@@ -20,20 +21,19 @@ function fmtGoal(g: Goal) {
 export function goalCommand() {
 	const cmd = new Command('goal').description('Manage Asana goals')
 
-	cmd
-		.command('list')
-		.description('List goals in a workspace')
-		.addOption(workspaceOpt())
-		.action(async (opts: { workspace: string }) => {
-			const data = await listGoals(opts.workspace)
-			output(data, () =>
-				printTable(data, [
+	addPaginationOptions(cmd.command('list').description('List goals in a workspace').addOption(workspaceOpt())).action(
+		async (opts: { workspace: string; limit?: number; offset?: string; optFields?: string }) => {
+			const data = await listGoals(opts.workspace, paginationOptionsFromCli(opts))
+			output(data, () => {
+				printTable(itemsForOutput(data), [
 					{ label: 'Name', get: (g: Goal) => g.name },
 					{ label: 'ID', get: (g: Goal) => g.gid },
 					{ label: 'Due', get: (g: Goal) => g.due_on ?? '' },
-				]),
-			)
-		})
+				])
+				printNextPageHint(data)
+			})
+		},
+	)
 
 	cmd
 		.command('get <gid>')

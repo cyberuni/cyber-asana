@@ -28,6 +28,26 @@ describe('projects/api', () => {
 		expect(Asana.ProjectsApi.prototype.getProjectsForWorkspace).toHaveBeenCalledWith('ws1', {})
 	})
 
+	it('listProjects forwards pagination options and returns next page metadata', async () => {
+		vi.spyOn(Asana.ProjectsApi.prototype, 'getProjectsForWorkspace').mockResolvedValue({
+			data: [mockData],
+			_response: { next_page: { offset: 'next-offset' } },
+		} as never)
+
+		const result = await listProjects('ws1', {
+			limit: 50,
+			offset: 'current-offset',
+			optFields: 'gid,name',
+		} as never)
+
+		expect(result).toEqual({ data: [mockData], next_page: { offset: 'next-offset' } })
+		expect(Asana.ProjectsApi.prototype.getProjectsForWorkspace).toHaveBeenCalledWith('ws1', {
+			limit: 50,
+			offset: 'current-offset',
+			opt_fields: 'gid,name',
+		})
+	})
+
 	it('getProject calls getProject with gid', async () => {
 		vi.spyOn(Asana.ProjectsApi.prototype, 'getProject').mockResolvedValue({
 			data: mockData,

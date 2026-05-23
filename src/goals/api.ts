@@ -1,10 +1,11 @@
 import Asana from 'asana'
 import { createClient } from '../client.js'
+import { type PaginationOptions, toAsanaPaginationOptions, unwrapListResponse } from '../pagination.js'
 
-export async function listGoals(workspaceGid: string) {
+export async function listGoals(workspaceGid: string, opts?: PaginationOptions) {
 	const api = new Asana.GoalsApi(createClient())
-	const res = await api.getGoals({ workspace: workspaceGid })
-	return res.data
+	const res = await api.getGoals({ workspace: workspaceGid, ...toAsanaPaginationOptions(opts) })
+	return unwrapListResponse(res, opts)
 }
 
 export async function getGoal(goalGid: string) {

@@ -1,10 +1,11 @@
 import Asana from 'asana'
 import { createClient } from '../client.js'
+import { type PaginationOptions, toAsanaPaginationOptions, unwrapListResponse } from '../pagination.js'
 
-export async function listTags(workspaceGid: string) {
+export async function listTags(workspaceGid: string, opts?: PaginationOptions) {
 	const api = new Asana.TagsApi(createClient())
-	const res = await api.getTagsForWorkspace(workspaceGid, {})
-	return res.data
+	const res = await api.getTagsForWorkspace(workspaceGid, toAsanaPaginationOptions(opts))
+	return unwrapListResponse(res, opts)
 }
 
 export async function getTag(tagGid: string) {

@@ -1,5 +1,6 @@
 import { writeFile } from 'node:fs/promises'
 import { Command, Option } from 'commander'
+import { addPaginationOptions, itemsForOutput, paginationOptionsFromCli, printNextPageHint } from '../cli-options.js'
 import { output, printFields, printTable } from '../output.js'
 import {
 	createProject,
@@ -30,14 +31,15 @@ function fmtProjectList(projects: Project[]) {
 export function projectCommand() {
 	const cmd = new Command('project').description('Manage Asana projects')
 
-	cmd
-		.command('list')
-		.description('List projects in a workspace')
-		.addOption(workspaceOpt())
-		.action(async (opts: { workspace: string }) => {
-			const data = await listProjects(opts.workspace)
-			output(data, () => fmtProjectList(data))
+	addPaginationOptions(
+		cmd.command('list').description('List projects in a workspace').addOption(workspaceOpt()),
+	).action(async (opts: { workspace: string; limit?: number; offset?: string; optFields?: string }) => {
+		const data = await listProjects(opts.workspace, paginationOptionsFromCli(opts))
+		output(data, () => {
+			fmtProjectList(itemsForOutput(data))
+			printNextPageHint(data)
 		})
+	})
 
 	cmd
 		.command('get <gid>')

@@ -1,10 +1,14 @@
 import Asana from 'asana'
 import { createClient } from '../client.js'
+import { type PaginationOptions, toAsanaPaginationOptions, unwrapListResponse } from '../pagination.js'
 
-export async function listPortfolios(workspaceGid: string) {
+export async function listPortfolios(workspaceGid: string, opts?: PaginationOptions & { owner?: string }) {
 	const api = new Asana.PortfoliosApi(createClient())
-	const res = await api.getPortfolios(workspaceGid, {})
-	return res.data
+	const res = await api.getPortfolios(workspaceGid, {
+		owner: opts?.owner,
+		...toAsanaPaginationOptions(opts),
+	})
+	return unwrapListResponse(res, opts)
 }
 
 export async function getPortfolio(portfolioGid: string) {
