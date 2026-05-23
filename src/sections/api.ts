@@ -1,11 +1,11 @@
 import Asana from 'asana'
 import { createClient } from '../client.js'
-import { type PaginationOptions, toAsanaPaginationOptions, unwrapListResponse } from '../pagination.js'
+import { collectListResponse, type PaginationOptions, toAsanaPaginationOptions } from '../pagination.js'
 
 export async function listSections(projectGid: string, opts?: PaginationOptions) {
 	const api = new Asana.SectionsApi(createClient())
 	const res = await api.getSectionsForProject(projectGid, toAsanaPaginationOptions(opts))
-	return unwrapListResponse(res, opts)
+	return await collectListResponse(res, opts)
 }
 
 export async function getSection(sectionGid: string) {

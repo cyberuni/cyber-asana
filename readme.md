@@ -30,13 +30,16 @@ Output is human-readable by default. Add `--json` for raw API JSON.
 List commands support pagination and field selection where Asana supports it:
 
 ```sh
-cyber-asana task list --project <gid> --limit 50 --json
+cyber-asana task list --project <gid> --json
 cyber-asana task list --project <gid> --limit 50 --offset <next_page.offset>
+cyber-asana task list --project <gid> --all --max-pages 5
 cyber-asana project list --opt-fields gid,name,permalink_url
 ```
 
-When pagination is requested with `--limit` or `--offset`, JSON output includes `data` and `next_page`.
+List commands request 100 results per page by default.
+When pagination is used, JSON output includes `data`, `next_page`, and `limit`.
 Readable output prints the page table and a `Next offset` hint when another page is available.
+Use `--all` to fetch multiple pages intentionally; `--max-pages` caps the number of pages fetched.
 
 ### Resources
 
@@ -88,8 +91,9 @@ Add to your MCP host config:
 
 Tools are named `asana_<resource>_<action>` (e.g. `asana_task_create`).
 
-List tools accept `limit`, `offset`, and `opt_fields` parameters where Asana supports them.
-Paginated MCP responses include `data` and `next_page`.
+List tools accept `limit`, `offset`, `opt_fields`, `fetch_all`, and `max_pages` parameters where Asana supports them.
+Paginated MCP responses include `data`, `next_page`, and `limit`.
+Fetch-all responses also include `page_count` and `truncated`.
 
 ## License
 

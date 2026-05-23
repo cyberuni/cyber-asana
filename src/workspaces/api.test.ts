@@ -16,7 +16,8 @@ describe('workspaces/api', () => {
 			data: [mockWs],
 		} as never)
 		const result = await listWorkspaces()
-		expect(result).toEqual([mockWs])
+		expect(result).toEqual({ data: [mockWs], next_page: null, limit: 100 })
+		expect(Asana.WorkspacesApi.prototype.getWorkspaces).toHaveBeenCalledWith({ limit: 100 })
 	})
 
 	it('getWorkspace calls getWorkspace with gid', async () => {

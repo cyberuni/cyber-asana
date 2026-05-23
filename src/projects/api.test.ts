@@ -24,8 +24,11 @@ describe('projects/api', () => {
 			data: [mockData],
 		} as never)
 		const result = await listProjects('ws1')
-		expect(result).toEqual([mockData])
-		expect(Asana.ProjectsApi.prototype.getProjectsForWorkspace).toHaveBeenCalledWith('ws1', {})
+		expect(result).toEqual({ data: [mockData], next_page: null, limit: 100 })
+		expect(Asana.ProjectsApi.prototype.getProjectsForWorkspace).toHaveBeenCalledWith('ws1', {
+			archived: undefined,
+			limit: 100,
+		})
 	})
 
 	it('listProjects forwards pagination options and returns next page metadata', async () => {
@@ -40,7 +43,7 @@ describe('projects/api', () => {
 			optFields: 'gid,name',
 		} as never)
 
-		expect(result).toEqual({ data: [mockData], next_page: { offset: 'next-offset' } })
+		expect(result).toEqual({ data: [mockData], next_page: { offset: 'next-offset' }, limit: 50 })
 		expect(Asana.ProjectsApi.prototype.getProjectsForWorkspace).toHaveBeenCalledWith('ws1', {
 			limit: 50,
 			offset: 'current-offset',

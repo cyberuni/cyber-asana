@@ -1,11 +1,14 @@
 import Asana from 'asana'
 import { createClient } from '../client.js'
-import { type PaginationOptions, toAsanaPaginationOptions, unwrapListResponse } from '../pagination.js'
+import { collectListResponse, type PaginationOptions, toAsanaPaginationOptions } from '../pagination.js'
 
-export async function listUsers(workspaceGid: string, opts?: Omit<PaginationOptions, 'limit'>) {
+export async function listUsers(
+	workspaceGid: string,
+	opts?: Omit<PaginationOptions, 'limit' | 'fetchAll' | 'maxPages'>,
+) {
 	const api = new Asana.UsersApi(createClient())
-	const res = await api.getUsersForWorkspace(workspaceGid, toAsanaPaginationOptions(opts))
-	return unwrapListResponse(res, opts)
+	const res = await api.getUsersForWorkspace(workspaceGid, toAsanaPaginationOptions(opts, { limit: false }))
+	return await collectListResponse(res, opts, { limit: false })
 }
 
 export async function getUser(userGid: string) {

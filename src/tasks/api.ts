@@ -2,7 +2,7 @@ import { readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
 import Asana from 'asana'
 import { createClient } from '../client.js'
-import { type PaginationOptions, toAsanaPaginationOptions, unwrapListResponse } from '../pagination.js'
+import { collectListResponse, type PaginationOptions, toAsanaPaginationOptions } from '../pagination.js'
 
 export type TodoMatch = {
 	file: string
@@ -66,7 +66,7 @@ export async function listTasks(projectGid: string, opts?: PaginationOptions & {
 		completed_since: opts?.completedSince,
 		...toAsanaPaginationOptions(opts),
 	})
-	return unwrapListResponse(res, opts)
+	return await collectListResponse(res, opts)
 }
 
 export async function listTasksForSection(sectionGid: string, opts?: PaginationOptions & { completedSince?: string }) {
@@ -75,7 +75,7 @@ export async function listTasksForSection(sectionGid: string, opts?: PaginationO
 		completed_since: opts?.completedSince,
 		...toAsanaPaginationOptions(opts),
 	})
-	return unwrapListResponse(res, opts)
+	return await collectListResponse(res, opts)
 }
 
 export async function getTask(taskGid: string) {

@@ -28,7 +28,11 @@ describe('tasks/api', () => {
 			data: [mockTask],
 		} as never)
 		const result = await listTasks('proj1')
-		expect(result).toEqual([mockTask])
+		expect(result).toEqual({ data: [mockTask], next_page: null, limit: 100 })
+		expect(Asana.TasksApi.prototype.getTasksForProject).toHaveBeenCalledWith('proj1', {
+			completed_since: undefined,
+			limit: 100,
+		})
 	})
 
 	it('getTask calls getTask with gid', async () => {
@@ -76,6 +80,7 @@ describe('tasks/api', () => {
 		await listTasks('proj1', { completedSince: '2024-01-01' })
 		expect(Asana.TasksApi.prototype.getTasksForProject).toHaveBeenCalledWith('proj1', {
 			completed_since: '2024-01-01',
+			limit: 100,
 		})
 	})
 
@@ -92,7 +97,7 @@ describe('tasks/api', () => {
 			optFields: 'gid,name',
 		} as never)
 
-		expect(result).toEqual({ data: [mockTask], next_page: { offset: 'next-offset' } })
+		expect(result).toEqual({ data: [mockTask], next_page: { offset: 'next-offset' }, limit: 25 })
 		expect(Asana.TasksApi.prototype.getTasksForProject).toHaveBeenCalledWith('proj1', {
 			completed_since: 'now',
 			limit: 25,
@@ -101,14 +106,39 @@ describe('tasks/api', () => {
 		})
 	})
 
+	it('listTasks fetches all pages up to max_pages', async () => {
+		const nextPage = vi.fn().mockResolvedValue({
+			data: [{ gid: '789', name: 'Next Task' }],
+			_response: { next_page: { offset: 'third-offset' } },
+			nextPage: vi.fn(),
+		})
+		vi.spyOn(Asana.TasksApi.prototype, 'getTasksForProject').mockResolvedValue({
+			data: [mockTask],
+			_response: { next_page: { offset: 'second-offset' } },
+			nextPage,
+		} as never)
+
+		const result = await listTasks('proj1', { fetchAll: true, maxPages: 2 })
+
+		expect(result).toEqual({
+			data: [mockTask, { gid: '789', name: 'Next Task' }],
+			next_page: { offset: 'third-offset' },
+			limit: 100,
+			page_count: 2,
+			truncated: true,
+		})
+		expect(nextPage).toHaveBeenCalledTimes(1)
+	})
+
 	it('listTasksForSection calls getTasksForSection', async () => {
 		vi.spyOn(Asana.TasksApi.prototype, 'getTasksForSection').mockResolvedValue({
 			data: [mockTask],
 		} as never)
 		const result = await listTasksForSection('sec1')
-		expect(result).toEqual([mockTask])
+		expect(result).toEqual({ data: [mockTask], next_page: null, limit: 100 })
 		expect(Asana.TasksApi.prototype.getTasksForSection).toHaveBeenCalledWith('sec1', {
 			completed_since: undefined,
+			limit: 100,
 		})
 	})
 })

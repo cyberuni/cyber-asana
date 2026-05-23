@@ -1,6 +1,6 @@
 import Asana from 'asana'
 import { createClient } from '../client.js'
-import { listItems, type PaginationOptions, toAsanaPaginationOptions, unwrapListResponse } from '../pagination.js'
+import { collectListResponse, listItems, type PaginationOptions, toAsanaPaginationOptions } from '../pagination.js'
 import { listSections } from '../sections/api.js'
 import { listTasksForSection } from '../tasks/api.js'
 
@@ -10,7 +10,7 @@ export async function listProjects(workspaceGid: string, opts?: PaginationOption
 		archived: opts?.archived,
 		...toAsanaPaginationOptions(opts),
 	})
-	return unwrapListResponse(res, opts)
+	return await collectListResponse(res, opts)
 }
 
 export async function getProject(projectGid: string) {
