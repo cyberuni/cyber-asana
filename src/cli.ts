@@ -20,6 +20,7 @@ program
 	.description('Asana CLI for AI agents')
 	.version('0.0.0')
 	.option('--token <token>', 'Asana PAT — overrides ASANA_TOKEN env var')
+	.option('--json', 'Output raw JSON instead of formatted text')
 	.addHelpText('after', '\nAuthentication: set ASANA_TOKEN env var or pass --token <pat>.')
 	.hook('preAction', () => {
 		const { token } = program.opts<{ token?: string }>()
@@ -39,6 +40,14 @@ program.addCommand(attachmentCommand())
 program.addCommand(storyCommand())
 
 program.parseAsync(process.argv).catch((err: unknown) => {
+	if (err && typeof err === 'object' && 'response' in err) {
+		const res = (err as { response: { body?: { errors?: { message: string }[] } } }).response
+		const msgs = res?.body?.errors?.map((e) => e.message)
+		if (msgs?.length) {
+			console.error(`Asana API error: ${msgs.join('; ')}`)
+			process.exit(1)
+		}
+	}
 	console.error(err instanceof Error ? err.message : String(err))
 	process.exit(1)
 })

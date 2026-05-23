@@ -1,5 +1,12 @@
 import { Command } from 'commander'
+import { output, printFields, printTable } from '../output.js'
 import { createSection, deleteSection, getSection, listSections, updateSection } from './api.js'
+
+type Section = { gid: string; name: string }
+
+function fmtSection(s: Section) {
+	printFields({ Name: s.name, ID: s.gid })
+}
 
 export function sectionCommand() {
 	const cmd = new Command('section').description('Manage Asana sections')
@@ -9,14 +16,21 @@ export function sectionCommand() {
 		.description('List sections in a project')
 		.requiredOption('--project <gid>', 'Project GID')
 		.action(async (opts: { project: string }) => {
-			console.log(JSON.stringify(await listSections(opts.project), null, 2))
+			const data = await listSections(opts.project)
+			output(data, () =>
+				printTable(data, [
+					{ label: 'Name', get: (s: Section) => s.name },
+					{ label: 'ID', get: (s: Section) => s.gid },
+				]),
+			)
 		})
 
 	cmd
 		.command('get <gid>')
 		.description('Get a section by GID')
 		.action(async (gid: string) => {
-			console.log(JSON.stringify(await getSection(gid), null, 2))
+			const data = await getSection(gid)
+			output(data, () => fmtSection(data))
 		})
 
 	cmd
@@ -24,7 +38,8 @@ export function sectionCommand() {
 		.description('Create a section in a project')
 		.requiredOption('--project <gid>', 'Project GID')
 		.action(async (name: string, opts: { project: string }) => {
-			console.log(JSON.stringify(await createSection(opts.project, name), null, 2))
+			const data = await createSection(opts.project, name)
+			output(data, () => fmtSection(data))
 		})
 
 	cmd
@@ -32,7 +47,8 @@ export function sectionCommand() {
 		.description('Update a section')
 		.requiredOption('--name <name>', 'New name')
 		.action(async (gid: string, opts: { name: string }) => {
-			console.log(JSON.stringify(await updateSection(gid, opts.name), null, 2))
+			const data = await updateSection(gid, opts.name)
+			output(data, () => fmtSection(data))
 		})
 
 	cmd

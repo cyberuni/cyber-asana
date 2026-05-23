@@ -16,7 +16,7 @@ export async function getProject(projectGid: string) {
 export async function createProject(workspaceGid: string, name: string, opts?: { notes?: string; color?: string }) {
 	const api = new Asana.ProjectsApi(createClient())
 	const res = await api.createProject({
-		data: { name, workspace: { gid: workspaceGid }, ...opts },
+		data: { name, workspace: workspaceGid, ...opts },
 	})
 	return res.data
 }

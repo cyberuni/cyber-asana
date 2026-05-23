@@ -1,8 +1,22 @@
 import { Command, Option } from 'commander'
+import { output, printFields, printTable } from '../output.js'
 import { createProject, deleteProject, getProject, listProjects, updateProject } from './api.js'
 
 const workspaceOpt = () =>
 	new Option('--workspace <gid>', 'Workspace GID (or set ASANA_WORKSPACE)').env('ASANA_WORKSPACE').makeOptionMandatory()
+
+type Project = { gid: string; name: string; permalink_url?: string; color?: string; notes?: string }
+
+function fmtProject(p: Project) {
+	printFields({ Name: p.name, ID: p.gid, URL: p.permalink_url, Color: p.color || null, Notes: p.notes || null })
+}
+
+function fmtProjectList(projects: Project[]) {
+	printTable(projects, [
+		{ label: 'Name', get: (p) => p.name },
+		{ label: 'ID', get: (p) => p.gid },
+	])
+}
 
 export function projectCommand() {
 	const cmd = new Command('project').description('Manage Asana projects')
@@ -12,14 +26,16 @@ export function projectCommand() {
 		.description('List projects in a workspace')
 		.addOption(workspaceOpt())
 		.action(async (opts: { workspace: string }) => {
-			console.log(JSON.stringify(await listProjects(opts.workspace), null, 2))
+			const data = await listProjects(opts.workspace)
+			output(data, () => fmtProjectList(data))
 		})
 
 	cmd
 		.command('get <gid>')
 		.description('Get a project by GID')
 		.action(async (gid: string) => {
-			console.log(JSON.stringify(await getProject(gid), null, 2))
+			const data = await getProject(gid)
+			output(data, () => fmtProject(data))
 		})
 
 	cmd
@@ -29,9 +45,8 @@ export function projectCommand() {
 		.option('--notes <text>', 'Project notes')
 		.option('--color <color>', 'Project color')
 		.action(async (name: string, opts: { workspace: string; notes?: string; color?: string }) => {
-			console.log(
-				JSON.stringify(await createProject(opts.workspace, name, { notes: opts.notes, color: opts.color }), null, 2),
-			)
+			const data = await createProject(opts.workspace, name, { notes: opts.notes, color: opts.color })
+			output(data, () => fmtProject(data))
 		})
 
 	cmd
@@ -41,7 +56,8 @@ export function projectCommand() {
 		.option('--notes <text>', 'New notes')
 		.option('--color <color>', 'New color')
 		.action(async (gid: string, opts: { name?: string; notes?: string; color?: string }) => {
-			console.log(JSON.stringify(await updateProject(gid, opts), null, 2))
+			const data = await updateProject(gid, opts)
+			output(data, () => fmtProject(data))
 		})
 
 	cmd
