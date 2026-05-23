@@ -17,10 +17,7 @@
 		"editor.defaultFormatter": "biomejs.biome",
 		"editor.formatOnSave": true
 	},
-	"cSpell.words": [
-		"repobuddy",
-		"Vitest"
-	],
+	"cSpell.words": ["repobuddy", "Vitest"],
 	"editor.codeActionsOnSave": {
 		"source.fixAll.biome": "explicit"
 	},
