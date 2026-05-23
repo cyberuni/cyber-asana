@@ -1,5 +1,8 @@
-import { Command } from 'commander'
+import { Command, Option } from 'commander'
 import { createTask, deleteTask, getTask, listTasks, searchTasks, updateTask } from './api.js'
+
+const workspaceOpt = () =>
+	new Option('--workspace <gid>', 'Workspace GID (or set ASANA_WORKSPACE)').env('ASANA_WORKSPACE').makeOptionMandatory()
 
 export function taskCommand() {
 	const cmd = new Command('task').description('Manage Asana tasks')
@@ -22,7 +25,7 @@ export function taskCommand() {
 	cmd
 		.command('create <name>')
 		.description('Create a new task')
-		.requiredOption('--workspace <gid>', 'Workspace GID')
+		.addOption(workspaceOpt())
 		.option('--project <gid>', 'Project GID')
 		.option('--assignee <gid>', 'Assignee user GID')
 		.option('--notes <text>', 'Task notes')
@@ -87,7 +90,7 @@ export function taskCommand() {
 	cmd
 		.command('search <text>')
 		.description('Search tasks in a workspace')
-		.requiredOption('--workspace <gid>', 'Workspace GID')
+		.addOption(workspaceOpt())
 		.action(async (text: string, opts: { workspace: string }) => {
 			console.log(JSON.stringify(await searchTasks(opts.workspace, text), null, 2))
 		})

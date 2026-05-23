@@ -1,5 +1,8 @@
-import { Command } from 'commander'
+import { Command, Option } from 'commander'
 import { createTag, getTag, listTags } from './api.js'
+
+const workspaceOpt = () =>
+	new Option('--workspace <gid>', 'Workspace GID (or set ASANA_WORKSPACE)').env('ASANA_WORKSPACE').makeOptionMandatory()
 
 export function tagCommand() {
 	const cmd = new Command('tag').description('Manage Asana tags')
@@ -7,7 +10,7 @@ export function tagCommand() {
 	cmd
 		.command('list')
 		.description('List tags in a workspace')
-		.requiredOption('--workspace <gid>', 'Workspace GID')
+		.addOption(workspaceOpt())
 		.action(async (opts: { workspace: string }) => {
 			console.log(JSON.stringify(await listTags(opts.workspace), null, 2))
 		})
@@ -22,7 +25,7 @@ export function tagCommand() {
 	cmd
 		.command('create <name>')
 		.description('Create a tag')
-		.requiredOption('--workspace <gid>', 'Workspace GID')
+		.addOption(workspaceOpt())
 		.action(async (name: string, opts: { workspace: string }) => {
 			console.log(JSON.stringify(await createTag(opts.workspace, name), null, 2))
 		})

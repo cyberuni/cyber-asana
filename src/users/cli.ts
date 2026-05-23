@@ -1,5 +1,8 @@
-import { Command } from 'commander'
+import { Command, Option } from 'commander'
 import { getMe, getUser, listUsers } from './api.js'
+
+const workspaceOpt = () =>
+	new Option('--workspace <gid>', 'Workspace GID (or set ASANA_WORKSPACE)').env('ASANA_WORKSPACE').makeOptionMandatory()
 
 export function userCommand() {
 	const cmd = new Command('user').description('Manage Asana users')
@@ -7,7 +10,7 @@ export function userCommand() {
 	cmd
 		.command('list')
 		.description('List users in a workspace')
-		.requiredOption('--workspace <gid>', 'Workspace GID')
+		.addOption(workspaceOpt())
 		.action(async (opts: { workspace: string }) => {
 			console.log(JSON.stringify(await listUsers(opts.workspace), null, 2))
 		})

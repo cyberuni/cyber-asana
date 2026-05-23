@@ -1,5 +1,8 @@
-import { Command } from 'commander'
+import { Command, Option } from 'commander'
 import { createProject, deleteProject, getProject, listProjects, updateProject } from './api.js'
+
+const workspaceOpt = () =>
+	new Option('--workspace <gid>', 'Workspace GID (or set ASANA_WORKSPACE)').env('ASANA_WORKSPACE').makeOptionMandatory()
 
 export function projectCommand() {
 	const cmd = new Command('project').description('Manage Asana projects')
@@ -7,7 +10,7 @@ export function projectCommand() {
 	cmd
 		.command('list')
 		.description('List projects in a workspace')
-		.requiredOption('--workspace <gid>', 'Workspace GID')
+		.addOption(workspaceOpt())
 		.action(async (opts: { workspace: string }) => {
 			console.log(JSON.stringify(await listProjects(opts.workspace), null, 2))
 		})
@@ -22,7 +25,7 @@ export function projectCommand() {
 	cmd
 		.command('create <name>')
 		.description('Create a new project')
-		.requiredOption('--workspace <gid>', 'Workspace GID')
+		.addOption(workspaceOpt())
 		.option('--notes <text>', 'Project notes')
 		.option('--color <color>', 'Project color')
 		.action(async (name: string, opts: { workspace: string; notes?: string; color?: string }) => {

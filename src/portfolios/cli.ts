@@ -1,5 +1,8 @@
-import { Command } from 'commander'
+import { Command, Option } from 'commander'
 import { createPortfolio, deletePortfolio, getPortfolio, listPortfolios, updatePortfolio } from './api.js'
+
+const workspaceOpt = () =>
+	new Option('--workspace <gid>', 'Workspace GID (or set ASANA_WORKSPACE)').env('ASANA_WORKSPACE').makeOptionMandatory()
 
 export function portfolioCommand() {
 	const cmd = new Command('portfolio').description('Manage Asana portfolios')
@@ -7,7 +10,7 @@ export function portfolioCommand() {
 	cmd
 		.command('list')
 		.description('List portfolios in a workspace')
-		.requiredOption('--workspace <gid>', 'Workspace GID')
+		.addOption(workspaceOpt())
 		.action(async (opts: { workspace: string }) => {
 			console.log(JSON.stringify(await listPortfolios(opts.workspace), null, 2))
 		})
@@ -22,7 +25,7 @@ export function portfolioCommand() {
 	cmd
 		.command('create <name>')
 		.description('Create a portfolio')
-		.requiredOption('--workspace <gid>', 'Workspace GID')
+		.addOption(workspaceOpt())
 		.action(async (name: string, opts: { workspace: string }) => {
 			console.log(JSON.stringify(await createPortfolio(opts.workspace, name), null, 2))
 		})

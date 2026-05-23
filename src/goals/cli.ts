@@ -1,5 +1,8 @@
-import { Command } from 'commander'
+import { Command, Option } from 'commander'
 import { createGoal, deleteGoal, getGoal, listGoals, updateGoal } from './api.js'
+
+const workspaceOpt = () =>
+	new Option('--workspace <gid>', 'Workspace GID (or set ASANA_WORKSPACE)').env('ASANA_WORKSPACE').makeOptionMandatory()
 
 export function goalCommand() {
 	const cmd = new Command('goal').description('Manage Asana goals')
@@ -7,7 +10,7 @@ export function goalCommand() {
 	cmd
 		.command('list')
 		.description('List goals in a workspace')
-		.requiredOption('--workspace <gid>', 'Workspace GID')
+		.addOption(workspaceOpt())
 		.action(async (opts: { workspace: string }) => {
 			console.log(JSON.stringify(await listGoals(opts.workspace), null, 2))
 		})
@@ -22,7 +25,7 @@ export function goalCommand() {
 	cmd
 		.command('create <name>')
 		.description('Create a goal')
-		.requiredOption('--workspace <gid>', 'Workspace GID')
+		.addOption(workspaceOpt())
 		.option('--notes <text>', 'Goal notes')
 		.option('--due-on <date>', 'Due date (YYYY-MM-DD)')
 		.action(async (name: string, opts: { workspace: string; notes?: string; dueOn?: string }) => {
