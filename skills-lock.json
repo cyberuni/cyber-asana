@@ -49,6 +49,11 @@
       "skillPath": "skills/test-driven-development/SKILL.md",
       "computedHash": "126f1ebf6ccd414f42544f6e83d8cc5adb089e1108eaffb7c400701e37eecd9f"
     },
+    "update-asana-sdk": {
+      "source": "/home/unional/.agents/skills/update-asana-sdk",
+      "sourceType": "local",
+      "computedHash": "9bb28e035c71841b84478e8916d7863dca5a1bb868f7954be29384e030665100"
+    },
     "validate-skill": {
       "source": "cyberuni/agent-helmsman",
       "sourceType": "github",
