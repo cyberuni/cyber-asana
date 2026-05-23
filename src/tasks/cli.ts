@@ -83,13 +83,12 @@ export function taskCommand() {
 		},
 	)
 
+	const myTasksCmd = cmd.command('my-tasks').description('Manage My Tasks for the authenticated user')
+
 	addPaginationOptions(
-		addGidOption(
-			cmd.command('my-tasks').description('List My Tasks for the authenticated user'),
-			'workspace',
-			'Workspace GID',
-			{ env: 'ASANA_WORKSPACE' },
-		).option(
+		addGidOption(myTasksCmd.command('list').description('List My Tasks'), 'workspace', 'Workspace GID', {
+			env: 'ASANA_WORKSPACE',
+		}).option(
 			'--completed-since <date>',
 			'Only include tasks completed on or after this date (ISO 8601 or "now" for incomplete only)',
 		),
@@ -199,7 +198,9 @@ export function taskCommand() {
 			console.log(`Deleted task ${gid}`)
 		})
 
-	addPaginationOptions(cmd.command('subtask-list <task-gid>').description('List subtasks of a task')).action(
+	const subtaskCmd = cmd.command('subtask').description('Manage subtasks')
+
+	addPaginationOptions(subtaskCmd.command('list <task-gid>').description('List subtasks of a task')).action(
 		async (taskGid: string, opts: { limit?: number; offset?: string; optFields?: string }) => {
 			const data = await listSubtasks(taskGid, paginationOptionsFromCli(opts))
 			output(data, () => {
@@ -210,8 +211,8 @@ export function taskCommand() {
 	)
 
 	addGidOption(
-		cmd
-			.command('subtask-create <task-gid> <name>')
+		subtaskCmd
+			.command('create <task-gid> <name>')
 			.description('Create a subtask under a task')
 			.option('--notes <text>', 'Task notes')
 			.option('--due-on <date>', 'Due date (YYYY-MM-DD)'),
