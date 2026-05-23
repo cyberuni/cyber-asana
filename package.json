@@ -18,7 +18,7 @@
 	},
 	"scripts": {
 		"build": "tsc",
-		"dev": "tsx src/cli/index.ts",
+		"dev": "tsx src/cli.ts",
 		"typecheck": "tsc --noEmit",
 		"lint": "biome check .",
 		"format": "biome format --write .",
