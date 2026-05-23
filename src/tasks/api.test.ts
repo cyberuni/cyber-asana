@@ -1,6 +1,18 @@
+import { mkdir, rm, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import path from 'node:path'
 import Asana from 'asana'
-import { afterEach, describe, expect, it, vi } from 'vitest'
-import { createTask, deleteTask, getTask, listTasks, searchTasks, updateTask } from './api.js'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import {
+	createTask,
+	deleteTask,
+	getTask,
+	listTasks,
+	listTasksForSection,
+	scanTodos,
+	searchTasks,
+	updateTask,
+} from './api.js'
 
 vi.mock('../client.js', () => ({
 	createClient: () => ({}),
@@ -55,5 +67,73 @@ describe('tasks/api', () => {
 		const result = await searchTasks('ws1', 'query')
 		expect(result).toEqual([mockTask])
 		expect(Asana.TasksApi.prototype.searchTasksForWorkspace).toHaveBeenCalledWith('ws1', { text: 'query' })
+	})
+
+	it('listTasks passes completed_since to SDK', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'getTasksForProject').mockResolvedValue({
+			data: [mockTask],
+		} as never)
+		await listTasks('proj1', { completedSince: '2024-01-01' })
+		expect(Asana.TasksApi.prototype.getTasksForProject).toHaveBeenCalledWith('proj1', {
+			completed_since: '2024-01-01',
+		})
+	})
+
+	it('listTasksForSection calls getTasksForSection', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'getTasksForSection').mockResolvedValue({
+			data: [mockTask],
+		} as never)
+		const result = await listTasksForSection('sec1')
+		expect(result).toEqual([mockTask])
+		expect(Asana.TasksApi.prototype.getTasksForSection).toHaveBeenCalledWith('sec1', {
+			completed_since: undefined,
+		})
+	})
+})
+
+describe('scanTodos', () => {
+	let tmpDir: string
+
+	beforeEach(async () => {
+		tmpDir = path.join(tmpdir(), `scan-todos-test-${Date.now()}`)
+		await mkdir(tmpDir, { recursive: true })
+	})
+
+	afterEach(async () => {
+		await rm(tmpDir, { recursive: true, force: true })
+	})
+
+	it('finds TODO and FIXME comments', async () => {
+		await writeFile(path.join(tmpDir, 'foo.ts'), '// TODO: fix this\nconst x = 1\n// FIXME: broken\n')
+		const results = await scanTodos(tmpDir)
+		expect(results).toHaveLength(2)
+		expect(results[0]).toMatchObject({ line: 1, pattern: 'TODO', text: 'fix this' })
+		expect(results[1]).toMatchObject({ line: 3, pattern: 'FIXME', text: 'broken' })
+	})
+
+	it('returns relative file paths', async () => {
+		await writeFile(path.join(tmpDir, 'bar.ts'), '// TODO: relative path test\n')
+		const results = await scanTodos(tmpDir)
+		expect(results[0]?.file).toBe('bar.ts')
+	})
+
+	it('skips excluded directories', async () => {
+		const nodeModules = path.join(tmpDir, 'node_modules')
+		await mkdir(nodeModules)
+		await writeFile(path.join(nodeModules, 'lib.ts'), '// TODO: should be skipped\n')
+		const results = await scanTodos(tmpDir)
+		expect(results).toHaveLength(0)
+	})
+
+	it('skips files with non-matching extensions', async () => {
+		await writeFile(path.join(tmpDir, 'readme.md'), '<!-- TODO: ignored -->\n')
+		const results = await scanTodos(tmpDir, { extensions: ['.ts'] })
+		expect(results).toHaveLength(0)
+	})
+
+	it('returns empty array when no matches found', async () => {
+		await writeFile(path.join(tmpDir, 'clean.ts'), 'const x = 1\n')
+		const results = await scanTodos(tmpDir)
+		expect(results).toHaveLength(0)
 	})
 })

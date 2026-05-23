@@ -1,6 +1,14 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import { createProject, deleteProject, getProject, listProjects, updateProject } from './api.js'
+import {
+	createProject,
+	deleteProject,
+	exportProject,
+	getProject,
+	listProjects,
+	renderProjectMarkdown,
+	updateProject,
+} from './api.js'
 
 export function registerProjectTools(server: McpServer) {
 	server.tool(
@@ -56,6 +64,20 @@ export function registerProjectTools(server: McpServer) {
 		async ({ project_gid }) => {
 			await deleteProject(project_gid)
 			return { content: [{ type: 'text', text: `Deleted project ${project_gid}` }] }
+		},
+	)
+
+	server.tool(
+		'asana_project_export',
+		'Export an Asana project with all sections and tasks as structured data or markdown',
+		{
+			project_gid: z.string().describe('Project GID'),
+			format: z.enum(['json', 'markdown']).optional().describe('Output format (default: markdown)'),
+		},
+		async ({ project_gid, format }) => {
+			const data = await exportProject(project_gid)
+			const text = format === 'json' ? JSON.stringify(data) : renderProjectMarkdown(data)
+			return { content: [{ type: 'text', text }] }
 		},
 	)
 }

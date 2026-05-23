@@ -1,6 +1,15 @@
 import { Command, Option } from 'commander'
 import { output, printFields, printTable } from '../output.js'
-import { createTask, deleteTask, getTask, listTasks, searchTasks, updateTask } from './api.js'
+import {
+	createTask,
+	deleteTask,
+	getTask,
+	listTasks,
+	scanTodos,
+	searchTasks,
+	type TodoMatch,
+	updateTask,
+} from './api.js'
 
 const workspaceOpt = () =>
 	new Option('--workspace <gid>', 'Workspace GID (or set ASANA_WORKSPACE)').env('ASANA_WORKSPACE').makeOptionMandatory()
@@ -43,8 +52,12 @@ export function taskCommand() {
 		.command('list')
 		.description('List tasks in a project')
 		.requiredOption('--project <gid>', 'Project GID')
-		.action(async (opts: { project: string }) => {
-			const data = await listTasks(opts.project)
+		.option(
+			'--completed-since <date>',
+			'Only include tasks completed on or after this date (ISO 8601 or "now" for incomplete only)',
+		)
+		.action(async (opts: { project: string; completedSince?: string }) => {
+			const data = await listTasks(opts.project, { completedSince: opts.completedSince })
 			output(data, () => fmtTaskList(data))
 		})
 
@@ -118,6 +131,38 @@ export function taskCommand() {
 		.action(async (text: string, opts: { workspace: string }) => {
 			const data = await searchTasks(opts.workspace, text)
 			output(data, () => fmtTaskList(data))
+		})
+
+	cmd
+		.command('scan-todos [dir]')
+		.description('Scan source files for TODO/FIXME/HACK comments and return structured results')
+		.option(
+			'--ext <extensions>',
+			'Comma-separated file extensions to scan (e.g. .ts,.py)',
+			'.ts,.tsx,.js,.jsx,.mjs,.py,.go,.rs,.java,.rb',
+		)
+		.option(
+			'--exclude <dirs>',
+			'Comma-separated directory names to skip',
+			'node_modules,dist,.git,build,coverage,__pycache__',
+		)
+		.action(async (dir: string | undefined, opts: { ext: string; exclude: string }) => {
+			const root = dir ?? process.cwd()
+			const extensions = opts.ext.split(',').map((e) => e.trim())
+			const exclude = opts.exclude.split(',').map((e) => e.trim())
+			const data = await scanTodos(root, { extensions, exclude })
+			output(data, () => {
+				if (data.length === 0) {
+					console.log('(none)')
+					return
+				}
+				printTable(data, [
+					{ label: 'File', get: (t: TodoMatch) => t.file },
+					{ label: 'Line', get: (t: TodoMatch) => String(t.line) },
+					{ label: 'Pattern', get: (t: TodoMatch) => t.pattern },
+					{ label: 'Text', get: (t: TodoMatch) => t.text },
+				])
+			})
 		})
 
 	return cmd

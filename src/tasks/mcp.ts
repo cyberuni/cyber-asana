@@ -1,14 +1,22 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import { createTask, deleteTask, getTask, listTasks, searchTasks, updateTask } from './api.js'
+import { createTask, deleteTask, getTask, listTasks, scanTodos, searchTasks, updateTask } from './api.js'
 
 export function registerTaskTools(server: McpServer) {
 	server.tool(
 		'asana_task_list',
 		'List Asana tasks in a project',
-		{ project_gid: z.string().describe('Project GID') },
-		async ({ project_gid }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await listTasks(project_gid)) }],
+		{
+			project_gid: z.string().describe('Project GID'),
+			completed_since: z
+				.string()
+				.optional()
+				.describe('Only include tasks completed on or after this date (ISO 8601, or "now" for incomplete only)'),
+		},
+		async ({ project_gid, completed_since }) => ({
+			content: [
+				{ type: 'text', text: JSON.stringify(await listTasks(project_gid, { completedSince: completed_since })) },
+			],
 		}),
 	)
 
@@ -90,5 +98,23 @@ export function registerTaskTools(server: McpServer) {
 		async ({ workspace_gid, text }) => ({
 			content: [{ type: 'text', text: JSON.stringify(await searchTasks(workspace_gid, text)) }],
 		}),
+	)
+
+	server.tool(
+		'asana_task_scan_todos',
+		'Scan source files in a directory for TODO/FIXME/HACK/XXX comments and return structured results for LLM review',
+		{
+			dir: z.string().optional().describe('Root directory to scan (defaults to current working directory)'),
+			extensions: z.string().optional().describe('Comma-separated file extensions to scan (e.g. ".ts,.py")'),
+			exclude: z.string().optional().describe('Comma-separated directory names to skip (e.g. "node_modules,dist")'),
+		},
+		async ({ dir, extensions, exclude }) => {
+			const root = dir ?? process.cwd()
+			const data = await scanTodos(root, {
+				extensions: extensions?.split(',').map((e) => e.trim()),
+				exclude: exclude?.split(',').map((e) => e.trim()),
+			})
+			return { content: [{ type: 'text', text: JSON.stringify(data) }] }
+		},
 	)
 }

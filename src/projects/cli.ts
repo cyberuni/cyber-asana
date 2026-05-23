@@ -1,6 +1,15 @@
+import { writeFile } from 'node:fs/promises'
 import { Command, Option } from 'commander'
 import { output, printFields, printTable } from '../output.js'
-import { createProject, deleteProject, getProject, listProjects, updateProject } from './api.js'
+import {
+	createProject,
+	deleteProject,
+	exportProject,
+	getProject,
+	listProjects,
+	renderProjectMarkdown,
+	updateProject,
+} from './api.js'
 
 const workspaceOpt = () =>
 	new Option('--workspace <gid>', 'Workspace GID (or set ASANA_WORKSPACE)').env('ASANA_WORKSPACE').makeOptionMandatory()
@@ -66,6 +75,27 @@ export function projectCommand() {
 		.action(async (gid: string) => {
 			await deleteProject(gid)
 			console.log(`Deleted project ${gid}`)
+		})
+
+	cmd
+		.command('export <gid>')
+		.description('Export a project with all sections and tasks')
+		.option('--output <file>', 'Write output to a file instead of stdout')
+		.action(async (gid: string, opts: { output?: string }) => {
+			const data = await exportProject(gid)
+			if (process.argv.includes('--json')) {
+				const json = JSON.stringify(data, null, 2)
+				if (opts.output) await writeFile(opts.output, json, 'utf-8')
+				else console.log(json)
+			} else {
+				const md = renderProjectMarkdown(data)
+				if (opts.output) {
+					await writeFile(opts.output, md, 'utf-8')
+					console.log(`Wrote ${opts.output}`)
+				} else {
+					console.log(md)
+				}
+			}
 		})
 
 	return cmd
