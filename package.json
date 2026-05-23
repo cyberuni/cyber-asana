@@ -24,6 +24,7 @@
 	},
 	"scripts": {
 		"build": "tsc",
+		"prepare": "husky",
 		"check": "biome check --write .",
 		"cs": "changeset",
 		"cyber-asana": "tsx src/cli.ts",
@@ -47,8 +48,11 @@
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.15",
 		"@changesets/cli": "^2.29.4",
+		"@commitlint/cli": "^21.0.1",
+		"@commitlint/config-conventional": "^21.0.1",
 		"@repobuddy/biome": "^2.3.1",
 		"@types/node": "^22.15.21",
+		"husky": "^9.1.7",
 		"knip": "^6.14.1",
 		"tsx": "^4.19.4",
 		"typescript": "^5.8.3",
