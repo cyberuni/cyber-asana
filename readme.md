@@ -56,6 +56,7 @@ Use `--all` to fetch multiple pages intentionally; `--max-pages` caps the number
 | `tag` | `list`, `get`, `create` |
 | `attachment` | `list`, `get` |
 | `story` | `list`, `create` |
+| `comment` | `list`, `create` (alias for `story`) |
 
 ### GID options
 
@@ -64,6 +65,64 @@ Commands that accept a resource GID support both a canonical `--foo-gid` flag an
 ```sh
 cyber-asana task list --project-gid <gid>
 cyber-asana task list --project <gid>      # legacy alias
+```
+
+### Incomplete tasks
+
+All task list commands accept `--incomplete` as a shorthand for `--completed-since now`:
+
+```sh
+# Only incomplete tasks in a project
+cyber-asana task list --project <gid> --incomplete
+
+# Only incomplete My Tasks
+cyber-asana task my-tasks list --incomplete
+
+# Only incomplete subtasks
+cyber-asana task subtask list <task-gid> --incomplete
+```
+
+### Subtask opt_fields shortcuts
+
+`task subtask list` provides named flags for commonly needed extra fields. These compose with `--opt-fields`:
+
+```sh
+# Get assignee emails for all incomplete subtasks
+cyber-asana task subtask list <task-gid> --incomplete --assignee-email
+
+# Get follower emails (for blast email)
+cyber-asana task subtask list <task-gid> --follower-emails
+
+# Combine shortcuts with custom opt-fields
+cyber-asana task subtask list <task-gid> --assignee-email --opt-fields "due_on,notes"
+```
+
+| Flag | Adds to opt_fields |
+|---|---|
+| `--assignee-email` | `assignee,assignee.email` |
+| `--follower-emails` | `followers,followers.email` |
+| `--num-subtasks` | `num_subtasks` |
+| `--custom-fields` | `custom_fields` |
+
+### Comments (stories)
+
+`comment` is an alias for `story`. Both commands are identical:
+
+```sh
+cyber-asana comment list --task <gid>
+cyber-asana comment create "Great work!" --task <gid>
+
+# Equivalent:
+cyber-asana story list --task <gid>
+cyber-asana story create "Great work!" --task <gid>
+```
+
+Use `--template` to interpolate task data into the comment text before posting. Supported variables: `{task.name}`, `{task.assignee}`, `{task.due_on}`, `{task.notes}`.
+
+```sh
+cyber-asana comment create \
+  "Hey {task.assignee}, your task '{task.name}' is due {task.due_on}. Please update!" \
+  --task <gid> --template
 ```
 
 ### Task search filters
@@ -148,6 +207,14 @@ Tools are named `asana_<resource>_<action>` (e.g. `asana_task_create`).
 List tools accept `limit`, `offset`, `opt_fields`, `fetch_all`, and `max_pages` parameters where Asana supports them.
 Paginated MCP responses include `data`, `next_page`, and `limit`.
 Fetch-all responses also include `page_count` and `truncated`.
+
+`asana_task_list`, `asana_task_my_tasks`, and `asana_task_subtask_list` accept `incomplete: true` to filter to incomplete tasks only.
+
+`asana_task_subtask_list` also accepts `assignee_email`, `follower_emails`, `num_subtasks`, and `custom_fields` boolean params to expand the returned fields.
+
+`asana_story_create` and `asana_comment_create` accept `template: true` to interpolate `{task.name}`, `{task.assignee}`, `{task.due_on}`, and `{task.notes}` in the comment text before posting.
+
+`asana_comment_*` tools are aliases for `asana_story_*`.
 
 ## License
 

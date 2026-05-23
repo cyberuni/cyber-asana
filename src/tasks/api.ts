@@ -122,9 +122,12 @@ export async function getMyTasks(workspaceGid: string, opts?: PaginationOptions 
 	return await collectListResponse(res, opts)
 }
 
-export async function listSubtasks(taskGid: string, opts?: PaginationOptions) {
+export async function listSubtasks(taskGid: string, opts?: PaginationOptions & { completedSince?: string }) {
 	const api = new Asana.TasksApi(createClient())
-	const res = await api.getSubtasksForTask(taskGid, toAsanaPaginationOptions(opts))
+	const res = await api.getSubtasksForTask(taskGid, {
+		...(opts?.completedSince && { completed_since: opts.completedSince }),
+		...toAsanaPaginationOptions(opts),
+	} as Parameters<typeof api.getSubtasksForTask>[1])
 	return await collectListResponse(res, opts)
 }
 

@@ -24,14 +24,18 @@ export function registerTaskTools(server: McpServer) {
 				.string()
 				.optional()
 				.describe('Only include tasks completed on or after this date (ISO 8601, or "now" for incomplete only)'),
+			incomplete: z.boolean().optional().describe('Only show incomplete tasks (shorthand for completed_since=now)'),
 			...paginationParams,
 		},
-		async ({ project_gid, completed_since, ...params }) => ({
+		async ({ project_gid, completed_since, incomplete, ...params }) => ({
 			content: [
 				{
 					type: 'text',
 					text: JSON.stringify(
-						await listTasks(project_gid, { completedSince: completed_since, ...paginationOptions(params) }),
+						await listTasks(project_gid, {
+							completedSince: incomplete ? 'now' : completed_since,
+							...paginationOptions(params),
+						}),
 					),
 				},
 			],
@@ -47,14 +51,18 @@ export function registerTaskTools(server: McpServer) {
 				.string()
 				.optional()
 				.describe('Only include tasks completed on or after this date (ISO 8601, or "now" for incomplete only)'),
+			incomplete: z.boolean().optional().describe('Only show incomplete tasks (shorthand for completed_since=now)'),
 			...paginationParams,
 		},
-		async ({ workspace_gid, completed_since, ...params }) => ({
+		async ({ workspace_gid, completed_since, incomplete, ...params }) => ({
 			content: [
 				{
 					type: 'text',
 					text: JSON.stringify(
-						await getMyTasks(workspace_gid, { completedSince: completed_since, ...paginationOptions(params) }),
+						await getMyTasks(workspace_gid, {
+							completedSince: incomplete ? 'now' : completed_since,
+							...paginationOptions(params),
+						}),
 					),
 				},
 			],
@@ -66,16 +74,43 @@ export function registerTaskTools(server: McpServer) {
 		'List subtasks of an Asana task',
 		{
 			task_gid: z.string().describe('Parent task GID'),
+			incomplete: z.boolean().optional().describe('Only show incomplete subtasks'),
+			assignee_email: z
+				.boolean()
+				.optional()
+				.describe('Include assignee email (adds assignee,assignee.email to opt_fields)'),
+			follower_emails: z
+				.boolean()
+				.optional()
+				.describe('Include follower emails (adds followers,followers.email to opt_fields)'),
+			num_subtasks: z.boolean().optional().describe('Include subtask count (adds num_subtasks to opt_fields)'),
+			custom_fields: z.boolean().optional().describe('Include custom fields (adds custom_fields to opt_fields)'),
 			...paginationParams,
 		},
-		async ({ task_gid, ...params }) => ({
-			content: [
-				{
-					type: 'text',
-					text: JSON.stringify(await listSubtasks(task_gid, paginationOptions(params))),
-				},
-			],
-		}),
+		async ({ task_gid, incomplete, assignee_email, follower_emails, num_subtasks, custom_fields, ...params }) => {
+			const extraFields = [
+				assignee_email && 'assignee,assignee.email',
+				follower_emails && 'followers,followers.email',
+				num_subtasks && 'num_subtasks',
+				custom_fields && 'custom_fields',
+			]
+				.filter(Boolean)
+				.join(',')
+			const pagination = paginationOptions(params)
+			if (extraFields) {
+				pagination.optFields = [pagination.optFields, extraFields].filter(Boolean).join(',')
+			}
+			return {
+				content: [
+					{
+						type: 'text',
+						text: JSON.stringify(
+							await listSubtasks(task_gid, { completedSince: incomplete ? 'now' : undefined, ...pagination }),
+						),
+					},
+				],
+			}
+		},
 	)
 
 	server.tool(

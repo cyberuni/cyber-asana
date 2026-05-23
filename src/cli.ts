@@ -38,6 +38,7 @@ program.addCommand(goalCommand())
 program.addCommand(tagCommand())
 program.addCommand(attachmentCommand())
 program.addCommand(storyCommand())
+program.addCommand(storyCommand('comment'))
 
 program.parseAsync(process.argv).catch((err: unknown) => {
 	if (err && typeof err === 'object' && 'response' in err) {

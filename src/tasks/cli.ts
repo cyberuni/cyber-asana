@@ -59,21 +59,21 @@ export function taskCommand() {
 	const cmd = new Command('task').description('Manage Asana tasks')
 
 	addPaginationOptions(
-		addGidOption(cmd.command('list').description('List tasks in a project'), 'project', 'Project GID').option(
-			'--completed-since <date>',
-			'Only include tasks completed on or after this date (ISO 8601 or "now" for incomplete only)',
-		),
+		addGidOption(cmd.command('list').description('List tasks in a project'), 'project', 'Project GID')
+			.option('--completed-since <date>', 'Only include tasks completed on or after this date (ISO 8601 or "now")')
+			.option('--incomplete', 'Only show incomplete tasks (shorthand for --completed-since now)'),
 	).action(
 		async (opts: {
 			project?: string
 			projectGid?: string
 			completedSince?: string
+			incomplete?: boolean
 			limit?: number
 			offset?: string
 			optFields?: string
 		}) => {
 			const data = await listTasks(requiredGid(opts, 'project', 'Project GID'), {
-				completedSince: opts.completedSince,
+				completedSince: opts.incomplete ? 'now' : opts.completedSince,
 				...paginationOptionsFromCli(opts),
 			})
 			output(data, () => {
@@ -88,21 +88,21 @@ export function taskCommand() {
 	addPaginationOptions(
 		addGidOption(myTasksCmd.command('list').description('List My Tasks'), 'workspace', 'Workspace GID', {
 			env: 'ASANA_WORKSPACE',
-		}).option(
-			'--completed-since <date>',
-			'Only include tasks completed on or after this date (ISO 8601 or "now" for incomplete only)',
-		),
+		})
+			.option('--completed-since <date>', 'Only include tasks completed on or after this date (ISO 8601 or "now")')
+			.option('--incomplete', 'Only show incomplete tasks (shorthand for --completed-since now)'),
 	).action(
 		async (opts: {
 			workspace?: string
 			workspaceGid?: string
 			completedSince?: string
+			incomplete?: boolean
 			limit?: number
 			offset?: string
 			optFields?: string
 		}) => {
 			const data = await getMyTasks(requiredGid(opts, 'workspace', 'Workspace GID'), {
-				completedSince: opts.completedSince,
+				completedSince: opts.incomplete ? 'now' : opts.completedSince,
 				...paginationOptionsFromCli(opts),
 			})
 			output(data, () => {
@@ -200,9 +200,45 @@ export function taskCommand() {
 
 	const subtaskCmd = cmd.command('subtask').description('Manage subtasks')
 
-	addPaginationOptions(subtaskCmd.command('list <task-gid>').description('List subtasks of a task')).action(
-		async (taskGid: string, opts: { limit?: number; offset?: string; optFields?: string }) => {
-			const data = await listSubtasks(taskGid, paginationOptionsFromCli(opts))
+	addPaginationOptions(
+		subtaskCmd
+			.command('list <task-gid>')
+			.description('List subtasks of a task')
+			.option('--incomplete', 'Only show incomplete subtasks')
+			.option('--assignee-email', 'Include assignee email (opt_fields: assignee,assignee.email)')
+			.option('--follower-emails', 'Include follower emails (opt_fields: followers,followers.email)')
+			.option('--num-subtasks', 'Include subtask count (opt_fields: num_subtasks)')
+			.option('--custom-fields', 'Include custom fields (opt_fields: custom_fields)'),
+	).action(
+		async (
+			taskGid: string,
+			opts: {
+				limit?: number
+				offset?: string
+				optFields?: string
+				incomplete?: boolean
+				assigneeEmail?: boolean
+				followerEmails?: boolean
+				numSubtasks?: boolean
+				customFields?: boolean
+			},
+		) => {
+			const extraFields = [
+				opts.assigneeEmail && 'assignee,assignee.email',
+				opts.followerEmails && 'followers,followers.email',
+				opts.numSubtasks && 'num_subtasks',
+				opts.customFields && 'custom_fields',
+			]
+				.filter(Boolean)
+				.join(',')
+			const pagination = paginationOptionsFromCli(opts)
+			if (extraFields) {
+				pagination.optFields = [pagination.optFields, extraFields].filter(Boolean).join(',')
+			}
+			const data = await listSubtasks(taskGid, {
+				completedSince: opts.incomplete ? 'now' : undefined,
+				...pagination,
+			})
 			output(data, () => {
 				fmtTaskList(itemsForOutput(data))
 				printNextPageHint(data)

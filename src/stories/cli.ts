@@ -8,7 +8,8 @@ import {
 	requiredGid,
 } from '../cli-options.js'
 import { output, printFields, printTable } from '../output.js'
-import { createStory, listStories } from './api.js'
+import { getTask } from '../tasks/api.js'
+import { createStory, interpolateTemplate, listStories } from './api.js'
 
 type Story = { gid: string; type?: string; text?: string; created_by?: { name: string } | null; created_at?: string }
 
@@ -22,8 +23,8 @@ function fmtStory(s: Story) {
 	})
 }
 
-export function storyCommand() {
-	const cmd = new Command('story').description('Manage Asana stories (comments)')
+export function storyCommand(name = 'story') {
+	const cmd = new Command(name).description('Manage Asana stories (comments)')
 
 	addPaginationOptions(
 		addGidOption(cmd.command('list').description('List stories for a task'), 'task', 'Task GID'),
@@ -40,12 +41,22 @@ export function storyCommand() {
 		})
 	})
 
-	addGidOption(cmd.command('create <text>').description('Add a comment to a task'), 'task', 'Task GID').action(
-		async (text: string, opts: { task?: string; taskGid?: string }) => {
-			const data = await createStory(requiredGid(opts, 'task', 'Task GID'), text)
-			output(data, () => fmtStory(data))
-		},
-	)
+	addGidOption(
+		cmd
+			.command('create <text>')
+			.description('Add a comment to a task')
+			.option(
+				'--template',
+				'Treat text as a template; interpolates {task.name}, {task.assignee}, {task.due_on}, {task.notes}',
+			),
+		'task',
+		'Task GID',
+	).action(async (text: string, opts: { task?: string; taskGid?: string; template?: boolean }) => {
+		const taskGid = requiredGid(opts, 'task', 'Task GID')
+		const body = opts.template ? interpolateTemplate(text, await getTask(taskGid)) : text
+		const data = await createStory(taskGid, body)
+		output(data, () => fmtStory(data))
+	})
 
 	return cmd
 }

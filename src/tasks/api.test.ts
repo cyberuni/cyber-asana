@@ -70,6 +70,25 @@ describe('tasks/api', () => {
 		expect(Asana.TasksApi.prototype.getSubtasksForTask).toHaveBeenCalledWith('456', { limit: 100 })
 	})
 
+	it('listSubtasks passes completed_since to SDK', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'getSubtasksForTask').mockResolvedValue({
+			data: [mockTask],
+		} as never)
+		await listSubtasks('456', { completedSince: 'now' })
+		expect(Asana.TasksApi.prototype.getSubtasksForTask).toHaveBeenCalledWith('456', {
+			completed_since: 'now',
+			limit: 100,
+		})
+	})
+
+	it('listSubtasks omits completed_since when not set', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'getSubtasksForTask').mockResolvedValue({
+			data: [mockTask],
+		} as never)
+		await listSubtasks('456')
+		expect(Asana.TasksApi.prototype.getSubtasksForTask).toHaveBeenCalledWith('456', { limit: 100 })
+	})
+
 	it('createSubtask calls createSubtaskForTask with body', async () => {
 		vi.spyOn(Asana.TasksApi.prototype, 'createSubtaskForTask').mockResolvedValue({
 			data: mockTask,
