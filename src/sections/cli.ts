@@ -47,9 +47,9 @@ export function sectionCommand() {
 		'project',
 		'Project GID',
 	).action(async (name: string, opts: { project?: string; projectGid?: string }) => {
-			const data = await createSection(requiredGid(opts, 'project', 'Project GID'), name)
-			output(data, () => fmtSection(data))
-		})
+		const data = await createSection(requiredGid(opts, 'project', 'Project GID'), name)
+		output(data, () => fmtSection(data))
+	})
 
 	cmd
 		.command('update <gid>')

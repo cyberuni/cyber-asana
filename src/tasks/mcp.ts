@@ -112,10 +112,7 @@ export function registerTaskTools(server: McpServer) {
 			tags_any: z.string().optional().describe('Comma-separated tag GIDs (any match)'),
 			teams_any: z.string().optional().describe('Comma-separated team GIDs (any match)'),
 			resource_subtype: z.string().optional().describe('Resource subtype filter (e.g. milestone)'),
-			sort_by: z
-				.string()
-				.optional()
-				.describe('Sort field: due_date, created_at, completed_at, likes, modified_at'),
+			sort_by: z.string().optional().describe('Sort field: due_date, created_at, completed_at, likes, modified_at'),
 			sort_ascending: z.boolean().optional().describe('Sort ascending (default: descending)'),
 			opt_fields: z.string().optional().describe('Comma-separated optional Asana fields to include'),
 		},

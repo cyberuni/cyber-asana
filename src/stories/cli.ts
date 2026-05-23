@@ -40,14 +40,12 @@ export function storyCommand() {
 		})
 	})
 
-	addGidOption(
-		cmd.command('create <text>').description('Add a comment to a task'),
-		'task',
-		'Task GID',
-	).action(async (text: string, opts: { task?: string; taskGid?: string }) => {
+	addGidOption(cmd.command('create <text>').description('Add a comment to a task'), 'task', 'Task GID').action(
+		async (text: string, opts: { task?: string; taskGid?: string }) => {
 			const data = await createStory(requiredGid(opts, 'task', 'Task GID'), text)
 			output(data, () => fmtStory(data))
-		})
+		},
+	)
 
 	return cmd
 }

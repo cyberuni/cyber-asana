@@ -14,9 +14,9 @@ import {
 	deleteTask,
 	getTask,
 	listTasks,
+	type SearchTasksOptions,
 	scanTodos,
 	searchTasks,
-	type SearchTasksOptions,
 	type TodoMatch,
 	updateTask,
 } from './api.js'
@@ -90,12 +90,9 @@ export function taskCommand() {
 
 	addGidOption(
 		addGidOption(
-			addGidOption(
-				cmd.command('create <name>').description('Create a new task'),
-				'workspace',
-				'Workspace GID',
-				{ env: 'ASANA_WORKSPACE' },
-			),
+			addGidOption(cmd.command('create <name>').description('Create a new task'), 'workspace', 'Workspace GID', {
+				env: 'ASANA_WORKSPACE',
+			}),
 			'project',
 			'Project GID',
 		),
@@ -139,27 +136,27 @@ export function taskCommand() {
 		'assignee',
 		'Assignee user GID',
 	).action(
-			async (
-				gid: string,
-				opts: {
-					name?: string
-					notes?: string
-					completed?: boolean
-					dueOn?: string
-					assignee?: string
-					assigneeGid?: string
-				},
-			) => {
-				const data = await updateTask(gid, {
-					name: opts.name,
-					notes: opts.notes,
-					completed: opts.completed,
-					due_on: opts.dueOn,
-					assignee: normalizedGid(opts, 'assignee'),
-				})
-				output(data, () => fmtTask(data))
+		async (
+			gid: string,
+			opts: {
+				name?: string
+				notes?: string
+				completed?: boolean
+				dueOn?: string
+				assignee?: string
+				assigneeGid?: string
 			},
-		)
+		) => {
+			const data = await updateTask(gid, {
+				name: opts.name,
+				notes: opts.notes,
+				completed: opts.completed,
+				due_on: opts.dueOn,
+				assignee: normalizedGid(opts, 'assignee'),
+			})
+			output(data, () => fmtTask(data))
+		},
+	)
 
 	cmd
 		.command('delete <gid>')
@@ -169,12 +166,9 @@ export function taskCommand() {
 			console.log(`Deleted task ${gid}`)
 		})
 
-	addGidOption(
-		cmd.command('search [text]').description('Search tasks in a workspace'),
-		'workspace',
-		'Workspace GID',
-		{ env: 'ASANA_WORKSPACE' },
-	)
+	addGidOption(cmd.command('search [text]').description('Search tasks in a workspace'), 'workspace', 'Workspace GID', {
+		env: 'ASANA_WORKSPACE',
+	})
 		.option('--completed', 'Only completed tasks')
 		.option('--no-completed', 'Only incomplete tasks')
 		.option('--subtask', 'Only subtasks')
