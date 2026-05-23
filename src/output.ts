@@ -1,6 +1,6 @@
-export const jsonMode = process.argv.includes('--json')
+const jsonMode = process.argv.includes('--json')
 
-export function printJson(data: unknown) {
+function printJson(data: unknown) {
 	console.log(JSON.stringify(data, null, 2))
 }
 
