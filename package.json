@@ -8,6 +8,10 @@
 	},
 	"author": "unional <homawong@gmail.com>",
 	"license": "MIT",
+	"files": [
+		"dist",
+		"!dist/**/*.test.*"
+	],
 	"type": "module",
 	"exports": {
 		".": {
