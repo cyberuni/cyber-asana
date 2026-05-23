@@ -1,53 +1,52 @@
 ---
 name: create-tasks-from-code
-description: Use this skill when the user wants to scan code for TODO or FIXME comments and create Asana tasks from them. Searches the codebase, deduplicates against existing tasks, and bulk-creates new ones.
+description: Use this skill when the user wants to scan code for TODO or FIXME comments and create Asana tasks from them. Scans the codebase, lets the LLM decide which are real and actionable, then creates tasks for the filtered set.
 ---
 
 # Create Tasks from Code
 
 ## When to use
 
-When the user wants to track code TODOs/FIXMEs in Asana, or do a cleanup sweep to surface technical debt.
+When the user wants to track code TODOs/FIXMEs in Asana, or do a sweep to surface technical debt.
 
 ## Instructions
 
-### 1. Scan for TODOs and FIXMEs
+### 1. Scan the codebase
 
 ```bash
-grep -rn "TODO\|FIXME" --include="*.ts" --include="*.js" --include="*.py" --include="*.go" . \
-  | grep -v node_modules | grep -v dist
+cyber-asana task scan-todos [dir] --json
 ```
 
-Adjust file extensions to match the project. Collect: file path, line number, comment text.
+Omit `[dir]` to scan the current working directory. Pass `--ext` or `--exclude` to narrow the search if needed.
 
-### 2. Identify target project
+This returns a JSON array of `{ file, line, pattern, text }` objects.
+
+### 2. Review and filter (LLM judgment)
+
+From the scan results, identify which items are:
+- **Actionable**: real work that should be tracked (e.g. `TODO: handle rate limit errors`)
+- **Skip**: noise, already-done items, test fixtures, auto-generated comments
+
+Also check against existing tasks to avoid duplicates:
 
 ```bash
-cyber-asana projects list
+cyber-asana task list --project <project-gid> --json
 ```
 
-Ask the user which project (and optionally which section) to create tasks in.
+Deduplicate semantically — "Fix auth timeout" and "TODO: fix auth timeout" are the same thing.
 
-### 3. Check for existing tasks to avoid duplicates
+### 3. Confirm with the user
 
-```bash
-cyber-asana tasks list --project <project-gid> --json
-```
-
-Skip any TODOs whose text already matches an existing task name.
+Present the filtered list before creating anything. Let the user remove or rename items.
 
 ### 4. Create tasks
 
-For each new TODO/FIXME, create a task with:
-- **Name**: the comment text (strip `TODO:` / `FIXME:` prefix)
-- **Notes**: file path + line number for traceability
+For each approved item:
 
 ```bash
-cyber-asana tasks create --project <project-gid> \
-  --name "<todo text>" \
-  --notes "<file>:<line>"
+cyber-asana task create "<task name>" --project <project-gid> --notes "<file>:<line>"
 ```
 
 ### 5. Report
 
-Summarize: N tasks created, M skipped (already exist), P skipped (no project match).
+Summarize: N tasks created, M skipped.

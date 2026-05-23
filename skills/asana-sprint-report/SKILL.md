@@ -13,33 +13,30 @@ When the user asks for a sprint summary, retrospective data, or completion stats
 
 ### 1. Identify scope
 
-Ask (or infer):
-- Which project?
-- Which section (sprint), or all sections?
-- Date range for "completed during sprint"?
+Ask (or infer): which project, which section (sprint), and the sprint start date.
 
 ```bash
-cyber-asana projects list
-cyber-asana sections list --project <project-gid>
+cyber-asana project list
+cyber-asana section list --project <project-gid>
 ```
 
-### 2. Fetch tasks
+### 2. Fetch completed tasks
 
 ```bash
-cyber-asana tasks list --project <project-gid> --json
+cyber-asana task list --project <project-gid> --completed-since <sprint-start-date> --json
 ```
 
-Filter by section GID if a specific sprint section was chosen.
+### 3. Fetch incomplete tasks
 
-### 3. Compute stats
+```bash
+cyber-asana task list --project <project-gid> --completed-since now --json
+```
 
-From the JSON:
+Filter both lists by section GID if reporting on a specific sprint section.
 
-- **Completed**: `completed === true`, optionally filtered by `completed_at` within sprint dates
-- **Incomplete**: `completed === false`
-- **Completion rate**: `completed / total * 100`
+### 4. Produce the report (LLM judgment)
 
-### 4. Format report
+Compute completion rate and identify patterns — blocked tasks, scope creep, assignee load. Write a narrative summary alongside the raw counts.
 
 ```
 ## Sprint Report — <Section/Project Name>
@@ -47,15 +44,15 @@ Period: <start> – <end>
 
 **Completed (N)**
 - Task name — assignee
-- ...
 
 **Incomplete (M)**
 - Task name — assignee — due <date>
-- ...
 
 Completion rate: X%
+
+<narrative: patterns, blockers, notes>
 ```
 
 ### 5. Offer follow-up
 
-Ask if the user wants to move incomplete tasks to the next sprint section or mark them as blocked.
+Ask if the user wants to move incomplete tasks to the next sprint section.

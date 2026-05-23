@@ -1,6 +1,6 @@
 ---
 name: sync-asana-project
-description: Use this skill when the user wants to pull Asana tasks into local markdown files for offline planning, code context, or documentation. Fetches tasks from a project and writes them as structured markdown.
+description: Use this skill when the user wants to pull Asana tasks into local markdown files for offline planning, code context, or documentation.
 ---
 
 # Sync Asana Project
@@ -16,44 +16,21 @@ When the user wants a local snapshot of an Asana project's tasks — for sprint 
 If the user hasn't specified a project GID:
 
 ```bash
-cyber-asana projects list
+cyber-asana project list
 ```
 
 Ask the user to pick one.
 
-### 2. Fetch tasks
+### 2. Export to markdown
 
 ```bash
-cyber-asana tasks list --project <project-gid> --json > /tmp/asana-tasks.json
+cyber-asana project export <project-gid> --output <path>
 ```
 
-### 3. Fetch sections (optional, for grouping)
+For example: `--output docs/sprint.md` or `--output TASKS.md`.
 
-```bash
-cyber-asana sections list --project <project-gid> --json > /tmp/asana-sections.json
-```
+Omit `--output` to preview in stdout first.
 
-### 4. Write markdown
+### 3. Confirm
 
-Create a file (e.g. `docs/asana-<project-name>.md` or wherever the user specifies) with this structure:
-
-```markdown
-# <Project Name>
-
-_Synced from Asana on <date>_
-
-## <Section Name>
-
-- [ ] <task name> — <assignee> — due <due_on>
-- [ ] ...
-
-## (No section)
-
-- [ ] ...
-```
-
-Use the JSON data to populate it. Mark completed tasks with `[x]`.
-
-### 5. Confirm
-
-Tell the user the file path and task count written. Suggest re-running after sprints to refresh.
+Tell the user the file path written. Suggest re-running after each sprint to refresh.

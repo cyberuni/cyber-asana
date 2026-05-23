@@ -11,37 +11,42 @@ When the user asks for their standup, daily update, or "what did I do / what am 
 
 ## Instructions
 
-### 1. Fetch the user's tasks
+### 1. Fetch recently completed tasks
+
+Use two days ago as the cutoff (adjust if the user specifies a different window):
 
 ```bash
-cyber-asana tasks my --json
+cyber-asana task list --project <project-gid> --completed-since <two-days-ago-date> --json
 ```
 
-### 2. Categorize tasks
+### 2. Fetch incomplete tasks
 
-From the JSON, split into:
+```bash
+cyber-asana task list --project <project-gid> --completed-since now --json
+```
 
-- **Done (recently completed)**: `completed === true` and `completed_at` within the last 2 days
-- **In progress / due today**: `completed === false` and `due_on <= today`
-- **Up next**: `completed === false` and `due_on` within the next 7 days
+`--completed-since now` returns only incomplete tasks.
 
-### 3. Format standup output
+If no project is known, ask the user or use `cyber-asana project list` to pick one.
+
+### 3. Format standup (LLM judgment)
+
+From the two result sets, select and prioritize:
+- **Done**: completed tasks worth mentioning (skip trivial or unrelated items)
+- **Today**: incomplete tasks due today or actively in progress
+- **Up next**: other near-term incomplete tasks, if relevant
 
 ```
-**Yesterday / Done**
+**Done**
 - Task name (Project)
-- ...
 
 **Today**
-- Task name (due: <date>) (Project)
-- ...
+- Task name — due <date>
 
 **Blockers**
 (ask the user if any)
 ```
 
-Keep names concise. Include the project name in parentheses for context.
+### 4. Present and offer to adjust
 
-### 4. Present and offer to copy
-
-Output the formatted standup. Ask if the user wants to adjust date range or add blockers.
+Output the standup. Ask if the user wants to tweak the date range, add blockers, or change the format.
