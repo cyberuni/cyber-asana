@@ -43,7 +43,7 @@
 		"@modelcontextprotocol/sdk": "^1.12.0",
 		"asana": "^3.0.12",
 		"commander": "^14.0.0",
-		"zod": "^3.25.28"
+		"zod": "^4.4.3"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.15",
@@ -51,12 +51,12 @@
 		"@commitlint/cli": "^21.0.1",
 		"@commitlint/config-conventional": "^21.0.1",
 		"@repobuddy/biome": "^2.3.1",
-		"@types/node": "^22.15.21",
+		"@types/node": "^25.9.1",
 		"husky": "^9.1.7",
 		"knip": "^6.14.1",
 		"tsx": "^4.19.4",
-		"typescript": "^5.8.3",
-		"vitest": "^3.2.2"
+		"typescript": "^6.0.3",
+		"vitest": "^4.1.7"
 	},
 	"packageManager": "pnpm@11.2.2+sha512.36e6621fad506178936455e70247b8808ef4ec25797a9f437a93281a020484e2607f6a469a22e982987c3dbb8866e3071514ab10a4a1749e06edcd1ec118436f",
 	"engines": {
