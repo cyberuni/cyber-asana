@@ -76,6 +76,49 @@ describe('tasks/api', () => {
 		)
 	})
 
+	it('searchTasks forwards all filter params to SDK', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'searchTasksForWorkspace').mockResolvedValue({
+			data: [mockTask],
+		} as never)
+		await searchTasks('ws1', {
+			text: 'query',
+			completed: true,
+			isSubtask: false,
+			hasAttachment: true,
+			isBlocking: true,
+			isBlocked: false,
+			assigneeAny: 'u1,u2',
+			projectsAny: 'p1',
+			sectionsAny: 's1',
+			tagsAny: 't1',
+			teamsAny: 'tm1',
+			resourceSubtype: 'milestone',
+			sortBy: 'due_date',
+			sortAscending: true,
+			optFields: 'gid,name',
+		})
+		expect(Asana.TasksApi.prototype.searchTasksForWorkspace).toHaveBeenCalledWith(
+			'ws1',
+			expect.objectContaining({
+				text: 'query',
+				completed: true,
+				is_subtask: false,
+				has_attachment: true,
+				is_blocking: true,
+				is_blocked: false,
+				'assignee.any': 'u1,u2',
+				'projects.any': 'p1',
+				'sections.any': 's1',
+				'tags.any': 't1',
+				'teams.any': 'tm1',
+				resource_subtype: 'milestone',
+				sort_by: 'due_date',
+				sort_ascending: true,
+				opt_fields: 'gid,name',
+			}),
+		)
+	})
+
 	it('listTasks passes completed_since to SDK', async () => {
 		vi.spyOn(Asana.TasksApi.prototype, 'getTasksForProject').mockResolvedValue({
 			data: [mockTask],

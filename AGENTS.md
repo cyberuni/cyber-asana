@@ -79,6 +79,35 @@ Use helpers from `src/output.ts`:
 - `printFields(record)` — aligned key-value block; skips null/undefined values
 - `printTable(items, cols)` — padded table with header row
 
+### GID Options
+
+Use helpers from `src/cli-options.ts` for all resource GID parameters:
+- `addGidOption(cmd, 'project', 'Project GID')` — adds both `--project-gid` and `--project` alias; optionally pass `{ env: 'ASANA_WORKSPACE' }` to bind an env var
+- `requiredGid(opts, 'project', 'Project GID')` — reads `projectGid ?? project`, throws if missing
+- `normalizedGid(opts, 'project')` — reads `projectGid ?? project`, returns undefined if absent
+- `addPaginationOptions(cmd)` — adds `--limit`, `--offset`, `--opt-fields`, `--all`, `--max-pages`
+- `paginationOptionsFromCli(opts)` — maps camelCase CLI opts to `PaginationOptions`
+- `itemsForOutput(result)` — extracts the `data` array from a paginated or plain result
+- `printNextPageHint(result)` — prints `Next offset: ...` when another page exists
+
+### Pagination
+
+All list endpoints in `api.ts` accept `PaginationOptions` from `src/pagination.ts`:
+
+```ts
+type PaginationOptions = {
+  limit?: number       // default 100
+  offset?: string      // cursor from previous next_page
+  optFields?: string   // comma-separated Asana fields
+  fetchAll?: boolean   // auto-follow pages up to maxPages
+  maxPages?: number    // default 10
+}
+```
+
+Use `toAsanaPaginationOptions(opts)` to convert to SDK params, and `collectListResponse(res, opts)` to return a `PaginatedResult`. Response shape: `{ data, next_page, limit, page_count?, truncated? }`.
+
+MCP list tools use `paginationParams` / `paginationOptions(params)` from `src/mcp-options.ts`.
+
 ### MCP Tools
 
 - Naming: `asana_<resource>_<action>` (e.g. `asana_project_create`)
