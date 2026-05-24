@@ -10,15 +10,20 @@ Before writing any production code, invoke the `test-driven-development` skill. 
 
 Commit every self-contained unit of work — code, docs, config, skills — as its own commit before moving on.
 
+A **unit of work** is one coherent, independently revertable change: one domain's refactor, one feature, one bugfix, one test suite expansion for one concern, one config change. A TDD red-green-refactor cycle alone is not a commit boundary — commit when the full intended change is complete and tests pass.
+
 ```bash
-git add -p   # stage only relevant changes
+git add <files>     # stage only files belonging to this unit of work
+git diff --cached   # verify staged changes before committing
 git commit -m "<type>: <what changed>"
 ```
 
 - Conventional commit prefix: `feat:`, `fix:`, `refactor:`, `test:`, `docs:`, `chore:`
 - Message describes the behavior or change, not the implementation
+- Never use `git add .` or `git add -A` — these stage everything indiscriminately
 - Never batch unrelated changes into one commit
 - Never commit with red tests
+- If the working tree contains unrelated changes (different domain, different concern), leave them unstaged and commit the current unit first
 
 ## Skill Augmentations
 
