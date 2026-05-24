@@ -84,6 +84,60 @@ export async function getTask(taskGid: string) {
 	return res.data
 }
 
+export type TaskBatchLookupSuccess = {
+	gid: string
+	ok: true
+	task: Record<string, unknown>
+}
+
+export type TaskBatchLookupFailure = {
+	gid: string
+	ok: false
+	status: number
+	errors: unknown[]
+}
+
+export type TaskBatchLookupResult = TaskBatchLookupSuccess | TaskBatchLookupFailure
+
+const TASK_BATCH_ACTION_LIMIT = 10
+
+function taskRelativePath(taskGid: string, optFields?: string) {
+	return optFields ? `/tasks/${taskGid}?opt_fields=${optFields}` : `/tasks/${taskGid}`
+}
+
+export async function getTasksByGid(taskGids: string[], opts?: { optFields?: string }): Promise<TaskBatchLookupResult[]> {
+	const api = new Asana.BatchAPIApi(createClient())
+	const results: TaskBatchLookupResult[] = []
+
+	for (let i = 0; i < taskGids.length; i += TASK_BATCH_ACTION_LIMIT) {
+		const chunk = taskGids.slice(i, i + TASK_BATCH_ACTION_LIMIT)
+		const res = await api.createBatchRequest({
+			data: {
+				actions: chunk.map((gid) => ({
+					method: 'get',
+					relative_path: taskRelativePath(gid, opts?.optFields),
+				})),
+			},
+		})
+
+		for (const [index, item] of (res.data as { status_code: number; body?: { data?: Record<string, unknown>; errors?: unknown[] } }[]).entries()) {
+			const gid = chunk[index]
+			if (item.status_code >= 200 && item.status_code < 300 && item.body?.data) {
+				results.push({ gid, ok: true, task: item.body.data })
+			} else {
+				results.push({
+					gid,
+					ok: false,
+					status: item.status_code,
+					errors: item.body?.errors ?? [],
+				})
+			}
+		}
+	}
+
+	return results
+}
+
 export async function createTask(workspaceGid: string, name: string, opts?: CreateTaskFields) {
 	const api = new Asana.TasksApi(createClient())
 	const res = await api.createTask({

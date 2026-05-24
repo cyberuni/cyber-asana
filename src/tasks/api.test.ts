@@ -11,6 +11,7 @@ import {
 	createSubtask,
 	createTask,
 	deleteTask,
+	getTasksByGid,
 	getDependencies,
 	getDependents,
 	getMyTasks,
@@ -52,6 +53,95 @@ describe('tasks/api', () => {
 		vi.spyOn(Asana.TasksApi.prototype, 'getTask').mockResolvedValue({ data: mockTask } as never)
 		const result = await getTask('456')
 		expect(result).toEqual(mockTask)
+	})
+
+	it('getTasksByGid batches task reads with opt_fields and preserves input order', async () => {
+		vi.spyOn(Asana.BatchAPIApi.prototype, 'createBatchRequest').mockResolvedValue({
+			data: [
+				{
+					status_code: 200,
+					body: { data: { gid: '456', name: 'First Task' } },
+				},
+				{
+					status_code: 200,
+					body: { data: { gid: '789', name: 'Second Task' } },
+				},
+			],
+		} as never)
+
+		const result = await getTasksByGid(['456', '789'], { optFields: 'gid,name' })
+
+		expect(result).toEqual([
+			{ gid: '456', ok: true, task: { gid: '456', name: 'First Task' } },
+			{ gid: '789', ok: true, task: { gid: '789', name: 'Second Task' } },
+		])
+		expect(Asana.BatchAPIApi.prototype.createBatchRequest).toHaveBeenCalledWith({
+			data: {
+				actions: [
+					{ method: 'get', relative_path: '/tasks/456?opt_fields=gid,name' },
+					{ method: 'get', relative_path: '/tasks/789?opt_fields=gid,name' },
+				],
+			},
+		})
+	})
+
+	it('getTasksByGid returns per-gid failures for partial batch errors', async () => {
+		vi.spyOn(Asana.BatchAPIApi.prototype, 'createBatchRequest').mockResolvedValue({
+			data: [
+				{
+					status_code: 200,
+					body: { data: { gid: '456', name: 'First Task' } },
+				},
+				{
+					status_code: 404,
+					body: { errors: [{ message: 'Not Found' }] },
+				},
+			],
+		} as never)
+
+		const result = await getTasksByGid(['456', '999'])
+
+		expect(result).toEqual([
+			{ gid: '456', ok: true, task: { gid: '456', name: 'First Task' } },
+			{ gid: '999', ok: false, status: 404, errors: [{ message: 'Not Found' }] },
+		])
+	})
+
+	it('getTasksByGid chunks requests beyond the batch action limit', async () => {
+		const batchSpy = vi
+			.spyOn(Asana.BatchAPIApi.prototype, 'createBatchRequest')
+			.mockResolvedValueOnce({
+				data: Array.from({ length: 10 }, (_, index) => ({
+					status_code: 200,
+					body: { data: { gid: String(index + 1), name: `Task ${index + 1}` } },
+				})),
+			} as never)
+			.mockResolvedValueOnce({
+				data: [
+					{
+						status_code: 200,
+						body: { data: { gid: '11', name: 'Task 11' } },
+					},
+				],
+			} as never)
+
+		const result = await getTasksByGid(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'])
+
+		expect(result).toHaveLength(11)
+		expect(batchSpy).toHaveBeenCalledTimes(2)
+		expect(batchSpy.mock.calls[0][0]).toEqual({
+			data: {
+				actions: Array.from({ length: 10 }, (_, index) => ({
+					method: 'get',
+					relative_path: `/tasks/${index + 1}`,
+				})),
+			},
+		})
+		expect(batchSpy.mock.calls[1][0]).toEqual({
+			data: {
+				actions: [{ method: 'get', relative_path: '/tasks/11' }],
+			},
+		})
 	})
 
 	it('createTask calls createTask with body', async () => {
