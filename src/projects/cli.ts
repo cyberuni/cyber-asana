@@ -64,9 +64,14 @@ export function projectCommand() {
 			output(data, () => fmtProject(data))
 		})
 
-	addGidOption(cmd.command('search [text]').description('Search projects in a workspace'), 'workspace', 'Workspace GID', {
-		env: 'ASANA_WORKSPACE',
-	})
+	addGidOption(
+		cmd.command('search [text]').description('Search projects in a workspace'),
+		'workspace',
+		'Workspace GID',
+		{
+			env: 'ASANA_WORKSPACE',
+		},
+	)
 		.option('--completed', 'Only completed projects')
 		.option('--no-completed', 'Only incomplete projects')
 		.option('--team <gid[,gid...]>', 'Team GIDs (any match)')

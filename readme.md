@@ -46,7 +46,7 @@ Use `--all` to fetch multiple pages intentionally; `--max-pages` caps the number
 | Resource | Actions |
 |---|---|
 | `workspace` | `list`, `get` |
-| `project` | `list`, `get`, `create`, `update`, `delete` |
+| `project` | `list`, `get`, `search`, `create`, `update`, `delete` |
 | `task` | `list`, `my-tasks list`, `get`, `create`, `update`, `delete`, `subtask list`, `subtask create`, `search`, `project add/remove`, `follower add/remove`, `dependency list/add/remove`, `dependent list/add/remove` |
 | `section` | `list`, `get`, `create`, `update`, `delete` |
 | `user` | `list`, `get`, `me` |
@@ -257,11 +257,49 @@ cyber-asana task search --modified-on-after 2026-05-17 --project-not <gid>
 
 **Other:** `--subtype <subtype>`, `--sort-by <field>`, `--sort-asc`, `--opt-fields <fields>`
 
+### Project search filters
+
+`project search` accepts an optional text query plus filters.
+
+Filters that accept `<gid[,gid...]>` take one or more comma-separated identifiers.
+
+```sh
+# Search by name pattern
+cyber-asana project search "launch" --workspace-gid <gid>
+
+# Incomplete projects owned by me
+cyber-asana project search --workspace-gid <gid> --no-completed --owner me
+
+# Projects in a portfolio, sorted by due date
+cyber-asana project search --workspace-gid <gid> --portfolio <gid> --sort-by due_date
+```
+
+**Status filters:** `--completed/--no-completed`
+
+**Resource filters** (accept `<gid[,gid...]>`):
+- `--team`
+- `--owner`
+- `--member`, `--member-not`
+- `--portfolio`
+
+**Date filters** (YYYY-MM-DD for `*-on`, ISO 8601 for `*-at`):
+- `--completed-on`, `--completed-on-before`, `--completed-on-after`, `--completed-at-before`, `--completed-at-after`
+- `--created-on`, `--created-on-before`, `--created-on-after`, `--created-at-before`, `--created-at-after`
+- `--due-on`, `--due-on-before`, `--due-on-after`, `--due-at-before`, `--due-at-after`
+- `--start-on`, `--start-on-before`, `--start-on-after`
+
+**Other:** `--sort-by <field>`, `--sort-asc`, `--opt-fields <fields>`
+
+Project search uses Asana’s premium search endpoint. Results may be eventually consistent, so newly changed projects may not appear immediately.
+
 ### Examples
 
 ```sh
 # List projects
 cyber-asana project list
+
+# Search projects
+cyber-asana project search "launch" --workspace-gid <gid>
 
 # Create a task
 cyber-asana task create "Fix the bug" --workspace-gid <gid> --project-gid <gid> --due-on 2026-06-01
@@ -304,6 +342,8 @@ Fetch-all responses also include `page_count` and `truncated`.
 `asana_task_update` accepts `html_notes`, `parent_gid`, `clear_parent`, `resource_subtype`, and `custom_fields`.
 
 Use `asana_task_follower_add` and `asana_task_follower_remove` to manage followers on existing tasks.
+
+`asana_project_search` accepts `text`, `completed`, `teams_any`, `owner_any`, `members_any`, `members_not`, `portfolios_any`, supported project date filters, `sort_by`, `sort_ascending`, and `opt_fields`.
 
 `asana_story_create` and `asana_comment_create` accept `template: true` to interpolate `{task.name}`, `{task.assignee}`, `{task.due_on}`, and `{task.notes}` in the comment text before posting.
 
