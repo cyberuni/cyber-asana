@@ -1,0 +1,22 @@
+import { describe, expect, it, vi } from 'vitest'
+import { createPortfolioApi } from './api.js'
+
+const mockPortfolio = { gid: 'pf1', name: 'Q1 Goals' }
+
+describe('createPortfolioApi', () => {
+	it('uses the provided gateway for listPortfolios', async () => {
+		const mockListPortfolios = vi.fn().mockResolvedValue({ data: [mockPortfolio], next_page: null, limit: 100 })
+		const api = createPortfolioApi({
+			listPortfolios: mockListPortfolios,
+			getPortfolio: vi.fn(),
+			createPortfolio: vi.fn(),
+			updatePortfolio: vi.fn(),
+			deletePortfolio: vi.fn(),
+		})
+
+		const result = await api.listPortfolios('ws1')
+
+		expect(result).toEqual({ data: [mockPortfolio], next_page: null, limit: 100 })
+		expect(mockListPortfolios).toHaveBeenCalledWith('ws1', undefined)
+	})
+})

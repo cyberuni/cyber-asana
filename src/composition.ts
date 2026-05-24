@@ -1,6 +1,8 @@
-import { createClient } from './client.js'
-import { createAttachmentApi, type AttachmentApi } from './attachments/api.js'
+import { type AttachmentApi, createAttachmentApi } from './attachments/api.js'
 import { createAsanaAttachmentGateway } from './attachments/gateway.js'
+import { createClient } from './client.js'
+import { createPortfolioApi, type PortfolioApi } from './portfolios/api.js'
+import { createAsanaPortfolioGateway } from './portfolios/gateway.js'
 import { createSectionApi, type SectionApi } from './sections/api.js'
 import { createAsanaSectionGateway } from './sections/gateway.js'
 import { createStoryApi, type StoryApi } from './stories/api.js'
@@ -16,6 +18,7 @@ import { createAsanaWorkspaceGateway } from './workspaces/gateway.js'
 
 export type RuntimeContext = {
 	attachments: AttachmentApi
+	portfolios: PortfolioApi
 	sections: SectionApi
 	stories: StoryApi
 	tags: TagApi
@@ -28,6 +31,7 @@ export function createRuntimeContext(): RuntimeContext {
 	const client = createClient()
 	return {
 		attachments: createAttachmentApi(createAsanaAttachmentGateway(client)),
+		portfolios: createPortfolioApi(createAsanaPortfolioGateway(client)),
 		sections: createSectionApi(createAsanaSectionGateway(client)),
 		stories: createStoryApi(createAsanaStoryGateway(client)),
 		tags: createTagApi(createAsanaTagGateway(client)),
