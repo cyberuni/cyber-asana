@@ -1,24 +1,38 @@
-import Asana from 'asana'
 import { createClient } from '../client.js'
-import { collectListResponse, type PaginationOptions, toAsanaPaginationOptions } from '../pagination.js'
+import type { PaginationOptions } from '../pagination.js'
+import { createAsanaUserGateway, type UserGateway } from './gateway.js'
+
+export type UserApi = ReturnType<typeof createUserApi>
+
+export function createUserApi(gateway: UserGateway) {
+	return {
+		listUsers(workspaceGid: string, opts?: Omit<PaginationOptions, 'limit' | 'fetchAll' | 'maxPages'>) {
+			return gateway.listUsers(workspaceGid, opts)
+		},
+		getUser(userGid: string) {
+			return gateway.getUser(userGid)
+		},
+		getMe() {
+			return gateway.getMe()
+		},
+	}
+}
+
+function defaultUserApi() {
+	return createUserApi(createAsanaUserGateway(createClient()))
+}
 
 export async function listUsers(
 	workspaceGid: string,
 	opts?: Omit<PaginationOptions, 'limit' | 'fetchAll' | 'maxPages'>,
 ) {
-	const api = new Asana.UsersApi(createClient())
-	const res = await api.getUsersForWorkspace(workspaceGid, toAsanaPaginationOptions(opts, { limit: false }))
-	return await collectListResponse(res, opts, { limit: false })
+	return defaultUserApi().listUsers(workspaceGid, opts)
 }
 
 export async function getUser(userGid: string) {
-	const api = new Asana.UsersApi(createClient())
-	const res = await api.getUser(userGid, {})
-	return res.data
+	return defaultUserApi().getUser(userGid)
 }
 
 export async function getMe() {
-	const api = new Asana.UsersApi(createClient())
-	const res = await api.getUser('me', {})
-	return res.data
+	return defaultUserApi().getMe()
 }
