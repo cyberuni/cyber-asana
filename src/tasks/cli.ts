@@ -21,6 +21,7 @@ import {
 	getDependents,
 	getMyTasks,
 	getTask,
+	getTasksByGid,
 	listSubtasks,
 	listTasks,
 	removeDependencies,
@@ -133,6 +134,31 @@ export function taskCommand() {
 		.action(async (gid: string) => {
 			const data = await getTask(gid)
 			output(data, () => fmtTask(data))
+		})
+
+	cmd
+		.command('get-many <gids...>')
+		.description('Get multiple tasks by GID')
+		.option('--opt-fields <fields>', 'Comma-separated optional Asana fields to include')
+		.action(async (gids: string[], opts: { optFields?: string }) => {
+			const data = await getTasksByGid(gids, opts.optFields ? { optFields: opts.optFields } : undefined)
+			output(data, () => {
+				if (data.length === 0) {
+					console.log('(none)')
+					return
+				}
+				for (const item of data) {
+					if (item.ok) {
+						fmtTask(item.task as Task)
+					} else {
+						console.log(`Task ${item.gid}`)
+						console.log(`Status  ${String(item.status)}`)
+						console.log(
+							`Errors  ${item.errors.map((error) => (error && typeof error === 'object' && 'message' in error ? String((error as { message: unknown }).message) : JSON.stringify(error))).join('; ')}`,
+						)
+					}
+				}
+			})
 		})
 
 	addGidOption(

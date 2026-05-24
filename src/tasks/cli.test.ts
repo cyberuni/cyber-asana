@@ -5,6 +5,7 @@ const createTaskMock = vi.fn()
 const updateTaskMock = vi.fn()
 const addFollowersToTaskMock = vi.fn()
 const removeFollowersFromTaskMock = vi.fn()
+const getTasksByGidMock = vi.fn()
 
 vi.mock('./api.js', async () => {
 	const actual = await vi.importActual<typeof import('./api.js')>('./api.js')
@@ -14,14 +15,19 @@ vi.mock('./api.js', async () => {
 		updateTask: updateTaskMock,
 		addFollowersToTask: addFollowersToTaskMock,
 		removeFollowersFromTask: removeFollowersFromTaskMock,
+		getTasksByGid: getTasksByGidMock,
 	}
 })
 
 const { taskCommand } = await import('./cli.js')
 
 describe('tasks/cli', () => {
+	const originalArgv = [...process.argv]
+	const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
 	afterEach(() => {
 		vi.clearAllMocks()
+		process.argv = [...originalArgv]
 	})
 
 	it('task create normalizes multi-project, followers, html notes, and custom fields', async () => {
@@ -114,5 +120,31 @@ describe('tasks/cli', () => {
 		await program.parseAsync(['node', 'test', 'task', 'follower', 'add', '123', 'u1', 'u2'], { from: 'node' })
 
 		expect(addFollowersToTaskMock).toHaveBeenCalledWith('123', ['u1', 'u2'])
+	})
+
+	it('task get-many forwards gids and opt-fields to batch lookup', async () => {
+		getTasksByGidMock.mockResolvedValue([{ gid: '123', ok: true, task: { gid: '123', name: 'Task 1' } }])
+		const program = new Command().addCommand(taskCommand())
+
+		await program.parseAsync(
+			['node', 'test', 'task', 'get-many', '123', '456', '--opt-fields', 'gid,name,completed'],
+			{ from: 'node' },
+		)
+
+		expect(getTasksByGidMock).toHaveBeenCalledWith(['123', '456'], {
+			optFields: 'gid,name,completed',
+		})
+	})
+
+	it('task get-many prints raw json with --json', async () => {
+		getTasksByGidMock.mockResolvedValue([{ gid: '123', ok: true, task: { gid: '123', name: 'Task 1' } }])
+		process.argv = ['node', 'test', '--json']
+		const program = new Command().option('--json').addCommand(taskCommand())
+
+		await program.parseAsync(['node', 'test', '--json', 'task', 'get-many', '123'], { from: 'node' })
+
+		expect(logSpy).toHaveBeenCalledWith(
+			JSON.stringify([{ gid: '123', ok: true, task: { gid: '123', name: 'Task 1' } }], null, 2),
+		)
 	})
 })

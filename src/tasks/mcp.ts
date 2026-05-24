@@ -13,6 +13,7 @@ import {
 	getDependents,
 	getMyTasks,
 	getTask,
+	getTasksByGid,
 	listSubtasks,
 	listTasks,
 	removeDependencies,
@@ -150,6 +151,23 @@ export function registerTaskTools(server: McpServer) {
 		{ task_gid: z.string().describe('Task GID') },
 		async ({ task_gid }) => ({
 			content: [{ type: 'text', text: JSON.stringify(await getTask(task_gid)) }],
+		}),
+	)
+
+	server.tool(
+		'asana_task_get_many',
+		'Get multiple Asana tasks by GID',
+		{
+			task_gids: z.array(z.string()).describe('Task GIDs'),
+			opt_fields: z.string().optional().describe('Comma-separated optional Asana fields to include'),
+		},
+		async ({ task_gids, opt_fields }) => ({
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(await getTasksByGid(task_gids, opt_fields ? { optFields: opt_fields } : undefined)),
+				},
+			],
 		}),
 	)
 

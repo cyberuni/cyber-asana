@@ -1,5 +1,3 @@
-const jsonMode = process.argv.includes('--json')
-
 function printJson(data: unknown) {
 	console.log(JSON.stringify(data, null, 2))
 }
@@ -26,6 +24,6 @@ export function printTable<T>(items: T[], cols: { label: string; get: (item: T) 
 }
 
 export function output(data: unknown, readable: () => void) {
-	if (jsonMode) printJson(data)
+	if (process.argv.includes('--json')) printJson(data)
 	else readable()
 }

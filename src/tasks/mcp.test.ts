@@ -4,6 +4,7 @@ const createTaskMock = vi.fn()
 const updateTaskMock = vi.fn()
 const addFollowersToTaskMock = vi.fn()
 const removeFollowersFromTaskMock = vi.fn()
+const getTasksByGidMock = vi.fn()
 
 vi.mock('./api.js', async () => {
 	const actual = await vi.importActual<typeof import('./api.js')>('./api.js')
@@ -13,6 +14,7 @@ vi.mock('./api.js', async () => {
 		updateTask: updateTaskMock,
 		addFollowersToTask: addFollowersToTaskMock,
 		removeFollowersFromTask: removeFollowersFromTaskMock,
+		getTasksByGid: getTasksByGidMock,
 	}
 })
 
@@ -108,5 +110,28 @@ describe('tasks/mcp', () => {
 		})
 
 		expect(removeFollowersFromTaskMock).toHaveBeenCalledWith('123', ['u1', 'u2'])
+	})
+
+	it('asana_task_get_many forwards gids and opt_fields to batch lookup', async () => {
+		getTasksByGidMock.mockResolvedValue([{ gid: '123', ok: true, task: { gid: '123', name: 'Task 1' } }])
+		const server = createServer()
+		registerTaskTools(server as any)
+
+		const result = await server.handlers.get('asana_task_get_many')?.({
+			task_gids: ['123', '456'],
+			opt_fields: 'gid,name,completed',
+		})
+
+		expect(getTasksByGidMock).toHaveBeenCalledWith(['123', '456'], {
+			optFields: 'gid,name,completed',
+		})
+		expect(result).toEqual({
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify([{ gid: '123', ok: true, task: { gid: '123', name: 'Task 1' } }]),
+				},
+			],
+		})
 	})
 })

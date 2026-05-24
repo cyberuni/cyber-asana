@@ -105,7 +105,10 @@ function taskRelativePath(taskGid: string, optFields?: string) {
 	return optFields ? `/tasks/${taskGid}?opt_fields=${optFields}` : `/tasks/${taskGid}`
 }
 
-export async function getTasksByGid(taskGids: string[], opts?: { optFields?: string }): Promise<TaskBatchLookupResult[]> {
+export async function getTasksByGid(
+	taskGids: string[],
+	opts?: { optFields?: string },
+): Promise<TaskBatchLookupResult[]> {
 	const api = new Asana.BatchAPIApi(createClient())
 	const results: TaskBatchLookupResult[] = []
 
@@ -120,7 +123,9 @@ export async function getTasksByGid(taskGids: string[], opts?: { optFields?: str
 			},
 		})
 
-		for (const [index, item] of (res.data as { status_code: number; body?: { data?: Record<string, unknown>; errors?: unknown[] } }[]).entries()) {
+		for (const [index, item] of (
+			res.data as { status_code: number; body?: { data?: Record<string, unknown>; errors?: unknown[] } }[]
+		).entries()) {
 			const gid = chunk[index]
 			if (item.status_code >= 200 && item.status_code < 300 && item.body?.data) {
 				results.push({ gid, ok: true, task: item.body.data })
