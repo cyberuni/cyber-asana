@@ -457,15 +457,14 @@ export function taskCommand() {
 
 	const dependencyCmd = cmd.command('dependency').description('Manage task dependencies (tasks this task depends on)')
 
-	addPaginationOptions(dependencyCmd.command('list <task-gid>').description('List dependencies of a task')).action(
-		async (taskGid: string, opts: { limit?: number; offset?: string; optFields?: string }) => {
-			const data = await getDependencies(taskGid, paginationOptionsFromCli(opts))
-			output(data, () => {
-				fmtTaskList(itemsForOutput(data))
-				printNextPageHint(data)
-			})
-		},
-	)
+	dependencyCmd
+		.command('list <task-gid>')
+		.description('List dependencies of a task')
+		.option('--opt-fields <fields>', 'Comma-separated Asana fields to include')
+		.action(async (taskGid: string, opts: { optFields?: string }) => {
+			const data = await getDependencies(taskGid, { optFields: opts.optFields })
+			output(data, () => fmtTaskList(data))
+		})
 
 	dependencyCmd
 		.command('add <task-gid> <dep-gids...>')
@@ -485,15 +484,14 @@ export function taskCommand() {
 
 	const dependentCmd = cmd.command('dependent').description('Manage task dependents (tasks that depend on this task)')
 
-	addPaginationOptions(dependentCmd.command('list <task-gid>').description('List dependents of a task')).action(
-		async (taskGid: string, opts: { limit?: number; offset?: string; optFields?: string }) => {
-			const data = await getDependents(taskGid, paginationOptionsFromCli(opts))
-			output(data, () => {
-				fmtTaskList(itemsForOutput(data))
-				printNextPageHint(data)
-			})
-		},
-	)
+	dependentCmd
+		.command('list <task-gid>')
+		.description('List dependents of a task')
+		.option('--opt-fields <fields>', 'Comma-separated Asana fields to include')
+		.action(async (taskGid: string, opts: { optFields?: string }) => {
+			const data = await getDependents(taskGid, { optFields: opts.optFields })
+			output(data, () => fmtTaskList(data))
+		})
 
 	dependentCmd
 		.command('add <task-gid> <dep-gids...>')

@@ -47,7 +47,7 @@ Use `--all` to fetch multiple pages intentionally; `--max-pages` caps the number
 |---|---|
 | `workspace` | `list`, `get` |
 | `project` | `list`, `get`, `create`, `update`, `delete` |
-| `task` | `list`, `my-tasks list`, `get`, `create`, `update`, `delete`, `subtask list`, `subtask create`, `search` |
+| `task` | `list`, `my-tasks list`, `get`, `create`, `update`, `delete`, `subtask list`, `subtask create`, `search`, `dependency list/add/remove`, `dependent list/add/remove` |
 | `section` | `list`, `get`, `create`, `update`, `delete` |
 | `user` | `list`, `get`, `me` |
 | `team` | `list`, `get` |
@@ -103,6 +103,29 @@ cyber-asana task subtask list <task-gid> --assignee-email --opt-fields "due_on,n
 | `--follower-emails` | `followers,followers.email` |
 | `--num-subtasks` | `num_subtasks` |
 | `--custom-fields` | `custom_fields` |
+
+### Task dependencies and dependents
+
+Asana models dependencies as simple blocking relationships (Finish-to-Start only). A dependency is a task that must finish before this task can start; a dependent is a task that cannot start until this task finishes.
+
+```sh
+# List tasks this task depends on (includes completed/due_on by default)
+cyber-asana task dependency list <task-gid>
+cyber-asana task dependency list <task-gid> --opt-fields "gid,name,assignee"
+
+# Add/remove dependencies
+cyber-asana task dependency add <task-gid> <dep-gid> [<dep-gid>...]
+cyber-asana task dependency remove <task-gid> <dep-gid> [<dep-gid>...]
+
+# List tasks that are blocked by this task
+cyber-asana task dependent list <task-gid>
+
+# Add/remove dependents
+cyber-asana task dependent add <task-gid> <dep-gid> [<dep-gid>...]
+cyber-asana task dependent remove <task-gid> <dep-gid> [<dep-gid>...]
+```
+
+Asana enforces a combined limit of 30 dependencies and dependents per task.
 
 ### Comments (stories)
 
