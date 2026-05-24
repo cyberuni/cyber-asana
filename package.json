@@ -10,7 +10,8 @@
 	"license": "MIT",
 	"files": [
 		"dist",
-		"!dist/**/*.test.*"
+		"!dist/**/*.test.*",
+		"!dist/**/*.system.*"
 	],
 	"type": "module",
 	"exports": {
@@ -27,7 +28,7 @@
 		"cyber-asana": "./dist/cli.js"
 	},
 	"scripts": {
-		"build": "tsc",
+		"build": "tsdown",
 		"prepare": "husky",
 		"check": "biome check --write .",
 		"cs": "changeset",
@@ -38,6 +39,7 @@
 		"lint": "biome check .",
 		"release": "changeset publish",
 		"test": "vitest run src",
+		"test:system": "vitest run --config vitest.system.config.ts",
 		"test:watch": "vitest",
 		"typecheck": "tsc --noEmit",
 		"verify": "pnpm typecheck && pnpm lint && pnpm test && pnpm build",
@@ -58,6 +60,7 @@
 		"@types/node": "^25.9.1",
 		"husky": "^9.1.7",
 		"knip": "^6.14.1",
+		"tsdown": "^0.16.6",
 		"tsx": "^4.19.4",
 		"typescript": "^6.0.3",
 		"vitest": "^4.1.7"

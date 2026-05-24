@@ -126,10 +126,9 @@ describe('tasks/cli', () => {
 		getTasksByGidMock.mockResolvedValue([{ gid: '123', ok: true, task: { gid: '123', name: 'Task 1' } }])
 		const program = new Command().addCommand(taskCommand())
 
-		await program.parseAsync(
-			['node', 'test', 'task', 'get-many', '123', '456', '--opt-fields', 'gid,name,completed'],
-			{ from: 'node' },
-		)
+		await program.parseAsync(['node', 'test', 'task', 'get-many', '123', '456', '--opt-fields', 'gid,name,completed'], {
+			from: 'node',
+		})
 
 		expect(getTasksByGidMock).toHaveBeenCalledWith(['123', '456'], {
 			optFields: 'gid,name,completed',
