@@ -24,6 +24,7 @@ import {
 	getTasksByGid,
 	listSubtasks,
 	listTasks,
+	listTasksForSection,
 	removeDependencies,
 	removeDependents,
 	removeFollowersFromTask,
@@ -31,10 +32,40 @@ import {
 	type SearchTasksOptions,
 	scanTodos,
 	searchTasks,
+	type TaskApi,
 	type TodoMatch,
 	updateTask,
 } from './api.js'
 import { buildTaskCreateFields, buildTaskUpdateFields } from './write-options.js'
+
+function resolveTaskApi(api?: TaskApi | (() => TaskApi)): TaskApi {
+	if (typeof api === 'function') return api()
+	return (
+		api ?? {
+			listTasks,
+			listTasksForSection,
+			getTask,
+			getTasksByGid,
+			createTask,
+			updateTask,
+			deleteTask,
+			getMyTasks,
+			listSubtasks,
+			createSubtask,
+			addTaskToProject,
+			removeTaskFromProject,
+			addFollowersToTask,
+			removeFollowersFromTask,
+			getDependencies,
+			getDependents,
+			addDependencies,
+			addDependents,
+			removeDependencies,
+			removeDependents,
+			searchTasks,
+		}
+	)
+}
 
 type Task = {
 	gid: string
@@ -71,7 +102,7 @@ function collectOption(value: string, previous: string[] = []) {
 	return [...previous, value]
 }
 
-export function taskCommand() {
+export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 	const cmd = new Command('task').description('Manage Asana tasks')
 
 	addPaginationOptions(
@@ -88,7 +119,7 @@ export function taskCommand() {
 			offset?: string
 			optFields?: string
 		}) => {
-			const data = await listTasks(requiredGid(opts, 'project', 'Project GID'), {
+			const data = await resolveTaskApi(api).listTasks(requiredGid(opts, 'project', 'Project GID'), {
 				completedSince: opts.incomplete ? 'now' : opts.completedSince,
 				...paginationOptionsFromCli(opts),
 			})
@@ -117,7 +148,7 @@ export function taskCommand() {
 			offset?: string
 			optFields?: string
 		}) => {
-			const data = await getMyTasks(requiredGid(opts, 'workspace', 'Workspace GID'), {
+			const data = await resolveTaskApi(api).getMyTasks(requiredGid(opts, 'workspace', 'Workspace GID'), {
 				completedSince: opts.incomplete ? 'now' : opts.completedSince,
 				...paginationOptionsFromCli(opts),
 			})
@@ -132,8 +163,8 @@ export function taskCommand() {
 		.command('get <gid>')
 		.description('Get a task by GID')
 		.action(async (gid: string) => {
-			const data = await getTask(gid)
-			output(data, () => fmtTask(data))
+		const data = await resolveTaskApi(api).getTask(gid)
+		output(data, () => fmtTask(data))
 		})
 
 	cmd
@@ -141,7 +172,7 @@ export function taskCommand() {
 		.description('Get multiple tasks by GID')
 		.option('--opt-fields <fields>', 'Comma-separated optional Asana fields to include')
 		.action(async (gids: string[], opts: { optFields?: string }) => {
-			const data = await getTasksByGid(gids, opts.optFields ? { optFields: opts.optFields } : undefined)
+			const data = await resolveTaskApi(api).getTasksByGid(gids, opts.optFields ? { optFields: opts.optFields } : undefined)
 			output(data, () => {
 				if (data.length === 0) {
 					console.log('(none)')
@@ -204,8 +235,8 @@ export function taskCommand() {
 					customField: string[]
 				},
 			) => {
-				const data = await createTask(
-					requiredGid(opts, 'workspace', 'Workspace GID'),
+			const data = await resolveTaskApi(api).createTask(
+				requiredGid(opts, 'workspace', 'Workspace GID'),
 					name,
 					buildTaskCreateFields({
 						notes: opts.notes,
@@ -264,9 +295,9 @@ export function taskCommand() {
 				assigneeGid?: string
 			},
 		) => {
-			const data = await updateTask(
-				gid,
-				buildTaskUpdateFields({
+		const data = await resolveTaskApi(api).updateTask(
+			gid,
+			buildTaskUpdateFields({
 					name: opts.name,
 					notes: opts.notes,
 					htmlNotes: opts.htmlNotes,
@@ -289,8 +320,8 @@ export function taskCommand() {
 		.command('delete <gid>')
 		.description('Delete a task')
 		.action(async (gid: string) => {
-			await deleteTask(gid)
-			console.log(`Deleted task ${gid}`)
+		await resolveTaskApi(api).deleteTask(gid)
+		console.log(`Deleted task ${gid}`)
 		})
 
 	const subtaskCmd = cmd.command('subtask').description('Manage subtasks')
@@ -330,7 +361,7 @@ export function taskCommand() {
 			if (extraFields) {
 				pagination.optFields = [pagination.optFields, extraFields].filter(Boolean).join(',')
 			}
-			const data = await listSubtasks(taskGid, {
+			const data = await resolveTaskApi(api).listSubtasks(taskGid, {
 				completedSince: opts.incomplete ? 'now' : undefined,
 				...pagination,
 			})
@@ -355,7 +386,7 @@ export function taskCommand() {
 			name: string,
 			opts: { notes?: string; dueOn?: string; assignee?: string; assigneeGid?: string },
 		) => {
-			const data = await createSubtask(taskGid, name, {
+			const data = await resolveTaskApi(api).createSubtask(taskGid, name, {
 				notes: opts.notes,
 				assignee: normalizedGid(opts, 'assignee'),
 				dueOn: opts.dueOn,
@@ -539,7 +570,7 @@ export function taskCommand() {
 					sortAscending: opts.sortAsc,
 					optFields: opts.optFields,
 				}
-				const data = await searchTasks(requiredGid(opts, 'workspace', 'Workspace GID'), searchOpts)
+				const data = await resolveTaskApi(api).searchTasks(requiredGid(opts, 'workspace', 'Workspace GID'), searchOpts)
 				output(data, () => fmtTaskList(data))
 			},
 		)
@@ -563,7 +594,7 @@ export function taskCommand() {
 			if (opts.insertAfter && opts.insertBefore) {
 				throw new Error('--insert-after and --insert-before are mutually exclusive')
 			}
-			await addTaskToProject(taskGid, projectGid, {
+			await resolveTaskApi(api).addTaskToProject(taskGid, projectGid, {
 				sectionGid: normalizedGid(opts, 'section'),
 				insertAfter: opts.insertAfter,
 				insertBefore: opts.insertBefore,
@@ -576,8 +607,8 @@ export function taskCommand() {
 		.command('remove <task-gid> <project-gid>')
 		.description('Remove a task from a project')
 		.action(async (taskGid: string, projectGid: string) => {
-			await removeTaskFromProject(taskGid, projectGid)
-			console.log(`Removed task ${taskGid} from project ${projectGid}`)
+		await resolveTaskApi(api).removeTaskFromProject(taskGid, projectGid)
+		console.log(`Removed task ${taskGid} from project ${projectGid}`)
 		})
 
 	const followerCmd = cmd.command('follower').description('Manage followers for a task')
@@ -586,16 +617,16 @@ export function taskCommand() {
 		.command('add <task-gid> <follower-gids...>')
 		.description('Add followers to a task')
 		.action(async (taskGid: string, followerGids: string[]) => {
-			await addFollowersToTask(taskGid, followerGids)
-			console.log(`Added ${followerGids.length} follower(s) to task ${taskGid}`)
+		await resolveTaskApi(api).addFollowersToTask(taskGid, followerGids)
+		console.log(`Added ${followerGids.length} follower(s) to task ${taskGid}`)
 		})
 
 	followerCmd
 		.command('remove <task-gid> <follower-gids...>')
 		.description('Remove followers from a task')
 		.action(async (taskGid: string, followerGids: string[]) => {
-			await removeFollowersFromTask(taskGid, followerGids)
-			console.log(`Removed ${followerGids.length} follower(s) from task ${taskGid}`)
+		await resolveTaskApi(api).removeFollowersFromTask(taskGid, followerGids)
+		console.log(`Removed ${followerGids.length} follower(s) from task ${taskGid}`)
 		})
 
 	const dependencyCmd = cmd.command('dependency').description('Manage task dependencies (tasks this task depends on)')
@@ -605,15 +636,15 @@ export function taskCommand() {
 		.description('List dependencies of a task')
 		.option('--opt-fields <fields>', 'Comma-separated Asana fields to include')
 		.action(async (taskGid: string, opts: { optFields?: string }) => {
-			const data = await getDependencies(taskGid, { optFields: opts.optFields })
-			output(data, () => fmtTaskList(data))
-		})
+		const data = await resolveTaskApi(api).getDependencies(taskGid, { optFields: opts.optFields })
+		output(data, () => fmtTaskList(data))
+	})
 
 	dependencyCmd
 		.command('add <task-gid> <dep-gids...>')
 		.description('Add dependencies to a task (space-separated GIDs)')
 		.action(async (taskGid: string, depGids: string[]) => {
-			await addDependencies(taskGid, depGids)
+			await resolveTaskApi(api).addDependencies(taskGid, depGids)
 			console.log(`Added ${depGids.length} dependency(s) to task ${taskGid}`)
 		})
 
@@ -621,7 +652,7 @@ export function taskCommand() {
 		.command('remove <task-gid> <dep-gids...>')
 		.description('Remove dependencies from a task (space-separated GIDs)')
 		.action(async (taskGid: string, depGids: string[]) => {
-			await removeDependencies(taskGid, depGids)
+			await resolveTaskApi(api).removeDependencies(taskGid, depGids)
 			console.log(`Removed ${depGids.length} dependency(s) from task ${taskGid}`)
 		})
 
@@ -632,15 +663,15 @@ export function taskCommand() {
 		.description('List dependents of a task')
 		.option('--opt-fields <fields>', 'Comma-separated Asana fields to include')
 		.action(async (taskGid: string, opts: { optFields?: string }) => {
-			const data = await getDependents(taskGid, { optFields: opts.optFields })
-			output(data, () => fmtTaskList(data))
-		})
+		const data = await resolveTaskApi(api).getDependents(taskGid, { optFields: opts.optFields })
+		output(data, () => fmtTaskList(data))
+	})
 
 	dependentCmd
 		.command('add <task-gid> <dep-gids...>')
 		.description('Add dependents to a task (space-separated GIDs)')
 		.action(async (taskGid: string, depGids: string[]) => {
-			await addDependents(taskGid, depGids)
+			await resolveTaskApi(api).addDependents(taskGid, depGids)
 			console.log(`Added ${depGids.length} dependent(s) to task ${taskGid}`)
 		})
 
@@ -648,7 +679,7 @@ export function taskCommand() {
 		.command('remove <task-gid> <dep-gids...>')
 		.description('Remove dependents from a task (space-separated GIDs)')
 		.action(async (taskGid: string, depGids: string[]) => {
-			await removeDependents(taskGid, depGids)
+			await resolveTaskApi(api).removeDependents(taskGid, depGids)
 			console.log(`Removed ${depGids.length} dependent(s) from task ${taskGid}`)
 		})
 

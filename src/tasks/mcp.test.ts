@@ -134,4 +134,39 @@ describe('tasks/mcp', () => {
 			],
 		})
 	})
+
+	it('task tools can use injected dependencies', async () => {
+		const injectedCreateTask = vi.fn().mockResolvedValue({ gid: '1', name: 'New Task' })
+		const server = createServer()
+		registerTaskTools(server as any, {
+			listTasks: vi.fn(),
+			listTasksForSection: vi.fn(),
+			getTask: vi.fn(),
+			getTasksByGid: vi.fn(),
+			createTask: injectedCreateTask,
+			updateTask: vi.fn(),
+			deleteTask: vi.fn(),
+			getMyTasks: vi.fn(),
+			listSubtasks: vi.fn(),
+			createSubtask: vi.fn(),
+			addTaskToProject: vi.fn(),
+			removeTaskFromProject: vi.fn(),
+			addFollowersToTask: vi.fn(),
+			removeFollowersFromTask: vi.fn(),
+			getDependencies: vi.fn(),
+			getDependents: vi.fn(),
+			addDependencies: vi.fn(),
+			addDependents: vi.fn(),
+			removeDependencies: vi.fn(),
+			removeDependents: vi.fn(),
+			searchTasks: vi.fn(),
+		})
+
+		await server.handlers.get('asana_task_create')?.({
+			workspace_gid: 'ws1',
+			name: 'New Task',
+		})
+
+		expect(injectedCreateTask).toHaveBeenCalledWith('ws1', 'New Task', {})
+	})
 })

@@ -146,4 +146,37 @@ describe('tasks/cli', () => {
 			JSON.stringify([{ gid: '123', ok: true, task: { gid: '123', name: 'Task 1' } }], null, 2),
 		)
 	})
+
+	it('task command can use injected dependencies', async () => {
+		const injectedCreateTask = vi.fn().mockResolvedValue({ gid: '1', name: 'New Task' })
+		const program = new Command().addCommand(
+			taskCommand({
+				listTasks: vi.fn(),
+				listTasksForSection: vi.fn(),
+				getTask: vi.fn(),
+				getTasksByGid: vi.fn(),
+				createTask: injectedCreateTask,
+				updateTask: vi.fn(),
+				deleteTask: vi.fn(),
+				getMyTasks: vi.fn(),
+				listSubtasks: vi.fn(),
+				createSubtask: vi.fn(),
+				addTaskToProject: vi.fn(),
+				removeTaskFromProject: vi.fn(),
+				addFollowersToTask: vi.fn(),
+				removeFollowersFromTask: vi.fn(),
+				getDependencies: vi.fn(),
+				getDependents: vi.fn(),
+				addDependencies: vi.fn(),
+				addDependents: vi.fn(),
+				removeDependencies: vi.fn(),
+				removeDependents: vi.fn(),
+				searchTasks: vi.fn(),
+			}),
+		)
+
+		await program.parseAsync(['node', 'test', 'task', 'create', 'New Task', '--workspace-gid', 'ws1'], { from: 'node' })
+
+		expect(injectedCreateTask).toHaveBeenCalledWith('ws1', 'New Task', {})
+	})
 })
