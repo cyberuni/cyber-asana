@@ -23,9 +23,9 @@ import {
 	getTask,
 	listSubtasks,
 	listTasks,
-	removeFollowersFromTask,
 	removeDependencies,
 	removeDependents,
+	removeFollowersFromTask,
 	removeTaskFromProject,
 	type SearchTasksOptions,
 	scanTodos,
@@ -138,14 +138,9 @@ export function taskCommand() {
 	addGidOption(
 		addGidOption(
 			addGidOption(
-				addGidOption(
-					cmd.command('create <name>').description('Create a new task'),
-					'workspace',
-					'Workspace GID',
-					{
-						env: 'ASANA_WORKSPACE',
-					},
-				),
+				addGidOption(cmd.command('create <name>').description('Create a new task'), 'workspace', 'Workspace GID', {
+					env: 'ASANA_WORKSPACE',
+				}),
 				'project',
 				'Project GID',
 			),

@@ -15,9 +15,9 @@ import {
 	getTask,
 	listSubtasks,
 	listTasks,
-	removeFollowersFromTask,
 	removeDependencies,
 	removeDependents,
+	removeFollowersFromTask,
 	removeTaskFromProject,
 	scanTodos,
 	searchTasks,
@@ -161,7 +161,10 @@ export function registerTaskTools(server: McpServer) {
 			name: z.string().describe('Task name'),
 			project_gid: z.string().optional().describe('Project GID'),
 			project_gids: z.array(z.string()).optional().describe('Project GIDs'),
-			follower_gids: z.union([z.array(z.string()), z.string()]).optional().describe('Follower user GIDs'),
+			follower_gids: z
+				.union([z.array(z.string()), z.string()])
+				.optional()
+				.describe('Follower user GIDs'),
 			assignee_gid: z.string().optional().describe('Assignee user GID'),
 			notes: z.string().optional().describe('Task notes'),
 			html_notes: z.string().optional().describe('Task notes as HTML'),
@@ -196,8 +199,7 @@ export function registerTaskTools(server: McpServer) {
 								htmlNotes: html_notes,
 								assignee: assignee_gid,
 								projectGids: project_gids ?? parseGidList(project_gid),
-								followerGids:
-									typeof follower_gids === 'string' ? parseGidList(follower_gids) : follower_gids,
+								followerGids: typeof follower_gids === 'string' ? parseGidList(follower_gids) : follower_gids,
 								dueOn: due_on,
 								parent: parent_gid,
 								resourceSubtype: resource_subtype,

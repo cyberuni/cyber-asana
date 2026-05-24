@@ -47,7 +47,7 @@ Use `--all` to fetch multiple pages intentionally; `--max-pages` caps the number
 |---|---|
 | `workspace` | `list`, `get` |
 | `project` | `list`, `get`, `create`, `update`, `delete` |
-| `task` | `list`, `my-tasks list`, `get`, `create`, `update`, `delete`, `subtask list`, `subtask create`, `search`, `project add/remove`, `dependency list/add/remove`, `dependent list/add/remove` |
+| `task` | `list`, `my-tasks list`, `get`, `create`, `update`, `delete`, `subtask list`, `subtask create`, `search`, `project add/remove`, `follower add/remove`, `dependency list/add/remove`, `dependent list/add/remove` |
 | `section` | `list`, `get`, `create`, `update`, `delete` |
 | `user` | `list`, `get`, `me` |
 | `team` | `list`, `get` |
@@ -124,6 +124,49 @@ cyber-asana task project remove <task-gid> <project-gid>
 ```
 
 `--insert-after` and `--insert-before` are mutually exclusive. Omitting both places the task at the end of the project or section.
+
+`task create` also accepts a comma-separated project list with `--project-gid <gid[,gid...]>` or `--project <gid[,gid...]>` for initial multi-project placement.
+
+### Task create and update fields
+
+`task create` and `task update` support plain-text or HTML notes, custom field values, resource subtype, and parent relationships.
+
+```sh
+# Create a milestone task in multiple projects with HTML notes
+cyber-asana task create "Launch" \
+  --workspace-gid <workspace-gid> \
+  --project-gid <proj-a,proj-b> \
+  --resource-subtype milestone \
+  --html-notes '<body><strong>Ship it</strong></body>'
+
+# Update a task's parent and custom fields
+cyber-asana task update <task-gid> \
+  --parent-gid <parent-task-gid> \
+  --custom-fields-json '{"<custom-field-gid>":"value"}'
+```
+
+`notes` and `html_notes` are mutually exclusive on both create and update.
+
+| Flag | Command(s) | Notes |
+|---|---|---|
+| `--html-notes <html>` | `task create`, `task update` | Send task notes as HTML |
+| `--parent-gid <gid>` / `--parent <gid>` | `task create`, `task update` | Set the task parent |
+| `--clear-parent` | `task update` | Remove the task parent |
+| `--resource-subtype <subtype>` | `task create`, `task update` | Example: `default_task`, `milestone` |
+| `--custom-fields-json <json>` | `task create`, `task update` | JSON object keyed by custom field GID |
+| `--custom-field <gid=value>` | `task create`, `task update` | Repeatable convenience override for simple values |
+| `--follower <gid[,gid...]>` | `task create` | Add followers immediately after task creation |
+
+When both custom-field forms are provided, repeated `--custom-field` entries override duplicate keys from `--custom-fields-json`.
+
+### Task followers
+
+Use follower commands to add or remove followers on an existing task.
+
+```sh
+cyber-asana task follower add <task-gid> <user-gid> [<user-gid>...]
+cyber-asana task follower remove <task-gid> <user-gid> [<user-gid>...]
+```
 
 ### Task dependencies and dependents
 
@@ -221,7 +264,7 @@ cyber-asana task search --modified-on-after 2026-05-17 --project-not <gid>
 cyber-asana project list
 
 # Create a task
-cyber-asana task create "Fix the bug" --project-gid <gid> --due-on 2026-06-01
+cyber-asana task create "Fix the bug" --workspace-gid <gid> --project-gid <gid> --due-on 2026-06-01
 
 # Search tasks
 cyber-asana task search "login" --json
@@ -255,6 +298,12 @@ Fetch-all responses also include `page_count` and `truncated`.
 `asana_task_list`, `asana_task_my_tasks`, and `asana_task_subtask_list` accept `incomplete: true` to filter to incomplete tasks only.
 
 `asana_task_subtask_list` also accepts `assignee_email`, `follower_emails`, `num_subtasks`, and `custom_fields` boolean params to expand the returned fields.
+
+`asana_task_create` accepts `project_gid` or `project_gids`, plus `follower_gids`, `html_notes`, `parent_gid`, `resource_subtype`, and `custom_fields`.
+
+`asana_task_update` accepts `html_notes`, `parent_gid`, `clear_parent`, `resource_subtype`, and `custom_fields`.
+
+Use `asana_task_follower_add` and `asana_task_follower_remove` to manage followers on existing tasks.
 
 `asana_story_create` and `asana_comment_create` accept `template: true` to interpolate `{task.name}`, `{task.assignee}`, `{task.due_on}`, and `{task.notes}` in the comment text before posting.
 
