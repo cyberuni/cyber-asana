@@ -1,32 +1,49 @@
-import Asana from 'asana'
 import { createClient } from '../client.js'
-import { collectListResponse, type PaginationOptions, toAsanaPaginationOptions } from '../pagination.js'
+import type { PaginationOptions } from '../pagination.js'
+import { createAsanaSectionGateway, type SectionGateway } from './gateway.js'
+
+export type SectionApi = ReturnType<typeof createSectionApi>
+
+export function createSectionApi(gateway: SectionGateway) {
+	return {
+		listSections(projectGid: string, opts?: PaginationOptions) {
+			return gateway.listSections(projectGid, opts)
+		},
+		getSection(sectionGid: string) {
+			return gateway.getSection(sectionGid)
+		},
+		createSection(projectGid: string, name: string) {
+			return gateway.createSection(projectGid, name)
+		},
+		updateSection(sectionGid: string, name: string) {
+			return gateway.updateSection(sectionGid, name)
+		},
+		deleteSection(sectionGid: string) {
+			return gateway.deleteSection(sectionGid)
+		},
+	}
+}
+
+function defaultSectionApi() {
+	return createSectionApi(createAsanaSectionGateway(createClient()))
+}
 
 export async function listSections(projectGid: string, opts?: PaginationOptions) {
-	const api = new Asana.SectionsApi(createClient())
-	const res = await api.getSectionsForProject(projectGid, toAsanaPaginationOptions(opts))
-	return await collectListResponse(res, opts)
+	return defaultSectionApi().listSections(projectGid, opts)
 }
 
 export async function getSection(sectionGid: string) {
-	const api = new Asana.SectionsApi(createClient())
-	const res = await api.getSection(sectionGid, {})
-	return res.data
+	return defaultSectionApi().getSection(sectionGid)
 }
 
 export async function createSection(projectGid: string, name: string) {
-	const api = new Asana.SectionsApi(createClient())
-	const res = await api.createSectionForProject(projectGid, { body: { data: { name } } })
-	return res.data
+	return defaultSectionApi().createSection(projectGid, name)
 }
 
 export async function updateSection(sectionGid: string, name: string) {
-	const api = new Asana.SectionsApi(createClient())
-	const res = await api.updateSection(sectionGid, { body: { data: { name } } })
-	return res.data
+	return defaultSectionApi().updateSection(sectionGid, name)
 }
 
 export async function deleteSection(sectionGid: string) {
-	const api = new Asana.SectionsApi(createClient())
-	await api.deleteSection(sectionGid)
+	return defaultSectionApi().deleteSection(sectionGid)
 }
