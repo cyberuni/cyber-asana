@@ -8,8 +8,8 @@ import {
 	requiredGid,
 } from '../cli-options.js'
 import { output, printFields, printTable } from '../output.js'
-import { createStory, getTaskTemplateData, interpolateTemplate, listStories } from './api.js'
 import type { StoryApi } from './api.js'
+import { createStory, getTaskTemplateData, interpolateTemplate, listStories } from './api.js'
 
 type Story = { gid: string; type?: string; text?: string; created_by?: { name: string } | null; created_at?: string }
 

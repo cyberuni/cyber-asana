@@ -1,8 +1,8 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import { paginationOptions, paginationParams } from '../mcp-options.js'
-import { createStory, getTaskTemplateData, interpolateTemplate, listStories } from './api.js'
 import type { StoryApi } from './api.js'
+import { createStory, getTaskTemplateData, interpolateTemplate, listStories } from './api.js'
 
 function resolveStoryApi(api?: StoryApi | (() => StoryApi)): StoryApi {
 	if (typeof api === 'function') return api()

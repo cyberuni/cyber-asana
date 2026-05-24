@@ -8,6 +8,7 @@ import {
 	requiredGid,
 } from '../cli-options.js'
 import { output, printFields, printTable } from '../output.js'
+import type { TagApi } from './api.js'
 import {
 	addTagToTask,
 	createTag,
@@ -19,7 +20,6 @@ import {
 	removeTagFromTask,
 	updateTag,
 } from './api.js'
-import type { TagApi } from './api.js'
 
 type Tag = { gid: string; name: string; color?: string | null }
 type Task = { gid: string; name: string; completed?: boolean; due_on?: string | null }
