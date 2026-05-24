@@ -1,5 +1,10 @@
 import Asana from 'asana'
-import { collectListResponse, type ListResult, type PaginationOptions, toAsanaPaginationOptions } from '../pagination.js'
+import {
+	collectListResponse,
+	type ListResult,
+	type PaginationOptions,
+	toAsanaPaginationOptions,
+} from '../pagination.js'
 
 export type TagWriteFields = {
 	name?: string

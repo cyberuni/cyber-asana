@@ -1,5 +1,10 @@
 import Asana from 'asana'
-import { collectListResponse, type ListResult, type PaginationOptions, toAsanaPaginationOptions } from '../pagination.js'
+import {
+	collectListResponse,
+	type ListResult,
+	type PaginationOptions,
+	toAsanaPaginationOptions,
+} from '../pagination.js'
 import type { StoryCreateFields } from './write-options.js'
 
 export type TaskTemplateData = {
