@@ -19,6 +19,7 @@ import {
 	removeTagFromTask,
 	updateTag,
 } from './api.js'
+import type { TagApi } from './api.js'
 
 type Tag = { gid: string; name: string; color?: string | null }
 type Task = { gid: string; name: string; completed?: boolean; due_on?: string | null }
@@ -36,7 +37,24 @@ function fmtTaskList(tasks: Task[]) {
 	])
 }
 
-export function tagCommand() {
+function resolveTagApi(api?: TagApi | (() => TagApi)): TagApi {
+	if (typeof api === 'function') return api()
+	return (
+		api ?? {
+			listTags,
+			getTag,
+			createTag,
+			updateTag,
+			deleteTag,
+			listTagsForTask,
+			listTasksForTag,
+			addTagToTask,
+			removeTagFromTask,
+		}
+	)
+}
+
+export function tagCommand(api?: TagApi | (() => TagApi)) {
 	const cmd = new Command('tag').description('Manage Asana tags')
 
 	addPaginationOptions(
@@ -51,7 +69,10 @@ export function tagCommand() {
 			offset?: string
 			optFields?: string
 		}) => {
-			const data = await listTags(requiredGid(opts, 'workspace', 'Workspace GID'), paginationOptionsFromCli(opts))
+			const data = await resolveTagApi(api).listTags(
+				requiredGid(opts, 'workspace', 'Workspace GID'),
+				paginationOptionsFromCli(opts),
+			)
 			output(data, () => {
 				printTable(itemsForOutput(data), [
 					{ label: 'Name', get: (t: Tag) => t.name },
@@ -67,7 +88,7 @@ export function tagCommand() {
 		.command('get <gid>')
 		.description('Get a tag by GID')
 		.action(async (gid: string) => {
-			const data = await getTag(gid)
+			const data = await resolveTagApi(api).getTag(gid)
 			output(data, () => fmtTag(data))
 		})
 
@@ -82,7 +103,7 @@ export function tagCommand() {
 	createCmd.option('--color <color>', 'Tag color').option('--notes <text>', 'Tag notes')
 	createCmd.action(
 		async (name: string, opts: { workspace?: string; workspaceGid?: string; color?: string; notes?: string }) => {
-			const data = await createTag(requiredGid(opts, 'workspace', 'Workspace GID'), name, {
+			const data = await resolveTagApi(api).createTag(requiredGid(opts, 'workspace', 'Workspace GID'), name, {
 				...(opts.color !== undefined && { color: opts.color }),
 				...(opts.notes !== undefined && { notes: opts.notes }),
 			})
@@ -97,7 +118,7 @@ export function tagCommand() {
 		.option('--color <color>', 'New tag color')
 		.option('--notes <text>', 'New tag notes')
 		.action(async (gid: string, opts: { name?: string; color?: string; notes?: string }) => {
-			const data = await updateTag(gid, {
+			const data = await resolveTagApi(api).updateTag(gid, {
 				...(opts.name !== undefined && { name: opts.name }),
 				...(opts.color !== undefined && { color: opts.color }),
 				...(opts.notes !== undefined && { notes: opts.notes }),
@@ -109,7 +130,7 @@ export function tagCommand() {
 		.command('delete <gid>')
 		.description('Delete a tag')
 		.action(async (gid: string) => {
-			await deleteTag(gid)
+			await resolveTagApi(api).deleteTag(gid)
 			console.log(`Deleted tag ${gid}`)
 		})
 
@@ -117,7 +138,7 @@ export function tagCommand() {
 
 	addPaginationOptions(taskCmd.command('list <task-gid>').description('List tags for a task')).action(
 		async (taskGid: string, opts: { limit?: number; offset?: string; optFields?: string }) => {
-			const data = await listTagsForTask(taskGid, paginationOptionsFromCli(opts))
+			const data = await resolveTagApi(api).listTagsForTask(taskGid, paginationOptionsFromCli(opts))
 			output(data, () => {
 				printTable(itemsForOutput(data), [
 					{ label: 'Name', get: (t: Tag) => t.name },
@@ -133,7 +154,7 @@ export function tagCommand() {
 		.command('add <task-gid> <tag-gid>')
 		.description('Add a tag to a task')
 		.action(async (taskGid: string, tagGid: string) => {
-			const data = await addTagToTask(taskGid, tagGid)
+			const data = await resolveTagApi(api).addTagToTask(taskGid, tagGid)
 			output(data, () => printFields({ Task: taskGid, Tag: tagGid, Status: 'added' }))
 		})
 
@@ -141,13 +162,13 @@ export function tagCommand() {
 		.command('remove <task-gid> <tag-gid>')
 		.description('Remove a tag from a task')
 		.action(async (taskGid: string, tagGid: string) => {
-			const data = await removeTagFromTask(taskGid, tagGid)
+			const data = await resolveTagApi(api).removeTagFromTask(taskGid, tagGid)
 			output(data, () => printFields({ Task: taskGid, Tag: tagGid, Status: 'removed' }))
 		})
 
 	addPaginationOptions(cmd.command('tasks <tag-gid>').description('List tasks for a tag')).action(
 		async (tagGid: string, opts: { limit?: number; offset?: string; optFields?: string }) => {
-			const data = await listTasksForTag(tagGid, paginationOptionsFromCli(opts))
+			const data = await resolveTagApi(api).listTasksForTag(tagGid, paginationOptionsFromCli(opts))
 			output(data, () => {
 				fmtTaskList(itemsForOutput(data))
 				printNextPageHint(data)

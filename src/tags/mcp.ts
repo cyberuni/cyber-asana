@@ -1,6 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import { paginationOptions, paginationParams } from '../mcp-options.js'
+import type { TagApi } from './api.js'
 import {
 	addTagToTask,
 	createTag,
@@ -13,13 +14,35 @@ import {
 	updateTag,
 } from './api.js'
 
-export function registerTagTools(server: McpServer) {
+function resolveTagApi(api?: TagApi | (() => TagApi)): TagApi {
+	if (typeof api === 'function') return api()
+	return (
+		api ?? {
+			listTags,
+			getTag,
+			createTag,
+			updateTag,
+			deleteTag,
+			listTagsForTask,
+			listTasksForTag,
+			addTagToTask,
+			removeTagFromTask,
+		}
+	)
+}
+
+export function registerTagTools(server: McpServer, api?: TagApi | (() => TagApi)) {
 	server.tool(
 		'asana_tag_list',
 		'List Asana tags in a workspace',
 		{ workspace_gid: z.string().describe('Workspace GID'), ...paginationParams },
 		async ({ workspace_gid, ...params }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await listTags(workspace_gid, paginationOptions(params))) }],
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(await resolveTagApi(api).listTags(workspace_gid, paginationOptions(params))),
+				},
+			],
 		}),
 	)
 
@@ -28,7 +51,7 @@ export function registerTagTools(server: McpServer) {
 		'Get an Asana tag by GID',
 		{ tag_gid: z.string().describe('Tag GID') },
 		async ({ tag_gid }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await getTag(tag_gid)) }],
+			content: [{ type: 'text', text: JSON.stringify(await resolveTagApi(api).getTag(tag_gid)) }],
 		}),
 	)
 
@@ -42,7 +65,12 @@ export function registerTagTools(server: McpServer) {
 			notes: z.string().optional().describe('Tag notes'),
 		},
 		async ({ workspace_gid, name, color, notes }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await createTag(workspace_gid, name, { color, notes })) }],
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(await resolveTagApi(api).createTag(workspace_gid, name, { color, notes })),
+				},
+			],
 		}),
 	)
 
@@ -56,7 +84,9 @@ export function registerTagTools(server: McpServer) {
 			notes: z.string().optional().describe('New tag notes'),
 		},
 		async ({ tag_gid, name, color, notes }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await updateTag(tag_gid, { name, color, notes })) }],
+			content: [
+				{ type: 'text', text: JSON.stringify(await resolveTagApi(api).updateTag(tag_gid, { name, color, notes })) },
+			],
 		}),
 	)
 
@@ -65,7 +95,7 @@ export function registerTagTools(server: McpServer) {
 		'Delete an Asana tag',
 		{ tag_gid: z.string().describe('Tag GID') },
 		async ({ tag_gid }) => {
-			await deleteTag(tag_gid)
+			await resolveTagApi(api).deleteTag(tag_gid)
 			return { content: [{ type: 'text', text: JSON.stringify({ ok: true, deleted: tag_gid }) }] }
 		},
 	)
@@ -75,7 +105,12 @@ export function registerTagTools(server: McpServer) {
 		'List Asana tags for a task',
 		{ task_gid: z.string().describe('Task GID'), ...paginationParams },
 		async ({ task_gid, ...params }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await listTagsForTask(task_gid, paginationOptions(params))) }],
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(await resolveTagApi(api).listTagsForTask(task_gid, paginationOptions(params))),
+				},
+			],
 		}),
 	)
 
@@ -84,7 +119,12 @@ export function registerTagTools(server: McpServer) {
 		'List Asana tasks for a tag',
 		{ tag_gid: z.string().describe('Tag GID'), ...paginationParams },
 		async ({ tag_gid, ...params }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await listTasksForTag(tag_gid, paginationOptions(params))) }],
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(await resolveTagApi(api).listTasksForTag(tag_gid, paginationOptions(params))),
+				},
+			],
 		}),
 	)
 
@@ -96,7 +136,7 @@ export function registerTagTools(server: McpServer) {
 			tag_gid: z.string().describe('Tag GID'),
 		},
 		async ({ task_gid, tag_gid }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await addTagToTask(task_gid, tag_gid)) }],
+			content: [{ type: 'text', text: JSON.stringify(await resolveTagApi(api).addTagToTask(task_gid, tag_gid)) }],
 		}),
 	)
 
@@ -108,7 +148,7 @@ export function registerTagTools(server: McpServer) {
 			tag_gid: z.string().describe('Tag GID'),
 		},
 		async ({ task_gid, tag_gid }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await removeTagFromTask(task_gid, tag_gid)) }],
+			content: [{ type: 'text', text: JSON.stringify(await resolveTagApi(api).removeTagFromTask(task_gid, tag_gid)) }],
 		}),
 	)
 }

@@ -2,6 +2,7 @@
 import { Command } from 'commander'
 import { attachmentCommand } from './attachments/cli.js'
 import { setTokenOverride } from './client.js'
+import { createRuntimeContext, type RuntimeContext } from './composition.js'
 import { goalCommand } from './goals/cli.js'
 import { portfolioCommand } from './portfolios/cli.js'
 import { projectCommand } from './projects/cli.js'
@@ -14,6 +15,12 @@ import { userCommand } from './users/cli.js'
 import { workspaceCommand } from './workspaces/cli.js'
 
 const program = new Command()
+let runtimeContext: RuntimeContext | undefined
+
+function getRuntimeContext() {
+	runtimeContext ??= createRuntimeContext()
+	return runtimeContext
+}
 
 program
 	.name('cyber-asana')
@@ -35,10 +42,10 @@ program.addCommand(userCommand())
 program.addCommand(teamCommand())
 program.addCommand(portfolioCommand())
 program.addCommand(goalCommand())
-program.addCommand(tagCommand())
+program.addCommand(tagCommand(() => getRuntimeContext().tags))
 program.addCommand(attachmentCommand())
-program.addCommand(storyCommand())
-program.addCommand(storyCommand('comment'))
+program.addCommand(storyCommand('story', () => getRuntimeContext().stories))
+program.addCommand(storyCommand('comment', () => getRuntimeContext().stories))
 
 program.parseAsync(process.argv).catch((err: unknown) => {
 	if (err && typeof err === 'object' && 'response' in err) {

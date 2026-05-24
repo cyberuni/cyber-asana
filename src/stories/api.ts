@@ -1,27 +1,14 @@
-import Asana from 'asana'
 import { createClient } from '../client.js'
-import { collectListResponse, type PaginationOptions, toAsanaPaginationOptions } from '../pagination.js'
+import type { PaginationOptions } from '../pagination.js'
+import { createAsanaStoryGateway, type StoryGateway, type TaskTemplateData } from './gateway.js'
 import { buildStoryCreateFields, type StoryCreateFields } from './write-options.js'
 
-type TaskForTemplate = {
-	name?: string
-	assignee?: { name: string } | null
-	due_on?: string | null
-	notes?: string
-}
-
-export function interpolateTemplate(text: string, task: TaskForTemplate): string {
+export function interpolateTemplate(text: string, task: TaskTemplateData): string {
 	return text
 		.replace(/\{task\.name\}/g, task.name ?? '')
 		.replace(/\{task\.assignee\}/g, task.assignee?.name ?? '')
 		.replace(/\{task\.due_on\}/g, task.due_on ?? '')
 		.replace(/\{task\.notes\}/g, task.notes ?? '')
-}
-
-export async function listStories(taskGid: string, opts?: PaginationOptions) {
-	const api = new Asana.StoriesApi(createClient())
-	const res = await api.getStoriesForTask(taskGid, toAsanaPaginationOptions(opts))
-	return await collectListResponse(res, opts)
 }
 
 function normalizeStoryCreateError(error: unknown) {
@@ -34,16 +21,41 @@ function normalizeStoryCreateError(error: unknown) {
 	throw error
 }
 
-export async function createStory(taskGid: string, fields: StoryCreateFields) {
-	const api = new Asana.StoriesApi(createClient())
-	try {
-		const res = await api.createStoryForTask(
-			{ data: buildStoryCreateFields({ text: fields.text, htmlText: fields.html_text }) },
-			taskGid,
-			{},
-		)
-		return res.data
-	} catch (error) {
-		normalizeStoryCreateError(error)
+export type StoryApi = ReturnType<typeof createStoryApi>
+
+export function createStoryApi(gateway: StoryGateway) {
+	return {
+		listStories(taskGid: string, opts?: PaginationOptions) {
+			return gateway.listStories(taskGid, opts)
+		},
+		async createStory(taskGid: string, fields: StoryCreateFields) {
+			try {
+				return await gateway.createStory(
+					taskGid,
+					buildStoryCreateFields({ text: fields.text, htmlText: fields.html_text }),
+				)
+			} catch (error) {
+				normalizeStoryCreateError(error)
+			}
+		},
+		getTaskTemplateData(taskGid: string) {
+			return gateway.getTaskTemplateData(taskGid)
+		},
 	}
+}
+
+function defaultStoryApi() {
+	return createStoryApi(createAsanaStoryGateway(createClient()))
+}
+
+export async function listStories(taskGid: string, opts?: PaginationOptions) {
+	return defaultStoryApi().listStories(taskGid, opts)
+}
+
+export async function createStory(taskGid: string, fields: StoryCreateFields) {
+	return defaultStoryApi().createStory(taskGid, fields)
+}
+
+export async function getTaskTemplateData(taskGid: string) {
+	return defaultStoryApi().getTaskTemplateData(taskGid)
 }

@@ -2,21 +2,14 @@ import { Command } from 'commander'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 const createStoryMock = vi.fn()
-const getTaskMock = vi.fn()
-
-vi.mock('../tasks/api.js', async () => {
-	const actual = await vi.importActual<typeof import('../tasks/api.js')>('../tasks/api.js')
-	return {
-		...actual,
-		getTask: getTaskMock,
-	}
-})
+const getTaskTemplateDataMock = vi.fn()
 
 vi.mock('./api.js', async () => {
 	const actual = await vi.importActual<typeof import('./api.js')>('./api.js')
 	return {
 		...actual,
 		createStory: createStoryMock,
+		getTaskTemplateData: getTaskTemplateDataMock,
 	}
 })
 
@@ -42,7 +35,7 @@ describe('stories/cli', () => {
 	})
 
 	it('story create applies templates to html_text', async () => {
-		getTaskMock.mockResolvedValue({
+		getTaskTemplateDataMock.mockResolvedValue({
 			name: 'Fix bug',
 			assignee: { name: 'Alice' },
 			due_on: '2026-06-01',
@@ -69,5 +62,22 @@ describe('stories/cli', () => {
 		expect(createStoryMock).toHaveBeenCalledWith('task1', {
 			html_text: '<body><strong>Fix bug</strong> for Alice</body>',
 		})
+	})
+
+	it('story command can use injected dependencies', async () => {
+		const injectedCreateStory = vi.fn().mockResolvedValue({ gid: 'story1', text: 'Comment' })
+		const injectedLoadTask = vi.fn().mockResolvedValue({ name: 'Fix bug' })
+		const program = new Command().addCommand(
+			storyCommand('story', {
+				listStories: vi.fn(),
+				createStory: injectedCreateStory,
+				getTaskTemplateData: injectedLoadTask,
+			}),
+		)
+
+		await program.parseAsync(['node', 'test', 'story', 'create', 'Hi', '--task-gid', 'task1'], { from: 'node' })
+
+		expect(injectedCreateStory).toHaveBeenCalledWith('task1', { text: 'Hi' })
+		expect(injectedLoadTask).not.toHaveBeenCalled()
 	})
 })

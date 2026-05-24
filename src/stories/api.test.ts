@@ -1,6 +1,6 @@
 import Asana from 'asana'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { createStory, interpolateTemplate, listStories } from './api.js'
+import { createStory, createStoryApi, interpolateTemplate, listStories } from './api.js'
 
 vi.mock('../client.js', () => ({
 	createClient: () => ({}),
@@ -56,6 +56,22 @@ describe('stories/api', () => {
 		await expect(createStory('task1', { html_text: '<body><strong>Rich</body>' })).rejects.toThrow(
 			'Asana rejected html_text',
 		)
+	})
+})
+
+describe('createStoryApi', () => {
+	it('uses the provided gateway for story creation', async () => {
+		const gatewayCreateStory = vi.fn().mockResolvedValue(mockStory)
+		const api = createStoryApi({
+			listStories: vi.fn(),
+			createStory: gatewayCreateStory,
+			getTaskTemplateData: vi.fn(),
+		})
+
+		const result = await api.createStory('task1', { text: 'A comment' })
+
+		expect(result).toEqual(mockStory)
+		expect(gatewayCreateStory).toHaveBeenCalledWith('task1', { text: 'A comment' })
 	})
 })
 

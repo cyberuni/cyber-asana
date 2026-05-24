@@ -8,8 +8,8 @@ import {
 	requiredGid,
 } from '../cli-options.js'
 import { output, printFields, printTable } from '../output.js'
-import { getTask } from '../tasks/api.js'
-import { createStory, interpolateTemplate, listStories } from './api.js'
+import { createStory, getTaskTemplateData, interpolateTemplate, listStories } from './api.js'
+import type { StoryApi } from './api.js'
 
 type Story = { gid: string; type?: string; text?: string; created_by?: { name: string } | null; created_at?: string }
 
@@ -23,13 +23,21 @@ function fmtStory(s: Story) {
 	})
 }
 
-export function storyCommand(name = 'story') {
+function resolveStoryApi(api?: StoryApi | (() => StoryApi)): StoryApi {
+	if (typeof api === 'function') return api()
+	return api ?? { listStories, createStory, getTaskTemplateData }
+}
+
+export function storyCommand(name = 'story', api?: StoryApi | (() => StoryApi)) {
 	const cmd = new Command(name).description('Manage Asana stories (comments)')
 
 	addPaginationOptions(
 		addGidOption(cmd.command('list').description('List stories for a task'), 'task', 'Task GID'),
 	).action(async (opts: { task?: string; taskGid?: string; limit?: number; offset?: string; optFields?: string }) => {
-		const data = await listStories(requiredGid(opts, 'task', 'Task GID'), paginationOptionsFromCli(opts))
+		const data = await resolveStoryApi(api).listStories(
+			requiredGid(opts, 'task', 'Task GID'),
+			paginationOptionsFromCli(opts),
+		)
 		output(data, () => {
 			printTable(itemsForOutput(data), [
 				{ label: 'ID', get: (s: Story) => s.gid },
@@ -58,8 +66,8 @@ export function storyCommand(name = 'story') {
 			opts: { task?: string; taskGid?: string; template?: boolean; htmlText?: string },
 		) => {
 			const taskGid = requiredGid(opts, 'task', 'Task GID')
-			const task = opts.template ? await getTask(taskGid) : undefined
-			const data = await createStory(taskGid, {
+			const task = opts.template ? await resolveStoryApi(api).getTaskTemplateData(taskGid) : undefined
+			const data = await resolveStoryApi(api).createStory(taskGid, {
 				...(text !== undefined && { text: task ? interpolateTemplate(text, task) : text }),
 				...(opts.htmlText !== undefined && {
 					html_text: task ? interpolateTemplate(opts.htmlText, task) : opts.htmlText,

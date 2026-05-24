@@ -119,4 +119,25 @@ describe('tags/cli', () => {
 
 		expect(removeTagFromTaskMock).toHaveBeenCalledWith('task1', 'tag1')
 	})
+
+	it('tag command can use an injected api dependency', async () => {
+		const injectedCreateTag = vi.fn().mockResolvedValue({ gid: 'tag1', name: 'Urgent' })
+		const program = new Command().addCommand(
+			tagCommand({
+				listTags: vi.fn(),
+				getTag: vi.fn(),
+				createTag: injectedCreateTag,
+				updateTag: vi.fn(),
+				deleteTag: vi.fn(),
+				listTagsForTask: vi.fn(),
+				listTasksForTag: vi.fn(),
+				addTagToTask: vi.fn(),
+				removeTagFromTask: vi.fn(),
+			}),
+		)
+
+		await program.parseAsync(['node', 'test', 'tag', 'create', 'Urgent', '--workspace-gid', 'ws1'], { from: 'node' })
+
+		expect(injectedCreateTag).toHaveBeenCalledWith('ws1', 'Urgent', {})
+	})
 })

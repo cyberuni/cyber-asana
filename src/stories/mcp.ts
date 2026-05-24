@@ -1,16 +1,30 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import { paginationOptions, paginationParams } from '../mcp-options.js'
-import { getTask } from '../tasks/api.js'
-import { createStory, interpolateTemplate, listStories } from './api.js'
+import { createStory, getTaskTemplateData, interpolateTemplate, listStories } from './api.js'
+import type { StoryApi } from './api.js'
 
-function registerStoryToolsWithPrefix(server: McpServer, prefix: 'story' | 'comment') {
+function resolveStoryApi(api?: StoryApi | (() => StoryApi)): StoryApi {
+	if (typeof api === 'function') return api()
+	return api ?? { listStories, createStory, getTaskTemplateData }
+}
+
+function registerStoryToolsWithPrefix(
+	server: McpServer,
+	prefix: 'story' | 'comment',
+	api?: StoryApi | (() => StoryApi),
+) {
 	server.tool(
 		`asana_${prefix}_list`,
 		'List Asana stories (comments) for a task',
 		{ task_gid: z.string().describe('Task GID'), ...paginationParams },
 		async ({ task_gid, ...params }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await listStories(task_gid, paginationOptions(params))) }],
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(await resolveStoryApi(api).listStories(task_gid, paginationOptions(params))),
+				},
+			],
 		}),
 	)
 
@@ -37,13 +51,13 @@ function registerStoryToolsWithPrefix(server: McpServer, prefix: 'story' | 'comm
 				.describe('Treat text as a template and interpolate task variables before posting'),
 		},
 		async ({ task_gid, text, html_text, template }) => {
-			const task = template ? await getTask(task_gid) : undefined
+			const task = template ? await resolveStoryApi(api).getTaskTemplateData(task_gid) : undefined
 			return {
 				content: [
 					{
 						type: 'text',
 						text: JSON.stringify(
-							await createStory(task_gid, {
+							await resolveStoryApi(api).createStory(task_gid, {
 								...(text !== undefined && { text: task ? interpolateTemplate(text, task) : text }),
 								...(html_text !== undefined && {
 									html_text: task ? interpolateTemplate(html_text, task) : html_text,
@@ -57,7 +71,7 @@ function registerStoryToolsWithPrefix(server: McpServer, prefix: 'story' | 'comm
 	)
 }
 
-export function registerStoryTools(server: McpServer) {
-	registerStoryToolsWithPrefix(server, 'story')
-	registerStoryToolsWithPrefix(server, 'comment')
+export function registerStoryTools(server: McpServer, api?: StoryApi | (() => StoryApi)) {
+	registerStoryToolsWithPrefix(server, 'story', api)
+	registerStoryToolsWithPrefix(server, 'comment', api)
 }

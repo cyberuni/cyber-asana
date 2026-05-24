@@ -152,4 +152,27 @@ describe('tags/mcp', () => {
 
 		expect(removeTagFromTaskMock).toHaveBeenCalledWith('task1', 'tag1')
 	})
+
+	it('tag tools can use an injected api dependency', async () => {
+		const injectedUpdateTag = vi.fn().mockResolvedValue({ gid: 'tag1', name: 'Urgent' })
+		const server = createServer()
+		registerTagTools(server as any, {
+			listTags: vi.fn(),
+			getTag: vi.fn(),
+			createTag: vi.fn(),
+			updateTag: injectedUpdateTag,
+			deleteTag: vi.fn(),
+			listTagsForTask: vi.fn(),
+			listTasksForTag: vi.fn(),
+			addTagToTask: vi.fn(),
+			removeTagFromTask: vi.fn(),
+		})
+
+		await server.handlers.get('asana_tag_update')?.({
+			tag_gid: 'tag1',
+			name: 'Urgent',
+		})
+
+		expect(injectedUpdateTag).toHaveBeenCalledWith('tag1', { name: 'Urgent', color: undefined, notes: undefined })
+	})
 })

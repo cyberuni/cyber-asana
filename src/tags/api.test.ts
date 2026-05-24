@@ -1,6 +1,7 @@
 import Asana from 'asana'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
+	createTagApi,
 	addTagToTask,
 	createTag,
 	deleteTag,
@@ -148,5 +149,27 @@ describe('tags/api', () => {
 
 		expect(result).toEqual(mockTask)
 		expect(Asana.TasksApi.prototype.removeTagForTask).toHaveBeenCalledWith({ data: { tag: 'tag1' } }, 'task1')
+	})
+})
+
+describe('createTagApi', () => {
+	it('uses the provided gateway', async () => {
+		const listTags = vi.fn().mockResolvedValue({ data: [mockTag], next_page: null, limit: 100 })
+		const api = createTagApi({
+			listTags,
+			getTag: vi.fn(),
+			createTag: vi.fn(),
+			updateTag: vi.fn(),
+			deleteTag: vi.fn(),
+			listTagsForTask: vi.fn(),
+			listTasksForTag: vi.fn(),
+			addTagToTask: vi.fn(),
+			removeTagFromTask: vi.fn(),
+		})
+
+		const result = await api.listTags('ws1')
+
+		expect(result).toEqual({ data: [mockTag], next_page: null, limit: 100 })
+		expect(listTags).toHaveBeenCalledWith('ws1', undefined)
 	})
 })
