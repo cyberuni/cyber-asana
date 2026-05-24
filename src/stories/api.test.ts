@@ -24,12 +24,37 @@ describe('stories/api', () => {
 		vi.spyOn(Asana.StoriesApi.prototype, 'createStoryForTask').mockResolvedValue({
 			data: mockStory,
 		} as never)
-		const result = await createStory('task1', 'A comment')
+		const result = await createStory('task1', { text: 'A comment' })
 		expect(result).toEqual(mockStory)
 		expect(Asana.StoriesApi.prototype.createStoryForTask).toHaveBeenCalledWith(
 			{ data: { text: 'A comment' } },
 			'task1',
 			{},
+		)
+	})
+
+	it('createStory calls createStoryForTask with html_text', async () => {
+		vi.spyOn(Asana.StoriesApi.prototype, 'createStoryForTask').mockResolvedValue({
+			data: mockStory,
+		} as never)
+
+		const result = await createStory('task1', { html_text: '<body><strong>Rich</strong></body>' })
+
+		expect(result).toEqual(mockStory)
+		expect(Asana.StoriesApi.prototype.createStoryForTask).toHaveBeenCalledWith(
+			{ data: { html_text: '<body><strong>Rich</strong></body>' } },
+			'task1',
+			{},
+		)
+	})
+
+	it('createStory surfaces actionable diagnostics for formatted text rejections', async () => {
+		vi.spyOn(Asana.StoriesApi.prototype, 'createStoryForTask').mockRejectedValue(
+			new Error('html_text: malformed rich text payload'),
+		)
+
+		await expect(createStory('task1', { html_text: '<body><strong>Rich</body>' })).rejects.toThrow(
+			'Asana rejected html_text',
 		)
 	})
 })

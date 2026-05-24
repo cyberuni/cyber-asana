@@ -21,17 +21,38 @@ function registerStoryToolsWithPrefix(server: McpServer, prefix: 'story' | 'comm
 			task_gid: z.string().describe('Task GID'),
 			text: z
 				.string()
+				.optional()
 				.describe(
 					'Comment text. When template=true, supports {task.name}, {task.assignee}, {task.due_on}, {task.notes}',
+				),
+			html_text: z
+				.string()
+				.optional()
+				.describe(
+					'Comment rich text as Asana HTML. When template=true, supports {task.name}, {task.assignee}, {task.due_on}, {task.notes}',
 				),
 			template: z
 				.boolean()
 				.optional()
 				.describe('Treat text as a template and interpolate task variables before posting'),
 		},
-		async ({ task_gid, text, template }) => {
-			const body = template ? interpolateTemplate(text, await getTask(task_gid)) : text
-			return { content: [{ type: 'text', text: JSON.stringify(await createStory(task_gid, body)) }] }
+		async ({ task_gid, text, html_text, template }) => {
+			const task = template ? await getTask(task_gid) : undefined
+			return {
+				content: [
+					{
+						type: 'text',
+						text: JSON.stringify(
+							await createStory(task_gid, {
+								...(text !== undefined && { text: task ? interpolateTemplate(text, task) : text }),
+								...(html_text !== undefined && {
+									html_text: task ? interpolateTemplate(html_text, task) : html_text,
+								}),
+							}),
+						),
+					},
+				],
+			}
 		},
 	)
 }

@@ -43,20 +43,31 @@ export function storyCommand(name = 'story') {
 
 	addGidOption(
 		cmd
-			.command('create <text>')
+			.command('create [text]')
 			.description('Add a comment to a task')
+			.option('--html-text <html>', 'Comment rich text as Asana HTML')
 			.option(
 				'--template',
 				'Treat text as a template; interpolates {task.name}, {task.assignee}, {task.due_on}, {task.notes}',
 			),
 		'task',
 		'Task GID',
-	).action(async (text: string, opts: { task?: string; taskGid?: string; template?: boolean }) => {
-		const taskGid = requiredGid(opts, 'task', 'Task GID')
-		const body = opts.template ? interpolateTemplate(text, await getTask(taskGid)) : text
-		const data = await createStory(taskGid, body)
-		output(data, () => fmtStory(data))
-	})
+	).action(
+		async (
+			text: string | undefined,
+			opts: { task?: string; taskGid?: string; template?: boolean; htmlText?: string },
+		) => {
+			const taskGid = requiredGid(opts, 'task', 'Task GID')
+			const task = opts.template ? await getTask(taskGid) : undefined
+			const data = await createStory(taskGid, {
+				...(text !== undefined && { text: task ? interpolateTemplate(text, task) : text }),
+				...(opts.htmlText !== undefined && {
+					html_text: task ? interpolateTemplate(opts.htmlText, task) : opts.htmlText,
+				}),
+			})
+			output(data, () => fmtStory(data))
+		},
+	)
 
 	return cmd
 }
