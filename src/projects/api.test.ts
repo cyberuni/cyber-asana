@@ -7,6 +7,7 @@ import {
 	getProject,
 	listProjects,
 	renderProjectMarkdown,
+	searchProjects,
 	updateProject,
 } from './api.js'
 
@@ -82,6 +83,89 @@ describe('projects/api', () => {
 		vi.spyOn(Asana.ProjectsApi.prototype, 'deleteProject').mockResolvedValue(undefined as never)
 		await deleteProject('123')
 		expect(Asana.ProjectsApi.prototype.deleteProject).toHaveBeenCalledWith('123')
+	})
+
+	it('searchProjects calls searchProjectsForWorkspace with text', async () => {
+		vi.spyOn(Asana.ProjectsApi.prototype, 'searchProjectsForWorkspace').mockResolvedValue({
+			data: [mockData],
+		} as never)
+		const result = await searchProjects('ws1', { text: 'roadmap' })
+		expect(result).toEqual([mockData])
+		expect(Asana.ProjectsApi.prototype.searchProjectsForWorkspace).toHaveBeenCalledWith(
+			'ws1',
+			expect.objectContaining({ text: 'roadmap' }),
+		)
+	})
+
+	it('searchProjects forwards full project search filters to SDK', async () => {
+		vi.spyOn(Asana.ProjectsApi.prototype, 'searchProjectsForWorkspace').mockResolvedValue({
+			data: [mockData],
+		} as never)
+
+		await searchProjects('ws1', {
+			text: 'launch',
+			completed: false,
+			teamsAny: 'team1',
+			ownerAny: 'me',
+			membersAny: 'user1,user2',
+			membersNot: 'user3',
+			portfoliosAny: 'port1',
+			completedOn: '2026-05-01',
+			completedOnBefore: '2026-05-31',
+			completedOnAfter: '2026-05-02',
+			completedAtBefore: '2026-05-31T10:00:00Z',
+			completedAtAfter: '2026-05-01T10:00:00Z',
+			createdOn: '2026-04-01',
+			createdOnBefore: '2026-04-30',
+			createdOnAfter: '2026-04-02',
+			createdAtBefore: '2026-04-30T10:00:00Z',
+			createdAtAfter: '2026-04-01T10:00:00Z',
+			dueOn: '2026-06-01',
+			dueOnBefore: '2026-06-30',
+			dueOnAfter: '2026-06-02',
+			dueAtBefore: '2026-06-30T10:00:00Z',
+			dueAtAfter: '2026-06-01T10:00:00Z',
+			startOn: '2026-03-01',
+			startOnBefore: '2026-03-31',
+			startOnAfter: '2026-03-02',
+			sortBy: 'due_date',
+			sortAscending: true,
+			optFields: 'gid,name,owner',
+		})
+
+		expect(Asana.ProjectsApi.prototype.searchProjectsForWorkspace).toHaveBeenCalledWith(
+			'ws1',
+			expect.objectContaining({
+				text: 'launch',
+				completed: false,
+				'teams.any': 'team1',
+				'owner.any': 'me',
+				'members.any': 'user1,user2',
+				'members.not': 'user3',
+				'portfolios.any': 'port1',
+				completed_on: '2026-05-01',
+				'completed_on.before': '2026-05-31',
+				'completed_on.after': '2026-05-02',
+				'completed_at.before': '2026-05-31T10:00:00Z',
+				'completed_at.after': '2026-05-01T10:00:00Z',
+				created_on: '2026-04-01',
+				'created_on.before': '2026-04-30',
+				'created_on.after': '2026-04-02',
+				'created_at.before': '2026-04-30T10:00:00Z',
+				'created_at.after': '2026-04-01T10:00:00Z',
+				due_on: '2026-06-01',
+				'due_on.before': '2026-06-30',
+				'due_on.after': '2026-06-02',
+				'due_at.before': '2026-06-30T10:00:00Z',
+				'due_at.after': '2026-06-01T10:00:00Z',
+				start_on: '2026-03-01',
+				'start_on.before': '2026-03-31',
+				'start_on.after': '2026-03-02',
+				sort_by: 'due_date',
+				sort_ascending: true,
+				opt_fields: 'gid,name,owner',
+			}),
+		)
 	})
 })
 
