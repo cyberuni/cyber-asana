@@ -287,7 +287,7 @@ export function projectCommand() {
 						clearStartOn: opts.clearStartOn,
 					}),
 				})
-			output(data, () => fmtProject(data))
+				output(data, () => fmtProject(data))
 			},
 		)
 

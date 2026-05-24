@@ -29,7 +29,12 @@ function assertNotesMode(notes?: string, htmlNotes?: string) {
 	}
 }
 
-function assertProjectDateMode(input: { dueOn?: string; startOn?: string; clearDueOn?: boolean; clearStartOn?: boolean }) {
+function assertProjectDateMode(input: {
+	dueOn?: string
+	startOn?: string
+	clearDueOn?: boolean
+	clearStartOn?: boolean
+}) {
 	if (input.dueOn !== undefined && input.clearDueOn) {
 		throw new Error('--due-on and --clear-due-on are mutually exclusive')
 	}

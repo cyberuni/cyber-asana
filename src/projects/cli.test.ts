@@ -189,16 +189,7 @@ describe('projects/cli', () => {
 		const program = new Command().addCommand(projectCommand())
 
 		await program.parseAsync(
-			[
-				'node',
-				'test',
-				'project',
-				'update',
-				'123',
-				'--due-on',
-				'2026-06-10',
-				'--clear-start-on',
-			],
+			['node', 'test', 'project', 'update', '123', '--due-on', '2026-06-10', '--clear-start-on'],
 			{ from: 'node' },
 		)
 
