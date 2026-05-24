@@ -12,6 +12,7 @@ import { output, printFields, printTable } from '../output.js'
 import {
 	addDependencies,
 	addDependents,
+	addTaskToProject,
 	createSubtask,
 	createTask,
 	deleteTask,
@@ -23,6 +24,7 @@ import {
 	listTasks,
 	removeDependencies,
 	removeDependents,
+	removeTaskFromProject,
 	type SearchTasksOptions,
 	scanTodos,
 	searchTasks,
@@ -454,6 +456,42 @@ export function taskCommand() {
 				output(data, () => fmtTaskList(data))
 			},
 		)
+
+	const projectCmd = cmd.command('project').description('Manage project membership for a task')
+
+	addGidOption(
+		projectCmd
+			.command('add <task-gid> <project-gid>')
+			.description('Add a task to a project')
+			.option('--insert-after <gid>', 'Insert after this task GID')
+			.option('--insert-before <gid>', 'Insert before this task GID'),
+		'section',
+		'Section GID',
+	).action(
+		async (
+			taskGid: string,
+			projectGid: string,
+			opts: { section?: string; sectionGid?: string; insertAfter?: string; insertBefore?: string },
+		) => {
+			if (opts.insertAfter && opts.insertBefore) {
+				throw new Error('--insert-after and --insert-before are mutually exclusive')
+			}
+			await addTaskToProject(taskGid, projectGid, {
+				sectionGid: normalizedGid(opts, 'section'),
+				insertAfter: opts.insertAfter,
+				insertBefore: opts.insertBefore,
+			})
+			console.log(`Added task ${taskGid} to project ${projectGid}`)
+		},
+	)
+
+	projectCmd
+		.command('remove <task-gid> <project-gid>')
+		.description('Remove a task from a project')
+		.action(async (taskGid: string, projectGid: string) => {
+			await removeTaskFromProject(taskGid, projectGid)
+			console.log(`Removed task ${taskGid} from project ${projectGid}`)
+		})
 
 	const dependencyCmd = cmd.command('dependency').description('Manage task dependencies (tasks this task depends on)')
 

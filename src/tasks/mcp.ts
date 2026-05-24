@@ -4,6 +4,7 @@ import { paginationOptions, paginationParams } from '../mcp-options.js'
 import {
 	addDependencies,
 	addDependents,
+	addTaskToProject,
 	createSubtask,
 	createTask,
 	deleteTask,
@@ -15,6 +16,7 @@ import {
 	listTasks,
 	removeDependencies,
 	removeDependents,
+	removeTaskFromProject,
 	scanTodos,
 	searchTasks,
 	updateTask,
@@ -380,6 +382,39 @@ export function registerTaskTools(server: McpServer) {
 				},
 			],
 		}),
+	)
+
+	server.tool(
+		'asana_task_project_add',
+		'Add an Asana task to a project, optionally into a specific section and position',
+		{
+			task_gid: z.string().describe('Task GID'),
+			project_gid: z.string().describe('Project GID'),
+			section_gid: z.string().optional().describe('Section GID to place the task into'),
+			insert_after: z.string().optional().describe('Task GID to insert after'),
+			insert_before: z.string().optional().describe('Task GID to insert before'),
+		},
+		async ({ task_gid, project_gid, section_gid, insert_after, insert_before }) => {
+			await addTaskToProject(task_gid, project_gid, {
+				sectionGid: section_gid,
+				insertAfter: insert_after,
+				insertBefore: insert_before,
+			})
+			return { content: [{ type: 'text', text: `Added task ${task_gid} to project ${project_gid}` }] }
+		},
+	)
+
+	server.tool(
+		'asana_task_project_remove',
+		'Remove an Asana task from a project',
+		{
+			task_gid: z.string().describe('Task GID'),
+			project_gid: z.string().describe('Project GID'),
+		},
+		async ({ task_gid, project_gid }) => {
+			await removeTaskFromProject(task_gid, project_gid)
+			return { content: [{ type: 'text', text: `Removed task ${task_gid} from project ${project_gid}` }] }
+		},
 	)
 
 	server.tool(

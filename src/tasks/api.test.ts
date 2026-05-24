@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
 	addDependencies,
 	addDependents,
+	addTaskToProject,
 	createSubtask,
 	createTask,
 	deleteTask,
@@ -18,6 +19,7 @@ import {
 	listTasksForSection,
 	removeDependencies,
 	removeDependents,
+	removeTaskFromProject,
 	scanTodos,
 	searchTasks,
 	updateTask,
@@ -458,6 +460,53 @@ describe('tasks/api', () => {
 			{ data: { dependents: [{ gid: '333' }, { gid: '444' }] } },
 			'456',
 		)
+	})
+
+	it('addTaskToProject calls addProjectForTask with project gid only', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'addProjectForTask').mockResolvedValue({} as never)
+		await addTaskToProject('456', 'proj1')
+		expect(Asana.TasksApi.prototype.addProjectForTask).toHaveBeenCalledWith({ data: { project: 'proj1' } }, '456')
+	})
+
+	it('addTaskToProject passes section when provided', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'addProjectForTask').mockResolvedValue({} as never)
+		await addTaskToProject('456', 'proj1', { sectionGid: 'sec1' })
+		expect(Asana.TasksApi.prototype.addProjectForTask).toHaveBeenCalledWith(
+			{ data: { project: 'proj1', section: 'sec1' } },
+			'456',
+		)
+	})
+
+	it('addTaskToProject passes insert_after when provided', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'addProjectForTask').mockResolvedValue({} as never)
+		await addTaskToProject('456', 'proj1', { insertAfter: 'task111' })
+		expect(Asana.TasksApi.prototype.addProjectForTask).toHaveBeenCalledWith(
+			{ data: { project: 'proj1', insert_after: 'task111' } },
+			'456',
+		)
+	})
+
+	it('addTaskToProject passes insert_before when provided', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'addProjectForTask').mockResolvedValue({} as never)
+		await addTaskToProject('456', 'proj1', { insertBefore: 'task222' })
+		expect(Asana.TasksApi.prototype.addProjectForTask).toHaveBeenCalledWith(
+			{ data: { project: 'proj1', insert_before: 'task222' } },
+			'456',
+		)
+	})
+
+	it('addTaskToProject omits positioning keys when not provided', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'addProjectForTask').mockResolvedValue({} as never)
+		await addTaskToProject('456', 'proj1', { sectionGid: 'sec1' })
+		const call = vi.mocked(Asana.TasksApi.prototype.addProjectForTask).mock.calls[0]
+		expect(call?.[0]).not.toHaveProperty('data.insert_after')
+		expect(call?.[0]).not.toHaveProperty('data.insert_before')
+	})
+
+	it('removeTaskFromProject calls removeProjectForTask with project gid', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'removeProjectForTask').mockResolvedValue({} as never)
+		await removeTaskFromProject('456', 'proj1')
+		expect(Asana.TasksApi.prototype.removeProjectForTask).toHaveBeenCalledWith({ data: { project: 'proj1' } }, '456')
 	})
 
 	it('removeDependencies calls removeDependenciesForTask with wrapped gids', async () => {

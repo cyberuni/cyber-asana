@@ -152,6 +152,30 @@ export async function createSubtask(
 	return res.data
 }
 
+export async function addTaskToProject(
+	taskGid: string,
+	projectGid: string,
+	opts?: { sectionGid?: string; insertAfter?: string; insertBefore?: string },
+) {
+	const api = new Asana.TasksApi(createClient())
+	return api.addProjectForTask(
+		{
+			data: {
+				project: projectGid,
+				...(opts?.sectionGid !== undefined && { section: opts.sectionGid }),
+				...(opts?.insertAfter !== undefined && { insert_after: opts.insertAfter }),
+				...(opts?.insertBefore !== undefined && { insert_before: opts.insertBefore }),
+			},
+		},
+		taskGid,
+	)
+}
+
+export async function removeTaskFromProject(taskGid: string, projectGid: string) {
+	const api = new Asana.TasksApi(createClient())
+	return api.removeProjectForTask({ data: { project: projectGid } }, taskGid)
+}
+
 export async function deleteTask(taskGid: string) {
 	const api = new Asana.TasksApi(createClient())
 	await api.deleteTask(taskGid)

@@ -47,7 +47,7 @@ Use `--all` to fetch multiple pages intentionally; `--max-pages` caps the number
 |---|---|
 | `workspace` | `list`, `get` |
 | `project` | `list`, `get`, `create`, `update`, `delete` |
-| `task` | `list`, `my-tasks list`, `get`, `create`, `update`, `delete`, `subtask list`, `subtask create`, `search`, `dependency list/add/remove`, `dependent list/add/remove` |
+| `task` | `list`, `my-tasks list`, `get`, `create`, `update`, `delete`, `subtask list`, `subtask create`, `search`, `project add/remove`, `dependency list/add/remove`, `dependent list/add/remove` |
 | `section` | `list`, `get`, `create`, `update`, `delete` |
 | `user` | `list`, `get`, `me` |
 | `team` | `list`, `get` |
@@ -103,6 +103,27 @@ cyber-asana task subtask list <task-gid> --assignee-email --opt-fields "due_on,n
 | `--follower-emails` | `followers,followers.email` |
 | `--num-subtasks` | `num_subtasks` |
 | `--custom-fields` | `custom_fields` |
+
+### Task project membership
+
+A task can belong to multiple projects simultaneously (multi-homing). Use `project add` and `project remove` to manage this, with optional section placement and insert positioning.
+
+```sh
+# Add task to a project (appended at end)
+cyber-asana task project add <task-gid> <project-gid>
+
+# Add into a specific section
+cyber-asana task project add <task-gid> <project-gid> --section <section-gid>
+
+# Position relative to another task
+cyber-asana task project add <task-gid> <project-gid> --insert-after <other-task-gid>
+cyber-asana task project add <task-gid> <project-gid> --insert-before <other-task-gid>
+
+# Remove from a project (task is not deleted)
+cyber-asana task project remove <task-gid> <project-gid>
+```
+
+`--insert-after` and `--insert-before` are mutually exclusive. Omitting both places the task at the end of the project or section.
 
 ### Task dependencies and dependents
 
