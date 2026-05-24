@@ -3,16 +3,16 @@ import path from 'node:path'
 import { createClient } from '../client.js'
 import type { PaginationOptions } from '../pagination.js'
 import {
-	createAsanaTaskGateway,
 	type CreateTaskFields,
+	createAsanaTaskGateway,
 	type SearchTasksOptions,
 	type TaskBatchLookupResult,
 	type TaskGateway,
 	type UpdateTaskFields,
 } from './gateway.js'
 
+export type { TaskBatchLookupFailure, TaskBatchLookupSuccess, TaskCustomFields } from './gateway.js'
 export type { CreateTaskFields, SearchTasksOptions, TaskBatchLookupResult, UpdateTaskFields }
-export type { TaskBatchLookupSuccess, TaskBatchLookupFailure, TaskCustomFields } from './gateway.js'
 
 export type TodoMatch = {
 	file: string
@@ -101,11 +101,7 @@ export function createTaskApi(gateway: TaskGateway) {
 		listSubtasks(taskGid: string, opts?: PaginationOptions & { completedSince?: string }) {
 			return gateway.listSubtasks(taskGid, opts)
 		},
-		createSubtask(
-			parentTaskGid: string,
-			name: string,
-			opts?: { notes?: string; assignee?: string; dueOn?: string },
-		) {
+		createSubtask(parentTaskGid: string, name: string, opts?: { notes?: string; assignee?: string; dueOn?: string }) {
 			return gateway.createSubtask(parentTaskGid, name, opts)
 		},
 		addTaskToProject(

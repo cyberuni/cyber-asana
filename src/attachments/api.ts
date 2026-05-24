@@ -1,6 +1,6 @@
 import { createClient } from '../client.js'
 import type { PaginationOptions } from '../pagination.js'
-import { createAsanaAttachmentGateway, type AttachmentGateway } from './gateway.js'
+import { type AttachmentGateway, createAsanaAttachmentGateway } from './gateway.js'
 
 export type AttachmentApi = ReturnType<typeof createAttachmentApi>
 

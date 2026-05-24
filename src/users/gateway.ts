@@ -7,7 +7,10 @@ import {
 } from '../pagination.js'
 
 export type UserGateway = {
-	listUsers(workspaceGid: string, opts?: Omit<PaginationOptions, 'limit' | 'fetchAll' | 'maxPages'>): Promise<ListResult<any>>
+	listUsers(
+		workspaceGid: string,
+		opts?: Omit<PaginationOptions, 'limit' | 'fetchAll' | 'maxPages'>,
+	): Promise<ListResult<any>>
 	getUser(userGid: string): Promise<any>
 	getMe(): Promise<any>
 }

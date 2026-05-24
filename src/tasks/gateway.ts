@@ -107,7 +107,10 @@ export type SearchTasksOptions = {
 
 export type TaskGateway = {
 	listTasks(projectGid: string, opts?: PaginationOptions & { completedSince?: string }): Promise<ListResult<any>>
-	listTasksForSection(sectionGid: string, opts?: PaginationOptions & { completedSince?: string }): Promise<ListResult<any>>
+	listTasksForSection(
+		sectionGid: string,
+		opts?: PaginationOptions & { completedSince?: string },
+	): Promise<ListResult<any>>
 	getTask(taskGid: string): Promise<any>
 	getTasksByGid(taskGids: string[], opts?: { optFields?: string }): Promise<TaskBatchLookupResult[]>
 	createTask(workspaceGid: string, name: string, opts?: CreateTaskFields): Promise<any>
@@ -115,8 +118,16 @@ export type TaskGateway = {
 	deleteTask(taskGid: string): Promise<void>
 	getMyTasks(workspaceGid: string, opts?: PaginationOptions & { completedSince?: string }): Promise<ListResult<any>>
 	listSubtasks(taskGid: string, opts?: PaginationOptions & { completedSince?: string }): Promise<ListResult<any>>
-	createSubtask(parentTaskGid: string, name: string, opts?: { notes?: string; assignee?: string; dueOn?: string }): Promise<any>
-	addTaskToProject(taskGid: string, projectGid: string, opts?: { sectionGid?: string; insertAfter?: string; insertBefore?: string }): Promise<any>
+	createSubtask(
+		parentTaskGid: string,
+		name: string,
+		opts?: { notes?: string; assignee?: string; dueOn?: string },
+	): Promise<any>
+	addTaskToProject(
+		taskGid: string,
+		projectGid: string,
+		opts?: { sectionGid?: string; insertAfter?: string; insertBefore?: string },
+	): Promise<any>
 	removeTaskFromProject(taskGid: string, projectGid: string): Promise<any>
 	addFollowersToTask(taskGid: string, followerGids: string[]): Promise<any>
 	removeFollowersFromTask(taskGid: string, followerGids: string[]): Promise<any>
@@ -279,10 +290,7 @@ export function createAsanaTaskGateway(client: Asana.ApiClient): TaskGateway {
 			)
 		},
 		async addDependents(taskGid, dependentGids) {
-			return tasksApi.addDependentsForTask(
-				{ data: { dependents: dependentGids.map((gid) => ({ gid })) } },
-				taskGid,
-			)
+			return tasksApi.addDependentsForTask({ data: { dependents: dependentGids.map((gid) => ({ gid })) } }, taskGid)
 		},
 		async removeDependencies(taskGid, dependencyGids) {
 			await tasksApi.removeDependenciesForTask(
@@ -291,10 +299,7 @@ export function createAsanaTaskGateway(client: Asana.ApiClient): TaskGateway {
 			)
 		},
 		async removeDependents(taskGid, dependentGids) {
-			await tasksApi.removeDependentsForTask(
-				{ data: { dependents: dependentGids.map((gid) => ({ gid })) } },
-				taskGid,
-			)
+			await tasksApi.removeDependentsForTask({ data: { dependents: dependentGids.map((gid) => ({ gid })) } }, taskGid)
 		},
 		async searchTasks(workspaceGid, opts) {
 			const res = await tasksApi.searchTasksForWorkspace(workspaceGid, {
