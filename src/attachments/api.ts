@@ -1,15 +1,28 @@
-import Asana from 'asana'
 import { createClient } from '../client.js'
-import { collectListResponse, type PaginationOptions, toAsanaPaginationOptions } from '../pagination.js'
+import type { PaginationOptions } from '../pagination.js'
+import { createAsanaAttachmentGateway, type AttachmentGateway } from './gateway.js'
+
+export type AttachmentApi = ReturnType<typeof createAttachmentApi>
+
+export function createAttachmentApi(gateway: AttachmentGateway) {
+	return {
+		listAttachments(taskGid: string, opts?: PaginationOptions) {
+			return gateway.listAttachments(taskGid, opts)
+		},
+		getAttachment(attachmentGid: string) {
+			return gateway.getAttachment(attachmentGid)
+		},
+	}
+}
+
+function defaultAttachmentApi() {
+	return createAttachmentApi(createAsanaAttachmentGateway(createClient()))
+}
 
 export async function listAttachments(taskGid: string, opts?: PaginationOptions) {
-	const api = new Asana.AttachmentsApi(createClient())
-	const res = await api.getAttachmentsForObject(taskGid, toAsanaPaginationOptions(opts))
-	return await collectListResponse(res, opts)
+	return defaultAttachmentApi().listAttachments(taskGid, opts)
 }
 
 export async function getAttachment(attachmentGid: string) {
-	const api = new Asana.AttachmentsApi(createClient())
-	const res = await api.getAttachment(attachmentGid, {})
-	return res.data
+	return defaultAttachmentApi().getAttachment(attachmentGid)
 }
