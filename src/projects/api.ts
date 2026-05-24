@@ -19,6 +19,14 @@ export async function getProject(projectGid: string) {
 	return res.data
 }
 
+export async function getProjectTaskCounts(projectGid: string, opts?: { optFields?: string }) {
+	const api = new Asana.ProjectsApi(createClient())
+	const res = await api.getTaskCountsForProject(projectGid, {
+		opt_fields: opts?.optFields ?? 'num_tasks,num_incomplete_tasks,num_completed_tasks',
+	})
+	return res.data
+}
+
 export async function createProject(workspaceGid: string, name: string, opts?: { notes?: string; color?: string }) {
 	const api = new Asana.ProjectsApi(createClient())
 	const res = await api.createProject({

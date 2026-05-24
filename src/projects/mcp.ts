@@ -6,6 +6,7 @@ import {
 	deleteProject,
 	exportProject,
 	getProject,
+	getProjectTaskCounts,
 	listProjects,
 	renderProjectMarkdown,
 	searchProjects,
@@ -28,6 +29,23 @@ export function registerProjectTools(server: McpServer) {
 		{ project_gid: z.string().describe('Project GID') },
 		async ({ project_gid }) => ({
 			content: [{ type: 'text', text: JSON.stringify(await getProject(project_gid)) }],
+		}),
+	)
+
+	server.tool(
+		'asana_project_counts',
+		'Get task counts for an Asana project',
+		{
+			project_gid: z.string().describe('Project GID'),
+			opt_fields: z.string().optional().describe('Comma-separated task count fields to include'),
+		},
+		async ({ project_gid, opt_fields }) => ({
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(await getProjectTaskCounts(project_gid, { optFields: opt_fields })),
+				},
+			],
 		}),
 	)
 

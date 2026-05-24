@@ -5,6 +5,7 @@ import {
 	deleteProject,
 	exportProject,
 	getProject,
+	getProjectTaskCounts,
 	listProjects,
 	renderProjectMarkdown,
 	searchProjects,
@@ -58,6 +59,32 @@ describe('projects/api', () => {
 		} as never)
 		const result = await getProject('123')
 		expect(result).toEqual(mockData)
+	})
+
+	it('getProjectTaskCounts uses default count fields', async () => {
+		vi.spyOn(Asana.ProjectsApi.prototype, 'getTaskCountsForProject').mockResolvedValue({
+			data: { num_tasks: 12, num_incomplete_tasks: 5, num_completed_tasks: 7 },
+		} as never)
+
+		const result = await getProjectTaskCounts('123')
+
+		expect(result).toEqual({ num_tasks: 12, num_incomplete_tasks: 5, num_completed_tasks: 7 })
+		expect(Asana.ProjectsApi.prototype.getTaskCountsForProject).toHaveBeenCalledWith('123', {
+			opt_fields: 'num_tasks,num_incomplete_tasks,num_completed_tasks',
+		})
+	})
+
+	it('getProjectTaskCounts forwards custom optFields', async () => {
+		vi.spyOn(Asana.ProjectsApi.prototype, 'getTaskCountsForProject').mockResolvedValue({
+			data: { num_milestones: 3 },
+		} as never)
+
+		const result = await getProjectTaskCounts('123', { optFields: 'num_milestones' })
+
+		expect(result).toEqual({ num_milestones: 3 })
+		expect(Asana.ProjectsApi.prototype.getTaskCountsForProject).toHaveBeenCalledWith('123', {
+			opt_fields: 'num_milestones',
+		})
 	})
 
 	it('createProject calls createProject with body', async () => {

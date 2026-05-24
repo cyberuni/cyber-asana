@@ -2,24 +2,35 @@ import { Command } from 'commander'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 const searchProjectsMock = vi.fn()
+const getProjectTaskCountsMock = vi.fn()
 
 vi.mock('./api.js', async () => {
 	const actual = await vi.importActual<typeof import('./api.js')>('./api.js')
 	return {
 		...actual,
 		searchProjects: searchProjectsMock,
+		getProjectTaskCounts: getProjectTaskCountsMock,
 	}
 })
 
-const { projectCommand } = await import('./cli.js')
+async function loadProjectCommand() {
+	vi.resetModules()
+	const mod = await import('./cli.js')
+	return mod.projectCommand
+}
 
 describe('projects/cli', () => {
+	const originalArgv = [...process.argv]
+	const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
 	afterEach(() => {
 		vi.clearAllMocks()
+		process.argv = [...originalArgv]
 	})
 
 	it('project search forwards text and filters to searchProjects', async () => {
 		searchProjectsMock.mockResolvedValue([{ gid: '1', name: 'Launch Roadmap' }])
+		const projectCommand = await loadProjectCommand()
 		const program = new Command().addCommand(projectCommand())
 
 		await program.parseAsync(
@@ -66,5 +77,68 @@ describe('projects/cli', () => {
 			sortAscending: true,
 			optFields: 'gid,name,owner',
 		})
+	})
+
+	it('project counts uses default count fields and prints readable output', async () => {
+		getProjectTaskCountsMock.mockResolvedValue({
+			num_tasks: 12,
+			num_incomplete_tasks: 5,
+			num_completed_tasks: 7,
+		})
+		const projectCommand = await loadProjectCommand()
+		const program = new Command().addCommand(projectCommand())
+
+		await program.parseAsync(['node', 'test', 'project', 'counts', '123'], { from: 'node' })
+
+		expect(getProjectTaskCountsMock).toHaveBeenCalledWith('123', undefined)
+		expect(logSpy.mock.calls.map(([line]) => line)).toEqual([
+			'Project ID        123',
+			'Total Tasks       12',
+			'Incomplete Tasks  5',
+			'Completed Tasks   7',
+		])
+	})
+
+	it('project counts forwards custom optFields and prints returned fields', async () => {
+		getProjectTaskCountsMock.mockResolvedValue({
+			num_milestones: 3,
+			num_tasks: 12,
+		})
+		const projectCommand = await loadProjectCommand()
+		const program = new Command().addCommand(projectCommand())
+
+		await program.parseAsync(['node', 'test', 'project', 'counts', '123', '--opt-fields', 'num_milestones,num_tasks'], {
+			from: 'node',
+		})
+
+		expect(getProjectTaskCountsMock).toHaveBeenCalledWith('123', {
+			optFields: 'num_milestones,num_tasks',
+		})
+		expect(logSpy.mock.calls.map(([line]) => line)).toEqual(['num_milestones  3', 'num_tasks       12'])
+	})
+
+	it('project counts prints raw json with --json', async () => {
+		getProjectTaskCountsMock.mockResolvedValue({
+			num_tasks: 12,
+			num_incomplete_tasks: 5,
+			num_completed_tasks: 7,
+		})
+		process.argv = ['node', 'test', '--json']
+		const projectCommand = await loadProjectCommand()
+		const program = new Command().option('--json').addCommand(projectCommand())
+
+		await program.parseAsync(['node', 'test', '--json', 'project', 'counts', '123'], { from: 'node' })
+
+		expect(logSpy).toHaveBeenCalledWith(
+			JSON.stringify(
+				{
+					num_tasks: 12,
+					num_incomplete_tasks: 5,
+					num_completed_tasks: 7,
+				},
+				null,
+				2,
+			),
+		)
 	})
 })

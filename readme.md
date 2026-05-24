@@ -46,7 +46,7 @@ Use `--all` to fetch multiple pages intentionally; `--max-pages` caps the number
 | Resource | Actions |
 |---|---|
 | `workspace` | `list`, `get` |
-| `project` | `list`, `get`, `search`, `create`, `update`, `delete` |
+| `project` | `list`, `get`, `counts`, `search`, `create`, `update`, `delete` |
 | `task` | `list`, `my-tasks list`, `get`, `create`, `update`, `delete`, `subtask list`, `subtask create`, `search`, `project add/remove`, `follower add/remove`, `dependency list/add/remove`, `dependent list/add/remove` |
 | `section` | `list`, `get`, `create`, `update`, `delete` |
 | `user` | `list`, `get`, `me` |
@@ -292,6 +292,22 @@ cyber-asana project search --workspace-gid <gid> --portfolio <gid> --sort-by due
 
 Project search uses Asana’s premium search endpoint. Results may be eventually consistent, so newly changed projects may not appear immediately.
 
+### Project task counts
+
+Use `project counts` to read task-count fields from Asana’s project task-count endpoint.
+
+```sh
+# Default counts
+cyber-asana project counts <project-gid>
+
+# Request custom count fields
+cyber-asana project counts <project-gid> --opt-fields num_tasks,num_completed_tasks
+```
+
+Asana returns no fields from this endpoint unless `opt_fields` is supplied. This wrapper defaults to `num_tasks,num_incomplete_tasks,num_completed_tasks`.
+
+This endpoint has a stricter Asana rate/cost profile than ordinary project reads, so prefer the default field set unless you need additional count fields.
+
 ### Examples
 
 ```sh
@@ -344,6 +360,8 @@ Fetch-all responses also include `page_count` and `truncated`.
 Use `asana_task_follower_add` and `asana_task_follower_remove` to manage followers on existing tasks.
 
 `asana_project_search` accepts `text`, `completed`, `teams_any`, `owner_any`, `members_any`, `members_not`, `portfolios_any`, supported project date filters, `sort_by`, `sort_ascending`, and `opt_fields`.
+
+`asana_project_counts` accepts `project_gid` and optional `opt_fields`. If `opt_fields` is omitted, it defaults to `num_tasks,num_incomplete_tasks,num_completed_tasks`.
 
 `asana_story_create` and `asana_comment_create` accept `template: true` to interpolate `{task.name}`, `{task.assignee}`, `{task.due_on}`, and `{task.notes}` in the comment text before posting.
 

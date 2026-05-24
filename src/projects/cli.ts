@@ -14,6 +14,7 @@ import {
 	deleteProject,
 	exportProject,
 	getProject,
+	getProjectTaskCounts,
 	listProjects,
 	renderProjectMarkdown,
 	searchProjects,
@@ -31,6 +32,22 @@ function fmtProjectList(projects: Project[]) {
 		{ label: 'Name', get: (p) => p.name },
 		{ label: 'ID', get: (p) => p.gid },
 	])
+}
+
+function fmtProjectCounts(projectGid: string, counts: Record<string, unknown>, usingDefaultFields: boolean) {
+	if (usingDefaultFields) {
+		printFields({
+			'Project ID': projectGid,
+			'Total Tasks': String(counts.num_tasks ?? 0),
+			'Incomplete Tasks': String(counts.num_incomplete_tasks ?? 0),
+			'Completed Tasks': String(counts.num_completed_tasks ?? 0),
+		})
+		return
+	}
+
+	printFields(
+		Object.fromEntries(Object.entries(counts).map(([key, value]) => [key, value == null ? null : String(value)])),
+	)
 }
 
 export function projectCommand() {
@@ -62,6 +79,15 @@ export function projectCommand() {
 		.action(async (gid: string) => {
 			const data = await getProject(gid)
 			output(data, () => fmtProject(data))
+		})
+
+	cmd
+		.command('counts <gid>')
+		.description('Get task counts for a project')
+		.option('--opt-fields <fields>', 'Comma-separated project count fields to include')
+		.action(async (gid: string, opts: { optFields?: string }) => {
+			const data = await getProjectTaskCounts(gid, opts.optFields ? { optFields: opts.optFields } : undefined)
+			output(data, () => fmtProjectCounts(gid, data, !opts.optFields))
 		})
 
 	addGidOption(

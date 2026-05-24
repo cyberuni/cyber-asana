@@ -1,12 +1,14 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 const searchProjectsMock = vi.fn()
+const getProjectTaskCountsMock = vi.fn()
 
 vi.mock('./api.js', async () => {
 	const actual = await vi.importActual<typeof import('./api.js')>('./api.js')
 	return {
 		...actual,
 		searchProjects: searchProjectsMock,
+		getProjectTaskCounts: getProjectTaskCountsMock,
 	}
 })
 
@@ -27,6 +29,24 @@ function createServer() {
 describe('projects/mcp', () => {
 	afterEach(() => {
 		vi.clearAllMocks()
+	})
+
+	it('registers asana_project_counts and forwards params', async () => {
+		getProjectTaskCountsMock.mockResolvedValue({ num_tasks: 12, num_completed_tasks: 7 })
+		const server = createServer()
+		registerProjectTools(server as any)
+
+		const result = await server.handlers.get('asana_project_counts')?.({
+			project_gid: '123',
+			opt_fields: 'num_tasks,num_completed_tasks',
+		})
+
+		expect(getProjectTaskCountsMock).toHaveBeenCalledWith('123', {
+			optFields: 'num_tasks,num_completed_tasks',
+		})
+		expect(result).toEqual({
+			content: [{ type: 'text', text: JSON.stringify({ num_tasks: 12, num_completed_tasks: 7 }) }],
+		})
 	})
 
 	it('asana_project_search forwards project search params to searchProjects', async () => {
