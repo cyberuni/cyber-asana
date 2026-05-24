@@ -16,6 +16,7 @@ import {
 	getProject,
 	listProjects,
 	renderProjectMarkdown,
+	searchProjects,
 	updateProject,
 } from './api.js'
 
@@ -62,6 +63,106 @@ export function projectCommand() {
 			const data = await getProject(gid)
 			output(data, () => fmtProject(data))
 		})
+
+	addGidOption(cmd.command('search [text]').description('Search projects in a workspace'), 'workspace', 'Workspace GID', {
+		env: 'ASANA_WORKSPACE',
+	})
+		.option('--completed', 'Only completed projects')
+		.option('--no-completed', 'Only incomplete projects')
+		.option('--team <gid[,gid...]>', 'Team GIDs (any match)')
+		.option('--owner <gid[,gid...]>', 'Owner user identifiers (any match)')
+		.option('--member <gid[,gid...]>', 'Member user identifiers (any match)')
+		.option('--member-not <gid[,gid...]>', 'Member user identifiers to exclude')
+		.option('--portfolio <gid[,gid...]>', 'Portfolio GIDs (any match)')
+		.option('--completed-on <date>', 'Exact completion date (YYYY-MM-DD)')
+		.option('--completed-on-before <date>', 'Completion date before (YYYY-MM-DD)')
+		.option('--completed-on-after <date>', 'Completion date after (YYYY-MM-DD)')
+		.option('--completed-at-before <datetime>', 'Completion datetime before (ISO 8601)')
+		.option('--completed-at-after <datetime>', 'Completion datetime after (ISO 8601)')
+		.option('--created-on <date>', 'Exact creation date (YYYY-MM-DD)')
+		.option('--created-on-before <date>', 'Creation date before (YYYY-MM-DD)')
+		.option('--created-on-after <date>', 'Creation date after (YYYY-MM-DD)')
+		.option('--created-at-before <datetime>', 'Creation datetime before (ISO 8601)')
+		.option('--created-at-after <datetime>', 'Creation datetime after (ISO 8601)')
+		.option('--due-on <date>', 'Exact due date (YYYY-MM-DD)')
+		.option('--due-on-before <date>', 'Due date before (YYYY-MM-DD)')
+		.option('--due-on-after <date>', 'Due date after (YYYY-MM-DD)')
+		.option('--due-at-before <datetime>', 'Due datetime before (ISO 8601)')
+		.option('--due-at-after <datetime>', 'Due datetime after (ISO 8601)')
+		.option('--start-on <date>', 'Exact start date (YYYY-MM-DD)')
+		.option('--start-on-before <date>', 'Start date before (YYYY-MM-DD)')
+		.option('--start-on-after <date>', 'Start date after (YYYY-MM-DD)')
+		.option('--sort-by <field>', 'Sort field: due_date, created_at, completed_at, modified_at')
+		.option('--sort-asc', 'Sort ascending (default: descending)')
+		.option('--opt-fields <fields>', 'Comma-separated optional Asana fields to include')
+		.action(
+			async (
+				text: string | undefined,
+				opts: {
+					workspace?: string
+					workspaceGid?: string
+					completed?: boolean
+					team?: string
+					owner?: string
+					member?: string
+					memberNot?: string
+					portfolio?: string
+					completedOn?: string
+					completedOnBefore?: string
+					completedOnAfter?: string
+					completedAtBefore?: string
+					completedAtAfter?: string
+					createdOn?: string
+					createdOnBefore?: string
+					createdOnAfter?: string
+					createdAtBefore?: string
+					createdAtAfter?: string
+					dueOn?: string
+					dueOnBefore?: string
+					dueOnAfter?: string
+					dueAtBefore?: string
+					dueAtAfter?: string
+					startOn?: string
+					startOnBefore?: string
+					startOnAfter?: string
+					sortBy?: string
+					sortAsc?: boolean
+					optFields?: string
+				},
+			) => {
+				const data = await searchProjects(requiredGid(opts, 'workspace', 'Workspace GID'), {
+					text,
+					completed: opts.completed,
+					teamsAny: opts.team,
+					ownerAny: opts.owner,
+					membersAny: opts.member,
+					membersNot: opts.memberNot,
+					portfoliosAny: opts.portfolio,
+					completedOn: opts.completedOn,
+					completedOnBefore: opts.completedOnBefore,
+					completedOnAfter: opts.completedOnAfter,
+					completedAtBefore: opts.completedAtBefore,
+					completedAtAfter: opts.completedAtAfter,
+					createdOn: opts.createdOn,
+					createdOnBefore: opts.createdOnBefore,
+					createdOnAfter: opts.createdOnAfter,
+					createdAtBefore: opts.createdAtBefore,
+					createdAtAfter: opts.createdAtAfter,
+					dueOn: opts.dueOn,
+					dueOnBefore: opts.dueOnBefore,
+					dueOnAfter: opts.dueOnAfter,
+					dueAtBefore: opts.dueAtBefore,
+					dueAtAfter: opts.dueAtAfter,
+					startOn: opts.startOn,
+					startOnBefore: opts.startOnBefore,
+					startOnAfter: opts.startOnAfter,
+					sortBy: opts.sortBy,
+					sortAscending: opts.sortAsc,
+					optFields: opts.optFields,
+				})
+				output(data, () => fmtProjectList(data))
+			},
+		)
 
 	const createCmd = addGidOption(
 		cmd.command('create <name>').description('Create a new project'),
