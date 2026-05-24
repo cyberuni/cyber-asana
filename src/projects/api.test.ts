@@ -2,6 +2,7 @@ import Asana from 'asana'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
 	createProject,
+	createProjectApi,
 	deleteProject,
 	exportProject,
 	getProject,
@@ -322,5 +323,27 @@ describe('exportProject', () => {
 		expect(result.name).toBe('Test Project')
 		expect(result.sections).toHaveLength(1)
 		expect(result.sections[0]?.tasks).toHaveLength(1)
+	})
+})
+
+describe('createProjectApi', () => {
+	it('uses the provided gateway for listProjects', async () => {
+		const mockListProjects = vi.fn().mockResolvedValue({ data: [mockData], next_page: null, limit: 100 })
+		const api = createProjectApi({
+			listProjects: mockListProjects,
+			getProject: vi.fn(),
+			getProjectTaskCounts: vi.fn(),
+			createProject: vi.fn(),
+			updateProject: vi.fn(),
+			deleteProject: vi.fn(),
+			searchProjects: vi.fn(),
+			listSections: vi.fn(),
+			listTasksForSection: vi.fn(),
+		})
+
+		const result = await api.listProjects('ws1')
+
+		expect(result).toEqual({ data: [mockData], next_page: null, limit: 100 })
+		expect(mockListProjects).toHaveBeenCalledWith('ws1', undefined)
 	})
 })

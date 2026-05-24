@@ -1,140 +1,20 @@
-import Asana from 'asana'
 import { createClient } from '../client.js'
-import { collectListResponse, listItems, type PaginationOptions, toAsanaPaginationOptions } from '../pagination.js'
-import { listSections } from '../sections/api.js'
-import { listTasksForSection } from '../tasks/api.js'
+import { listItems, type PaginationOptions } from '../pagination.js'
+import {
+	type CreateProjectFields,
+	createAsanaProjectGateway,
+	type ProjectGateway,
+	type SearchProjectsOptions,
+	type UpdateProjectFields,
+} from './gateway.js'
 
-export async function listProjects(workspaceGid: string, opts?: PaginationOptions & { archived?: boolean }) {
-	const api = new Asana.ProjectsApi(createClient())
-	const res = await api.getProjectsForWorkspace(workspaceGid, {
-		archived: opts?.archived,
-		...toAsanaPaginationOptions(opts),
-	})
-	return await collectListResponse(res, opts)
-}
-
-export async function getProject(projectGid: string) {
-	const api = new Asana.ProjectsApi(createClient())
-	const res = await api.getProject(projectGid, {})
-	return res.data
-}
-
-export async function getProjectTaskCounts(projectGid: string, opts?: { optFields?: string }) {
-	const api = new Asana.ProjectsApi(createClient())
-	const res = await api.getTaskCountsForProject(projectGid, {
-		opt_fields: opts?.optFields ?? 'num_tasks,num_incomplete_tasks,num_completed_tasks',
-	})
-	return res.data
-}
-
-export type ProjectPrivacySetting = 'public_to_workspace' | 'private' | 'private_to_team'
-export type ProjectDefaultView = 'list' | 'board' | 'calendar' | 'timeline'
-
-export type CreateProjectFields = {
-	notes?: string
-	html_notes?: string
-	color?: string
-	privacy_setting?: ProjectPrivacySetting
-	default_view?: ProjectDefaultView
-	due_on?: string
-	start_on?: string
-}
-
-export type UpdateProjectFields = {
-	name?: string
-	notes?: string
-	html_notes?: string
-	color?: string
-	privacy_setting?: ProjectPrivacySetting
-	default_view?: ProjectDefaultView
-	due_on?: string | null
-	start_on?: string | null
-}
-
-export async function createProject(workspaceGid: string, name: string, opts?: CreateProjectFields) {
-	const api = new Asana.ProjectsApi(createClient())
-	const res = await api.createProject({
-		data: { name, workspace: workspaceGid, ...opts },
-	})
-	return res.data
-}
-
-export async function updateProject(projectGid: string, fields: UpdateProjectFields) {
-	const api = new Asana.ProjectsApi(createClient())
-	const res = await api.updateProject({ data: fields }, projectGid, {})
-	return res.data
-}
-
-export async function deleteProject(projectGid: string) {
-	const api = new Asana.ProjectsApi(createClient())
-	await api.deleteProject(projectGid)
-}
-
-export type SearchProjectsOptions = {
-	text?: string
-	completed?: boolean
-	teamsAny?: string
-	ownerAny?: string
-	membersAny?: string
-	membersNot?: string
-	portfoliosAny?: string
-	completedOn?: string
-	completedOnBefore?: string
-	completedOnAfter?: string
-	completedAtBefore?: string
-	completedAtAfter?: string
-	createdOn?: string
-	createdOnBefore?: string
-	createdOnAfter?: string
-	createdAtBefore?: string
-	createdAtAfter?: string
-	dueOn?: string
-	dueOnBefore?: string
-	dueOnAfter?: string
-	dueAtBefore?: string
-	dueAtAfter?: string
-	startOn?: string
-	startOnBefore?: string
-	startOnAfter?: string
-	sortBy?: string
-	sortAscending?: boolean
-	optFields?: string
-}
-
-export async function searchProjects(workspaceGid: string, opts?: SearchProjectsOptions) {
-	const api = new Asana.ProjectsApi(createClient())
-	const res = await api.searchProjectsForWorkspace(workspaceGid, {
-		text: opts?.text,
-		completed: opts?.completed,
-		'teams.any': opts?.teamsAny,
-		'owner.any': opts?.ownerAny,
-		'members.any': opts?.membersAny,
-		'members.not': opts?.membersNot,
-		'portfolios.any': opts?.portfoliosAny,
-		completed_on: opts?.completedOn,
-		'completed_on.before': opts?.completedOnBefore,
-		'completed_on.after': opts?.completedOnAfter,
-		'completed_at.before': opts?.completedAtBefore,
-		'completed_at.after': opts?.completedAtAfter,
-		created_on: opts?.createdOn,
-		'created_on.before': opts?.createdOnBefore,
-		'created_on.after': opts?.createdOnAfter,
-		'created_at.before': opts?.createdAtBefore,
-		'created_at.after': opts?.createdAtAfter,
-		due_on: opts?.dueOn,
-		'due_on.before': opts?.dueOnBefore,
-		'due_on.after': opts?.dueOnAfter,
-		'due_at.before': opts?.dueAtBefore,
-		'due_at.after': opts?.dueAtAfter,
-		start_on: opts?.startOn,
-		'start_on.before': opts?.startOnBefore,
-		'start_on.after': opts?.startOnAfter,
-		sort_by: opts?.sortBy,
-		sort_ascending: opts?.sortAscending,
-		opt_fields: opts?.optFields,
-	})
-	return res.data
-}
+export type {
+	CreateProjectFields,
+	ProjectDefaultView,
+	ProjectPrivacySetting,
+	SearchProjectsOptions,
+	UpdateProjectFields,
+} from './gateway.js'
 
 export type ExportedTask = {
 	gid: string
@@ -158,22 +38,85 @@ export type ProjectExport = {
 	sections: ExportedSection[]
 }
 
-export async function exportProject(projectGid: string): Promise<ProjectExport> {
-	const project = await getProject(projectGid)
-	const sections = listItems(await listSections(projectGid))
-	const exportedSections: ExportedSection[] = await Promise.all(
-		sections.map(async (section: { gid: string; name: string }) => ({
-			gid: section.gid,
-			name: section.name,
-			tasks: listItems(await listTasksForSection(section.gid)),
-		})),
-	)
+export type ProjectApi = ReturnType<typeof createProjectApi>
+
+export function createProjectApi(gateway: ProjectGateway) {
 	return {
-		gid: project.gid,
-		name: project.name,
-		notes: project.notes ?? '',
-		sections: exportedSections,
+		listProjects(workspaceGid: string, opts?: PaginationOptions & { archived?: boolean }) {
+			return gateway.listProjects(workspaceGid, opts)
+		},
+		getProject(projectGid: string) {
+			return gateway.getProject(projectGid)
+		},
+		getProjectTaskCounts(projectGid: string, opts?: { optFields?: string }) {
+			return gateway.getProjectTaskCounts(projectGid, opts)
+		},
+		createProject(workspaceGid: string, name: string, opts?: CreateProjectFields) {
+			return gateway.createProject(workspaceGid, name, opts)
+		},
+		updateProject(projectGid: string, fields: UpdateProjectFields) {
+			return gateway.updateProject(projectGid, fields)
+		},
+		deleteProject(projectGid: string) {
+			return gateway.deleteProject(projectGid)
+		},
+		searchProjects(workspaceGid: string, opts?: SearchProjectsOptions) {
+			return gateway.searchProjects(workspaceGid, opts)
+		},
+		async exportProject(projectGid: string): Promise<ProjectExport> {
+			const project = await gateway.getProject(projectGid)
+			const sections = listItems(await gateway.listSections(projectGid))
+			const exportedSections: ExportedSection[] = await Promise.all(
+				sections.map(async (section: { gid: string; name: string }) => ({
+					gid: section.gid,
+					name: section.name,
+					tasks: listItems(await gateway.listTasksForSection(section.gid)),
+				})),
+			)
+			return {
+				gid: project.gid,
+				name: project.name,
+				notes: project.notes ?? '',
+				sections: exportedSections,
+			}
+		},
 	}
+}
+
+function defaultProjectApi() {
+	return createProjectApi(createAsanaProjectGateway(createClient()))
+}
+
+export async function listProjects(workspaceGid: string, opts?: PaginationOptions & { archived?: boolean }) {
+	return defaultProjectApi().listProjects(workspaceGid, opts)
+}
+
+export async function getProject(projectGid: string) {
+	return defaultProjectApi().getProject(projectGid)
+}
+
+export async function getProjectTaskCounts(projectGid: string, opts?: { optFields?: string }) {
+	return defaultProjectApi().getProjectTaskCounts(projectGid, opts)
+}
+
+export async function createProject(workspaceGid: string, name: string, opts?: CreateProjectFields) {
+	return defaultProjectApi().createProject(workspaceGid, name, opts)
+}
+
+export async function updateProject(projectGid: string, fields: UpdateProjectFields) {
+	return defaultProjectApi().updateProject(projectGid, fields)
+}
+
+export async function deleteProject(projectGid: string) {
+	return defaultProjectApi().deleteProject(projectGid)
+}
+
+export async function searchProjects(workspaceGid: string, opts?: SearchProjectsOptions) {
+	return defaultProjectApi().searchProjects(workspaceGid, opts)
+}
+
+export async function exportProject(projectGid: string): Promise<ProjectExport> {
+	return defaultProjectApi().exportProject(projectGid)
 }
 
 function checkbox(completed: boolean) {

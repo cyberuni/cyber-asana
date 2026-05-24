@@ -5,6 +5,8 @@ import { createGoalApi, type GoalApi } from './goals/api.js'
 import { createAsanaGoalGateway } from './goals/gateway.js'
 import { createPortfolioApi, type PortfolioApi } from './portfolios/api.js'
 import { createAsanaPortfolioGateway } from './portfolios/gateway.js'
+import { createProjectApi, type ProjectApi } from './projects/api.js'
+import { createAsanaProjectGateway } from './projects/gateway.js'
 import { createSectionApi, type SectionApi } from './sections/api.js'
 import { createAsanaSectionGateway } from './sections/gateway.js'
 import { createStoryApi, type StoryApi } from './stories/api.js'
@@ -24,6 +26,7 @@ export type RuntimeContext = {
 	attachments: AttachmentApi
 	goals: GoalApi
 	portfolios: PortfolioApi
+	projects: ProjectApi
 	sections: SectionApi
 	stories: StoryApi
 	tags: TagApi
@@ -39,6 +42,7 @@ export function createRuntimeContext(): RuntimeContext {
 		attachments: createAttachmentApi(createAsanaAttachmentGateway(client)),
 		goals: createGoalApi(createAsanaGoalGateway(client)),
 		portfolios: createPortfolioApi(createAsanaPortfolioGateway(client)),
+		projects: createProjectApi(createAsanaProjectGateway(client)),
 		sections: createSectionApi(createAsanaSectionGateway(client)),
 		stories: createStoryApi(createAsanaStoryGateway(client)),
 		tags: createTagApi(createAsanaTagGateway(client)),
