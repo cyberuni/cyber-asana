@@ -159,26 +159,32 @@ export async function deleteTask(taskGid: string) {
 
 const DEFAULT_DEP_FIELDS = 'gid,name,completed,due_on'
 
-export async function getDependencies(taskGid: string, opts?: { optFields?: string }) {
+export async function getDependencies(taskGid: string, opts?: PaginationOptions) {
 	const api = new Asana.TasksApi(createClient())
-	const res = await api.getDependenciesForTask(taskGid, { opt_fields: opts?.optFields ?? DEFAULT_DEP_FIELDS })
-	return res.data
+	const res = await api.getDependenciesForTask(taskGid, {
+		...toAsanaPaginationOptions(opts),
+		opt_fields: opts?.optFields ?? DEFAULT_DEP_FIELDS,
+	})
+	return collectListResponse(res, opts)
 }
 
-export async function getDependents(taskGid: string, opts?: { optFields?: string }) {
+export async function getDependents(taskGid: string, opts?: PaginationOptions) {
 	const api = new Asana.TasksApi(createClient())
-	const res = await api.getDependentsForTask(taskGid, { opt_fields: opts?.optFields ?? DEFAULT_DEP_FIELDS })
-	return res.data
+	const res = await api.getDependentsForTask(taskGid, {
+		...toAsanaPaginationOptions(opts),
+		opt_fields: opts?.optFields ?? DEFAULT_DEP_FIELDS,
+	})
+	return collectListResponse(res, opts)
 }
 
 export async function addDependencies(taskGid: string, dependencyGids: string[]) {
 	const api = new Asana.TasksApi(createClient())
-	await api.addDependenciesForTask({ data: { dependencies: dependencyGids.map((gid) => ({ gid })) } }, taskGid)
+	return api.addDependenciesForTask({ data: { dependencies: dependencyGids.map((gid) => ({ gid })) } }, taskGid)
 }
 
 export async function addDependents(taskGid: string, dependentGids: string[]) {
 	const api = new Asana.TasksApi(createClient())
-	await api.addDependentsForTask({ data: { dependents: dependentGids.map((gid) => ({ gid })) } }, taskGid)
+	return api.addDependentsForTask({ data: { dependents: dependentGids.map((gid) => ({ gid })) } }, taskGid)
 }
 
 export async function removeDependencies(taskGid: string, dependencyGids: string[]) {

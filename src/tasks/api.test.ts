@@ -398,60 +398,67 @@ describe('tasks/api', () => {
 		})
 	})
 
-	it('getDependencies calls getDependenciesForTask with default opt_fields', async () => {
+	it('getDependencies calls getDependenciesForTask with default opt_fields and limit', async () => {
 		vi.spyOn(Asana.TasksApi.prototype, 'getDependenciesForTask').mockResolvedValue({
 			data: [mockTask],
 		} as never)
 		const result = await getDependencies('456')
-		expect(result).toEqual([mockTask])
+		expect(result).toEqual({ data: [mockTask], next_page: null, limit: 100 })
 		expect(Asana.TasksApi.prototype.getDependenciesForTask).toHaveBeenCalledWith('456', {
 			opt_fields: 'gid,name,completed,due_on',
+			limit: 100,
 		})
 	})
 
-	it('getDependencies passes custom opt_fields when provided', async () => {
+	it('getDependencies passes custom opt_fields and pagination options', async () => {
 		vi.spyOn(Asana.TasksApi.prototype, 'getDependenciesForTask').mockResolvedValue({
 			data: [mockTask],
 		} as never)
-		await getDependencies('456', { optFields: 'gid,name' })
+		await getDependencies('456', { optFields: 'gid,name', limit: 10, offset: 'abc' })
 		expect(Asana.TasksApi.prototype.getDependenciesForTask).toHaveBeenCalledWith('456', {
 			opt_fields: 'gid,name',
+			limit: 10,
+			offset: 'abc',
 		})
 	})
 
-	it('getDependents calls getDependentsForTask with default opt_fields', async () => {
+	it('getDependents calls getDependentsForTask with default opt_fields and limit', async () => {
 		vi.spyOn(Asana.TasksApi.prototype, 'getDependentsForTask').mockResolvedValue({
 			data: [mockTask],
 		} as never)
 		const result = await getDependents('456')
-		expect(result).toEqual([mockTask])
+		expect(result).toEqual({ data: [mockTask], next_page: null, limit: 100 })
 		expect(Asana.TasksApi.prototype.getDependentsForTask).toHaveBeenCalledWith('456', {
 			opt_fields: 'gid,name,completed,due_on',
+			limit: 100,
 		})
 	})
 
-	it('getDependents passes custom opt_fields when provided', async () => {
+	it('getDependents passes custom opt_fields and pagination options', async () => {
 		vi.spyOn(Asana.TasksApi.prototype, 'getDependentsForTask').mockResolvedValue({
 			data: [mockTask],
 		} as never)
-		await getDependents('456', { optFields: 'gid,name' })
+		await getDependents('456', { optFields: 'gid,name', limit: 5 })
 		expect(Asana.TasksApi.prototype.getDependentsForTask).toHaveBeenCalledWith('456', {
 			opt_fields: 'gid,name',
+			limit: 5,
 		})
 	})
 
-	it('addDependencies calls addDependenciesForTask with wrapped gids', async () => {
-		vi.spyOn(Asana.TasksApi.prototype, 'addDependenciesForTask').mockResolvedValue(undefined as never)
-		await addDependencies('456', ['111', '222'])
+	it('addDependencies returns the API response', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'addDependenciesForTask').mockResolvedValue({} as never)
+		const result = await addDependencies('456', ['111', '222'])
+		expect(result).toEqual({})
 		expect(Asana.TasksApi.prototype.addDependenciesForTask).toHaveBeenCalledWith(
 			{ data: { dependencies: [{ gid: '111' }, { gid: '222' }] } },
 			'456',
 		)
 	})
 
-	it('addDependents calls addDependentsForTask with wrapped gids', async () => {
-		vi.spyOn(Asana.TasksApi.prototype, 'addDependentsForTask').mockResolvedValue(undefined as never)
-		await addDependents('456', ['333', '444'])
+	it('addDependents returns the API response', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'addDependentsForTask').mockResolvedValue({} as never)
+		const result = await addDependents('456', ['333', '444'])
+		expect(result).toEqual({})
 		expect(Asana.TasksApi.prototype.addDependentsForTask).toHaveBeenCalledWith(
 			{ data: { dependents: [{ gid: '333' }, { gid: '444' }] } },
 			'456',
