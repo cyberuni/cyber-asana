@@ -13,7 +13,17 @@ type BuildProjectUpdateInput = BuildProjectWriteInput & {
 	clearStartOn?: boolean
 }
 
-type ProjectWriteFields = {
+type ProjectCreateFields = {
+	notes?: string
+	html_notes?: string
+	color?: string
+	privacy_setting?: 'public_to_workspace' | 'private' | 'private_to_team'
+	default_view?: 'list' | 'board' | 'calendar' | 'timeline'
+	due_on?: string
+	start_on?: string
+}
+
+type ProjectUpdateFields = {
 	notes?: string
 	html_notes?: string
 	color?: string
@@ -49,7 +59,7 @@ function assertProjectDateMode(input: {
 	}
 }
 
-export function buildProjectCreateFields(input: BuildProjectWriteInput): ProjectWriteFields {
+export function buildProjectCreateFields(input: BuildProjectWriteInput): ProjectCreateFields {
 	assertNotesMode(input.notes, input.htmlNotes)
 	assertProjectDateMode(input)
 	return {
@@ -63,7 +73,7 @@ export function buildProjectCreateFields(input: BuildProjectWriteInput): Project
 	}
 }
 
-export function buildProjectUpdateFields(input: BuildProjectUpdateInput): ProjectWriteFields {
+export function buildProjectUpdateFields(input: BuildProjectUpdateInput): ProjectUpdateFields {
 	assertNotesMode(input.notes, input.htmlNotes)
 	assertProjectDateMode(input)
 	return {
