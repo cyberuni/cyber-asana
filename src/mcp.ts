@@ -13,7 +13,7 @@ import { registerUserTools } from './users/mcp.js'
 import { registerWorkspaceTools } from './workspaces/mcp.js'
 
 const server = new McpServer({
-	name: 'asana-agent',
+	name: 'cyber-asana',
 	version: '0.0.0',
 })
 

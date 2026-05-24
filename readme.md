@@ -1,11 +1,11 @@
-# asana-agent
+# cyber-asana
 
 Asana CLI and MCP server for AI agents.
 
 ## Installation
 
 ```sh
-npm install -g asana-agent
+npm install -g cyber-asana
 ```
 
 ## Authentication
@@ -279,7 +279,7 @@ Add to your MCP host config:
   "mcpServers": {
     "asana": {
       "command": "node",
-      "args": ["node_modules/asana-agent/dist/mcp.js"],
+      "args": ["node_modules/cyber-asana/dist/mcp.js"],
       "env": {
         "ASANA_TOKEN": "<your-pat>",
         "ASANA_WORKSPACE": "<workspace-gid>"

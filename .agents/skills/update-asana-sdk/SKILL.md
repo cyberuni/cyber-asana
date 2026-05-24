@@ -1,6 +1,6 @@
 ---
 name: update-asana-sdk
-description: Use this skill when updating the `asana` npm package to its latest version in the asana-agent repo. After upgrading, reviews the SDK changelog and TypeScript types to identify new resources, new actions, changed parameters, and deprecated methods — then adds or updates the corresponding CLI commands and MCP tools.
+description: Use this skill when updating the `asana` npm package to its latest version in the cyber-asana repo. After upgrading, reviews the SDK changelog and TypeScript types to identify new resources, new actions, changed parameters, and deprecated methods — then adds or updates the corresponding CLI commands and MCP tools.
 metadata:
   internal: true
 ---
@@ -45,7 +45,7 @@ If the types diff is unavailable, check the npm release page for the asana packa
 
 ### 4. Identify gaps
 
-For each new or changed resource/method in the SDK, check whether `asana-agent` already covers it:
+For each new or changed resource/method in the SDK, check whether `cyber-asana` already covers it:
 
 - Look for new top-level resource objects in the SDK types (e.g. `GoalsApi`, `RulesApi`)
 - Look for new methods on existing resources

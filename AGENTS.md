@@ -26,7 +26,7 @@ When reading any `SKILL.md` file, always check whether a `SKILL.local.md` exists
 
 ## What This Repo Is
 
-`asana-agent` — an npm package that wraps the Asana API as:
+`cyber-asana` — an npm package that wraps the Asana API as:
 - A CLI (`cyber-asana <resource> <action>`) powered by Commander
 - A local MCP server (`node dist/mcp.js`) powered by `@modelcontextprotocol/sdk`
 

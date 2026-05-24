@@ -1,13 +1,13 @@
 ---
 name: init-asana
-description: Use this skill when the user asks to set up, initialize, or configure asana-agent or their Asana credentials. Guides through setting ASANA_TOKEN and ASANA_WORKSPACE, verifies the connection, and helps find the workspace GID.
+description: Use this skill when the user asks to set up, initialize, or configure cyber-asana or their Asana credentials. Guides through setting ASANA_TOKEN and ASANA_WORKSPACE, verifies the connection, and helps find the workspace GID.
 ---
 
 # Init Asana
 
 ## When to use
 
-When the user is setting up `asana-agent` for the first time, or when commands fail with auth or workspace errors.
+When the user is setting up `cyber-asana` for the first time, or when commands fail with auth or workspace errors.
 
 ## Instructions
 

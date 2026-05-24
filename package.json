@@ -1,10 +1,10 @@
 {
-	"name": "asana-agent",
+	"name": "cyber-asana",
 	"version": "0.1.0",
 	"description": "Asana CLI and MCP server for AI agents",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/cyberuni/asana-agent.git"
+		"url": "https://github.com/cyberuni/cyber-asana.git"
 	},
 	"author": "unional <homawong@gmail.com>",
 	"license": "MIT",

@@ -1,10 +1,10 @@
-# asana-agent
+# cyber-asana
 
 ## 0.1.0
 
 ### Minor Changes
 
-- b6a34b0: Initial release of `asana-agent` — an Asana CLI and MCP server for AI agents.
+- b6a34b0: Initial release of `cyber-asana` — an Asana CLI and MCP server for AI agents.
 
   **CLI** (`cyber-asana <resource> <action>`):
 
