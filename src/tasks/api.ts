@@ -1,8 +1,18 @@
 import { readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
-import Asana from 'asana'
 import { createClient } from '../client.js'
-import { collectListResponse, type PaginationOptions, toAsanaPaginationOptions } from '../pagination.js'
+import type { PaginationOptions } from '../pagination.js'
+import {
+	createAsanaTaskGateway,
+	type CreateTaskFields,
+	type SearchTasksOptions,
+	type TaskBatchLookupResult,
+	type TaskGateway,
+	type UpdateTaskFields,
+} from './gateway.js'
+
+export type { CreateTaskFields, SearchTasksOptions, TaskBatchLookupResult, UpdateTaskFields }
+export type { TaskBatchLookupSuccess, TaskBatchLookupFailure, TaskCustomFields } from './gateway.js'
 
 export type TodoMatch = {
 	file: string
@@ -60,165 +70,125 @@ export async function scanTodos(
 	return results
 }
 
+export type TaskApi = ReturnType<typeof createTaskApi>
+
+export function createTaskApi(gateway: TaskGateway) {
+	return {
+		listTasks(projectGid: string, opts?: PaginationOptions & { completedSince?: string }) {
+			return gateway.listTasks(projectGid, opts)
+		},
+		listTasksForSection(sectionGid: string, opts?: PaginationOptions & { completedSince?: string }) {
+			return gateway.listTasksForSection(sectionGid, opts)
+		},
+		getTask(taskGid: string) {
+			return gateway.getTask(taskGid)
+		},
+		getTasksByGid(taskGids: string[], opts?: { optFields?: string }) {
+			return gateway.getTasksByGid(taskGids, opts)
+		},
+		createTask(workspaceGid: string, name: string, opts?: CreateTaskFields) {
+			return gateway.createTask(workspaceGid, name, opts)
+		},
+		updateTask(taskGid: string, fields: UpdateTaskFields) {
+			return gateway.updateTask(taskGid, fields)
+		},
+		deleteTask(taskGid: string) {
+			return gateway.deleteTask(taskGid)
+		},
+		getMyTasks(workspaceGid: string, opts?: PaginationOptions & { completedSince?: string }) {
+			return gateway.getMyTasks(workspaceGid, opts)
+		},
+		listSubtasks(taskGid: string, opts?: PaginationOptions & { completedSince?: string }) {
+			return gateway.listSubtasks(taskGid, opts)
+		},
+		createSubtask(
+			parentTaskGid: string,
+			name: string,
+			opts?: { notes?: string; assignee?: string; dueOn?: string },
+		) {
+			return gateway.createSubtask(parentTaskGid, name, opts)
+		},
+		addTaskToProject(
+			taskGid: string,
+			projectGid: string,
+			opts?: { sectionGid?: string; insertAfter?: string; insertBefore?: string },
+		) {
+			return gateway.addTaskToProject(taskGid, projectGid, opts)
+		},
+		removeTaskFromProject(taskGid: string, projectGid: string) {
+			return gateway.removeTaskFromProject(taskGid, projectGid)
+		},
+		addFollowersToTask(taskGid: string, followerGids: string[]) {
+			return gateway.addFollowersToTask(taskGid, followerGids)
+		},
+		removeFollowersFromTask(taskGid: string, followerGids: string[]) {
+			return gateway.removeFollowersFromTask(taskGid, followerGids)
+		},
+		getDependencies(taskGid: string, opts?: { optFields?: string }) {
+			return gateway.getDependencies(taskGid, opts)
+		},
+		getDependents(taskGid: string, opts?: { optFields?: string }) {
+			return gateway.getDependents(taskGid, opts)
+		},
+		addDependencies(taskGid: string, dependencyGids: string[]) {
+			return gateway.addDependencies(taskGid, dependencyGids)
+		},
+		addDependents(taskGid: string, dependentGids: string[]) {
+			return gateway.addDependents(taskGid, dependentGids)
+		},
+		removeDependencies(taskGid: string, dependencyGids: string[]) {
+			return gateway.removeDependencies(taskGid, dependencyGids)
+		},
+		removeDependents(taskGid: string, dependentGids: string[]) {
+			return gateway.removeDependents(taskGid, dependentGids)
+		},
+		searchTasks(workspaceGid: string, opts?: SearchTasksOptions) {
+			return gateway.searchTasks(workspaceGid, opts)
+		},
+	}
+}
+
+function defaultTaskApi() {
+	return createTaskApi(createAsanaTaskGateway(createClient()))
+}
+
 export async function listTasks(projectGid: string, opts?: PaginationOptions & { completedSince?: string }) {
-	const api = new Asana.TasksApi(createClient())
-	const res = await api.getTasksForProject(projectGid, {
-		completed_since: opts?.completedSince,
-		...toAsanaPaginationOptions(opts),
-	})
-	return await collectListResponse(res, opts)
+	return defaultTaskApi().listTasks(projectGid, opts)
 }
 
 export async function listTasksForSection(sectionGid: string, opts?: PaginationOptions & { completedSince?: string }) {
-	const api = new Asana.TasksApi(createClient())
-	const res = await api.getTasksForSection(sectionGid, {
-		completed_since: opts?.completedSince,
-		...toAsanaPaginationOptions(opts),
-	})
-	return await collectListResponse(res, opts)
+	return defaultTaskApi().listTasksForSection(sectionGid, opts)
 }
 
 export async function getTask(taskGid: string) {
-	const api = new Asana.TasksApi(createClient())
-	const res = await api.getTask(taskGid, {})
-	return res.data
-}
-
-export type TaskBatchLookupSuccess = {
-	gid: string
-	ok: true
-	task: Record<string, unknown>
-}
-
-export type TaskBatchLookupFailure = {
-	gid: string
-	ok: false
-	status: number
-	errors: unknown[]
-}
-
-export type TaskBatchLookupResult = TaskBatchLookupSuccess | TaskBatchLookupFailure
-
-const TASK_BATCH_ACTION_LIMIT = 10
-
-function taskRelativePath(taskGid: string, optFields?: string) {
-	return optFields ? `/tasks/${taskGid}?opt_fields=${optFields}` : `/tasks/${taskGid}`
+	return defaultTaskApi().getTask(taskGid)
 }
 
 export async function getTasksByGid(
 	taskGids: string[],
 	opts?: { optFields?: string },
 ): Promise<TaskBatchLookupResult[]> {
-	const api = new Asana.BatchAPIApi(createClient())
-	const results: TaskBatchLookupResult[] = []
-
-	for (let i = 0; i < taskGids.length; i += TASK_BATCH_ACTION_LIMIT) {
-		const chunk = taskGids.slice(i, i + TASK_BATCH_ACTION_LIMIT)
-		const res = await api.createBatchRequest({
-			data: {
-				actions: chunk.map((gid) => ({
-					method: 'get',
-					relative_path: taskRelativePath(gid, opts?.optFields),
-				})),
-			},
-		})
-
-		for (const [index, item] of (
-			res.data as { status_code: number; body?: { data?: Record<string, unknown>; errors?: unknown[] } }[]
-		).entries()) {
-			const gid = chunk[index]
-			if (item.status_code >= 200 && item.status_code < 300 && item.body?.data) {
-				results.push({ gid, ok: true, task: item.body.data })
-			} else {
-				results.push({
-					gid,
-					ok: false,
-					status: item.status_code,
-					errors: item.body?.errors ?? [],
-				})
-			}
-		}
-	}
-
-	return results
+	return defaultTaskApi().getTasksByGid(taskGids, opts)
 }
 
 export async function createTask(workspaceGid: string, name: string, opts?: CreateTaskFields) {
-	const api = new Asana.TasksApi(createClient())
-	const res = await api.createTask({
-		data: {
-			name,
-			workspace: workspaceGid,
-			...opts,
-		},
-	})
-	if (opts?.followers?.length) {
-		return await addFollowersToTask(res.data.gid, opts.followers)
-	}
-	return res.data
+	return defaultTaskApi().createTask(workspaceGid, name, opts)
 }
 
 export async function updateTask(taskGid: string, fields: UpdateTaskFields) {
-	const api = new Asana.TasksApi(createClient())
-	const { parent, clear_parent, ...taskFields } = fields
-	let updatedTask: any | undefined
-	if (Object.keys(taskFields).length > 0) {
-		const res = await api.updateTask({ data: taskFields }, taskGid, {})
-		updatedTask = res.data
-	}
-	if (parent !== undefined || clear_parent) {
-		const res = await api.setParentForTask({ data: { parent: clear_parent ? null : parent } }, taskGid, {})
-		updatedTask = res.data
-	}
-	return updatedTask
+	return defaultTaskApi().updateTask(taskGid, fields)
 }
 
-export type TaskCustomFields = Record<string, unknown>
-
-export type CreateTaskFields = {
-	notes?: string
-	html_notes?: string
-	assignee?: string
-	projects?: string[]
-	due_on?: string
-	parent?: string
-	resource_subtype?: string
-	custom_fields?: TaskCustomFields
-	followers?: string[]
-}
-
-export type UpdateTaskFields = {
-	name?: string
-	notes?: string
-	html_notes?: string
-	completed?: boolean
-	due_on?: string | null
-	assignee?: string
-	parent?: string
-	clear_parent?: boolean
-	resource_subtype?: string
-	custom_fields?: TaskCustomFields
+export async function deleteTask(taskGid: string) {
+	return defaultTaskApi().deleteTask(taskGid)
 }
 
 export async function getMyTasks(workspaceGid: string, opts?: PaginationOptions & { completedSince?: string }) {
-	const utlApi = new Asana.UserTaskListsApi(createClient())
-	const utlRes = await utlApi.getUserTaskListForUser('me', workspaceGid, {})
-	const userTaskListGid = utlRes.data.gid
-	const tasksApi = new Asana.TasksApi(createClient())
-	const res = await tasksApi.getTasksForUserTaskList(userTaskListGid, {
-		completed_since: opts?.completedSince,
-		...toAsanaPaginationOptions(opts),
-	})
-	return await collectListResponse(res, opts)
+	return defaultTaskApi().getMyTasks(workspaceGid, opts)
 }
 
 export async function listSubtasks(taskGid: string, opts?: PaginationOptions & { completedSince?: string }) {
-	const api = new Asana.TasksApi(createClient())
-	const res = await api.getSubtasksForTask(taskGid, {
-		...(opts?.completedSince && { completed_since: opts.completedSince }),
-		...toAsanaPaginationOptions(opts),
-	} as Parameters<typeof api.getSubtasksForTask>[1])
-	return await collectListResponse(res, opts)
+	return defaultTaskApi().listSubtasks(taskGid, opts)
 }
 
 export async function createSubtask(
@@ -226,20 +196,7 @@ export async function createSubtask(
 	name: string,
 	opts?: { notes?: string; assignee?: string; dueOn?: string },
 ) {
-	const api = new Asana.TasksApi(createClient())
-	const res = await api.createSubtaskForTask(
-		{
-			data: {
-				name,
-				...(opts?.notes !== undefined && { notes: opts.notes }),
-				...(opts?.assignee !== undefined && { assignee: opts.assignee }),
-				...(opts?.dueOn !== undefined && { due_on: opts.dueOn }),
-			},
-		},
-		parentTaskGid,
-		{},
-	)
-	return res.data
+	return defaultTaskApi().createSubtask(parentTaskGid, name, opts)
 }
 
 export async function addTaskToProject(
@@ -247,190 +204,45 @@ export async function addTaskToProject(
 	projectGid: string,
 	opts?: { sectionGid?: string; insertAfter?: string; insertBefore?: string },
 ) {
-	const api = new Asana.TasksApi(createClient())
-	return api.addProjectForTask(
-		{
-			data: {
-				project: projectGid,
-				...(opts?.sectionGid !== undefined && { section: opts.sectionGid }),
-				...(opts?.insertAfter !== undefined && { insert_after: opts.insertAfter }),
-				...(opts?.insertBefore !== undefined && { insert_before: opts.insertBefore }),
-			},
-		},
-		taskGid,
-	)
+	return defaultTaskApi().addTaskToProject(taskGid, projectGid, opts)
 }
 
 export async function removeTaskFromProject(taskGid: string, projectGid: string) {
-	const api = new Asana.TasksApi(createClient())
-	return api.removeProjectForTask({ data: { project: projectGid } }, taskGid)
+	return defaultTaskApi().removeTaskFromProject(taskGid, projectGid)
 }
 
 export async function addFollowersToTask(taskGid: string, followerGids: string[]) {
-	const api = new Asana.TasksApi(createClient())
-	const res = await api.addFollowersForTask({ data: { followers: followerGids } }, taskGid, {})
-	return res.data
+	return defaultTaskApi().addFollowersToTask(taskGid, followerGids)
 }
 
 export async function removeFollowersFromTask(taskGid: string, followerGids: string[]) {
-	const api = new Asana.TasksApi(createClient())
-	const res = await api.removeFollowerForTask({ data: { followers: followerGids } }, taskGid, {})
-	return res.data
+	return defaultTaskApi().removeFollowersFromTask(taskGid, followerGids)
 }
-
-export async function deleteTask(taskGid: string) {
-	const api = new Asana.TasksApi(createClient())
-	await api.deleteTask(taskGid)
-}
-
-const DEFAULT_DEP_FIELDS = 'gid,name,completed,due_on'
 
 export async function getDependencies(taskGid: string, opts?: { optFields?: string }) {
-	const api = new Asana.TasksApi(createClient())
-	const res = await api.getDependenciesForTask(taskGid, { opt_fields: opts?.optFields ?? DEFAULT_DEP_FIELDS })
-	return res.data
+	return defaultTaskApi().getDependencies(taskGid, opts)
 }
 
 export async function getDependents(taskGid: string, opts?: { optFields?: string }) {
-	const api = new Asana.TasksApi(createClient())
-	const res = await api.getDependentsForTask(taskGid, { opt_fields: opts?.optFields ?? DEFAULT_DEP_FIELDS })
-	return res.data
+	return defaultTaskApi().getDependents(taskGid, opts)
 }
 
 export async function addDependencies(taskGid: string, dependencyGids: string[]) {
-	const api = new Asana.TasksApi(createClient())
-	return api.addDependenciesForTask({ data: { dependencies: dependencyGids.map((gid) => ({ gid })) } }, taskGid)
+	return defaultTaskApi().addDependencies(taskGid, dependencyGids)
 }
 
 export async function addDependents(taskGid: string, dependentGids: string[]) {
-	const api = new Asana.TasksApi(createClient())
-	return api.addDependentsForTask({ data: { dependents: dependentGids.map((gid) => ({ gid })) } }, taskGid)
+	return defaultTaskApi().addDependents(taskGid, dependentGids)
 }
 
 export async function removeDependencies(taskGid: string, dependencyGids: string[]) {
-	const api = new Asana.TasksApi(createClient())
-	await api.removeDependenciesForTask({ data: { dependencies: dependencyGids.map((gid) => ({ gid })) } }, taskGid)
+	return defaultTaskApi().removeDependencies(taskGid, dependencyGids)
 }
 
 export async function removeDependents(taskGid: string, dependentGids: string[]) {
-	const api = new Asana.TasksApi(createClient())
-	await api.removeDependentsForTask({ data: { dependents: dependentGids.map((gid) => ({ gid })) } }, taskGid)
-}
-
-export type SearchTasksOptions = {
-	text?: string
-	completed?: boolean
-	isSubtask?: boolean
-	hasAttachment?: boolean
-	isBlocking?: boolean
-	isBlocked?: boolean
-	assigneeAny?: string
-	assigneeNot?: string
-	projectsAny?: string
-	projectsNot?: string
-	projectsAll?: string
-	sectionsAny?: string
-	sectionsNot?: string
-	sectionsAll?: string
-	tagsAny?: string
-	tagsNot?: string
-	tagsAll?: string
-	teamsAny?: string
-	portfoliosAny?: string
-	followersAny?: string
-	followersNot?: string
-	createdByAny?: string
-	createdByNot?: string
-	assignedByAny?: string
-	assignedByNot?: string
-	likedByNot?: string
-	commentedOnByNot?: string
-	dueOn?: string
-	dueOnBefore?: string
-	dueOnAfter?: string
-	dueAtBefore?: string
-	dueAtAfter?: string
-	startOn?: string
-	startOnBefore?: string
-	startOnAfter?: string
-	createdOn?: string
-	createdOnBefore?: string
-	createdOnAfter?: string
-	createdAtBefore?: string
-	createdAtAfter?: string
-	completedOn?: string
-	completedOnBefore?: string
-	completedOnAfter?: string
-	completedAtBefore?: string
-	completedAtAfter?: string
-	modifiedOn?: string
-	modifiedOnBefore?: string
-	modifiedOnAfter?: string
-	modifiedAtBefore?: string
-	modifiedAtAfter?: string
-	resourceSubtype?: string
-	sortBy?: string
-	sortAscending?: boolean
-	optFields?: string
+	return defaultTaskApi().removeDependents(taskGid, dependentGids)
 }
 
 export async function searchTasks(workspaceGid: string, opts?: SearchTasksOptions) {
-	const api = new Asana.TasksApi(createClient())
-	const res = await api.searchTasksForWorkspace(workspaceGid, {
-		text: opts?.text,
-		completed: opts?.completed,
-		is_subtask: opts?.isSubtask,
-		has_attachment: opts?.hasAttachment,
-		is_blocking: opts?.isBlocking,
-		is_blocked: opts?.isBlocked,
-		'assignee.any': opts?.assigneeAny,
-		'assignee.not': opts?.assigneeNot,
-		'projects.any': opts?.projectsAny,
-		'projects.not': opts?.projectsNot,
-		'projects.all': opts?.projectsAll,
-		'sections.any': opts?.sectionsAny,
-		'sections.not': opts?.sectionsNot,
-		'sections.all': opts?.sectionsAll,
-		'tags.any': opts?.tagsAny,
-		'tags.not': opts?.tagsNot,
-		'tags.all': opts?.tagsAll,
-		'teams.any': opts?.teamsAny,
-		'portfolios.any': opts?.portfoliosAny,
-		'followers.any': opts?.followersAny,
-		'followers.not': opts?.followersNot,
-		'created_by.any': opts?.createdByAny,
-		'created_by.not': opts?.createdByNot,
-		'assigned_by.any': opts?.assignedByAny,
-		'assigned_by.not': opts?.assignedByNot,
-		'liked_by.not': opts?.likedByNot,
-		'commented_on_by.not': opts?.commentedOnByNot,
-		due_on: opts?.dueOn,
-		'due_on.before': opts?.dueOnBefore,
-		'due_on.after': opts?.dueOnAfter,
-		'due_at.before': opts?.dueAtBefore,
-		'due_at.after': opts?.dueAtAfter,
-		start_on: opts?.startOn,
-		'start_on.before': opts?.startOnBefore,
-		'start_on.after': opts?.startOnAfter,
-		created_on: opts?.createdOn,
-		'created_on.before': opts?.createdOnBefore,
-		'created_on.after': opts?.createdOnAfter,
-		'created_at.before': opts?.createdAtBefore,
-		'created_at.after': opts?.createdAtAfter,
-		completed_on: opts?.completedOn,
-		'completed_on.before': opts?.completedOnBefore,
-		'completed_on.after': opts?.completedOnAfter,
-		'completed_at.before': opts?.completedAtBefore,
-		'completed_at.after': opts?.completedAtAfter,
-		modified_on: opts?.modifiedOn,
-		'modified_on.before': opts?.modifiedOnBefore,
-		'modified_on.after': opts?.modifiedOnAfter,
-		'modified_at.before': opts?.modifiedAtBefore,
-		'modified_at.after': opts?.modifiedAtAfter,
-		resource_subtype: opts?.resourceSubtype,
-		sort_by: opts?.sortBy,
-		sort_ascending: opts?.sortAscending,
-		opt_fields: opts?.optFields,
-	})
-	return res.data
+	return defaultTaskApi().searchTasks(workspaceGid, opts)
 }

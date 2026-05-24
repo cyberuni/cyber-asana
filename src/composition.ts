@@ -11,6 +11,8 @@ import { createStoryApi, type StoryApi } from './stories/api.js'
 import { createAsanaStoryGateway } from './stories/gateway.js'
 import { createTagApi, type TagApi } from './tags/api.js'
 import { createAsanaTagGateway } from './tags/gateway.js'
+import { createTaskApi, type TaskApi } from './tasks/api.js'
+import { createAsanaTaskGateway } from './tasks/gateway.js'
 import { createTeamApi, type TeamApi } from './teams/api.js'
 import { createAsanaTeamGateway } from './teams/gateway.js'
 import { createUserApi, type UserApi } from './users/api.js'
@@ -25,6 +27,7 @@ export type RuntimeContext = {
 	sections: SectionApi
 	stories: StoryApi
 	tags: TagApi
+	tasks: TaskApi
 	teams: TeamApi
 	users: UserApi
 	workspaces: WorkspaceApi
@@ -39,6 +42,7 @@ export function createRuntimeContext(): RuntimeContext {
 		sections: createSectionApi(createAsanaSectionGateway(client)),
 		stories: createStoryApi(createAsanaStoryGateway(client)),
 		tags: createTagApi(createAsanaTagGateway(client)),
+		tasks: createTaskApi(createAsanaTaskGateway(client)),
 		teams: createTeamApi(createAsanaTeamGateway(client)),
 		users: createUserApi(createAsanaUserGateway(client)),
 		workspaces: createWorkspaceApi(createAsanaWorkspaceGateway(client)),

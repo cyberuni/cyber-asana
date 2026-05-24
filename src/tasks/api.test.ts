@@ -10,6 +10,7 @@ import {
 	addTaskToProject,
 	createSubtask,
 	createTask,
+	createTaskApi,
 	deleteTask,
 	getDependencies,
 	getDependents,
@@ -783,5 +784,39 @@ describe('scanTodos', () => {
 		await writeFile(path.join(tmpDir, 'clean.ts'), 'const x = 1\n')
 		const results = await scanTodos(tmpDir)
 		expect(results).toHaveLength(0)
+	})
+})
+
+describe('createTaskApi', () => {
+	it('uses the provided gateway for listTasks', async () => {
+		const mockListTasks = vi.fn().mockResolvedValue({ data: [mockTask], next_page: null, limit: 100 })
+		const api = createTaskApi({
+			listTasks: mockListTasks,
+			listTasksForSection: vi.fn(),
+			getTask: vi.fn(),
+			getTasksByGid: vi.fn(),
+			createTask: vi.fn(),
+			updateTask: vi.fn(),
+			deleteTask: vi.fn(),
+			getMyTasks: vi.fn(),
+			listSubtasks: vi.fn(),
+			createSubtask: vi.fn(),
+			addTaskToProject: vi.fn(),
+			removeTaskFromProject: vi.fn(),
+			addFollowersToTask: vi.fn(),
+			removeFollowersFromTask: vi.fn(),
+			getDependencies: vi.fn(),
+			getDependents: vi.fn(),
+			addDependencies: vi.fn(),
+			addDependents: vi.fn(),
+			removeDependencies: vi.fn(),
+			removeDependents: vi.fn(),
+			searchTasks: vi.fn(),
+		})
+
+		const result = await api.listTasks('proj1')
+
+		expect(result).toEqual({ data: [mockTask], next_page: null, limit: 100 })
+		expect(mockListTasks).toHaveBeenCalledWith('proj1', undefined)
 	})
 })
