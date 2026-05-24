@@ -87,7 +87,7 @@ export async function getTask(taskGid: string) {
 export async function createTask(
 	workspaceGid: string,
 	name: string,
-	opts?: { notes?: string; assignee?: string; projects?: string[]; due_on?: string },
+	opts?: CreateTaskFields,
 ) {
 	const api = new Asana.TasksApi(createClient())
 	const res = await api.createTask({
@@ -95,19 +95,57 @@ export async function createTask(
 			name,
 			workspace: workspaceGid,
 			...opts,
-			projects: opts?.projects?.map((gid) => ({ gid })),
 		},
 	})
+	if (opts?.followers?.length) {
+		return await addFollowersToTask(res.data.gid, opts.followers)
+	}
 	return res.data
 }
 
 export async function updateTask(
 	taskGid: string,
-	fields: { name?: string; notes?: string; completed?: boolean; due_on?: string; assignee?: string },
+	fields: UpdateTaskFields,
 ) {
 	const api = new Asana.TasksApi(createClient())
-	const res = await api.updateTask({ data: fields }, taskGid, {})
-	return res.data
+	const { parent, clear_parent, ...taskFields } = fields
+	let updatedTask: any | undefined
+	if (Object.keys(taskFields).length > 0) {
+		const res = await api.updateTask({ data: taskFields }, taskGid, {})
+		updatedTask = res.data
+	}
+	if (parent !== undefined || clear_parent) {
+		const res = await api.setParentForTask({ data: { parent: clear_parent ? null : parent } }, taskGid, {})
+		updatedTask = res.data
+	}
+	return updatedTask
+}
+
+export type TaskCustomFields = Record<string, unknown>
+
+export type CreateTaskFields = {
+	notes?: string
+	html_notes?: string
+	assignee?: string
+	projects?: string[]
+	due_on?: string
+	parent?: string
+	resource_subtype?: string
+	custom_fields?: TaskCustomFields
+	followers?: string[]
+}
+
+export type UpdateTaskFields = {
+	name?: string
+	notes?: string
+	html_notes?: string
+	completed?: boolean
+	due_on?: string
+	assignee?: string
+	parent?: string
+	clear_parent?: boolean
+	resource_subtype?: string
+	custom_fields?: TaskCustomFields
 }
 
 export async function getMyTasks(workspaceGid: string, opts?: PaginationOptions & { completedSince?: string }) {
@@ -174,6 +212,18 @@ export async function addTaskToProject(
 export async function removeTaskFromProject(taskGid: string, projectGid: string) {
 	const api = new Asana.TasksApi(createClient())
 	return api.removeProjectForTask({ data: { project: projectGid } }, taskGid)
+}
+
+export async function addFollowersToTask(taskGid: string, followerGids: string[]) {
+	const api = new Asana.TasksApi(createClient())
+	const res = await api.addFollowersForTask({ data: { followers: followerGids } }, taskGid, {})
+	return res.data
+}
+
+export async function removeFollowersFromTask(taskGid: string, followerGids: string[]) {
+	const api = new Asana.TasksApi(createClient())
+	const res = await api.removeFollowerForTask({ data: { followers: followerGids } }, taskGid, {})
+	return res.data
 }
 
 export async function deleteTask(taskGid: string) {

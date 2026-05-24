@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
 	addDependencies,
 	addDependents,
+	addFollowersToTask,
 	addTaskToProject,
 	createSubtask,
 	createTask,
@@ -17,6 +18,7 @@ import {
 	listSubtasks,
 	listTasks,
 	listTasksForSection,
+	removeFollowersFromTask,
 	removeDependencies,
 	removeDependents,
 	removeTaskFromProject,
@@ -61,12 +63,97 @@ describe('tasks/api', () => {
 		)
 	})
 
+	it('createTask forwards html notes, parent, subtype, custom fields, and raw project gids', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'createTask').mockResolvedValue({ data: mockTask } as never)
+
+		await createTask('ws1', 'Test Task', {
+			html_notes: '<body>Hi</body>',
+			parent: 'parent1',
+			resource_subtype: 'milestone',
+			custom_fields: { cf1: 'value', cf2: 2 },
+			projects: ['proj1', 'proj2'],
+		})
+
+		expect(Asana.TasksApi.prototype.createTask).toHaveBeenCalledWith({
+			data: {
+				name: 'Test Task',
+				workspace: 'ws1',
+				html_notes: '<body>Hi</body>',
+				parent: 'parent1',
+				resource_subtype: 'milestone',
+				custom_fields: { cf1: 'value', cf2: 2 },
+				projects: ['proj1', 'proj2'],
+			},
+		})
+	})
+
+	it('createTask adds followers after creating the task', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'createTask').mockResolvedValue({ data: mockTask } as never)
+		vi.spyOn(Asana.TasksApi.prototype, 'addFollowersForTask').mockResolvedValue({
+			data: { ...mockTask, followers: [{ gid: 'u1' }, { gid: 'u2' }] },
+		} as never)
+
+		await createTask('ws1', 'Test Task', { followers: ['u1', 'u2'] })
+
+		expect(Asana.TasksApi.prototype.addFollowersForTask).toHaveBeenCalledWith(
+			{ data: { followers: ['u1', 'u2'] } },
+			'456',
+			{},
+		)
+	})
+
 	it('updateTask calls updateTask', async () => {
 		vi.spyOn(Asana.TasksApi.prototype, 'updateTask').mockResolvedValue({
 			data: { ...mockTask, completed: true },
 		} as never)
 		const result = await updateTask('456', { completed: true })
 		expect(result).toEqual({ ...mockTask, completed: true })
+	})
+
+	it('updateTask forwards html notes, subtype, and custom fields to updateTask', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'updateTask').mockResolvedValue({ data: mockTask } as never)
+
+		await updateTask('456', {
+			html_notes: '<body>Updated</body>',
+			resource_subtype: 'milestone',
+			custom_fields: { cf1: 'value' },
+		})
+
+		expect(Asana.TasksApi.prototype.updateTask).toHaveBeenCalledWith(
+			{
+				data: {
+					html_notes: '<body>Updated</body>',
+					resource_subtype: 'milestone',
+					custom_fields: { cf1: 'value' },
+				},
+			},
+			'456',
+			{},
+		)
+	})
+
+	it('updateTask sets a parent after updating task fields', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'updateTask').mockResolvedValue({ data: mockTask } as never)
+		vi.spyOn(Asana.TasksApi.prototype, 'setParentForTask').mockResolvedValue({
+			data: { ...mockTask, parent: { gid: 'parent1' } },
+		} as never)
+
+		await updateTask('456', { name: 'Renamed', parent: 'parent1' })
+
+		expect(Asana.TasksApi.prototype.updateTask).toHaveBeenCalledWith({ data: { name: 'Renamed' } }, '456', {})
+		expect(Asana.TasksApi.prototype.setParentForTask).toHaveBeenCalledWith({ data: { parent: 'parent1' } }, '456', {})
+	})
+
+	it('updateTask can clear a parent without updating task fields', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'updateTask').mockResolvedValue({ data: mockTask } as never)
+		vi.spyOn(Asana.TasksApi.prototype, 'setParentForTask').mockResolvedValue({
+			data: { ...mockTask, parent: null },
+		} as never)
+
+		await updateTask('456', { clear_parent: true })
+
+		expect(Asana.TasksApi.prototype.updateTask).not.toHaveBeenCalled()
+		expect(Asana.TasksApi.prototype.setParentForTask).toHaveBeenCalledWith({ data: { parent: null } }, '456', {})
 	})
 
 	it('listSubtasks calls getSubtasksForTask', async () => {
@@ -118,6 +205,30 @@ describe('tasks/api', () => {
 		expect(Asana.TasksApi.prototype.createSubtaskForTask).toHaveBeenCalledWith(
 			{ data: { name: 'Sub Task', notes: 'note', assignee: 'u1', due_on: '2026-06-01' } },
 			'parent1',
+			{},
+		)
+	})
+
+	it('addFollowersToTask calls addFollowersForTask', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'addFollowersForTask').mockResolvedValue({ data: mockTask } as never)
+
+		await addFollowersToTask('456', ['u1', 'u2'])
+
+		expect(Asana.TasksApi.prototype.addFollowersForTask).toHaveBeenCalledWith(
+			{ data: { followers: ['u1', 'u2'] } },
+			'456',
+			{},
+		)
+	})
+
+	it('removeFollowersFromTask calls removeFollowerForTask', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'removeFollowerForTask').mockResolvedValue({ data: mockTask } as never)
+
+		await removeFollowersFromTask('456', ['u1', 'u2'])
+
+		expect(Asana.TasksApi.prototype.removeFollowerForTask).toHaveBeenCalledWith(
+			{ data: { followers: ['u1', 'u2'] } },
+			'456',
 			{},
 		)
 	})
