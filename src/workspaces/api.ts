@@ -1,15 +1,28 @@
-import Asana from 'asana'
 import { createClient } from '../client.js'
-import { collectListResponse, type PaginationOptions, toAsanaPaginationOptions } from '../pagination.js'
+import type { PaginationOptions } from '../pagination.js'
+import { createAsanaWorkspaceGateway, type WorkspaceGateway } from './gateway.js'
+
+export type WorkspaceApi = ReturnType<typeof createWorkspaceApi>
+
+export function createWorkspaceApi(gateway: WorkspaceGateway) {
+	return {
+		listWorkspaces(opts?: PaginationOptions) {
+			return gateway.listWorkspaces(opts)
+		},
+		getWorkspace(workspaceGid: string) {
+			return gateway.getWorkspace(workspaceGid)
+		},
+	}
+}
+
+function defaultWorkspaceApi() {
+	return createWorkspaceApi(createAsanaWorkspaceGateway(createClient()))
+}
 
 export async function listWorkspaces(opts?: PaginationOptions) {
-	const api = new Asana.WorkspacesApi(createClient())
-	const res = await api.getWorkspaces(toAsanaPaginationOptions(opts))
-	return await collectListResponse(res, opts)
+	return defaultWorkspaceApi().listWorkspaces(opts)
 }
 
 export async function getWorkspace(workspaceGid: string) {
-	const api = new Asana.WorkspacesApi(createClient())
-	const res = await api.getWorkspace(workspaceGid, {})
-	return res.data
+	return defaultWorkspaceApi().getWorkspace(workspaceGid)
 }

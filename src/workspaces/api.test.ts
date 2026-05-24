@@ -1,6 +1,6 @@
 import Asana from 'asana'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { getWorkspace, listWorkspaces } from './api.js'
+import { createWorkspaceApi, getWorkspace, listWorkspaces } from './api.js'
 
 vi.mock('../client.js', () => ({
 	createClient: () => ({}),
@@ -26,5 +26,20 @@ describe('workspaces/api', () => {
 		} as never)
 		const result = await getWorkspace('ws1')
 		expect(result).toEqual(mockWs)
+	})
+})
+
+describe('createWorkspaceApi', () => {
+	it('uses the provided gateway', async () => {
+		const mockListWorkspaces = vi.fn().mockResolvedValue({ data: [mockWs], next_page: null, limit: 100 })
+		const api = createWorkspaceApi({
+			listWorkspaces: mockListWorkspaces,
+			getWorkspace: vi.fn(),
+		})
+
+		const result = await api.listWorkspaces()
+
+		expect(result).toEqual({ data: [mockWs], next_page: null, limit: 100 })
+		expect(mockListWorkspaces).toHaveBeenCalledWith(undefined)
 	})
 })
