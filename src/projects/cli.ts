@@ -20,6 +20,7 @@ import {
 	searchProjects,
 	updateProject,
 } from './api.js'
+import { buildProjectCreateFields, buildProjectUpdateFields } from './write-options.js'
 
 type Project = { gid: string; name: string; permalink_url?: string; color?: string; notes?: string }
 
@@ -205,13 +206,40 @@ export function projectCommand() {
 	)
 	createCmd
 		.option('--notes <text>', 'Project notes')
+		.option('--html-notes <html>', 'Project notes as HTML')
 		.option('--color <color>', 'Project color')
+		.option('--privacy-setting <value>', 'Project privacy setting')
+		.option('--default-view <value>', 'Project default view')
+		.option('--due-on <date>', 'Due date (YYYY-MM-DD)')
+		.option('--start-on <date>', 'Start date (YYYY-MM-DD)')
 		.action(
-			async (name: string, opts: { workspace?: string; workspaceGid?: string; notes?: string; color?: string }) => {
-				const data = await createProject(requiredGid(opts, 'workspace', 'Workspace GID'), name, {
-					notes: opts.notes,
-					color: opts.color,
-				})
+			async (
+				name: string,
+				opts: {
+					workspace?: string
+					workspaceGid?: string
+					notes?: string
+					htmlNotes?: string
+					color?: string
+					privacySetting?: 'public_to_workspace' | 'private' | 'private_to_team'
+					defaultView?: 'list' | 'board' | 'calendar' | 'timeline'
+					dueOn?: string
+					startOn?: string
+				},
+			) => {
+				const data = await createProject(
+					requiredGid(opts, 'workspace', 'Workspace GID'),
+					name,
+					buildProjectCreateFields({
+						notes: opts.notes,
+						htmlNotes: opts.htmlNotes,
+						color: opts.color,
+						privacySetting: opts.privacySetting,
+						defaultView: opts.defaultView,
+						dueOn: opts.dueOn,
+						startOn: opts.startOn,
+					}),
+				)
 				output(data, () => fmtProject(data))
 			},
 		)
@@ -221,11 +249,47 @@ export function projectCommand() {
 		.description('Update a project')
 		.option('--name <name>', 'New name')
 		.option('--notes <text>', 'New notes')
+		.option('--html-notes <html>', 'New notes as HTML')
 		.option('--color <color>', 'New color')
-		.action(async (gid: string, opts: { name?: string; notes?: string; color?: string }) => {
-			const data = await updateProject(gid, opts)
+		.option('--privacy-setting <value>', 'New project privacy setting')
+		.option('--default-view <value>', 'New default view')
+		.option('--due-on <date>', 'Due date (YYYY-MM-DD)')
+		.option('--start-on <date>', 'Start date (YYYY-MM-DD)')
+		.option('--clear-due-on', 'Clear the due date')
+		.option('--clear-start-on', 'Clear the start date')
+		.action(
+			async (
+				gid: string,
+				opts: {
+					name?: string
+					notes?: string
+					htmlNotes?: string
+					color?: string
+					privacySetting?: 'public_to_workspace' | 'private' | 'private_to_team'
+					defaultView?: 'list' | 'board' | 'calendar' | 'timeline'
+					dueOn?: string
+					startOn?: string
+					clearDueOn?: boolean
+					clearStartOn?: boolean
+				},
+			) => {
+				const data = await updateProject(gid, {
+					name: opts.name,
+					...buildProjectUpdateFields({
+						notes: opts.notes,
+						htmlNotes: opts.htmlNotes,
+						color: opts.color,
+						privacySetting: opts.privacySetting,
+						defaultView: opts.defaultView,
+						dueOn: opts.dueOn,
+						startOn: opts.startOn,
+						clearDueOn: opts.clearDueOn,
+						clearStartOn: opts.clearStartOn,
+					}),
+				})
 			output(data, () => fmtProject(data))
-		})
+			},
+		)
 
 	cmd
 		.command('delete <gid>')

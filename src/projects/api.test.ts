@@ -98,12 +98,66 @@ describe('projects/api', () => {
 		)
 	})
 
+	it('createProject forwards html notes, privacy, default view, and dates', async () => {
+		vi.spyOn(Asana.ProjectsApi.prototype, 'createProject').mockResolvedValue({
+			data: mockData,
+		} as never)
+
+		await createProject('ws1', 'Test Project', {
+			html_notes: '<body>Hi</body>',
+			privacy_setting: 'private',
+			default_view: 'timeline',
+			due_on: '2026-06-10',
+			start_on: '2026-06-01',
+		})
+
+		expect(Asana.ProjectsApi.prototype.createProject).toHaveBeenCalledWith({
+			data: {
+				name: 'Test Project',
+				workspace: 'ws1',
+				html_notes: '<body>Hi</body>',
+				privacy_setting: 'private',
+				default_view: 'timeline',
+				due_on: '2026-06-10',
+				start_on: '2026-06-01',
+			},
+		})
+	})
+
 	it('updateProject calls updateProject with fields', async () => {
 		vi.spyOn(Asana.ProjectsApi.prototype, 'updateProject').mockResolvedValue({
 			data: { ...mockData, name: 'Updated' },
 		} as never)
 		const result = await updateProject('123', { name: 'Updated' })
 		expect(result).toEqual({ ...mockData, name: 'Updated' })
+	})
+
+	it('updateProject forwards html notes, privacy, default view, and nullable dates', async () => {
+		vi.spyOn(Asana.ProjectsApi.prototype, 'updateProject').mockResolvedValue({
+			data: { ...mockData, name: 'Updated' },
+		} as never)
+
+		await updateProject('123', {
+			html_notes: '<body>Updated</body>',
+			privacy_setting: 'public_to_workspace',
+			default_view: 'calendar',
+			due_on: '2026-06-10',
+			start_on: null,
+		})
+
+		expect(Asana.ProjectsApi.prototype.updateProject).toHaveBeenCalledWith(
+			{
+				data: {
+					html_notes: '<body>Updated</body>',
+					privacy_setting: 'public_to_workspace',
+					default_view: 'calendar',
+					due_on: '2026-06-10',
+					start_on: null,
+				},
+			},
+			'123',
+			{},
+		)
 	})
 
 	it('deleteProject calls deleteProject with gid', async () => {

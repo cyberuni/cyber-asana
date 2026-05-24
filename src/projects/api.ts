@@ -27,7 +27,31 @@ export async function getProjectTaskCounts(projectGid: string, opts?: { optField
 	return res.data
 }
 
-export async function createProject(workspaceGid: string, name: string, opts?: { notes?: string; color?: string }) {
+export type ProjectPrivacySetting = 'public_to_workspace' | 'private' | 'private_to_team'
+export type ProjectDefaultView = 'list' | 'board' | 'calendar' | 'timeline'
+
+export type CreateProjectFields = {
+	notes?: string
+	html_notes?: string
+	color?: string
+	privacy_setting?: ProjectPrivacySetting
+	default_view?: ProjectDefaultView
+	due_on?: string
+	start_on?: string
+}
+
+export type UpdateProjectFields = {
+	name?: string
+	notes?: string
+	html_notes?: string
+	color?: string
+	privacy_setting?: ProjectPrivacySetting
+	default_view?: ProjectDefaultView
+	due_on?: string | null
+	start_on?: string | null
+}
+
+export async function createProject(workspaceGid: string, name: string, opts?: CreateProjectFields) {
 	const api = new Asana.ProjectsApi(createClient())
 	const res = await api.createProject({
 		data: { name, workspace: workspaceGid, ...opts },
@@ -35,7 +59,7 @@ export async function createProject(workspaceGid: string, name: string, opts?: {
 	return res.data
 }
 
-export async function updateProject(projectGid: string, fields: { name?: string; notes?: string; color?: string }) {
+export async function updateProject(projectGid: string, fields: UpdateProjectFields) {
 	const api = new Asana.ProjectsApi(createClient())
 	const res = await api.updateProject({ data: fields }, projectGid, {})
 	return res.data

@@ -12,6 +12,7 @@ import {
 	searchProjects,
 	updateProject,
 } from './api.js'
+import { buildProjectCreateFields, buildProjectUpdateFields } from './write-options.js'
 
 export function registerProjectTools(server: McpServer) {
 	server.tool(
@@ -161,10 +162,37 @@ export function registerProjectTools(server: McpServer) {
 			workspace_gid: z.string().describe('Workspace GID'),
 			name: z.string().describe('Project name'),
 			notes: z.string().optional().describe('Project notes'),
+			html_notes: z.string().optional().describe('Project notes as HTML'),
 			color: z.string().optional().describe('Project color'),
+			privacy_setting: z
+				.enum(['public_to_workspace', 'private_to_team', 'private'])
+				.optional()
+				.describe('Project privacy setting'),
+			default_view: z.enum(['list', 'board', 'calendar', 'timeline']).optional().describe('Project default view'),
+			due_on: z.string().optional().describe('Due date (YYYY-MM-DD)'),
+			start_on: z.string().optional().describe('Start date (YYYY-MM-DD)'),
 		},
-		async ({ workspace_gid, name, notes, color }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await createProject(workspace_gid, name, { notes, color })) }],
+		async ({ workspace_gid, name, notes, html_notes, color, privacy_setting, default_view, due_on, start_on }) => ({
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(
+						await createProject(
+							workspace_gid,
+							name,
+							buildProjectCreateFields({
+								notes,
+								htmlNotes: html_notes,
+								color,
+								privacySetting: privacy_setting,
+								defaultView: default_view,
+								dueOn: due_on,
+								startOn: start_on,
+							}),
+						),
+					),
+				},
+			],
 		}),
 	)
 
@@ -175,10 +203,52 @@ export function registerProjectTools(server: McpServer) {
 			project_gid: z.string().describe('Project GID'),
 			name: z.string().optional().describe('New name'),
 			notes: z.string().optional().describe('New notes'),
+			html_notes: z.string().optional().describe('New notes as HTML'),
 			color: z.string().optional().describe('New color'),
+			privacy_setting: z
+				.enum(['public_to_workspace', 'private_to_team', 'private'])
+				.optional()
+				.describe('New project privacy setting'),
+			default_view: z.enum(['list', 'board', 'calendar', 'timeline']).optional().describe('New default view'),
+			due_on: z.string().optional().describe('Due date (YYYY-MM-DD)'),
+			start_on: z.string().optional().describe('Start date (YYYY-MM-DD)'),
+			clear_due_on: z.boolean().optional().describe('Clear the due date'),
+			clear_start_on: z.boolean().optional().describe('Clear the start date'),
 		},
-		async ({ project_gid, ...fields }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await updateProject(project_gid, fields)) }],
+		async ({
+			project_gid,
+			name,
+			notes,
+			html_notes,
+			color,
+			privacy_setting,
+			default_view,
+			due_on,
+			start_on,
+			clear_due_on,
+			clear_start_on,
+		}) => ({
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(
+						await updateProject(project_gid, {
+							...(name !== undefined && { name }),
+							...buildProjectUpdateFields({
+								notes,
+								htmlNotes: html_notes,
+								color,
+								privacySetting: privacy_setting,
+								defaultView: default_view,
+								dueOn: due_on,
+								startOn: start_on,
+								clearDueOn: clear_due_on,
+								clearStartOn: clear_start_on,
+							}),
+						}),
+					),
+				},
+			],
 		}),
 	)
 

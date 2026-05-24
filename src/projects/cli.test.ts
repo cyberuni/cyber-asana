@@ -3,6 +3,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 const searchProjectsMock = vi.fn()
 const getProjectTaskCountsMock = vi.fn()
+const createProjectMock = vi.fn()
+const updateProjectMock = vi.fn()
 
 vi.mock('./api.js', async () => {
 	const actual = await vi.importActual<typeof import('./api.js')>('./api.js')
@@ -10,6 +12,8 @@ vi.mock('./api.js', async () => {
 		...actual,
 		searchProjects: searchProjectsMock,
 		getProjectTaskCounts: getProjectTaskCountsMock,
+		createProject: createProjectMock,
+		updateProject: updateProjectMock,
 	}
 })
 
@@ -140,5 +144,67 @@ describe('projects/cli', () => {
 				2,
 			),
 		)
+	})
+
+	it('project create maps richer project write flags', async () => {
+		createProjectMock.mockResolvedValue({ gid: '1', name: 'Launch' })
+		const projectCommand = await loadProjectCommand()
+		const program = new Command().addCommand(projectCommand())
+
+		await program.parseAsync(
+			[
+				'node',
+				'test',
+				'project',
+				'create',
+				'Launch',
+				'--workspace-gid',
+				'ws1',
+				'--html-notes',
+				'<body>Brief</body>',
+				'--privacy-setting',
+				'private',
+				'--default-view',
+				'board',
+				'--due-on',
+				'2026-06-10',
+				'--start-on',
+				'2026-06-01',
+			],
+			{ from: 'node' },
+		)
+
+		expect(createProjectMock).toHaveBeenCalledWith('ws1', 'Launch', {
+			html_notes: '<body>Brief</body>',
+			privacy_setting: 'private',
+			default_view: 'board',
+			due_on: '2026-06-10',
+			start_on: '2026-06-01',
+		})
+	})
+
+	it('project update maps clear start flag to start_on null', async () => {
+		updateProjectMock.mockResolvedValue({ gid: '1', name: 'Launch' })
+		const projectCommand = await loadProjectCommand()
+		const program = new Command().addCommand(projectCommand())
+
+		await program.parseAsync(
+			[
+				'node',
+				'test',
+				'project',
+				'update',
+				'123',
+				'--due-on',
+				'2026-06-10',
+				'--clear-start-on',
+			],
+			{ from: 'node' },
+		)
+
+		expect(updateProjectMock).toHaveBeenCalledWith('123', {
+			due_on: '2026-06-10',
+			start_on: null,
+		})
 	})
 })

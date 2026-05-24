@@ -2,6 +2,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 const searchProjectsMock = vi.fn()
 const getProjectTaskCountsMock = vi.fn()
+const createProjectMock = vi.fn()
+const updateProjectMock = vi.fn()
 
 vi.mock('./api.js', async () => {
 	const actual = await vi.importActual<typeof import('./api.js')>('./api.js')
@@ -9,6 +11,8 @@ vi.mock('./api.js', async () => {
 		...actual,
 		searchProjects: searchProjectsMock,
 		getProjectTaskCounts: getProjectTaskCountsMock,
+		createProject: createProjectMock,
+		updateProject: updateProjectMock,
 	}
 })
 
@@ -81,6 +85,47 @@ describe('projects/mcp', () => {
 			sortBy: 'modified_at',
 			sortAscending: true,
 			optFields: 'gid,name',
+		})
+	})
+
+	it('asana_project_create forwards richer project write params', async () => {
+		createProjectMock.mockResolvedValue({ gid: '1', name: 'Launch' })
+		const server = createServer()
+		registerProjectTools(server as any)
+
+		await server.handlers.get('asana_project_create')?.({
+			workspace_gid: 'ws1',
+			name: 'Launch',
+			html_notes: '<body>Brief</body>',
+			privacy_setting: 'private',
+			default_view: 'board',
+			due_on: '2026-06-10',
+			start_on: '2026-06-01',
+		})
+
+		expect(createProjectMock).toHaveBeenCalledWith('ws1', 'Launch', {
+			html_notes: '<body>Brief</body>',
+			privacy_setting: 'private',
+			default_view: 'board',
+			due_on: '2026-06-10',
+			start_on: '2026-06-01',
+		})
+	})
+
+	it('asana_project_update maps clear start flag to start_on null', async () => {
+		updateProjectMock.mockResolvedValue({ gid: '1', name: 'Launch' })
+		const server = createServer()
+		registerProjectTools(server as any)
+
+		await server.handlers.get('asana_project_update')?.({
+			project_gid: '123',
+			due_on: '2026-06-10',
+			clear_start_on: true,
+		})
+
+		expect(updateProjectMock).toHaveBeenCalledWith('123', {
+			due_on: '2026-06-10',
+			start_on: null,
 		})
 	})
 })
