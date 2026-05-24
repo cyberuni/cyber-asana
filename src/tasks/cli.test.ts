@@ -1,0 +1,107 @@
+import { Command } from 'commander'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+
+const createTaskMock = vi.fn()
+const updateTaskMock = vi.fn()
+const addFollowersToTaskMock = vi.fn()
+const removeFollowersFromTaskMock = vi.fn()
+
+vi.mock('./api.js', async () => {
+	const actual = await vi.importActual<typeof import('./api.js')>('./api.js')
+	return {
+		...actual,
+		createTask: createTaskMock,
+		updateTask: updateTaskMock,
+		addFollowersToTask: addFollowersToTaskMock,
+		removeFollowersFromTask: removeFollowersFromTaskMock,
+	}
+})
+
+const { taskCommand } = await import('./cli.js')
+
+describe('tasks/cli', () => {
+	afterEach(() => {
+		vi.clearAllMocks()
+	})
+
+	it('task create normalizes multi-project, followers, html notes, and custom fields', async () => {
+		createTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
+		const program = new Command().addCommand(taskCommand())
+
+		await program.parseAsync(
+			[
+				'node',
+				'test',
+				'task',
+				'create',
+				'Task',
+				'--workspace-gid',
+				'ws1',
+				'--project',
+				'p1,p2',
+				'--follower',
+				'u1,u2',
+				'--html-notes',
+				'<body>Hi</body>',
+				'--parent',
+				'parent1',
+				'--resource-subtype',
+				'milestone',
+				'--custom-fields-json',
+				'{"cf1":"json"}',
+				'--custom-field',
+				'cf2=value',
+			],
+			{ from: 'node' },
+		)
+
+		expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', {
+			html_notes: '<body>Hi</body>',
+			projects: ['p1', 'p2'],
+			followers: ['u1', 'u2'],
+			parent: 'parent1',
+			resource_subtype: 'milestone',
+			custom_fields: { cf1: 'json', cf2: 'value' },
+		})
+	})
+
+	it('task update normalizes html notes, parent, and custom fields', async () => {
+		updateTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
+		const program = new Command().addCommand(taskCommand())
+
+		await program.parseAsync(
+			[
+				'node',
+				'test',
+				'task',
+				'update',
+				'123',
+				'--html-notes',
+				'<body>Updated</body>',
+				'--parent',
+				'parent1',
+				'--resource-subtype',
+				'milestone',
+				'--custom-field',
+				'cf2=value',
+			],
+			{ from: 'node' },
+		)
+
+		expect(updateTaskMock).toHaveBeenCalledWith('123', {
+			html_notes: '<body>Updated</body>',
+			parent: 'parent1',
+			resource_subtype: 'milestone',
+			custom_fields: { cf2: 'value' },
+		})
+	})
+
+	it('task follower add calls follower API helper', async () => {
+		addFollowersToTaskMock.mockResolvedValue({ gid: '1' })
+		const program = new Command().addCommand(taskCommand())
+
+		await program.parseAsync(['node', 'test', 'task', 'follower', 'add', '123', 'u1', 'u2'], { from: 'node' })
+
+		expect(addFollowersToTaskMock).toHaveBeenCalledWith('123', ['u1', 'u2'])
+	})
+})

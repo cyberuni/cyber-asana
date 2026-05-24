@@ -12,6 +12,7 @@ import { output, printFields, printTable } from '../output.js'
 import {
 	addDependencies,
 	addDependents,
+	addFollowersToTask,
 	addTaskToProject,
 	createSubtask,
 	createTask,
@@ -22,6 +23,7 @@ import {
 	getTask,
 	listSubtasks,
 	listTasks,
+	removeFollowersFromTask,
 	removeDependencies,
 	removeDependents,
 	removeTaskFromProject,
@@ -31,6 +33,7 @@ import {
 	type TodoMatch,
 	updateTask,
 } from './api.js'
+import { buildTaskCreateFields, buildTaskUpdateFields } from './write-options.js'
 
 type Task = {
 	gid: string
@@ -61,6 +64,10 @@ function fmtTaskList(tasks: Task[]) {
 		{ label: 'Done', get: (t) => (t.completed ? 'yes' : 'no') },
 		{ label: 'Due', get: (t) => t.due_on ?? '' },
 	])
+}
+
+function collectOption(value: string, previous: string[] = []) {
+	return [...previous, value]
 }
 
 export function taskCommand() {
@@ -130,17 +137,31 @@ export function taskCommand() {
 
 	addGidOption(
 		addGidOption(
-			addGidOption(cmd.command('create <name>').description('Create a new task'), 'workspace', 'Workspace GID', {
-				env: 'ASANA_WORKSPACE',
-			}),
-			'project',
-			'Project GID',
+			addGidOption(
+				addGidOption(
+					cmd.command('create <name>').description('Create a new task'),
+					'workspace',
+					'Workspace GID',
+					{
+						env: 'ASANA_WORKSPACE',
+					},
+				),
+				'project',
+				'Project GID',
+			),
+			'parent',
+			'Parent task GID',
 		),
 		'assignee',
 		'Assignee user GID',
 	)
 		.option('--notes <text>', 'Task notes')
+		.option('--html-notes <html>', 'Task notes as HTML')
 		.option('--due-on <date>', 'Due date (YYYY-MM-DD)')
+		.option('--resource-subtype <subtype>', 'Task resource subtype (e.g. default_task, milestone)')
+		.option('--follower <gid[,gid...]>', 'Follower user GIDs')
+		.option('--custom-fields-json <json>', 'Custom field values as a JSON object')
+		.option('--custom-field <gid=value>', 'Custom field value override', collectOption, [])
 		.action(
 			async (
 				name: string,
@@ -149,30 +170,56 @@ export function taskCommand() {
 					workspaceGid?: string
 					project?: string
 					projectGid?: string
+					parent?: string
+					parentGid?: string
 					assignee?: string
 					assigneeGid?: string
 					notes?: string
+					htmlNotes?: string
 					dueOn?: string
+					resourceSubtype?: string
+					follower?: string
+					customFieldsJson?: string
+					customField: string[]
 				},
 			) => {
-				const data = await createTask(requiredGid(opts, 'workspace', 'Workspace GID'), name, {
-					notes: opts.notes,
-					assignee: normalizedGid(opts, 'assignee'),
-					projects: opts.projectGid || opts.project ? [requiredGid(opts, 'project', 'Project GID')] : undefined,
-					due_on: opts.dueOn,
-				})
+				const data = await createTask(
+					requiredGid(opts, 'workspace', 'Workspace GID'),
+					name,
+					buildTaskCreateFields({
+						notes: opts.notes,
+						htmlNotes: opts.htmlNotes,
+						assignee: normalizedGid(opts, 'assignee'),
+						projectInput: opts.projectGid ?? opts.project,
+						followerInput: opts.follower,
+						dueOn: opts.dueOn,
+						parent: normalizedGid(opts, 'parent'),
+						resourceSubtype: opts.resourceSubtype,
+						customFieldsJson: opts.customFieldsJson,
+						customFieldEntries: opts.customField,
+					}),
+				)
 				output(data, () => fmtTask(data))
 			},
 		)
 
 	addGidOption(
-		cmd
-			.command('update <gid>')
-			.description('Update a task')
-			.option('--name <name>', 'New name')
-			.option('--notes <text>', 'New notes')
-			.option('--completed', 'Mark as completed')
-			.option('--due-on <date>', 'Due date (YYYY-MM-DD)'),
+		addGidOption(
+			cmd
+				.command('update <gid>')
+				.description('Update a task')
+				.option('--name <name>', 'New name')
+				.option('--notes <text>', 'New notes')
+				.option('--html-notes <html>', 'New notes as HTML')
+				.option('--completed', 'Mark as completed')
+				.option('--due-on <date>', 'Due date (YYYY-MM-DD)')
+				.option('--clear-parent', 'Remove the parent task relationship')
+				.option('--resource-subtype <subtype>', 'Task resource subtype (e.g. default_task, milestone)')
+				.option('--custom-fields-json <json>', 'Custom field values as a JSON object')
+				.option('--custom-field <gid=value>', 'Custom field value override', collectOption, []),
+			'parent',
+			'Parent task GID',
+		),
 		'assignee',
 		'Assignee user GID',
 	).action(
@@ -181,19 +228,35 @@ export function taskCommand() {
 			opts: {
 				name?: string
 				notes?: string
+				htmlNotes?: string
 				completed?: boolean
 				dueOn?: string
+				parent?: string
+				parentGid?: string
+				clearParent?: boolean
+				resourceSubtype?: string
+				customFieldsJson?: string
+				customField: string[]
 				assignee?: string
 				assigneeGid?: string
 			},
 		) => {
-			const data = await updateTask(gid, {
-				name: opts.name,
-				notes: opts.notes,
-				completed: opts.completed,
-				due_on: opts.dueOn,
-				assignee: normalizedGid(opts, 'assignee'),
-			})
+			const data = await updateTask(
+				gid,
+				buildTaskUpdateFields({
+					name: opts.name,
+					notes: opts.notes,
+					htmlNotes: opts.htmlNotes,
+					completed: opts.completed,
+					dueOn: opts.dueOn,
+					assignee: normalizedGid(opts, 'assignee'),
+					parent: normalizedGid(opts, 'parent'),
+					clearParent: opts.clearParent,
+					resourceSubtype: opts.resourceSubtype,
+					customFieldsJson: opts.customFieldsJson,
+					customFieldEntries: opts.customField,
+				}),
+			)
 			output(data, () => fmtTask(data))
 		},
 	)
@@ -491,6 +554,24 @@ export function taskCommand() {
 		.action(async (taskGid: string, projectGid: string) => {
 			await removeTaskFromProject(taskGid, projectGid)
 			console.log(`Removed task ${taskGid} from project ${projectGid}`)
+		})
+
+	const followerCmd = cmd.command('follower').description('Manage followers for a task')
+
+	followerCmd
+		.command('add <task-gid> <follower-gids...>')
+		.description('Add followers to a task')
+		.action(async (taskGid: string, followerGids: string[]) => {
+			await addFollowersToTask(taskGid, followerGids)
+			console.log(`Added ${followerGids.length} follower(s) to task ${taskGid}`)
+		})
+
+	followerCmd
+		.command('remove <task-gid> <follower-gids...>')
+		.description('Remove followers from a task')
+		.action(async (taskGid: string, followerGids: string[]) => {
+			await removeFollowersFromTask(taskGid, followerGids)
+			console.log(`Removed ${followerGids.length} follower(s) from task ${taskGid}`)
 		})
 
 	const dependencyCmd = cmd.command('dependency').description('Manage task dependencies (tasks this task depends on)')

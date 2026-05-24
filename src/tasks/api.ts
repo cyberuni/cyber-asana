@@ -84,11 +84,7 @@ export async function getTask(taskGid: string) {
 	return res.data
 }
 
-export async function createTask(
-	workspaceGid: string,
-	name: string,
-	opts?: CreateTaskFields,
-) {
+export async function createTask(workspaceGid: string, name: string, opts?: CreateTaskFields) {
 	const api = new Asana.TasksApi(createClient())
 	const res = await api.createTask({
 		data: {
@@ -103,10 +99,7 @@ export async function createTask(
 	return res.data
 }
 
-export async function updateTask(
-	taskGid: string,
-	fields: UpdateTaskFields,
-) {
+export async function updateTask(taskGid: string, fields: UpdateTaskFields) {
 	const api = new Asana.TasksApi(createClient())
 	const { parent, clear_parent, ...taskFields } = fields
 	let updatedTask: any | undefined

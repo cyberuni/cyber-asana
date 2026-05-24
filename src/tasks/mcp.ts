@@ -4,6 +4,7 @@ import { paginationOptions, paginationParams } from '../mcp-options.js'
 import {
 	addDependencies,
 	addDependents,
+	addFollowersToTask,
 	addTaskToProject,
 	createSubtask,
 	createTask,
@@ -14,6 +15,7 @@ import {
 	getTask,
 	listSubtasks,
 	listTasks,
+	removeFollowersFromTask,
 	removeDependencies,
 	removeDependents,
 	removeTaskFromProject,
@@ -21,6 +23,7 @@ import {
 	searchTasks,
 	updateTask,
 } from './api.js'
+import { buildTaskCreateFields, buildTaskUpdateFields, parseGidList } from './write-options.js'
 
 export function registerTaskTools(server: McpServer) {
 	server.tool(
@@ -157,21 +160,50 @@ export function registerTaskTools(server: McpServer) {
 			workspace_gid: z.string().describe('Workspace GID'),
 			name: z.string().describe('Task name'),
 			project_gid: z.string().optional().describe('Project GID'),
+			project_gids: z.array(z.string()).optional().describe('Project GIDs'),
+			follower_gids: z.union([z.array(z.string()), z.string()]).optional().describe('Follower user GIDs'),
 			assignee_gid: z.string().optional().describe('Assignee user GID'),
 			notes: z.string().optional().describe('Task notes'),
+			html_notes: z.string().optional().describe('Task notes as HTML'),
 			due_on: z.string().optional().describe('Due date (YYYY-MM-DD)'),
+			parent_gid: z.string().optional().describe('Parent task GID'),
+			resource_subtype: z.string().optional().describe('Task resource subtype'),
+			custom_fields: z.record(z.string(), z.unknown()).optional().describe('Custom field values keyed by GID'),
 		},
-		async ({ workspace_gid, name, project_gid, assignee_gid, notes, due_on }) => ({
+		async ({
+			workspace_gid,
+			name,
+			project_gid,
+			project_gids,
+			follower_gids,
+			assignee_gid,
+			notes,
+			html_notes,
+			due_on,
+			parent_gid,
+			resource_subtype,
+			custom_fields,
+		}) => ({
 			content: [
 				{
 					type: 'text',
 					text: JSON.stringify(
-						await createTask(workspace_gid, name, {
-							notes,
-							assignee: assignee_gid,
-							projects: project_gid ? [project_gid] : undefined,
-							due_on,
-						}),
+						await createTask(
+							workspace_gid,
+							name,
+							buildTaskCreateFields({
+								notes,
+								htmlNotes: html_notes,
+								assignee: assignee_gid,
+								projectGids: project_gids ?? parseGidList(project_gid),
+								followerGids:
+									typeof follower_gids === 'string' ? parseGidList(follower_gids) : follower_gids,
+								dueOn: due_on,
+								parent: parent_gid,
+								resourceSubtype: resource_subtype,
+								customFields: custom_fields,
+							}),
+						),
 					),
 				},
 			],
@@ -185,15 +217,48 @@ export function registerTaskTools(server: McpServer) {
 			task_gid: z.string().describe('Task GID'),
 			name: z.string().optional().describe('New name'),
 			notes: z.string().optional().describe('New notes'),
+			html_notes: z.string().optional().describe('New notes as HTML'),
 			completed: z.boolean().optional().describe('Mark as completed'),
 			due_on: z.string().optional().describe('Due date (YYYY-MM-DD)'),
 			assignee_gid: z.string().optional().describe('Assignee user GID'),
+			parent_gid: z.string().optional().describe('Parent task GID'),
+			clear_parent: z.boolean().optional().describe('Remove the parent task relationship'),
+			resource_subtype: z.string().optional().describe('Task resource subtype'),
+			custom_fields: z.record(z.string(), z.unknown()).optional().describe('Custom field values keyed by GID'),
 		},
-		async ({ task_gid, assignee_gid, ...fields }) => ({
+		async ({
+			task_gid,
+			name,
+			notes,
+			html_notes,
+			completed,
+			due_on,
+			assignee_gid,
+			parent_gid,
+			clear_parent,
+			resource_subtype,
+			custom_fields,
+		}) => ({
 			content: [
 				{
 					type: 'text',
-					text: JSON.stringify(await updateTask(task_gid, { ...fields, assignee: assignee_gid })),
+					text: JSON.stringify(
+						await updateTask(
+							task_gid,
+							buildTaskUpdateFields({
+								name,
+								notes,
+								htmlNotes: html_notes,
+								completed,
+								dueOn: due_on,
+								assignee: assignee_gid,
+								parent: parent_gid,
+								clearParent: clear_parent,
+								resourceSubtype: resource_subtype,
+								customFields: custom_fields,
+							}),
+						),
+					),
 				},
 			],
 		}),
@@ -382,6 +447,34 @@ export function registerTaskTools(server: McpServer) {
 				},
 			],
 		}),
+	)
+
+	server.tool(
+		'asana_task_follower_add',
+		'Add followers to an Asana task',
+		{
+			task_gid: z.string().describe('Task GID'),
+			follower_gids: z.array(z.string()).describe('GIDs of users to add as followers'),
+		},
+		async ({ task_gid, follower_gids }) => {
+			await addFollowersToTask(task_gid, follower_gids)
+			return { content: [{ type: 'text', text: `Added ${follower_gids.length} follower(s) to task ${task_gid}` }] }
+		},
+	)
+
+	server.tool(
+		'asana_task_follower_remove',
+		'Remove followers from an Asana task',
+		{
+			task_gid: z.string().describe('Task GID'),
+			follower_gids: z.array(z.string()).describe('GIDs of users to remove as followers'),
+		},
+		async ({ task_gid, follower_gids }) => {
+			await removeFollowersFromTask(task_gid, follower_gids)
+			return {
+				content: [{ type: 'text', text: `Removed ${follower_gids.length} follower(s) from task ${task_gid}` }],
+			}
+		},
 	)
 
 	server.tool(
