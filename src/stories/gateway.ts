@@ -1,5 +1,5 @@
 import Asana from 'asana'
-import { collectListResponse, type PaginationOptions, toAsanaPaginationOptions } from '../pagination.js'
+import { collectListResponse, type ListResult, type PaginationOptions, toAsanaPaginationOptions } from '../pagination.js'
 import type { StoryCreateFields } from './write-options.js'
 
 export type TaskTemplateData = {
@@ -10,8 +10,8 @@ export type TaskTemplateData = {
 }
 
 export type StoryGateway = {
-	listStories(taskGid: string, opts?: PaginationOptions): Promise<unknown>
-	createStory(taskGid: string, fields: StoryCreateFields): Promise<unknown>
+	listStories(taskGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
+	createStory(taskGid: string, fields: StoryCreateFields): Promise<any>
 	getTaskTemplateData(taskGid: string): Promise<TaskTemplateData>
 }
 

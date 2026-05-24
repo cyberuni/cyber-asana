@@ -1,5 +1,5 @@
 import Asana from 'asana'
-import { collectListResponse, type PaginationOptions, toAsanaPaginationOptions } from '../pagination.js'
+import { collectListResponse, type ListResult, type PaginationOptions, toAsanaPaginationOptions } from '../pagination.js'
 
 export type TagWriteFields = {
 	name?: string
@@ -8,15 +8,15 @@ export type TagWriteFields = {
 }
 
 export type TagGateway = {
-	listTags(workspaceGid: string, opts?: PaginationOptions): Promise<unknown>
-	getTag(tagGid: string): Promise<unknown>
-	createTag(workspaceGid: string, name: string, fields?: Omit<TagWriteFields, 'name'>): Promise<unknown>
-	updateTag(tagGid: string, fields: TagWriteFields): Promise<unknown>
+	listTags(workspaceGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
+	getTag(tagGid: string): Promise<any>
+	createTag(workspaceGid: string, name: string, fields?: Omit<TagWriteFields, 'name'>): Promise<any>
+	updateTag(tagGid: string, fields: TagWriteFields): Promise<any>
 	deleteTag(tagGid: string): Promise<void>
-	listTagsForTask(taskGid: string, opts?: PaginationOptions): Promise<unknown>
-	listTasksForTag(tagGid: string, opts?: PaginationOptions): Promise<unknown>
-	addTagToTask(taskGid: string, tagGid: string): Promise<unknown>
-	removeTagFromTask(taskGid: string, tagGid: string): Promise<unknown>
+	listTagsForTask(taskGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
+	listTasksForTag(tagGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
+	addTagToTask(taskGid: string, tagGid: string): Promise<any>
+	removeTagFromTask(taskGid: string, tagGid: string): Promise<any>
 }
 
 export function createAsanaTagGateway(client: Asana.ApiClient): TagGateway {
