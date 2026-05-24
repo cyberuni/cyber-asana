@@ -148,7 +148,10 @@ export function registerTaskTools(server: McpServer, api?: TaskApi | (() => Task
 					{
 						type: 'text',
 						text: JSON.stringify(
-							await resolveTaskApi(api).listSubtasks(task_gid, { completedSince: incomplete ? 'now' : undefined, ...pagination }),
+							await resolveTaskApi(api).listSubtasks(task_gid, {
+								completedSince: incomplete ? 'now' : undefined,
+								...pagination,
+							}),
 						),
 					},
 				],
@@ -170,7 +173,9 @@ export function registerTaskTools(server: McpServer, api?: TaskApi | (() => Task
 			content: [
 				{
 					type: 'text',
-					text: JSON.stringify(await resolveTaskApi(api).createSubtask(task_gid, name, { notes, dueOn: due_on, assignee: assignee_gid })),
+					text: JSON.stringify(
+						await resolveTaskApi(api).createSubtask(task_gid, name, { notes, dueOn: due_on, assignee: assignee_gid }),
+					),
 				},
 			],
 		}),
@@ -196,7 +201,9 @@ export function registerTaskTools(server: McpServer, api?: TaskApi | (() => Task
 			content: [
 				{
 					type: 'text',
-					text: JSON.stringify(await resolveTaskApi(api).getTasksByGid(task_gids, opt_fields ? { optFields: opt_fields } : undefined)),
+					text: JSON.stringify(
+						await resolveTaskApi(api).getTasksByGid(task_gids, opt_fields ? { optFields: opt_fields } : undefined),
+					),
 				},
 			],
 		}),
@@ -240,8 +247,8 @@ export function registerTaskTools(server: McpServer, api?: TaskApi | (() => Task
 				{
 					type: 'text',
 					text: JSON.stringify(
-					await resolveTaskApi(api).createTask(
-						workspace_gid,
+						await resolveTaskApi(api).createTask(
+							workspace_gid,
 							name,
 							buildTaskCreateFields({
 								notes,
@@ -296,8 +303,8 @@ export function registerTaskTools(server: McpServer, api?: TaskApi | (() => Task
 				{
 					type: 'text',
 					text: JSON.stringify(
-					await resolveTaskApi(api).updateTask(
-						task_gid,
+						await resolveTaskApi(api).updateTask(
+							task_gid,
 							buildTaskUpdateFields({
 								name,
 								notes,
@@ -323,8 +330,8 @@ export function registerTaskTools(server: McpServer, api?: TaskApi | (() => Task
 		'Delete an Asana task',
 		{ task_gid: z.string().describe('Task GID') },
 		async ({ task_gid }) => {
-		await resolveTaskApi(api).deleteTask(task_gid)
-		return { content: [{ type: 'text', text: `Deleted task ${task_gid}` }] }
+			await resolveTaskApi(api).deleteTask(task_gid)
+			return { content: [{ type: 'text', text: `Deleted task ${task_gid}` }] }
 		},
 	)
 
@@ -511,8 +518,8 @@ export function registerTaskTools(server: McpServer, api?: TaskApi | (() => Task
 			follower_gids: z.array(z.string()).describe('GIDs of users to add as followers'),
 		},
 		async ({ task_gid, follower_gids }) => {
-		await resolveTaskApi(api).addFollowersToTask(task_gid, follower_gids)
-		return { content: [{ type: 'text', text: `Added ${follower_gids.length} follower(s) to task ${task_gid}` }] }
+			await resolveTaskApi(api).addFollowersToTask(task_gid, follower_gids)
+			return { content: [{ type: 'text', text: `Added ${follower_gids.length} follower(s) to task ${task_gid}` }] }
 		},
 	)
 
@@ -559,8 +566,8 @@ export function registerTaskTools(server: McpServer, api?: TaskApi | (() => Task
 			project_gid: z.string().describe('Project GID'),
 		},
 		async ({ task_gid, project_gid }) => {
-		await resolveTaskApi(api).removeTaskFromProject(task_gid, project_gid)
-		return { content: [{ type: 'text', text: `Removed task ${task_gid} from project ${project_gid}` }] }
+			await resolveTaskApi(api).removeTaskFromProject(task_gid, project_gid)
+			return { content: [{ type: 'text', text: `Removed task ${task_gid} from project ${project_gid}` }] }
 		},
 	)
 
@@ -572,7 +579,12 @@ export function registerTaskTools(server: McpServer, api?: TaskApi | (() => Task
 			opt_fields: z.string().optional().describe('Comma-separated Asana fields to include'),
 		},
 		async ({ task_gid, opt_fields }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await resolveTaskApi(api).getDependencies(task_gid, { optFields: opt_fields })) }],
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(await resolveTaskApi(api).getDependencies(task_gid, { optFields: opt_fields })),
+				},
+			],
 		}),
 	)
 
@@ -584,8 +596,8 @@ export function registerTaskTools(server: McpServer, api?: TaskApi | (() => Task
 			dependency_gids: z.array(z.string()).describe('GIDs of tasks to add as dependencies'),
 		},
 		async ({ task_gid, dependency_gids }) => {
-		await resolveTaskApi(api).addDependencies(task_gid, dependency_gids)
-		return { content: [{ type: 'text', text: `Added ${dependency_gids.length} dependency(s) to task ${task_gid}` }] }
+			await resolveTaskApi(api).addDependencies(task_gid, dependency_gids)
+			return { content: [{ type: 'text', text: `Added ${dependency_gids.length} dependency(s) to task ${task_gid}` }] }
 		},
 	)
 
@@ -597,9 +609,9 @@ export function registerTaskTools(server: McpServer, api?: TaskApi | (() => Task
 			dependency_gids: z.array(z.string()).describe('GIDs of tasks to remove as dependencies'),
 		},
 		async ({ task_gid, dependency_gids }) => {
-		await resolveTaskApi(api).removeDependencies(task_gid, dependency_gids)
-		return {
-			content: [{ type: 'text', text: `Removed ${dependency_gids.length} dependency(s) from task ${task_gid}` }],
+			await resolveTaskApi(api).removeDependencies(task_gid, dependency_gids)
+			return {
+				content: [{ type: 'text', text: `Removed ${dependency_gids.length} dependency(s) from task ${task_gid}` }],
 			}
 		},
 	)
@@ -612,7 +624,12 @@ export function registerTaskTools(server: McpServer, api?: TaskApi | (() => Task
 			opt_fields: z.string().optional().describe('Comma-separated Asana fields to include'),
 		},
 		async ({ task_gid, opt_fields }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await resolveTaskApi(api).getDependents(task_gid, { optFields: opt_fields })) }],
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(await resolveTaskApi(api).getDependents(task_gid, { optFields: opt_fields })),
+				},
+			],
 		}),
 	)
 
@@ -624,8 +641,8 @@ export function registerTaskTools(server: McpServer, api?: TaskApi | (() => Task
 			dependent_gids: z.array(z.string()).describe('GIDs of tasks to add as dependents'),
 		},
 		async ({ task_gid, dependent_gids }) => {
-		await resolveTaskApi(api).addDependents(task_gid, dependent_gids)
-		return { content: [{ type: 'text', text: `Added ${dependent_gids.length} dependent(s) to task ${task_gid}` }] }
+			await resolveTaskApi(api).addDependents(task_gid, dependent_gids)
+			return { content: [{ type: 'text', text: `Added ${dependent_gids.length} dependent(s) to task ${task_gid}` }] }
 		},
 	)
 
@@ -637,9 +654,9 @@ export function registerTaskTools(server: McpServer, api?: TaskApi | (() => Task
 			dependent_gids: z.array(z.string()).describe('GIDs of tasks to remove as dependents'),
 		},
 		async ({ task_gid, dependent_gids }) => {
-		await resolveTaskApi(api).removeDependents(task_gid, dependent_gids)
-		return {
-			content: [{ type: 'text', text: `Removed ${dependent_gids.length} dependent(s) from task ${task_gid}` }],
+			await resolveTaskApi(api).removeDependents(task_gid, dependent_gids)
+			return {
+				content: [{ type: 'text', text: `Removed ${dependent_gids.length} dependent(s) from task ${task_gid}` }],
 			}
 		},
 	)

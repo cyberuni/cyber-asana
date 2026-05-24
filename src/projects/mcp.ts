@@ -37,7 +37,12 @@ export function registerProjectTools(server: McpServer, api?: ProjectApi | (() =
 		'List Asana projects in a workspace',
 		{ workspace_gid: z.string().describe('Workspace GID'), ...paginationParams },
 		async ({ workspace_gid, ...params }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await resolveProjectApi(api).listProjects(workspace_gid, paginationOptions(params))) }],
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(await resolveProjectApi(api).listProjects(workspace_gid, paginationOptions(params))),
+				},
+			],
 		}),
 	)
 
@@ -61,7 +66,9 @@ export function registerProjectTools(server: McpServer, api?: ProjectApi | (() =
 			content: [
 				{
 					type: 'text',
-					text: JSON.stringify(await resolveProjectApi(api).getProjectTaskCounts(project_gid, { optFields: opt_fields })),
+					text: JSON.stringify(
+						await resolveProjectApi(api).getProjectTaskCounts(project_gid, { optFields: opt_fields }),
+					),
 				},
 			],
 		}),
@@ -194,8 +201,8 @@ export function registerProjectTools(server: McpServer, api?: ProjectApi | (() =
 				{
 					type: 'text',
 					text: JSON.stringify(
-					await resolveProjectApi(api).createProject(
-						workspace_gid,
+						await resolveProjectApi(api).createProject(
+							workspace_gid,
 							name,
 							buildProjectCreateFields({
 								notes,
@@ -274,8 +281,8 @@ export function registerProjectTools(server: McpServer, api?: ProjectApi | (() =
 		'Delete an Asana project',
 		{ project_gid: z.string().describe('Project GID') },
 		async ({ project_gid }) => {
-		await resolveProjectApi(api).deleteProject(project_gid)
-		return { content: [{ type: 'text', text: `Deleted project ${project_gid}` }] }
+			await resolveProjectApi(api).deleteProject(project_gid)
+			return { content: [{ type: 'text', text: `Deleted project ${project_gid}` }] }
 		},
 	)
 

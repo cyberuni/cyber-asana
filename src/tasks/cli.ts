@@ -163,8 +163,8 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 		.command('get <gid>')
 		.description('Get a task by GID')
 		.action(async (gid: string) => {
-		const data = await resolveTaskApi(api).getTask(gid)
-		output(data, () => fmtTask(data))
+			const data = await resolveTaskApi(api).getTask(gid)
+			output(data, () => fmtTask(data))
 		})
 
 	cmd
@@ -172,7 +172,10 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 		.description('Get multiple tasks by GID')
 		.option('--opt-fields <fields>', 'Comma-separated optional Asana fields to include')
 		.action(async (gids: string[], opts: { optFields?: string }) => {
-			const data = await resolveTaskApi(api).getTasksByGid(gids, opts.optFields ? { optFields: opts.optFields } : undefined)
+			const data = await resolveTaskApi(api).getTasksByGid(
+				gids,
+				opts.optFields ? { optFields: opts.optFields } : undefined,
+			)
 			output(data, () => {
 				if (data.length === 0) {
 					console.log('(none)')
@@ -235,8 +238,8 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 					customField: string[]
 				},
 			) => {
-			const data = await resolveTaskApi(api).createTask(
-				requiredGid(opts, 'workspace', 'Workspace GID'),
+				const data = await resolveTaskApi(api).createTask(
+					requiredGid(opts, 'workspace', 'Workspace GID'),
 					name,
 					buildTaskCreateFields({
 						notes: opts.notes,
@@ -295,9 +298,9 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 				assigneeGid?: string
 			},
 		) => {
-		const data = await resolveTaskApi(api).updateTask(
-			gid,
-			buildTaskUpdateFields({
+			const data = await resolveTaskApi(api).updateTask(
+				gid,
+				buildTaskUpdateFields({
 					name: opts.name,
 					notes: opts.notes,
 					htmlNotes: opts.htmlNotes,
@@ -320,8 +323,8 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 		.command('delete <gid>')
 		.description('Delete a task')
 		.action(async (gid: string) => {
-		await resolveTaskApi(api).deleteTask(gid)
-		console.log(`Deleted task ${gid}`)
+			await resolveTaskApi(api).deleteTask(gid)
+			console.log(`Deleted task ${gid}`)
 		})
 
 	const subtaskCmd = cmd.command('subtask').description('Manage subtasks')
@@ -607,8 +610,8 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 		.command('remove <task-gid> <project-gid>')
 		.description('Remove a task from a project')
 		.action(async (taskGid: string, projectGid: string) => {
-		await resolveTaskApi(api).removeTaskFromProject(taskGid, projectGid)
-		console.log(`Removed task ${taskGid} from project ${projectGid}`)
+			await resolveTaskApi(api).removeTaskFromProject(taskGid, projectGid)
+			console.log(`Removed task ${taskGid} from project ${projectGid}`)
 		})
 
 	const followerCmd = cmd.command('follower').description('Manage followers for a task')
@@ -617,16 +620,16 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 		.command('add <task-gid> <follower-gids...>')
 		.description('Add followers to a task')
 		.action(async (taskGid: string, followerGids: string[]) => {
-		await resolveTaskApi(api).addFollowersToTask(taskGid, followerGids)
-		console.log(`Added ${followerGids.length} follower(s) to task ${taskGid}`)
+			await resolveTaskApi(api).addFollowersToTask(taskGid, followerGids)
+			console.log(`Added ${followerGids.length} follower(s) to task ${taskGid}`)
 		})
 
 	followerCmd
 		.command('remove <task-gid> <follower-gids...>')
 		.description('Remove followers from a task')
 		.action(async (taskGid: string, followerGids: string[]) => {
-		await resolveTaskApi(api).removeFollowersFromTask(taskGid, followerGids)
-		console.log(`Removed ${followerGids.length} follower(s) from task ${taskGid}`)
+			await resolveTaskApi(api).removeFollowersFromTask(taskGid, followerGids)
+			console.log(`Removed ${followerGids.length} follower(s) from task ${taskGid}`)
 		})
 
 	const dependencyCmd = cmd.command('dependency').description('Manage task dependencies (tasks this task depends on)')
@@ -636,9 +639,9 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 		.description('List dependencies of a task')
 		.option('--opt-fields <fields>', 'Comma-separated Asana fields to include')
 		.action(async (taskGid: string, opts: { optFields?: string }) => {
-		const data = await resolveTaskApi(api).getDependencies(taskGid, { optFields: opts.optFields })
-		output(data, () => fmtTaskList(data))
-	})
+			const data = await resolveTaskApi(api).getDependencies(taskGid, { optFields: opts.optFields })
+			output(data, () => fmtTaskList(data))
+		})
 
 	dependencyCmd
 		.command('add <task-gid> <dep-gids...>')
@@ -663,9 +666,9 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 		.description('List dependents of a task')
 		.option('--opt-fields <fields>', 'Comma-separated Asana fields to include')
 		.action(async (taskGid: string, opts: { optFields?: string }) => {
-		const data = await resolveTaskApi(api).getDependents(taskGid, { optFields: opts.optFields })
-		output(data, () => fmtTaskList(data))
-	})
+			const data = await resolveTaskApi(api).getDependents(taskGid, { optFields: opts.optFields })
+			output(data, () => fmtTaskList(data))
+		})
 
 	dependentCmd
 		.command('add <task-gid> <dep-gids...>')

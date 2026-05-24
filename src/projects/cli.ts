@@ -83,7 +83,10 @@ export function projectCommand(api?: ProjectApi | (() => ProjectApi)) {
 			offset?: string
 			optFields?: string
 		}) => {
-			const data = await resolveProjectApi(api).listProjects(requiredGid(opts, 'workspace', 'Workspace GID'), paginationOptionsFromCli(opts))
+			const data = await resolveProjectApi(api).listProjects(
+				requiredGid(opts, 'workspace', 'Workspace GID'),
+				paginationOptionsFromCli(opts),
+			)
 			output(data, () => {
 				fmtProjectList(itemsForOutput(data))
 				printNextPageHint(data)
@@ -95,8 +98,8 @@ export function projectCommand(api?: ProjectApi | (() => ProjectApi)) {
 		.command('get <gid>')
 		.description('Get a project by GID')
 		.action(async (gid: string) => {
-		const data = await resolveProjectApi(api).getProject(gid)
-		output(data, () => fmtProject(data))
+			const data = await resolveProjectApi(api).getProject(gid)
+			output(data, () => fmtProject(data))
 		})
 
 	cmd
@@ -104,7 +107,10 @@ export function projectCommand(api?: ProjectApi | (() => ProjectApi)) {
 		.description('Get task counts for a project')
 		.option('--opt-fields <fields>', 'Comma-separated project count fields to include')
 		.action(async (gid: string, opts: { optFields?: string }) => {
-			const data = await resolveProjectApi(api).getProjectTaskCounts(gid, opts.optFields ? { optFields: opts.optFields } : undefined)
+			const data = await resolveProjectApi(api).getProjectTaskCounts(
+				gid,
+				opts.optFields ? { optFields: opts.optFields } : undefined,
+			)
 			output(data, () => fmtProjectCounts(gid, data, !opts.optFields))
 		})
 
@@ -244,8 +250,8 @@ export function projectCommand(api?: ProjectApi | (() => ProjectApi)) {
 					startOn?: string
 				},
 			) => {
-			const data = await resolveProjectApi(api).createProject(
-				requiredGid(opts, 'workspace', 'Workspace GID'),
+				const data = await resolveProjectApi(api).createProject(
+					requiredGid(opts, 'workspace', 'Workspace GID'),
 					name,
 					buildProjectCreateFields({
 						notes: opts.notes,
@@ -312,8 +318,8 @@ export function projectCommand(api?: ProjectApi | (() => ProjectApi)) {
 		.command('delete <gid>')
 		.description('Delete a project')
 		.action(async (gid: string) => {
-		await resolveProjectApi(api).deleteProject(gid)
-		console.log(`Deleted project ${gid}`)
+			await resolveProjectApi(api).deleteProject(gid)
+			console.log(`Deleted project ${gid}`)
 		})
 
 	cmd

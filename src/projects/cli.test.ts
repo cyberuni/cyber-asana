@@ -215,10 +215,9 @@ describe('projects/cli', () => {
 			}),
 		)
 
-		await program.parseAsync(
-			['node', 'test', 'project', 'create', 'Launch', '--workspace-gid', 'ws1'],
-			{ from: 'node' },
-		)
+		await program.parseAsync(['node', 'test', 'project', 'create', 'Launch', '--workspace-gid', 'ws1'], {
+			from: 'node',
+		})
 
 		expect(injectedCreateProject).toHaveBeenCalledWith('ws1', 'Launch', {})
 	})
