@@ -133,7 +133,7 @@ export type UpdateTaskFields = {
 	notes?: string
 	html_notes?: string
 	completed?: boolean
-	due_on?: string
+	due_on?: string | null
 	assignee?: string
 	parent?: string
 	clear_parent?: boolean

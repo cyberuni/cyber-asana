@@ -82,6 +82,21 @@ describe('tasks/mcp', () => {
 		})
 	})
 
+	it('asana_task_update maps clear due flag to due_on null', async () => {
+		updateTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
+		const server = createServer()
+		registerTaskTools(server as any)
+
+		await server.handlers.get('asana_task_update')?.({
+			task_gid: '123',
+			clear_due_on: true,
+		})
+
+		expect(updateTaskMock).toHaveBeenCalledWith('123', {
+			due_on: null,
+		})
+	})
+
 	it('asana_task_follower_remove calls follower removal helper', async () => {
 		removeFollowersFromTaskMock.mockResolvedValue({ gid: '1' })
 		const server = createServer()

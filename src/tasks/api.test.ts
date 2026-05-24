@@ -156,6 +156,16 @@ describe('tasks/api', () => {
 		expect(Asana.TasksApi.prototype.setParentForTask).toHaveBeenCalledWith({ data: { parent: null } }, '456', {})
 	})
 
+	it('updateTask can clear due_on without other field updates', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'updateTask').mockResolvedValue({
+			data: { ...mockTask, due_on: null },
+		} as never)
+
+		await updateTask('456', { due_on: null })
+
+		expect(Asana.TasksApi.prototype.updateTask).toHaveBeenCalledWith({ data: { due_on: null } }, '456', {})
+	})
+
 	it('listSubtasks calls getSubtasksForTask', async () => {
 		vi.spyOn(Asana.TasksApi.prototype, 'getSubtasksForTask').mockResolvedValue({
 			data: [mockTask],

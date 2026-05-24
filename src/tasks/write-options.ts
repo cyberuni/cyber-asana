@@ -23,6 +23,7 @@ type BuildTaskUpdateInput = BuildTaskWriteInput & {
 	name?: string
 	completed?: boolean
 	clearParent?: boolean
+	clearDueOn?: boolean
 }
 
 export function parseGidList(value?: string) {
@@ -90,6 +91,9 @@ export function buildTaskUpdateFields(input: BuildTaskUpdateInput): UpdateTaskFi
 	if (input.parent !== undefined && input.clearParent) {
 		throw new Error('--parent and --clear-parent are mutually exclusive')
 	}
+	if (input.dueOn !== undefined && input.clearDueOn) {
+		throw new Error('--due-on and --clear-due-on are mutually exclusive')
+	}
 	const customFields = { ...input.customFields, ...mergeCustomFields(input.customFieldsJson, input.customFieldEntries) }
 	return {
 		...(input.name !== undefined && { name: input.name }),
@@ -98,6 +102,7 @@ export function buildTaskUpdateFields(input: BuildTaskUpdateInput): UpdateTaskFi
 		...(input.completed !== undefined && { completed: input.completed }),
 		...(input.assignee !== undefined && { assignee: input.assignee }),
 		...(input.dueOn !== undefined && { due_on: input.dueOn }),
+		...(input.clearDueOn !== undefined && { due_on: input.clearDueOn ? null : input.dueOn }),
 		...(input.parent !== undefined && { parent: input.parent }),
 		...(input.clearParent !== undefined && { clear_parent: input.clearParent }),
 		...(input.resourceSubtype !== undefined && { resource_subtype: input.resourceSubtype }),

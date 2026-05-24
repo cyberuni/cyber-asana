@@ -96,6 +96,17 @@ describe('tasks/cli', () => {
 		})
 	})
 
+	it('task update maps clear due flag to due_on null', async () => {
+		updateTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
+		const program = new Command().addCommand(taskCommand())
+
+		await program.parseAsync(['node', 'test', 'task', 'update', '123', '--clear-due-on'], { from: 'node' })
+
+		expect(updateTaskMock).toHaveBeenCalledWith('123', {
+			due_on: null,
+		})
+	})
+
 	it('task follower add calls follower API helper', async () => {
 		addFollowersToTaskMock.mockResolvedValue({ gid: '1' })
 		const program = new Command().addCommand(taskCommand())

@@ -208,6 +208,7 @@ export function taskCommand() {
 				.option('--html-notes <html>', 'New notes as HTML')
 				.option('--completed', 'Mark as completed')
 				.option('--due-on <date>', 'Due date (YYYY-MM-DD)')
+				.option('--clear-due-on', 'Clear the due date')
 				.option('--clear-parent', 'Remove the parent task relationship')
 				.option('--resource-subtype <subtype>', 'Task resource subtype (e.g. default_task, milestone)')
 				.option('--custom-fields-json <json>', 'Custom field values as a JSON object')
@@ -226,6 +227,7 @@ export function taskCommand() {
 				htmlNotes?: string
 				completed?: boolean
 				dueOn?: string
+				clearDueOn?: boolean
 				parent?: string
 				parentGid?: string
 				clearParent?: boolean
@@ -244,6 +246,7 @@ export function taskCommand() {
 					htmlNotes: opts.htmlNotes,
 					completed: opts.completed,
 					dueOn: opts.dueOn,
+					clearDueOn: opts.clearDueOn,
 					assignee: normalizedGid(opts, 'assignee'),
 					parent: normalizedGid(opts, 'parent'),
 					clearParent: opts.clearParent,

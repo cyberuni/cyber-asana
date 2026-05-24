@@ -35,6 +35,12 @@ describe('tasks/write-options', () => {
 		)
 	})
 
+	it('buildTaskUpdateFields rejects due_on and clear_due_on together', () => {
+		expect(() => buildTaskUpdateFields({ dueOn: '2026-06-01', clearDueOn: true })).toThrow(
+			'--due-on and --clear-due-on are mutually exclusive',
+		)
+	})
+
 	it('buildTaskUpdateFields keeps html_notes and custom field values', () => {
 		expect(
 			buildTaskUpdateFields({
@@ -43,12 +49,14 @@ describe('tasks/write-options', () => {
 				customFieldsJson: '{"cf1":{"nested":true}}',
 				customFieldEntries: ['cf2=value'],
 				parent: 'parent1',
+				clearDueOn: true,
 			}),
 		).toEqual({
 			html_notes: '<body>Updated</body>',
 			resource_subtype: 'milestone',
 			custom_fields: { cf1: { nested: true }, cf2: 'value' },
 			parent: 'parent1',
+			due_on: null,
 		})
 	})
 })
