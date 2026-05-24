@@ -1,0 +1,11 @@
+{
+	"version": 1,
+	"hooks": {
+		"sessionStart": [
+			{
+				"type": "prompt",
+				"prompt": "COMMIT DISCIPLINE REMINDER: Before starting new work, run `git status` to check for uncommitted changes from a completed unit. Stage with `git add <files>` (never `git add .` or `git add -A`), verify with `git diff --cached`, then commit. A unit of work = one domain refactor, one feature, one fix, or one test expansion — never multiple unrelated concerns combined. A TDD cycle alone is not a commit boundary; commit when the full intended change is complete and tests pass."
+			}
+		]
+	}
+}
