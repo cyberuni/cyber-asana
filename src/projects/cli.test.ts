@@ -198,4 +198,28 @@ describe('projects/cli', () => {
 			start_on: null,
 		})
 	})
+
+	it('project command can use injected dependencies', async () => {
+		const injectedCreateProject = vi.fn().mockResolvedValue({ gid: '1', name: 'Launch' })
+		const projectCommand = await loadProjectCommand()
+		const program = new Command().addCommand(
+			projectCommand({
+				listProjects: vi.fn(),
+				getProject: vi.fn(),
+				getProjectTaskCounts: vi.fn(),
+				createProject: injectedCreateProject,
+				updateProject: vi.fn(),
+				deleteProject: vi.fn(),
+				searchProjects: vi.fn(),
+				exportProject: vi.fn(),
+			}),
+		)
+
+		await program.parseAsync(
+			['node', 'test', 'project', 'create', 'Launch', '--workspace-gid', 'ws1'],
+			{ from: 'node' },
+		)
+
+		expect(injectedCreateProject).toHaveBeenCalledWith('ws1', 'Launch', {})
+	})
 })

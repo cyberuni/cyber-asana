@@ -16,11 +16,28 @@ import {
 	getProject,
 	getProjectTaskCounts,
 	listProjects,
+	type ProjectApi,
 	renderProjectMarkdown,
 	searchProjects,
 	updateProject,
 } from './api.js'
 import { buildProjectCreateFields, buildProjectUpdateFields } from './write-options.js'
+
+function resolveProjectApi(api?: ProjectApi | (() => ProjectApi)): ProjectApi {
+	if (typeof api === 'function') return api()
+	return (
+		api ?? {
+			listProjects,
+			getProject,
+			getProjectTaskCounts,
+			createProject,
+			updateProject,
+			deleteProject,
+			searchProjects,
+			exportProject,
+		}
+	)
+}
 
 type Project = { gid: string; name: string; permalink_url?: string; color?: string; notes?: string }
 
@@ -51,7 +68,7 @@ function fmtProjectCounts(projectGid: string, counts: Record<string, unknown>, u
 	)
 }
 
-export function projectCommand() {
+export function projectCommand(api?: ProjectApi | (() => ProjectApi)) {
 	const cmd = new Command('project').description('Manage Asana projects')
 
 	addPaginationOptions(
@@ -66,7 +83,7 @@ export function projectCommand() {
 			offset?: string
 			optFields?: string
 		}) => {
-			const data = await listProjects(requiredGid(opts, 'workspace', 'Workspace GID'), paginationOptionsFromCli(opts))
+			const data = await resolveProjectApi(api).listProjects(requiredGid(opts, 'workspace', 'Workspace GID'), paginationOptionsFromCli(opts))
 			output(data, () => {
 				fmtProjectList(itemsForOutput(data))
 				printNextPageHint(data)
@@ -78,8 +95,8 @@ export function projectCommand() {
 		.command('get <gid>')
 		.description('Get a project by GID')
 		.action(async (gid: string) => {
-			const data = await getProject(gid)
-			output(data, () => fmtProject(data))
+		const data = await resolveProjectApi(api).getProject(gid)
+		output(data, () => fmtProject(data))
 		})
 
 	cmd
@@ -87,7 +104,7 @@ export function projectCommand() {
 		.description('Get task counts for a project')
 		.option('--opt-fields <fields>', 'Comma-separated project count fields to include')
 		.action(async (gid: string, opts: { optFields?: string }) => {
-			const data = await getProjectTaskCounts(gid, opts.optFields ? { optFields: opts.optFields } : undefined)
+			const data = await resolveProjectApi(api).getProjectTaskCounts(gid, opts.optFields ? { optFields: opts.optFields } : undefined)
 			output(data, () => fmtProjectCounts(gid, data, !opts.optFields))
 		})
 
@@ -162,7 +179,7 @@ export function projectCommand() {
 					optFields?: string
 				},
 			) => {
-				const data = await searchProjects(requiredGid(opts, 'workspace', 'Workspace GID'), {
+				const data = await resolveProjectApi(api).searchProjects(requiredGid(opts, 'workspace', 'Workspace GID'), {
 					text,
 					completed: opts.completed,
 					teamsAny: opts.team,
@@ -227,8 +244,8 @@ export function projectCommand() {
 					startOn?: string
 				},
 			) => {
-				const data = await createProject(
-					requiredGid(opts, 'workspace', 'Workspace GID'),
+			const data = await resolveProjectApi(api).createProject(
+				requiredGid(opts, 'workspace', 'Workspace GID'),
 					name,
 					buildProjectCreateFields({
 						notes: opts.notes,
@@ -273,7 +290,7 @@ export function projectCommand() {
 					clearStartOn?: boolean
 				},
 			) => {
-				const data = await updateProject(gid, {
+				const data = await resolveProjectApi(api).updateProject(gid, {
 					name: opts.name,
 					...buildProjectUpdateFields({
 						notes: opts.notes,
@@ -295,8 +312,8 @@ export function projectCommand() {
 		.command('delete <gid>')
 		.description('Delete a project')
 		.action(async (gid: string) => {
-			await deleteProject(gid)
-			console.log(`Deleted project ${gid}`)
+		await resolveProjectApi(api).deleteProject(gid)
+		console.log(`Deleted project ${gid}`)
 		})
 
 	cmd
@@ -304,7 +321,7 @@ export function projectCommand() {
 		.description('Export a project with all sections and tasks')
 		.option('--output <file>', 'Write output to a file instead of stdout')
 		.action(async (gid: string, opts: { output?: string }) => {
-			const data = await exportProject(gid)
+			const data = await resolveProjectApi(api).exportProject(gid)
 			if (process.argv.includes('--json')) {
 				const json = JSON.stringify(data, null, 2)
 				if (opts.output) await writeFile(opts.output, json, 'utf-8')

@@ -8,19 +8,36 @@ import {
 	getProject,
 	getProjectTaskCounts,
 	listProjects,
+	type ProjectApi,
 	renderProjectMarkdown,
 	searchProjects,
 	updateProject,
 } from './api.js'
 import { buildProjectCreateFields, buildProjectUpdateFields } from './write-options.js'
 
-export function registerProjectTools(server: McpServer) {
+function resolveProjectApi(api?: ProjectApi | (() => ProjectApi)): ProjectApi {
+	if (typeof api === 'function') return api()
+	return (
+		api ?? {
+			listProjects,
+			getProject,
+			getProjectTaskCounts,
+			createProject,
+			updateProject,
+			deleteProject,
+			searchProjects,
+			exportProject,
+		}
+	)
+}
+
+export function registerProjectTools(server: McpServer, api?: ProjectApi | (() => ProjectApi)) {
 	server.tool(
 		'asana_project_list',
 		'List Asana projects in a workspace',
 		{ workspace_gid: z.string().describe('Workspace GID'), ...paginationParams },
 		async ({ workspace_gid, ...params }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await listProjects(workspace_gid, paginationOptions(params))) }],
+			content: [{ type: 'text', text: JSON.stringify(await resolveProjectApi(api).listProjects(workspace_gid, paginationOptions(params))) }],
 		}),
 	)
 
@@ -29,7 +46,7 @@ export function registerProjectTools(server: McpServer) {
 		'Get an Asana project by GID',
 		{ project_gid: z.string().describe('Project GID') },
 		async ({ project_gid }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await getProject(project_gid)) }],
+			content: [{ type: 'text', text: JSON.stringify(await resolveProjectApi(api).getProject(project_gid)) }],
 		}),
 	)
 
@@ -44,7 +61,7 @@ export function registerProjectTools(server: McpServer) {
 			content: [
 				{
 					type: 'text',
-					text: JSON.stringify(await getProjectTaskCounts(project_gid, { optFields: opt_fields })),
+					text: JSON.stringify(await resolveProjectApi(api).getProjectTaskCounts(project_gid, { optFields: opt_fields })),
 				},
 			],
 		}),
@@ -119,7 +136,7 @@ export function registerProjectTools(server: McpServer) {
 				{
 					type: 'text',
 					text: JSON.stringify(
-						await searchProjects(workspace_gid, {
+						await resolveProjectApi(api).searchProjects(workspace_gid, {
 							text,
 							completed,
 							teamsAny: teams_any,
@@ -177,8 +194,8 @@ export function registerProjectTools(server: McpServer) {
 				{
 					type: 'text',
 					text: JSON.stringify(
-						await createProject(
-							workspace_gid,
+					await resolveProjectApi(api).createProject(
+						workspace_gid,
 							name,
 							buildProjectCreateFields({
 								notes,
@@ -232,7 +249,7 @@ export function registerProjectTools(server: McpServer) {
 				{
 					type: 'text',
 					text: JSON.stringify(
-						await updateProject(project_gid, {
+						await resolveProjectApi(api).updateProject(project_gid, {
 							...(name !== undefined && { name }),
 							...buildProjectUpdateFields({
 								notes,
@@ -257,8 +274,8 @@ export function registerProjectTools(server: McpServer) {
 		'Delete an Asana project',
 		{ project_gid: z.string().describe('Project GID') },
 		async ({ project_gid }) => {
-			await deleteProject(project_gid)
-			return { content: [{ type: 'text', text: `Deleted project ${project_gid}` }] }
+		await resolveProjectApi(api).deleteProject(project_gid)
+		return { content: [{ type: 'text', text: `Deleted project ${project_gid}` }] }
 		},
 	)
 
@@ -270,7 +287,7 @@ export function registerProjectTools(server: McpServer) {
 			format: z.enum(['json', 'markdown']).optional().describe('Output format (default: markdown)'),
 		},
 		async ({ project_gid, format }) => {
-			const data = await exportProject(project_gid)
+			const data = await resolveProjectApi(api).exportProject(project_gid)
 			const text = format === 'json' ? JSON.stringify(data) : renderProjectMarkdown(data)
 			return { content: [{ type: 'text', text }] }
 		},

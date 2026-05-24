@@ -128,4 +128,26 @@ describe('projects/mcp', () => {
 			start_on: null,
 		})
 	})
+
+	it('project tools can use injected dependencies', async () => {
+		const injectedCreateProject = vi.fn().mockResolvedValue({ gid: '1', name: 'Launch' })
+		const server = createServer()
+		registerProjectTools(server as any, {
+			listProjects: vi.fn(),
+			getProject: vi.fn(),
+			getProjectTaskCounts: vi.fn(),
+			createProject: injectedCreateProject,
+			updateProject: vi.fn(),
+			deleteProject: vi.fn(),
+			searchProjects: vi.fn(),
+			exportProject: vi.fn(),
+		})
+
+		await server.handlers.get('asana_project_create')?.({
+			workspace_gid: 'ws1',
+			name: 'Launch',
+		})
+
+		expect(injectedCreateProject).toHaveBeenCalledWith('ws1', 'Launch', {})
+	})
 })
