@@ -8,11 +8,22 @@ import {
 	requiredGid,
 } from '../cli-options.js'
 import { output, printFields, printTable } from '../output.js'
+import type { TeamApi } from './api.js'
 import { getTeam, listTeams } from './api.js'
 
 type Team = { gid: string; name: string }
 
-export function teamCommand() {
+function resolveTeamApi(api?: TeamApi | (() => TeamApi)): TeamApi {
+	if (typeof api === 'function') return api()
+	return (
+		api ?? {
+			listTeams,
+			getTeam,
+		}
+	)
+}
+
+export function teamCommand(api?: TeamApi | (() => TeamApi)) {
 	const cmd = new Command('team').description('Manage Asana teams')
 
 	addPaginationOptions(
@@ -27,7 +38,10 @@ export function teamCommand() {
 			offset?: string
 			optFields?: string
 		}) => {
-			const data = await listTeams(requiredGid(opts, 'workspace', 'Workspace GID'), paginationOptionsFromCli(opts))
+			const data = await resolveTeamApi(api).listTeams(
+				requiredGid(opts, 'workspace', 'Workspace GID'),
+				paginationOptionsFromCli(opts),
+			)
 			output(data, () => {
 				printTable(itemsForOutput(data), [
 					{ label: 'Name', get: (t: Team) => t.name },
@@ -42,7 +56,7 @@ export function teamCommand() {
 		.command('get <gid>')
 		.description('Get a team by GID')
 		.action(async (gid: string) => {
-			const data = await getTeam(gid)
+			const data = await resolveTeamApi(api).getTeam(gid)
 			output(data, () => printFields({ Name: (data as Team).name, ID: (data as Team).gid }))
 		})
 
