@@ -33,7 +33,7 @@ When reading any `SKILL.md` file, always check whether a `SKILL.local.md` exists
 
 `cyber-asana` — an npm package that wraps the Asana API as:
 - A CLI (`cyber-asana <resource> <action>`) powered by Commander
-- A local MCP server (`node dist/mcp.js`) powered by `@modelcontextprotocol/sdk`
+- A local MCP server powered by `@modelcontextprotocol/sdk` — see [CONTRIBUTING.md](CONTRIBUTING.md) for in-repo setup
 
 ## Commands
 
