@@ -2,6 +2,7 @@
 import { Command } from 'commander'
 import { setTokenOverride } from './client.js'
 import { createRuntimeContext, type RuntimeContext, registerCliCommands } from './composition.js'
+import { VERSION } from './version.js'
 
 const program = new Command()
 let runtimeContext: RuntimeContext | undefined
@@ -14,7 +15,7 @@ function getRuntimeContext() {
 program
 	.name('cyber-asana')
 	.description('Asana CLI for AI agents')
-	.version('0.0.0')
+	.version(VERSION)
 	.option('--token <token>', 'Asana PAT — overrides ASANA_TOKEN env var')
 	.option('--json', 'Output raw JSON instead of formatted text')
 	.addHelpText('after', '\nAuthentication: set ASANA_TOKEN env var or pass --token <pat>.')
