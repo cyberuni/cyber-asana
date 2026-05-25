@@ -8,17 +8,31 @@ import {
 	requiredGid,
 } from '../cli-options.js'
 import { output, printFields, printTable } from '../output.js'
+import type { AttachmentApi } from './api.js'
 import { getAttachment, listAttachments } from './api.js'
 
 type Attachment = { gid: string; name: string; resource_type?: string; download_url?: string | null }
 
-export function attachmentCommand() {
+function resolveAttachmentApi(api?: AttachmentApi | (() => AttachmentApi)): AttachmentApi {
+	if (typeof api === 'function') return api()
+	return (
+		api ?? {
+			listAttachments,
+			getAttachment,
+		}
+	)
+}
+
+export function attachmentCommand(api?: AttachmentApi | (() => AttachmentApi)) {
 	const cmd = new Command('attachment').description('Manage Asana attachments')
 
 	addPaginationOptions(
 		addGidOption(cmd.command('list').description('List attachments for a task'), 'task', 'Task GID'),
 	).action(async (opts: { task?: string; taskGid?: string; limit?: number; offset?: string; optFields?: string }) => {
-		const data = await listAttachments(requiredGid(opts, 'task', 'Task GID'), paginationOptionsFromCli(opts))
+		const data = await resolveAttachmentApi(api).listAttachments(
+			requiredGid(opts, 'task', 'Task GID'),
+			paginationOptionsFromCli(opts),
+		)
 		output(data, () => {
 			printTable(itemsForOutput(data), [
 				{ label: 'Name', get: (a: Attachment) => a.name },
@@ -32,7 +46,7 @@ export function attachmentCommand() {
 		.command('get <gid>')
 		.description('Get an attachment by GID')
 		.action(async (gid: string) => {
-			const data = await getAttachment(gid)
+			const data = await resolveAttachmentApi(api).getAttachment(gid)
 			output(data, () =>
 				printFields({
 					Name: (data as Attachment).name,
