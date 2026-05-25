@@ -102,7 +102,7 @@ Optional env vars for specific suites:
 
 | Variable | Used by |
 | --- | --- |
-| `ASANA_WORKSPACE` | projects and workspace list pagination system tests |
+| `ASANA_WORKSPACE` | projects, tags, and workspace list pagination system tests |
 | `ASANA_SYSTEM_TEST_TASK_GID` | tasks batch lookup |
 | `ASANA_SYSTEM_TEST_SECOND_TASK_GID` | tasks batch lookup (multi-GID order) |
 
