@@ -8,6 +8,7 @@ import {
 	requiredGid,
 } from '../cli-options.js'
 import { output, printFields, printTable } from '../output.js'
+import type { UserApi } from './api.js'
 import { getMe, getUser, listUsers } from './api.js'
 
 type User = { gid: string; name: string; email?: string }
@@ -24,7 +25,18 @@ function fmtUserList(users: User[]) {
 	])
 }
 
-export function userCommand() {
+function resolveUserApi(api?: UserApi | (() => UserApi)): UserApi {
+	if (typeof api === 'function') return api()
+	return (
+		api ?? {
+			listUsers,
+			getUser,
+			getMe,
+		}
+	)
+}
+
+export function userCommand(api?: UserApi | (() => UserApi)) {
 	const cmd = new Command('user').description('Manage Asana users')
 
 	addPaginationOptions(
@@ -35,7 +47,10 @@ export function userCommand() {
 			limit: false,
 		},
 	).action(async (opts: { workspace?: string; workspaceGid?: string; offset?: string; optFields?: string }) => {
-		const data = await listUsers(requiredGid(opts, 'workspace', 'Workspace GID'), paginationOptionsFromCli(opts))
+		const data = await resolveUserApi(api).listUsers(
+			requiredGid(opts, 'workspace', 'Workspace GID'),
+			paginationOptionsFromCli(opts),
+		)
 		output(data, () => {
 			fmtUserList(itemsForOutput(data))
 			printNextPageHint(data)
@@ -46,7 +61,7 @@ export function userCommand() {
 		.command('get <gid>')
 		.description('Get a user by GID')
 		.action(async (gid: string) => {
-			const data = await getUser(gid)
+			const data = await resolveUserApi(api).getUser(gid)
 			output(data, () => fmtUser(data))
 		})
 
@@ -54,7 +69,7 @@ export function userCommand() {
 		.command('me')
 		.description('Get the authenticated user')
 		.action(async () => {
-			const data = await getMe()
+			const data = await resolveUserApi(api).getMe()
 			output(data, () => fmtUser(data))
 		})
 
