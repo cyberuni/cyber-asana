@@ -1,5 +1,12 @@
 # cyber-asana
 
+## 0.3.0
+
+### Minor Changes
+
+- f9e1dcc: Add `url parse` CLI command and `asana_url_parse` MCP tool to extract workspace and project GIDs from Asana URLs without API calls.
+- 5607d24: Add repo project registry (`.agents/cyber-asana.json`) with `config` CLI commands for add, resolve, sync, and show. Generalize create-asana-task skill for task creation with or without URLs.
+
 ## 0.2.0
 
 ### Minor Changes
