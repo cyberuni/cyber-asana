@@ -1,18 +1,7 @@
 #!/usr/bin/env node
 import { Command } from 'commander'
-import { attachmentCommand } from './attachments/cli.js'
 import { setTokenOverride } from './client.js'
-import { createRuntimeContext, type RuntimeContext } from './composition.js'
-import { goalCommand } from './goals/cli.js'
-import { portfolioCommand } from './portfolios/cli.js'
-import { projectCommand } from './projects/cli.js'
-import { sectionCommand } from './sections/cli.js'
-import { storyCommand } from './stories/cli.js'
-import { tagCommand } from './tags/cli.js'
-import { taskCommand } from './tasks/cli.js'
-import { teamCommand } from './teams/cli.js'
-import { userCommand } from './users/cli.js'
-import { workspaceCommand } from './workspaces/cli.js'
+import { createRuntimeContext, type RuntimeContext, registerCliCommands } from './composition.js'
 
 const program = new Command()
 let runtimeContext: RuntimeContext | undefined
@@ -34,18 +23,7 @@ program
 		if (token) setTokenOverride(token)
 	})
 
-program.addCommand(workspaceCommand())
-program.addCommand(projectCommand())
-program.addCommand(taskCommand())
-program.addCommand(sectionCommand())
-program.addCommand(userCommand())
-program.addCommand(teamCommand())
-program.addCommand(portfolioCommand())
-program.addCommand(goalCommand())
-program.addCommand(tagCommand(() => getRuntimeContext().tags))
-program.addCommand(attachmentCommand())
-program.addCommand(storyCommand('story', () => getRuntimeContext().stories))
-program.addCommand(storyCommand('comment', () => getRuntimeContext().stories))
+registerCliCommands(program, getRuntimeContext)
 
 program.parseAsync(process.argv).catch((err: unknown) => {
 	if (err && typeof err === 'object' && 'response' in err) {

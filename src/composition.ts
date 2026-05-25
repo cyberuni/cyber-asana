@@ -1,26 +1,50 @@
+import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
+import type { Command } from 'commander'
 import { type AttachmentApi, createAttachmentApi } from './attachments/api.js'
+import { attachmentCommand } from './attachments/cli.js'
 import { createAsanaAttachmentGateway } from './attachments/gateway.js'
+import { registerAttachmentTools } from './attachments/mcp.js'
 import { createClient } from './client.js'
 import { createGoalApi, type GoalApi } from './goals/api.js'
+import { goalCommand } from './goals/cli.js'
 import { createAsanaGoalGateway } from './goals/gateway.js'
+import { registerGoalTools } from './goals/mcp.js'
 import { createPortfolioApi, type PortfolioApi } from './portfolios/api.js'
+import { portfolioCommand } from './portfolios/cli.js'
 import { createAsanaPortfolioGateway } from './portfolios/gateway.js'
+import { registerPortfolioTools } from './portfolios/mcp.js'
 import { createProjectApi, type ProjectApi } from './projects/api.js'
+import { projectCommand } from './projects/cli.js'
 import { createAsanaProjectGateway } from './projects/gateway.js'
+import { registerProjectTools } from './projects/mcp.js'
 import { createSectionApi, type SectionApi } from './sections/api.js'
+import { sectionCommand } from './sections/cli.js'
 import { createAsanaSectionGateway } from './sections/gateway.js'
+import { registerSectionTools } from './sections/mcp.js'
 import { createStoryApi, type StoryApi } from './stories/api.js'
+import { storyCommand } from './stories/cli.js'
 import { createAsanaStoryGateway } from './stories/gateway.js'
+import { registerStoryTools } from './stories/mcp.js'
 import { createTagApi, type TagApi } from './tags/api.js'
+import { tagCommand } from './tags/cli.js'
 import { createAsanaTagGateway } from './tags/gateway.js'
+import { registerTagTools } from './tags/mcp.js'
 import { createTaskApi, type TaskApi } from './tasks/api.js'
+import { taskCommand } from './tasks/cli.js'
 import { createAsanaTaskGateway } from './tasks/gateway.js'
+import { registerTaskTools } from './tasks/mcp.js'
 import { createTeamApi, type TeamApi } from './teams/api.js'
+import { teamCommand } from './teams/cli.js'
 import { createAsanaTeamGateway } from './teams/gateway.js'
+import { registerTeamTools } from './teams/mcp.js'
 import { createUserApi, type UserApi } from './users/api.js'
+import { userCommand } from './users/cli.js'
 import { createAsanaUserGateway } from './users/gateway.js'
+import { registerUserTools } from './users/mcp.js'
 import { createWorkspaceApi, type WorkspaceApi } from './workspaces/api.js'
+import { workspaceCommand } from './workspaces/cli.js'
 import { createAsanaWorkspaceGateway } from './workspaces/gateway.js'
+import { registerWorkspaceTools } from './workspaces/mcp.js'
 
 export type RuntimeContext = {
 	attachments: AttachmentApi
@@ -51,4 +75,33 @@ export function createRuntimeContext(): RuntimeContext {
 		users: createUserApi(createAsanaUserGateway(client)),
 		workspaces: createWorkspaceApi(createAsanaWorkspaceGateway(client)),
 	}
+}
+
+export function registerCliCommands(program: Command, getContext: () => RuntimeContext) {
+	program.addCommand(workspaceCommand(() => getContext().workspaces))
+	program.addCommand(projectCommand(() => getContext().projects))
+	program.addCommand(taskCommand(() => getContext().tasks))
+	program.addCommand(sectionCommand(() => getContext().sections))
+	program.addCommand(userCommand(() => getContext().users))
+	program.addCommand(teamCommand(() => getContext().teams))
+	program.addCommand(portfolioCommand(() => getContext().portfolios))
+	program.addCommand(goalCommand(() => getContext().goals))
+	program.addCommand(tagCommand(() => getContext().tags))
+	program.addCommand(attachmentCommand(() => getContext().attachments))
+	program.addCommand(storyCommand('story', () => getContext().stories))
+	program.addCommand(storyCommand('comment', () => getContext().stories))
+}
+
+export function registerMcpTools(server: McpServer, getContext: () => RuntimeContext) {
+	registerWorkspaceTools(server, () => getContext().workspaces)
+	registerProjectTools(server, () => getContext().projects)
+	registerTaskTools(server, () => getContext().tasks)
+	registerSectionTools(server, () => getContext().sections)
+	registerUserTools(server, () => getContext().users)
+	registerTeamTools(server, () => getContext().teams)
+	registerPortfolioTools(server, () => getContext().portfolios)
+	registerGoalTools(server, () => getContext().goals)
+	registerTagTools(server, () => getContext().tags)
+	registerAttachmentTools(server, () => getContext().attachments)
+	registerStoryTools(server, () => getContext().stories)
 }
