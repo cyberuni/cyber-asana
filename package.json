@@ -1,6 +1,6 @@
 {
 	"name": "cyber-asana",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "Asana CLI and MCP server for AI agents",
 	"repository": {
 		"type": "git",
