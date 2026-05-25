@@ -102,11 +102,12 @@ Optional env vars for specific suites:
 
 | Variable | Used by |
 | --- | --- |
-| `ASANA_WORKSPACE` | projects, tags, and workspace list pagination system tests |
-| `ASANA_SYSTEM_TEST_TASK_GID` | tasks batch lookup |
+| `ASANA_WORKSPACE` | workspace-scoped list pagination system tests |
+| `ASANA_SYSTEM_TEST_PROJECT_GID` | sections and tasks list pagination system tests |
+| `ASANA_SYSTEM_TEST_TASK_GID` | tasks batch lookup; attachments and stories list pagination |
 | `ASANA_SYSTEM_TEST_SECOND_TASK_GID` | tasks batch lookup (multi-GID order) |
 
-Shared acceptance helpers: `src/testing/list-pagination.acceptance.ts`, `src/testing/system.ts`.
+Shared acceptance helpers: `src/testing/list-pagination.acceptance.ts`, `src/testing/paginating-gateway.ts`, `src/testing/system.ts`.
 
 ## Key Conventions
 
@@ -170,7 +171,9 @@ ASANA_WORKSPACE=<workspace GID>   # optional; avoids --workspace on every comman
 System tests (see **Testing** above):
 
 ```
-ASANA_SYSTEM_TEST=1               # enable *.system.ts suites
-ASANA_SYSTEM_TEST_TASK_GID=...    # optional; tasks batch lookup
-ASANA_SYSTEM_TEST_SECOND_TASK_GID=...  # optional; tasks batch lookup
+ASANA_SYSTEM_TEST=1                    # enable *.system.ts suites
+ASANA_WORKSPACE=...                    # workspace-scoped list pagination
+ASANA_SYSTEM_TEST_PROJECT_GID=...      # sections/tasks list pagination
+ASANA_SYSTEM_TEST_TASK_GID=...         # batch lookup, attachments/stories lists
+ASANA_SYSTEM_TEST_SECOND_TASK_GID=...  # tasks batch lookup (multi-GID)
 ```
