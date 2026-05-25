@@ -345,27 +345,39 @@ Add to your MCP host config:
 
 Tools are named `asana_<resource>_<action>` (e.g. `asana_task_create`).
 
-List tools accept `limit`, `offset`, `opt_fields`, `fetch_all`, and `max_pages` parameters where Asana supports them.
-Paginated MCP responses include `data`, `next_page`, and `limit`.
-Fetch-all responses also include `page_count` and `truncated`.
+### MCP tools
 
-`asana_task_list`, `asana_task_my_tasks`, and `asana_task_subtask_list` accept `incomplete: true` to filter to incomplete tasks only.
+| Resource | Tools |
+| --- | --- |
+| `workspace` | `asana_workspace_list`, `asana_workspace_get` |
+| `project` | `asana_project_list`, `asana_project_get`, `asana_project_counts`, `asana_project_search`, `asana_project_create`, `asana_project_update`, `asana_project_delete`, `asana_project_export` |
+| `task` | `asana_task_list`, `asana_task_my_tasks`, `asana_task_subtask_list`, `asana_task_subtask_create`, `asana_task_get`, `asana_task_get_many`, `asana_task_create`, `asana_task_update`, `asana_task_delete`, `asana_task_search`, `asana_task_follower_add`, `asana_task_follower_remove`, `asana_task_project_add`, `asana_task_project_remove`, `asana_task_dependency_list`, `asana_task_dependency_add`, `asana_task_dependency_remove`, `asana_task_dependent_list`, `asana_task_dependent_add`, `asana_task_dependent_remove`, `asana_task_scan_todos` |
+| `section` | `asana_section_list`, `asana_section_get`, `asana_section_create`, `asana_section_update`, `asana_section_delete` |
+| `user` | `asana_user_list`, `asana_user_get`, `asana_user_me` |
+| `team` | `asana_team_list`, `asana_team_get` |
+| `portfolio` | `asana_portfolio_list`, `asana_portfolio_get`, `asana_portfolio_create`, `asana_portfolio_update`, `asana_portfolio_delete` |
+| `goal` | `asana_goal_list`, `asana_goal_get`, `asana_goal_create`, `asana_goal_update`, `asana_goal_delete` |
+| `tag` | `asana_tag_list`, `asana_tag_get`, `asana_tag_create`, `asana_tag_update`, `asana_tag_delete`, `asana_tag_list_for_task`, `asana_tag_list_tasks`, `asana_tag_add_to_task`, `asana_tag_remove_from_task` |
+| `attachment` | `asana_attachment_list`, `asana_attachment_get` |
+| `story` | `asana_story_list`, `asana_story_create` |
+| `comment` | `asana_comment_list`, `asana_comment_create` (aliases for `story`) |
 
-`asana_task_subtask_list` also accepts `assignee_email`, `follower_emails`, `num_subtasks`, and `custom_fields` boolean params to expand the returned fields.
+List tools accept `limit`, `offset`, `opt_fields`, `fetch_all`, and `max_pages` where Asana supports them.
+Paginated responses include `data`, `next_page`, and `limit`; fetch-all responses also include `page_count` and `truncated`.
+`asana_user_list` omits `limit`; search tools are not paginated.
 
-`asana_task_create` accepts `project_gid` or `project_gids`, plus `follower_gids`, `html_notes`, `parent_gid`, `resource_subtype`, and `custom_fields`.
+Notable parameters:
 
-`asana_task_update` accepts `html_notes`, `parent_gid`, `clear_parent`, `resource_subtype`, and `custom_fields`.
+- `asana_task_list`, `asana_task_my_tasks`, `asana_task_subtask_list` — `incomplete: true` filters to incomplete tasks
+- `asana_task_subtask_list` — `assignee_email`, `follower_emails`, `num_subtasks`, `custom_fields` expand returned fields
+- `asana_task_create` — `project_gid`, `project_gids`, `follower_gids`, `html_notes`, `parent_gid`, `resource_subtype`, `custom_fields`
+- `asana_task_update` — `html_notes`, `parent_gid`, `clear_parent`, `resource_subtype`, `custom_fields`
+- `asana_task_follower_add` / `asana_task_follower_remove` — manage followers on existing tasks
+- `asana_project_search` — `text`, `completed`, team/owner/member/portfolio filters, date filters, `sort_by`, `sort_ascending`, `opt_fields`
+- `asana_project_counts` — `opt_fields` defaults to `num_tasks,num_incomplete_tasks,num_completed_tasks`
+- `asana_story_create` / `asana_comment_create` — `template: true` interpolates `{task.name}`, `{task.assignee}`, `{task.due_on}`, `{task.notes}`
 
-Use `asana_task_follower_add` and `asana_task_follower_remove` to manage followers on existing tasks.
-
-`asana_project_search` accepts `text`, `completed`, `teams_any`, `owner_any`, `members_any`, `members_not`, `portfolios_any`, supported project date filters, `sort_by`, `sort_ascending`, and `opt_fields`.
-
-`asana_project_counts` accepts `project_gid` and optional `opt_fields`. If `opt_fields` is omitted, it defaults to `num_tasks,num_incomplete_tasks,num_completed_tasks`.
-
-`asana_story_create` and `asana_comment_create` accept `template: true` to interpolate `{task.name}`, `{task.assignee}`, `{task.due_on}`, and `{task.notes}` in the comment text before posting.
-
-`asana_comment_*` tools are aliases for `asana_story_*`.
+Per-tool parameter schemas live in `src/<domain>/mcp.ts` (e.g. `src/tasks/mcp.ts`). MCP hosts also expose tool schemas at runtime when the server is connected.
 
 ## License
 

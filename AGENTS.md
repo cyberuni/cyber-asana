@@ -160,6 +160,14 @@ MCP list tools use `paginationParams` / `paginationOptions(params)` from `src/mc
 - Naming: `asana_<resource>_<action>` (e.g. `asana_project_create`)
 - Schemas: use Zod (`z.string()`, `z.string().optional()`) for all parameters
 - Return: `{ content: [{ type: 'text', text: JSON.stringify(result) }] }`
+- Registrations live in each domain's `mcp.ts`; wired via `registerMcpTools` in `src/composition.ts`
+- List tools spread `paginationParams` from `src/mcp-options.ts` (see **Pagination** above); `asana_user_list` uses `paginationParamsWithoutLimit` (no `limit`)
+
+Reference (load on demand, not duplicated here):
+
+- Tool catalog by resource → `readme.md` MCP section
+- Per-tool params and Zod schemas → `src/<domain>/mcp.ts` for the domain you are editing
+- Adding or updating tools → `update-asana-sdk` skill
 
 ## Environment
 
