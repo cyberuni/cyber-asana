@@ -1,5 +1,6 @@
 import { createClient } from '../client.js'
 import { listItems, type PaginationOptions } from '../pagination.js'
+import { observeProjectIfConfigured, projectObservationFromApi } from '../repo-config.js'
 import {
 	type CreateProjectFields,
 	createAsanaProjectGateway,
@@ -45,8 +46,13 @@ export function createProjectApi(gateway: ProjectGateway) {
 		listProjects(workspaceGid: string, opts?: PaginationOptions & { archived?: boolean }) {
 			return gateway.listProjects(workspaceGid, opts)
 		},
-		getProject(projectGid: string) {
-			return gateway.getProject(projectGid)
+		async getProject(projectGid: string) {
+			const project = await gateway.getProject(projectGid)
+			const observation = projectObservationFromApi(project)
+			if (observation) {
+				await observeProjectIfConfigured(observation).catch(() => undefined)
+			}
+			return project
 		},
 		getProjectTaskCounts(projectGid: string, opts?: { optFields?: string }) {
 			return gateway.getProjectTaskCounts(projectGid, opts)
