@@ -167,6 +167,7 @@ Reference (load on demand, not duplicated here):
 
 - Tool catalog by resource → `readme.md` MCP section
 - Per-tool params and Zod schemas → `src/<domain>/mcp.ts` for the domain you are editing
+- URL parsing → [`src/url.ts`](src/url.ts); consumer workflow → [`skills/create-asana-task/SKILL.md`](skills/create-asana-task/SKILL.md)
 - Adding or updating tools → `update-asana-sdk` skill
 
 ## Environment

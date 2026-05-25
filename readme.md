@@ -324,6 +324,25 @@ cyber-asana task create "Fix the bug" --workspace-gid <gid> --project-gid <gid> 
 cyber-asana task search "login" --json
 ```
 
+### Parse Asana URLs
+
+Extract GIDs from pasted Asana app URLs without calling the API:
+
+```sh
+cyber-asana url parse 'https://app.asana.com/1/<workspace>/project/<project>/list/<view>' --json
+```
+
+Supported paths include `/project/...`, `/project/.../task/...`, `/project/.../list/...`, and legacy `/0/<workspace>/<task>`.
+
+| Field | Use for task create? |
+| --- | --- |
+| `workspace_gid` | Yes |
+| `project_gid` | Yes |
+| `task_gid` | Comments, updates — not create |
+| `list_view_gid` | **No** — browser list-view metadata, not a section GID |
+
+For “add a task to this project URL” workflows, use the [`create-asana-task`](skills/create-asana-task/SKILL.md) skill or MCP tool `asana_url_parse` then `asana_task_create`.
+
 ## MCP Server
 
 Add to your MCP host config:
@@ -361,6 +380,7 @@ Tools are named `asana_<resource>_<action>` (e.g. `asana_task_create`).
 | `attachment` | `asana_attachment_list`, `asana_attachment_get` |
 | `story` | `asana_story_list`, `asana_story_create` |
 | `comment` | `asana_comment_list`, `asana_comment_create` (aliases for `story`) |
+| `url` | `asana_url_parse` (no API call; extracts GIDs from Asana app URLs) |
 
 List tools accept `limit`, `offset`, `opt_fields`, `fetch_all`, and `max_pages` where Asana supports them.
 Paginated responses include `data`, `next_page`, and `limit`; fetch-all responses also include `page_count` and `truncated`.
@@ -376,8 +396,11 @@ Notable parameters:
 - `asana_project_search` — `text`, `completed`, team/owner/member/portfolio filters, date filters, `sort_by`, `sort_ascending`, `opt_fields`
 - `asana_project_counts` — `opt_fields` defaults to `num_tasks,num_incomplete_tasks,num_completed_tasks`
 - `asana_story_create` / `asana_comment_create` — `template: true` interpolates `{task.name}`, `{task.assignee}`, `{task.due_on}`, `{task.notes}`
+- `asana_url_parse` — local URL parsing; use `workspace_gid` + `project_gid` for create; `list_view_gid` is not a section GID
 
-Per-tool parameter schemas live in `src/<domain>/mcp.ts` (e.g. `src/tasks/mcp.ts`). MCP hosts also expose tool schemas at runtime when the server is connected.
+Per-tool parameter schemas live in `src/<domain>/mcp.ts` (e.g. `src/tasks/mcp.ts`) and [`src/url-mcp.ts`](src/url-mcp.ts). MCP hosts also expose tool schemas at runtime when the server is connected.
+
+Agent workflow for creating tasks from URLs: [`skills/create-asana-task/SKILL.md`](skills/create-asana-task/SKILL.md).
 
 ## License
 

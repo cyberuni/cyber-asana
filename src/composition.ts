@@ -37,6 +37,8 @@ import { createTeamApi, type TeamApi } from './teams/api.js'
 import { teamCommand } from './teams/cli.js'
 import { createAsanaTeamGateway } from './teams/gateway.js'
 import { registerTeamTools } from './teams/mcp.js'
+import { urlCommand } from './url-cli.js'
+import { registerUrlTools } from './url-mcp.js'
 import { createUserApi, type UserApi } from './users/api.js'
 import { userCommand } from './users/cli.js'
 import { createAsanaUserGateway } from './users/gateway.js'
@@ -90,6 +92,7 @@ export function registerCliCommands(program: Command, getContext: () => RuntimeC
 	program.addCommand(attachmentCommand(() => getContext().attachments))
 	program.addCommand(storyCommand('story', () => getContext().stories))
 	program.addCommand(storyCommand('comment', () => getContext().stories))
+	program.addCommand(urlCommand())
 }
 
 export function registerMcpTools(server: McpServer, getContext: () => RuntimeContext) {
@@ -104,4 +107,5 @@ export function registerMcpTools(server: McpServer, getContext: () => RuntimeCon
 	registerTagTools(server, () => getContext().tags)
 	registerAttachmentTools(server, () => getContext().attachments)
 	registerStoryTools(server, () => getContext().stories)
+	registerUrlTools(server)
 }
