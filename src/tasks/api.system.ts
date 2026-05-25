@@ -1,48 +1,23 @@
-import { describe, expect, it } from 'vitest'
-import { getTask, getTasksByGid } from './api.js'
+import { describe } from 'vitest'
+import { createRuntimeContext, type RuntimeContext } from '../composition.js'
+import { isSystemTestEnabled, systemEnv } from '../testing/system.js'
+import { defineBatchLookupAcceptanceSpecs } from './batch-lookup.acceptance.js'
 
-const systemEnabled = Boolean(process.env.ASANA_SYSTEM_TEST && process.env.ASANA_TOKEN)
-const primaryTaskGid = process.env.ASANA_SYSTEM_TEST_TASK_GID
-const secondaryTaskGid = process.env.ASANA_SYSTEM_TEST_SECOND_TASK_GID
-const richOptFields = 'gid,name,completed,due_on,assignee,permalink_url,resource_subtype'
+const primaryTaskGid = systemEnv('ASANA_SYSTEM_TEST_TASK_GID')
+const systemEnabled = isSystemTestEnabled() && Boolean(primaryTaskGid)
 
-function pickTaskFields(task: Record<string, unknown>) {
-	return {
-		gid: task.gid,
-		name: task.name,
-		completed: task.completed,
-		due_on: task.due_on,
-		assignee: task.assignee,
-		permalink_url: task.permalink_url,
-		resource_subtype: task.resource_subtype,
-	}
+let runtimeContext: RuntimeContext | undefined
+
+function getTaskApi() {
+	runtimeContext ??= createRuntimeContext()
+	return runtimeContext.tasks
 }
 
-describe.skipIf(!systemEnabled || !primaryTaskGid)('tasks/api system', () => {
-	it('returns the same task fields for single and batched lookup', async () => {
-		const singleTask = await getTask(primaryTaskGid!)
-		const batchResult = await getTasksByGid([primaryTaskGid!], { optFields: richOptFields })
-
-		expect(batchResult).toHaveLength(1)
-		expect(batchResult[0]).toMatchObject({ gid: primaryTaskGid, ok: true })
-		if (!batchResult[0].ok) throw new Error('expected successful batched task lookup')
-
-		expect(pickTaskFields(batchResult[0].task)).toEqual(pickTaskFields(singleTask as Record<string, unknown>))
-	})
-
-	it.skipIf(!secondaryTaskGid)('preserves input order across multiple task GIDs', async () => {
-		const batchResult = await getTasksByGid([secondaryTaskGid!, primaryTaskGid!], { optFields: 'gid,name' })
-
-		expect(batchResult.map((item) => item.gid)).toEqual([secondaryTaskGid, primaryTaskGid])
-		expect(batchResult.every((item) => item.ok)).toBe(true)
-	})
-
-	it('returns a per-gid failure for an invalid task lookup', async () => {
-		const batchResult = await getTasksByGid([primaryTaskGid!, '0'], { optFields: 'gid,name' })
-
-		expect(batchResult[0]).toMatchObject({ gid: primaryTaskGid, ok: true })
-		expect(batchResult[1]).toMatchObject({ gid: '0', ok: false })
-		if (batchResult[1].ok) throw new Error('expected invalid task lookup to fail')
-		expect(batchResult[1].status).toBeGreaterThanOrEqual(400)
-	})
-})
+describe.skipIf(!systemEnabled)(
+	'tasks/api batch lookup system',
+	defineBatchLookupAcceptanceSpecs({
+		getApi: getTaskApi,
+		primaryTaskGid: primaryTaskGid!,
+		secondaryTaskGid: systemEnv('ASANA_SYSTEM_TEST_SECOND_TASK_GID'),
+	}),
+)
