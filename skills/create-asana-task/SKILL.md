@@ -1,46 +1,55 @@
 ---
 name: create-asana-task
-description: Use when the user pastes an Asana URL and asks to create or add a task to that project. Parses the URL locally, creates the task with one API call, and avoids section APIs unless the user explicitly names a section or column.
+description: Use when the user asks to create, add, or file an Asana task
 ---
 
-# Create Asana Task from URL
-
-## When to use
-
-When the user asks to create, add, or file a task and provides an Asana app URL (or project context from a URL), e.g. “add this task to https://app.asana.com/1/…/project/…”.
-
-Do **not** use section APIs unless the user explicitly mentions a section, column, or list **by name**.
+# Create Asana Task
 
 ## Instructions
 
-### 1. Parse the URL (no API call)
+### 1. Gather required fields
 
-MCP:
+All three are required before `asana_task_create`. Infer when possible; ask if any are missing.
 
-```
-asana_url_parse { "url": "<asana-url>" }
-```
+| Field | Sources |
+| --- | --- |
+| `name` | User prompt |
+| `workspace_gid` | `ASANA_WORKSPACE` env, Asana URL parse, or explicit GID — **not** repo config |
+| `project_gid` | Asana URL parse, explicit GID, repo config, or project search |
 
-CLI:
+Optional: `notes`, `due_on`, `assignee_gid`, `parent_gid`, `follower_gids`, `html_notes`, `custom_fields`.
 
-```sh
-cyber-asana url parse '<asana-url>' --json
-```
+Do **not** use section APIs unless the user explicitly names a section, column, or list **by name**.
 
-Use `workspace_gid` and `project_gid` from the result for task create.
+### 2. Resolve project
 
-**Ignore `list_view_gid` for placement** — it is browser list-view metadata, not a Sections API section GID. Do not call `asana_section_get`, `asana_section_list`, or `asana_task_project_add` just because the URL contains `/list/`.
+Pick the first applicable source:
 
-If `kind` is `unknown` or required GIDs are missing, ask the user for a project or workspace URL.
+1. **Asana URL** — `asana_url_parse` / `cyber-asana url parse '<url>' --json` → use `workspace_gid` and `project_gid`
+2. **Explicit GID** from the user
+3. **Repo config** — read `.agents/cyber-asana.json` or `cyber-asana config resolve-project "<name>" --json` (no API call)
+4. **`asana_project_search`** in the workspace (requires `ASANA_WORKSPACE` or resolved `workspace_gid`)
+5. Ask the user
 
-### 2. Create the task (one API call)
+#### When parsing a URL
+
+**Ignore `list_view_gid` for placement** — browser list-view metadata, not a Sections API section GID. Do not call section APIs just because the URL contains `/list/`.
+
+If `kind` is `unknown` or GIDs are missing, fall back to other resolution paths.
+
+#### Repo config name refresh
+
+- **Lazy:** when an API result already includes `{ gid, name }` for a project in the registry, the CLI/MCP layer may update the cached name automatically.
+- **Explicit:** `cyber-asana config sync` reconciles all cached names with Asana.
+
+### 3. Create the task
 
 MCP:
 
 ```
 asana_task_create {
-  "workspace_gid": "<from parse>",
-  "project_gid": "<from parse>",
+  "workspace_gid": "<workspace_gid>",
+  "project_gid": "<project_gid>",
   "name": "<task name>",
   "notes": "<optional notes>"
 }
@@ -55,7 +64,7 @@ cyber-asana task create "<name>" \
   --notes "<optional notes>"
 ```
 
-### 3. Optional comment
+### 4. Optional comment
 
 If linking deferred work, PR context, or plan notes:
 
@@ -66,9 +75,9 @@ asana_comment_create {
 }
 ```
 
-### 4. Confirm
+### 5. Confirm
 
-Return the task `permalink_url` from the create response (or `asana_task_get`) so the user can verify.
+Return the task `permalink_url` from the create response (or `asana_task_get`).
 
 ## Section placement (only when explicitly requested)
 
@@ -76,6 +85,6 @@ If the user names a section or column:
 
 1. `asana_section_list` with `project_gid`
 2. Match the section by name
-3. `asana_task_project_add` with `section_gid`, **or** wait for a future `section_gid` on create
+3. `asana_task_project_add` with `section_gid`
 
 Never infer section placement from `/list/{gid}` in the URL alone.

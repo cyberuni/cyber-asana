@@ -50,7 +50,7 @@ Add to shell profile:
 export ASANA_WORKSPACE=<workspace-gid>
 ```
 
-This avoids passing `--workspace` on every command.
+This avoids passing `--workspace` on every command. Workspace GID stays in env — not in repo config (see `docs/adr/0001-no-workspace-gid-in-repo-config.md`).
 
 ### 5. Confirm setup
 
@@ -59,3 +59,17 @@ cyber-asana projects list
 ```
 
 A successful project listing confirms everything is working.
+
+### 6. Optional — repo project registry
+
+For repos that work against a fixed set of Asana projects, add a commit-friendly registry:
+
+```bash
+mkdir -p .agents
+printf '%s\n' '{"schema_version":1,"projects":[]}' > .agents/cyber-asana.json
+cyber-asana config add <project-gid>
+```
+
+Repeat `config add` for each project. Commit `.agents/cyber-asana.json` to source control.
+
+Use `cyber-asana config sync` after bulk renames in Asana. See [`../create-asana-task/SKILL.md`](../create-asana-task/SKILL.md) for task creation with the registry.

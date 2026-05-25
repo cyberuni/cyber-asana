@@ -341,7 +341,20 @@ Supported paths include `/project/...`, `/project/.../task/...`, `/project/.../l
 | `task_gid` | Comments, updates — not create |
 | `list_view_gid` | **No** — browser list-view metadata, not a section GID |
 
-For “add a task to this project URL” workflows, use the [`create-asana-task`](skills/create-asana-task/SKILL.md) skill or MCP tool `asana_url_parse` then `asana_task_create`.
+For task creation (with optional URL parsing), use the [`create-asana-task`](skills/create-asana-task/SKILL.md) skill.
+
+### Repo project registry
+
+Commit a project name → GID map at `.agents/cyber-asana.json` (see [`.agents/cyber-asana.json.example`](.agents/cyber-asana.json.example)). Workspace GID stays in `ASANA_WORKSPACE` — not in this file ([ADR](docs/adr/0001-no-workspace-gid-in-repo-config.md)).
+
+```sh
+cyber-asana config add <project-gid>              # seed or update an entry
+cyber-asana config resolve-project "Backend" --json  # local lookup, no API
+cyber-asana config sync                           # refresh all cached names from Asana
+cyber-asana config show
+```
+
+`project get` (CLI/MCP) opportunistically updates cached names when results include `{ gid, name }`.
 
 ## MCP Server
 
@@ -400,7 +413,7 @@ Notable parameters:
 
 Per-tool parameter schemas live in `src/<domain>/mcp.ts` (e.g. `src/tasks/mcp.ts`) and [`src/url-mcp.ts`](src/url-mcp.ts). MCP hosts also expose tool schemas at runtime when the server is connected.
 
-Agent workflow for creating tasks from URLs: [`skills/create-asana-task/SKILL.md`](skills/create-asana-task/SKILL.md).
+Agent workflow for creating tasks: [`skills/create-asana-task/SKILL.md`](skills/create-asana-task/SKILL.md).
 
 ## License
 
