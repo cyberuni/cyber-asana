@@ -358,7 +358,20 @@ cyber-asana config show
 
 ## MCP Server
 
-Add to your MCP host config:
+`cyber-asana` ships a stdio MCP server. Set [authentication](#authentication) env vars (`ASANA_TOKEN`, optional `ASANA_WORKSPACE`) before connecting.
+
+Install `cyber-asana` in the project that hosts your agent (`npm install cyber-asana`). The host spawns a child process and talks MCP over stdio — not a shared daemon.
+
+| Context | `command` | `args` |
+| --- | --- | --- |
+| Project dependency (`npm install cyber-asana`) | `node` | `["node_modules/cyber-asana/dist/mcp.js"]` |
+| Project dependency (package export) | `node` | `["-e", "import('cyber-asana/mcp')"]` |
+| Global install (`npm install -g cyber-asana`) | `node` | `["<global-node-modules>/cyber-asana/dist/mcp.js"]` — run `npm root -g` to find the prefix |
+| Developing this repo (`pnpm build`) | `node` | `["dist/mcp.js"]` or an absolute path to `dist/mcp.js` |
+
+The package also exports `./mcp` → `dist/mcp.js`. Prefer the dynamic-import row above over `["--import", "cyber-asana/mcp"]` alone — without a main script, Node does not wire stdin to the MCP server and the host times out on `initialize`. `["--import", "cyber-asana/mcp", "-e", ""]` also works.
+
+Shared JSON block (project install, direct path):
 
 ```json
 {
@@ -373,6 +386,106 @@ Add to your MCP host config:
     }
   }
 }
+```
+
+Alternative (package export subpath — no hardcoded `node_modules` path):
+
+```json
+{
+  "mcpServers": {
+    "asana": {
+      "command": "node",
+      "args": ["-e", "import('cyber-asana/mcp')"],
+      "env": {
+        "ASANA_TOKEN": "<your-pat>",
+        "ASANA_WORKSPACE": "<workspace-gid>"
+      }
+    }
+  }
+}
+```
+
+### Claude Desktop
+
+| OS | Config file |
+| --- | --- |
+| macOS | `~/Library/Application Support/Claude/claude_desktop_config.json` |
+| Windows | `%APPDATA%\Claude\claude_desktop_config.json` |
+| Linux | `~/.config/Claude/claude_desktop_config.json` |
+
+Merge the shared JSON block above into the top-level `mcpServers` object. Restart Claude Desktop after saving.
+
+### Claude Code
+
+**User or local scope** (recommended for personal tokens):
+
+```sh
+claude mcp add -e ASANA_TOKEN=<your-pat> -e ASANA_WORKSPACE=<workspace-gid> asana -- \
+  node node_modules/cyber-asana/dist/mcp.js
+```
+
+**Project scope** — commit `.mcp.json` in the repo root. Claude Code expands `${VAR}` from your shell environment (export `ASANA_TOKEN` before launching):
+
+```json
+{
+  "mcpServers": {
+    "asana": {
+      "command": "node",
+      "args": ["node_modules/cyber-asana/dist/mcp.js"],
+      "env": {
+        "ASANA_TOKEN": "${ASANA_TOKEN}",
+        "ASANA_WORKSPACE": "${ASANA_WORKSPACE}"
+      }
+    }
+  }
+}
+```
+
+Verify with `claude mcp list`. Use `/mcp` in a session to reconnect without restarting.
+
+### Cursor
+
+User-wide: `~/.cursor/mcp.json`. Project-specific: `.cursor/mcp.json` in the repo root. Use either shared JSON block above. Reload MCP servers after changes; Agent mode is required for tool use.
+
+When developing this repo, use `"args": ["dist/mcp.js"]` with `"command": "node"` (relative to repo root after `pnpm build`) or an absolute path — there is no `node_modules/cyber-asana` self-link in the source tree.
+
+### Codex
+
+Add to `~/.codex/config.toml` (project-local Codex config is also supported under `.codex/config.toml`):
+
+```toml
+[mcp_servers.asana]
+command = "node"
+args = ["node_modules/cyber-asana/dist/mcp.js"]
+
+[mcp_servers.asana.env]
+ASANA_TOKEN = "<your-pat>"
+ASANA_WORKSPACE = "<workspace-gid>"
+```
+
+Use the global-install row from the command table if the server runs outside a project with `node_modules`.
+
+### MCP Inspector
+
+Debug tools and schemas without an agent host. UI defaults to [http://localhost:6274](http://localhost:6274).
+
+Project dependency:
+
+```sh
+npx @modelcontextprotocol/inspector \
+  -e ASANA_TOKEN=<your-pat> \
+  -e ASANA_WORKSPACE=<workspace-gid> \
+  -- node node_modules/cyber-asana/dist/mcp.js
+```
+
+Developing this repo:
+
+```sh
+pnpm build
+npx @modelcontextprotocol/inspector \
+  -e ASANA_TOKEN="$ASANA_TOKEN" \
+  -e ASANA_WORKSPACE="$ASANA_WORKSPACE" \
+  -- node dist/mcp.js
 ```
 
 Tools are named `asana_<resource>_<action>` (e.g. `asana_task_create`).
