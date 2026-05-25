@@ -1,15 +1,34 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import { paginationOptions, paginationParams } from '../mcp-options.js'
+import type { PortfolioApi } from './api.js'
 import { createPortfolio, deletePortfolio, getPortfolio, listPortfolios, updatePortfolio } from './api.js'
 
-export function registerPortfolioTools(server: McpServer) {
+function resolvePortfolioApi(api?: PortfolioApi | (() => PortfolioApi)): PortfolioApi {
+	if (typeof api === 'function') return api()
+	return (
+		api ?? {
+			listPortfolios,
+			getPortfolio,
+			createPortfolio,
+			updatePortfolio,
+			deletePortfolio,
+		}
+	)
+}
+
+export function registerPortfolioTools(server: McpServer, api?: PortfolioApi | (() => PortfolioApi)) {
 	server.tool(
 		'asana_portfolio_list',
 		'List Asana portfolios in a workspace',
 		{ workspace_gid: z.string().describe('Workspace GID'), ...paginationParams },
 		async ({ workspace_gid, ...params }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await listPortfolios(workspace_gid, paginationOptions(params))) }],
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(await resolvePortfolioApi(api).listPortfolios(workspace_gid, paginationOptions(params))),
+				},
+			],
 		}),
 	)
 
@@ -18,7 +37,7 @@ export function registerPortfolioTools(server: McpServer) {
 		'Get an Asana portfolio by GID',
 		{ portfolio_gid: z.string().describe('Portfolio GID') },
 		async ({ portfolio_gid }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await getPortfolio(portfolio_gid)) }],
+			content: [{ type: 'text', text: JSON.stringify(await resolvePortfolioApi(api).getPortfolio(portfolio_gid)) }],
 		}),
 	)
 
@@ -30,7 +49,12 @@ export function registerPortfolioTools(server: McpServer) {
 			name: z.string().describe('Portfolio name'),
 		},
 		async ({ workspace_gid, name }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await createPortfolio(workspace_gid, name)) }],
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(await resolvePortfolioApi(api).createPortfolio(workspace_gid, name)),
+				},
+			],
 		}),
 	)
 
@@ -42,7 +66,12 @@ export function registerPortfolioTools(server: McpServer) {
 			name: z.string().optional().describe('New name'),
 		},
 		async ({ portfolio_gid, name }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await updatePortfolio(portfolio_gid, { name })) }],
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(await resolvePortfolioApi(api).updatePortfolio(portfolio_gid, { name })),
+				},
+			],
 		}),
 	)
 
@@ -51,7 +80,7 @@ export function registerPortfolioTools(server: McpServer) {
 		'Delete an Asana portfolio',
 		{ portfolio_gid: z.string().describe('Portfolio GID') },
 		async ({ portfolio_gid }) => {
-			await deletePortfolio(portfolio_gid)
+			await resolvePortfolioApi(api).deletePortfolio(portfolio_gid)
 			return { content: [{ type: 'text', text: `Deleted portfolio ${portfolio_gid}` }] }
 		},
 	)
