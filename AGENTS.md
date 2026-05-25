@@ -43,7 +43,8 @@ pnpm typecheck    # tsc --noEmit
 pnpm lint         # biome check
 pnpm check        # biome check --write (auto-fix)
 pnpm format       # biome format --write
-pnpm test         # vitest run
+pnpm test         # vitest run (unit + acceptance; excludes *.system.ts)
+pnpm test:system  # vitest run against live Asana API (requires env below)
 pnpm test:watch   # vitest
 pnpm test <file>  # run a single test file, e.g. pnpm test src/client.test.ts
 pnpm verify       # typecheck + lint + test + build (full CI check)
@@ -83,7 +84,28 @@ src/
 └── stories/
 ```
 
-Each domain folder contains exactly three files: `api.ts`, `cli.ts`, `mcp.ts`.
+Each domain folder contains `gateway.ts` (port + Asana adapter), `api.ts` (factory + defaults), `cli.ts`, and `mcp.ts`. Shared runtime wiring lives in `src/composition.ts`.
+
+### Testing
+
+- **Unit tests**: `*.test.ts` beside the module under test.
+- **Acceptance specs**: `*.acceptance.ts` export `define*AcceptanceSpecs()` factories; `*.acceptance.test.ts` runs them against gateway doubles (no SDK).
+- **System tests**: `*.system.ts` reuse the same acceptance factories against `createRuntimeContext()` and the live API. Gated by env vars; skipped when unset.
+
+Run system tests:
+
+```sh
+ASANA_SYSTEM_TEST=1 ASANA_TOKEN=<pat> pnpm test:system
+```
+
+Optional env vars for specific suites:
+
+| Variable | Used by |
+| --- | --- |
+| `ASANA_SYSTEM_TEST_TASK_GID` | tasks batch lookup |
+| `ASANA_SYSTEM_TEST_SECOND_TASK_GID` | tasks batch lookup (multi-GID order) |
+
+Helpers: `src/testing/system.ts` (`isSystemTestEnabled`, `systemEnv`, `requireSystemEnv`).
 
 ## Key Conventions
 
@@ -142,4 +164,12 @@ MCP list tools use `paginationParams` / `paginationOptions(params)` from `src/mc
 ```
 ASANA_TOKEN=<personal access token>
 ASANA_WORKSPACE=<workspace GID>   # optional; avoids --workspace on every command
+```
+
+System tests (see **Testing** above):
+
+```
+ASANA_SYSTEM_TEST=1               # enable *.system.ts suites
+ASANA_SYSTEM_TEST_TASK_GID=...    # optional; tasks batch lookup
+ASANA_SYSTEM_TEST_SECOND_TASK_GID=...  # optional; tasks batch lookup
 ```
