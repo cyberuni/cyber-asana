@@ -39,7 +39,7 @@ In `~/.cursor/mcp.json` or `.cursor/mcp.json`:
 ```json
 {
   "mcpServers": {
-    "asana": {
+    "cyber-asana": {
       "command": "node",
       "args": ["/absolute/path/to/cyber-asana/dist/mcp.js"],
       "env": {
@@ -52,6 +52,8 @@ In `~/.cursor/mcp.json` or `.cursor/mcp.json`:
 ```
 
 Reload MCP servers after changes.
+
+**Dual MCP:** Both the official Asana OAuth MCP and cyber-asana can run together with separate config keys and credentials. Routing guidance is in [readme.md — Using alongside official Asana MCP](readme.md#using-alongside-official-asana-mcp).
 
 ### MCP Inspector
 

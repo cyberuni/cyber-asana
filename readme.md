@@ -370,12 +370,69 @@ The package exports `./mcp` → `dist/mcp.js`. Do not use `["--import", "cyber-a
 
 Developing this repo? See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-Shared JSON block (project install):
+### Using alongside official Asana MCP
+
+You can run **both** the [official Asana MCP](https://developers.asana.com/docs/mcp-tools-reference) and cyber-asana in the same host. Tool names already differ (`create_tasks` vs `asana_task_create`), so the real conflict is the **config key** — use `"asana"` for the official server and `"cyber-asana"` for this package.
+
+| Server | Config key | Auth | Env vars |
+| --- | --- | --- | --- |
+| Official Asana MCP | `asana` | OAuth 2.0 | `ASANA_CLIENT_ID`, `ASANA_CLIENT_SECRET` |
+| cyber-asana | `cyber-asana` | Personal access token | `ASANA_TOKEN`, optional `ASANA_WORKSPACE` |
+
+**Credentials are not interchangeable:** MCP OAuth tokens from the official server cannot be used as `ASANA_TOKEN` for cyber-asana or the REST API. PATs cannot substitute for official MCP OAuth.
+
+Dual-config example (Cursor-style; see [Asana's connecting doc](https://developers.asana.com/docs/connecting-mcp-clients-to-asanas-v2-server) for host-specific OAuth setup):
 
 ```json
 {
   "mcpServers": {
     "asana": {
+      "url": "https://mcp.asana.com/v2/mcp",
+      "auth": {
+        "CLIENT_ID": "${env:ASANA_CLIENT_ID}",
+        "CLIENT_SECRET": "${env:ASANA_CLIENT_SECRET}"
+      }
+    },
+    "cyber-asana": {
+      "command": "node",
+      "args": ["-e", "import('cyber-asana/mcp')"],
+      "env": {
+        "ASANA_TOKEN": "${ASANA_TOKEN}",
+        "ASANA_WORKSPACE": "${ASANA_WORKSPACE}"
+      }
+    }
+  }
+}
+```
+
+Shell profile for dual setup:
+
+```sh
+export ASANA_CLIENT_ID="..."      # official MCP OAuth app
+export ASANA_CLIENT_SECRET="..."  # official MCP OAuth app
+export ASANA_TOKEN="..."          # cyber-asana PAT (create at app.asana.com → My Apps)
+export ASANA_WORKSPACE="..."      # cyber-asana default workspace (optional)
+```
+
+**Migration:** If you already registered cyber-asana under the config key `"asana"`, rename it to `"cyber-asana"` before adding the official `"asana"` server. This is a host-config change only — not a package breaking change.
+
+**Which server to use:**
+
+| Prefer official `asana` | Prefer `cyber-asana` |
+| --- | --- |
+| `search_objects`, `get_status_overview` | `asana_url_parse`, repo config (`.agents/cyber-asana.json`) |
+| Interactive previews (`create_task_preview`, etc.) | Subtasks, dependencies, followers, section placement |
+| New MCP-only capabilities Asana ships first | `asana_task_scan_todos`, `asana_project_export`, rich REST-backed writes |
+| Simple reads when V2 coverage suffices | Goals/tags/portfolios CRUD beyond V2 scope |
+
+Default: if both can do the job, prefer **official for discovery/status** and **cyber-asana for write-heavy automation**.
+
+Shared JSON block (cyber-asana only, project install):
+
+```json
+{
+  "mcpServers": {
+    "cyber-asana": {
       "command": "node",
       "args": ["-e", "import('cyber-asana/mcp')"],
       "env": {
@@ -402,8 +459,14 @@ Merge the shared JSON block above into the top-level `mcpServers` object. Restar
 **User or local scope** (recommended for personal tokens):
 
 ```sh
-claude mcp add -e ASANA_TOKEN=<your-pat> -e ASANA_WORKSPACE=<workspace-gid> asana -- \
+claude mcp add -e ASANA_TOKEN=<your-pat> -e ASANA_WORKSPACE=<workspace-gid> cyber-asana -- \
   node -e "import('cyber-asana/mcp')"
+```
+
+Official Asana MCP (OAuth; see [Asana connecting doc](https://developers.asana.com/docs/connecting-mcp-clients-to-asanas-v2-server) for exact flags):
+
+```sh
+claude mcp add --transport http asana https://mcp.asana.com/v2/mcp
 ```
 
 **Project scope** — commit `.mcp.json` in the repo root. Claude Code expands `${VAR}` from your shell environment (export `ASANA_TOKEN` before launching):
@@ -411,7 +474,7 @@ claude mcp add -e ASANA_TOKEN=<your-pat> -e ASANA_WORKSPACE=<workspace-gid> asan
 ```json
 {
   "mcpServers": {
-    "asana": {
+    "cyber-asana": {
       "command": "node",
       "args": ["-e", "import('cyber-asana/mcp')"],
       "env": {
@@ -434,11 +497,11 @@ User-wide: `~/.cursor/mcp.json`. Project-specific: `.cursor/mcp.json` in the rep
 Add to `~/.codex/config.toml` (project-local Codex config is also supported under `.codex/config.toml`):
 
 ```toml
-[mcp_servers.asana]
+[mcp_servers.cyber-asana]
 command = "node"
 args = ["-e", "import('cyber-asana/mcp')"]
 
-[mcp_servers.asana.env]
+[mcp_servers.cyber-asana.env]
 ASANA_TOKEN = "<your-pat>"
 ASANA_WORKSPACE = "<workspace-gid>"
 ```
