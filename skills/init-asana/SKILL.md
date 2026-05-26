@@ -20,8 +20,9 @@ If it fails (npx install prompt, `command not found`, or other non-zero exit):
 
 1. Tell the user the workflow needs to download `cyber-asana` from npm (no `package.json` change).
 2. **Ask** whether to install.
-3. After yes, use `npx --yes cyber-asana <subcommand>` for the rest of this workflow.
-4. If the user declines npx, ask whether to add `cyber-asana` as a devDependency instead. Note drawbacks: it modifies `package.json` and may need ignoring in unused-dependency tools (e.g. `knip`). If they decline both, skip CLI steps.
+3. After yes, run the one-time install only: `npx --yes cyber-asana --version`
+4. For all later commands, use `npx cyber-asana <subcommand>` (no `--yes`) or `cyber-asana` if globally installed.
+5. If the user declines npx, ask whether to add `cyber-asana` as a devDependency instead. Note drawbacks: it modifies `package.json` and may need ignoring in unused-dependency tools (e.g. `knip`). If they decline both, skip CLI steps.
 
 ## Instructions
 
@@ -48,8 +49,8 @@ Ensure the CLI is available first (see **Ensure cyber-asana CLI**), then run:
 
 ```bash
 cyber-asana workspace list --json
-# or, after npx install consent:
-npx --yes cyber-asana workspace list --json
+# or, if using npx without global install:
+npx cyber-asana workspace list --json
 ```
 
 If it fails, the token is invalid or not set. Fix credentials and retry.
