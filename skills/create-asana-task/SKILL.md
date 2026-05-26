@@ -64,6 +64,12 @@ cyber-asana task create "<name>" \
   --notes "<optional notes>"
 ```
 
+### When both MCPs are connected
+
+- Default: `asana_task_create` (rich fields, repo config, URL parse workflow).
+- Official `create_tasks` / `create_task_preview` only when the user wants an interactive preview or cyber-asana is unavailable.
+- Never use the official MCP OAuth token as `ASANA_TOKEN` for CLI or cyber-asana.
+
 ### 4. Optional comment
 
 If linking deferred work, PR context, or plan notes:

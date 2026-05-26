@@ -73,3 +73,12 @@ cyber-asana config add <project-gid>
 Repeat `config add` for each project. Commit `.agents/cyber-asana.json` to source control.
 
 Use `cyber-asana config sync` after bulk renames in Asana. See [`../create-asana-task/SKILL.md`](../create-asana-task/SKILL.md) for task creation with the registry.
+
+### 7. Optional — dual MCP with official Asana
+
+Both servers can run together with separate config keys and credentials:
+
+- **Official Asana MCP** — config key `asana`; OAuth app with `ASANA_CLIENT_ID` and `ASANA_CLIENT_SECRET` (not `ASANA_TOKEN`).
+- **cyber-asana** — config key `cyber-asana`; PAT via `ASANA_TOKEN` (steps 2–4 above).
+
+See [readme — Using alongside official Asana MCP](../../readme.md#using-alongside-official-asana-mcp) for dual-config examples and routing guidance.

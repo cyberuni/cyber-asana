@@ -114,6 +114,10 @@ Reference (load on demand, not duplicated here):
 - Task creation → [`skills/create-asana-task/SKILL.md`](skills/create-asana-task/SKILL.md); URL parsing → [`src/url.ts`](src/url.ts) when a URL is present; repo project registry → [`src/repo-config.ts`](src/repo-config.ts) / `.agents/cyber-asana.json`
 - Adding or updating tools → `update-asana-sdk` skill
 
+#### Dual MCP (official + cyber-asana)
+
+Both servers can run together with separate config keys and credentials. Tool names do not collide. Routing guidance lives in [readme — Using alongside official Asana MCP](readme.md#using-alongside-official-asana-mcp).
+
 ## Environment
 
 ```
