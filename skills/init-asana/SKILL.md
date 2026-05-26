@@ -9,6 +9,20 @@ description: Use this skill when setting up cyber-asana — PAT, workspace GID, 
 
 When the user is setting up `cyber-asana` for the first time, or when commands fail with auth or workspace errors.
 
+## Ensure cyber-asana CLI
+
+Before running any `cyber-asana` command:
+
+1. Check if already available: `npx cyber-asana --version` (or `cyber-asana --version` if globally installed).
+2. If that succeeds, proceed normally.
+
+If it fails (npx install prompt, `command not found`, or other non-zero exit):
+
+1. Tell the user the workflow needs to download `cyber-asana` from npm (no `package.json` change).
+2. **Ask** whether to install.
+3. After yes, use `npx --yes cyber-asana <subcommand>` for the rest of this workflow.
+4. If the user declines npx, ask whether to add `cyber-asana` as a devDependency instead. Note drawbacks: it modifies `package.json` and may need ignoring in unused-dependency tools (e.g. `knip`). If they decline both, skip CLI steps.
+
 ## Instructions
 
 ### 1. Check for existing credentials
@@ -30,8 +44,12 @@ Or pass per-command with `--token <pat>`.
 
 ### 3. Verify the connection and find workspace GID
 
+Ensure the CLI is available first (see **Ensure cyber-asana CLI**), then run:
+
 ```bash
 cyber-asana workspace list --json
+# or, after npx install consent:
+npx --yes cyber-asana workspace list --json
 ```
 
 If it fails, the token is invalid or not set. Fix credentials and retry.
