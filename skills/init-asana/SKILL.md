@@ -29,18 +29,18 @@ If it fails (npx install prompt, `command not found`, or other non-zero exit):
 ### 1. Check for existing credentials
 
 ```bash
-echo "Token set: ${ASANA_ASSESS_TOKEN:+yes}${ASANA_TOKEN:+ (deprecated ASANA_TOKEN set)}"
+echo "Token set: ${ASANA_ACCESS_TOKEN:+yes}${ASANA_TOKEN:+ (deprecated ASANA_TOKEN set)}"
 echo "Workspace set: ${ASANA_WORKSPACE_GID:+yes}${ASANA_WORKSPACE:+ (deprecated ASANA_WORKSPACE set)}"
 ```
 
-### 2. Set ASANA_ASSESS_TOKEN
+### 2. Set ASANA_ACCESS_TOKEN
 
 If not set, guide the user:
 
 1. Go to Asana → Profile Settings → Apps → Personal access tokens
 2. Create a new token and copy it
-3. Add to the user's shell profile (e.g. `export ASANA_ASSESS_TOKEN=...` in the file their shell loads on login)
-4. If the user already has `ASANA_TOKEN`, tell them it still works as a deprecated fallback but new setup should use `ASANA_ASSESS_TOKEN`
+3. Add to the user's shell profile (e.g. `export ASANA_ACCESS_TOKEN=...` in the file their shell loads on login)
+4. If the user already has `ASANA_TOKEN`, tell them it still works as a deprecated fallback but new setup should use `ASANA_ACCESS_TOKEN`
 
 Or pass per-command with `--token <pat>`.
 
@@ -86,8 +86,8 @@ For repos that work against a fixed set of Asana projects, use the **pin-asana-p
 
 Both servers can run together with separate config keys and credentials:
 
-- **Official Asana MCP** — config key `asana`; OAuth app with `ASANA_CLIENT_ID` and `ASANA_CLIENT_SECRET` (not `ASANA_ASSESS_TOKEN`).
-- **cyber-asana** — config key `cyber-asana`; PAT via `ASANA_ASSESS_TOKEN` and workspace via `ASANA_WORKSPACE_GID` (steps 2–4 above).
+- **Official Asana MCP** — config key `asana`; OAuth app with `ASANA_CLIENT_ID` and `ASANA_CLIENT_SECRET` (not `ASANA_ACCESS_TOKEN`).
+- **cyber-asana** — config key `cyber-asana`; PAT via `ASANA_ACCESS_TOKEN` and workspace via `ASANA_WORKSPACE_GID` (steps 2–4 above).
 
 See [reference.md](./reference.md) for dual-config JSON examples and routing guidance.
 

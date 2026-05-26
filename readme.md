@@ -17,7 +17,7 @@ npm install -g cyber-asana
 Set your [Asana personal access token](https://app.asana.com/0/my-apps):
 
 ```sh
-export ASANA_ASSESS_TOKEN=<your-pat>
+export ASANA_ACCESS_TOKEN=<your-pat>
 export ASANA_WORKSPACE_GID=<workspace-gid>   # optional default workspace
 ```
 
@@ -43,7 +43,7 @@ Set [authentication](#authentication) before running any workflow.
 
 | Skill | Use when |
 | --- | --- |
-| [`init-asana`](skills/init-asana/SKILL.md) | First-time setup; `ASANA_ASSESS_TOKEN`, workspace GID, verify connection |
+| [`init-asana`](skills/init-asana/SKILL.md) | First-time setup; `ASANA_ACCESS_TOKEN`, workspace GID, verify connection |
 | [`pin-asana-projects`](skills/pin-asana-projects/SKILL.md) | Pin repo projects in `.agents/cyber-asana.json` via `project search` keywords |
 | [`create-asana-task`](skills/create-asana-task/SKILL.md) | Create or file a task (URL parse, repo project lookup, MCP `asana_task_create`) |
 | [`asana-standup`](skills/asana-standup/SKILL.md) | Standup update — recent completions and due-soon tasks |
@@ -69,7 +69,7 @@ cyber-asana config show
 
 ## MCP Server
 
-`cyber-asana` ships a stdio MCP server. Set [authentication](#authentication) env vars (`ASANA_ASSESS_TOKEN`, optional `ASANA_WORKSPACE_GID`) before connecting.
+`cyber-asana` ships a stdio MCP server. Set [authentication](#authentication) env vars (`ASANA_ACCESS_TOKEN`, optional `ASANA_WORKSPACE_GID`) before connecting.
 
 Install `cyber-asana` in the project that hosts your agent (`npm install cyber-asana`). The host spawns a child process and talks MCP over stdio — not a shared daemon.
 
@@ -89,9 +89,9 @@ You can run **both** the [official Asana MCP](https://developers.asana.com/docs/
 | Server | Config key | Auth | Env vars |
 | --- | --- | --- | --- |
 | Official Asana MCP | `asana` | OAuth 2.0 | `ASANA_CLIENT_ID`, `ASANA_CLIENT_SECRET` |
-| cyber-asana | `cyber-asana` | Personal access token | `ASANA_ASSESS_TOKEN`, optional `ASANA_WORKSPACE_GID` |
+| cyber-asana | `cyber-asana` | Personal access token | `ASANA_ACCESS_TOKEN`, optional `ASANA_WORKSPACE_GID` |
 
-**Credentials are not interchangeable:** MCP OAuth tokens from the official server cannot be used as `ASANA_ASSESS_TOKEN` for cyber-asana or the REST API. PATs cannot substitute for official MCP OAuth.
+**Credentials are not interchangeable:** MCP OAuth tokens from the official server cannot be used as `ASANA_ACCESS_TOKEN` for cyber-asana or the REST API. PATs cannot substitute for official MCP OAuth.
 
 Dual-config example (Cursor-style; see [Asana's connecting doc](https://developers.asana.com/docs/connecting-mcp-clients-to-asanas-v2-server) for host-specific OAuth setup):
 
@@ -109,7 +109,7 @@ Dual-config example (Cursor-style; see [Asana's connecting doc](https://develope
       "command": "node",
       "args": ["-e", "import('cyber-asana/mcp')"],
       "env": {
-        "ASANA_ASSESS_TOKEN": "${ASANA_ASSESS_TOKEN}",
+        "ASANA_ACCESS_TOKEN": "${ASANA_ACCESS_TOKEN}",
         "ASANA_WORKSPACE_GID": "${ASANA_WORKSPACE_GID}"
       }
     }
@@ -122,7 +122,7 @@ Shell profile for dual setup:
 ```sh
 export ASANA_CLIENT_ID="..."      # official MCP OAuth app
 export ASANA_CLIENT_SECRET="..."  # official MCP OAuth app
-export ASANA_ASSESS_TOKEN="..."   # cyber-asana PAT (create at app.asana.com → My Apps)
+export ASANA_ACCESS_TOKEN="..."   # cyber-asana PAT (create at app.asana.com → My Apps)
 export ASANA_WORKSPACE_GID="..."  # cyber-asana default workspace (optional)
 ```
 
@@ -148,7 +148,7 @@ Shared JSON block (cyber-asana only, project install):
       "command": "node",
       "args": ["-e", "import('cyber-asana/mcp')"],
       "env": {
-        "ASANA_ASSESS_TOKEN": "<your-pat>",
+        "ASANA_ACCESS_TOKEN": "<your-pat>",
         "ASANA_WORKSPACE_GID": "<workspace-gid>"
       }
     }
@@ -165,7 +165,7 @@ Ephemeral alternative (no `npm install`; uses the `cyber-asana mcp` subcommand):
       "command": "npx",
       "args": ["-y", "cyber-asana", "mcp"],
       "env": {
-        "ASANA_ASSESS_TOKEN": "<your-pat>",
+        "ASANA_ACCESS_TOKEN": "<your-pat>",
         "ASANA_WORKSPACE_GID": "<workspace-gid>"
       }
     }
@@ -188,7 +188,7 @@ Merge the shared JSON block above into the top-level `mcpServers` object. Restar
 **User or local scope** (recommended for personal tokens):
 
 ```sh
-claude mcp add -e ASANA_ASSESS_TOKEN=<your-pat> -e ASANA_WORKSPACE_GID=<workspace-gid> cyber-asana -- \
+claude mcp add -e ASANA_ACCESS_TOKEN=<your-pat> -e ASANA_WORKSPACE_GID=<workspace-gid> cyber-asana -- \
   node -e "import('cyber-asana/mcp')"
 ```
 
@@ -198,7 +198,7 @@ Official Asana MCP (OAuth; see [Asana connecting doc](https://developers.asana.c
 claude mcp add --transport http asana https://mcp.asana.com/v2/mcp
 ```
 
-**Project scope** — commit `.mcp.json` in the repo root. Claude Code expands `${VAR}` from your shell environment (export `ASANA_ASSESS_TOKEN` before launching):
+**Project scope** — commit `.mcp.json` in the repo root. Claude Code expands `${VAR}` from your shell environment (export `ASANA_ACCESS_TOKEN` before launching):
 
 ```json
 {
@@ -207,7 +207,7 @@ claude mcp add --transport http asana https://mcp.asana.com/v2/mcp
       "command": "node",
       "args": ["-e", "import('cyber-asana/mcp')"],
       "env": {
-        "ASANA_ASSESS_TOKEN": "${ASANA_ASSESS_TOKEN}",
+        "ASANA_ACCESS_TOKEN": "${ASANA_ACCESS_TOKEN}",
         "ASANA_WORKSPACE_GID": "${ASANA_WORKSPACE_GID}"
       }
     }
@@ -231,7 +231,7 @@ command = "node"
 args = ["-e", "import('cyber-asana/mcp')"]
 
 [mcp_servers.cyber-asana.env]
-ASANA_ASSESS_TOKEN = "<your-pat>"
+ASANA_ACCESS_TOKEN = "<your-pat>"
 ASANA_WORKSPACE_GID = "<workspace-gid>"
 ```
 
@@ -243,7 +243,7 @@ Project dependency:
 
 ```sh
 npx @modelcontextprotocol/inspector \
-  -e ASANA_ASSESS_TOKEN=<your-pat> \
+  -e ASANA_ACCESS_TOKEN=<your-pat> \
   -e ASANA_WORKSPACE_GID=<workspace-gid> \
   -- node -e "import('cyber-asana/mcp')"
 ```
@@ -252,7 +252,7 @@ Ephemeral (no project install):
 
 ```sh
 npx @modelcontextprotocol/inspector \
-  -e ASANA_ASSESS_TOKEN=<your-pat> \
+  -e ASANA_ACCESS_TOKEN=<your-pat> \
   -e ASANA_WORKSPACE_GID=<workspace-gid> \
   -- npx -y cyber-asana mcp
 ```
@@ -261,7 +261,7 @@ Developing this repo (`pnpm build` first):
 
 ```sh
 npx @modelcontextprotocol/inspector \
-  -e ASANA_ASSESS_TOKEN="$ASANA_ASSESS_TOKEN" \
+  -e ASANA_ACCESS_TOKEN="$ASANA_ACCESS_TOKEN" \
   -e ASANA_WORKSPACE_GID="$ASANA_WORKSPACE_GID" \
   -- node dist/cli.js mcp
 ```

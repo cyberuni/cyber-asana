@@ -69,7 +69,7 @@ export function buildMcpToolErrorBody(error: unknown): McpToolErrorBody {
 			error: {
 				kind: 'config',
 				message,
-				hint: 'Set ASANA_ASSESS_TOKEN in the MCP server environment (preferred; ASANA_TOKEN is deprecated) or pass a token when starting the server.',
+				hint: 'Set ASANA_ACCESS_TOKEN in the MCP server environment (preferred; ASANA_TOKEN is deprecated) or pass a token when starting the server.',
 			},
 		}
 	}

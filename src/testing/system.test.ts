@@ -18,7 +18,7 @@ describe('testing/system', () => {
 	it('isSystemTestEnabled is false without ASANA_TOKEN', () => {
 		process.env.ASANA_SYSTEM_TEST = '1'
 		delete process.env.ASANA_TOKEN
-		delete process.env.ASANA_ASSESS_TOKEN
+		delete process.env.ASANA_ACCESS_TOKEN
 
 		expect(isSystemTestEnabled()).toBe(false)
 	})
@@ -30,10 +30,10 @@ describe('testing/system', () => {
 		expect(isSystemTestEnabled()).toBe(true)
 	})
 
-	it('isSystemTestEnabled accepts ASANA_ASSESS_TOKEN as a fallback token env var', () => {
+	it('isSystemTestEnabled accepts ASANA_ACCESS_TOKEN as a fallback token env var', () => {
 		process.env.ASANA_SYSTEM_TEST = '1'
 		delete process.env.ASANA_TOKEN
-		process.env.ASANA_ASSESS_TOKEN = 'token'
+		process.env.ASANA_ACCESS_TOKEN = 'token'
 
 		expect(isSystemTestEnabled()).toBe(true)
 	})

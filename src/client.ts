@@ -20,7 +20,7 @@ To create a Personal Access Token (PAT):
   4. Copy the token — it will only be shown once
 
 Then set it in your shell:
-  export ASANA_ASSESS_TOKEN=<your-token>
+  export ASANA_ACCESS_TOKEN=<your-token>
   # deprecated fallback:
   export ASANA_TOKEN=<your-token>
 
