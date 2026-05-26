@@ -15,7 +15,7 @@ function validateHtmlText(htmlText: string) {
 	}
 
 	const stack: string[] = []
-	const tagRe = /<\/?([A-Za-z][\w:-]*)(?:\s[^<>]*)?\s*\/?>/g
+	const tagRe = /<\/?([A-Za-z][\w:-]*)(?:\s[^<>]*)?\/?>/g
 
 	for (const match of trimmed.matchAll(tagRe)) {
 		const [full, tagName] = match

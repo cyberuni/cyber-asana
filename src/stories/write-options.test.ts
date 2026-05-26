@@ -40,4 +40,24 @@ describe('stories/write-options', () => {
 			html_text: '<body><strong>Rich</strong></body>',
 		})
 	})
+
+	it('buildStoryCreateFields accepts self-closing tags with trailing whitespace', () => {
+		expect(
+			buildStoryCreateFields({
+				htmlText: '<body><br /></body>',
+			}),
+		).toEqual({
+			html_text: '<body><br /></body>',
+		})
+	})
+
+	it('buildStoryCreateFields accepts tags with attributes', () => {
+		expect(
+			buildStoryCreateFields({
+				htmlText: '<body><div class="foo">Rich</div></body>',
+			}),
+		).toEqual({
+			html_text: '<body><div class="foo">Rich</div></body>',
+		})
+	})
 })
