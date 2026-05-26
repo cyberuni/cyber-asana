@@ -13,15 +13,16 @@ When the user is setting up `cyber-asana` for the first time, or when commands f
 
 Before running any `cyber-asana` command:
 
-1. Check if already available: `npx cyber-asana --version` (or `cyber-asana --version` if globally installed).
-2. If that succeeds, proceed normally.
+1. Resolve exact semver: `npm view cyber-asana version` (never `@latest`, never a literal `<version>` placeholder).
+2. Check if already available: `npx cyber-asana@<exact> --version` (or `cyber-asana --version` if globally installed).
+3. If that succeeds, proceed normally.
 
 If it fails (npx install prompt, `command not found`, or other non-zero exit):
 
 1. Tell the user the workflow needs to download `cyber-asana` from npm (no `package.json` change).
 2. **Ask** whether to install.
-3. After yes, run the one-time install only: `npx --yes cyber-asana --version`
-4. For all later commands, use `npx cyber-asana <subcommand>` (no `--yes`) or `cyber-asana` if globally installed.
+3. After yes, run the one-time install only: `npx --yes cyber-asana@<exact> --version`
+4. For all later commands, use `npx cyber-asana@<exact> <subcommand>` (no `--yes`) or `cyber-asana` if globally installed.
 5. If the user declines npx, ask whether to add `cyber-asana` as a devDependency instead. Note drawbacks: it modifies `package.json` and may need ignoring in unused-dependency tools (e.g. `knip`). If they decline both, skip CLI steps.
 
 ## Instructions
@@ -51,7 +52,7 @@ Ensure the CLI is available first (see **Ensure cyber-asana CLI**), then run:
 ```bash
 cyber-asana workspace list --json
 # or, if using npx without global install:
-npx cyber-asana workspace list --json
+npx cyber-asana@<exact> workspace list --json
 ```
 
 If it fails, the token is invalid or not set. Fix credentials and retry.
@@ -73,7 +74,7 @@ This avoids passing `--workspace` on every command. Keep workspace GID in env â€
 ```bash
 cyber-asana --version
 # or, if using npx without global install:
-npx cyber-asana --version
+npx cyber-asana@<exact> --version
 ```
 
 A successful version print confirms the CLI runs with credentials loaded. If workspace-scoped commands still fail, recheck `ASANA_WORKSPACE_GID` from step 4.

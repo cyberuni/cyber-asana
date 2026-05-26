@@ -30,7 +30,7 @@ For each keyword, search the workspace (requires `ASANA_WORKSPACE` or `--workspa
 ```bash
 cyber-asana project search "<keyword>" --json
 # or, if using npx without global install:
-npx cyber-asana project search "<keyword>" --json
+npx cyber-asana@<version> project search "<keyword>" --json
 ```
 
 Prefer active work when the user did not ask for archived projects:
