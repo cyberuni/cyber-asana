@@ -44,6 +44,7 @@ Set [authentication](#authentication) before running any workflow.
 | Skill | Use when |
 | --- | --- |
 | [`init-asana`](skills/init-asana/SKILL.md) | First-time setup; `ASANA_TOKEN`, workspace GID, verify connection |
+| [`pin-asana-projects`](skills/pin-asana-projects/SKILL.md) | Pin repo projects in `.agents/cyber-asana.json` via `project search` keywords |
 | [`create-asana-task`](skills/create-asana-task/SKILL.md) | Create or file a task (URL parse, repo project lookup, MCP `asana_task_create`) |
 | [`asana-standup`](skills/asana-standup/SKILL.md) | Standup update — recent completions and due-soon tasks |
 | [`asana-sprint-report`](skills/asana-sprint-report/SKILL.md) | Sprint retro — completed vs incomplete in a project/section |

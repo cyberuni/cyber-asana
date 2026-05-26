@@ -20,7 +20,7 @@ The skill guides:
 - Ensuring the `cyber-asana` CLI is available (`npx` or global install)
 - Setting `ASANA_TOKEN` and verifying the connection
 - Listing workspaces and setting `ASANA_WORKSPACE`
-- Optional `.agents/cyber-asana.json` project registry
+- Optional pinned projects in `.agents/cyber-asana.json` (via [`pin-asana-projects`](../pin-asana-projects/README.md))
 - Optional dual MCP setup with the official Asana server (see [reference.md](./reference.md))
 
 ## Install

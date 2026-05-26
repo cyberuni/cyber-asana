@@ -70,24 +70,16 @@ This avoids passing `--workspace` on every command. Keep workspace GID in env �
 ### 5. Confirm setup
 
 ```bash
-cyber-asana project list --json
+cyber-asana --version
+# or, if using npx without global install:
+npx cyber-asana --version
 ```
 
-A successful JSON response with projects confirms everything is working (`ASANA_WORKSPACE` must be set).
+A successful version print confirms the CLI runs with credentials loaded. If workspace-scoped commands still fail, recheck `ASANA_WORKSPACE` from step 4.
 
 ### 6. Optional — repo project registry
 
-For repos that work against a fixed set of Asana projects, add a commit-friendly registry:
-
-```bash
-mkdir -p .agents
-printf '%s\n' '{"schema_version":1,"projects":[]}' > .agents/cyber-asana.json
-cyber-asana config add <project-gid>
-```
-
-Repeat `config add` for each project. Commit `.agents/cyber-asana.json` to source control.
-
-Use `cyber-asana config sync` after bulk renames in Asana. For task creation with the registry, use the **create-asana-task** skill.
+For repos that work against a fixed set of Asana projects, use the **pin-asana-projects** skill. It searches projects by keyword with `project search`, confirms selections with the user, and pins them in `.agents/cyber-asana.json` via `config add`.
 
 ### 7. Optional — dual MCP with official Asana
 
