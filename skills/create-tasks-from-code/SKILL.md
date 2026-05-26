@@ -1,6 +1,6 @@
 ---
 name: create-tasks-from-code
-description: Use this skill when the user wants to scan code for TODO or FIXME comments and create Asana tasks from them. Scans the codebase, lets the LLM decide which are real and actionable, then creates tasks for the filtered set.
+description: Use this skill when scanning code for TODO/FIXME comments and creating actionable Asana tasks from them.
 ---
 
 # Create Tasks from Code
@@ -19,18 +19,19 @@ cyber-asana task scan-todos [dir] --json
 
 Omit `[dir]` to scan the current working directory. Pass `--ext` or `--exclude` to narrow the search if needed.
 
-This returns a JSON array of `{ file, line, pattern, text }` objects.
+Parse stdout JSON — an array of `{ file, line, pattern, text }` objects.
 
 ### 2. Review and filter (LLM judgment)
 
 From the scan results, identify which items are:
+
 - **Actionable**: real work that should be tracked (e.g. `TODO: handle rate limit errors`)
 - **Skip**: noise, already-done items, test fixtures, auto-generated comments
 
 Also check against existing tasks to avoid duplicates:
 
 ```bash
-cyber-asana task list --project <project-gid> --json
+cyber-asana task list --project-gid <project-gid> --json
 ```
 
 Deduplicate semantically — "Fix auth timeout" and "TODO: fix auth timeout" are the same thing.
@@ -44,7 +45,7 @@ Present the filtered list before creating anything. Let the user remove or renam
 For each approved item:
 
 ```bash
-cyber-asana task create "<task name>" --project <project-gid> --notes "<file>:<line>"
+cyber-asana task create "<task name>" --project-gid <project-gid> --notes "<file>:<line>"
 ```
 
 ### 5. Report

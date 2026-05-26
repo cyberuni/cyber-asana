@@ -1,6 +1,6 @@
 ---
 name: link-pr-to-task
-description: Use this skill when the user wants to post a GitHub PR URL as a comment on an Asana task, linking the code change back to the work item. Resolves the task from context or prompts the user.
+description: Use this skill when posting a GitHub PR URL as a comment on an Asana task to link code back to the work item.
 ---
 
 # Link PR to Asana Task
@@ -30,17 +30,18 @@ Try to infer the task from context in this order:
 If no task is found automatically:
 
 ```bash
-cyber-asana tasks search --query "<pr title keywords>" --json
+cyber-asana task search "<pr title keywords>" --json
 ```
 
-Present matches and ask the user to confirm.
+Parse JSON matches. Present options and ask the user to confirm.
 
 ### 3. Post the comment
 
 ```bash
-cyber-asana stories create --task <task-gid> \
-  --text "PR: <pr-url>"
+cyber-asana comment create "PR: <pr-url>" --task-gid <task-gid>
 ```
+
+(`story create` is an alias.)
 
 ### 4. Confirm
 

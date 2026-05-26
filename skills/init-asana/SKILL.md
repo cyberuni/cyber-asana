@@ -1,6 +1,6 @@
 ---
 name: init-asana
-description: Use this skill when the user asks to set up, initialize, or configure cyber-asana or their Asana credentials. Guides through setting ASANA_TOKEN and ASANA_WORKSPACE, verifies the connection, and helps find the workspace GID.
+description: Use this skill when setting up cyber-asana — PAT, workspace GID, connection verify, optional registry.
 ---
 
 # Init Asana
@@ -24,41 +24,37 @@ If not set, guide the user:
 
 1. Go to Asana → Profile Settings → Apps → Personal access tokens
 2. Create a new token and copy it
-3. Add to shell profile (`.bashrc`, `.zshrc`, etc.):
-
-```bash
-export ASANA_TOKEN=your_token_here
-```
+3. Add to the user's shell profile (e.g. `export ASANA_TOKEN=...` in the file their shell loads on login)
 
 Or pass per-command with `--token <pat>`.
 
 ### 3. Verify the connection and find workspace GID
 
 ```bash
-cyber-asana workspaces list
+cyber-asana workspace list --json
 ```
 
 If it fails, the token is invalid or not set. Fix credentials and retry.
 
-The output lists workspaces with their GIDs. Ask the user which workspace to use.
+Parse the JSON `data` array for `{ gid, name }`. Ask the user which workspace to use.
 
 ### 4. Set ASANA_WORKSPACE
 
-Add to shell profile:
+Add to the user's shell profile:
 
 ```bash
 export ASANA_WORKSPACE=<workspace-gid>
 ```
 
-This avoids passing `--workspace` on every command. Workspace GID stays in env — not in repo config (see `docs/adr/0001-no-workspace-gid-in-repo-config.md`).
+This avoids passing `--workspace` on every command. Keep workspace GID in env — not in committed repo config (`.agents/cyber-asana.json` stores projects only).
 
 ### 5. Confirm setup
 
 ```bash
-cyber-asana projects list
+cyber-asana project list --json
 ```
 
-A successful project listing confirms everything is working.
+A successful JSON response with projects confirms everything is working (`ASANA_WORKSPACE` must be set).
 
 ### 6. Optional — repo project registry
 
@@ -72,7 +68,7 @@ cyber-asana config add <project-gid>
 
 Repeat `config add` for each project. Commit `.agents/cyber-asana.json` to source control.
 
-Use `cyber-asana config sync` after bulk renames in Asana. See [`../create-asana-task/SKILL.md`](../create-asana-task/SKILL.md) for task creation with the registry.
+Use `cyber-asana config sync` after bulk renames in Asana. For task creation with the registry, use the **create-asana-task** skill.
 
 ### 7. Optional — dual MCP with official Asana
 
@@ -81,4 +77,10 @@ Both servers can run together with separate config keys and credentials:
 - **Official Asana MCP** — config key `asana`; OAuth app with `ASANA_CLIENT_ID` and `ASANA_CLIENT_SECRET` (not `ASANA_TOKEN`).
 - **cyber-asana** — config key `cyber-asana`; PAT via `ASANA_TOKEN` (steps 2–4 above).
 
-See [readme — Using alongside official Asana MCP](../../readme.md#using-alongside-official-asana-mcp) for dual-config examples and routing guidance.
+See [reference.md](./reference.md) for dual-config JSON examples and routing guidance.
+
+## References
+
+- [reference.md](./reference.md) — dual MCP setup and routing
+- [Official Asana MCP docs](https://developers.asana.com/docs/mcp-tools-reference)
+- [cyber-asana readme — dual MCP](https://github.com/cyberuni/cyber-asana/blob/main/readme.md#using-alongside-official-asana-mcp)

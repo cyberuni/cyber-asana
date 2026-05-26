@@ -1,9 +1,13 @@
 ---
 name: create-asana-task
-description: Use when the user asks to create, add, or file an Asana task
+description: Use this skill when the user asks to create, add, or file an Asana task via MCP or CLI.
 ---
 
 # Create Asana Task
+
+## When to use
+
+When the user wants a new Asana task created and you have (or can resolve) workspace and project context.
 
 ## Instructions
 

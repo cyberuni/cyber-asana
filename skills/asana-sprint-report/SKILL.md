@@ -1,6 +1,6 @@
 ---
 name: asana-sprint-report
-description: Use this skill when the user wants a sprint summary — completed vs incomplete tasks in an Asana project or section. Produces a report suitable for a retro or stakeholder update.
+description: Use this skill when the user wants a sprint summary — completed vs incomplete tasks for retro or stakeholders.
 ---
 
 # Asana Sprint Report
@@ -16,20 +16,22 @@ When the user asks for a sprint summary, retrospective data, or completion stats
 Ask (or infer): which project, which section (sprint), and the sprint start date.
 
 ```bash
-cyber-asana project list
-cyber-asana section list --project <project-gid>
+cyber-asana project list --json
+cyber-asana section list --project-gid <project-gid> --json
 ```
+
+Parse JSON for project and section GIDs.
 
 ### 2. Fetch completed tasks
 
 ```bash
-cyber-asana task list --project <project-gid> --completed-since <sprint-start-date> --json
+cyber-asana task list --project-gid <project-gid> --completed-since <sprint-start-date> --json
 ```
 
 ### 3. Fetch incomplete tasks
 
 ```bash
-cyber-asana task list --project <project-gid> --completed-since now --json
+cyber-asana task list --project-gid <project-gid> --incomplete --json
 ```
 
 Filter both lists by section GID if reporting on a specific sprint section.

@@ -1,6 +1,6 @@
 ---
 name: asana-standup
-description: Use this skill when the user wants a standup update from Asana — tasks completed recently and tasks due today or this week. Formats output suitable for pasting into Slack or a standup doc.
+description: Use this skill when the user wants a standup update from Asana — done, today, and blockers.
 ---
 
 # Asana Standup
@@ -16,22 +16,27 @@ When the user asks for their standup, daily update, or "what did I do / what am 
 Use two days ago as the cutoff (adjust if the user specifies a different window):
 
 ```bash
-cyber-asana task list --project <project-gid> --completed-since <two-days-ago-date> --json
+cyber-asana task list --project-gid <project-gid> --completed-since <two-days-ago-date> --json
 ```
 
 ### 2. Fetch incomplete tasks
 
 ```bash
-cyber-asana task list --project <project-gid> --completed-since now --json
+cyber-asana task list --project-gid <project-gid> --incomplete --json
 ```
 
-`--completed-since now` returns only incomplete tasks.
+If no project is known, ask the user or run:
 
-If no project is known, ask the user or use `cyber-asana project list` to pick one.
+```bash
+cyber-asana project list --json
+```
+
+Parse JSON to pick a project GID.
 
 ### 3. Format standup (LLM judgment)
 
-From the two result sets, select and prioritize:
+From the two JSON result sets, select and prioritize:
+
 - **Done**: completed tasks worth mentioning (skip trivial or unrelated items)
 - **Today**: incomplete tasks due today or actively in progress
 - **Up next**: other near-term incomplete tasks, if relevant
