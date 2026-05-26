@@ -13,10 +13,18 @@ When the user wants a local snapshot of an Asana project's tasks — for sprint 
 
 ### 1. Identify the project
 
-If the user hasn't specified a project GID:
+If the user hasn't specified a project GID, search for it (requires `ASANA_WORKSPACE` or `--workspace-gid`):
+
+If they gave a project name or fragment:
 
 ```bash
-cyber-asana project list --json
+cyber-asana project search "<name or fragment>" --json
+```
+
+Otherwise search active projects:
+
+```bash
+cyber-asana project search --no-completed --json
 ```
 
 Parse JSON and ask the user to pick one.
