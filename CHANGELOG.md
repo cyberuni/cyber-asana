@@ -1,5 +1,11 @@
 # cyber-asana
 
+## 0.3.1
+
+### Patch Changes
+
+- 35769bc: Prefer `ASANA_ASSESS_TOKEN` and `ASANA_WORKSPACE_GID` for cyber-asana configuration, while keeping `ASANA_TOKEN` and `ASANA_WORKSPACE` as deprecated fallbacks.
+
 ## 0.3.0
 
 ### Minor Changes
