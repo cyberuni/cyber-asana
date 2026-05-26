@@ -13,8 +13,8 @@ When the user is setting up `cyber-asana` for the first time, or when commands f
 
 Before running any `cyber-asana` command:
 
-1. Resolve exact semver: `npm view cyber-asana version` (never `@latest`, never a literal `<version>` placeholder).
-2. Check if already available: `npx cyber-asana@<exact> --version` (or `cyber-asana --version` if globally installed).
+1. **Resolve pinned version** — latest published semver: `npm view cyber-asana version`. Use this value as `<exact>` for every `npx cyber-asana@<exact>` in this skill and all other cyber-asana skills (never `@latest`, never a literal placeholder).
+2. **Check availability**: `npx cyber-asana@<exact> --version` (or `cyber-asana --version` if globally installed).
 3. If that succeeds, proceed normally.
 
 If it fails (npx install prompt, `command not found`, or other non-zero exit):

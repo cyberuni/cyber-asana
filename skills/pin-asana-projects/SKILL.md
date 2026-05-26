@@ -9,7 +9,7 @@ description: Use this skill when pinning repo Asana projects to `.agents/cyber-a
 
 When the user wants to pin Asana projects to this repo — a commit-friendly name → GID map in `.agents/cyber-asana.json` for init, onboarding, or when the file is missing or stale.
 
-Requires `ASANA_TOKEN` and `ASANA_WORKSPACE` (see **init-asana**).
+Requires `ASANA_TOKEN` and `ASANA_WORKSPACE` (see **init-asana**). When using npx, pin `<exact>` with `npm view cyber-asana version` (same rule as **init-asana**).
 
 ## Instructions
 
@@ -30,7 +30,7 @@ For each keyword, search the workspace (requires `ASANA_WORKSPACE` or `--workspa
 ```bash
 cyber-asana project search "<keyword>" --json
 # or, if using npx without global install:
-npx cyber-asana@<version> project search "<keyword>" --json
+npx cyber-asana@<exact> project search "<keyword>" --json
 ```
 
 Prefer active work when the user did not ask for archived projects:
