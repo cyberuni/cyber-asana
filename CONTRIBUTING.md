@@ -30,7 +30,8 @@ pnpm build
 
 | Context | `command` | `args` |
 | --- | --- | --- |
-| MCP host (Cursor, Claude Desktop, etc.) | `node` | `["dist/mcp.js"]` (relative to repo root) or an absolute path |
+| MCP host (Cursor, Claude Desktop, etc.) | `node` | `["dist/cli.js", "mcp"]` or `["dist/mcp.js"]` |
+| MCP Inspector | `node` | `["dist/cli.js", "mcp"]` — see [MCP Inspector](readme.md#mcp-inspector) |
 
 ### Cursor
 
@@ -64,7 +65,7 @@ pnpm build
 npx @modelcontextprotocol/inspector \
   -e ASANA_TOKEN="$ASANA_TOKEN" \
   -e ASANA_WORKSPACE="$ASANA_WORKSPACE" \
-  -- node dist/mcp.js
+  -- node dist/cli.js mcp
 ```
 
 Consumer MCP setup (installed package) is documented in [readme.md](readme.md#mcp-server).

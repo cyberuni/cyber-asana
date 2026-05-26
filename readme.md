@@ -365,10 +365,11 @@ Install `cyber-asana` in the project that hosts your agent (`npm install cyber-a
 | Context | `command` | `args` |
 | --- | --- | --- |
 | Project dependency (`npm install cyber-asana`) | `node` | `["-e", "import('cyber-asana/mcp')"]` |
+| Project dependency (bin on `PATH`) | `cyber-asana` | `["mcp"]` |
+| Ephemeral (`npx`, no project install) | `npx` | `["-y", "cyber-asana", "mcp"]` |
+| Developing this repo (`pnpm build`) | `node` | `["dist/cli.js", "mcp"]` or `["dist/mcp.js"]` — see [CONTRIBUTING.md](CONTRIBUTING.md) |
 
-The package exports `./mcp` → `dist/mcp.js`. Do not use `["--import", "cyber-asana/mcp"]` alone — without a main script, Node does not wire stdin to the MCP server and the host times out on `initialize`. `["--import", "cyber-asana/mcp", "-e", ""]` also works, but prefer the dynamic-import row above.
-
-Developing this repo? See [CONTRIBUTING.md](CONTRIBUTING.md).
+The package exports `./mcp` → `dist/mcp.js` and exposes the same server via `cyber-asana mcp`. Do not use `["--import", "cyber-asana/mcp"]` alone — without a main script, Node does not wire stdin to the MCP server and the host times out on `initialize`. `["--import", "cyber-asana/mcp", "-e", ""]` also works, but prefer the dynamic-import row above.
 
 ### Using alongside official Asana MCP
 
@@ -435,6 +436,23 @@ Shared JSON block (cyber-asana only, project install):
     "cyber-asana": {
       "command": "node",
       "args": ["-e", "import('cyber-asana/mcp')"],
+      "env": {
+        "ASANA_TOKEN": "<your-pat>",
+        "ASANA_WORKSPACE": "<workspace-gid>"
+      }
+    }
+  }
+}
+```
+
+Ephemeral alternative (no `npm install`; uses the `cyber-asana mcp` subcommand):
+
+```json
+{
+  "mcpServers": {
+    "cyber-asana": {
+      "command": "npx",
+      "args": ["-y", "cyber-asana", "mcp"],
       "env": {
         "ASANA_TOKEN": "<your-pat>",
         "ASANA_WORKSPACE": "<workspace-gid>"
@@ -517,6 +535,24 @@ npx @modelcontextprotocol/inspector \
   -e ASANA_TOKEN=<your-pat> \
   -e ASANA_WORKSPACE=<workspace-gid> \
   -- node -e "import('cyber-asana/mcp')"
+```
+
+Ephemeral (no project install):
+
+```sh
+npx @modelcontextprotocol/inspector \
+  -e ASANA_TOKEN=<your-pat> \
+  -e ASANA_WORKSPACE=<workspace-gid> \
+  -- npx -y cyber-asana mcp
+```
+
+Developing this repo (`pnpm build` first):
+
+```sh
+npx @modelcontextprotocol/inspector \
+  -e ASANA_TOKEN="$ASANA_TOKEN" \
+  -e ASANA_WORKSPACE="$ASANA_WORKSPACE" \
+  -- node dist/cli.js mcp
 ```
 
 Tools are named `asana_<resource>_<action>` (e.g. `asana_task_create`).
