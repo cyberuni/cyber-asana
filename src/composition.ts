@@ -10,6 +10,7 @@ import { createGoalApi, type GoalApi } from './goals/api.js'
 import { goalCommand } from './goals/cli.js'
 import { createAsanaGoalGateway } from './goals/gateway.js'
 import { registerGoalTools } from './goals/mcp.js'
+import { mcpCommand } from './mcp-cli.js'
 import { createPortfolioApi, type PortfolioApi } from './portfolios/api.js'
 import { portfolioCommand } from './portfolios/cli.js'
 import { createAsanaPortfolioGateway } from './portfolios/gateway.js'
@@ -95,6 +96,7 @@ export function registerCliCommands(program: Command, getContext: () => RuntimeC
 	program.addCommand(storyCommand('comment', () => getContext().stories))
 	program.addCommand(configCommand(() => getContext().projects))
 	program.addCommand(urlCommand())
+	program.addCommand(mcpCommand(getContext))
 }
 
 export function registerMcpTools(server: McpServer, getContext: () => RuntimeContext) {
