@@ -1,5 +1,11 @@
 # cyber-asana
 
+## 0.4.1
+
+### Patch Changes
+
+- aff1e0d: Fix polynomial ReDoS vulnerability in HTML tag validation regex.
+
 ## 0.4.0
 
 ### Minor Changes
