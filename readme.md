@@ -1,6 +1,10 @@
 # cyber-asana
 
-Asana CLI and MCP server for AI agents.
+Agent skills, MCP tools, and a CLI for Asana — built for AI-assisted workflows.
+
+- **Skills** — guided workflows (task creation, standups, repo project lookup). [Jump to skills →](#agent-skills)
+- **MCP** — `asana_*` tools for agents. [Jump to MCP →](#mcp-server)
+- **CLI** — `cyber-asana` for terminals and scripts. [Jump to CLI →](#cli)
 
 ## Installation
 
@@ -19,7 +23,291 @@ export ASANA_WORKSPACE=<workspace-gid>   # optional default workspace
 
 Or pass `--token <pat>` and `--workspace <gid>` per command.
 
+## Agent skills
+
+`cyber-asana` ships workflow skills under [`skills/`](skills/) for Cursor, Claude Code, and other agents. **Start here** — skills encode when to use MCP tools vs CLI, how to resolve projects from repo config, and common workflows (standups, sprint reports, task creation).
+
+### Install skills
+
+From this repo or after cloning:
+
+```sh
+npx skills add cyberuni/cyber-asana
+```
+
+Or link individual skills into your agent's skills directory (e.g. `~/.cursor/skills/`, `~/.claude/skills/`).
+
+Set [authentication](#authentication) before running any workflow.
+
+### Included skills
+
+| Skill | Use when |
+| --- | --- |
+| [`init-asana`](skills/init-asana/SKILL.md) | First-time setup; `ASANA_TOKEN`, workspace GID, verify connection |
+| [`create-asana-task`](skills/create-asana-task/SKILL.md) | Create or file a task (URL parse, repo project lookup, MCP `asana_task_create`) |
+| [`asana-standup`](skills/asana-standup/SKILL.md) | Standup update — recent completions and due-soon tasks |
+| [`asana-sprint-report`](skills/asana-sprint-report/SKILL.md) | Sprint retro — completed vs incomplete in a project/section |
+| [`sync-asana-project`](skills/sync-asana-project/SKILL.md) | Pull project tasks into local markdown for planning |
+| [`create-tasks-from-code`](skills/create-tasks-from-code/SKILL.md) | Scan TODO/FIXME comments and create actionable Asana tasks |
+| [`link-pr-to-task`](skills/link-pr-to-task/SKILL.md) | Post a GitHub PR URL as a comment on the related task |
+
+Prefer **`create-asana-task`** over ad-hoc `asana_task_create` calls so agents resolve workspace, project, and URL fields consistently.
+
+### Repo project registry
+
+Agents and MCP tools can resolve human-readable project names without an API call. Commit a name → GID map at [`.agents/cyber-asana.json`](.agents/cyber-asana.json.example) (see example). Workspace GID stays in `ASANA_WORKSPACE` — not in this file ([ADR](docs/adr/0001-no-workspace-gid-in-repo-config.md)).
+
+```sh
+cyber-asana config add <project-gid>              # seed or update an entry
+cyber-asana config resolve-project "Backend" --json  # local lookup, no API
+cyber-asana config sync                           # refresh cached names from Asana
+cyber-asana config show
+```
+
+`asana_project_get` and `project get` opportunistically update cached names when results include `{ gid, name }`.
+
+## MCP Server
+
+`cyber-asana` ships a stdio MCP server. Set [authentication](#authentication) env vars (`ASANA_TOKEN`, optional `ASANA_WORKSPACE`) before connecting.
+
+Install `cyber-asana` in the project that hosts your agent (`npm install cyber-asana`). The host spawns a child process and talks MCP over stdio — not a shared daemon.
+
+| Context | `command` | `args` |
+| --- | --- | --- |
+| Project dependency (`npm install cyber-asana`) | `node` | `["-e", "import('cyber-asana/mcp')"]` |
+| Project dependency (bin on `PATH`) | `cyber-asana` | `["mcp"]` |
+| Ephemeral (`npx`, no project install) | `npx` | `["-y", "cyber-asana", "mcp"]` |
+| Developing this repo (`pnpm build`) | `node` | `["dist/cli.js", "mcp"]` or `["dist/mcp.js"]` — see [CONTRIBUTING.md](CONTRIBUTING.md) |
+
+The package exports `./mcp` → `dist/mcp.js` and exposes the same server via `cyber-asana mcp`. Do not use `["--import", "cyber-asana/mcp"]` alone — without a main script, Node does not wire stdin to the MCP server and the host times out on `initialize`. `["--import", "cyber-asana/mcp", "-e", ""]` also works, but prefer the dynamic-import row above.
+
+### Using alongside official Asana MCP
+
+You can run **both** the [official Asana MCP](https://developers.asana.com/docs/mcp-tools-reference) and cyber-asana in the same host. Tool names already differ (`create_tasks` vs `asana_task_create`), so the real conflict is the **config key** — use `"asana"` for the official server and `"cyber-asana"` for this package.
+
+| Server | Config key | Auth | Env vars |
+| --- | --- | --- | --- |
+| Official Asana MCP | `asana` | OAuth 2.0 | `ASANA_CLIENT_ID`, `ASANA_CLIENT_SECRET` |
+| cyber-asana | `cyber-asana` | Personal access token | `ASANA_TOKEN`, optional `ASANA_WORKSPACE` |
+
+**Credentials are not interchangeable:** MCP OAuth tokens from the official server cannot be used as `ASANA_TOKEN` for cyber-asana or the REST API. PATs cannot substitute for official MCP OAuth.
+
+Dual-config example (Cursor-style; see [Asana's connecting doc](https://developers.asana.com/docs/connecting-mcp-clients-to-asanas-v2-server) for host-specific OAuth setup):
+
+```json
+{
+  "mcpServers": {
+    "asana": {
+      "url": "https://mcp.asana.com/v2/mcp",
+      "auth": {
+        "CLIENT_ID": "${env:ASANA_CLIENT_ID}",
+        "CLIENT_SECRET": "${env:ASANA_CLIENT_SECRET}"
+      }
+    },
+    "cyber-asana": {
+      "command": "node",
+      "args": ["-e", "import('cyber-asana/mcp')"],
+      "env": {
+        "ASANA_TOKEN": "${ASANA_TOKEN}",
+        "ASANA_WORKSPACE": "${ASANA_WORKSPACE}"
+      }
+    }
+  }
+}
+```
+
+Shell profile for dual setup:
+
+```sh
+export ASANA_CLIENT_ID="..."      # official MCP OAuth app
+export ASANA_CLIENT_SECRET="..."  # official MCP OAuth app
+export ASANA_TOKEN="..."          # cyber-asana PAT (create at app.asana.com → My Apps)
+export ASANA_WORKSPACE="..."      # cyber-asana default workspace (optional)
+```
+
+**Migration:** If you already registered cyber-asana under the config key `"asana"`, rename it to `"cyber-asana"` before adding the official `"asana"` server. This is a host-config change only — not a package breaking change.
+
+**Which server to use:**
+
+| Prefer official `asana` | Prefer `cyber-asana` |
+| --- | --- |
+| `search_objects`, `get_status_overview` | `asana_url_parse`, repo config (`.agents/cyber-asana.json`) |
+| Interactive previews (`create_task_preview`, etc.) | Subtasks, dependencies, followers, section placement |
+| New MCP-only capabilities Asana ships first | `asana_task_scan_todos`, `asana_project_export`, rich REST-backed writes |
+| Simple reads when V2 coverage suffices | Goals/tags/portfolios CRUD beyond V2 scope |
+
+Default: if both can do the job, prefer **official for discovery/status** and **cyber-asana for write-heavy automation**.
+
+Shared JSON block (cyber-asana only, project install):
+
+```json
+{
+  "mcpServers": {
+    "cyber-asana": {
+      "command": "node",
+      "args": ["-e", "import('cyber-asana/mcp')"],
+      "env": {
+        "ASANA_TOKEN": "<your-pat>",
+        "ASANA_WORKSPACE": "<workspace-gid>"
+      }
+    }
+  }
+}
+```
+
+Ephemeral alternative (no `npm install`; uses the `cyber-asana mcp` subcommand):
+
+```json
+{
+  "mcpServers": {
+    "cyber-asana": {
+      "command": "npx",
+      "args": ["-y", "cyber-asana", "mcp"],
+      "env": {
+        "ASANA_TOKEN": "<your-pat>",
+        "ASANA_WORKSPACE": "<workspace-gid>"
+      }
+    }
+  }
+}
+```
+
+### Claude Desktop
+
+| OS | Config file |
+| --- | --- |
+| macOS | `~/Library/Application Support/Claude/claude_desktop_config.json` |
+| Windows | `%APPDATA%\Claude\claude_desktop_config.json` |
+| Linux | `~/.config/Claude/claude_desktop_config.json` |
+
+Merge the shared JSON block above into the top-level `mcpServers` object. Restart Claude Desktop after saving.
+
+### Claude Code
+
+**User or local scope** (recommended for personal tokens):
+
+```sh
+claude mcp add -e ASANA_TOKEN=<your-pat> -e ASANA_WORKSPACE=<workspace-gid> cyber-asana -- \
+  node -e "import('cyber-asana/mcp')"
+```
+
+Official Asana MCP (OAuth; see [Asana connecting doc](https://developers.asana.com/docs/connecting-mcp-clients-to-asanas-v2-server) for exact flags):
+
+```sh
+claude mcp add --transport http asana https://mcp.asana.com/v2/mcp
+```
+
+**Project scope** — commit `.mcp.json` in the repo root. Claude Code expands `${VAR}` from your shell environment (export `ASANA_TOKEN` before launching):
+
+```json
+{
+  "mcpServers": {
+    "cyber-asana": {
+      "command": "node",
+      "args": ["-e", "import('cyber-asana/mcp')"],
+      "env": {
+        "ASANA_TOKEN": "${ASANA_TOKEN}",
+        "ASANA_WORKSPACE": "${ASANA_WORKSPACE}"
+      }
+    }
+  }
+}
+```
+
+Verify with `claude mcp list`. Use `/mcp` in a session to reconnect without restarting.
+
+### Cursor
+
+User-wide: `~/.cursor/mcp.json`. Project-specific: `.cursor/mcp.json` in the repo root. Use the shared JSON block above. Reload MCP servers after changes; Agent mode is required for tool use.
+
+### Codex
+
+Add to `~/.codex/config.toml` (project-local Codex config is also supported under `.codex/config.toml`):
+
+```toml
+[mcp_servers.cyber-asana]
+command = "node"
+args = ["-e", "import('cyber-asana/mcp')"]
+
+[mcp_servers.cyber-asana.env]
+ASANA_TOKEN = "<your-pat>"
+ASANA_WORKSPACE = "<workspace-gid>"
+```
+
+### MCP Inspector
+
+Debug tools and schemas without an agent host. UI defaults to [http://localhost:6274](http://localhost:6274).
+
+Project dependency:
+
+```sh
+npx @modelcontextprotocol/inspector \
+  -e ASANA_TOKEN=<your-pat> \
+  -e ASANA_WORKSPACE=<workspace-gid> \
+  -- node -e "import('cyber-asana/mcp')"
+```
+
+Ephemeral (no project install):
+
+```sh
+npx @modelcontextprotocol/inspector \
+  -e ASANA_TOKEN=<your-pat> \
+  -e ASANA_WORKSPACE=<workspace-gid> \
+  -- npx -y cyber-asana mcp
+```
+
+Developing this repo (`pnpm build` first):
+
+```sh
+npx @modelcontextprotocol/inspector \
+  -e ASANA_TOKEN="$ASANA_TOKEN" \
+  -e ASANA_WORKSPACE="$ASANA_WORKSPACE" \
+  -- node dist/cli.js mcp
+```
+
+Tools are named `asana_<resource>_<action>` (e.g. `asana_task_create`).
+
+### MCP tools
+
+| Resource | Tools |
+| --- | --- |
+| `workspace` | `asana_workspace_list`, `asana_workspace_get` |
+| `project` | `asana_project_list`, `asana_project_get`, `asana_project_counts`, `asana_project_search`, `asana_project_create`, `asana_project_update`, `asana_project_delete`, `asana_project_export` |
+| `task` | `asana_task_list`, `asana_task_my_tasks`, `asana_task_subtask_list`, `asana_task_subtask_create`, `asana_task_get`, `asana_task_get_many`, `asana_task_create`, `asana_task_update`, `asana_task_delete`, `asana_task_search`, `asana_task_follower_add`, `asana_task_follower_remove`, `asana_task_project_add`, `asana_task_project_remove`, `asana_task_dependency_list`, `asana_task_dependency_add`, `asana_task_dependency_remove`, `asana_task_dependent_list`, `asana_task_dependent_add`, `asana_task_dependent_remove`, `asana_task_scan_todos` |
+| `section` | `asana_section_list`, `asana_section_get`, `asana_section_create`, `asana_section_update`, `asana_section_delete` |
+| `user` | `asana_user_list`, `asana_user_get`, `asana_user_me` |
+| `team` | `asana_team_list`, `asana_team_get` |
+| `portfolio` | `asana_portfolio_list`, `asana_portfolio_get`, `asana_portfolio_create`, `asana_portfolio_update`, `asana_portfolio_delete` |
+| `goal` | `asana_goal_list`, `asana_goal_get`, `asana_goal_create`, `asana_goal_update`, `asana_goal_delete` |
+| `tag` | `asana_tag_list`, `asana_tag_get`, `asana_tag_create`, `asana_tag_update`, `asana_tag_delete`, `asana_tag_list_for_task`, `asana_tag_list_tasks`, `asana_tag_add_to_task`, `asana_tag_remove_from_task` |
+| `attachment` | `asana_attachment_list`, `asana_attachment_get` |
+| `story` | `asana_story_list`, `asana_story_create` |
+| `comment` | `asana_comment_list`, `asana_comment_create` (aliases for `story`) |
+| `url` | `asana_url_parse` (no API call; extracts GIDs from Asana app URLs) |
+
+List tools accept `limit`, `offset`, `opt_fields`, `fetch_all`, and `max_pages` where Asana supports them.
+Paginated responses include `data`, `next_page`, and `limit`; fetch-all responses also include `page_count` and `truncated`.
+`asana_user_list` omits `limit`; search tools are not paginated.
+
+Notable parameters:
+
+- `asana_task_list`, `asana_task_my_tasks`, `asana_task_subtask_list` — `incomplete: true` filters to incomplete tasks
+- `asana_task_subtask_list` — `assignee_email`, `follower_emails`, `num_subtasks`, `custom_fields` expand returned fields
+- `asana_task_create` — `project_gid`, `project_gids`, `follower_gids`, `html_notes`, `parent_gid`, `resource_subtype`, `custom_fields`
+- `asana_task_update` — `html_notes`, `parent_gid`, `clear_parent`, `resource_subtype`, `custom_fields`
+- `asana_task_follower_add` / `asana_task_follower_remove` — manage followers on existing tasks
+- `asana_project_search` — `text`, `completed`, team/owner/member/portfolio filters, date filters, `sort_by`, `sort_ascending`, `opt_fields`
+- `asana_project_counts` — `opt_fields` defaults to `num_tasks,num_incomplete_tasks,num_completed_tasks`
+- `asana_story_create` / `asana_comment_create` — `template: true` interpolates `{task.name}`, `{task.assignee}`, `{task.due_on}`, `{task.notes}`
+- `asana_url_parse` — local URL parsing; use `workspace_gid` + `project_gid` for create; `list_view_gid` is not a section GID
+
+Per-tool parameter schemas live in `src/<domain>/mcp.ts` (e.g. `src/tasks/mcp.ts`) and [`src/url-mcp.ts`](src/url-mcp.ts). MCP hosts also expose tool schemas at runtime when the server is connected.
+
+For task creation workflows, use the [`create-asana-task`](skills/create-asana-task/SKILL.md) skill ([Agent skills](#agent-skills)).
+
 ## CLI
+
+Terminal and scripting interface — same API surface as MCP, without an agent host. For agents, prefer [Agent skills](#agent-skills) and [MCP](#mcp-server) first.
 
 ```sh
 cyber-asana <resource> <action> [options]
@@ -341,259 +629,7 @@ Supported paths include `/project/...`, `/project/.../task/...`, `/project/.../l
 | `task_gid` | Comments, updates — not create |
 | `list_view_gid` | **No** — browser list-view metadata, not a section GID |
 
-For task creation (with optional URL parsing), use the [`create-asana-task`](skills/create-asana-task/SKILL.md) skill.
-
-### Repo project registry
-
-Commit a project name → GID map at `.agents/cyber-asana.json` (see [`.agents/cyber-asana.json.example`](.agents/cyber-asana.json.example)). Workspace GID stays in `ASANA_WORKSPACE` — not in this file ([ADR](docs/adr/0001-no-workspace-gid-in-repo-config.md)).
-
-```sh
-cyber-asana config add <project-gid>              # seed or update an entry
-cyber-asana config resolve-project "Backend" --json  # local lookup, no API
-cyber-asana config sync                           # refresh all cached names from Asana
-cyber-asana config show
-```
-
-`project get` (CLI/MCP) opportunistically updates cached names when results include `{ gid, name }`.
-
-## MCP Server
-
-`cyber-asana` ships a stdio MCP server. Set [authentication](#authentication) env vars (`ASANA_TOKEN`, optional `ASANA_WORKSPACE`) before connecting.
-
-Install `cyber-asana` in the project that hosts your agent (`npm install cyber-asana`). The host spawns a child process and talks MCP over stdio — not a shared daemon.
-
-| Context | `command` | `args` |
-| --- | --- | --- |
-| Project dependency (`npm install cyber-asana`) | `node` | `["-e", "import('cyber-asana/mcp')"]` |
-| Project dependency (bin on `PATH`) | `cyber-asana` | `["mcp"]` |
-| Ephemeral (`npx`, no project install) | `npx` | `["-y", "cyber-asana", "mcp"]` |
-| Developing this repo (`pnpm build`) | `node` | `["dist/cli.js", "mcp"]` or `["dist/mcp.js"]` — see [CONTRIBUTING.md](CONTRIBUTING.md) |
-
-The package exports `./mcp` → `dist/mcp.js` and exposes the same server via `cyber-asana mcp`. Do not use `["--import", "cyber-asana/mcp"]` alone — without a main script, Node does not wire stdin to the MCP server and the host times out on `initialize`. `["--import", "cyber-asana/mcp", "-e", ""]` also works, but prefer the dynamic-import row above.
-
-### Using alongside official Asana MCP
-
-You can run **both** the [official Asana MCP](https://developers.asana.com/docs/mcp-tools-reference) and cyber-asana in the same host. Tool names already differ (`create_tasks` vs `asana_task_create`), so the real conflict is the **config key** — use `"asana"` for the official server and `"cyber-asana"` for this package.
-
-| Server | Config key | Auth | Env vars |
-| --- | --- | --- | --- |
-| Official Asana MCP | `asana` | OAuth 2.0 | `ASANA_CLIENT_ID`, `ASANA_CLIENT_SECRET` |
-| cyber-asana | `cyber-asana` | Personal access token | `ASANA_TOKEN`, optional `ASANA_WORKSPACE` |
-
-**Credentials are not interchangeable:** MCP OAuth tokens from the official server cannot be used as `ASANA_TOKEN` for cyber-asana or the REST API. PATs cannot substitute for official MCP OAuth.
-
-Dual-config example (Cursor-style; see [Asana's connecting doc](https://developers.asana.com/docs/connecting-mcp-clients-to-asanas-v2-server) for host-specific OAuth setup):
-
-```json
-{
-  "mcpServers": {
-    "asana": {
-      "url": "https://mcp.asana.com/v2/mcp",
-      "auth": {
-        "CLIENT_ID": "${env:ASANA_CLIENT_ID}",
-        "CLIENT_SECRET": "${env:ASANA_CLIENT_SECRET}"
-      }
-    },
-    "cyber-asana": {
-      "command": "node",
-      "args": ["-e", "import('cyber-asana/mcp')"],
-      "env": {
-        "ASANA_TOKEN": "${ASANA_TOKEN}",
-        "ASANA_WORKSPACE": "${ASANA_WORKSPACE}"
-      }
-    }
-  }
-}
-```
-
-Shell profile for dual setup:
-
-```sh
-export ASANA_CLIENT_ID="..."      # official MCP OAuth app
-export ASANA_CLIENT_SECRET="..."  # official MCP OAuth app
-export ASANA_TOKEN="..."          # cyber-asana PAT (create at app.asana.com → My Apps)
-export ASANA_WORKSPACE="..."      # cyber-asana default workspace (optional)
-```
-
-**Migration:** If you already registered cyber-asana under the config key `"asana"`, rename it to `"cyber-asana"` before adding the official `"asana"` server. This is a host-config change only — not a package breaking change.
-
-**Which server to use:**
-
-| Prefer official `asana` | Prefer `cyber-asana` |
-| --- | --- |
-| `search_objects`, `get_status_overview` | `asana_url_parse`, repo config (`.agents/cyber-asana.json`) |
-| Interactive previews (`create_task_preview`, etc.) | Subtasks, dependencies, followers, section placement |
-| New MCP-only capabilities Asana ships first | `asana_task_scan_todos`, `asana_project_export`, rich REST-backed writes |
-| Simple reads when V2 coverage suffices | Goals/tags/portfolios CRUD beyond V2 scope |
-
-Default: if both can do the job, prefer **official for discovery/status** and **cyber-asana for write-heavy automation**.
-
-Shared JSON block (cyber-asana only, project install):
-
-```json
-{
-  "mcpServers": {
-    "cyber-asana": {
-      "command": "node",
-      "args": ["-e", "import('cyber-asana/mcp')"],
-      "env": {
-        "ASANA_TOKEN": "<your-pat>",
-        "ASANA_WORKSPACE": "<workspace-gid>"
-      }
-    }
-  }
-}
-```
-
-Ephemeral alternative (no `npm install`; uses the `cyber-asana mcp` subcommand):
-
-```json
-{
-  "mcpServers": {
-    "cyber-asana": {
-      "command": "npx",
-      "args": ["-y", "cyber-asana", "mcp"],
-      "env": {
-        "ASANA_TOKEN": "<your-pat>",
-        "ASANA_WORKSPACE": "<workspace-gid>"
-      }
-    }
-  }
-}
-```
-
-### Claude Desktop
-
-| OS | Config file |
-| --- | --- |
-| macOS | `~/Library/Application Support/Claude/claude_desktop_config.json` |
-| Windows | `%APPDATA%\Claude\claude_desktop_config.json` |
-| Linux | `~/.config/Claude/claude_desktop_config.json` |
-
-Merge the shared JSON block above into the top-level `mcpServers` object. Restart Claude Desktop after saving.
-
-### Claude Code
-
-**User or local scope** (recommended for personal tokens):
-
-```sh
-claude mcp add -e ASANA_TOKEN=<your-pat> -e ASANA_WORKSPACE=<workspace-gid> cyber-asana -- \
-  node -e "import('cyber-asana/mcp')"
-```
-
-Official Asana MCP (OAuth; see [Asana connecting doc](https://developers.asana.com/docs/connecting-mcp-clients-to-asanas-v2-server) for exact flags):
-
-```sh
-claude mcp add --transport http asana https://mcp.asana.com/v2/mcp
-```
-
-**Project scope** — commit `.mcp.json` in the repo root. Claude Code expands `${VAR}` from your shell environment (export `ASANA_TOKEN` before launching):
-
-```json
-{
-  "mcpServers": {
-    "cyber-asana": {
-      "command": "node",
-      "args": ["-e", "import('cyber-asana/mcp')"],
-      "env": {
-        "ASANA_TOKEN": "${ASANA_TOKEN}",
-        "ASANA_WORKSPACE": "${ASANA_WORKSPACE}"
-      }
-    }
-  }
-}
-```
-
-Verify with `claude mcp list`. Use `/mcp` in a session to reconnect without restarting.
-
-### Cursor
-
-User-wide: `~/.cursor/mcp.json`. Project-specific: `.cursor/mcp.json` in the repo root. Use the shared JSON block above. Reload MCP servers after changes; Agent mode is required for tool use.
-
-### Codex
-
-Add to `~/.codex/config.toml` (project-local Codex config is also supported under `.codex/config.toml`):
-
-```toml
-[mcp_servers.cyber-asana]
-command = "node"
-args = ["-e", "import('cyber-asana/mcp')"]
-
-[mcp_servers.cyber-asana.env]
-ASANA_TOKEN = "<your-pat>"
-ASANA_WORKSPACE = "<workspace-gid>"
-```
-
-### MCP Inspector
-
-Debug tools and schemas without an agent host. UI defaults to [http://localhost:6274](http://localhost:6274).
-
-Project dependency:
-
-```sh
-npx @modelcontextprotocol/inspector \
-  -e ASANA_TOKEN=<your-pat> \
-  -e ASANA_WORKSPACE=<workspace-gid> \
-  -- node -e "import('cyber-asana/mcp')"
-```
-
-Ephemeral (no project install):
-
-```sh
-npx @modelcontextprotocol/inspector \
-  -e ASANA_TOKEN=<your-pat> \
-  -e ASANA_WORKSPACE=<workspace-gid> \
-  -- npx -y cyber-asana mcp
-```
-
-Developing this repo (`pnpm build` first):
-
-```sh
-npx @modelcontextprotocol/inspector \
-  -e ASANA_TOKEN="$ASANA_TOKEN" \
-  -e ASANA_WORKSPACE="$ASANA_WORKSPACE" \
-  -- node dist/cli.js mcp
-```
-
-Tools are named `asana_<resource>_<action>` (e.g. `asana_task_create`).
-
-### MCP tools
-
-| Resource | Tools |
-| --- | --- |
-| `workspace` | `asana_workspace_list`, `asana_workspace_get` |
-| `project` | `asana_project_list`, `asana_project_get`, `asana_project_counts`, `asana_project_search`, `asana_project_create`, `asana_project_update`, `asana_project_delete`, `asana_project_export` |
-| `task` | `asana_task_list`, `asana_task_my_tasks`, `asana_task_subtask_list`, `asana_task_subtask_create`, `asana_task_get`, `asana_task_get_many`, `asana_task_create`, `asana_task_update`, `asana_task_delete`, `asana_task_search`, `asana_task_follower_add`, `asana_task_follower_remove`, `asana_task_project_add`, `asana_task_project_remove`, `asana_task_dependency_list`, `asana_task_dependency_add`, `asana_task_dependency_remove`, `asana_task_dependent_list`, `asana_task_dependent_add`, `asana_task_dependent_remove`, `asana_task_scan_todos` |
-| `section` | `asana_section_list`, `asana_section_get`, `asana_section_create`, `asana_section_update`, `asana_section_delete` |
-| `user` | `asana_user_list`, `asana_user_get`, `asana_user_me` |
-| `team` | `asana_team_list`, `asana_team_get` |
-| `portfolio` | `asana_portfolio_list`, `asana_portfolio_get`, `asana_portfolio_create`, `asana_portfolio_update`, `asana_portfolio_delete` |
-| `goal` | `asana_goal_list`, `asana_goal_get`, `asana_goal_create`, `asana_goal_update`, `asana_goal_delete` |
-| `tag` | `asana_tag_list`, `asana_tag_get`, `asana_tag_create`, `asana_tag_update`, `asana_tag_delete`, `asana_tag_list_for_task`, `asana_tag_list_tasks`, `asana_tag_add_to_task`, `asana_tag_remove_from_task` |
-| `attachment` | `asana_attachment_list`, `asana_attachment_get` |
-| `story` | `asana_story_list`, `asana_story_create` |
-| `comment` | `asana_comment_list`, `asana_comment_create` (aliases for `story`) |
-| `url` | `asana_url_parse` (no API call; extracts GIDs from Asana app URLs) |
-
-List tools accept `limit`, `offset`, `opt_fields`, `fetch_all`, and `max_pages` where Asana supports them.
-Paginated responses include `data`, `next_page`, and `limit`; fetch-all responses also include `page_count` and `truncated`.
-`asana_user_list` omits `limit`; search tools are not paginated.
-
-Notable parameters:
-
-- `asana_task_list`, `asana_task_my_tasks`, `asana_task_subtask_list` — `incomplete: true` filters to incomplete tasks
-- `asana_task_subtask_list` — `assignee_email`, `follower_emails`, `num_subtasks`, `custom_fields` expand returned fields
-- `asana_task_create` — `project_gid`, `project_gids`, `follower_gids`, `html_notes`, `parent_gid`, `resource_subtype`, `custom_fields`
-- `asana_task_update` — `html_notes`, `parent_gid`, `clear_parent`, `resource_subtype`, `custom_fields`
-- `asana_task_follower_add` / `asana_task_follower_remove` — manage followers on existing tasks
-- `asana_project_search` — `text`, `completed`, team/owner/member/portfolio filters, date filters, `sort_by`, `sort_ascending`, `opt_fields`
-- `asana_project_counts` — `opt_fields` defaults to `num_tasks,num_incomplete_tasks,num_completed_tasks`
-- `asana_story_create` / `asana_comment_create` — `template: true` interpolates `{task.name}`, `{task.assignee}`, `{task.due_on}`, `{task.notes}`
-- `asana_url_parse` — local URL parsing; use `workspace_gid` + `project_gid` for create; `list_view_gid` is not a section GID
-
-Per-tool parameter schemas live in `src/<domain>/mcp.ts` (e.g. `src/tasks/mcp.ts`) and [`src/url-mcp.ts`](src/url-mcp.ts). MCP hosts also expose tool schemas at runtime when the server is connected.
-
-Agent workflow for creating tasks: [`skills/create-asana-task/SKILL.md`](skills/create-asana-task/SKILL.md).
+For agent-driven task creation and repo project lookup, see [Agent skills](#agent-skills) (`create-asana-task`, repo config).
 
 ## License
 
