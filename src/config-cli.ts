@@ -69,6 +69,25 @@ export function configCommand(getProjects: () => ProjectApi) {
 		})
 
 	cmd
+		.command('list')
+		.description('List projects in the repo config (alias for show)')
+		.option('--config <path>', 'Config file path (overrides CYBER_ASANA_CONFIG)')
+		.action(async (opts: ConfigCliOptions) => {
+			const path = await resolveConfigPath(process.cwd(), configPathFromOpts(opts))
+			if (!path) {
+				throw new Error('Repo config not found')
+			}
+			const config = await loadRepoConfig(path)
+			output({ path, ...config }, () => {
+				console.log(path)
+				printTable(config.projects, [
+					{ label: 'GID', get: (p) => p.gid },
+					{ label: 'Name', get: (p) => p.name },
+				])
+			})
+		})
+
+	cmd
 		.command('path')
 		.description('Print the resolved config file path')
 		.option('--config <path>', 'Config file path (overrides CYBER_ASANA_CONFIG)')

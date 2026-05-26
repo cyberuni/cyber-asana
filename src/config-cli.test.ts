@@ -58,6 +58,34 @@ describe('config/cli', () => {
 		expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('"gid": "111"'))
 	})
 
+	it('list shows repo config projects', async () => {
+		root = await mkdtemp(join(tmpdir(), 'cyber-asana-config-cli-list-'))
+		await mkdir(join(root, '.agents'))
+		const configPath = join(root, 'config.json')
+		await writeFile(
+			configPath,
+			JSON.stringify({
+				schema_version: 1,
+				projects: [{ gid: '999', name: 'My Project' }],
+			}),
+		)
+
+		const configCommand = await loadConfigCommand()
+		const program = new Command().addCommand(
+			configCommand(
+				() =>
+					({
+						getProject: getProjectMock,
+					}) as never,
+			),
+		)
+
+		process.argv = ['node', 'test', '--json']
+		await program.parseAsync(['node', 'test', 'config', 'list', '--config', configPath], { from: 'node' })
+
+		expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('"gid": "999"'))
+	})
+
 	it('sync refreshes names via getProject', async () => {
 		root = await mkdtemp(join(tmpdir(), 'cyber-asana-config-cli-sync-'))
 		const configPath = join(root, 'config.json')
