@@ -1,0 +1,28 @@
+name: MCP gap analysis
+description: Triage a change in the official Asana MCP tool catalog
+title: "chore: official Asana MCP catalog changed"
+labels:
+  - mcp-gap-analysis
+  - maintenance
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template when the weekly watch or a manual fetch detects official MCP catalog drift.
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Analysis checklist
+      options:
+        - label: Run `.agents/skills/analyze-official-asana-mcp` locally
+          required: false
+        - label: Run `pnpm gap:report --json` and review buckets
+          required: false
+        - label: Update `src/gap-analysis/overlap-map.ts` if overlap pairs changed
+          required: false
+        - label: Update readme routing guidance if dual-MCP docs exist
+          required: false
+        - label: Refresh `data/official-asana-mcp-baseline.json` after analysis (`pnpm gap:fetch-official --write`)
+          required: false
+        - label: Open implementation PR or hand off to `update-asana-sdk` if cyber-asana needs new tools
+          required: false
