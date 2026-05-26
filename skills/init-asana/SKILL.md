@@ -29,17 +29,18 @@ If it fails (npx install prompt, `command not found`, or other non-zero exit):
 ### 1. Check for existing credentials
 
 ```bash
-echo "Token set: ${ASANA_TOKEN:+yes}"
-echo "Workspace set: ${ASANA_WORKSPACE:+yes}"
+echo "Token set: ${ASANA_ASSESS_TOKEN:+yes}${ASANA_TOKEN:+ (deprecated ASANA_TOKEN set)}"
+echo "Workspace set: ${ASANA_WORKSPACE_GID:+yes}${ASANA_WORKSPACE:+ (deprecated ASANA_WORKSPACE set)}"
 ```
 
-### 2. Set ASANA_TOKEN
+### 2. Set ASANA_ASSESS_TOKEN
 
 If not set, guide the user:
 
 1. Go to Asana → Profile Settings → Apps → Personal access tokens
 2. Create a new token and copy it
-3. Add to the user's shell profile (e.g. `export ASANA_TOKEN=...` in the file their shell loads on login)
+3. Add to the user's shell profile (e.g. `export ASANA_ASSESS_TOKEN=...` in the file their shell loads on login)
+4. If the user already has `ASANA_TOKEN`, tell them it still works as a deprecated fallback but new setup should use `ASANA_ASSESS_TOKEN`
 
 Or pass per-command with `--token <pat>`.
 
@@ -57,12 +58,12 @@ If it fails, the token is invalid or not set. Fix credentials and retry.
 
 Parse the JSON `data` array for `{ gid, name }`. Ask the user which workspace to use.
 
-### 4. Set ASANA_WORKSPACE
+### 4. Set ASANA_WORKSPACE_GID
 
 Add to the user's shell profile:
 
 ```bash
-export ASANA_WORKSPACE=<workspace-gid>
+export ASANA_WORKSPACE_GID=<workspace-gid>
 ```
 
 This avoids passing `--workspace` on every command. Keep workspace GID in env — not in committed repo config (`.agents/cyber-asana.json` stores projects only).
@@ -75,7 +76,7 @@ cyber-asana --version
 npx cyber-asana --version
 ```
 
-A successful version print confirms the CLI runs with credentials loaded. If workspace-scoped commands still fail, recheck `ASANA_WORKSPACE` from step 4.
+A successful version print confirms the CLI runs with credentials loaded. If workspace-scoped commands still fail, recheck `ASANA_WORKSPACE_GID` from step 4.
 
 ### 6. Optional — repo project registry
 
@@ -85,8 +86,8 @@ For repos that work against a fixed set of Asana projects, use the **pin-asana-p
 
 Both servers can run together with separate config keys and credentials:
 
-- **Official Asana MCP** — config key `asana`; OAuth app with `ASANA_CLIENT_ID` and `ASANA_CLIENT_SECRET` (not `ASANA_TOKEN`).
-- **cyber-asana** — config key `cyber-asana`; PAT via `ASANA_TOKEN` (steps 2–4 above).
+- **Official Asana MCP** — config key `asana`; OAuth app with `ASANA_CLIENT_ID` and `ASANA_CLIENT_SECRET` (not `ASANA_ASSESS_TOKEN`).
+- **cyber-asana** — config key `cyber-asana`; PAT via `ASANA_ASSESS_TOKEN` and workspace via `ASANA_WORKSPACE_GID` (steps 2–4 above).
 
 See [reference.md](./reference.md) for dual-config JSON examples and routing guidance.
 

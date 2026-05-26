@@ -38,6 +38,13 @@ describe('testing/system', () => {
 		expect(isSystemTestEnabled()).toBe(true)
 	})
 
+	it('systemEnv prefers ASANA_WORKSPACE_GID over deprecated ASANA_WORKSPACE', () => {
+		process.env.ASANA_WORKSPACE = 'deprecated-ws'
+		process.env.ASANA_WORKSPACE_GID = 'preferred-ws'
+
+		expect(systemEnv('ASANA_WORKSPACE')).toBe('preferred-ws')
+	})
+
 	it('systemEnv treats empty strings as undefined', () => {
 		process.env.ASANA_SYSTEM_TEST_TASK_GID = ''
 

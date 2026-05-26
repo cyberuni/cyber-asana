@@ -5,9 +5,9 @@ Run the [official Asana MCP](https://developers.asana.com/docs/mcp-tools-referen
 | Server | Config key | Auth | Env vars |
 | --- | --- | --- | --- |
 | Official Asana MCP | `asana` | OAuth 2.0 | `ASANA_CLIENT_ID`, `ASANA_CLIENT_SECRET` |
-| cyber-asana | `cyber-asana` | Personal access token | `ASANA_TOKEN`, optional `ASANA_WORKSPACE` |
+| cyber-asana | `cyber-asana` | Personal access token | `ASANA_ASSESS_TOKEN`, optional `ASANA_WORKSPACE_GID` |
 
-**Credentials are not interchangeable:** MCP OAuth tokens from the official server cannot be used as `ASANA_TOKEN`. PATs cannot substitute for official MCP OAuth.
+**Credentials are not interchangeable:** MCP OAuth tokens from the official server cannot be used as `ASANA_ASSESS_TOKEN`. PATs cannot substitute for official MCP OAuth.
 
 Dual-config example (Cursor-style):
 
@@ -25,8 +25,8 @@ Dual-config example (Cursor-style):
       "command": "node",
       "args": ["-e", "import('cyber-asana/mcp')"],
       "env": {
-        "ASANA_TOKEN": "${ASANA_TOKEN}",
-        "ASANA_WORKSPACE": "${ASANA_WORKSPACE}"
+        "ASANA_ASSESS_TOKEN": "${ASANA_ASSESS_TOKEN}",
+        "ASANA_WORKSPACE_GID": "${ASANA_WORKSPACE_GID}"
       }
     }
   }

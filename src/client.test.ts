@@ -37,6 +37,13 @@ describe('createClient', () => {
 		expect(client.authentications['token'].accessToken).toBe('alias-token')
 	})
 
+	it('prefers ASANA_ASSESS_TOKEN over deprecated ASANA_TOKEN when both are set', () => {
+		process.env.ASANA_TOKEN = 'deprecated-token'
+		process.env.ASANA_ASSESS_TOKEN = 'preferred-token'
+		const client = createClient()
+		expect(client.authentications['token'].accessToken).toBe('preferred-token')
+	})
+
 	it('prefers setTokenOverride over ASANA_TOKEN env var', () => {
 		process.env.ASANA_TOKEN = 'env-token'
 		process.env.ASANA_ASSESS_TOKEN = 'alias-token'

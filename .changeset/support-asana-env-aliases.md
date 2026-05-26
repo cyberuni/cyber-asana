@@ -2,4 +2,4 @@
 "cyber-asana": patch
 ---
 
-Add support for `ASANA_ASSESS_TOKEN` and `ASANA_WORKSPACE_GID` as fallbacks for the standard Asana environment variables.
+Prefer `ASANA_ASSESS_TOKEN` and `ASANA_WORKSPACE_GID` for cyber-asana setup, while keeping `ASANA_TOKEN` and `ASANA_WORKSPACE` as deprecated fallbacks.

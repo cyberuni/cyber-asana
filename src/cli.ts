@@ -16,9 +16,12 @@ program
 	.name('cyber-asana')
 	.description('Asana CLI for AI agents')
 	.version(VERSION)
-	.option('--token <token>', 'Asana PAT — overrides ASANA_TOKEN env var')
+	.option('--token <token>', 'Asana PAT — overrides ASANA_ASSESS_TOKEN env var')
 	.option('--json', 'Output raw JSON instead of formatted text')
-	.addHelpText('after', '\nAuthentication: set ASANA_TOKEN env var or pass --token <pat>.')
+	.addHelpText(
+		'after',
+		'\nAuthentication: set ASANA_ASSESS_TOKEN env var (preferred; ASANA_TOKEN is deprecated) or pass --token <pat>.',
+	)
 	.hook('preAction', () => {
 		const { token } = program.opts<{ token?: string }>()
 		if (token) setTokenOverride(token)
