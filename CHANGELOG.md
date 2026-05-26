@@ -1,5 +1,11 @@
 # cyber-asana
 
+## 0.3.2
+
+### Patch Changes
+
+- e1cc84d: Fix the preferred cyber-asana token variable name to `ASANA_ACCESS_TOKEN`, while keeping `ASANA_TOKEN` as a deprecated fallback.
+
 ## 0.3.1
 
 ### Patch Changes
