@@ -16,8 +16,11 @@ vi.mock('./api.js', async () => {
 const { goalCommand } = await import('./cli.js')
 
 describe('goals/cli', () => {
+	const originalEnv = { ...process.env }
+
 	afterEach(() => {
 		vi.clearAllMocks()
+		process.env = { ...originalEnv }
 	})
 
 	it('goal create forwards workspace gid, name, and options', async () => {
@@ -73,5 +76,16 @@ describe('goals/cli', () => {
 		})
 
 		expect(injectedCreateGoal).toHaveBeenCalledWith('ws1', 'Ship v1', { notes: undefined, due_on: undefined })
+	})
+
+	it('goal create falls back to ASANA_WORKSPACE_GID when workspace flag is omitted', async () => {
+		delete process.env.ASANA_WORKSPACE
+		process.env.ASANA_WORKSPACE_GID = 'ws-alias'
+		createGoalMock.mockResolvedValue({ gid: 'goal1', name: 'Ship v1' })
+		const program = new Command().addCommand(goalCommand())
+
+		await program.parseAsync(['node', 'test', 'goal', 'create', 'Ship v1'], { from: 'node' })
+
+		expect(createGoalMock).toHaveBeenCalledWith('ws-alias', 'Ship v1', { notes: undefined, due_on: undefined })
 	})
 })

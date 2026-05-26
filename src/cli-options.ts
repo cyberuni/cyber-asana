@@ -1,4 +1,5 @@
 import { type Command, InvalidArgumentError, Option } from 'commander'
+import { envValue } from './env.js'
 import type { ListResult, PaginationOptions } from './pagination.js'
 import { listItems, nextPageOffset } from './pagination.js'
 
@@ -82,6 +83,7 @@ export function normalizedGid(opts: CliGidOptions, baseName: string) {
 	if (typeof normalized === 'string' && normalized.length > 0) return normalized
 	const legacy = opts[baseName]
 	if (typeof legacy === 'string' && legacy.length > 0) return legacy
+	if (baseName === 'workspace') return envValue('ASANA_WORKSPACE')
 	return undefined
 }
 

@@ -1,10 +1,11 @@
+import { envValue } from '../env.js'
+
 export function isSystemTestEnabled(): boolean {
-	return Boolean(process.env.ASANA_SYSTEM_TEST && process.env.ASANA_TOKEN)
+	return Boolean(process.env.ASANA_SYSTEM_TEST && envValue('ASANA_TOKEN'))
 }
 
 export function systemEnv(name: string): string | undefined {
-	const value = process.env[name]
-	return value === '' ? undefined : value
+	return envValue(name)
 }
 
 export function requireSystemEnv(name: string): string {

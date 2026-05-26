@@ -18,6 +18,7 @@ describe('testing/system', () => {
 	it('isSystemTestEnabled is false without ASANA_TOKEN', () => {
 		process.env.ASANA_SYSTEM_TEST = '1'
 		delete process.env.ASANA_TOKEN
+		delete process.env.ASANA_ASSESS_TOKEN
 
 		expect(isSystemTestEnabled()).toBe(false)
 	})
@@ -29,10 +30,25 @@ describe('testing/system', () => {
 		expect(isSystemTestEnabled()).toBe(true)
 	})
 
+	it('isSystemTestEnabled accepts ASANA_ASSESS_TOKEN as a fallback token env var', () => {
+		process.env.ASANA_SYSTEM_TEST = '1'
+		delete process.env.ASANA_TOKEN
+		process.env.ASANA_ASSESS_TOKEN = 'token'
+
+		expect(isSystemTestEnabled()).toBe(true)
+	})
+
 	it('systemEnv treats empty strings as undefined', () => {
 		process.env.ASANA_SYSTEM_TEST_TASK_GID = ''
 
 		expect(systemEnv('ASANA_SYSTEM_TEST_TASK_GID')).toBeUndefined()
+	})
+
+	it('systemEnv reads ASANA_WORKSPACE_GID as a fallback for ASANA_WORKSPACE', () => {
+		delete process.env.ASANA_WORKSPACE
+		process.env.ASANA_WORKSPACE_GID = 'ws1'
+
+		expect(systemEnv('ASANA_WORKSPACE')).toBe('ws1')
 	})
 
 	it('requireSystemEnv throws when env var is missing', () => {
