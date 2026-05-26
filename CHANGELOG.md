@@ -1,5 +1,11 @@
 # cyber-asana
 
+## 0.4.0
+
+### Minor Changes
+
+- 042e2ca: Add `config list` subcommand as an alias for `config show`.
+
 ## 0.3.2
 
 ### Patch Changes
