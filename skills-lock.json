@@ -5,60 +5,73 @@
       "source": "repobuddy/agent-changesets",
       "sourceType": "github",
       "skillPath": "skills/add-changeset/SKILL.md",
-      "computedHash": "8a5266fe92b2f9f755238564e44b5b44e1b5ce0a469d5659c1b03d49dd590dd1"
+      "computedHash": "ae9e1eb2cb484062cf3b1326e829d32d70edbf946fb1583122c553d86ab81f37"
+    },
+    "audit-skill": {
+      "source": "cyberuni/cyber-skills",
+      "sourceType": "github",
+      "skillPath": "skills/audit-skill/SKILL.md",
+      "computedHash": "fec14d36c275541f1d814233e7be81c1be72bb57647215cf9be5f8d2960aaa69"
     },
     "create-issue": {
       "source": "repobuddy/repobuddy",
       "sourceType": "github",
       "skillPath": "skills/create-issue/SKILL.md",
-      "computedHash": "7fe6e7fbc795d9e1ce0070a661af1da716ddbb24177a2ec7faf347da24f9ac54"
+      "computedHash": "529de630ca847726127fe2c96c2c73a0bd94aa901f160f866bf03c991053d6c6"
+    },
+    "create-persona-skill": {
+      "source": "cyberuni/cyber-skills",
+      "sourceType": "github",
+      "skillPath": "skills/create-persona-skill/SKILL.md",
+      "computedHash": "69d2f60ea1ffcee3864ab0d670be78d50be2cfc85cc07f9e86d01d891f3d7d06"
     },
     "create-skill": {
-      "source": "cyberuni/agent-helmsman",
+      "source": "cyberuni/cyber-skills",
       "sourceType": "github",
       "skillPath": "skills/create-skill/SKILL.md",
-      "computedHash": "6f7a5b9959fb330b0fa8308dadca1df6bb654b578aedeb976fb445c62b31f5eb"
+      "computedHash": "bdb47a40ada243d9530331cd99bdf280c6b8ba115b5725b78ef16f78dabf6009"
+    },
+    "find-awesome-skill": {
+      "source": "cyberuni/cyber-skills",
+      "sourceType": "github",
+      "skillPath": "skills/find-awesome-skill/SKILL.md",
+      "computedHash": "acbd0e80274bce1969efedec72c1e4dfb84239761e5023392167dd71dbd3b5ea"
     },
     "fix-security-pr": {
       "source": "repobuddy/agent-security",
       "sourceType": "github",
       "skillPath": "skills/fix-security-pr/SKILL.md",
-      "computedHash": "d78b2e51db20d5e19948faa0428ef3a1d51efed14706d4dc58cea2dfc6ef6530"
-    },
-    "init": {
-      "source": "cyberuni/agent-helmsman",
-      "sourceType": "github",
-      "skillPath": "skills/init/SKILL.md",
-      "computedHash": "bacc3e87127f70b36bfbf48d83681de09e9b353f394c2a80af415c253e658147"
+      "computedHash": "9cb0bc3757c3653a7f0aaa0037b58a39f5e3aa996516fed9f51c07c7db48e74b"
     },
     "merge-dep-prs": {
       "source": "repobuddy/repobuddy",
       "sourceType": "github",
       "skillPath": "skills/merge-dep-prs/SKILL.md",
-      "computedHash": "e360aff8316401b610997b3ea5c6e057341608d565a13deb3a18ca83eaef4a98"
+      "computedHash": "adc0eed58b9616b2cb741ac5254634937596a1b6d9a05224ccf16271aea5527e"
+    },
+    "patch-skill": {
+      "source": "cyberuni/cyber-skills",
+      "sourceType": "github",
+      "skillPath": "skills/patch-skill/SKILL.md",
+      "computedHash": "d26987ecc8b931867091b3e3a688c2c35f122d0309ee3dc74f73eaeb3367fb32"
     },
     "setup-changesets": {
       "source": "repobuddy/agent-changesets",
       "sourceType": "github",
       "skillPath": "skills/setup-changesets/SKILL.md",
-      "computedHash": "6ee922527e013544ff5f739dea8fe6e178caa9629e123a29793776f485ff2e8e"
+      "computedHash": "4c1dd7267d8fbd063a37c8a2c908a00f0cacecf8540872950ae62c4ff2ae1ff0"
+    },
+    "skillify": {
+      "source": "cyberuni/cyber-skills",
+      "sourceType": "github",
+      "skillPath": "skills/skillify/SKILL.md",
+      "computedHash": "cdbe90da74a6c3894c92bdf7abcca9ef01ef6d652857cb64b119d505b9cee19c"
     },
     "test-driven-development": {
       "source": "obra/superpowers",
       "sourceType": "github",
       "skillPath": "skills/test-driven-development/SKILL.md",
       "computedHash": "126f1ebf6ccd414f42544f6e83d8cc5adb089e1108eaffb7c400701e37eecd9f"
-    },
-    "update-asana-sdk": {
-      "source": "/home/unional/.agents/skills/update-asana-sdk",
-      "sourceType": "local",
-      "computedHash": "9bb28e035c71841b84478e8916d7863dca5a1bb868f7954be29384e030665100"
-    },
-    "validate-skill": {
-      "source": "cyberuni/agent-helmsman",
-      "sourceType": "github",
-      "skillPath": "skills/validate-skill/SKILL.md",
-      "computedHash": "dac87a91e49948a897a82b4df7b5a1b5ef9f3600908282e92731d2e2151d9427"
     }
   }
 }

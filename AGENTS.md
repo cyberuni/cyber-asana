@@ -2,32 +2,30 @@
 
 This file provides guidance to AI coding assistants when working with code in this repository.
 
-## Development Workflow
-
-Before writing any production code, invoke the `test-driven-development` skill. This applies whether coding starts from a user request or from your own initiative after plan approval.
-
-## Commit Discipline
-
-Commit every self-contained unit of work — code, docs, config, skills — as its own commit before moving on.
-
-A **unit of work** is one coherent, independently revertable change: one domain's refactor, one feature, one bugfix, one test suite expansion for one concern, one config change. A TDD red-green-refactor cycle alone is not a commit boundary — commit when the full intended change is complete and tests pass.
-
-```bash
-git add <files>     # stage only files belonging to this unit of work
-git diff --cached   # verify staged changes before committing
-git commit -m "<type>: <what changed>"
-```
-
-- Conventional commit prefix: `feat:`, `fix:`, `refactor:`, `test:`, `docs:`, `chore:`
-- Message describes the behavior or change, not the implementation
-- Never use `git add .` or `git add -A` — these stage everything indiscriminately
-- Never batch unrelated changes into one commit
-- Never commit with red tests
-- If the working tree contains unrelated changes (different domain, different concern), leave them unstaged and commit the current unit first
-
 ## Skill Augmentations
 
 When reading any `SKILL.md` file, always check whether a `SKILL.local.md` exists in the same directory. If it does, treat its contents as additional instructions that extend the base skill. Local augmentations take precedence over the base skill where they conflict.
+
+## Commit Discipline
+
+**Auto-commit rule:** When a unit of work is complete and verified, commit it immediately — do not wait for the user to ask. Batching multiple units into one commit, or finishing all work before committing, are both violations of this rule.
+
+**Unit of work:** one coherent, independently revertable change — one domain's refactor, one feature, one bugfix, one test suite expansion for one concern, one config change. Never two unrelated concerns in the same commit. A TDD red-green-refactor cycle alone is not a commit boundary; commit when the full intended change is complete and tests pass. If the working tree has unrelated changes, leave them unstaged — commit the current unit first, then continue.
+
+- Conventional Commits: `feat:`, `fix:`, `refactor:`, `test:`, `docs:`, `chore:`
+- One concern per commit; never batch unrelated changes
+- Stage only files for this unit: `git add <files>`, then verify with `git diff --cached`
+- Never use `git add .`, `git add -A`, or `git add -p` (interactive commands agents cannot run)
+- Never commit with red tests; run validation commands first
+
+### References
+
+- **`commit-work` skill** — staging, splitting, and message writing when committing
+- `npx cyber-skills@<version> governance show skill-repo-structure` — discipline section format rules
+
+## Development Workflow
+
+Before writing any production code, invoke the `test-driven-development` skill. This applies whether coding starts from a user request or from your own initiative after plan approval.
 
 ## What This Repo Is
 
@@ -38,53 +36,19 @@ When reading any `SKILL.md` file, always check whether a `SKILL.local.md` exists
 ## Commands
 
 ```
-pnpm build        # tsc → dist/
-pnpm typecheck    # tsc --noEmit
-pnpm lint         # biome check
-pnpm check        # biome check --write (auto-fix)
-pnpm format       # biome format --write
-pnpm test         # vitest run (unit + acceptance; excludes *.system.ts)
-pnpm test:system  # vitest run against live Asana API (requires env below)
-pnpm test:watch   # vitest
-pnpm test <file>  # run a single test file, e.g. pnpm test src/client.test.ts
-pnpm verify       # typecheck + lint + test + build (full CI check)
-pnpm cs           # changeset (add changeset for release)
-```
-
-During development, run the CLI directly without building:
-
-```
-pnpm dev <resource> <action>   # tsx src/cli.ts <resource> <action>
+pnpm test src/client.test.ts  # run one test file
+pnpm test                     # unit + acceptance tests
+pnpm test:system              # live API tests when env vars are set
+pnpm verify                   # typecheck + lint + test + build
+pnpm build                    # compile to dist/
+pnpm dev <resource> <action>  # run CLI from source
 ```
 
 ## Architecture: Screaming Architecture
 
-The source is organized by Asana domain resource, not by technical layer:
+The codebase is organized by Asana resource domain rather than by technical layer. Each domain keeps its gateway, API facade, CLI bindings, and MCP registrations together so CLI commands and MCP tools share the same core operations instead of duplicating Asana SDK calls.
 
-```
-src/
-├── client.ts              # Shared Asana API client factory
-├── cli.ts                 # CLI entry point (cyber-asana bin)
-├── mcp.ts                 # MCP server entry point
-├── output.ts              # CLI output helpers (readable vs --json mode)
-├── index.ts               # Library re-exports
-├── workspaces/            # Workspace domain
-│   ├── api.ts             #   Asana SDK wrappers
-│   ├── cli.ts             #   Commander command factory
-│   └── mcp.ts             #   MCP tool registrations
-├── projects/              # Project domain (same pattern)
-├── tasks/
-├── sections/
-├── users/
-├── teams/
-├── portfolios/
-├── goals/
-├── tags/
-├── attachments/
-└── stories/
-```
-
-Each domain folder contains `gateway.ts` (port + Asana adapter), `api.ts` (factory + defaults), `cli.ts`, and `mcp.ts`. Shared runtime wiring lives in `src/composition.ts`.
+Shared wiring lives in `src/composition.ts`, while common concerns such as client creation, pagination, option normalization, and output formatting stay in top-level support modules. Tests mirror the architecture: unit tests sit beside modules, acceptance specs exercise gateway contracts against doubles, and system tests reuse those specs against the live API.
 
 ### Testing
 
@@ -116,26 +80,6 @@ Shared acceptance helpers: `src/testing/list-pagination.acceptance.ts`, `src/tes
 - **Asana SDK**: `asana` npm package v3.x — API methods return `{ data: ... }`; always unwrap to `res.data`
 - **No duplication**: CLI and MCP both call `api.ts`; never inline Asana SDK calls in cli.ts or mcp.ts
 - **Workspace GID in requests**: pass as a plain string (`workspace: workspaceGid`), not as an object (`workspace: { gid: ... }`)
-
-### CLI Output
-
-Default output is human-readable (key-value for single items, table for lists). Pass `--json` anywhere on the command line to get raw API JSON instead.
-
-Use helpers from `src/output.ts`:
-- `output(data, readableFn)` — switches between JSON and readable based on `--json` flag
-- `printFields(record)` — aligned key-value block; skips null/undefined values
-- `printTable(items, cols)` — padded table with header row
-
-### GID Options
-
-Use helpers from `src/cli-options.ts` for all resource GID parameters:
-- `addGidOption(cmd, 'project', 'Project GID')` — adds both `--project-gid` and `--project` alias; optionally pass `{ env: 'ASANA_WORKSPACE' }` to bind an env var
-- `requiredGid(opts, 'project', 'Project GID')` — reads `projectGid ?? project`, throws if missing
-- `normalizedGid(opts, 'project')` — reads `projectGid ?? project`, returns undefined if absent
-- `addPaginationOptions(cmd)` — adds `--limit`, `--offset`, `--opt-fields`, `--all`, `--max-pages`
-- `paginationOptionsFromCli(opts)` — maps camelCase CLI opts to `PaginationOptions`
-- `itemsForOutput(result)` — extracts the `data` array from a paginated or plain result
-- `printNextPageHint(result)` — prints `Next offset: ...` when another page exists
 
 ### Pagination
 
