@@ -1,77 +1,26 @@
 {
-	"name": "cyber-asana",
-	"version": "0.4.1",
-	"description": "Asana CLI and MCP server for AI agents",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/cyberuni/cyber-asana.git"
-	},
-	"author": "unional <homawong@gmail.com>",
-	"license": "MIT",
-	"files": [
-		"dist",
-		"!dist/**/*.test.*",
-		"!dist/**/*.system.*"
-	],
-	"type": "module",
-	"exports": {
-		".": {
-			"import": "./dist/index.js",
-			"types": "./dist/index.d.ts"
-		},
-		"./mcp": {
-			"import": "./dist/mcp.js",
-			"types": "./dist/mcp.d.ts"
-		}
-	},
-	"bin": {
-		"cyber-asana": "./dist/cli.js"
-	},
-	"scripts": {
-		"build": "tsdown",
-		"prepare": "husky",
-		"check": "biome check --write .",
-		"cs": "changeset",
-		"cyber-asana": "tsx src/cli.ts",
-		"dev": "tsx src/cli.ts",
-		"check:mcp-gap": "tsx src/gap-analysis/catalog.ts --check",
-		"format": "biome format --write .",
-		"gap:catalog": "tsx src/gap-analysis/catalog.ts",
-		"gap:diff-official": "tsx src/gap-analysis/diff-official.ts",
-		"gap:fetch-official": "tsx src/gap-analysis/fetch-official.ts",
-		"gap:report": "tsx src/gap-analysis/report.ts",
-		"knip": "knip",
-		"lint": "biome check .",
-		"release": "changeset publish",
-		"test": "vitest run src",
-		"test:system": "vitest run --config vitest.system.config.ts",
-		"test:watch": "vitest",
-		"typecheck": "tsc --noEmit",
-		"verify": "pnpm typecheck && pnpm lint && pnpm test && pnpm build",
-		"version": "changeset version"
-	},
-	"dependencies": {
-		"@modelcontextprotocol/sdk": "^1.12.0",
-		"asana": "^3.0.12",
-		"commander": "^14.0.0",
-		"zod": "^4.4.3"
-	},
-	"devDependencies": {
-		"@biomejs/biome": "^2.4.15",
-		"@changesets/cli": "^2.29.4",
-		"@commitlint/cli": "^21.0.1",
-		"@commitlint/config-conventional": "^21.0.1",
-		"@repobuddy/biome": "^2.3.1",
-		"@types/node": "^25.9.1",
-		"husky": "^9.1.7",
-		"knip": "^6.14.1",
-		"tsdown": "^0.16.6",
-		"tsx": "^4.19.4",
-		"typescript": "^6.0.3",
-		"vitest": "^4.1.7"
-	},
-	"packageManager": "pnpm@11.2.2+sha512.36e6621fad506178936455e70247b8808ef4ec25797a9f437a93281a020484e2607f6a469a22e982987c3dbb8866e3071514ab10a4a1749e06edcd1ec118436f",
-	"engines": {
-		"node": ">=22"
-	}
+  "name": "cyber-asana-monorepo",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev --filter=@cyberuni/web",
+    "lint": "turbo run lint",
+    "prepare": "husky",
+    "release": "changeset publish",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck",
+    "version": "changeset version"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.29.4",
+    "@commitlint/cli": "^21.0.1",
+    "@commitlint/config-conventional": "^21.0.1",
+    "husky": "^9.1.7",
+    "knip": "^6.14.1",
+    "turbo": "latest"
+  },
+  "packageManager": "pnpm@11.2.2+sha512.36e6621fad506178936455e70247b8808ef4ec25797a9f437a93281a020484e2607f6a469a22e982987c3dbb8866e3071514ab10a4a1749e06edcd1ec118436f",
+  "engines": {
+    "node": ">=22"
+  }
 }
