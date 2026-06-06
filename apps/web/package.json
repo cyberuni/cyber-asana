@@ -1,0 +1,18 @@
+{
+	"name": "@cyberuni/web",
+	"version": "0.0.1",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"build": "astro build",
+		"dev": "astro dev",
+		"preview": "astro preview"
+	},
+	"dependencies": {
+		"@astrojs/starlight": "0.39.3",
+		"astro": "6.4.4"
+	},
+	"devDependencies": {
+		"typescript": "^6.0.3"
+	}
+}
