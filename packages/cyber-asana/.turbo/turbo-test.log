@@ -1,0 +1,192 @@
+$ vitest run src
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.8 [39m[90m/home/unional/code/cyberuni/cyber-asana/packages/cyber-asana[39m
+
+ [32m✓[39m src/skills-docs.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m src/repo-config.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+ [32m✓[39m src/config-cli.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 116[2mms[22m[39m
+ [32m✓[39m src/gap-analysis/catalog.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 46[2mms[22m[39m
+ [32m✓[39m src/tags/api.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m src/projects/api.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+ [32m✓[39m src/tasks/api.test.ts [2m([22m[2m52 tests[22m[2m)[22m[32m 59[2mms[22m[39m
+ [32m✓[39m src/tasks/batch-lookup.acceptance.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m src/tasks/cli.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [32m✓[39m src/tags/mcp.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+[90mstdout[2m | src/goals/cli.test.ts[2m > [22m[2mgoals/cli[2m > [22m[2mgoal create forwards workspace gid, name, and options
+[22m[39mName  Ship v1
+ID    goal1
+
+ [32m✓[39m src/tasks/mcp.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 91[2mms[22m[39m
+[90mstdout[2m | src/goals/cli.test.ts[2m > [22m[2mgoals/cli[2m > [22m[2mgoal update forwards gid and fields
+[22m[39mName  Ship v2
+ID    goal1
+
+[90mstdout[2m | src/goals/cli.test.ts[2m > [22m[2mgoals/cli[2m > [22m[2mgoal command can use injected dependencies
+[22m[39mName  Ship v1
+ID    goal1
+
+[90mstdout[2m | src/goals/cli.test.ts[2m > [22m[2mgoals/cli[2m > [22m[2mgoal create falls back to ASANA_WORKSPACE_GID when workspace flag is omitted
+[22m[39mName  Ship v1
+ID    goal1
+
+ [32m✓[39m src/goals/cli.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+ [32m✓[39m src/projects/cli.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 391[2mms[22m[39m
+     [33m[2m✓[22m[39m project search forwards text and filters to searchProjects [33m 370[2mms[22m[39m
+ [32m✓[39m src/projects/mcp.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 37[2mms[22m[39m
+[90mstdout[2m | src/tags/cli.test.ts[2m > [22m[2mtags/cli[2m > [22m[2mtag create forwards notes and color
+[22m[39mName  Urgent
+ID    tag1
+
+[90mstdout[2m | src/tags/cli.test.ts[2m > [22m[2mtags/cli[2m > [22m[2mtag update forwards mutable tag fields
+[22m[39mName  Urgent
+ID    tag1
+
+ [32m✓[39m src/tags/cli.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+ [32m✓[39m src/projects/write-options.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+[90mstdout[2m | src/users/cli.test.ts[2m > [22m[2musers/cli[2m > [22m[2muser list forwards workspace gid and pagination options
+[22m[39mNAME   ID     EMAIL
+-----  -----  -----
+Alice  user1       
+
+[90mstdout[2m | src/users/cli.test.ts[2m > [22m[2musers/cli[2m > [22m[2muser get forwards gid
+[22m[39mName  Alice
+ID    user1
+
+[90mstdout[2m | src/users/cli.test.ts[2m > [22m[2musers/cli[2m > [22m[2muser me calls getMe
+[22m[39mName  Me
+ID    me
+
+[90mstdout[2m | src/users/cli.test.ts[2m > [22m[2musers/cli[2m > [22m[2muser command can use injected dependencies
+[22m[39mName  Me
+ID    me
+
+ [32m✓[39m src/users/cli.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+[90mstdout[2m | src/attachments/cli.test.ts[2m > [22m[2mattachments/cli[2m > [22m[2mattachment list forwards task gid and pagination options
+[22m[39mNAME      ID  
+--------  ----
+file.pdf  att1
+
+[90mstdout[2m | src/attachments/cli.test.ts[2m > [22m[2mattachments/cli[2m > [22m[2mattachment get forwards gid
+[22m[39mName  file.pdf
+ID    att1
+
+[90mstdout[2m | src/attachments/cli.test.ts[2m > [22m[2mattachments/cli[2m > [22m[2mattachment command can use injected dependencies
+[22m[39mName  file.pdf
+ID    att1
+
+ [32m✓[39m src/teams/list-pagination.acceptance.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m src/attachments/cli.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+[90mstdout[2m | src/stories/cli.test.ts[2m > [22m[2mstories/cli[2m > [22m[2mstory create forwards html_text
+[22m[39mID    story1
+Text  Rich
+
+[90mstdout[2m | src/stories/cli.test.ts[2m > [22m[2mstories/cli[2m > [22m[2mstory create applies templates to html_text
+[22m[39mID    story1
+Text  Rich
+
+[90mstdout[2m | src/stories/cli.test.ts[2m > [22m[2mstories/cli[2m > [22m[2mstory command can use injected dependencies
+[22m[39mID    story1
+Text  Comment
+
+ [32m✓[39m src/stories/api.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m src/stories/cli.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+[90mstdout[2m | src/teams/cli.test.ts[2m > [22m[2mteams/cli[2m > [22m[2mteam list forwards workspace gid and pagination options
+[22m[39mNAME         ID   
+-----------  -----
+Engineering  team1
+
+[90mstdout[2m | src/teams/cli.test.ts[2m > [22m[2mteams/cli[2m > [22m[2mteam get forwards gid
+[22m[39mName  Engineering
+ID    team1
+
+[90mstdout[2m | src/teams/cli.test.ts[2m > [22m[2mteams/cli[2m > [22m[2mteam command can use injected dependencies
+[22m[39mName  Engineering
+ID    team1
+
+ [32m✓[39m src/teams/cli.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+[90mstdout[2m | src/workspaces/cli.test.ts[2m > [22m[2mworkspaces/cli[2m > [22m[2mworkspace list forwards pagination options
+[22m[39mNAME  ID 
+----  ---
+Acme  ws1
+
+[90mstdout[2m | src/workspaces/cli.test.ts[2m > [22m[2mworkspaces/cli[2m > [22m[2mworkspace get forwards gid
+[22m[39mName  Acme
+ID    ws1
+
+[90mstdout[2m | src/workspaces/cli.test.ts[2m > [22m[2mworkspaces/cli[2m > [22m[2mworkspace command can use injected dependencies
+[22m[39mName  Acme
+ID    ws1
+
+ [32m✓[39m src/workspaces/cli.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m src/stories/create-story.acceptance.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+[90mstdout[2m | src/sections/cli.test.ts[2m > [22m[2msections/cli[2m > [22m[2msection create forwards project gid and name
+[22m[39mName  In Progress
+ID    sec1
+
+[90mstdout[2m | src/sections/cli.test.ts[2m > [22m[2msections/cli[2m > [22m[2msection update forwards gid and new name
+[22m[39mName  Done
+ID    sec1
+
+[90mstdout[2m | src/sections/cli.test.ts[2m > [22m[2msections/cli[2m > [22m[2msection command can use injected dependencies
+[22m[39mName  In Progress
+ID    sec1
+
+[90mstdout[2m | src/portfolios/cli.test.ts[2m > [22m[2mportfolios/cli[2m > [22m[2mportfolio create forwards workspace gid and name
+[22m[39mName  Roadmap
+ID    pf1
+
+ [32m✓[39m src/sections/cli.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+[90mstdout[2m | src/portfolios/cli.test.ts[2m > [22m[2mportfolios/cli[2m > [22m[2mportfolio update forwards gid and fields
+[22m[39mName  Updated
+ID    pf1
+
+[90mstdout[2m | src/portfolios/cli.test.ts[2m > [22m[2mportfolios/cli[2m > [22m[2mportfolio command can use injected dependencies
+[22m[39mName  Roadmap
+ID    pf1
+
+ [32m✓[39m src/stories/mcp.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m src/portfolios/cli.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m src/testing/paginating-gateway.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m src/mcp-error.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m src/goals/mcp.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m src/portfolios/mcp.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m src/url.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m src/composition-wiring.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 92[2mms[22m[39m
+ [32m✓[39m src/portfolios/list-pagination.acceptance.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m src/stories/write-options.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m src/projects/list-pagination.acceptance.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m src/users/mcp.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m src/composition.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m src/workspaces/mcp.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m src/stories/list-pagination.acceptance.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m src/tags/list-pagination.acceptance.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m src/teams/mcp.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m src/goals/list-pagination.acceptance.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m src/tasks/list-pagination.acceptance.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m src/workspaces/api.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m src/sections/mcp.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m src/attachments/list-pagination.acceptance.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m src/tasks/write-options.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m src/testing/list-pagination.acceptance.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m src/workspaces/list-pagination.acceptance.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m src/testing/system.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m src/client.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m src/portfolios/api.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m src/sections/list-pagination.acceptance.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m src/gap-analysis/diff-official.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m src/gap-analysis/report.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m src/mcp-cli.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m src/url-mcp.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m src/attachments/api.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m src/attachments/mcp.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m src/version.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m src/goals/api.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m src/sections/api.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m src/users/api.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m src/teams/api.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m65 passed[39m[22m[90m (65)[39m
+[2m      Tests [22m [1m[32m320 passed[39m[22m[90m (320)[39m
+[2m   Start at [22m 11:25:21
+[2m   Duration [22m 2.17s[2m (transform 5.11s, setup 0ms, import 15.86s, tests 1.46s, environment 9ms)[22m
+
