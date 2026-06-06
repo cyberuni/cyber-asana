@@ -11,7 +11,7 @@ metadata:
 
 - GitHub issue labeled `mcp-gap-analysis` or titled `chore: official Asana MCP catalog changed`
 - Maintainer asks for "MCP gap analysis" or "official catalog changed"
-- After adding or removing cyber-asana MCP tools (run `pnpm gap:catalog` first)
+- After adding or removing cyber-asana MCP tools (run `pnpm --filter @cyberuni/gap-analysis run catalog` first)
 
 ## Prerequisites
 
@@ -23,14 +23,14 @@ metadata:
 ### 1. Refresh cyber-asana catalog if MCP source changed
 
 ```sh
-pnpm gap:catalog
-pnpm check:mcp-gap
+pnpm --filter @cyberuni/gap-analysis run catalog
+pnpm --filter @cyberuni/gap-analysis run check
 ```
 
 ### 2. Generate gap report
 
 ```sh
-pnpm gap:report --json
+pnpm --filter @cyberuni/gap-analysis run report -- --json
 ```
 
 Read the four buckets:
@@ -47,7 +47,7 @@ Read the four buckets:
 For each **added** official tool:
 
 - **Official-only** — no sensible cyber-asana REST equivalent (e.g. previews, `search_objects`)
-- **New overlap** — add entry to [`src/gap-analysis/overlap-map.ts`](../../src/gap-analysis/overlap-map.ts)
+- **New overlap** — add entry to [`tools/gap-analysis/src/overlap-map.ts`](../../tools/gap-analysis/src/overlap-map.ts)
 - **cyber-asana gap** — official added capability we should implement via REST
 
 For each **removed** official tool:
@@ -57,7 +57,7 @@ For each **removed** official tool:
 
 ### 4. Update routing and overlap map
 
-- Edit [`src/gap-analysis/overlap-map.ts`](../../src/gap-analysis/overlap-map.ts) for new or changed pairs
+- Edit [`tools/gap-analysis/src/overlap-map.ts`](../../tools/gap-analysis/src/overlap-map.ts) for new or changed pairs
 - When dual-MCP readme routing exists, update the routing table there
 - Update affected skills under `skills/` if they reference MCP tool choice
 
@@ -66,7 +66,7 @@ For each **removed** official tool:
 If cyber-asana should gain tools:
 
 - Follow [update-asana-sdk](../update-asana-sdk/SKILL.md) — gateway, api, cli, mcp, tests
-- Regenerate catalog: `pnpm gap:catalog`
+- Regenerate catalog: `pnpm --filter @cyberuni/gap-analysis run catalog`
 
 If docs-only:
 
@@ -77,16 +77,15 @@ If docs-only:
 After analysis is complete:
 
 ```sh
-pnpm gap:fetch-official --write
+pnpm --filter @cyberuni/gap-analysis run fetch-official -- --write
 ```
 
 Verify:
 
 ```sh
-pnpm gap:diff-official data/official-asana-mcp-baseline.json
 # should exit 0 (unchanged vs itself — use a temp fetch instead)
-pnpm gap:fetch-official --json > /tmp/official.json
-pnpm gap:diff-official /tmp/official.json
+pnpm --filter @cyberuni/gap-analysis run fetch-official -- --json > /tmp/official.json
+pnpm --filter @cyberuni/gap-analysis run diff-official -- /tmp/official.json
 # should exit 0 after baseline refresh
 ```
 
@@ -103,17 +102,17 @@ Post or include in PR:
 
 | Command | Purpose |
 | --- | --- |
-| `pnpm gap:catalog` | Regenerate `data/cyber-asana-mcp-catalog.json` |
-| `pnpm check:mcp-gap` | CI check — catalog matches source |
-| `pnpm gap:fetch-official` | Fetch live official tool list |
-| `pnpm gap:fetch-official --write` | Update official baseline |
-| `pnpm gap:diff-official <file>` | Compare fetch vs baseline |
-| `pnpm gap:report` | Human-readable gap report |
-| `pnpm gap:report --json` | Machine-readable gap report |
+| `pnpm --filter @cyberuni/gap-analysis run catalog` | Regenerate `data/cyber-asana-mcp-catalog.json` |
+| `pnpm --filter @cyberuni/gap-analysis run check` | CI check — catalog matches source |
+| `pnpm --filter @cyberuni/gap-analysis run fetch-official` | Fetch live official tool list |
+| `pnpm --filter @cyberuni/gap-analysis run fetch-official -- --write` | Update official baseline |
+| `pnpm --filter @cyberuni/gap-analysis run diff-official -- <file>` | Compare fetch vs baseline |
+| `pnpm --filter @cyberuni/gap-analysis run report` | Human-readable gap report |
+| `pnpm --filter @cyberuni/gap-analysis run report -- --json` | Machine-readable gap report |
 
 ## Commit discipline
 
 1. Analysis + overlap-map + docs (one commit)
 2. Baseline JSON refresh (separate commit)
 
-Never commit with red tests. Run `pnpm vitest run src/gap-analysis` before pushing.
+Never commit with red tests. Run `pnpm --filter @cyberuni/gap-analysis run test` before pushing.

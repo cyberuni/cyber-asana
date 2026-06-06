@@ -24,18 +24,18 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm gap:fetch-official --json > /tmp/official.json
+      - run: pnpm --filter @cyberuni/gap-analysis run fetch-official -- --json > /tmp/official.json
       - name: Diff against baseline
         id: diff
         continue-on-error: true
         run: |
           set +e
-          pnpm gap:diff-official /tmp/official.json --json > /tmp/diff.json
+          pnpm --filter @cyberuni/gap-analysis run diff-official -- /tmp/official.json --json > /tmp/diff.json
           exit_code=$?
           set -e
           echo "changed=$exit_code" >> "$GITHUB_OUTPUT"
           if [ "$exit_code" -ne 0 ]; then
-            pnpm gap:diff-official /tmp/official.json --issue-body > /tmp/issue-body.md
+            pnpm --filter @cyberuni/gap-analysis run diff-official -- /tmp/official.json --issue-body > /tmp/issue-body.md
           fi
       - name: Print issue body (dry run)
         if: steps.diff.outputs.changed != '0' && inputs.dry_run == true

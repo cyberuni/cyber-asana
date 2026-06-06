@@ -41,11 +41,11 @@ ${removed}
 ## Next steps
 
 - [ ] Run \`.agents/skills/analyze-official-asana-mcp\` locally
-- [ ] Run \`pnpm gap:report --json\` and review buckets
-- [ ] Update \`src/gap-analysis/overlap-map.ts\` if overlap pairs changed
-- [ ] Refresh \`data/official-asana-mcp-baseline.json\` after analysis (\`pnpm gap:fetch-official --write\`)
+- [ ] Run \`pnpm --filter @cyberuni/gap-analysis run report -- --json\` and review buckets
+- [ ] Update \`tools/gap-analysis/src/overlap-map.ts\` if overlap pairs changed
+- [ ] Refresh \`tools/gap-analysis/data/official-asana-mcp-baseline.json\` after analysis (\`pnpm --filter @cyberuni/gap-analysis run fetch-official -- --write\`)
 
-Compare with committed baseline at \`data/official-asana-mcp-baseline.json\`.
+Compare with committed baseline at \`tools/gap-analysis/data/official-asana-mcp-baseline.json\`.
 `
 }
 

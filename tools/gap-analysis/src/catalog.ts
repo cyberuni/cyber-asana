@@ -12,7 +12,7 @@ async function main() {
 		const committed = await readCatalog(cyberCatalogPath)
 		if (!catalogsEqual(catalog, committed)) {
 			console.error('cyber-asana MCP catalog is out of date.')
-			console.error('Run: pnpm gap:catalog')
+			console.error('Run: pnpm --filter @cyberuni/gap-analysis run catalog')
 			process.exit(1)
 		}
 		console.log(`cyber-asana MCP catalog OK (${catalog.tool_count} tools)`)

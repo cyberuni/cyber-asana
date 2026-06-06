@@ -16,13 +16,13 @@ body:
       options:
         - label: Run `.agents/skills/analyze-official-asana-mcp` locally
           required: false
-        - label: Run `pnpm gap:report --json` and review buckets
+        - label: Run `pnpm --filter @cyberuni/gap-analysis run report -- --json` and review buckets
           required: false
-        - label: Update `src/gap-analysis/overlap-map.ts` if overlap pairs changed
+        - label: Update `tools/gap-analysis/src/overlap-map.ts` if overlap pairs changed
           required: false
         - label: Update readme routing guidance if dual-MCP docs exist
           required: false
-        - label: Refresh `data/official-asana-mcp-baseline.json` after analysis (`pnpm gap:fetch-official --write`)
+        - label: Refresh `tools/gap-analysis/data/official-asana-mcp-baseline.json` after analysis (`pnpm --filter @cyberuni/gap-analysis run fetch-official -- --write`)
           required: false
         - label: Open implementation PR or hand off to `update-asana-sdk` if cyber-asana needs new tools
           required: false
