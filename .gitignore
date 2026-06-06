@@ -5,3 +5,4 @@ dist/
 *.tsbuildinfo
 TODO.local.md
 apps/web/.astro
+.turbo/

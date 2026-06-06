@@ -34,7 +34,7 @@ export default defineConfig({
 				},
 			],
 			editLink: {
-				baseUrl: 'https://github.com/cyberuni/cyber-asana/edit/main/',
+				baseUrl: 'https://github.com/cyberuni/cyber-asana/edit/main/apps/web/',
 			},
 		}),
 	],
