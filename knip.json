@@ -1,3 +1,13 @@
 {
-	"$schema": "https://unpkg.com/knip@6/schema.json"
+	"$schema": "https://unpkg.com/knip@6/schema.json",
+	"workspaces": {
+		"packages/cyber-asana": {
+			"entry": ["src/index.ts", "src/cli.ts", "src/mcp.ts"],
+			"project": ["src/**/*.ts"]
+		},
+		"apps/web": {
+			"entry": ["astro.config.mjs", "src/**/*.{astro,ts}"],
+			"project": ["src/**/*.{astro,ts}"]
+		}
+	}
 }

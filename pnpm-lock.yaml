@@ -17,6 +17,9 @@ importers:
       '@commitlint/config-conventional':
         specifier: ^21.0.1
         version: 21.0.1
+      '@repobuddy/biome':
+        specifier: ^2.3.1
+        version: 2.3.1(@biomejs/biome@2.4.16)
       husky:
         specifier: ^9.1.7
         version: 9.1.7

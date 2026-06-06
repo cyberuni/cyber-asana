@@ -1,12 +1,12 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.4.15/schema.json",
+	"$schema": "https://biomejs.dev/schemas/2.4.7/schema.json",
 	"extends": ["@repobuddy/biome/recommended"],
 	"files": {
-		"includes": ["!dist", "!node_modules", "!skills-lock.json", "!.agents"]
+		"includes": ["!**/dist", "!**/node_modules", "!**/.turbo", "!skills-lock.json", "!.agents"]
 	},
 	"overrides": [
 		{
-			"includes": ["src/**/*.ts"],
+			"includes": ["packages/cyber-asana/src/**/*.ts"],
 			"linter": {
 				"rules": {
 					"suspicious": {
