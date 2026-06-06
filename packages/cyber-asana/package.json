@@ -29,7 +29,6 @@
 	},
 	"scripts": {
 		"build": "tsdown",
-		"check": "biome check --write .",
 		"cyber-asana": "tsx src/cli.ts",
 		"dev": "tsx src/cli.ts",
 		"check:mcp-gap": "tsx src/gap-analysis/catalog.ts --check",
@@ -38,12 +37,10 @@
 		"gap:diff-official": "tsx src/gap-analysis/diff-official.ts",
 		"gap:fetch-official": "tsx src/gap-analysis/fetch-official.ts",
 		"gap:report": "tsx src/gap-analysis/report.ts",
-		"lint": "biome check .",
 		"test": "vitest run src",
 		"test:system": "vitest run --config vitest.system.config.ts",
 		"test:watch": "vitest",
-		"typecheck": "tsc --noEmit",
-		"verify": "pnpm typecheck && pnpm lint && pnpm test && pnpm build"
+		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
 		"@modelcontextprotocol/sdk": "^1.12.0",
@@ -52,8 +49,6 @@
 		"zod": "^4.4.3"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^2.4.15",
-		"@repobuddy/biome": "^2.3.1",
 		"@types/node": "^25.9.1",
 		"tsdown": "^0.16.6",
 		"tsx": "^4.19.4",

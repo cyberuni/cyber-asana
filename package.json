@@ -1,22 +1,26 @@
 {
 	"name": "cyber-asana-monorepo",
 	"private": true,
+	"type": "module",
 	"scripts": {
 		"build": "turbo run build",
-		"dev": "turbo run dev --filter=@cyberuni/web",
-		"lint": "turbo run lint",
+		"ca": "pnpm run --filter=./packages/cyber-asana",
+		"check": "biome check",
+		"check:fix": "biome check --write",
+		"knip": "knip",
 		"prepare": "husky",
 		"release": "changeset publish",
 		"test": "turbo run test",
 		"typecheck": "turbo run typecheck",
-		"version": "changeset version"
+		"verify": "turbo run build typecheck test",
+		"version": "changeset version",
+		"web": "turbo run --filter=@cyberuni/web"
 	},
-	"type": "module",
 	"devDependencies": {
+		"@biomejs/biome": "^2.4.16",
 		"@changesets/cli": "^2.29.4",
 		"@commitlint/cli": "^21.0.1",
 		"@commitlint/config-conventional": "^21.0.1",
-		"@biomejs/biome": "^2.4.7",
 		"@repobuddy/biome": "^2.3.1",
 		"husky": "^9.1.7",
 		"knip": "^6.14.1",

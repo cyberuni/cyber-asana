@@ -9,7 +9,7 @@ importers:
   .:
     devDependencies:
       '@biomejs/biome':
-        specifier: ^2.4.7
+        specifier: ^2.4.16
         version: 2.4.16
       '@changesets/cli':
         specifier: ^2.29.4
@@ -61,12 +61,6 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@biomejs/biome':
-        specifier: ^2.4.15
-        version: 2.4.16
-      '@repobuddy/biome':
-        specifier: ^2.3.1
-        version: 2.3.1(@biomejs/biome@2.4.16)
       '@types/node':
         specifier: ^25.9.1
         version: 25.9.1
