@@ -6,7 +6,7 @@
 	},
 	"overrides": [
 		{
-			"includes": ["packages/cyber-asana/src/**/*.ts"],
+			"includes": ["packages/cyber-asana/src/**/*.ts", "tools/gap-analysis/src/**/*.ts"],
 			"linter": {
 				"rules": {
 					"suspicious": {

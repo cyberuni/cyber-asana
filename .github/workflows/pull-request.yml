@@ -20,4 +20,4 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter cyber-asana check:mcp-gap
+      - run: pnpm --filter @cyberuni/gap-analysis check

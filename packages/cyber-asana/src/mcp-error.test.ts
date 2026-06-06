@@ -5,7 +5,7 @@ import { formatMcpToolError, withMcpErrorHandling } from './mcp-error.js'
 
 function textContent(result: CallToolResult): string {
 	const block = result.content[0]
-	if (!block || block.type !== 'text') {
+	if (block?.type !== 'text') {
 		throw new Error('Expected text content block')
 	}
 	return block.text

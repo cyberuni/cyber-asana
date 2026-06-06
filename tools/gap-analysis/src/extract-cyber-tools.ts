@@ -1,6 +1,6 @@
 import { readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
-import { repoRoot } from './paths.js'
+import { cyberAsanaSrcDir } from './paths.js'
 
 const STATIC_TOOL_REGEX = /server\.tool\s*\(\s*['"`](asana_[a-z0-9_]+)['"`]/g
 
@@ -9,7 +9,7 @@ const TEMPLATE_SUFFIX_REGEX = /asana_\$\{prefix\}_([a-z0-9_]+)/g
 const STORY_PREFIXES = ['story', 'comment'] as const
 
 export async function extractCyberTools(): Promise<string[]> {
-	const srcDir = path.join(repoRoot, 'src')
+	const srcDir = cyberAsanaSrcDir
 	const files = await listMcpFiles(srcDir)
 	const tools = new Set<string>()
 

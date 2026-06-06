@@ -1,0 +1,24 @@
+{
+	"name": "@cyberuni/gap-analysis",
+	"version": "0.0.1",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"catalog": "tsx src/catalog.ts",
+		"check": "tsx src/catalog.ts --check",
+		"diff-official": "tsx src/diff-official.ts",
+		"fetch-official": "tsx src/fetch-official.ts",
+		"report": "tsx src/report.ts",
+		"test": "vitest run",
+		"typecheck": "tsc --noEmit"
+	},
+	"devDependencies": {
+		"@types/node": "^25.9.1",
+		"tsx": "^4.19.4",
+		"typescript": "^6.0.3",
+		"vitest": "^4.1.7"
+	},
+	"engines": {
+		"node": ">=22"
+	}
+}
