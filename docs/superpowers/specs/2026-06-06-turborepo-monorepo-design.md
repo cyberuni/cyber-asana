@@ -40,11 +40,11 @@ cyber-asana/                    ← repo root (git stays here)
       tsdown.config.ts
       vitest.config.ts
       vitest.system.config.ts
-      knip.json
       ...
   .changeset/                   ← stays at root
   .github/                      ← stays at root
   biome.json                    ← root-level, shared across packages
+  knip.json                     ← root-level, scans entire monorepo
   package.json                  ← workspace root (private: true, no source)
   pnpm-workspace.yaml           ← packages: ["apps/*", "packages/*"]
   turbo.json
@@ -116,6 +116,7 @@ Doc pages (initial):
 3. Update root `package.json` to workspace root (private, add turbo devDep)
 4. Add `turbo.json` at root
 5. Scaffold `apps/web/` with Astro + Starlight
-6. Update `.changeset/config.json` to point to `packages/cyber-asana`
-7. Update `biome.json` paths if needed
-8. Verify `pnpm install` and `turbo run build` succeed
+6. Move `knip.json` to root, update paths to cover `packages/*` and `apps/*`
+7. Update `.changeset/config.json` to point to `packages/cyber-asana`
+8. Update `biome.json` paths if needed
+9. Verify `pnpm install` and `turbo run build` succeed
