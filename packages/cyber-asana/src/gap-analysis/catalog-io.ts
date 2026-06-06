@@ -11,7 +11,7 @@ export async function writeCatalog(filePath: string, catalog: McpCatalog): Promi
 	await mkdir(path.dirname(filePath), { recursive: true })
 	const sorted = { ...catalog, tools: [...catalog.tools].sort() }
 	sorted.tool_count = sorted.tools.length
-	await writeFile(filePath, `${JSON.stringify(sorted, null, 2)}\n`, 'utf8')
+	await writeFile(filePath, `${JSON.stringify(sorted, null, '\t')}\n`, 'utf8')
 }
 
 export function catalogFromTools(source: string, tools: string[], fetchedAt?: string): McpCatalog {
