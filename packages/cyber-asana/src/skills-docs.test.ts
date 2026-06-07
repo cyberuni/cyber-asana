@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 
-const repoRoot = process.cwd()
+const repoRoot = path.resolve(process.cwd(), '../..')
 const files = ['skills/init-asana/SKILL.md', 'skills/pin-asana-projects/SKILL.md']
 
 describe('skill docs', () => {
