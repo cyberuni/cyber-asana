@@ -1,0 +1,22 @@
+{
+	"name": "cyber-asana",
+	"version": "0.4.1",
+	"description": "Asana CLI and MCP server for AI agents",
+	"author": { "name": "unional" },
+	"homepage": "https://github.com/cyberuni/cyber-asana",
+	"repository": "https://github.com/cyberuni/cyber-asana.git",
+	"license": "MIT",
+	"keywords": ["asana", "mcp", "cli", "agent", "productivity"],
+	"skills": "./skills/",
+	"mcpServers": {
+		"cyber-asana": {
+			"command": "npx",
+			"args": ["-y", "cyber-asana", "mcp"],
+			"env": {
+				"ASANA_ACCESS_TOKEN": "${ASANA_ACCESS_TOKEN}",
+				"ASANA_WORKSPACE_GID": "${ASANA_WORKSPACE_GID}"
+			}
+		}
+	},
+	"vendors": ["claude-code", "cursor", "codex", "copilot-cli"]
+}
