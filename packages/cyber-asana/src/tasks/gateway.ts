@@ -169,7 +169,10 @@ export function createAsanaTaskGateway(client: Asana.ApiClient): TaskGateway {
 			return await collectListResponse(res, opts)
 		},
 		async getTask(taskGid) {
-			const res = await tasksApi.getTask(taskGid, {})
+			const res = await tasksApi.getTask(taskGid, {
+				opt_fields:
+					'gid,name,notes,html_notes,assignee,assignee.name,completed,completed_at,due_on,start_on,permalink_url,parent,parent.name,projects,projects.name,custom_fields,tags,tags.name,followers,followers.name,memberships,memberships.project,memberships.section,memberships.section.name,num_subtasks,resource_subtype,created_at,modified_at',
+			})
 			return res.data
 		},
 		async getTasksByGid(taskGids, opts) {
