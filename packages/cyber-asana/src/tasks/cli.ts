@@ -75,6 +75,7 @@ type Task = {
 	due_on?: string | null
 	assignee?: { name: string } | null
 	notes?: string
+	html_notes?: string
 }
 
 function fmtTask(t: Task) {
@@ -85,7 +86,7 @@ function fmtTask(t: Task) {
 		Assignee: t.assignee?.name ?? null,
 		Due: t.due_on ?? null,
 		Done: t.completed != null ? String(t.completed) : null,
-		Notes: t.notes || null,
+		Notes: t.html_notes || t.notes || null,
 	})
 }
 

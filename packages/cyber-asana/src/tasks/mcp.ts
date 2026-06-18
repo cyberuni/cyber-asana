@@ -183,7 +183,7 @@ export function registerTaskTools(server: McpServer, api?: TaskApi | (() => Task
 
 	server.tool(
 		'asana_task_get',
-		'Get an Asana task by GID',
+		'Get an Asana task by GID. Returns html_notes with rich formatting (headings, lists, code blocks) in addition to plain notes.',
 		{ task_gid: z.string().describe('Task GID') },
 		async ({ task_gid }) => ({
 			content: [{ type: 'text', text: JSON.stringify(await resolveTaskApi(api).getTask(task_gid)) }],
@@ -211,7 +211,11 @@ export function registerTaskTools(server: McpServer, api?: TaskApi | (() => Task
 
 	server.tool(
 		'asana_task_create',
-		'Create a new Asana task',
+		`Create a new Asana task.
+
+When setting notes, prefer html_notes over notes to preserve rich formatting (headings, lists, code).
+Asana html_notes must be valid XML wrapped in <body>. Supported tags: <h1>, <h2>, <strong>, <em>, <u>, <s>, <code>, <ol>, <ul>, <li>, <a href="">, <hr/>, <pre>, <blockquote>.
+Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content\\n<ul><li>Item</li></ul></body>"`,
 		{
 			workspace_gid: z.string().describe('Workspace GID'),
 			name: z.string().describe('Task name'),
@@ -223,7 +227,12 @@ export function registerTaskTools(server: McpServer, api?: TaskApi | (() => Task
 				.describe('Follower user GIDs'),
 			assignee_gid: z.string().optional().describe('Assignee user GID'),
 			notes: z.string().optional().describe('Task notes'),
-			html_notes: z.string().optional().describe('Task notes as HTML'),
+			html_notes: z
+				.string()
+				.optional()
+				.describe(
+					'Task notes as HTML (preferred over notes). Must be valid XML wrapped in <body>. Use <h1>, <h2>, <strong>, <code>, <ul>, <ol>, <li>, <hr/>, <pre>, <blockquote>. Use \\n for line breaks.',
+				),
 			due_on: z.string().optional().describe('Due date (YYYY-MM-DD)'),
 			parent_gid: z.string().optional().describe('Parent task GID'),
 			resource_subtype: z.string().optional().describe('Task resource subtype'),
@@ -270,12 +279,21 @@ export function registerTaskTools(server: McpServer, api?: TaskApi | (() => Task
 
 	server.tool(
 		'asana_task_update',
-		'Update an Asana task',
+		`Update an Asana task.
+
+When setting notes, prefer html_notes over notes to preserve rich formatting (headings, lists, code).
+Asana html_notes must be valid XML wrapped in <body>. Supported tags: <h1>, <h2>, <strong>, <em>, <u>, <s>, <code>, <ol>, <ul>, <li>, <a href="">, <hr/>, <pre>, <blockquote>.
+Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content\\n<ul><li>Item</li></ul></body>"`,
 		{
 			task_gid: z.string().describe('Task GID'),
 			name: z.string().optional().describe('New name'),
 			notes: z.string().optional().describe('New notes'),
-			html_notes: z.string().optional().describe('New notes as HTML'),
+			html_notes: z
+				.string()
+				.optional()
+				.describe(
+					'New notes as HTML (preferred over notes). Must be valid XML wrapped in <body>. Use <h1>, <h2>, <strong>, <code>, <ul>, <ol>, <li>, <hr/>, <pre>, <blockquote>. Use \\n for line breaks.',
+				),
 			completed: z.boolean().optional().describe('Mark as completed'),
 			due_on: z.string().optional().describe('Due date (YYYY-MM-DD)'),
 			clear_due_on: z.boolean().optional().describe('Clear the due date'),
