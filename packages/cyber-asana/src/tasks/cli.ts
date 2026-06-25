@@ -9,6 +9,7 @@ import {
 	requiredGid,
 } from '../cli-options.js'
 import { output, printEmpty, printFields, printTable } from '../output.js'
+import { isFull, truncate } from '../truncate.js'
 import {
 	addDependencies,
 	addDependents,
@@ -86,7 +87,7 @@ function fmtTask(t: Task) {
 		Assignee: t.assignee?.name ?? null,
 		Due: t.due_on ?? null,
 		Done: t.completed != null ? String(t.completed) : null,
-		Notes: t.html_notes || t.notes || null,
+		Notes: truncate(t.html_notes || t.notes, { full: isFull() }) || null,
 	})
 }
 

@@ -21,6 +21,7 @@ program
 	.option('--token <token>', 'Asana PAT — overrides ASANA_ACCESS_TOKEN env var')
 	.option('--json', 'Output raw JSON instead of formatted text')
 	.option('--toon', 'Output token-efficient TOON instead of formatted text (recommended for agents)')
+	.option('--full', 'Show full field values instead of truncating large text')
 	.addHelpText(
 		'after',
 		'\nAuthentication: set ASANA_ACCESS_TOKEN env var (preferred; ASANA_TOKEN is deprecated) or pass --token <pat>.\nOutput: default is human-readable text; use --toon for token-efficient agent output or --json for raw JSON.',

@@ -6,6 +6,7 @@ const updateTaskMock = vi.fn()
 const addFollowersToTaskMock = vi.fn()
 const removeFollowersFromTaskMock = vi.fn()
 const getTasksByGidMock = vi.fn()
+const getTaskMock = vi.fn()
 
 vi.mock('./api.js', async () => {
 	const actual = await vi.importActual<typeof import('./api.js')>('./api.js')
@@ -16,6 +17,7 @@ vi.mock('./api.js', async () => {
 		addFollowersToTask: addFollowersToTaskMock,
 		removeFollowersFromTask: removeFollowersFromTaskMock,
 		getTasksByGid: getTasksByGidMock,
+		getTask: getTaskMock,
 	}
 })
 
@@ -145,6 +147,28 @@ describe('tasks/cli', () => {
 		expect(logSpy).toHaveBeenCalledWith(
 			JSON.stringify([{ gid: '123', ok: true, task: { gid: '123', name: 'Task 1' } }], null, 2),
 		)
+	})
+
+	it('task get truncates long notes with a size hint by default', async () => {
+		getTaskMock.mockResolvedValue({ gid: '1', name: 'Task', notes: 'x'.repeat(600) })
+		const program = new Command().addCommand(taskCommand())
+
+		await program.parseAsync(['node', 'test', 'task', 'get', '1'], { from: 'node' })
+
+		const notesLine = logSpy.mock.calls.map((c) => String(c[0])).find((line) => line.startsWith('Notes'))
+		expect(notesLine).toContain('[truncated, 600 chars total; use --full for the rest]')
+	})
+
+	it('task get shows full notes with --full', async () => {
+		getTaskMock.mockResolvedValue({ gid: '1', name: 'Task', notes: 'x'.repeat(600) })
+		process.argv = ['node', 'test', '--full']
+		const program = new Command().option('--full').addCommand(taskCommand())
+
+		await program.parseAsync(['node', 'test', '--full', 'task', 'get', '1'], { from: 'node' })
+
+		const notesLine = logSpy.mock.calls.map((c) => String(c[0])).find((line) => line.startsWith('Notes'))
+		expect(notesLine).not.toContain('[truncated')
+		expect(notesLine).toContain('x'.repeat(600))
 	})
 
 	it('task command can use injected dependencies', async () => {
