@@ -82,6 +82,11 @@ Install `cyber-asana` in the project that hosts your agent (`npm install cyber-a
 
 The package exports `./mcp` → `dist/mcp.js` and exposes the same server via `cyber-asana mcp`. Do not use `["--import", "cyber-asana/mcp"]` alone — without a main script, Node does not wire stdin to the MCP server and the host times out on `initialize`. `["--import", "cyber-asana/mcp", "-e", ""]` also works, but prefer the dynamic-import row above.
 
+Tools return JSON by default. Set `CYBER_ASANA_MCP_FORMAT=toon` in the server's
+`env` to emit token-efficient [TOON](#agent-friendly-output) instead — every
+tool result (and structured errors) is re-encoded, with no change to tool names
+or parameters.
+
 ### Using alongside official Asana MCP
 
 You can run **both** the [official Asana MCP](https://developers.asana.com/docs/mcp-tools-reference) and cyber-asana in the same host. Tool names already differ (`create_tasks` vs `asana_task_create`), so the real conflict is the **config key** — use `"asana"` for the official server and `"cyber-asana"` for this package.
@@ -316,11 +321,13 @@ Terminal and scripting interface — same API surface as MCP, without an agent h
 cyber-asana <resource> <action> [options]
 ```
 
-Output is human-readable by default. Add `--json` for raw API JSON.
+Output is human-readable by default. Add `--toon` for token-efficient
+[TOON](#agent-friendly-output) (recommended for agents) or `--json` for raw API JSON.
 
 List commands support pagination and field selection where Asana supports it:
 
 ```sh
+cyber-asana task list --project <gid> --toon
 cyber-asana task list --project <gid> --json
 cyber-asana task list --project <gid> --limit 50 --offset <next_page.offset>
 cyber-asana task list --project <gid> --all --max-pages 5
@@ -331,6 +338,28 @@ List commands request 100 results per page by default.
 When pagination is used, JSON output includes `data`, `next_page`, and `limit`.
 Readable output prints the page table and a `Next offset` hint when another page is available.
 Use `--all` to fetch multiple pages intentionally; `--max-pages` caps the number of pages fetched.
+
+### Agent-friendly output
+
+The CLI follows a set of conventions that make its output cheap and unambiguous
+for AI agents to consume:
+
+- **Token-efficient output** — `--toon` emits [TOON](https://github.com/kunchenguid/axi#the-10-principles),
+  a compact tabular format that drops repeated keys for ~40% fewer tokens than
+  pretty JSON. Run with no arguments to see live data (the authenticated user)
+  instead of help text.
+- **Minimal default schemas** — task lists request only `gid,name,completed,due_on`
+  by default; pass `--opt-fields` to widen.
+- **Content truncation** — large text (task notes) is truncated with a size hint;
+  pass `--full` to get the complete value.
+- **Definitive empty states** — empty results print `0 results`, never a blank line.
+- **Aggregates & next steps** — task lists print a count summary and follow-up
+  command suggestions in text mode (suppressed under `--toon`/`--json`).
+- **Structured errors & exit codes** — under `--json`/`--toon`, errors are
+  structured objects. Exit codes: `0` success, `1` generic, `3` auth/config,
+  `4` forbidden, `5` not found, `6` rate limited.
+
+All mutations are non-interactive (no prompts), so they are safe to script.
 
 ### Resources
 

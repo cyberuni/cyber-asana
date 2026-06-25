@@ -81,6 +81,18 @@ Shared acceptance helpers: `src/testing/list-pagination.acceptance.ts`, `src/tes
 - **No duplication**: CLI and MCP both call `api.ts`; never inline Asana SDK calls in cli.ts or mcp.ts
 - **Workspace GID in requests**: pass as a plain string (`workspace: workspaceGid`), not as an object (`workspace: { gid: ... }`)
 
+### Agent-friendly output
+
+The CLI and MCP follow the [10 agent-CLI principles](https://github.com/kunchenguid/axi#the-10-principles). Keep new commands consistent:
+
+- **Structured output** goes through `src/output.ts` (`output(data, readable)`); `--toon` (TOON, `src/toon.ts`) and `--json` are handled there — never branch on `process.argv` for format in a command.
+- **Empty states**: use `printEmpty()` / `printTable` (prints `0 results`), never `(none)` or a blank line.
+- **Truncation**: wrap large free-text fields with `truncate(value, { full: isFull() })` from `src/truncate.ts`.
+- **Aggregates & next steps**: use `printSummary()` and `printNextSteps()` (text-mode only) from `src/output.ts`.
+- **Minimal default schemas**: list commands set a small default `optFields` (3–4 fields) when the user gives none.
+- **Errors & exit codes**: the top-level CLI catch uses `renderCliError` / `exitCodeFor` from `src/cli-error.ts`; throw structured Asana/Error objects, never call `process.exit` inside a command.
+- **MCP**: tools serialize JSON; TOON is applied centrally by `withMcpOutputFormat` (env `CYBER_ASANA_MCP_FORMAT=toon`). Do not re-implement formatting per tool.
+
 ### Pagination
 
 All list endpoints in `api.ts` accept `PaginationOptions` from `src/pagination.ts`:
