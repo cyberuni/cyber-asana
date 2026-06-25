@@ -14,12 +14,12 @@ When the user wants to track code TODOs/FIXMEs in Asana, or do a sweep to surfac
 ### 1. Scan the codebase
 
 ```bash
-cyber-asana task scan-todos [dir] --json
+cyber-asana task scan-todos [dir] --toon
 ```
 
 Omit `[dir]` to scan the current working directory. Pass `--ext` or `--exclude` to narrow the search if needed.
 
-Parse stdout JSON — an array of `{ file, line, pattern, text }` objects.
+Read stdout — a token-efficient TOON table of `{ file, line, pattern, text }` rows (use `--json` if you need raw JSON).
 
 ### 2. Review and filter (LLM judgment)
 
@@ -31,7 +31,7 @@ From the scan results, identify which items are:
 Also check against existing tasks to avoid duplicates:
 
 ```bash
-cyber-asana task list --project-gid <project-gid> --json
+cyber-asana task list --project-gid <project-gid> --toon
 ```
 
 Deduplicate semantically — "Fix auth timeout" and "TODO: fix auth timeout" are the same thing.

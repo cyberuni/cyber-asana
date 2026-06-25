@@ -16,22 +16,22 @@ When the user asks for a sprint summary, retrospective data, or completion stats
 Ask (or infer): which project, which section (sprint), and the sprint start date.
 
 ```bash
-cyber-asana project list --json
-cyber-asana section list --project-gid <project-gid> --json
+cyber-asana project list --toon
+cyber-asana section list --project-gid <project-gid> --toon
 ```
 
-Parse JSON for project and section GIDs.
+Read the output for project and section GIDs. (`--toon` is the token-efficient format; use `--json` for raw JSON.)
 
 ### 2. Fetch completed tasks
 
 ```bash
-cyber-asana task list --project-gid <project-gid> --completed-since <sprint-start-date> --json
+cyber-asana task list --project-gid <project-gid> --completed-since <sprint-start-date> --toon
 ```
 
 ### 3. Fetch incomplete tasks
 
 ```bash
-cyber-asana task list --project-gid <project-gid> --incomplete --json
+cyber-asana task list --project-gid <project-gid> --incomplete --toon
 ```
 
 Filter both lists by section GID if reporting on a specific sprint section.

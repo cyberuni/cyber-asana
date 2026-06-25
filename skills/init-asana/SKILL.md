@@ -50,14 +50,14 @@ Or pass per-command with `--token <pat>`.
 Ensure the CLI is available first (see **Ensure cyber-asana CLI**), then run:
 
 ```bash
-cyber-asana workspace list --json
+cyber-asana workspace list --toon
 # or, if using npx without global install:
-npx cyber-asana@<exact> workspace list --json
+npx cyber-asana@<exact> workspace list --toon
 ```
 
 If it fails, the token is invalid or not set. Fix credentials and retry.
 
-Parse the JSON `data` array for `{ gid, name }`. Ask the user which workspace to use.
+Read the `{ gid, name }` rows from the output (`--toon` is the token-efficient format; use `--json` for raw JSON). Ask the user which workspace to use.
 
 ### 4. Set ASANA_WORKSPACE_GID
 
@@ -83,7 +83,15 @@ A successful version print confirms the CLI runs with credentials loaded. If wor
 
 For repos that work against a fixed set of Asana projects, use the **pin-asana-projects** skill. It searches projects by keyword with `project search`, confirms selections with the user, and pins them in `.agents/cyber-asana.json` via `config add`.
 
-### 7. Optional — dual MCP with official Asana
+### 7. Recommended — connect the MCP server (ambient session integration)
+
+For AI agents, prefer connecting the cyber-asana MCP server as an ambient,
+always-available session integration first — then reach for the on-demand
+skills (standup, sprint report, sync, etc.) as needed. Add the cyber-asana MCP
+server to your host (see [readme — MCP Server](https://github.com/cyberuni/cyber-asana/blob/main/readme.md#mcp-server))
+and set `CYBER_ASANA_MCP_FORMAT=toon` in its `env` for token-efficient output.
+
+### 8. Optional — dual MCP with official Asana
 
 Both servers can run together with separate config keys and credentials:
 
