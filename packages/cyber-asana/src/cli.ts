@@ -3,7 +3,9 @@ import { Command } from 'commander'
 import { exitCodeFor, renderCliError } from './cli-error.js'
 import { setTokenOverride } from './client.js'
 import { createRuntimeContext, type RuntimeContext, registerCliCommands } from './composition.js'
+import { runDefaultCommand } from './default-command.js'
 import { selectFormat } from './output.js'
+import { getMe } from './users/api.js'
 import { VERSION } from './version.js'
 
 const program = new Command()
@@ -29,6 +31,9 @@ program
 	.hook('preAction', () => {
 		const { token } = program.opts<{ token?: string }>()
 		if (token) setTokenOverride(token)
+	})
+	.action(async () => {
+		await runDefaultCommand({ getMe })
 	})
 
 registerCliCommands(program, getRuntimeContext)
