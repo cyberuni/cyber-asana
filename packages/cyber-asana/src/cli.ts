@@ -26,7 +26,16 @@ program
 	.option('--full', 'Show full field values instead of truncating large text')
 	.addHelpText(
 		'after',
-		'\nAuthentication: set ASANA_ACCESS_TOKEN env var (preferred; ASANA_TOKEN is deprecated) or pass --token <pat>.\nOutput: default is human-readable text; use --toon for token-efficient agent output or --json for raw JSON.',
+		[
+			'',
+			'Authentication: set ASANA_ACCESS_TOKEN env var (preferred; ASANA_TOKEN is deprecated) or pass --token <pat>.',
+			'Output: default is human-readable text; use --toon for token-efficient agent output or --json for raw JSON.',
+			'',
+			'Examples:',
+			'  cyber-asana                       # show the authenticated user (live data)',
+			'  cyber-asana task my-tasks list --workspace-gid <gid> --toon',
+			'  cyber-asana <resource> --help     # concise per-resource reference',
+		].join('\n'),
 	)
 	.hook('preAction', () => {
 		const { token } = program.opts<{ token?: string }>()

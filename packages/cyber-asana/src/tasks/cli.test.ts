@@ -211,6 +211,15 @@ describe('tasks/cli', () => {
 		expect(notesLine).toContain('x'.repeat(600))
 	})
 
+	it('task --help includes a concise examples reference', () => {
+		let help = ''
+		const cmd = taskCommand()
+		cmd.configureOutput({ writeOut: (s) => (help += s) })
+		cmd.outputHelp()
+		expect(help).toContain('Examples:')
+		expect(help).toContain('cyber-asana task list')
+	})
+
 	it('task command can use injected dependencies', async () => {
 		const injectedCreateTask = vi.fn().mockResolvedValue({ gid: '1', name: 'New Task' })
 		const program = new Command().addCommand(

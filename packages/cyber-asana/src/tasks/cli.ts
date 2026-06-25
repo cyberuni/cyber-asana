@@ -123,6 +123,21 @@ function collectOption(value: string, previous: string[] = []) {
 export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 	const cmd = new Command('task').description('Manage Asana tasks')
 
+	cmd.addHelpText(
+		'after',
+		[
+			'',
+			'Examples:',
+			'  cyber-asana task list --project-gid <gid>',
+			'  cyber-asana task my-tasks list --workspace-gid <gid> --incomplete',
+			'  cyber-asana task get <gid> --toon',
+			'  cyber-asana task search "bug" --workspace-gid <gid> --no-completed',
+			'  cyber-asana task create "New task" --project-gid <gid>',
+			'',
+			'Every subcommand supports --help for its own options.',
+		].join('\n'),
+	)
+
 	addPaginationOptions(
 		addGidOption(cmd.command('list').description('List tasks in a project'), 'project', 'Project GID')
 			.option('--completed-since <date>', 'Only include tasks completed on or after this date (ISO 8601 or "now")')
