@@ -75,6 +75,7 @@ function mockRuntimeContext(): RuntimeContext {
 		},
 		attachments: { listAttachments: vi.fn(), getAttachment: vi.fn() },
 		stories: { listStories: vi.fn(), createStory: vi.fn(), getTaskTemplateData: vi.fn() },
+		status: { listStatuses: vi.fn(), getStatus: vi.fn(), createStatus: vi.fn(), deleteStatus: vi.fn() },
 	}
 }
 
@@ -135,6 +136,35 @@ describe('composition wiring', () => {
 		})
 
 		expect(ctx.tags.createTag).toHaveBeenCalledWith('ws1', 'Urgent', {})
+	})
+
+	it('CLI status create uses runtime context status api', async () => {
+		const ctx = mockRuntimeContext()
+		ctx.status.createStatus = vi.fn().mockResolvedValue({ gid: 'st1', status_type: 'on_track' })
+		const program = new Command()
+		registerCliCommands(program, () => ctx)
+
+		await program.parseAsync(
+			['node', 'test', 'status', 'create', '--parent-gid', 'proj1', '--status-type', 'on_track', '--text', 'All good'],
+			{ from: 'node' },
+		)
+
+		expect(ctx.status.createStatus).toHaveBeenCalledWith('proj1', { status_type: 'on_track', text: 'All good' })
+	})
+
+	it('MCP asana_status_create uses runtime context status api', async () => {
+		const ctx = mockRuntimeContext()
+		ctx.status.createStatus = vi.fn().mockResolvedValue({ gid: 'st1', status_type: 'on_track' })
+		const server = createMcpServer()
+		registerMcpTools(server as never, () => ctx)
+
+		await server.handlers.get('asana_status_create')?.({
+			parent_gid: 'proj1',
+			status_type: 'on_track',
+			text: 'All good',
+		})
+
+		expect(ctx.status.createStatus).toHaveBeenCalledWith('proj1', { status_type: 'on_track', text: 'All good' })
 	})
 
 	it('MCP asana_workspace_get uses runtime context workspaces api', async () => {

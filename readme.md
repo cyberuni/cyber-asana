@@ -282,6 +282,7 @@ Tools are named `asana_<resource>_<action>` (e.g. `asana_task_create`).
 | `goal` | `asana_goal_list`, `asana_goal_get`, `asana_goal_create`, `asana_goal_update`, `asana_goal_delete` |
 | `tag` | `asana_tag_list`, `asana_tag_get`, `asana_tag_create`, `asana_tag_update`, `asana_tag_delete`, `asana_tag_list_for_task`, `asana_tag_list_tasks`, `asana_tag_add_to_task`, `asana_tag_remove_from_task` |
 | `attachment` | `asana_attachment_list`, `asana_attachment_get` |
+| `status` | `asana_status_list`, `asana_status_get`, `asana_status_create`, `asana_status_delete` |
 | `story` | `asana_story_list`, `asana_story_create` |
 | `comment` | `asana_comment_list`, `asana_comment_create` (aliases for `story`) |
 | `url` | `asana_url_parse` (no API call; extracts GIDs from Asana app URLs) |
@@ -340,10 +341,11 @@ Use `--all` to fetch multiple pages intentionally; `--max-pages` caps the number
 | `section` | `list`, `get`, `create`, `update`, `delete` |
 | `user` | `list`, `get`, `me` |
 | `team` | `list`, `get` |
-| `portfolio` | `list`, `get`, `create`, `update`, `delete` |
+| `portfolio` | `list`, `items`, `get`, `create`, `update`, `delete` |
 | `goal` | `list`, `get`, `create`, `update`, `delete` |
 | `tag` | `list`, `get`, `create` |
 | `attachment` | `list`, `get` |
+| `status` | `list`, `get`, `create`, `delete` |
 | `story` | `list`, `create` |
 | `comment` | `list`, `create` (alias for `story`) |
 

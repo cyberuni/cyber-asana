@@ -23,6 +23,10 @@ import { createSectionApi, type SectionApi } from './sections/api.js'
 import { sectionCommand } from './sections/cli.js'
 import { createAsanaSectionGateway } from './sections/gateway.js'
 import { registerSectionTools } from './sections/mcp.js'
+import { createStatusApi, type StatusApi } from './status/api.js'
+import { statusCommand } from './status/cli.js'
+import { createAsanaStatusGateway } from './status/gateway.js'
+import { registerStatusTools } from './status/mcp.js'
 import { createStoryApi, type StoryApi } from './stories/api.js'
 import { storyCommand } from './stories/cli.js'
 import { createAsanaStoryGateway } from './stories/gateway.js'
@@ -56,6 +60,7 @@ export type RuntimeContext = {
 	portfolios: PortfolioApi
 	projects: ProjectApi
 	sections: SectionApi
+	status: StatusApi
 	stories: StoryApi
 	tags: TagApi
 	tasks: TaskApi
@@ -72,6 +77,7 @@ export function createRuntimeContext(): RuntimeContext {
 		portfolios: createPortfolioApi(createAsanaPortfolioGateway(client)),
 		projects: createProjectApi(createAsanaProjectGateway(client)),
 		sections: createSectionApi(createAsanaSectionGateway(client)),
+		status: createStatusApi(createAsanaStatusGateway(client)),
 		stories: createStoryApi(createAsanaStoryGateway(client)),
 		tags: createTagApi(createAsanaTagGateway(client)),
 		tasks: createTaskApi(createAsanaTaskGateway(client)),
@@ -92,6 +98,7 @@ export function registerCliCommands(program: Command, getContext: () => RuntimeC
 	program.addCommand(goalCommand(() => getContext().goals))
 	program.addCommand(tagCommand(() => getContext().tags))
 	program.addCommand(attachmentCommand(() => getContext().attachments))
+	program.addCommand(statusCommand(() => getContext().status))
 	program.addCommand(storyCommand('story', () => getContext().stories))
 	program.addCommand(storyCommand('comment', () => getContext().stories))
 	program.addCommand(configCommand(() => getContext().projects))
@@ -110,6 +117,7 @@ export function registerMcpTools(server: McpServer, getContext: () => RuntimeCon
 	registerGoalTools(server, () => getContext().goals)
 	registerTagTools(server, () => getContext().tags)
 	registerAttachmentTools(server, () => getContext().attachments)
+	registerStatusTools(server, () => getContext().status)
 	registerStoryTools(server, () => getContext().stories)
 	registerUrlTools(server)
 }

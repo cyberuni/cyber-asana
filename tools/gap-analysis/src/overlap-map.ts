@@ -16,6 +16,8 @@ export const overlapMap: OverlapEntry[] = [
 	{ official: 'get_portfolio', cyber: 'asana_portfolio_get', confidence: 'high' },
 	{ official: 'get_portfolios', cyber: 'asana_portfolio_list', confidence: 'high' },
 	{ official: 'get_items_for_portfolio', cyber: 'asana_portfolio_item_list', confidence: 'high' },
+	{ official: 'get_status_overview', cyber: 'asana_status_list', confidence: 'partial' },
+	{ official: 'create_project_status_update', cyber: 'asana_status_create', confidence: 'partial' },
 	{ official: 'get_attachments', cyber: 'asana_attachment_list', confidence: 'partial' },
 	{ official: 'get_user', cyber: 'asana_user_get', confidence: 'high' },
 	{ official: 'get_me', cyber: 'asana_user_me', confidence: 'high' },
