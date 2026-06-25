@@ -8,7 +8,8 @@ import {
 	printNextPageHint,
 	requiredGid,
 } from '../cli-options.js'
-import { output, printFields, printTable } from '../output.js'
+import { output, printFields, printTable, selectFormat } from '../output.js'
+import { encodeToon } from '../toon.js'
 import {
 	createProject,
 	deleteProject,
@@ -328,10 +329,11 @@ export function projectCommand(api?: ProjectApi | (() => ProjectApi)) {
 		.option('--output <file>', 'Write output to a file instead of stdout')
 		.action(async (gid: string, opts: { output?: string }) => {
 			const data = await resolveProjectApi(api).exportProject(gid)
-			if (process.argv.includes('--json')) {
-				const json = JSON.stringify(data, null, 2)
-				if (opts.output) await writeFile(opts.output, json, 'utf-8')
-				else console.log(json)
+			const format = selectFormat()
+			if (format !== 'text') {
+				const serialized = format === 'toon' ? encodeToon(data) : JSON.stringify(data, null, 2)
+				if (opts.output) await writeFile(opts.output, serialized, 'utf-8')
+				else console.log(serialized)
 			} else {
 				const md = renderProjectMarkdown(data)
 				if (opts.output) {

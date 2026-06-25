@@ -8,7 +8,7 @@ import {
 	printNextPageHint,
 	requiredGid,
 } from '../cli-options.js'
-import { output, printFields, printTable } from '../output.js'
+import { output, printEmpty, printFields, printTable } from '../output.js'
 import {
 	addDependencies,
 	addDependents,
@@ -179,7 +179,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 			)
 			output(data, () => {
 				if (data.length === 0) {
-					console.log('(none)')
+					printEmpty()
 					return
 				}
 				for (const item of data) {
@@ -707,7 +707,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 			const data = await scanTodos(root, { extensions, exclude })
 			output(data, () => {
 				if (data.length === 0) {
-					console.log('(none)')
+					printEmpty()
 					return
 				}
 				printTable(data, [
