@@ -151,6 +151,29 @@ describe('tasks/cli', () => {
 		)
 	})
 
+	it('task list requests a minimal default field set when none is given', async () => {
+		listTasksMock.mockResolvedValue([])
+		const program = new Command().addCommand(taskCommand())
+
+		await program.parseAsync(['node', 'test', 'task', 'list', '--project-gid', 'p1'], { from: 'node' })
+
+		expect(listTasksMock).toHaveBeenCalledWith(
+			'p1',
+			expect.objectContaining({ optFields: 'gid,name,completed,due_on' }),
+		)
+	})
+
+	it('task list respects an explicit --opt-fields override', async () => {
+		listTasksMock.mockResolvedValue([])
+		const program = new Command().addCommand(taskCommand())
+
+		await program.parseAsync(['node', 'test', 'task', 'list', '--project-gid', 'p1', '--opt-fields', 'name,notes'], {
+			from: 'node',
+		})
+
+		expect(listTasksMock).toHaveBeenCalledWith('p1', expect.objectContaining({ optFields: 'name,notes' }))
+	})
+
 	it('task list prints an aggregate summary and next-step suggestions', async () => {
 		listTasksMock.mockResolvedValue([
 			{ gid: '1', name: 'A', completed: false },

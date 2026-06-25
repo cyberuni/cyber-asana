@@ -107,6 +107,10 @@ function printTaskSummary(tasks: Task[]) {
 	printSummary(`\n${tasks.length} task(s): ${tasks.length - done} incomplete, ${done} done`)
 }
 
+// Minimal default schema for task lists — principle 2. Just the fields the
+// table renders, instead of Asana's larger default payload.
+const TASK_LIST_FIELDS = 'gid,name,completed,due_on'
+
 const TASK_LIST_NEXT_STEPS = [
 	'cyber-asana task get <gid> — view a task',
 	'cyber-asana task update <gid> --completed — complete a task',
@@ -133,9 +137,11 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 			offset?: string
 			optFields?: string
 		}) => {
+			const pagination = paginationOptionsFromCli(opts)
+			pagination.optFields ??= TASK_LIST_FIELDS
 			const data = await resolveTaskApi(api).listTasks(requiredGid(opts, 'project', 'Project GID'), {
 				completedSince: opts.incomplete ? 'now' : opts.completedSince,
-				...paginationOptionsFromCli(opts),
+				...pagination,
 			})
 			output(data, () => {
 				const items = itemsForOutput(data)
@@ -165,9 +171,11 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 			offset?: string
 			optFields?: string
 		}) => {
+			const pagination = paginationOptionsFromCli(opts)
+			pagination.optFields ??= TASK_LIST_FIELDS
 			const data = await resolveTaskApi(api).getMyTasks(requiredGid(opts, 'workspace', 'Workspace GID'), {
 				completedSince: opts.incomplete ? 'now' : opts.completedSince,
-				...paginationOptionsFromCli(opts),
+				...pagination,
 			})
 			output(data, () => {
 				const items = itemsForOutput(data)
@@ -396,6 +404,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 			if (extraFields) {
 				pagination.optFields = [pagination.optFields, extraFields].filter(Boolean).join(',')
 			}
+			pagination.optFields ||= TASK_LIST_FIELDS
 			const data = await resolveTaskApi(api).listSubtasks(taskGid, {
 				completedSince: opts.incomplete ? 'now' : undefined,
 				...pagination,
@@ -603,7 +612,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 					resourceSubtype: opts.subtype,
 					sortBy: opts.sortBy,
 					sortAscending: opts.sortAsc,
-					optFields: opts.optFields,
+					optFields: opts.optFields ?? TASK_LIST_FIELDS,
 				}
 				const data = await resolveTaskApi(api).searchTasks(requiredGid(opts, 'workspace', 'Workspace GID'), searchOpts)
 				output(data, () => fmtTaskList(data))
