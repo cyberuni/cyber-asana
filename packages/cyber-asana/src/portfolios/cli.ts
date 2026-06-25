@@ -9,7 +9,14 @@ import {
 } from '../cli-options.js'
 import { output, printFields, printTable } from '../output.js'
 import type { PortfolioApi } from './api.js'
-import { createPortfolio, deletePortfolio, getPortfolio, listPortfolios, updatePortfolio } from './api.js'
+import {
+	createPortfolio,
+	deletePortfolio,
+	getPortfolio,
+	listPortfolioItems,
+	listPortfolios,
+	updatePortfolio,
+} from './api.js'
 
 type Portfolio = { gid: string; name: string; permalink_url?: string }
 
@@ -22,6 +29,7 @@ function resolvePortfolioApi(api?: PortfolioApi | (() => PortfolioApi)): Portfol
 	return (
 		api ?? {
 			listPortfolios,
+			listPortfolioItems,
 			getPortfolio,
 			createPortfolio,
 			updatePortfolio,
@@ -49,6 +57,19 @@ export function portfolioCommand(api?: PortfolioApi | (() => PortfolioApi)) {
 				requiredGid(opts, 'workspace', 'Workspace GID'),
 				paginationOptionsFromCli(opts),
 			)
+			output(data, () => {
+				printTable(itemsForOutput(data), [
+					{ label: 'Name', get: (p: Portfolio) => p.name },
+					{ label: 'ID', get: (p: Portfolio) => p.gid },
+				])
+				printNextPageHint(data)
+			})
+		},
+	)
+
+	addPaginationOptions(cmd.command('items <gid>').description('List the items (projects) in a portfolio')).action(
+		async (gid: string, opts: { limit?: number; offset?: string; optFields?: string }) => {
+			const data = await resolvePortfolioApi(api).listPortfolioItems(gid, paginationOptionsFromCli(opts))
 			output(data, () => {
 				printTable(itemsForOutput(data), [
 					{ label: 'Name', get: (p: Portfolio) => p.name },

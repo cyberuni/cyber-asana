@@ -9,6 +9,9 @@ export function createPortfolioApi(gateway: PortfolioGateway) {
 		listPortfolios(workspaceGid: string, opts?: PaginationOptions & { owner?: string }) {
 			return gateway.listPortfolios(workspaceGid, opts)
 		},
+		listPortfolioItems(portfolioGid: string, opts?: PaginationOptions) {
+			return gateway.listPortfolioItems(portfolioGid, opts)
+		},
 		getPortfolio(portfolioGid: string) {
 			return gateway.getPortfolio(portfolioGid)
 		},
@@ -30,6 +33,10 @@ function defaultPortfolioApi() {
 
 export async function listPortfolios(workspaceGid: string, opts?: PaginationOptions & { owner?: string }) {
 	return defaultPortfolioApi().listPortfolios(workspaceGid, opts)
+}
+
+export async function listPortfolioItems(portfolioGid: string, opts?: PaginationOptions) {
+	return defaultPortfolioApi().listPortfolioItems(portfolioGid, opts)
 }
 
 export async function getPortfolio(portfolioGid: string) {

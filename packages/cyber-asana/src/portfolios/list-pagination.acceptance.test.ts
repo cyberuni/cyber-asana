@@ -10,6 +10,7 @@ const pages = [[{ gid: 'pf1', name: 'Roadmap' }], [{ gid: 'pf2', name: 'Clients'
 function createPaginatingPortfolioGateway(): PortfolioGateway {
 	return {
 		listPortfolios: createPaginatingScopedListMock(pages),
+		listPortfolioItems: vi.fn(),
 		getPortfolio: vi.fn(),
 		createPortfolio: vi.fn(),
 		updatePortfolio: vi.fn(),

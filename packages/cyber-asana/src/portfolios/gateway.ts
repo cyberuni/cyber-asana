@@ -8,6 +8,7 @@ import {
 
 export type PortfolioGateway = {
 	listPortfolios(workspaceGid: string, opts?: PaginationOptions & { owner?: string }): Promise<ListResult<any>>
+	listPortfolioItems(portfolioGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
 	getPortfolio(portfolioGid: string): Promise<any>
 	createPortfolio(workspaceGid: string, name: string): Promise<any>
 	updatePortfolio(portfolioGid: string, fields: { name?: string }): Promise<any>
@@ -23,6 +24,10 @@ export function createAsanaPortfolioGateway(client: Asana.ApiClient): PortfolioG
 				owner: opts?.owner,
 				...toAsanaPaginationOptions(opts),
 			})
+			return await collectListResponse(res, opts)
+		},
+		async listPortfolioItems(portfolioGid, opts) {
+			const res = await portfoliosApi.getItemsForPortfolio(portfolioGid, toAsanaPaginationOptions(opts))
 			return await collectListResponse(res, opts)
 		},
 		async getPortfolio(portfolioGid) {

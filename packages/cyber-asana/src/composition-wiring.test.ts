@@ -49,6 +49,7 @@ function mockRuntimeContext(): RuntimeContext {
 		teams: { listTeams: vi.fn(), getTeam: vi.fn() },
 		portfolios: {
 			listPortfolios: vi.fn(),
+			listPortfolioItems: vi.fn(),
 			getPortfolio: vi.fn(),
 			createPortfolio: vi.fn(),
 			updatePortfolio: vi.fn(),

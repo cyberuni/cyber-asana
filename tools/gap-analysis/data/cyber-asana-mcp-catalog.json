@@ -1,7 +1,7 @@
 {
 	"source": "src/**/mcp.ts",
-	"fetched_at": "2026-05-26",
-	"tool_count": 67,
+	"fetched_at": "2026-06-25",
+	"tool_count": 68,
 	"tools": [
 		"asana_attachment_get",
 		"asana_attachment_list",
@@ -15,6 +15,7 @@
 		"asana_portfolio_create",
 		"asana_portfolio_delete",
 		"asana_portfolio_get",
+		"asana_portfolio_item_list",
 		"asana_portfolio_list",
 		"asana_portfolio_update",
 		"asana_project_counts",

@@ -2,13 +2,21 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import { paginationOptions, paginationParams } from '../mcp-options.js'
 import type { PortfolioApi } from './api.js'
-import { createPortfolio, deletePortfolio, getPortfolio, listPortfolios, updatePortfolio } from './api.js'
+import {
+	createPortfolio,
+	deletePortfolio,
+	getPortfolio,
+	listPortfolioItems,
+	listPortfolios,
+	updatePortfolio,
+} from './api.js'
 
 function resolvePortfolioApi(api?: PortfolioApi | (() => PortfolioApi)): PortfolioApi {
 	if (typeof api === 'function') return api()
 	return (
 		api ?? {
 			listPortfolios,
+			listPortfolioItems,
 			getPortfolio,
 			createPortfolio,
 			updatePortfolio,
@@ -27,6 +35,22 @@ export function registerPortfolioTools(server: McpServer, api?: PortfolioApi | (
 				{
 					type: 'text',
 					text: JSON.stringify(await resolvePortfolioApi(api).listPortfolios(workspace_gid, paginationOptions(params))),
+				},
+			],
+		}),
+	)
+
+	server.tool(
+		'asana_portfolio_item_list',
+		'List the items (projects) in an Asana portfolio',
+		{ portfolio_gid: z.string().describe('Portfolio GID'), ...paginationParams },
+		async ({ portfolio_gid, ...params }) => ({
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(
+						await resolvePortfolioApi(api).listPortfolioItems(portfolio_gid, paginationOptions(params)),
+					),
 				},
 			],
 		}),
