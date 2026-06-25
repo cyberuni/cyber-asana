@@ -132,12 +132,13 @@ export ASANA_WORKSPACE_GID="..."  # cyber-asana default workspace (optional)
 
 | Prefer official `asana` | Prefer `cyber-asana` |
 | --- | --- |
-| `search_objects`, `get_status_overview` | `asana_url_parse`, repo config (`.agents/cyber-asana.json`) |
-| Interactive previews (`create_task_preview`, etc.) | Subtasks, dependencies, followers, section placement |
-| New MCP-only capabilities Asana ships first | `asana_task_scan_todos`, `asana_project_export`, rich REST-backed writes |
-| Simple reads when V2 coverage suffices | Goals/tags/portfolios CRUD beyond V2 scope |
+| Typeahead/object search: `search_objects`, `search_tasks_preview` | `asana_url_parse`, repo config (`.agents/cyber-asana.json`) |
+| Interactive previews: `create_task_preview`, `create_project_preview` | Subtasks, dependencies, followers, section placement |
+| Asana AI agents: `get_agent`, `get_workspace_agents` | `asana_task_scan_todos`, `asana_project_export`, rich REST-backed writes |
+| New MCP-only capabilities Asana ships first | Goals/tags/portfolios CRUD beyond V2 scope, portfolio items (`asana_portfolio_item_list`) |
+| Simple reads when V2 coverage suffices | Status updates on projects/portfolios/goals (`asana_status_*`) |
 
-Default: if both can do the job, prefer **official for discovery/status** and **cyber-asana for write-heavy automation**.
+Default: if both can do the job, prefer **official for discovery and previews** and **cyber-asana for write-heavy automation**. cyber-asana now also covers status updates and portfolio items via REST, so prefer it when you need those over the official read-only equivalents.
 
 Shared JSON block (cyber-asana only, project install):
 
