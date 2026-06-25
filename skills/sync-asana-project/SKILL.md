@@ -18,16 +18,16 @@ If the user hasn't specified a project GID, search for it (requires `ASANA_WORKS
 If they gave a project name or fragment:
 
 ```bash
-cyber-asana project search "<name or fragment>" --json
+cyber-asana project search "<name or fragment>" --toon
 ```
 
 Otherwise search active projects:
 
 ```bash
-cyber-asana project search --no-completed --json
+cyber-asana project search --no-completed --toon
 ```
 
-Parse JSON and ask the user to pick one.
+Read the output and ask the user to pick one. (`--toon` is the token-efficient format; use `--json` for raw JSON.)
 
 ### 2. Export to markdown
 

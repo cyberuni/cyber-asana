@@ -30,10 +30,10 @@ Try to infer the task from context in this order:
 If no task is found automatically:
 
 ```bash
-cyber-asana task search "<pr title keywords>" --json
+cyber-asana task search "<pr title keywords>" --toon
 ```
 
-Parse JSON matches. Present options and ask the user to confirm.
+Read the matches (`--toon` is the token-efficient format; use `--json` for raw JSON). Present options and ask the user to confirm.
 
 ### 3. Post the comment
 

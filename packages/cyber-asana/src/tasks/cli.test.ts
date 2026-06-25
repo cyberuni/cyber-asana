@@ -6,6 +6,8 @@ const updateTaskMock = vi.fn()
 const addFollowersToTaskMock = vi.fn()
 const removeFollowersFromTaskMock = vi.fn()
 const getTasksByGidMock = vi.fn()
+const getTaskMock = vi.fn()
+const listTasksMock = vi.fn()
 
 vi.mock('./api.js', async () => {
 	const actual = await vi.importActual<typeof import('./api.js')>('./api.js')
@@ -16,6 +18,8 @@ vi.mock('./api.js', async () => {
 		addFollowersToTask: addFollowersToTaskMock,
 		removeFollowersFromTask: removeFollowersFromTaskMock,
 		getTasksByGid: getTasksByGidMock,
+		getTask: getTaskMock,
+		listTasks: listTasksMock,
 	}
 })
 
@@ -145,6 +149,75 @@ describe('tasks/cli', () => {
 		expect(logSpy).toHaveBeenCalledWith(
 			JSON.stringify([{ gid: '123', ok: true, task: { gid: '123', name: 'Task 1' } }], null, 2),
 		)
+	})
+
+	it('task list requests a minimal default field set when none is given', async () => {
+		listTasksMock.mockResolvedValue([])
+		const program = new Command().addCommand(taskCommand())
+
+		await program.parseAsync(['node', 'test', 'task', 'list', '--project-gid', 'p1'], { from: 'node' })
+
+		expect(listTasksMock).toHaveBeenCalledWith(
+			'p1',
+			expect.objectContaining({ optFields: 'gid,name,completed,due_on' }),
+		)
+	})
+
+	it('task list respects an explicit --opt-fields override', async () => {
+		listTasksMock.mockResolvedValue([])
+		const program = new Command().addCommand(taskCommand())
+
+		await program.parseAsync(['node', 'test', 'task', 'list', '--project-gid', 'p1', '--opt-fields', 'name,notes'], {
+			from: 'node',
+		})
+
+		expect(listTasksMock).toHaveBeenCalledWith('p1', expect.objectContaining({ optFields: 'name,notes' }))
+	})
+
+	it('task list prints an aggregate summary and next-step suggestions', async () => {
+		listTasksMock.mockResolvedValue([
+			{ gid: '1', name: 'A', completed: false },
+			{ gid: '2', name: 'B', completed: true },
+		])
+		const program = new Command().addCommand(taskCommand())
+
+		await program.parseAsync(['node', 'test', 'task', 'list', '--project-gid', 'p1'], { from: 'node' })
+
+		const lines = logSpy.mock.calls.map((c) => String(c[0]))
+		expect(lines).toContain('\n2 task(s): 1 incomplete, 1 done')
+		expect(lines).toContain('\nNext steps:')
+		expect(lines.some((l) => l.includes('cyber-asana task get <gid>'))).toBe(true)
+	})
+
+	it('task get truncates long notes with a size hint by default', async () => {
+		getTaskMock.mockResolvedValue({ gid: '1', name: 'Task', notes: 'x'.repeat(600) })
+		const program = new Command().addCommand(taskCommand())
+
+		await program.parseAsync(['node', 'test', 'task', 'get', '1'], { from: 'node' })
+
+		const notesLine = logSpy.mock.calls.map((c) => String(c[0])).find((line) => line.startsWith('Notes'))
+		expect(notesLine).toContain('[truncated, 600 chars total; use --full for the rest]')
+	})
+
+	it('task get shows full notes with --full', async () => {
+		getTaskMock.mockResolvedValue({ gid: '1', name: 'Task', notes: 'x'.repeat(600) })
+		process.argv = ['node', 'test', '--full']
+		const program = new Command().option('--full').addCommand(taskCommand())
+
+		await program.parseAsync(['node', 'test', '--full', 'task', 'get', '1'], { from: 'node' })
+
+		const notesLine = logSpy.mock.calls.map((c) => String(c[0])).find((line) => line.startsWith('Notes'))
+		expect(notesLine).not.toContain('[truncated')
+		expect(notesLine).toContain('x'.repeat(600))
+	})
+
+	it('task --help includes a concise examples reference', () => {
+		let help = ''
+		const cmd = taskCommand()
+		cmd.configureOutput({ writeOut: (s) => (help += s) })
+		cmd.outputHelp()
+		expect(help).toContain('Examples:')
+		expect(help).toContain('cyber-asana task list')
 	})
 
 	it('task command can use injected dependencies', async () => {

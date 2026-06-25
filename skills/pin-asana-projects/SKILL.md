@@ -28,18 +28,18 @@ Use short, distinctive fragments — not full sentences.
 For each keyword, search the workspace (requires `ASANA_WORKSPACE` or `--workspace-gid`):
 
 ```bash
-cyber-asana project search "<keyword>" --json
+cyber-asana project search "<keyword>" --toon
 # or, if using npx without global install:
-npx cyber-asana@<exact> project search "<keyword>" --json
+npx cyber-asana@<exact> project search "<keyword>" --toon
 ```
 
 Prefer active work when the user did not ask for archived projects:
 
 ```bash
-cyber-asana project search "<keyword>" --no-completed --json
+cyber-asana project search "<keyword>" --no-completed --toon
 ```
 
-Parse the JSON `data` array for `{ gid, name }`. Deduplicate by `gid` across keyword searches.
+Read the `{ gid, name }` rows from the output (`--toon` is token-efficient; use `--json` for raw JSON). Deduplicate by `gid` across keyword searches.
 
 If a keyword returns too many hits, tighten the query or add `--no-completed`. If too few, try a shorter fragment or a second keyword.
 

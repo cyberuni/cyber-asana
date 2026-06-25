@@ -16,26 +16,26 @@ When the user asks for their standup, daily update, or "what did I do / what am 
 Use two days ago as the cutoff (adjust if the user specifies a different window):
 
 ```bash
-cyber-asana task list --project-gid <project-gid> --completed-since <two-days-ago-date> --json
+cyber-asana task list --project-gid <project-gid> --completed-since <two-days-ago-date> --toon
 ```
 
 ### 2. Fetch incomplete tasks
 
 ```bash
-cyber-asana task list --project-gid <project-gid> --incomplete --json
+cyber-asana task list --project-gid <project-gid> --incomplete --toon
 ```
 
 If no project is known, ask the user or run:
 
 ```bash
-cyber-asana project list --json
+cyber-asana project list --toon
 ```
 
-Parse JSON to pick a project GID.
+Read the output to pick a project GID. (`--toon` is the token-efficient format; use `--json` if you need raw JSON.)
 
 ### 3. Format standup (LLM judgment)
 
-From the two JSON result sets, select and prioritize:
+From the two result sets, select and prioritize:
 
 - **Done**: completed tasks worth mentioning (skip trivial or unrelated items)
 - **Today**: incomplete tasks due today or actively in progress
