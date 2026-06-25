@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { output, printEmpty, printTable, selectFormat } from './output.js'
+import { output, printEmpty, printNextSteps, printSummary, printTable, selectFormat } from './output.js'
 import { encodeToon } from './toon.js'
 
 describe('selectFormat', () => {
@@ -49,6 +49,46 @@ describe('printTable', () => {
 		const spy = vi.spyOn(console, 'log').mockImplementation(() => {})
 		printTable([], [{ label: 'Name', get: () => '' }])
 		expect(spy).toHaveBeenCalledWith('0 results')
+	})
+})
+
+describe('printNextSteps', () => {
+	afterEach(() => vi.restoreAllMocks())
+
+	it('prints suggestions in text mode', () => {
+		const spy = vi.spyOn(console, 'log').mockImplementation(() => {})
+		printNextSteps(['cyber-asana task get <gid>'], ['node', 'cli'])
+		expect(spy).toHaveBeenCalledWith('\nNext steps:')
+		expect(spy).toHaveBeenCalledWith('  - cyber-asana task get <gid>')
+	})
+
+	it('stays silent in structured modes to keep output parseable', () => {
+		const spy = vi.spyOn(console, 'log').mockImplementation(() => {})
+		printNextSteps(['do a thing'], ['node', 'cli', '--toon'])
+		printNextSteps(['do a thing'], ['node', 'cli', '--json'])
+		expect(spy).not.toHaveBeenCalled()
+	})
+
+	it('prints nothing when there are no suggestions', () => {
+		const spy = vi.spyOn(console, 'log').mockImplementation(() => {})
+		printNextSteps([], ['node', 'cli'])
+		expect(spy).not.toHaveBeenCalled()
+	})
+})
+
+describe('printSummary', () => {
+	afterEach(() => vi.restoreAllMocks())
+
+	it('prints the aggregate line in text mode', () => {
+		const spy = vi.spyOn(console, 'log').mockImplementation(() => {})
+		printSummary('3 tasks: 2 incomplete, 1 done', ['node', 'cli'])
+		expect(spy).toHaveBeenCalledWith('3 tasks: 2 incomplete, 1 done')
+	})
+
+	it('stays silent in structured modes', () => {
+		const spy = vi.spyOn(console, 'log').mockImplementation(() => {})
+		printSummary('3 tasks', ['node', 'cli', '--json'])
+		expect(spy).not.toHaveBeenCalled()
 	})
 })
 

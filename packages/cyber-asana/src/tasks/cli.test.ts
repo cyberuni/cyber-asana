@@ -7,6 +7,7 @@ const addFollowersToTaskMock = vi.fn()
 const removeFollowersFromTaskMock = vi.fn()
 const getTasksByGidMock = vi.fn()
 const getTaskMock = vi.fn()
+const listTasksMock = vi.fn()
 
 vi.mock('./api.js', async () => {
 	const actual = await vi.importActual<typeof import('./api.js')>('./api.js')
@@ -18,6 +19,7 @@ vi.mock('./api.js', async () => {
 		removeFollowersFromTask: removeFollowersFromTaskMock,
 		getTasksByGid: getTasksByGidMock,
 		getTask: getTaskMock,
+		listTasks: listTasksMock,
 	}
 })
 
@@ -147,6 +149,21 @@ describe('tasks/cli', () => {
 		expect(logSpy).toHaveBeenCalledWith(
 			JSON.stringify([{ gid: '123', ok: true, task: { gid: '123', name: 'Task 1' } }], null, 2),
 		)
+	})
+
+	it('task list prints an aggregate summary and next-step suggestions', async () => {
+		listTasksMock.mockResolvedValue([
+			{ gid: '1', name: 'A', completed: false },
+			{ gid: '2', name: 'B', completed: true },
+		])
+		const program = new Command().addCommand(taskCommand())
+
+		await program.parseAsync(['node', 'test', 'task', 'list', '--project-gid', 'p1'], { from: 'node' })
+
+		const lines = logSpy.mock.calls.map((c) => String(c[0]))
+		expect(lines).toContain('\n2 task(s): 1 incomplete, 1 done')
+		expect(lines).toContain('\nNext steps:')
+		expect(lines.some((l) => l.includes('cyber-asana task get <gid>'))).toBe(true)
 	})
 
 	it('task get truncates long notes with a size hint by default', async () => {

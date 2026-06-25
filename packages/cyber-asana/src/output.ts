@@ -38,6 +38,19 @@ export function printTable<T>(items: T[], cols: { label: string; get: (item: T) 
 	}
 }
 
+/** Aggregate summary line — principle 4. Text mode only. */
+export function printSummary(line: string, argv: string[] = process.argv) {
+	if (selectFormat(argv) !== 'text') return
+	console.log(line)
+}
+
+/** Contextual next-step suggestions — principle 9. Text mode only. */
+export function printNextSteps(steps: string[], argv: string[] = process.argv) {
+	if (steps.length === 0 || selectFormat(argv) !== 'text') return
+	console.log('\nNext steps:')
+	for (const step of steps) console.log(`  - ${step}`)
+}
+
 export function output(data: unknown, readable: () => void, argv: string[] = process.argv) {
 	switch (selectFormat(argv)) {
 		case 'toon':

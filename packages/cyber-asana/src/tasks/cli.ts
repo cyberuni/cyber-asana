@@ -8,7 +8,7 @@ import {
 	printNextPageHint,
 	requiredGid,
 } from '../cli-options.js'
-import { output, printEmpty, printFields, printTable } from '../output.js'
+import { output, printEmpty, printFields, printNextSteps, printSummary, printTable } from '../output.js'
 import { isFull, truncate } from '../truncate.js'
 import {
 	addDependencies,
@@ -100,6 +100,18 @@ function fmtTaskList(tasks: Task[]) {
 	])
 }
 
+// Pre-computed aggregate over a task list — principle 4.
+function printTaskSummary(tasks: Task[]) {
+	if (tasks.length === 0) return
+	const done = tasks.filter((t) => t.completed).length
+	printSummary(`\n${tasks.length} task(s): ${tasks.length - done} incomplete, ${done} done`)
+}
+
+const TASK_LIST_NEXT_STEPS = [
+	'cyber-asana task get <gid> — view a task',
+	'cyber-asana task update <gid> --completed — complete a task',
+]
+
 function collectOption(value: string, previous: string[] = []) {
 	return [...previous, value]
 }
@@ -126,8 +138,11 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 				...paginationOptionsFromCli(opts),
 			})
 			output(data, () => {
-				fmtTaskList(itemsForOutput(data))
+				const items = itemsForOutput(data)
+				fmtTaskList(items)
+				printTaskSummary(items)
 				printNextPageHint(data)
+				printNextSteps(TASK_LIST_NEXT_STEPS)
 			})
 		},
 	)
@@ -155,8 +170,11 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 				...paginationOptionsFromCli(opts),
 			})
 			output(data, () => {
-				fmtTaskList(itemsForOutput(data))
+				const items = itemsForOutput(data)
+				fmtTaskList(items)
+				printTaskSummary(items)
 				printNextPageHint(data)
+				printNextSteps(TASK_LIST_NEXT_STEPS)
 			})
 		},
 	)
@@ -166,7 +184,13 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 		.description('Get a task by GID')
 		.action(async (gid: string) => {
 			const data = await resolveTaskApi(api).getTask(gid)
-			output(data, () => fmtTask(data))
+			output(data, () => {
+				fmtTask(data)
+				printNextSteps([
+					`cyber-asana task update ${gid} --completed — complete this task`,
+					`cyber-asana task subtask list ${gid} — list subtasks`,
+				])
+			})
 		})
 
 	cmd
@@ -256,7 +280,13 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 						customFieldEntries: opts.customField,
 					}),
 				)
-				output(data, () => fmtTask(data))
+				output(data, () => {
+					fmtTask(data)
+					printNextSteps([
+						`cyber-asana task get ${data.gid} — view the new task`,
+						`cyber-asana task subtask create ${data.gid} <name> — add a subtask`,
+					])
+				})
 			},
 		)
 
