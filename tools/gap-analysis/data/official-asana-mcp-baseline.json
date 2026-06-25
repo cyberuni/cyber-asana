@@ -1,7 +1,7 @@
 {
 	"source": "https://developers.asana.com/docs/mcp-tools-reference",
-	"fetched_at": "2026-05-26",
-	"tool_count": 25,
+	"fetched_at": "2026-06-25",
+	"tool_count": 27,
 	"tools": [
 		"add_comment",
 		"create_project",
@@ -10,6 +10,7 @@
 		"create_task_preview",
 		"create_tasks",
 		"delete_task",
+		"get_agent",
 		"get_attachments",
 		"get_items_for_portfolio",
 		"get_me",
@@ -24,6 +25,7 @@
 		"get_teams",
 		"get_user",
 		"get_users",
+		"get_workspace_agents",
 		"search_objects",
 		"search_tasks",
 		"search_tasks_preview",
