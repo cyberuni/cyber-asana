@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 import { Command } from 'commander'
+import { exitCodeFor, renderCliError } from './cli-error.js'
 import { setTokenOverride } from './client.js'
 import { createRuntimeContext, type RuntimeContext, registerCliCommands } from './composition.js'
+import { selectFormat } from './output.js'
 import { VERSION } from './version.js'
 
 const program = new Command()
@@ -31,14 +33,6 @@ program
 registerCliCommands(program, getRuntimeContext)
 
 program.parseAsync(process.argv).catch((err: unknown) => {
-	if (err && typeof err === 'object' && 'response' in err) {
-		const res = (err as { response: { body?: { errors?: { message: string }[] } } }).response
-		const msgs = res?.body?.errors?.map((e) => e.message)
-		if (msgs?.length) {
-			console.error(`Asana API error: ${msgs.join('; ')}`)
-			process.exit(1)
-		}
-	}
-	console.error(err instanceof Error ? err.message : String(err))
-	process.exit(1)
+	console.error(renderCliError(err, selectFormat()))
+	process.exit(exitCodeFor(err))
 })
