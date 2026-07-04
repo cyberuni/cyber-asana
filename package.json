@@ -17,14 +17,14 @@
 		"web": "turbo run --filter=@cyberuni/web"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^2.4.16",
+		"@biomejs/biome": "^2.5.2",
 		"@changesets/cli": "^2.29.4",
-		"@commitlint/cli": "^21.0.1",
-		"@commitlint/config-conventional": "^21.0.1",
+		"@commitlint/cli": "^21.2.0",
+		"@commitlint/config-conventional": "^21.2.0",
 		"@repobuddy/biome": "^2.3.1",
 		"husky": "^9.1.7",
-		"knip": "^6.14.1",
-		"turbo": "^2.9.16"
+		"knip": "^6.24.0",
+		"turbo": "^2.10.3"
 	},
 	"packageManager": "pnpm@11.2.2+sha512.36e6621fad506178936455e70247b8808ef4ec25797a9f437a93281a020484e2607f6a469a22e982987c3dbb8866e3071514ab10a4a1749e06edcd1ec118436f",
 	"engines": {
