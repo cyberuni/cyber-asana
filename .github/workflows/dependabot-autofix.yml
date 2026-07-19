@@ -1,0 +1,81 @@
+name: dependabot-autofix
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+  pull-requests: read
+
+concurrency:
+  group: dependabot-autofix-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  autofix:
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+    steps:
+      # Pushes made with GITHUB_TOKEN do not re-trigger the pull-request
+      # workflow, so auto-merge would stall on a commit with no checks.
+      # The cyberuni-ci-bot app token does re-trigger it. Its credentials are
+      # org-level *Dependabot* secrets — Actions secrets are not exposed to
+      # Dependabot-triggered runs.
+      - uses: actions/create-github-app-token@v2
+        id: app-token
+        with:
+          app-id: ${{ secrets.AUTOFIX_APP_ID }}
+          private-key: ${{ secrets.AUTOFIX_APP_PRIVATE_KEY }}
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          token: ${{ steps.app-token.outputs.token }}
+
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Refresh lockfile
+        run: pnpm install --no-frozen-lockfile --ignore-scripts
+
+      - name: Apply formatter and lint fixes
+        run: pnpm check:fix
+
+      - name: Add changeset for published package updates
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          # Only runtime-relevant packages under packages/ get a release.
+          changed=$(gh pr diff "$PR_NUMBER" --name-only)
+          if ! grep -qE '^packages/[^/]+/package\.json$' <<<"$changed"; then
+            echo "no package.json change under packages/; skipping changeset"
+            exit 0
+          fi
+          if ls .changeset/*.md 2>/dev/null | grep -qv README.md; then
+            echo "changeset already present; skipping"
+            exit 0
+          fi
+          name=$(node -p "require('./packages/cyber-asana/package.json').name")
+          cat > ".changeset/dependabot-${PR_NUMBER}.md" <<EOF
+          ---
+          '$name': patch
+          ---
+
+          Update dependencies.
+          EOF
+
+      - name: Commit and push fixes
+        run: |
+          if git diff --quiet && git diff --cached --quiet && [ -z "$(git status --porcelain)" ]; then
+            echo "nothing to fix"
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'chore: autofix dependabot update'
+          git push
