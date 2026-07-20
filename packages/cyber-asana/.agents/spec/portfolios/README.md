@@ -44,15 +44,17 @@ remove one, and neither operation is offered on either surface, so `portfolio it
 contents but never edits them. Portfolios can also carry **status updates**; those belong to
 [status](../status/README.md) and are not specified here.
 
-<!-- open: whether add-item and remove-item were weighed and rejected or simply never reached. The
-     items *read* was added later than the rest of the domain (commit 05cbe5e, "list portfolio items
-     via REST"), and that commit adds only the read; no commit or issue records a decision about the
-     two writes. -->
+Both writes exist in Asana (`POST /portfolios/{gid}/addItem` and `/removeItem`) and in the wrapped
+SDK, so nothing upstream forced the omission. The item read was added later than the rest of the
+domain, in commit `05cbe5e`, to match the official Asana MCP server's `get_items_for_portfolio`; that
+baseline carries no portfolio write, so the two writes were never in scope for that change. This is a
+known gap, not a considered cut.
 
-<!-- open: whether exposing `owner` was intended. `api.ts` and `gateway.ts` both accept an `owner`
-     filter on the portfolio listing and send it to Asana, but neither the CLI nor MCP offers a way
-     to set it, so no caller can reach it. Source and history do not settle whether the surface was
-     dropped deliberately or was never wired. -->
+The `owner` parameter entered in commit `2f073b2` ("feat: add pagination options"), which widened the
+`listPortfolios` signature and forwarded `owner` to Asana while wiring only the pagination flags into
+the CLI; no surface for it ever existed to be removed. Asana documents `owner` as optional and notes
+that a caller outside a service account can only list portfolios they themselves own, so the filter
+has at most one legal value per token. The parameter stays reachable from the API layer alone.
 
 **What this node does not own.** Paginated list behavior — bare array versus envelope, what `--all`
 walks, where `--max-pages` stops — is the shared list contract in [axi](../axi/README.md), adopted
@@ -152,9 +154,10 @@ The groups run genuinely different logic, so they are drawn separately. The load
   body. Both surfaces answer with the same one-line confirmation sentence naming the GID, rather than
   serializing an empty object that would read like a failed read.
 
-<!-- open: whether `update` with no new name is a guarded case. Nothing rejects it; the request goes
-     out carrying no field and Asana answers with the unchanged record. Source and history do not
-     say whether that no-op was intended or simply not guarded. -->
+- **`update` with no new name is not rejected.** `--name` is optional on both surfaces, and an update
+  carrying no field goes out as an empty `data` block; Asana updates only the fields provided, so it
+  answers with the unchanged record. No domain in this package guards an update on having at least
+  one field — the wrapper forwards what the caller typed and lets Asana define the result.
 
 ## Scenario map
 

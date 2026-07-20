@@ -107,6 +107,11 @@ it, and silently reading a different workspace than the one named would be worse
   membership and rename are the remaining `WorkspacesApi` operations this node deliberately leaves
   unwrapped.
 
-<!-- open: whether `list` should set a small default `opt_fields` the way AGENTS.md's
-     "minimal default schemas" rule asks of list commands. It currently sets none, unlike several
-     sibling domains. Unresolved from source and history alone — needs a decision, not a guess. -->
+## Known gaps
+
+**`list` sets no default `opt_fields`.** AGENTS.md requires list commands to set a small default
+schema when the caller gives none, and this command does not — nor do the other workspace-scoped list
+commands; `task list` is the only one in the package that applies one today. The omission is a
+package-wide gap against a written rule rather than a workspaces-specific choice, and it costs little
+here, because Asana's compact workspace record already carries exactly the name and GID this command
+renders.
