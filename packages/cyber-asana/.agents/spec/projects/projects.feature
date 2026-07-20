@@ -114,7 +114,6 @@ Feature: projects
     Then the process exits with a non-zero status
     And stderr states that a Workspace GID is required
     And no request reaches Asana
-    And no create request reaches Asana
 
   Scenario: update sends only the fields that were supplied
     Given a project with GID "44017" whose notes read "Glaze schedule for the autumn kiln"
