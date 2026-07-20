@@ -30,13 +30,13 @@ Feature: status
   Scenario: list offers no parent-type option
     Given the status command group
     When the help text for the list subcommand is rendered
-    Then the options it lists contain no option naming a project, a portfolio, or a goal
+    Then the options it lists contain no option whose flag names a project, a portfolio, or a goal
 
   Scenario: list without a parent GID is a usage error
     Given the status command group
     When the status list entry point runs with no parent GID supplied
     Then the process exits with a non-zero status
-    And stderr states that the parent GID is required
+    And stderr states that a Parent GID is required
 
   Scenario: list does not fall back to an environment variable for the parent GID
     Given the ASANA_WORKSPACE environment variable is set to "8801"
@@ -114,12 +114,12 @@ Feature: status
     Given the status command group
     When the status create entry point runs with the status type "on_track" and no parent GID supplied
     Then the process exits with a non-zero status
-    And stderr states that the parent GID is required
+    And stderr states that a Parent GID is required
 
   Scenario: create offers no parent-type option
     Given the status command group
     When the help text for the create subcommand is rendered
-    Then the options it lists contain no option naming a project, a portfolio, or a goal
+    Then the options it lists contain no option whose flag names a project, a portfolio, or a goal
 
   # ── status delete / asana_status_delete ──
 
