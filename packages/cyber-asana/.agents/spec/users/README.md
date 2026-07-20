@@ -36,10 +36,12 @@ specified here rather than in the shared list contract.
 **Non-goals.** This node **reads** users only — `list`, `get`, `me`. It creates, renames and deletes
 nothing, because Asana has no such API: user accounts are provisioned and removed through org
 administration, not through the work API, so there is nothing to wrap. Two read shapes the Asana
-users API does offer are also left unwrapped: listing the users of a **team**, and reading a user's
-**favorites**. Neither is required by the assignee/follower use case this node exists for.
-<!-- open: whether team-scoped user listing and favorites were considered and declined, or simply
-     never needed. Unresolved from source and history alone. -->
+users API does offer are also left unwrapped: filtering the listing to one **team**
+(`GET /users?team=`), and reading a user's **favorites** (`GET /users/{gid}/favorites`). Favorites is
+a non-goal — it returns the authenticated user's own sidebar ordering, which answers nothing about
+who to assign work to. Team-scoped listing is a known gap: Asana's own MCP surface offers it as a
+filter on user listing, and it is the natural narrowing for a workspace whose user list runs to the
+endpoint's 2000-record ceiling.
 
 **What this node does not own.** How a paginated list behaves in general — bare array versus
 envelope, what `--all` walks, where `--max-pages` stops — is the shared list contract in
@@ -104,9 +106,11 @@ default is visible in the output; on MCP the parameter is required, because an M
 environment belongs to the server operator, not to the calling agent, and silently scoping to it
 would make the same tool call mean different things in different deployments. The page-size edge is
 barred on both surfaces and no page-size parameter is sent to Asana, because the Asana users
-collection does not accept one.
-<!-- open: whether omitting --limit was driven by an observed Asana error or chosen defensively from
-     the API docs. The behavior is unambiguous in source; the trigger for it is not recorded. -->
+collection does not accept one. The trigger is the endpoint, not caution: this node lists users
+through `GET /workspaces/{gid}/users`, whose query contract is `offset` and `opt_fields` only — no
+page size exists to send. Asana fixes that collection at 2000 records sorted alphabetically and pages
+it by offset alone. Offering a `--limit` that could not be forwarded would advertise control the API
+does not give.
 
 The email edge in `list` and `get` is the same underlying fact seen twice: an Asana user's compact
 record has no email, and the two renderers disagree about what to do with that — the table keeps the
@@ -118,9 +122,10 @@ is that it reaches the ordinary user endpoint at the literal GID `me` rather tha
 endpoint.
 
 This node carries no list-pagination acceptance spec and no system test, unlike its siblings: the
-shared spec's vectors are built entirely from `limit` and `fetchAll`, and `user list` accepts
-neither.
-<!-- open: whether the absent system test is a considered consequence of that or an untracked gap. -->
+shared spec's two vectors are built entirely from `limit` and `fetchAll`, and `user list` accepts
+neither, so there was nothing to adopt. The sweep that backfilled the other ten domains passed over
+users for that reason and left no bespoke replacement. Offset-only pagination against the live users
+collection is therefore unverified — a known gap, not a decision.
 
 ## Scenario map
 

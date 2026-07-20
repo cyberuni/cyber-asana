@@ -39,9 +39,11 @@ changes decide who can see what, which is not a blast radius an agent-facing CLI
 lookup use case. Membership is also not team-shaped from a caller's point of view; who is in a
 workspace is answered by [users](../users/README.md).
 
-<!-- open: whether leaving "the teams a given user belongs to" unwrapped was a deliberate cut or
-     simply never requested. It is the one unwrapped *read*, so the administration rationale above
-     does not cover it, and source plus history do not settle it. -->
+The one unwrapped *read* — the teams a given user belongs to — is a gap rather than a cut.
+`GET /users/{gid}/teams` is an ordinary paginated read with no blast radius, so the administration
+rationale above does not reach it; it was simply never asked for, and nothing in the source or
+history records a decision. Asana's own MCP surface exposes it as a user filter on team listing,
+which is where this node would put it.
 
 **What this node does not own.** Paginated list behavior — bare array versus envelope, what `--all`
 walks, where `--max-pages` stops — is the shared list contract in [axi](../axi/README.md), adopted
