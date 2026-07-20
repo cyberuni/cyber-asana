@@ -40,7 +40,60 @@ Strategy: **capability-first**, following the existing Screaming Architecture (`
 - [config](config/README.md)
 - [axi](axi/README.md)
 
+<!-- BEGIN generated: by-concept (project-spec/concept-index) -->
+
 ## By concept
 
-<!-- BEGIN generated: by-concept -->
+> Generated from `concept:` frontmatter by `project-spec/concept-index` — do not edit by hand.
+
+| Concept | Facets |
+|---|---|
+| `attachments` | `attachments/` (behavior) |
+| `axi` | `axi/` (reference) |
+| `batch-lookup` | `tasks/` (behavior) |
+| `comments` | `stories/` (behavior) |
+| `config` | `config/` (behavior) |
+| `cyber-asana` | `attachments/` (behavior) · `axi/` (reference) · `config/` (behavior) · `goals/` (behavior) · `portfolios/` (behavior) · `projects/` (behavior) · `sections/` (behavior) · `status/` (behavior) · `stories/` (behavior) · `tags/` (behavior) · `tasks/` (behavior) · `teams/` (behavior) · `url/` (behavior) · `users/` (behavior) · `workspaces/` (behavior) |
+| `dependencies` | `tasks/` (behavior) |
+| `directory` | `users/` (behavior) |
+| `discovery` | `workspaces/` (behavior) |
+| `environment` | `config/` (behavior) |
+| `files` | `attachments/` (behavior) |
+| `goals` | `goals/` (behavior) |
+| `identity` | `users/` (behavior) |
+| `labels` | `tags/` (behavior) |
+| `my-tasks` | `tasks/` (behavior) |
+| `objectives` | `goals/` (behavior) |
+| `offline` | `url/` (behavior) |
+| `output-contract` | `axi/` (reference) |
+| `parsing` | `url/` (behavior) |
+| `portfolio-write` | `portfolios/` (behavior) |
+| `portfolios` | `portfolios/` (behavior) |
+| `precedence` | `config/` (behavior) |
+| `progress-reporting` | `status/` (behavior) |
+| `project-export` | `projects/` (behavior) |
+| `project-lifecycle` | `projects/` (behavior) |
+| `project-scoped-read` | `sections/` (behavior) |
+| `project-scoped-write` | `sections/` (behavior) |
+| `projects` | `projects/` (behavior) |
+| `repo-registry` | `config/` (behavior) |
+| `rich-text` | `stories/` (behavior) |
+| `search` | `tasks/` (behavior) |
+| `sections` | `sections/` (behavior) |
+| `status` | `status/` (behavior) |
+| `status-updates` | `status/` (behavior) |
+| `stories` | `stories/` (behavior) |
+| `subtasks` | `tasks/` (behavior) |
+| `tags` | `tags/` (behavior) |
+| `task-association` | `tags/` (behavior) |
+| `tasks` | `tasks/` (behavior) |
+| `teams` | `teams/` (behavior) |
+| `templates` | `stories/` (behavior) |
+| `todo-scan` | `tasks/` (behavior) |
+| `url` | `url/` (behavior) |
+| `users` | `users/` (behavior) |
+| `workspace-scoped-crud` | `goals/` (behavior) |
+| `workspace-scoped-read` | `portfolios/` (behavior) · `projects/` (behavior) · `teams/` (behavior) |
+| `workspaces` | `workspaces/` (behavior) |
+
 <!-- END generated: by-concept -->
