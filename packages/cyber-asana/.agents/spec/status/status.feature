@@ -1,3 +1,4 @@
+@frozen
 Feature: status
 
   Reading, posting, and removing Asana status updates on a project, a portfolio,

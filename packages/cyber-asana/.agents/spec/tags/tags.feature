@@ -1,3 +1,4 @@
+@frozen
 Feature: tags
 
   Finding, reading, creating, changing and deleting Asana tags, and linking a tag

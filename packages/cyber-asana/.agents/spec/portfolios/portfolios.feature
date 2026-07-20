@@ -1,3 +1,4 @@
+@frozen
 Feature: portfolios
 
   Reading and managing Asana portfolios — the collections of projects a workspace

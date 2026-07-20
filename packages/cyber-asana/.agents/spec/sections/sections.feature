@@ -1,3 +1,4 @@
+@frozen
 Feature: sections
 
   Listing, reading, creating, renaming and deleting the named buckets that divide

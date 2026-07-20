@@ -1,3 +1,4 @@
+@frozen
 Feature: users
 
   Listing the people in an Asana workspace, reading one person by GID, and resolving

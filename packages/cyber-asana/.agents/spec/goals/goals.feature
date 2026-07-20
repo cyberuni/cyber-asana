@@ -1,3 +1,4 @@
+@frozen
 Feature: goals
 
   Reading, creating, editing and removing the objectives of an Asana workspace,

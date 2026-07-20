@@ -1,3 +1,4 @@
+@frozen
 Feature: teams
 
   Finding the teams of an Asana workspace and reading one team by GID,

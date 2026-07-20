@@ -1,3 +1,4 @@
+@frozen
 Feature: stories
 
   Reading an Asana task's comment thread and appending a comment to it, over the

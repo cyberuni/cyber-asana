@@ -1,3 +1,4 @@
+@frozen
 Feature: attachments
 
   Reading the files attached to an Asana task, and reading one attachment by GID,

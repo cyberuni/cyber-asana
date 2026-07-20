@@ -1,7 +1,11 @@
 ---
-status: draft
+status: approved
 project-path: packages/cyber-asana
 name: cyber-asana
+approval:
+  spec:
+    verdict: approve
+    by: unional
 ---
 
 # cyber-asana

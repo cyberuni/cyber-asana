@@ -1,3 +1,4 @@
+@frozen
 Feature: url
 
   Reading an Asana app URL into a kind plus the GIDs in its path, over the exported

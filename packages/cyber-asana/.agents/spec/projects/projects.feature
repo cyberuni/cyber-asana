@@ -1,3 +1,4 @@
+@frozen
 Feature: projects
 
   Finding, reading, creating, editing, removing, counting, and exporting Asana

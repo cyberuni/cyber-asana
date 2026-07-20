@@ -1,3 +1,4 @@
+@frozen
 Feature: config
 
   Where a cyber-asana value comes from: the committed project registry

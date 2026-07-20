@@ -1,3 +1,4 @@
+@frozen
 Feature: workspaces
 
   Discovering which Asana workspaces a token can reach, and reading one by GID,
