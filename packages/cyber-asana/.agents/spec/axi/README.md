@@ -126,11 +126,11 @@ from-the-start walk are contradictory instructions. MCP spells them via `paginat
 - **There is no distinct usage-error exit code.** A malformed invocation falls through to the
   generic `1` rather than the `2` AXI's #6 case suggests, because Commander's own argument errors
   exit before the mapping is reached.
-- **The token environment variable is documented one way and resolved another.** `env.ts` resolves
-  `ASANA_ACCESS_TOKEN` *before* `ASANA_TOKEN`, and the MCP config-error hint calls `ASANA_TOKEN`
-  deprecated — while `AGENTS.md` and the readme document `ASANA_TOKEN` as the primary name. Both
-  work; the documentation and the code disagree about which is preferred. See
-  [config](../config/README.md).
+- **The agent-facing docs lead with the primary token name; two contributor files lag.** `env.ts`
+  resolves `ASANA_ACCESS_TOKEN` *before* `ASANA_TOKEN`, and both the CLI help and the MCP
+  config-error hint call `ASANA_TOKEN` deprecated. The readme, the docs site, and the plugin
+  manifests agree; `AGENTS.md` and `CONTRIBUTING.md` still lead with the old name. Both names
+  resolve. See [config](../config/README.md).
 
 ## References
 
@@ -140,6 +140,10 @@ from-the-start walk are contradictory instructions. MCP spells them via `paginat
 - [TOON format](https://toonformat.dev/) — backs the claim in #1 that the tabular encoding saves
   tokens by dropping repeated keys.
 
-<!-- open: AXI principles #7 and #10 are neither implemented under a `// principle N` comment nor
-     named in AGENTS.md, so whether they are deliberately out of scope for this bin (as #7 is for
-     cyber-mux) or simply not yet adopted is unresolved from source and history alone. -->
+Principles **#7** and **#10** are adopted too; neither carries a `// principle N` comment because
+neither has a shared module to hang one on. **#10 — "consistent way to get help"** is Commander's
+per-subcommand `--help`, advertised to agents by name in the root help text. **#7 — "ambient
+context"** lives in `plugin.json` rather than in source: the manifest declares the opt-in MCP server
+under `mcpServers` and points `skills` at the on-demand skills, with `init-asana` as the first-run
+entry — the install-then-offer ordering the principle asks for. The scope of adoption is therefore
+**#1–#10**, with the partial-adoption finding on #2 unchanged.

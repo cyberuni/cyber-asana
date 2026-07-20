@@ -149,9 +149,10 @@ The load-bearing edges:
   the git root regardless of a nearer file a read would have picked. In the ordinary
   single-registry repository the two coincide.
 
-  <!-- open: whether the read/write path asymmetry is deliberate (one registry per repository, at
-       the root, by construction) or incidental to `add` needing a path even when no file exists.
-       Unresolved from source and history alone — the source arrived in one move commit. -->
+  The asymmetry is the rule, not an accident of `add` needing a path: `defaultConfigPath` anchors at
+  the git root and ignores any nearer file, because a repository has exactly one registry and it
+  belongs at the root. `findConfigFile` may resolve a nearer file for reads, so a nested checkout
+  still reads what is there, but a write never creates a second registry beside it.
 
 - **Parsing is a whitelist, and that is what enforces decision 0001.** Only `schema_version` and
   each entry's `gid` and `name` survive parsing, and only those are written back. A `workspace_gid`
@@ -161,14 +162,11 @@ The load-bearing edges:
   `ASANA_TOKEN`, and `ASANA_WORKSPACE_GID` before `ASANA_WORKSPACE`. An empty string counts as
   unset, so an emptied variable falls through to the next name instead of resolving to nothing —
   which is what makes blanking a variable behave the way an operator expects.
-- **The documentation and the code disagree about which token name is preferred.** `AGENTS.md` and
-  the readme present `ASANA_TOKEN` as primary; source resolves `ASANA_ACCESS_TOKEN` first, and the
-  CLI's own help text calls `ASANA_TOKEN` deprecated. Both names work, and the order drawn above is
-  what source does. The same finding is recorded in [axi](../axi/README.md).
-
-  <!-- open: which token name is intended as primary. The rename is not visible in history (the
-       source arrived in one move commit), so whether the documentation lags the code or the code
-       overshot a planned rename is unresolved. -->
+- **`ASANA_ACCESS_TOKEN` is the primary name; `ASANA_TOKEN` is a retained alias.** Source, the CLI's
+  help text, the MCP error hint, the readme, the docs site, and all four plugin manifests agree, and
+  the help text calls `ASANA_TOKEN` deprecated in so many words. `AGENTS.md` and `CONTRIBUTING.md`
+  are the only files still leading with the old name; they lag the rename rather than contradict it.
+  Both names continue to resolve, so no existing setup breaks.
 
 - **A missing token is an error; a missing workspace is the caller's problem.** `envValue` itself
   never raises — it returns nothing, and the command that wanted the value decides what that means.

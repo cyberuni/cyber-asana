@@ -95,13 +95,20 @@ The load-bearing edges:
 - **The host is never inspected.** The decision graph never reaches for it, so scheme and domain do
   not gate the parse; the path alone decides.
 
-<!-- open: whether host-agnosticism is deliberate (tolerating regional or enterprise Asana domains
-     and links pasted from any origin) or simply incidental to matching on the path. Unresolved from
-     source and history alone — the source arrived in one move commit with no prior history. -->
+  The host is unreachable rather than tolerated: `pathnameFromUrl` hands the pattern table a pathname
+  and nothing else, so no rule can consult scheme or domain. The result is correct either way — every
+  documented Asana URL form lives under `app.asana.com` in every data region, and the grammar is
+  anchored and specific enough that a matching path on another origin is a link to Asana content
+  rather than a collision.
 
-<!-- open: whether reporting `unknown` for a recognized shape carrying one extra trailing segment is
-     intended, or whether such links should degrade to the nearest shorter shape. Unresolved from
-     source and history alone. -->
+## Known gaps
+
+**Longer paths are `unknown` because every pattern is anchored at both ends**, not because ambiguity
+was weighed. Asana's V1 scheme publishes longer forms that still carry an unambiguous task GID in its
+known slot — notably the comment permalink `/1/<workspace>/project/<project>/task/<task>/comment/<id>`
+— so a pasted comment link parses as `unknown` today when it could degrade to `project_task`. The
+same is true of `/project/<id>/<view_name>` and `/project/<id>/view/<view_id>`. That is a gap in
+coverage of the V1 grammar, not a decision.
 
 ## Scenario map
 
