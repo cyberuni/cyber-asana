@@ -132,6 +132,13 @@ Feature: portfolios
     And stderr states that a Workspace GID is required
     And no request reaches Asana
 
+  Scenario: create without a name is a usage error
+    Given the ASANA_WORKSPACE environment variable is set to "4410"
+    And no portfolio name typed on the invocation
+    When the portfolio create command runs
+    Then the process exits with a non-zero status
+    And stderr names the missing required argument
+
   Scenario: asana_portfolio_create requires both a workspace GID and a name
     Given the registered MCP tool named "asana_portfolio_create"
     When its declared input schema is read

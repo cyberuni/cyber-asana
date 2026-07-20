@@ -39,14 +39,13 @@ registered twice, once under `story` and once under `comment`, running the same 
 
 **Non-goals.** This node wraps **reading a task's thread** and **appending to it** — nothing else.
 Asana's stories API also exposes reading one story by its own GID, editing a story, and deleting a
-story; none is wrapped. Nor does this node filter the thread down to comments only: a `list` returns
-the activity records alongside the comments, exactly as Asana returns them, and the `Type` column is
-what tells them apart.
-That cut matches the shape of the operation. Asana restricts both writes — a story's text is
-editable only for comment stories, and a user may delete only stories they created themselves — so a
-general `story update` or `story delete` would be a surface that fails for most rows a `list`
-returns. Asana's own MCP server draws the same line, exposing a comment-adding tool and no story
-read, edit, or delete.
+story; none is wrapped, and that cut matches the shape of the operation. Asana restricts both writes
+— a story's text is editable only for comment stories, and a user may delete only stories they
+created themselves — so a general `story update` or `story delete` would be a surface that fails for
+most rows a `list` returns. Asana's own MCP server draws the same line, exposing a comment-adding
+tool and no story read, edit, or delete. Nor does this node filter the thread down to comments only:
+a `list` returns the activity records alongside the comments, exactly as Asana returns them, and the
+`Type` column is what tells them apart.
 
 **What this node does not own.** How a paginated list behaves, the `--json` / `--toon` output
 formats, empty-state rendering, and exit-code conventions are the shared contract in
@@ -126,6 +125,7 @@ The load-bearing edges:
 |---|---|---|
 | task GID supplied → proceed | a GID naming a task that carries stories | `list reads the stories of the task GID it was given` |
 | task GID absent → usage error | an invocation carrying no task GID | `an entry point without a task GID is a usage error` |
+| task GID absent on `create` → usage error | a create invocation carrying comment text but no task GID | `the create entry point without a task GID is a usage error` |
 | environment never supplies the task GID (barred) | `ASANA_WORKSPACE` set, no task GID given | `an entry point does not default the task GID from the environment` |
 
 ### `story list` / `asana_story_list`

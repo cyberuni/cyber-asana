@@ -186,6 +186,7 @@ The load-bearing edges:
 | Edge | Path (Given) | Scenario |
 |---|---|---|
 | workspace GID → enumerate that workspace | a workspace holding two projects | `list returns the projects of the workspace it was given` |
+| no workspace GID from flag or environment → usage error | neither a workspace flag nor `ASANA_WORKSPACE` | `list without a workspace GID anywhere is a usage error` |
 | named filters mapped to Asana's search parameters | a text term plus team, member-exclusion, and due-window filters | `search maps each named filter onto its Asana search parameter` |
 | no pagination options on search (barred) | the search subcommand's help text | `search offers no pagination options` |
 | render Name / ID table | text mode, two projects, reached by either read | `list and search render each project's name and GID in text mode` |
@@ -201,12 +202,15 @@ The load-bearing edges:
 | start date without a due date → refused | a start date supplied to create, no due date | `create refuses a start date with no due date` |
 | start date with a later due date → carried | a start date and a different due date supplied to create | `create carries a start date when a due date accompanies it` |
 | start date equal to the due date → refused | the same date supplied as both start and due | `create refuses a start date equal to the due date` |
+| create with no name argument → usage error | the create command invoked with no positional name | `create without a project name is a usage error` |
 | update body carries only supplied fields | only a colour supplied to update | `update sends only the fields that were supplied` |
 | clear flag → explicit null | the clear-due-date flag supplied to update, no due date | `update clears the due date with an explicit null` |
 | due date and clear-due flag together → refused | both supplied to update | `update refuses a due date and the clear-due-date flag together` |
 | clearing the start date without a due date → refused | the clear-start-date flag supplied to update, no due date | `update refuses to clear the start date with no due date` |
 | clearing the start date with a due date → carried | the clear-start-date flag and a due date supplied to update | `update clears the start date when a due date accompanies it` |
+| update with no GID argument → usage error | the update command invoked with no positional GID | `update without a project GID is a usage error` |
 | delete → confirmation naming the GID | a GID naming an existing project | `delete confirms by naming the project it removed` |
+| delete with no GID argument → usage error | the delete command invoked with no positional GID | `delete without a project GID is a usage error` |
 
 ### `project counts`
 
@@ -214,12 +218,14 @@ The load-bearing edges:
 |---|---|---|
 | no field list → three default counts, labelled | no field list given | `counts asks for the three default count fields and labels them` |
 | field list given → exactly those, echoed | a field list naming a count the default set omits | `counts asks for exactly the fields it was given and echoes their keys` |
+| counts with no GID argument → usage error | the counts command invoked with no positional GID | `counts without a project GID is a usage error` |
 
 ### `project get`
 
 | Edge | Path (Given) | Scenario |
 |---|---|---|
 | project GID → fetch | a GID naming an existing project | `get returns the project record for the GID it was given` |
+| get with no GID argument → usage error | the get command invoked with no positional GID | `get without a project GID is a usage error` |
 | GID already in the registry → name refreshed | a registry listing that GID under an older name | `get refreshes the registry name of a project it already lists` |
 | GID absent from the registry → nothing added | a registry listing one other project | `get adds no registry entry for a project the registry does not list` |
 | registry write fails → read still succeeds | a registry file the process cannot write | `get returns the project even when the registry cannot be written` |
@@ -229,6 +235,7 @@ The load-bearing edges:
 | Edge | Path (Given) | Scenario |
 |---|---|---|
 | three reads → Markdown checklist | a project with one section holding a done and an undone task | `export renders the project as a Markdown checklist` |
+| export with no GID argument → usage error | the export command invoked with no positional GID | `export without a project GID is a usage error` |
 | section with no tasks → no-tasks line | a project with a section holding no tasks | `export marks a section holding no tasks` |
 | output file named → written and confirmed | text mode and a named output file | `export writes the Markdown to the file it was given` |
 | JSON format asked for over MCP | the export tool called with the JSON format | `asana_project_export returns the structured export when JSON is asked for` |

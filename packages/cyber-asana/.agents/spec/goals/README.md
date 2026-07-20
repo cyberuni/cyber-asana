@@ -180,6 +180,7 @@ Asana returns no record to render: the only thing worth showing is which GID wen
 | workspace GID given → create in that workspace | a workspace GID passed as a flag | `create files the new goal in the workspace it was given` |
 | create: no flag → environment fallback | `ASANA_WORKSPACE` set, no flag passed | `create falls back to the workspace environment variable` |
 | create: no flag, no environment → usage error | neither flag nor environment supplies a workspace | `create without a workspace GID anywhere is a usage error` |
+| create: name absent → usage error | a workspace GID given, no positional name argument | `create without a name is a usage error` |
 | optional fields given → carried in the body | notes and a due date supplied alongside the name | `create carries the notes and due date it was given` |
 | optional fields absent → body carries name and workspace only | only a name and a workspace supplied | `create sends no notes or due date when neither is given` |
 | render Name / ID / URL / Due / Status fields | text mode, a goal Asana accepted | `create renders the new goal's fields in text mode` |

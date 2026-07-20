@@ -390,7 +390,9 @@ The load-bearing edges:
 | no field set named → send none | the MCP task-list tool called with no field parameter | `the MCP task list tool sends no default field set` |
 | completion filter → completed_since now | the incomplete flag given alongside an explicit completed-since date | `the incomplete flag lists only tasks completed since now` |
 | container GID required → usage error | a project list with no project GID | `a task list without a project GID is a usage error` |
+| parent GID required → usage error | a subtask list with no task GID argument | `a subtask list without a task GID is a usage error` |
 | container GID defaulted from the environment | a my-tasks list with ASANA_WORKSPACE set and no flag | `my-tasks takes the workspace GID from the environment` |
+| container GID required → usage error | a my-tasks list with ASANA_WORKSPACE unset and no flag | `a my-tasks list with no workspace GID anywhere is a usage error` |
 | my-tasks resolves its list GID first | a workspace whose personal task list has its own GID | `my-tasks resolves the authenticated user's task list before reading tasks` |
 | tasks returned → print the aggregate | text mode, three tasks of which one is done | `a task list reports how many of the listed tasks are done` |
 | tasks returned → print the aggregate | text mode, a project holding no tasks | `an empty task list reports no done-versus-incomplete count` |
@@ -405,6 +407,8 @@ The load-bearing edges:
 | more than ten GIDs → successive batches | twelve GIDs in one invocation | `get-many splits more than ten GIDs across separate batch requests` |
 | per-action failure → a failure record beside the successes | a batch where one GID answers 404 and the other answers 200 | `get-many reports a per-GID failure alongside the lookups that succeeded` |
 | fields named → spliced into each batched path | a batch lookup naming two fields | `get-many carries the requested fields in each batched task path` |
+| GID required → usage error | a single-task read with no GID argument | `get without a task GID is a usage error` |
+| GID required → usage error | a batch lookup with no GID arguments | `get-many without any task GID is a usage error` |
 
 ### Creating, updating, and deleting a task
 
@@ -421,6 +425,11 @@ The load-bearing edges:
 | parent change → its own request | an update naming clear-parent and nothing else | `clear-parent alone issues only the parent request` |
 | delete → confirmation naming the GID | text mode, a task that deletes cleanly | `delete confirms by naming the task it removed` |
 | subtask create → posted under the parent | a parent task GID and a subtask name | `subtask create posts the name under the parent task` |
+| name required → usage error | a create with no name argument | `create without a task name is a usage error` |
+| workspace GID required → usage error | a create with ASANA_WORKSPACE unset and no workspace flag | `create with no workspace GID anywhere is a usage error` |
+| GID required → usage error | an update with no GID argument | `update without a task GID is a usage error` |
+| GID required → usage error | a delete with no GID argument | `delete without a task GID is a usage error` |
+| positional arguments required → usage error | a subtask create with no arguments | `subtask create without its parent GID and name is a usage error` |
 
 ### Project membership and position
 
@@ -431,6 +440,8 @@ The load-bearing edges:
 | both positions supplied → usage error | a CLI project-add naming insert-after and insert-before together | `project add with both insert-after and insert-before is a usage error` |
 | both positions supplied → forwarded | the MCP project-add tool called with both positioning values | `the MCP project-add tool forwards both positioning values without a local guard` |
 | project removal → confirmation | text mode, a task removed from a project | `project remove confirms the task left the project` |
+| positional arguments required → usage error | a project add with no GID arguments | `project add without its task GID and project GID is a usage error` |
+| positional arguments required → usage error | a project remove with no GID arguments | `project remove without its task GID and project GID is a usage error` |
 
 ### Followers
 
@@ -438,6 +449,8 @@ The load-bearing edges:
 |---|---|---|
 | follower payload is a plain list of strings | two user GIDs added as followers | `follower add sends the user GIDs as a plain list of strings` |
 | removal direction → the removal endpoint | two user GIDs removed as followers | `follower remove reaches the follower-removal endpoint and reports the count` |
+| positional arguments required → usage error | a follower add with no GID arguments | `follower add without its task GID and user GIDs is a usage error` |
+| positional arguments required → usage error | a follower remove with no GID arguments | `follower remove without its task GID and user GIDs is a usage error` |
 
 ### Dependencies and dependents
 
@@ -447,6 +460,12 @@ The load-bearing edges:
 | dependency payload wraps each GID in an object | two task GIDs added as dependencies | `dependency add wraps each GID in an object in the request body` |
 | direction → the matching endpoint | the same task GID driven through all four dependency and dependent verbs | `the dependency and dependent verbs reach the endpoint matching their direction` |
 | removal → confirmation naming the count | text mode, two dependencies removed | `dependency remove reports how many dependencies it removed` |
+| task GID required → usage error | a dependency list with no task GID argument | `dependency list without a task GID is a usage error` |
+| positional arguments required → usage error | a dependency add with no GID arguments | `dependency add without its task GID and dependency GIDs is a usage error` |
+| positional arguments required → usage error | a dependency remove with no GID arguments | `dependency remove without its task GID and dependency GIDs is a usage error` |
+| task GID required → usage error | a dependent list with no task GID argument | `dependent list without a task GID is a usage error` |
+| positional arguments required → usage error | a dependent add with no GID arguments | `dependent add without its task GID and dependent GIDs is a usage error` |
+| positional arguments required → usage error | a dependent remove with no GID arguments | `dependent remove without its task GID and dependent GIDs is a usage error` |
 
 ### Searching a workspace
 
@@ -456,6 +475,7 @@ The load-bearing edges:
 | completion flag → an explicit completion filter | a search given the no-completed flag | `search asks only for incomplete tasks under the no-completed flag` |
 | no fields named → the default task field set | a search naming no fields | `search asks for the default task field set when no fields are named` |
 | no pagination offered (barred) | the search subcommand's help text | `search offers no pagination options` |
+| workspace GID required → usage error | a search with ASANA_WORKSPACE unset and no workspace flag | `search with no workspace GID anywhere is a usage error` |
 
 ### Scanning source for TODO markers
 

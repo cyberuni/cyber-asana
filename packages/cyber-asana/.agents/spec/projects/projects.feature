@@ -13,6 +13,13 @@ Feature: projects
     Then the request reaching Asana asks for the projects of workspace "6120"
     And the output names both "Tidewater Atlas" and "Kiln Ledger"
 
+  Scenario: list without a workspace GID anywhere is a usage error
+    Given the ASANA_WORKSPACE environment variable is unset
+    When the project list command runs with no workspace flag
+    Then the process exits with a non-zero status
+    And stderr states that a Workspace GID is required
+    And no request reaches Asana
+
   Scenario: search maps each named filter onto its Asana search parameter
     Given a workspace with GID "6120"
     And the team GID "7301"
@@ -88,6 +95,13 @@ Feature: projects
     Then the run fails with a message stating that the start date and the due date cannot be the same date
     And no create request reaches Asana
 
+  Scenario: create without a project name is a usage error
+    Given a shell whose environment defines no Asana variables
+    When the project create command runs with no name argument
+    Then the process exits with a non-zero status
+    And stderr names the missing required argument
+    And no create request reaches Asana
+
   Scenario: update sends only the fields that were supplied
     Given a project with GID "44017" whose notes read "Glaze schedule for the autumn kiln"
     When the project update entry point runs for the GID "44017" with the color "light-teal"
@@ -120,11 +134,25 @@ Feature: projects
     Then the request body reaching Asana carries a start date field whose value is null
     And the request body reaching Asana carries "2026-10-15" as its due date
 
+  Scenario: update without a project GID is a usage error
+    Given a shell whose environment defines no Asana variables
+    When the project update command runs with no GID argument
+    Then the process exits with a non-zero status
+    And stderr names the missing required argument
+    And no update request reaches Asana
+
   Scenario: delete confirms by naming the project it removed
     Given a project named "Kiln Ledger" with GID "44018"
     When the project delete entry point runs in text mode with the GID "44018"
     Then a delete request reaches Asana for the project "44018"
     And stdout contains "44018"
+
+  Scenario: delete without a project GID is a usage error
+    Given a shell whose environment defines no Asana variables
+    When the project delete command runs with no GID argument
+    Then the process exits with a non-zero status
+    And stderr names the missing required argument
+    And no delete request reaches Asana
 
   # ── project counts ──
 
@@ -143,6 +171,13 @@ Feature: projects
     And stdout pairs "num_milestones" with "3"
     And stdout contains no line labelled "Total Tasks"
 
+  Scenario: counts without a project GID is a usage error
+    Given a shell whose environment defines no Asana variables
+    When the project counts command runs with no GID argument
+    Then the process exits with a non-zero status
+    And stderr names the missing required argument
+    And no request reaches Asana
+
   # ── project get ──
 
   Scenario: get returns the project record for the GID it was given
@@ -150,6 +185,13 @@ Feature: projects
     When the project get entry point runs with the GID "44017"
     Then the returned record has the GID "44017"
     And the returned record has the name "Tidewater Atlas"
+
+  Scenario: get without a project GID is a usage error
+    Given a shell whose environment defines no Asana variables
+    When the project get command runs with no GID argument
+    Then the process exits with a non-zero status
+    And stderr names the missing required argument
+    And no request reaches Asana
 
   Scenario: get refreshes the registry name of a project it already lists
     Given a repo registry file listing the GID "44017" under the name "Tidewater Chart"
@@ -184,6 +226,13 @@ Feature: projects
     And stdout contains a line reading "## Glaze Run"
     And stdout contains a line reading "- [x] Mix the slip"
     And stdout contains a line starting "- [ ] Fire the kiln" and containing "due 2026-09-12"
+
+  Scenario: export without a project GID is a usage error
+    Given a shell whose environment defines no Asana variables
+    When the project export command runs with no GID argument
+    Then the process exits with a non-zero status
+    And stderr names the missing required argument
+    And no request reaches Asana
 
   Scenario: export marks a section holding no tasks
     Given a project named "Kiln Ledger" with GID "44018"

@@ -48,11 +48,12 @@ to one task, never a list of either. And a tag can be attached here to a **task 
 which is not a restriction this node invented — in Asana that is the only thing a tag attaches to.
 Finally, this node does not search or filter tags by name; it lists them and hands back GIDs.
 
-The grouping is deliberate and is not this node's invention. One day earlier the tasks node converted
-its own flat `subtask-list` / `subtask-create` pair into a nested group, explicitly to make the
-relationship discoverable under `--help` and to leave room for further actions; `tag task` follows
-that convention, as `task follower`, `task project`, and `task dependency` do. MCP stays flat because
-tool names are a namespace rather than a menu, and agents do not browse them.
+**The CLI groups the four association verbs under `tag task`; MCP spells them flat.** That split is
+deliberate and is not this node's invention. One day earlier the tasks node converted its own flat
+`subtask-list` / `subtask-create` pair into a nested group, explicitly to make the relationship
+discoverable under `--help` and to leave room for further actions; `tag task` follows that
+convention, as `task follower`, `task project`, and `task dependency` do. MCP stays flat because tool
+names are a namespace rather than a menu, and agents do not browse them.
 
 **What this node does not own.** Paginated list behavior — bare array versus envelope, what `--all`
 walks, where `--max-pages` stops, how `next_page` and `truncated` are reported — is the shared list
@@ -187,6 +188,7 @@ The load-bearing edges:
 | tag GID alone identifies the tag | `ASANA_WORKSPACE` set and a tag GID given | `get requests the tag by GID and sends no workspace scope` |
 | record carries a colour → render it | text mode, a tag whose record carries a colour | `get renders the tag's name, GID and colour in text mode` |
 | record omits the colour → drop the line | text mode, a tag whose record omits the colour | `get omits the colour line when the tag record carries no colour` |
+| tag GID absent → usage error | no positional argument on the get command | `get without a tag GID is a usage error` |
 
 ### `tag create` / `tag update` / `tag delete` and their MCP tools
 
@@ -198,6 +200,7 @@ The load-bearing edges:
 | no flag, no environment → the write never leaves | a shell whose only Asana variable is the token, with a tag name already typed | `create without a workspace GID anywhere is a usage error` |
 | some field flags given → send exactly those | a tag GID and a single field flag | `update sends only the field whose flag was given` |
 | no field flags given → empty change set, no guard | a tag GID and no field flags | `update with no field flags still calls Asana with an empty change set` |
+| tag GID absent → usage error | no positional argument on the update command | `update without a tag GID is a usage error` |
 | CLI delete confirms outside the format layer | a tag GID and the structured JSON flag | `delete prints the same confirmation line whatever output format is asked for` |
 | tag GID absent → usage error | no positional argument on the delete command | `delete without a tag GID is a usage error` |
 | MCP delete answers with a confirmation body | the registered MCP delete tool and a tag GID | `asana_tag_delete answers with a body naming the deleted tag GID` |
@@ -211,6 +214,9 @@ The load-bearing edges:
 | link → send tag in body, task in path, confirm both | a task and a tag not yet linked | `task add links the tag to the task and confirms both GIDs` |
 | unlink → send tag in body, task in path, confirm both | a task already carrying the tag | `task remove unlinks the tag from the task and confirms both GIDs` |
 | second positional GID absent → usage error | a task GID typed with no tag GID after it | `task add with only one GID is a usage error` |
+| second positional GID absent on the unlink → usage error | a task already carrying the tag, its GID typed with no tag GID after it | `task remove with only one GID is a usage error` |
+| task GID absent → usage error | no positional argument on the task list command | `task list without a task GID is a usage error` |
+| tag GID absent → usage error | no positional argument on the tasks command | `tasks without a tag GID is a usage error` |
 
 ### surface shape
 

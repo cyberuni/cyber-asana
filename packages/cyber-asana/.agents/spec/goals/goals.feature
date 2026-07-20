@@ -112,6 +112,13 @@ Feature: goals
     And stderr states that a Workspace GID is required
     And no request reaches Asana
 
+  Scenario: create without a name is a usage error
+    Given the goal create command receives the workspace GID "6104"
+    And that same invocation receives no positional name argument
+    When the goal create command runs
+    Then the process exits with a non-zero status
+    And stderr names the missing required argument
+
   Scenario: create carries the notes and due date it was given
     Given a workspace with GID "6104"
     When the goal create entry point runs with the name "Halve Kiln Downtime", the notes "Measured at the Kiln Row meters" and the due date "2027-03-31"

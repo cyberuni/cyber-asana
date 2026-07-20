@@ -52,6 +52,13 @@ Feature: tags
     And stdout contains "990212"
     And stdout has no line labelled Color
 
+  Scenario: get without a tag GID is a usage error
+    Given a shell whose only Asana environment variable is the access token
+    When the tag get command runs with no GID argument
+    Then the process exits with a non-zero status
+    And stderr names the missing required argument
+    And no request reaches Asana
+
   # ── tag create / tag update / tag delete and their MCP tools ──
 
   Scenario: create sends the name, colour and notes it was given
@@ -95,6 +102,13 @@ Feature: tags
     Then the request reaching Asana addresses tag "990212"
     And the request body carries no field keys
     And the process exits with a zero status
+
+  Scenario: update without a tag GID is a usage error
+    Given a shell whose only Asana environment variable is the access token
+    When the tag update command runs with no GID argument
+    Then the process exits with a non-zero status
+    And stderr names the missing required argument
+    And no request reaches Asana
 
   Scenario: delete prints the same confirmation line whatever output format is asked for
     Given a tag named "Tide Chart" with GID "990213"
@@ -154,6 +168,27 @@ Feature: tags
   Scenario: task add with only one GID is a usage error
     Given a task with GID "44502" that carries no tag
     When the tag task add command runs with the task GID "44502" and nothing after it
+    Then the process exits with a non-zero status
+    And stderr names the missing required argument
+    And no request reaches Asana
+
+  Scenario: task remove with only one GID is a usage error
+    Given a task with GID "44502" already carrying the tag with GID "990211"
+    When the tag task remove command runs with the task GID "44502" and nothing after it
+    Then the process exits with a non-zero status
+    And stderr names the missing required argument
+    And no request reaches Asana
+
+  Scenario: task list without a task GID is a usage error
+    Given a shell whose only Asana environment variable is the access token
+    When the tag task list command runs with no GID argument
+    Then the process exits with a non-zero status
+    And stderr names the missing required argument
+    And no request reaches Asana
+
+  Scenario: tasks without a tag GID is a usage error
+    Given a shell whose only Asana environment variable is the access token
+    When the tag tasks command runs with no GID argument
     Then the process exits with a non-zero status
     And stderr names the missing required argument
     And no request reaches Asana

@@ -42,10 +42,24 @@ Feature: tasks
     Then the process exits with a non-zero status
     And no request reaches the tasks-for-project endpoint
 
+  Scenario: a subtask list without a task GID is a usage error
+    Given the task command group
+    When the subtask list entry point runs with no task GID argument
+    Then the process exits with a non-zero status
+    And stderr names the missing required argument
+    And no request reaches the subtasks endpoint
+
   Scenario: my-tasks takes the workspace GID from the environment
     Given the ASANA_WORKSPACE environment variable is set to "7100"
     When the my-tasks list entry point runs with no workspace GID flag
     Then the user-task-list lookup reaching Asana names the workspace GID "7100"
+
+  Scenario: a my-tasks list with no workspace GID anywhere is a usage error
+    Given the ASANA_WORKSPACE environment variable is unset
+    When the my-tasks list entry point runs with no workspace GID flag
+    Then the process exits with a non-zero status
+    And stderr states that a Workspace GID is required
+    And no user-task-list lookup reaches Asana
 
   Scenario: my-tasks resolves the authenticated user's task list before reading tasks
     Given a workspace named "Tidewater Cartography" with GID "7100"
@@ -109,6 +123,20 @@ Feature: tasks
     When the task get-many entry point runs with the GID "7301" naming the fields "gid,permalink_url"
     Then the action reaching the batch endpoint names the relative path "/tasks/7301?opt_fields=gid,permalink_url"
 
+  Scenario: get without a task GID is a usage error
+    Given the task command group
+    When the task get entry point runs with no GID argument
+    Then the process exits with a non-zero status
+    And stderr names the missing required argument
+    And no request reaches the single-task endpoint
+
+  Scenario: get-many without any task GID is a usage error
+    Given the task command group
+    When the task get-many entry point runs with no GID arguments
+    Then the process exits with a non-zero status
+    And stderr names the missing required argument
+    And no request reaches the batch endpoint
+
   # ── Creating, updating, and deleting a task ──
 
   Scenario: create posts the task name under the workspace GID it was given
@@ -116,6 +144,20 @@ Feature: tasks
     When the task create entry point runs for the workspace GID "7100" with the name "Regrind the theodolite lens"
     Then the request body reaching the task-creation endpoint carries the name "Regrind the theodolite lens"
     And that request body carries the workspace value "7100"
+
+  Scenario: create without a task name is a usage error
+    Given the task command group
+    When the task create entry point runs with no name argument
+    Then the process exits with a non-zero status
+    And stderr names the missing required argument
+    And no request reaches the task-creation endpoint
+
+  Scenario: create with no workspace GID anywhere is a usage error
+    Given the ASANA_WORKSPACE environment variable is unset
+    When the task create entry point runs with the name "Regrind the theodolite lens" and no workspace GID flag
+    Then the process exits with a non-zero status
+    And stderr states that a Workspace GID is required
+    And no request reaches the task-creation endpoint
 
   Scenario: create and update send only the optional fields that were supplied
     Given a workspace named "Tidewater Cartography" with GID "7100"
@@ -182,11 +224,25 @@ Feature: tasks
     Then no request reaches the task-update endpoint
     And a set-parent request reaches Asana for the task GID "7301" carrying a parent value of null
 
+  Scenario: update without a task GID is a usage error
+    Given the task command group
+    When the task update entry point runs with no GID argument
+    Then the process exits with a non-zero status
+    And stderr names the missing required argument
+    And no request reaches the task-update endpoint
+
   Scenario: delete confirms by naming the task it removed
     Given a task with GID "7301" named "Regrind the theodolite lens"
     When the task delete entry point runs in text mode with the GID "7301"
     Then a delete request reaches Asana for the task GID "7301"
     And stdout contains "7301"
+
+  Scenario: delete without a task GID is a usage error
+    Given the task command group
+    When the task delete entry point runs with no GID argument
+    Then the process exits with a non-zero status
+    And stderr names the missing required argument
+    And no delete request reaches Asana
 
   Scenario: subtask create posts the name under the parent task
     Given a task with GID "7301" named "Regrind the theodolite lens"
@@ -194,6 +250,13 @@ Feature: tasks
     Then the subtask-creation request reaches Asana for the parent task GID "7301"
     And that request body carries the name "Order the grinding paste"
     And that request body has no notes field and no due_on field
+
+  Scenario: subtask create without its parent GID and name is a usage error
+    Given the task command group
+    When the subtask create entry point runs with no arguments
+    Then the process exits with a non-zero status
+    And stderr names the missing required argument
+    And no subtask-creation request reaches Asana
 
   # ── Project membership and position ──
 
@@ -234,6 +297,20 @@ Feature: tasks
     Then the request body reaching the remove-project endpoint carries the project value "7201"
     And stdout contains "7301" and "7201"
 
+  Scenario: project add without its task GID and project GID is a usage error
+    Given the task command group
+    When the task project add entry point runs with no GID arguments
+    Then the process exits with a non-zero status
+    And stderr names the missing required argument
+    And no request reaches the add-project endpoint
+
+  Scenario: project remove without its task GID and project GID is a usage error
+    Given the task command group
+    When the task project remove entry point runs with no GID arguments
+    Then the process exits with a non-zero status
+    And stderr names the missing required argument
+    And no request reaches the remove-project endpoint
+
   # ── Followers ──
 
   Scenario: follower add sends the user GIDs as a plain list of strings
@@ -250,6 +327,20 @@ Feature: tasks
     Then a request reaches the follower-removal endpoint for the task GID "7301"
     And no request reaches the follower-addition endpoint
     And stdout contains "2 follower(s)"
+
+  Scenario: follower add without its task GID and user GIDs is a usage error
+    Given the task command group
+    When the task follower add entry point runs with no GID arguments
+    Then the process exits with a non-zero status
+    And stderr names the missing required argument
+    And no request reaches the follower-addition endpoint
+
+  Scenario: follower remove without its task GID and user GIDs is a usage error
+    Given the task command group
+    When the task follower remove entry point runs with no GID arguments
+    Then the process exits with a non-zero status
+    And stderr names the missing required argument
+    And no request reaches the follower-removal endpoint
 
   # ── Dependencies and dependents ──
 
@@ -283,6 +374,48 @@ Feature: tasks
     Then a request reaches the dependency-removal endpoint for the task GID "7301"
     And stdout contains "2 dependency(s)"
 
+  Scenario: dependency list without a task GID is a usage error
+    Given the task command group
+    When the task dependency list entry point runs with no task GID argument
+    Then the process exits with a non-zero status
+    And stderr names the missing required argument
+    And no request reaches the dependencies endpoint
+
+  Scenario: dependency add without its task GID and dependency GIDs is a usage error
+    Given the task command group
+    When the task dependency add entry point runs with no GID arguments
+    Then the process exits with a non-zero status
+    And stderr names the missing required argument
+    And no request reaches the dependency-addition endpoint
+
+  Scenario: dependency remove without its task GID and dependency GIDs is a usage error
+    Given the task command group
+    When the task dependency remove entry point runs with no GID arguments
+    Then the process exits with a non-zero status
+    And stderr names the missing required argument
+    And no request reaches the dependency-removal endpoint
+
+  Scenario: dependent list without a task GID is a usage error
+    Given the task command group
+    When the task dependent list entry point runs with no task GID argument
+    Then the process exits with a non-zero status
+    And stderr names the missing required argument
+    And no request reaches the dependents endpoint
+
+  Scenario: dependent add without its task GID and dependent GIDs is a usage error
+    Given the task command group
+    When the task dependent add entry point runs with no GID arguments
+    Then the process exits with a non-zero status
+    And stderr names the missing required argument
+    And no request reaches the dependent-addition endpoint
+
+  Scenario: dependent remove without its task GID and dependent GIDs is a usage error
+    Given the task command group
+    When the task dependent remove entry point runs with no GID arguments
+    Then the process exits with a non-zero status
+    And stderr names the missing required argument
+    And no request reaches the dependent-removal endpoint
+
   # ── Searching a workspace ──
 
   Scenario: search maps its any, not, and all filters to Asana's dotted parameter names
@@ -306,6 +439,13 @@ Feature: tasks
     Given the task command group
     When the help text for the search subcommand is rendered
     Then the options it lists contain no limit option, no offset option, and no all option
+
+  Scenario: search with no workspace GID anywhere is a usage error
+    Given the ASANA_WORKSPACE environment variable is unset
+    When the task search entry point runs with the text "theodolite" and no workspace GID flag
+    Then the process exits with a non-zero status
+    And stderr states that a Workspace GID is required
+    And no request reaches the workspace-search endpoint
 
   # ── Scanning source for TODO markers ──
 

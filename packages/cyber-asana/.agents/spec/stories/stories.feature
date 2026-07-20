@@ -19,6 +19,13 @@ Feature: stories
     Then the process exits with a non-zero status
     And stderr states that a Task GID is required
 
+  Scenario: the create entry point without a task GID is a usage error
+    Given a task named "Repave the koi pond" with GID "8801"
+    When the story create entry point runs with the text "Gravel arrives Tuesday" and no task GID argument
+    Then the process exits with a non-zero status
+    And stderr states that a Task GID is required
+    And no request reaches the Asana stories endpoint
+
   Scenario: an entry point does not default the task GID from the environment
     Given the ASANA_WORKSPACE environment variable is set to "8801"
     When the story list entry point runs with no task GID argument

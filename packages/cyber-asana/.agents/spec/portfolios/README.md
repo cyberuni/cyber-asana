@@ -198,6 +198,7 @@ The groups run genuinely different logic, so they are drawn separately. The load
 | name and workspace given → create | a workspace GID and a new portfolio name | `create sends the new name and the workspace it was given` |
 | no workspace flag → environment fallback on a write | `ASANA_WORKSPACE` set, a name typed, no workspace flag | `create falls back to the workspace environment variable` |
 | no workspace anywhere → usage error, nothing created | neither flag nor environment supplies a workspace, a name typed | `create without a workspace GID anywhere is a usage error` |
+| name absent → usage error, nothing created | a workspace supplied, no name typed on the invocation | `create without a name is a usage error` |
 | both inputs required over MCP (barred fallback) | the registered portfolio create tool | `asana_portfolio_create requires both a workspace GID and a name` |
 
 ### `portfolio update` / `asana_portfolio_update`
