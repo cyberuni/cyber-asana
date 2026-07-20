@@ -1,6 +1,6 @@
-# ADR 0001: No workspace GID in repo config
+# 0001: No workspace GID in repo config
 
-> Now tracked in the SDD spec at `packages/cyber-asana/.agents/spec/design/decisions/0001-no-workspace-gid-in-repo-config.md`.
+Migrated from `docs/adr/0001-no-workspace-gid-in-repo-config.md`; kept alongside this project's spec since it directly governs [config](../../config/README.md)'s repo-config schema and env binding.
 
 ## Status
 
