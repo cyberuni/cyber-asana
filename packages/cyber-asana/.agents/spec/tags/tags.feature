@@ -88,6 +88,12 @@ Feature: tags
     And stderr states that a Workspace GID is required
     And no request reaches Asana
 
+  Scenario: create without a tag name is a usage error
+    Given a shell whose only Asana environment variable is the access token
+    When the tag create command runs with no name argument
+    Then the process exits with a non-zero status
+    And stderr names the missing required argument
+
   Scenario: update sends only the field whose flag was given
     Given a tag named "Rope Ladder" with GID "990212" whose record carries the notes "spare line locker"
     When the tag update command runs with the tag GID "990212" and the colour flag set to "dark-teal"

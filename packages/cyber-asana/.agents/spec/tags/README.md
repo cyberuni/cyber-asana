@@ -198,6 +198,7 @@ The load-bearing edges:
 | optional fields absent → body carries the name only | a workspace and a name, with neither optional flag typed | `create sends only the name when no colour or notes flag is typed` |
 | no flag → environment fallback | `ASANA_WORKSPACE` set, no workspace flag passed | `create falls back to the workspace environment variable` |
 | no flag, no environment → the write never leaves | a shell whose only Asana variable is the token, with a tag name already typed | `create without a workspace GID anywhere is a usage error` |
+| create with no name argument → usage error | the create command invoked with no positional name | `create without a tag name is a usage error` |
 | some field flags given → send exactly those | a tag GID and a single field flag | `update sends only the field whose flag was given` |
 | no field flags given → empty change set, no guard | a tag GID and no field flags | `update with no field flags still calls Asana with an empty change set` |
 | tag GID absent → usage error | no positional argument on the update command | `update without a tag GID is a usage error` |

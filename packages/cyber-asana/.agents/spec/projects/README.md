@@ -189,6 +189,7 @@ The load-bearing edges:
 | no workspace GID from flag or environment → usage error | neither a workspace flag nor `ASANA_WORKSPACE` | `list without a workspace GID anywhere is a usage error` |
 | named filters mapped to Asana's search parameters | a text term plus team, member-exclusion, and due-window filters | `search maps each named filter onto its Asana search parameter` |
 | no pagination options on search (barred) | the search subcommand's help text | `search offers no pagination options` |
+| no workspace GID from flag or environment on search → usage error | neither a workspace flag nor `ASANA_WORKSPACE` | `search without a workspace GID anywhere is a usage error` |
 | render Name / ID table | text mode, two projects, reached by either read | `list and search render each project's name and GID in text mode` |
 
 ### `project create` / `project update` / `project delete`
@@ -203,6 +204,7 @@ The load-bearing edges:
 | start date with a later due date → carried | a start date and a different due date supplied to create | `create carries a start date when a due date accompanies it` |
 | start date equal to the due date → refused | the same date supplied as both start and due | `create refuses a start date equal to the due date` |
 | create with no name argument → usage error | the create command invoked with no positional name | `create without a project name is a usage error` |
+| create with no workspace GID from flag or environment → usage error | a name supplied, neither a workspace flag nor `ASANA_WORKSPACE` | `create without a workspace GID anywhere is a usage error` |
 | update body carries only supplied fields | only a colour supplied to update | `update sends only the fields that were supplied` |
 | clear flag → explicit null | the clear-due-date flag supplied to update, no due date | `update clears the due date with an explicit null` |
 | due date and clear-due flag together → refused | both supplied to update | `update refuses a due date and the clear-due-date flag together` |

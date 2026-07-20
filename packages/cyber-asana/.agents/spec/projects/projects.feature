@@ -36,6 +36,13 @@ Feature: projects
     When the help text for the search subcommand is rendered
     Then the options it lists contain no limit, offset, or fetch-all option
 
+  Scenario: search without a workspace GID anywhere is a usage error
+    Given the ASANA_WORKSPACE environment variable is unset
+    When the project search command runs with no workspace flag
+    Then the process exits with a non-zero status
+    And stderr states that a Workspace GID is required
+    And no request reaches Asana
+
   Scenario: list and search render each project's name and GID in text mode
     Given a project named "Tidewater Atlas" with GID "44017" in workspace "6120"
     And a project named "Kiln Ledger" with GID "44018" in workspace "6120"
@@ -100,6 +107,13 @@ Feature: projects
     When the project create command runs with no name argument
     Then the process exits with a non-zero status
     And stderr names the missing required argument
+
+  Scenario: create without a workspace GID anywhere is a usage error
+    Given the ASANA_WORKSPACE environment variable is unset
+    When the project create command runs with the name "Tidewater Atlas" and no workspace flag
+    Then the process exits with a non-zero status
+    And stderr states that a Workspace GID is required
+    And no request reaches Asana
     And no create request reaches Asana
 
   Scenario: update sends only the fields that were supplied
