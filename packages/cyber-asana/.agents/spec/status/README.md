@@ -160,6 +160,7 @@ The load-bearing edges:
 | update GID → delete | a GID naming an existing update | `delete removes the status update named by the GID` |
 | confirmation names the removed GID | text mode, the delete succeeded | `delete confirms by naming the GID it removed` |
 | no parent input on a single-update delete (barred) | the delete subcommand's help text | `delete takes the status update GID alone, with no parent GID` |
+| GID absent → usage error | no GID argument | `delete without a status update GID is a usage error` |
 
 ## References
 

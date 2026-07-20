@@ -137,3 +137,9 @@ Feature: status
     Given the status command group
     When the help text for the delete subcommand is rendered
     Then the options it lists contain no parent option
+
+  Scenario: delete without a status update GID is a usage error
+    Given the status command group
+    When the status delete entry point runs with no GID argument
+    Then the process exits with a non-zero status
+    And no request reaches the Asana status-updates endpoint
