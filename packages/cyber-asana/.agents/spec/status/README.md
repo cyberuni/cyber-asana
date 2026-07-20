@@ -169,10 +169,14 @@ The load-bearing edges:
   `parent` field accepting a project, portfolio, or goal GID, which is why no parent-kind input
   exists here.
 
-<!-- open: whether `list` should set a small default `opt_fields`, as AGENTS.md's "minimal default
-     schemas" rule asks of list commands. It currently sets none. Unresolved from source and
-     history alone. -->
+## Known gaps
 
-<!-- open: this domain carries no acceptance spec factory and no `api.system.ts`, unlike most
-     sibling domains, so its list pagination is never exercised against the live API. Whether that
-     was deliberate or simply not backfilled is unresolved from source and history alone. -->
+**`list` sets no default `opt_fields`**, so Asana returns its own compact record shape. This is a gap
+against the repo's minimal-default-schemas rule rather than a choice specific to this node: `task
+list` is the only list command in the package that sets a default field set, and every other domain
+forwards the caller's pagination options unchanged.
+
+**This node carries no acceptance spec factory and no `api.system.ts`**, so its list pagination is
+never exercised against a gateway double or the live API. That is a coverage gap, not a design
+decision: the sweep that added those files to every other paginated domain predates this domain by a
+month, and its list path uses the same shared pagination helpers the factory is built for.

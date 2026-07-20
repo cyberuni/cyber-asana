@@ -48,10 +48,10 @@ their own vocabulary (metric kind, unit, supporting-work direction) that does no
 name/notes/due shape this node offers. Reading progress therefore means reading the `status` field
 Asana computes, not writing one.
 
-<!-- open: whether the missing `--owner` and `--time-period` filters on `list` were a deliberate cut
-     or simply never requested. They are the two filters Asana's goal listing offers beyond
-     workspace, so the "identity fields only" rationale above does not cover them, and source plus
-     history do not settle it. -->
+`list` filters by workspace alone. Asana's goal listing also accepts `team`, `portfolio`, `project`,
+`task`, `is_workspace_level`, and `time_periods` — there is no owner filter, since ownership is a
+field on the goal record rather than a listing parameter. Wrapping any of the six is a known gap,
+never requested rather than cut.
 
 **What this node does not own.** Paginated list behavior — bare array versus envelope, what `--all`
 walks, where `--max-pages` stops — is the shared list contract in [axi](../axi/README.md), adopted
@@ -209,9 +209,15 @@ Asana returns no record to render: the only thing worth showing is which GID wen
   listed per workspace, and that metrics, goal relationships, status updates on a goal, and time
   periods are the remaining goal operations this node leaves unwrapped.
 
-<!-- open: whether `update` accepting an invocation with no field flags — which reaches Asana with an
-     empty change set rather than failing as a usage error — was deliberate or incidental. Source and
-     history do not settle it. -->
-<!-- open: whether `delete`'s confirmation bypassing the shared output helper — so the same prose line
-     is printed under `--json` as in text mode — was intended, or simply follows from Asana returning
-     no record to serialize. -->
+## Known gaps
+
+**`update` with no field flags is accepted.** It reaches Asana with an empty change set; Asana
+applies only the fields present in the payload, so the call is a no-op that returns the goal
+unchanged and the command prints it. This matches every other update command in the package — none
+treats a fieldless invocation as a usage error.
+
+**`delete` prints its confirmation directly rather than through `output`**, because Asana returns no
+record for a delete and the shared helper dispatches on a payload that does not exist. Every delete
+command in the package does the same. The consequence is that `--json` and `--toon` callers receive
+the prose line rather than a serialized value — a package-wide inconsistency, not a goals-specific
+choice.
