@@ -42,8 +42,11 @@ Asana's stories API also exposes reading one story by its own GID, editing a sto
 story; none is wrapped. Nor does this node filter the thread down to comments only: a `list` returns
 the activity records alongside the comments, exactly as Asana returns them, and the `Type` column is
 what tells them apart.
-<!-- open: whether omitting get/update/delete of a single story was a deliberate scope cut or simply
-     never needed — unresolved from source and history alone. -->
+That cut matches the shape of the operation. Asana restricts both writes — a story's text is
+editable only for comment stories, and a user may delete only stories they created themselves — so a
+general `story update` or `story delete` would be a surface that fails for most rows a `list`
+returns. Asana's own MCP server draws the same line, exposing a comment-adding tool and no story
+read, edit, or delete.
 
 **What this node does not own.** How a paginated list behaves, the `--json` / `--toon` output
 formats, empty-state rendering, and exit-code conventions are the shared contract in
@@ -166,8 +169,15 @@ The load-bearing edges:
   one story by GID, updating a story, and deleting a story are the remaining operations this node
   leaves unwrapped, and that a comment is posted as either `text` or `html_text`.
 
-<!-- open: whether the `Text` column's 60-character cut should go through the shared `truncate()`
-     helper (and honor `--full`) the way AGENTS.md asks of long free-text fields. It is currently a
-     plain cut with no way to opt out. Unresolved from source and history alone. -->
-<!-- open: whether locally-detected `html_text` shape failures being re-raised under the wording
-     "Asana rejected html_text" — when Asana was never called — was intended or incidental. -->
+## Known bugs
+
+**The `Text` column's 60-character cut should go through the shared `truncate()` helper and does
+not.** The cut was written before `src/truncate.ts` existed and was never migrated to it, so the
+column ignores the global `--full` flag and emits no size hint — the one free-text column in the
+package that does neither, against the rule in AGENTS.md.
+
+**A locally-detected `html_text` shape failure is reported as though Asana rejected it.** The
+pre-send shape check runs inside the same `try` that wraps the Asana call, and the rewrap keys off
+nothing more than the substring `html_text` in the message, so a payload rejected before any request
+is made comes back under the wording `Asana rejected html_text`. The guidance attached to the error
+is correct; the attribution is not.

@@ -48,9 +48,11 @@ to one task, never a list of either. And a tag can be attached here to a **task 
 which is not a restriction this node invented — in Asana that is the only thing a tag attaches to.
 Finally, this node does not search or filter tags by name; it lists them and hands back GIDs.
 
-<!-- open: whether the CLI's `tag task` sub-grouping (with its flat MCP counterparts) was chosen for
-     CLI readability or simply fell out of Commander's nesting — the domain's expanding commit
-     ("feat: expand tag management") introduced both spellings at once and records no rationale. -->
+The grouping is deliberate and is not this node's invention. One day earlier the tasks node converted
+its own flat `subtask-list` / `subtask-create` pair into a nested group, explicitly to make the
+relationship discoverable under `--help` and to leave room for further actions; `tag task` follows
+that convention, as `task follower`, `task project`, and `task dependency` do. MCP stays flat because
+tool names are a namespace rather than a menu, and agents do not browse them.
 
 **What this node does not own.** Paginated list behavior — bare array versus envelope, what `--all`
 walks, where `--max-pages` stops, how `next_page` and `truncated` are reported — is the shared list
@@ -156,9 +158,10 @@ The load-bearing edges:
   Asana with an empty change set. That is recorded here as the contract, not as an accident to be
   worked around by callers.
 
-<!-- open: whether the missing at-least-one-field guard on `update` was judged unnecessary (Asana
-     accepts the empty change set and returns the unmodified record) or was simply not considered —
-     source and history do not settle it. -->
+  No entry point in this package guards against an empty change set, so tags is not an exception to
+  a rule — it is the rule. Asana's contract makes the call safe: only the fields present in the
+  `data` block are written, everything else is left alone, and the complete record comes back. A
+  guard here would reject a request Asana answers correctly.
 
 - **`delete` is the one entry point that bypasses the shared output layer.** Asana returns nothing
   useful from a delete, so the CLI writes its own confirmation line naming the GID. The consequence
