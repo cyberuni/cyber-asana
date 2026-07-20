@@ -30,13 +30,13 @@ attachment's own identifier, because at that point the parent is already known.
   record, so this node treats it as optional rather than assumed.
 
 **Non-goals.** This node wraps **reading** only — `list` and `get`. Asana can also **upload** a new
-attachment to an object and **delete** an existing one; neither is wrapped, on either surface. An
+attachment to an object and **delete** an existing one; neither is wrapped, on either surface, and
 both are known gaps rather than considered cuts. Nothing in the code or history records a decision.
 Uploading file bytes is a multipart transfer reaching into the local filesystem, which is a different
 capability wearing an attachment-shaped name — but Asana's upload endpoint also accepts an external
 URL with no file bytes at all, and that path carries none of the objection. `delete` is a plain
-`DELETE /attachments/{gid}` that seven other domains in this package wrap the equivalent of. The node
-is read-only because reading is what got built. This node also does **not** accept any parent object
+`DELETE /attachments/{gid}`, the same shape seven other domains in this package do wrap. The node is
+read-only because reading is what got built. This node also does **not** accept any parent object
 other than a task, even though Asana's list endpoint is parent-generic: projects and portfolios can
 carry attachments too, and they are simply not exposed here.
 

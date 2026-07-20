@@ -136,13 +136,13 @@ Feature: tasks
     And no request reaches the task-creation endpoint or the task-update endpoint
     And stderr names the mutually exclusive pair for each run
 
-  Scenario: create adds followers in a second request after the task exists
+  Scenario: create sends followers twice, on the create body and again in a follower-addition request
     Given a workspace named "Tidewater Cartography" with GID "7100"
     And the task-creation endpoint answering with a task whose GID is "7301"
     And a user "Bex Halloran" with GID "7501"
     And a user "Ines Okonjo" with GID "7502"
     When the task create entry point runs for the workspace GID "7100" with the name "Regrind the theodolite lens" and the follower GIDs "7501,7502"
-    Then the request body reaching the task-creation endpoint has no followers field
+    Then the request body reaching the task-creation endpoint carries the follower GIDs "7501" and "7502"
     And a follower-addition request reaches Asana for the task GID "7301"
     And that request carries the follower GIDs "7501" and "7502"
 

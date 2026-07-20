@@ -413,7 +413,7 @@ The load-bearing edges:
 | create → name and workspace in the body | a workspace GID and a task name | `create posts the task name under the workspace GID it was given` |
 | unsupplied field → absent from the body | a create and an update each naming exactly one optional field | `create and update send only the optional fields that were supplied` |
 | conflicting pair → usage error, nothing sent | invocations pairing notes with rich notes, parent with clear-parent, and due-on with clear-due-on | `conflicting write options are rejected before any request reaches Asana` |
-| followers supplied → a second request | a create naming two follower GIDs | `create adds followers in a second request after the task exists` |
+| followers supplied → sent twice | a create naming two follower GIDs | `create sends followers twice, on the create body and again in a follower-addition request` |
 | custom-field JSON and entries → entries win | a JSON object and a repeated entry naming the same custom field GID | `a repeated custom-field entry overrides the same field from the custom-fields JSON` |
 | custom-field input rejected → nothing sent | a custom-fields JSON holding an array, and an entry with no equals sign | `malformed custom-field input is rejected before any request reaches Asana` |
 | clear flag → an explicit null | an update naming clear-due-on and nothing else | `clear-due-on sets the due date to null` |
