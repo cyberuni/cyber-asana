@@ -203,9 +203,11 @@ The load-bearing edges:
   its own field group, and once any field is present the default is not added — so asking for
   assignee emails narrows the response to exactly the assignee fields. That is a real consequence of
   the ordering, and the suite pins it.
-  <!-- open: whether the include flags suppressing the four-field default (rather than adding to it)
-       was deliberate or a side effect of applying the default after the flags — unresolved from
-       source and history alone. -->
+  That short-circuit is a defect, not a design. The include flags were introduced as composing with
+  `--opt-fields`; the four-field default arrived a month later and was placed *after* the flag merge,
+  so a flag supplied alone satisfies the "already chosen" test and the default never lands — leaving
+  the Done and Due columns blank, which is the exact symptom the default was introduced to fix. The
+  suite pins the current behavior so the regression stays visible rather than silent.
 - **`LCM2` is why My Tasks is not just another list.** Asana addresses a personal task list by its
   own GID, which is not the user GID and not the workspace GID, so the read costs two calls: resolve
   the list for `me` in that workspace, then read it.
@@ -293,11 +295,13 @@ The load-bearing edges:
 - **`WU` splits update in two because Asana does.** Re-parenting is not a field on the task-update
   endpoint — it is its own set-parent call — so an update touching only the parent issues no
   task-update request at all, and an update touching both issues two requests in a fixed order.
-- **`WCF` costs a second request too**, for the same reason: followers are not accepted on the
-  create body path this node uses, so they are added to the task once it exists.
-  <!-- open: after adding followers, `create` returns the follower-call response rather than the
-       created task record. Whether that substitution was intended or incidental is unresolved from
-       source and history alone. -->
+- **`WCF` costs a second request that it does not need to.** Unlike re-parenting, followers *are*
+  accepted on the create body: the write-options builder puts them in the fields and the gateway
+  spreads those fields into the `POST /tasks` payload. The gateway then issues an `addFollowers` call
+  anyway, so a create naming followers sends them twice. The redundant round trip is a known defect,
+  not a shape Asana forces. Its one visible effect is on the return value — `addFollowers` answers
+  with the complete updated task record, so `create` hands back that response rather than the create
+  response. Both are the same task, and no caller or test ever distinguished them.
 
 ### Relationships — projects, followers, dependencies
 
@@ -330,9 +334,10 @@ The load-bearing edges:
   produce a request Asana rejects, which is exactly what the suite's payload-shape scenarios catch.
 - **`PP`'s conflict is enforced on the CLI only.** The MCP tool forwards both positioning values and
   lets Asana arbitrate. The asymmetry is real and pinned as such.
-  <!-- open: whether the insert-after/insert-before exclusion being CLI-only was a deliberate
-       thin-tool choice or simply not mirrored into mcp.ts — unresolved from source and history
-       alone. -->
+  The asymmetry is an unmirrored guard, not a thin-tool stance. Both surfaces landed in one commit,
+  and the check was written inline in `cli.ts` rather than in the shared write-options module where
+  this node keeps its other three mutual exclusions, so the MCP tool never picked it up. Asana
+  rejects both keys together itself, so the MCP caller gets the same refusal one round trip later.
 - **`PDLD` uses its own default field set**, set in the gateway rather than in the CLI, so both
   surfaces get it — unlike the task-list default, which is CLI-only.
 

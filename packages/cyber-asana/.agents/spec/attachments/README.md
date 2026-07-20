@@ -31,16 +31,14 @@ attachment's own identifier, because at that point the parent is already known.
 
 **Non-goals.** This node wraps **reading** only — `list` and `get`. Asana can also **upload** a new
 attachment to an object and **delete** an existing one; neither is wrapped, on either surface. An
-upload is not a JSON call like every other operation in this package — it is a multipart file
-transfer that would have to reach into the local filesystem, which is a different capability
-wearing an attachment-shaped name. Deletion of a file someone else uploaded is destructive and
-unrecoverable from the CLI. This node also does **not** accept any parent object other than a task,
-even though Asana's list endpoint is parent-generic: projects and portfolios can carry attachments
-too, and they are simply not exposed here.
-
-<!-- open: whether upload and delete were weighed and rejected, or were never reached — both
-     were absent from the domain's first commit and no later commit or issue records a decision.
-     The reasoning above is reconstructed from the code's shape, not from a recorded rationale. -->
+both are known gaps rather than considered cuts. Nothing in the code or history records a decision.
+Uploading file bytes is a multipart transfer reaching into the local filesystem, which is a different
+capability wearing an attachment-shaped name — but Asana's upload endpoint also accepts an external
+URL with no file bytes at all, and that path carries none of the objection. `delete` is a plain
+`DELETE /attachments/{gid}` that seven other domains in this package wrap the equivalent of. The node
+is read-only because reading is what got built. This node also does **not** accept any parent object
+other than a task, even though Asana's list endpoint is parent-generic: projects and portfolios can
+carry attachments too, and they are simply not exposed here.
 
 **What this node does not own.** How a paginated list behaves — bare array versus envelope, what
 `--all` walks, where `--max-pages` stops — is the shared list contract in
