@@ -241,15 +241,23 @@ The load-bearing edges:
   project templates, and project duplication are the remaining `ProjectsApi` operations this node
   leaves unwrapped.
 
-<!-- open: whether `search` being unpaginated is a deliberate cut or simply never extended. The
-     gateway returns the raw response for search while every other list in the domain goes through
-     the shared pagination collector, and source plus history do not settle which. -->
+## Known gaps
 
-<!-- open: the gateway's `listProjects` accepts an `archived` filter that neither the CLI nor the MCP
-     tool ever supplies, so archived projects cannot be excluded or isolated from either surface.
-     Whether the parameter is a leftover or an unfinished flag is unresolved from source and history
-     alone. -->
+**`search` returns a bare array because Asana gives it no cursor.** Asana's project-search endpoint
+accepts no `offset` at all: search results are not stable between identical queries, so Asana
+withholds the ordinary pagination contract there and caps a response at 100 items via `limit` alone.
+The shared collector would have nothing to collect, so the gateway returns the response as it
+arrives — the same shape `task search` returns, for the same reason.
 
-<!-- open: `update` is the only write whose `name` field bypasses the shared write-options builder —
-     the CLI passes it alongside the built body and MCP spreads it in conditionally. Whether the two
-     spellings are a deliberate split or drift is unresolved from source and history alone. -->
+**The `archived` filter is reachable only from the API layer.** Asana's list endpoint accepts it and
+the gateway and API signatures carry it, but neither the CLI nor the MCP tool ever supplies a value,
+so both always get the endpoint default. This is a gap rather than a choice: the parameter arrived as
+a by-product of moving `listProjects` onto an options object during the pagination work, and no
+surface was ever wired to it. Exposing it is a flag and a Zod field away.
+
+**`update` patches `name` in outside the builder.** The CLI spreads it unconditionally alongside the
+built body while the MCP tool spreads it conditionally, so the two disagree about whether an absent
+name reaches the request as `undefined`. This is a known inconsistency, not a split by design — the
+tasks builder had already carried `name` for a day when the projects builder was written without it,
+and the omission follows from `create` taking the name as a positional argument rather than a field.
+What a caller observes is unaffected, since Asana ignores an absent name either way.

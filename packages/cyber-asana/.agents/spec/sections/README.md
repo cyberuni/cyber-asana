@@ -41,9 +41,11 @@ offers it. The one attribute a section exposes for change is its **name** — `u
 does nothing else, because a name is the only thing about a section that a caller can meaningfully
 edit.
 
-<!-- open: whether section reordering was weighed and cut, or simply never reached. It is absent
-     from the domain's first commit and no later commit or issue records a decision; the five
-     operations have been the same five since `1f56935 chore: initial repo setup`. -->
+Reordering is a gap, not a cut. Asana exposes a section-move endpoint and the pinned SDK ships
+`insertSectionForProject` for it, so the operation is one gateway method away — but the domain has
+carried the same five operations since its first commit and nothing in the history weighs the sixth.
+This node specifies five operations because five is what was built; a caller who needs to move a
+column falls back to the Asana UI or a raw API call.
 
 **What this node does not own.** How a paginated list behaves — bare array versus envelope, what
 `--all` walks, where `--max-pages` stops — is the shared list contract in [axi](../axi/README.md),
@@ -134,8 +136,11 @@ The five groups share no decision, so they are drawn separately. The load-bearin
   produces the confirmation prose, not a JSON document. It is the one place in this node where the
   shared format contract in [axi](../axi/README.md) does not apply.
 
-<!-- open: whether delete's confirmation line bypassing the shared output path was a considered
-     choice or an oversight — source shows the bypass plainly, history records no rationale. -->
+  The bypass is the package's convention for deletes, not a slip in this node: Asana returns no
+  record from a delete, so there is nothing for the format layer to encode, and every delete and
+  remove verb in the package writes its confirmation line directly for the same reason. The accepted
+  cost is that `--json` on a delete yields the prose line rather than a JSON document, so a caller
+  scripting deletes reads the exit code, not the output.
 
 ## Scenario map
 
