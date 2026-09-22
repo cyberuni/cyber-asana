@@ -1,10 +1,11 @@
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { Command } from 'commander'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 const getProjectMock = vi.fn()
+const getUserMock = vi.fn()
 
 async function loadConfigCommand() {
 	vi.resetModules()
@@ -113,5 +114,112 @@ describe('config/cli', () => {
 
 		expect(getProjectMock).toHaveBeenCalledWith('111')
 		expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('"updated": 1'))
+	})
+
+	async function userProgram() {
+		const configCommand = await loadConfigCommand()
+		return new Command().addCommand(
+			configCommand(
+				() => ({ getProject: getProjectMock }) as never,
+				() => ({ getUser: getUserMock }) as never,
+			),
+		)
+	}
+
+	async function writeConfig(config: unknown) {
+		root = await mkdtemp(join(tmpdir(), 'cyber-asana-config-cli-users-'))
+		const configPath = join(root, 'config.json')
+		await writeFile(configPath, JSON.stringify(config))
+		return configPath
+	}
+
+	it('add-user fetches name and email and stores the aliases', async () => {
+		const configPath = await writeConfig({ schema_version: 1, projects: [] })
+		getUserMock.mockResolvedValue({ gid: '100', name: 'Alice Anderson', email: 'alice@example.com' })
+
+		process.argv = ['node', 'test', '--json']
+		await (await userProgram()).parseAsync(
+			['node', 'test', 'config', 'add-user', '100', '--alias', 'ali', '--alias', 'aa', '--config', configPath],
+			{ from: 'node' },
+		)
+
+		expect(getUserMock).toHaveBeenCalledWith('100')
+		expect(JSON.parse(await readFile(configPath, 'utf8')).users).toEqual([
+			{ gid: '100', name: 'Alice Anderson', email: 'alice@example.com', aliases: ['ali', 'aa'] },
+		])
+	})
+
+	it('resolve-user looks up an alias without calling getUser', async () => {
+		const configPath = await writeConfig({
+			schema_version: 1,
+			projects: [],
+			users: [{ gid: '100', name: 'Alice Anderson', email: 'alice@example.com', aliases: ['ali'] }],
+		})
+
+		process.argv = ['node', 'test', '--json']
+		await (await userProgram()).parseAsync(['node', 'test', 'config', 'resolve-user', 'ali', '--config', configPath], {
+			from: 'node',
+		})
+
+		expect(getUserMock).not.toHaveBeenCalled()
+		expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('"gid": "100"'))
+	})
+
+	it('resolve-user reports an unknown user', async () => {
+		const configPath = await writeConfig({ schema_version: 1, projects: [], users: [] })
+
+		await expect(
+			(await userProgram()).parseAsync(['node', 'test', 'config', 'resolve-user', 'carol', '--config', configPath], {
+				from: 'node',
+			}),
+		).rejects.toThrow('User not found in repo config: carol')
+	})
+
+	it('list-users shows registered users', async () => {
+		const configPath = await writeConfig({
+			schema_version: 1,
+			projects: [],
+			users: [{ gid: '100', name: 'Alice Anderson', aliases: ['ali'] }],
+		})
+
+		process.argv = ['node', 'test', '--json']
+		await (await userProgram()).parseAsync(['node', 'test', 'config', 'list-users', '--config', configPath], {
+			from: 'node',
+		})
+
+		expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('"name": "Alice Anderson"'))
+	})
+
+	it('remove-user removes the user an alias resolves to', async () => {
+		const configPath = await writeConfig({
+			schema_version: 1,
+			projects: [],
+			users: [{ gid: '100', name: 'Alice Anderson', aliases: ['ali'] }],
+		})
+
+		process.argv = ['node', 'test', '--json']
+		await (await userProgram()).parseAsync(['node', 'test', 'config', 'remove-user', 'ali', '--config', configPath], {
+			from: 'node',
+		})
+
+		expect(JSON.parse(await readFile(configPath, 'utf8')).users).toEqual([])
+	})
+
+	it('sync refreshes user names and emails via getUser', async () => {
+		const configPath = await writeConfig({
+			schema_version: 1,
+			projects: [],
+			users: [{ gid: '100', name: 'Old', email: 'old@example.com', aliases: ['ali'] }],
+		})
+		getUserMock.mockResolvedValue({ gid: '100', name: 'New', email: 'new@example.com' })
+
+		process.argv = ['node', 'test', '--json']
+		await (await userProgram()).parseAsync(['node', 'test', 'config', 'sync', '--config', configPath], {
+			from: 'node',
+		})
+
+		expect(JSON.parse(await readFile(configPath, 'utf8')).users).toEqual([
+			{ gid: '100', name: 'New', email: 'new@example.com', aliases: ['ali'] },
+		])
 	})
 })
