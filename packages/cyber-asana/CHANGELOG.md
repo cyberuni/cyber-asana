@@ -1,5 +1,12 @@
 # cyber-asana
 
+## 0.14.0
+
+### Minor Changes
+
+- 92e8e18: Accept a comma-separated list in `config add-user --alias` (`--alias ali,al`), alongside a repeated flag, so several aliases can be set in one value instead of being stored as a single alias containing commas.
+- 53694b9: Add `config remove-alias <alias...>` to drop aliases from the repo user registry without removing the user. Aliases can be given as several arguments or a comma-separated list; an unregistered alias fails the command and leaves the config unchanged.
+
 ## 0.13.0
 
 ### Minor Changes
