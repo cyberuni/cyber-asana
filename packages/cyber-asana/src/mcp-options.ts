@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import type { ReadOptions } from './read-options.js'
 
 export const paginationParams = {
 	limit: z.number().int().min(1).max(100).optional().describe('Results per page, from 1 to 100'),
@@ -27,4 +28,13 @@ export function paginationOptions(params: {
 		fetchAll: params.fetch_all,
 		maxPages: params.max_pages,
 	}
+}
+
+/** `opt_fields` for a singular `get` tool — the read-side twin of `paginationParams`. */
+export const readParams = {
+	opt_fields: paginationParams.opt_fields,
+}
+
+export function readOptions(params: { opt_fields?: string }): ReadOptions | undefined {
+	return params.opt_fields ? { optFields: params.opt_fields } : undefined
 }
