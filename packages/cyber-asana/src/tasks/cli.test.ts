@@ -1,3 +1,6 @@
+import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { Command } from 'commander'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -558,5 +561,84 @@ describe('tasks/cli', () => {
 		await program.parseAsync(['node', 'test', 'task', 'create', 'New Task', '--workspace-gid', 'ws1'], { from: 'node' })
 
 		expect(injectedCreateTask).toHaveBeenCalledWith('ws1', 'New Task', {})
+	})
+
+	describe('--assignee resolves through the repo user registry', () => {
+		let dir: string
+		const previousConfig = process.env.CYBER_ASANA_CONFIG
+
+		async function useRegistry() {
+			dir = await mkdtemp(join(tmpdir(), 'cyber-asana-task-assignee-'))
+			const path = join(dir, 'config.json')
+			await writeFile(
+				path,
+				JSON.stringify({
+					schema_version: 1,
+					projects: [],
+					users: [{ gid: '100', name: 'Alice Anderson', email: 'alice@example.com', aliases: ['ali'] }],
+				}),
+			)
+			process.env.CYBER_ASANA_CONFIG = path
+		}
+
+		afterEach(async () => {
+			if (previousConfig === undefined) delete process.env.CYBER_ASANA_CONFIG
+			else process.env.CYBER_ASANA_CONFIG = previousConfig
+			if (dir) await rm(dir, { recursive: true, force: true })
+		})
+
+		it('task create --assignee <alias> sends the registered GID', async () => {
+			await useRegistry()
+			createTaskMock.mockResolvedValue({ gid: 't1', name: 'Task' })
+			const program = new Command().addCommand(taskCommand())
+
+			await program.parseAsync(
+				['node', 'test', 'task', 'create', 'Task', '--workspace-gid', 'w1', '--assignee', 'ali'],
+				{
+					from: 'node',
+				},
+			)
+
+			expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ assignee: '100' }))
+		})
+
+		it('task update --assignee <email> sends the registered GID', async () => {
+			await useRegistry()
+			updateTaskMock.mockResolvedValue({ gid: 't1', name: 'Task' })
+			const program = new Command().addCommand(taskCommand())
+
+			await program.parseAsync(['node', 'test', 'task', 'update', 't1', '--assignee', 'alice@example.com'], {
+				from: 'node',
+			})
+
+			expect(updateTaskMock).toHaveBeenCalledWith('t1', expect.objectContaining({ assignee: '100' }))
+		})
+
+		it('task subtask create --assignee <name> sends the registered GID', async () => {
+			await useRegistry()
+			createSubtaskMock.mockResolvedValue({ gid: 't2', name: 'Sub' })
+			const program = new Command().addCommand(taskCommand())
+
+			await program.parseAsync(
+				['node', 'test', 'task', 'subtask', 'create', 't1', 'Sub', '--assignee', 'alice anderson'],
+				{
+					from: 'node',
+				},
+			)
+
+			expect(createSubtaskMock).toHaveBeenCalledWith('t1', 'Sub', expect.objectContaining({ assignee: '100' }))
+		})
+
+		it('task create --assignee <unknown> fails before calling Asana', async () => {
+			await useRegistry()
+			const program = new Command().addCommand(taskCommand())
+
+			await expect(
+				program.parseAsync(['node', 'test', 'task', 'create', 'Task', '--workspace-gid', 'w1', '--assignee', 'carol'], {
+					from: 'node',
+				}),
+			).rejects.toThrow(/config add-user/)
+			expect(createTaskMock).not.toHaveBeenCalled()
+		})
 	})
 })

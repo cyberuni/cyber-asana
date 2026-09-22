@@ -4,6 +4,7 @@ import {
 	addPaginationOptions,
 	addReadOptions,
 	itemsForOutput,
+	type PaginationCliOptions,
 	paginationOptionsFromCli,
 	printNextPageHint,
 	readOptionsFromCli,
@@ -65,10 +66,7 @@ export function userCommand(api?: UserApi | (() => UserApi)) {
 		addGidOption(cmd.command('list').description('List users in a workspace'), 'workspace', 'Workspace GID', {
 			env: 'ASANA_WORKSPACE',
 		}),
-		{
-			limit: false,
-		},
-	).action(async (opts: { workspace?: string; workspaceGid?: string; offset?: string; optFields?: string }) => {
+	).action(async (opts: { workspace?: string; workspaceGid?: string } & PaginationCliOptions) => {
 		const pagination = paginationOptionsFromCli(opts)
 		pagination.optFields ??= USER_LIST_FIELDS
 		const data = await resolveUserApi(api).listUsers(requiredGid(opts, 'workspace', 'Workspace GID'), pagination)

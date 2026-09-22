@@ -1,6 +1,6 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import { paginationOptions, paginationParamsWithoutLimit, readOptions, readParams } from '../mcp-options.js'
+import { paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
 import type { UserApi } from './api.js'
 import { getMe, getUser, listUsers } from './api.js'
 
@@ -19,7 +19,7 @@ export function registerUserTools(server: McpServer, api?: UserApi | (() => User
 	server.tool(
 		'asana_user_list',
 		'List Asana users in a workspace',
-		{ workspace_gid: z.string().describe('Workspace GID'), ...paginationParamsWithoutLimit },
+		{ workspace_gid: z.string().describe('Workspace GID'), ...paginationParams },
 		async ({ workspace_gid, ...params }) => ({
 			content: [
 				{

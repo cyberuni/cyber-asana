@@ -8,10 +8,7 @@ import {
 import { type ReadOptions, toAsanaReadOptions } from '../read-options.js'
 
 export type UserGateway = {
-	listUsers(
-		workspaceGid: string,
-		opts?: Omit<PaginationOptions, 'limit' | 'fetchAll' | 'maxPages'>,
-	): Promise<ListResult<any>>
+	listUsers(workspaceGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
 	getUser(userGid: string, opts?: ReadOptions): Promise<any>
 	getMe(opts?: ReadOptions): Promise<any>
 }
@@ -21,8 +18,10 @@ export function createAsanaUserGateway(client: Asana.ApiClient): UserGateway {
 
 	return {
 		async listUsers(workspaceGid, opts) {
-			const res = await usersApi.getUsersForWorkspace(workspaceGid, toAsanaPaginationOptions(opts, { limit: false }))
-			return await collectListResponse(res, opts, { limit: false })
+			// GET /users?workspace= pages (sorted by id); GET /workspaces/{gid}/users cannot, and
+			// returns 400 "result is too large" on big workspaces.
+			const res = await usersApi.getUsers({ workspace: workspaceGid, ...toAsanaPaginationOptions(opts) })
+			return await collectListResponse(res, opts)
 		},
 		async getUser(userGid, opts) {
 			const res = await usersApi.getUser(userGid, toAsanaReadOptions(opts))

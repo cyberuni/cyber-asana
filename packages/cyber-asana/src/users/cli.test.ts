@@ -37,6 +37,21 @@ describe('users/cli', () => {
 		})
 	})
 
+	it('user list pages with --limit and --all like other list commands', async () => {
+		listUsersMock.mockResolvedValue({ data: [], next_page: null })
+		const program = new Command().addCommand(userCommand())
+
+		await program.parseAsync(
+			['node', 'test', 'user', 'list', '--workspace-gid', 'ws1', '--limit', '50', '--all', '--max-pages', '3'],
+			{ from: 'node' },
+		)
+
+		expect(listUsersMock).toHaveBeenCalledWith(
+			'ws1',
+			expect.objectContaining({ limit: 50, fetchAll: true, maxPages: 3 }),
+		)
+	})
+
 	it('user list applies a minimal default field set, a count summary, and next steps', async () => {
 		const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 		listUsersMock.mockResolvedValue([{ gid: 'user1', name: 'Alice' }])

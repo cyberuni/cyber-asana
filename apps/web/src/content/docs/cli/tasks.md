@@ -60,7 +60,8 @@ cyber-asana task delete <task-gid>
 | --- | --- | --- |
 | `--workspace-gid <gid>` | `create` | Workspace (defaults to `ASANA_WORKSPACE`) |
 | `--project-gid <gid[,gid...]>` | `create` | Initial project placement, comma-separated |
-| `--assignee-gid <gid>` / `--assignee <gid>` | `create` | Assignee user |
+| `--assignee-gid <gid>` | `create`, `update` | Assignee user GID |
+| `--assignee <user>` | `create`, `update` | Assignee as a GID, `me`, or an alias, email, or name registered in the [repo config](/cyber-asana/cli/repo-config/#assigning-by-name) |
 | `--parent-gid <gid>` / `--parent <gid>` | `create`, `update` | Set the task parent |
 | `--clear-parent` | `update` | Remove the parent relationship |
 | `--name <name>` | `update` | New name |

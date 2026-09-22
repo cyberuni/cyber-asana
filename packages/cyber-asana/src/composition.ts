@@ -173,7 +173,13 @@ export function registerCliCommands(program: Command, getContext: () => RuntimeC
 	program.addCommand(storyCommand('story', () => getContext().stories))
 	program.addCommand(storyCommand('comment', () => getContext().stories))
 	program.addCommand(authCommand())
-	program.addCommand(configCommand(() => getContext().projects))
+	program.addCommand(
+		configCommand(
+			() => getContext().projects,
+			() => getContext().users,
+			() => getContext().search,
+		),
+	)
 	program.addCommand(setupCommand())
 	program.addCommand(urlCommand())
 	program.addCommand(mcpCommand(getContext))

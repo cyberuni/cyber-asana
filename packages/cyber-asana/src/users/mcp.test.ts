@@ -50,6 +50,16 @@ describe('users/mcp', () => {
 		})
 	})
 
+	it('asana_user_list forwards limit and fetch_all', async () => {
+		listUsersMock.mockResolvedValue({ data: [], next_page: null })
+		const server = createServer()
+		registerUserTools(server as any)
+
+		await server.handlers.get('asana_user_list')?.({ workspace_gid: 'ws1', limit: 50, fetch_all: true })
+
+		expect(listUsersMock).toHaveBeenCalledWith('ws1', expect.objectContaining({ limit: 50, fetchAll: true }))
+	})
+
 	it('asana_user_get forwards user gid', async () => {
 		getUserMock.mockResolvedValue({ gid: 'user1', name: 'Alice' })
 		const server = createServer()

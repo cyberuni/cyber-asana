@@ -80,12 +80,12 @@ export function addGidOption<T extends Command>(
 	cmd: T,
 	baseName: string,
 	description: string,
-	opts?: { env?: string },
+	opts?: { env?: string; legacyAlias?: boolean },
 ) {
 	const normalizedOption = new Option(`--${baseName}-gid <gid>`, description)
 	if (opts?.env) normalizedOption.env(opts.env)
 	cmd.addOption(normalizedOption)
-	cmd.addOption(new Option(`--${baseName} <gid>`, `${description} (legacy alias)`))
+	if (opts?.legacyAlias !== false) cmd.addOption(new Option(`--${baseName} <gid>`, `${description} (legacy alias)`))
 
 	return cmd
 }
