@@ -33,6 +33,7 @@ cyber-asana config sync                               # refresh cached names fro
 cyber-asana config show
 
 cyber-asana config add-user <user-gid> --alias ali    # store name + email, plus an alias
+cyber-asana config add-user --search "Ada" --alias ali  # find the GID by typeahead first
 cyber-asana config resolve-user ali --json            # local lookup, no API call
 cyber-asana config list-users
 ```
@@ -46,13 +47,26 @@ cyber-asana config list-users
 | `add` | `<project-gid>` | Add or update an entry, fetching the name from Asana |
 | `remove` | `<gid-or-name>` | Remove an entry by GID or name |
 | `sync` | — | Refresh all cached project names, and user names and emails, from Asana |
-| `add-user` | `<user-gid> [--alias <alias>...]` | Add or update a user, fetching name and email from Asana; aliases accumulate |
+| `add-user` | `<user-gid>` or `--search <query>`, `[--alias <alias>...]` | Add or update a user, fetching name and email from Asana; aliases accumulate. `--search` needs a workspace (`--workspace-gid` or `ASANA_WORKSPACE`) |
 | `resolve-user` | `<query>` | Resolve a GID, alias, email, or name to a user, no API call |
 | `list-users` | — | Print registered users |
 | `remove-user` | `<query>` | Remove the user a GID, alias, email, or name resolves to |
 
 Every subcommand accepts `--config <path>`, which overrides the `CYBER_ASANA_CONFIG`
 environment variable.
+
+## Finding a user's GID
+
+`add-user --search <query>` looks the person up with Asana's typeahead search (the same
+search `cyber-asana search objects user` uses) and registers the match. Typeahead is fuzzy, so
+`add-user` only picks a user when the result is clear:
+
+- A single hit is registered.
+- Among several hits, a hit whose name or email equals the query exactly is registered.
+- Otherwise nothing is written. The command lists the candidates, and you re-run it with the
+  right GID.
+
+Searching by email is the most reliable way to get one exact hit.
 
 ## Assigning by name
 
@@ -71,7 +85,7 @@ display name — and the first tier with a match decides. An alias is unique to 
 it always wins over someone else's display name. A query that matches two users in the
 deciding tier (two people with the same display name, say) is an error that lists both
 candidates; give an alias or a GID instead. A name that matches nobody is an error too,
-naming the `config add-user` command that would fix it.
+naming the `config add-user --search` command that would fix it.
 
 ## Keeping names fresh
 

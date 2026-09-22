@@ -42,6 +42,7 @@ cyber-asana config add <project-gid>              # seed or update an entry
 cyber-asana config resolve-project "Backend" --json  # local lookup, no API
 cyber-asana config sync                           # refresh cached names from Asana
 cyber-asana config add-user <user-gid> --alias ali  # register a user for --assignee ali
+cyber-asana config add-user --search "ada@example.com" --alias ada  # find the GID by typeahead
 cyber-asana config resolve-user ali --json        # local lookup, no API
 cyber-asana config show
 ```

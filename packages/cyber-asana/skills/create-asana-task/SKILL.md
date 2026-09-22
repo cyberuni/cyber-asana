@@ -48,7 +48,7 @@ If `kind` is `unknown` or GIDs are missing, fall back to other resolution paths.
 
 #### Assignee named by a person
 
-When the user names an assignee ("assign it to Ali"), pass the name as `assignee` (CLI: `--assignee`) — it resolves against the repo user registry with no API call. Use `assignee_gid` only for a literal GID. If the name is not registered, the call fails and names the fix: `cyber-asana config add-user <user-gid> --alias <alias>`. If it matches more than one user, ask which one rather than guessing.
+When the user names an assignee ("assign it to Ali"), pass the name as `assignee` (CLI: `--assignee`) — it resolves against the repo user registry with no API call. Use `assignee_gid` only for a literal GID. If the name is not registered, the call fails and names the fix: `cyber-asana config add-user --search "<name or email>" --alias <alias>`, which registers the person only when typeahead finds a clear match. If it lists several candidates, or the registry matches more than one user, ask which one rather than guessing.
 
 ### 3. Create the task
 

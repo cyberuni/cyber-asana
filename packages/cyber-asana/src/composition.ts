@@ -177,6 +177,7 @@ export function registerCliCommands(program: Command, getContext: () => RuntimeC
 		configCommand(
 			() => getContext().projects,
 			() => getContext().users,
+			() => getContext().search,
 		),
 	)
 	program.addCommand(setupCommand())

@@ -1,4 +1,5 @@
-import { Command } from 'commander'
+import { Command, InvalidArgumentError } from 'commander'
+import { addGidOption, requiredGid } from './cli-options.js'
 import { output, printFields, printNextSteps, printTable } from './output.js'
 import type { ProjectApi } from './projects/api.js'
 import {
@@ -7,6 +8,7 @@ import {
 	createEmptyRepoConfig,
 	defaultConfigPath,
 	loadRepoConfig,
+	normalizeProjectName,
 	observeProject,
 	observeUser,
 	type RepoConfig,
@@ -20,6 +22,7 @@ import {
 	saveRepoConfig,
 	type UserObservation,
 } from './repo-config.js'
+import type { SearchApi } from './search/api.js'
 import type { UserApi } from './users/api.js'
 
 type ConfigCliOptions = {
@@ -85,7 +88,38 @@ function printUserTable(users: RepoUserEntry[]) {
 	)
 }
 
-export function configCommand(getProjects: () => ProjectApi, getUsers?: () => UserApi) {
+type UserHit = { gid: string; name?: string; email?: string }
+
+/**
+ * Turn a typeahead query into one user GID. Typeahead is fuzzy, so a single hit is taken, an
+ * exact name or email match breaks a tie, and anything else is refused rather than guessed.
+ */
+async function searchUserGid(getSearch: (() => SearchApi) | undefined, workspaceGid: string, query: string) {
+	if (!getSearch) {
+		throw new Error('Search API is not available')
+	}
+	const hits = (await getSearch().searchObjects(workspaceGid, 'user', {
+		query,
+		optFields: 'gid,name,email',
+	})) as UserHit[]
+	if (hits.length === 0) {
+		throw new Error(`No user matches "${query}" in workspace ${workspaceGid}`)
+	}
+	if (hits.length === 1) return (hits[0] as UserHit).gid
+	const normalized = normalizeProjectName(query)
+	const exact = hits.filter(
+		(hit) =>
+			(hit.name !== undefined && normalizeProjectName(hit.name) === normalized) ||
+			(hit.email !== undefined && normalizeProjectName(hit.email) === normalized),
+	)
+	if (exact.length === 1) return (exact[0] as UserHit).gid
+	const candidates = hits.map((hit) => `  ${hit.gid} (${[hit.name, hit.email].filter(Boolean).join(', ')})`).join('\n')
+	throw new Error(
+		`"${query}" matches ${hits.length} users:\n${candidates}\nRe-run with one of them: cyber-asana config add-user <user-gid>`,
+	)
+}
+
+export function configCommand(getProjects: () => ProjectApi, getUsers?: () => UserApi, getSearch?: () => SearchApi) {
 	const cmd = new Command('config').description(
 		'Manage repo-local Asana project and user registry (.agents/cyber-asana.json)',
 	)
@@ -101,6 +135,7 @@ export function configCommand(getProjects: () => ProjectApi, getUsers?: () => Us
 			'  cyber-asana config resolve-project "My Project"',
 			'  cyber-asana config remove <gid-or-name>',
 			'  cyber-asana config add-user <user-gid> --alias <alias>',
+			'  cyber-asana config add-user --search "ada@example.com" --alias ada',
 			'  cyber-asana config resolve-user <alias-email-or-name>',
 			'  cyber-asana config list-users',
 			'  cyber-asana config sync',
@@ -278,15 +313,33 @@ export function configCommand(getProjects: () => ProjectApi, getUsers?: () => Us
 			})
 		})
 
-	cmd
-		.command('add-user <user-gid>')
-		.description('Add or update a user entry (fetches name and email from Asana)')
-		.option('--alias <alias>', 'Alias to resolve to this user (repeatable)', collectOption, [])
-		.option('--config <path>', 'Config file path (overrides CYBER_ASANA_CONFIG)')
-		.action(async (userGid: string, opts: ConfigCliOptions & { alias: string[] }) => {
+	addGidOption(
+		cmd
+			.command('add-user [user-gid]')
+			.description('Add or update a user entry (fetches name and email from Asana)')
+			.option('--search <query>', 'Find the user by name or email (typeahead) instead of passing a GID')
+			.option('--alias <alias>', 'Alias to resolve to this user (repeatable)', collectOption, [])
+			.option('--config <path>', 'Config file path (overrides CYBER_ASANA_CONFIG)'),
+		'workspace',
+		'Workspace GID for --search',
+		{ env: 'ASANA_WORKSPACE', legacyAlias: false },
+	).action(
+		async (
+			gidArg: string | undefined,
+			opts: ConfigCliOptions & { alias: string[]; search?: string; workspace?: string; workspaceGid?: string },
+		) => {
 			if (!getUsers) {
 				throw new Error('User API is not available')
 			}
+			if (gidArg && opts.search) {
+				throw new InvalidArgumentError('Pass a <user-gid> or --search <query>, not both')
+			}
+			if (!gidArg && !opts.search) {
+				throw new InvalidArgumentError('Pass a <user-gid> or --search <query>')
+			}
+			const userGid =
+				gidArg ??
+				(await searchUserGid(getSearch, requiredGid(opts, 'workspace', 'Workspace GID'), opts.search as string))
 			const observation = userObservationFromApi(userGid, await getUsers().getUser(userGid))
 			const { path, config } = await resolveWritableConfig(opts)
 			const next = addUser(config, { ...observation, aliases: opts.alias })
@@ -302,7 +355,8 @@ export function configCommand(getProjects: () => ProjectApi, getUsers?: () => Us
 				})
 				printNextSteps([`cyber-asana task create <name> --assignee ${user.aliases[0] ?? user.gid} — assign work`])
 			})
-		})
+		},
+	)
 
 	cmd
 		.command('resolve-user <query>')

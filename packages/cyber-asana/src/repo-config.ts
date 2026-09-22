@@ -245,7 +245,7 @@ export async function resolveAssignee(
 		return trimmed
 	}
 	const path = opts?.configPath ?? (await findConfigFile(opts?.startDir ?? process.cwd()))
-	const hint = 'Register them with: cyber-asana config add-user <user-gid> --alias <alias>'
+	const hint = `Register them with: cyber-asana config add-user --search "${value}" --alias <alias>`
 	if (!path || !(await pathExists(path))) {
 		throw new Error(`Assignee "${value}" is not a user GID and no repo config was found. ${hint}`)
 	}

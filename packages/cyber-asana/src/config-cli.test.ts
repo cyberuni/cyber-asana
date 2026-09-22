@@ -6,6 +6,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 const getProjectMock = vi.fn()
 const getUserMock = vi.fn()
+const searchObjectsMock = vi.fn()
 
 async function loadConfigCommand() {
 	vi.resetModules()
@@ -122,6 +123,7 @@ describe('config/cli', () => {
 			configCommand(
 				() => ({ getProject: getProjectMock }) as never,
 				() => ({ getUser: getUserMock }) as never,
+				() => ({ searchObjects: searchObjectsMock }) as never,
 			),
 		)
 	}
@@ -221,5 +223,67 @@ describe('config/cli', () => {
 		expect(JSON.parse(await readFile(configPath, 'utf8')).users).toEqual([
 			{ gid: '100', name: 'New', email: 'new@example.com', aliases: ['ali'] },
 		])
+	})
+
+	describe('add-user --search', () => {
+		const ada = { gid: '100', name: 'Ada Lovelace', email: 'ada@example.com' }
+		const adam = { gid: '200', name: 'Adam Smith', email: 'adam@example.com' }
+
+		async function addBySearch(configPath: string, ...args: string[]) {
+			process.argv = ['node', 'test', '--json']
+			await (await userProgram()).parseAsync(
+				['node', 'test', 'config', 'add-user', ...args, '--workspace-gid', 'ws1', '--config', configPath],
+				{ from: 'node' },
+			)
+		}
+
+		it('registers the single typeahead match', async () => {
+			const configPath = await writeConfig({ schema_version: 1, projects: [] })
+			searchObjectsMock.mockResolvedValue([ada])
+			getUserMock.mockResolvedValue(ada)
+
+			await addBySearch(configPath, '--search', 'lovelace', '--alias', 'ada')
+
+			expect(searchObjectsMock).toHaveBeenCalledWith('ws1', 'user', expect.objectContaining({ query: 'lovelace' }))
+			expect(getUserMock).toHaveBeenCalledWith('100')
+			expect(JSON.parse(await readFile(configPath, 'utf8')).users).toEqual([{ ...ada, aliases: ['ada'] }])
+		})
+
+		it('picks the one exact name or email match among several hits', async () => {
+			const configPath = await writeConfig({ schema_version: 1, projects: [] })
+			searchObjectsMock.mockResolvedValue([adam, ada])
+			getUserMock.mockResolvedValue(ada)
+
+			await addBySearch(configPath, '--search', 'ADA@example.com')
+
+			expect(getUserMock).toHaveBeenCalledWith('100')
+		})
+
+		it('refuses to guess between several hits and lists them', async () => {
+			const configPath = await writeConfig({ schema_version: 1, projects: [] })
+			searchObjectsMock.mockResolvedValue([ada, adam])
+
+			await expect(addBySearch(configPath, '--search', 'ad')).rejects.toThrow(
+				/"ad" matches 2 users.*100 \(Ada Lovelace, ada@example.com\).*200 \(Adam Smith, adam@example.com\).*config add-user <user-gid>/s,
+			)
+			expect(getUserMock).not.toHaveBeenCalled()
+			expect(JSON.parse(await readFile(configPath, 'utf8')).users).toBeUndefined()
+		})
+
+		it('reports when nobody matches', async () => {
+			const configPath = await writeConfig({ schema_version: 1, projects: [] })
+			searchObjectsMock.mockResolvedValue([])
+
+			await expect(addBySearch(configPath, '--search', 'zed')).rejects.toThrow('No user matches "zed"')
+		})
+
+		it('requires either a user GID or --search, not both', async () => {
+			const configPath = await writeConfig({ schema_version: 1, projects: [] })
+
+			await expect(addBySearch(configPath)).rejects.toThrow('Pass a <user-gid> or --search <query>')
+			await expect(addBySearch(configPath, '100', '--search', 'ada')).rejects.toThrow(
+				'Pass a <user-gid> or --search <query>, not both',
+			)
+		})
 	})
 })
