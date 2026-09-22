@@ -32,6 +32,11 @@ cyber-asana membership delete <gid>
 rejects any other combination, so the CLI reports it as a usage error before calling the
 API. `--member-gid` on its own narrows a parent's memberships to one person or team.
 
+`list` returns `gid`, `member.name`, and `access_level` by default. The person or team sits
+under `member`, not `user`, so `--opt-fields` paths must start with `member.`: ask for
+`member.name`, not `user.name`. Asana silently ignores a field the resource does not have,
+so `--opt-fields user.name,user.email` returns rows with nothing but a `gid`.
+
 Access levels depend on the parent: projects and goals accept `admin`, `editor`,
 `commenter`, and `viewer`; portfolios accept `admin`, `editor`, and `viewer`. The value is
 passed through to Asana, which rejects a level the parent does not support.
