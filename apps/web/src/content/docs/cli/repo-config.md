@@ -34,6 +34,7 @@ cyber-asana config show
 
 cyber-asana config add-user <user-gid> --alias ali    # store name + email, plus an alias
 cyber-asana config add-user --search "Ada" --alias ali  # find the GID by typeahead first
+cyber-asana config remove-alias ali,al                # drop aliases, keep the user
 cyber-asana config resolve-user ali --json            # local lookup, no API call
 cyber-asana config list-users
 ```
@@ -48,6 +49,7 @@ cyber-asana config list-users
 | `remove` | `<gid-or-name>` | Remove an entry by GID or name |
 | `sync` | — | Refresh all cached project names, and user names and emails, from Asana |
 | `add-user` | `<user-gid>` or `--search <query>`, `[--alias <alias>...]` | Add or update a user, fetching name and email from Asana; aliases accumulate. Repeat `--alias` or pass a comma-separated list (`--alias ali,al`). `--search` needs a workspace (`--workspace-gid` or `ASANA_WORKSPACE`) |
+| `remove-alias` | `<alias...>` | Remove aliases from whichever users own them; pass several or a comma-separated list. Fails without changing anything if an alias is not registered |
 | `resolve-user` | `<query>` | Resolve a GID, alias, email, or name to a user, no API call |
 | `list-users` | — | Print registered users |
 | `remove-user` | `<query>` | Remove the user a GID, alias, email, or name resolves to |

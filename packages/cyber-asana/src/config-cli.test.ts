@@ -220,6 +220,23 @@ describe('config/cli', () => {
 		expect(JSON.parse(await readFile(configPath, 'utf8')).users).toEqual([])
 	})
 
+	it('remove-alias drops aliases, repeated or comma-separated, without calling getUser', async () => {
+		const configPath = await writeConfig({
+			schema_version: 1,
+			projects: [],
+			users: [{ gid: '100', name: 'Alice Anderson', aliases: ['ali', 'al', 'aa', 'a'] }],
+		})
+
+		process.argv = ['node', 'test', '--json']
+		await (await userProgram()).parseAsync(
+			['node', 'test', 'config', 'remove-alias', 'al,aa', 'A', '--config', configPath],
+			{ from: 'node' },
+		)
+
+		expect(getUserMock).not.toHaveBeenCalled()
+		expect(JSON.parse(await readFile(configPath, 'utf8')).users[0].aliases).toEqual(['ali'])
+	})
+
 	it('sync refreshes user names and emails via getUser', async () => {
 		const configPath = await writeConfig({
 			schema_version: 1,
