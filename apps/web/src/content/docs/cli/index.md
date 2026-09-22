@@ -97,6 +97,14 @@ page is available.
 Each list command requests a small default field set — task lists ask for only
 `gid,name,completed,due_on` — so responses stay cheap. Pass `--opt-fields` to widen.
 
+`get` commands (and `user me`) take `--opt-fields` as well, to ask for fields Asana leaves
+out of a single-resource read. Without it, a `get` returns the same fields as before.
+`membership get` is the exception, because Asana's endpoint takes no `opt_fields`.
+
+```sh
+cyber-asana section get <gid> --opt-fields name,project.name,created_at
+```
+
 ## Output conventions
 
 - **Definitive empty states** — an empty result names what was empty (`0 tasks found`),

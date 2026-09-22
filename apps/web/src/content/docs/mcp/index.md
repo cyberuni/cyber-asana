@@ -145,6 +145,7 @@ Default: if both can do the job, prefer **official for discovery and previews** 
 | `url` | `asana_url_parse` (no API call; extracts GIDs from Asana app URLs) |
 
 List tools accept `limit`, `offset`, `opt_fields`, `fetch_all`, and `max_pages` where Asana supports them.
+Single-resource reads (`asana_<resource>_get` and `asana_user_me`) accept `opt_fields` too; leaving it out returns the same fields as before. `asana_membership_get` is the exception, because Asana's endpoint takes no `opt_fields`.
 
 ### Notable Parameters
 
