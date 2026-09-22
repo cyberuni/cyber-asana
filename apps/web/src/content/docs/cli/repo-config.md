@@ -47,7 +47,7 @@ cyber-asana config list-users
 | `add` | `<project-gid>` | Add or update an entry, fetching the name from Asana |
 | `remove` | `<gid-or-name>` | Remove an entry by GID or name |
 | `sync` | — | Refresh all cached project names, and user names and emails, from Asana |
-| `add-user` | `<user-gid>` or `--search <query>`, `[--alias <alias>...]` | Add or update a user, fetching name and email from Asana; aliases accumulate. `--search` needs a workspace (`--workspace-gid` or `ASANA_WORKSPACE`) |
+| `add-user` | `<user-gid>` or `--search <query>`, `[--alias <alias>...]` | Add or update a user, fetching name and email from Asana; aliases accumulate. Repeat `--alias` or pass a comma-separated list (`--alias ali,al`). `--search` needs a workspace (`--workspace-gid` or `ASANA_WORKSPACE`) |
 | `resolve-user` | `<query>` | Resolve a GID, alias, email, or name to a user, no API call |
 | `list-users` | — | Print registered users |
 | `remove-user` | `<query>` | Remove the user a GID, alias, email, or name resolves to |

@@ -29,8 +29,13 @@ type ConfigCliOptions = {
 	config?: string
 }
 
-function collectOption(value: string, previous: string[]) {
-	return [...previous, value]
+/** Accept `--alias a,b` as well as a repeated `--alias`; blank pieces are dropped. */
+function collectAliases(value: string, previous: string[]) {
+	const aliases = value
+		.split(',')
+		.map((alias) => alias.trim())
+		.filter((alias) => alias.length > 0)
+	return [...previous, ...aliases]
 }
 
 function configPathFromOpts(opts: ConfigCliOptions): string | undefined {
@@ -318,7 +323,7 @@ export function configCommand(getProjects: () => ProjectApi, getUsers?: () => Us
 			.command('add-user [user-gid]')
 			.description('Add or update a user entry (fetches name and email from Asana)')
 			.option('--search <query>', 'Find the user by name or email (typeahead) instead of passing a GID')
-			.option('--alias <alias>', 'Alias to resolve to this user (repeatable)', collectOption, [])
+			.option('--alias <alias>', 'Alias to resolve to this user (repeatable or comma-separated)', collectAliases, [])
 			.option('--config <path>', 'Config file path (overrides CYBER_ASANA_CONFIG)'),
 		'workspace',
 		'Workspace GID for --search',

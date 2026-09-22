@@ -151,6 +151,19 @@ describe('config/cli', () => {
 		])
 	})
 
+	it('add-user splits a comma-separated --alias into several aliases', async () => {
+		const configPath = await writeConfig({ schema_version: 1, projects: [] })
+		getUserMock.mockResolvedValue({ gid: '100', name: 'Alice Anderson', email: 'alice@example.com' })
+
+		process.argv = ['node', 'test', '--json']
+		await (await userProgram()).parseAsync(
+			['node', 'test', 'config', 'add-user', '100', '--alias', 'ali, aa,', '--alias', 'al', '--config', configPath],
+			{ from: 'node' },
+		)
+
+		expect(JSON.parse(await readFile(configPath, 'utf8')).users[0].aliases).toEqual(['ali', 'aa', 'al'])
+	})
+
 	it('resolve-user looks up an alias without calling getUser', async () => {
 		const configPath = await writeConfig({
 			schema_version: 1,
