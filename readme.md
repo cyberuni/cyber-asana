@@ -476,7 +476,7 @@ Tools are named `asana_<resource>_<action>` (e.g. `asana_task_create`).
 List tools accept `limit`, `offset`, `opt_fields`, `fetch_all`, and `max_pages` where Asana supports them.
 Single-resource reads (`asana_<resource>_get` and `asana_user_me`) accept `opt_fields` too; leaving it out returns the same fields as before. `asana_membership_get` is the exception, because Asana's endpoint takes no `opt_fields`.
 Paginated responses include `data`, `next_page`, and `limit`; fetch-all responses also include `page_count` and `truncated`.
-`asana_user_list` omits `limit`; search tools are not paginated.
+Search tools are not paginated.
 
 Notable parameters:
 

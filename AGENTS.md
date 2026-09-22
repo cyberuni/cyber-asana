@@ -138,7 +138,7 @@ MCP list tools use `paginationParams` / `paginationOptions(params)` from `src/mc
 - Schemas: use Zod (`z.string()`, `z.string().optional()`) for all parameters
 - Return: `{ content: [{ type: 'text', text: JSON.stringify(result) }] }`
 - Registrations live in each domain's `mcp.ts`; wired via `registerMcpTools` in `src/composition.ts`
-- List tools spread `paginationParams` from `src/mcp-options.ts` (see **Pagination** above); `asana_user_list` uses `paginationParamsWithoutLimit` (no `limit`)
+- List tools spread `paginationParams` from `src/mcp-options.ts` (see **Pagination** above)
 
 Reference (load on demand, not duplicated here):
 

@@ -9,11 +9,6 @@ export const paginationParams = {
 	max_pages: z.number().int().min(1).optional().describe('Maximum pages to fetch when fetch_all is true'),
 }
 
-export const paginationParamsWithoutLimit = {
-	offset: paginationParams.offset,
-	opt_fields: paginationParams.opt_fields,
-}
-
 export function paginationOptions(params: {
 	limit?: number
 	offset?: string

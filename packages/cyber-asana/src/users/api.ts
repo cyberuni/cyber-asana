@@ -7,7 +7,7 @@ export type UserApi = ReturnType<typeof createUserApi>
 
 export function createUserApi(gateway: UserGateway) {
 	return {
-		listUsers(workspaceGid: string, opts?: Omit<PaginationOptions, 'limit' | 'fetchAll' | 'maxPages'>) {
+		listUsers(workspaceGid: string, opts?: PaginationOptions) {
 			return gateway.listUsers(workspaceGid, opts)
 		},
 		getUser(userGid: string, opts?: ReadOptions) {
@@ -23,10 +23,7 @@ function defaultUserApi() {
 	return createUserApi(createAsanaUserGateway(createClient()))
 }
 
-export async function listUsers(
-	workspaceGid: string,
-	opts?: Omit<PaginationOptions, 'limit' | 'fetchAll' | 'maxPages'>,
-) {
+export async function listUsers(workspaceGid: string, opts?: PaginationOptions) {
 	return defaultUserApi().listUsers(workspaceGid, opts)
 }
 

@@ -19,16 +19,16 @@ cyber-asana user get <gid>
 | Command | Arguments | Options |
 | --- | --- | --- |
 | `me` | — | — |
-| `list` | — | `--workspace-gid <gid>` / `--workspace <gid>`, `--offset`, `--opt-fields` |
+| `list` | — | `--workspace-gid <gid>` / `--workspace <gid>`, plus the [pagination options](/cyber-asana/cli/#pagination) |
 | `get` | `<gid>` | — |
 
 `user me` returns the authenticated user — the quickest way to confirm your token works and
 to get your own GID for `--assignee`.
 
-:::note
-`user list` does not support `--limit`, `--all`, or `--max-pages`. Asana's user endpoint
-fixes the page size, so only `--offset` and `--opt-fields` apply.
-:::
+`user list` pages through Asana's `GET /users?workspace=` endpoint, sorted by user ID, so it
+works on workspaces with tens of thousands of members. To assign work by name without paging
+at all, register the people you assign to once with
+[`config add-user`](/cyber-asana/cli/repo-config/#assigning-by-name).
 
 ## Teams
 
