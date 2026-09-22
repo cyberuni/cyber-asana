@@ -1,3 +1,6 @@
+import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 const createTaskMock = vi.fn()
@@ -301,5 +304,83 @@ describe('tasks/mcp', () => {
 		})
 
 		expect(injectedCreateTask).toHaveBeenCalledWith('ws1', 'New Task', {})
+	})
+
+	describe('assignee resolves through the repo user registry', () => {
+		let dir: string | undefined
+		const previousConfig = process.env.CYBER_ASANA_CONFIG
+
+		async function useRegistry() {
+			dir = await mkdtemp(join(tmpdir(), 'cyber-asana-mcp-assignee-'))
+			const path = join(dir, 'config.json')
+			await writeFile(
+				path,
+				JSON.stringify({
+					schema_version: 1,
+					projects: [],
+					users: [{ gid: '100', name: 'Alice Anderson', email: 'alice@example.com', aliases: ['ali'] }],
+				}),
+			)
+			process.env.CYBER_ASANA_CONFIG = path
+		}
+
+		afterEach(async () => {
+			if (previousConfig === undefined) delete process.env.CYBER_ASANA_CONFIG
+			else process.env.CYBER_ASANA_CONFIG = previousConfig
+			if (dir) await rm(dir, { recursive: true, force: true })
+			dir = undefined
+		})
+
+		it('asana_task_create resolves an alias', async () => {
+			await useRegistry()
+			createTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
+			const server = createServer()
+			registerTaskTools(server as any)
+
+			await server.handlers.get('asana_task_create')?.({ workspace_gid: 'ws1', name: 'Task', assignee: 'ali' })
+
+			expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { assignee: '100' })
+		})
+
+		it('asana_task_update resolves an email', async () => {
+			await useRegistry()
+			updateTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
+			const server = createServer()
+			registerTaskTools(server as any)
+
+			await server.handlers.get('asana_task_update')?.({ task_gid: '123', assignee: 'alice@example.com' })
+
+			expect(updateTaskMock).toHaveBeenCalledWith('123', { assignee: '100' })
+		})
+
+		it('asana_task_subtask_create resolves a name', async () => {
+			await useRegistry()
+			createSubtaskMock.mockResolvedValue({ gid: '2', name: 'Sub' })
+			const server = createServer()
+			registerTaskTools(server as any)
+
+			await server.handlers.get('asana_task_subtask_create')?.({
+				task_gid: '1',
+				name: 'Sub',
+				assignee: 'Alice Anderson',
+			})
+
+			expect(createSubtaskMock).toHaveBeenCalledWith('1', 'Sub', { assignee: '100' })
+		})
+
+		it('assignee_gid wins over assignee and skips the registry', async () => {
+			createTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
+			const server = createServer()
+			registerTaskTools(server as any)
+
+			await server.handlers.get('asana_task_create')?.({
+				workspace_gid: 'ws1',
+				name: 'Task',
+				assignee_gid: '555',
+				assignee: 'not-registered',
+			})
+
+			expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { assignee: '555' })
+		})
 	})
 })

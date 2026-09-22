@@ -168,12 +168,14 @@ Prefer **`create-asana-task`** over ad-hoc `asana_task_create` calls so agents r
 
 ### Repo project registry
 
-Agents and MCP tools can resolve human-readable project names without an API call. Commit a name → GID map at [`.agents/cyber-asana.json`](.agents/cyber-asana.json.example) (see example). Workspace GID stays in `ASANA_WORKSPACE_GID` — not in this file ([ADR](docs/adr/0001-no-workspace-gid-in-repo-config.md)).
+Agents and MCP tools can resolve human-readable project and user names without an API call. Commit a name → GID map at [`.agents/cyber-asana.json`](.agents/cyber-asana.json.example) (see example). Workspace GID stays in `ASANA_WORKSPACE_GID` — not in this file ([ADR](docs/adr/0001-no-workspace-gid-in-repo-config.md)).
 
 ```sh
 cyber-asana config add <project-gid>              # seed or update an entry
 cyber-asana config resolve-project "Backend" --json  # local lookup, no API
 cyber-asana config sync                           # refresh cached names from Asana
+cyber-asana config add-user <user-gid> --alias ali  # register a user for --assignee ali
+cyber-asana config resolve-user ali --json        # local lookup, no API
 cyber-asana config show
 ```
 
@@ -486,7 +488,7 @@ Notable parameters:
 - `asana_task_list`, `asana_task_my_tasks`, `asana_task_subtask_list` — `incomplete: true` filters to incomplete tasks
 - `asana_task_subtask_list` — `assignee_email`, `follower_emails`, `num_subtasks`, `custom_fields` expand returned fields
 - `asana_task_create` — `project_gid`, `project_gids`, `follower_gids`, `html_notes`, `completed`, `due_on`, `due_at`, `start_on`, `start_at`, `parent_gid`, `resource_subtype`, `custom_fields`
-- `asana_task_update` — `html_notes`, `due_on` / `clear_due_on`, `due_at` / `clear_due_at`, `start_on` / `clear_start_on`, `start_at` / `clear_start_at`, `assignee_gid` / `clear_assignee`, `parent_gid`, `clear_parent`, `resource_subtype`, `custom_fields`
+- `asana_task_update` — `html_notes`, `due_on` / `clear_due_on`, `due_at` / `clear_due_at`, `start_on` / `clear_start_on`, `start_at` / `clear_start_at`, `assignee_gid` / `assignee` (alias, email, or name from the repo registry) / `clear_assignee`, `parent_gid`, `clear_parent`, `resource_subtype`, `custom_fields`
 - `asana_task_subtask_create` — takes the same write fields as `asana_task_create`; the parent and its workspace come from `task_gid`
 - `asana_task_follower_add` / `asana_task_follower_remove` — manage followers on existing tasks
 - `asana_goal_create` — `notes` or `html_notes` (mutually exclusive), `due_on`, `start_on` (Asana requires an accompanying due date)

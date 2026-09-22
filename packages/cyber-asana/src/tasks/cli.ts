@@ -12,6 +12,7 @@ import {
 } from '../cli-options.js'
 import { deleteIdempotently, deleteMessage } from '../idempotent-delete.js'
 import { output, printEmpty, printFields, printNextSteps, printSummary, printTable } from '../output.js'
+import { resolveAssignee } from '../repo-config.js'
 import { isFull, truncate } from '../truncate.js'
 import {
 	addDependencies,
@@ -41,6 +42,23 @@ import {
 	updateTask,
 } from './api.js'
 import { buildTaskCreateFields, buildTaskUpdateFields } from './write-options.js'
+
+const ASSIGNEE_FLAG = '--assignee <user>'
+const ASSIGNEE_DESCRIPTION = 'Assignee: user GID, "me", or an alias, email, or name registered with config add-user'
+
+function addAssigneeOptions<T extends Command>(cmd: T) {
+	return addGidOption(cmd, 'assignee', 'Assignee user GID', { legacyAlias: false }).option(
+		ASSIGNEE_FLAG,
+		ASSIGNEE_DESCRIPTION,
+	)
+}
+
+/** `--assignee-gid` is taken as-is; `--assignee` may name a user in the repo registry. */
+async function assigneeFromCli(opts: { assignee?: string; assigneeGid?: string }) {
+	if (opts.assigneeGid) return opts.assigneeGid
+	if (opts.assignee) return resolveAssignee(opts.assignee)
+	return undefined
+}
 
 function resolveTaskApi(api?: TaskApi | (() => TaskApi)): TaskApi {
 	if (typeof api === 'function') return api()
@@ -255,7 +273,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 			})
 		})
 
-	addGidOption(
+	addAssigneeOptions(
 		addGidOption(
 			addGidOption(
 				addGidOption(cmd.command('create <name>').description('Create a new task'), 'workspace', 'Workspace GID', {
@@ -267,8 +285,6 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 			'parent',
 			'Parent task GID',
 		),
-		'assignee',
-		'Assignee user GID',
 	)
 		.option('--notes <text>', 'Task notes')
 		.option('--html-notes <html>', 'Task notes as HTML')
@@ -313,7 +329,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 						notes: opts.notes,
 						htmlNotes: opts.htmlNotes,
 						completed: opts.completed,
-						assignee: normalizedGid(opts, 'assignee'),
+						assignee: await assigneeFromCli(opts),
 						projectInput: opts.projectGid ?? opts.project,
 						followerInput: opts.follower,
 						dueOn: opts.dueOn,
@@ -336,7 +352,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 			},
 		)
 
-	addGidOption(
+	addAssigneeOptions(
 		addGidOption(
 			cmd
 				.command('update <gid>')
@@ -361,8 +377,6 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 			'parent',
 			'Parent task GID',
 		),
-		'assignee',
-		'Assignee user GID',
 	).action(
 		async (
 			gid: string,
@@ -405,7 +419,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 					clearStartOn: opts.clearStartOn,
 					startAt: opts.startAt,
 					clearStartAt: opts.clearStartAt,
-					assignee: normalizedGid(opts, 'assignee'),
+					assignee: await assigneeFromCli(opts),
 					clearAssignee: opts.clearAssignee,
 					parent: normalizedGid(opts, 'parent'),
 					clearParent: opts.clearParent,
@@ -474,7 +488,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 		},
 	)
 
-	addGidOption(
+	addAssigneeOptions(
 		subtaskCmd
 			.command('create <task-gid> <name>')
 			.description('Create a subtask under a task')
@@ -489,8 +503,6 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 			.option('--follower <gid[,gid...]>', 'Follower user GIDs')
 			.option('--custom-fields-json <json>', 'Custom field values as a JSON object')
 			.option('--custom-field <gid=value>', 'Custom field value override', collectOption, []),
-		'assignee',
-		'Assignee user GID',
 	).action(
 		async (
 			taskGid: string,
@@ -518,7 +530,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 					notes: opts.notes,
 					htmlNotes: opts.htmlNotes,
 					completed: opts.completed,
-					assignee: normalizedGid(opts, 'assignee'),
+					assignee: await assigneeFromCli(opts),
 					followerInput: opts.follower,
 					dueOn: opts.dueOn,
 					dueAt: opts.dueAt,

@@ -1,6 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import { paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
+import { resolveAssignee } from '../repo-config.js'
 import {
 	addDependencies,
 	addDependents,
@@ -27,6 +28,13 @@ import {
 	updateTask,
 } from './api.js'
 import { buildTaskCreateFields, buildTaskUpdateFields, parseGidList } from './write-options.js'
+
+/** `assignee_gid` is taken as-is; `assignee` may name a user in the repo registry. */
+async function assigneeFromParams(assigneeGid?: string, assignee?: string) {
+	if (assigneeGid) return assigneeGid
+	if (assignee) return resolveAssignee(assignee)
+	return undefined
+}
 
 function resolveTaskApi(api?: TaskApi | (() => TaskApi)): TaskApi {
 	if (typeof api === 'function') return api()
@@ -184,6 +192,12 @@ When setting notes, prefer html_notes over notes to preserve rich formatting (he
 				.optional()
 				.describe('Start date and time (ISO 8601 UTC); Asana requires a due time alongside it'),
 			assignee_gid: z.string().optional().describe('Assignee user GID'),
+			assignee: z
+				.string()
+				.optional()
+				.describe(
+					'Assignee as a user GID, "me", or an alias, email, or name registered with `cyber-asana config add-user` (resolved from the repo config, no API call). assignee_gid wins when both are set.',
+				),
 			follower_gids: z
 				.union([z.array(z.string()), z.string()])
 				.optional()
@@ -202,6 +216,7 @@ When setting notes, prefer html_notes over notes to preserve rich formatting (he
 			start_on,
 			start_at,
 			assignee_gid,
+			assignee,
 			follower_gids,
 			resource_subtype,
 			custom_fields,
@@ -217,7 +232,7 @@ When setting notes, prefer html_notes over notes to preserve rich formatting (he
 								notes,
 								htmlNotes: html_notes,
 								completed,
-								assignee: assignee_gid,
+								assignee: await assigneeFromParams(assignee_gid, assignee),
 								followerGids: typeof follower_gids === 'string' ? parseGidList(follower_gids) : follower_gids,
 								dueOn: due_on,
 								dueAt: due_at,
@@ -280,6 +295,12 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 				.optional()
 				.describe('Follower user GIDs'),
 			assignee_gid: z.string().optional().describe('Assignee user GID'),
+			assignee: z
+				.string()
+				.optional()
+				.describe(
+					'Assignee as a user GID, "me", or an alias, email, or name registered with `cyber-asana config add-user` (resolved from the repo config, no API call). assignee_gid wins when both are set.',
+				),
 			notes: z.string().optional().describe('Task notes'),
 			html_notes: z
 				.string()
@@ -306,6 +327,7 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 			project_gids,
 			follower_gids,
 			assignee_gid,
+			assignee,
 			notes,
 			html_notes,
 			completed,
@@ -328,7 +350,7 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 								notes,
 								htmlNotes: html_notes,
 								completed,
-								assignee: assignee_gid,
+								assignee: await assigneeFromParams(assignee_gid, assignee),
 								projectGids: project_gids ?? parseGidList(project_gid),
 								followerGids: typeof follower_gids === 'string' ? parseGidList(follower_gids) : follower_gids,
 								dueOn: due_on,
@@ -376,6 +398,12 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 				.describe('Start date and time (ISO 8601 UTC); Asana requires a due time alongside it'),
 			clear_start_at: z.boolean().optional().describe('Clear the start date and time'),
 			assignee_gid: z.string().optional().describe('Assignee user GID'),
+			assignee: z
+				.string()
+				.optional()
+				.describe(
+					'Assignee as a user GID, "me", or an alias, email, or name registered with `cyber-asana config add-user` (resolved from the repo config, no API call). assignee_gid wins when both are set.',
+				),
 			clear_assignee: z.boolean().optional().describe('Unassign the task'),
 			parent_gid: z.string().optional().describe('Parent task GID'),
 			clear_parent: z.boolean().optional().describe('Remove the parent task relationship'),
@@ -397,6 +425,7 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 			start_at,
 			clear_start_at,
 			assignee_gid,
+			assignee,
 			clear_assignee,
 			parent_gid,
 			clear_parent,
@@ -422,7 +451,7 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 								clearStartOn: clear_start_on,
 								startAt: start_at,
 								clearStartAt: clear_start_at,
-								assignee: assignee_gid,
+								assignee: await assigneeFromParams(assignee_gid, assignee),
 								clearAssignee: clear_assignee,
 								parent: parent_gid,
 								clearParent: clear_parent,

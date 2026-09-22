@@ -21,7 +21,7 @@ All three are required before `asana_task_create`. Infer when possible; ask if a
 | `workspace_gid` | `ASANA_WORKSPACE` env, Asana URL parse, or explicit GID — **not** repo config |
 | `project_gid` | Asana URL parse, explicit GID, repo config, or project search |
 
-Optional: `notes`, `due_on`, `assignee_gid`, `parent_gid`, `follower_gids`, `html_notes`, `custom_fields`.
+Optional: `notes`, `due_on`, `assignee_gid` or `assignee`, `parent_gid`, `follower_gids`, `html_notes`, `custom_fields`.
 
 Do **not** use section APIs unless the user explicitly names a section, column, or list **by name**.
 
@@ -45,6 +45,10 @@ If `kind` is `unknown` or GIDs are missing, fall back to other resolution paths.
 
 - **Lazy:** when an API result already includes `{ gid, name }` for a project in the registry, the CLI/MCP layer may update the cached name automatically.
 - **Explicit:** `cyber-asana config sync` reconciles all cached names with Asana.
+
+#### Assignee named by a person
+
+When the user names an assignee ("assign it to Ali"), pass the name as `assignee` (CLI: `--assignee`) — it resolves against the repo user registry with no API call. Use `assignee_gid` only for a literal GID. If the name is not registered, the call fails and names the fix: `cyber-asana config add-user <user-gid> --alias <alias>`. If it matches more than one user, ask which one rather than guessing.
 
 ### 3. Create the task
 
