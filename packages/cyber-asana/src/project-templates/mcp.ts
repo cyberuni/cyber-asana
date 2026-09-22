@@ -1,7 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import { DEFAULT_JOB_POLL_INTERVAL_MS } from '../job-polling.js'
-import { paginationOptions, paginationParams } from '../mcp-options.js'
+import { paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
 import type { ProjectTemplateApi } from './api.js'
 import {
 	DEFAULT_INSTANTIATE_TIMEOUT_SECONDS,
@@ -47,12 +47,14 @@ export function registerProjectTemplateTools(server: McpServer, api?: ProjectTem
 	server.tool(
 		'asana_project_template_get',
 		'Get an Asana project template by GID. Its requested_dates are the date variables instantiation can fill in',
-		{ project_template_gid: z.string().describe('Project template GID') },
-		async ({ project_template_gid }) => ({
+		{ project_template_gid: z.string().describe('Project template GID'), ...readParams },
+		async ({ project_template_gid, ...params }) => ({
 			content: [
 				{
 					type: 'text',
-					text: JSON.stringify(await resolveProjectTemplateApi(api).getProjectTemplate(project_template_gid)),
+					text: JSON.stringify(
+						await resolveProjectTemplateApi(api).getProjectTemplate(project_template_gid, readOptions(params)),
+					),
 				},
 			],
 		}),

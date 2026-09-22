@@ -66,7 +66,7 @@ describe('task-templates/cli', () => {
 
 		await run(api, ['get', 'tt1'])
 
-		expect(api.getTaskTemplate).toHaveBeenCalledWith('tt1')
+		expect(api.getTaskTemplate).toHaveBeenCalledWith('tt1', undefined)
 		const lines = logSpy.mock.calls.map((c) => String(c[0]))
 		expect(lines.some((l) => l.includes('Release checklist'))).toBe(true)
 		expect(lines.some((l) => l.includes('Platform'))).toBe(true)

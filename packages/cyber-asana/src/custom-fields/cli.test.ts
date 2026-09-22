@@ -91,7 +91,7 @@ describe('custom-fields/cli', () => {
 
 		await program.parseAsync(['node', 'test', 'custom-field', 'get', 'cf1'], { from: 'node' })
 
-		expect(getCustomFieldMock).toHaveBeenCalledWith('cf1')
+		expect(getCustomFieldMock).toHaveBeenCalledWith('cf1', undefined)
 		const logged = logSpy.mock.calls.map((c) => String(c[0])).join('\n')
 		expect(logged).toContain('Priority')
 		expect(logged).toContain('enum')
@@ -127,7 +127,7 @@ describe('custom-fields/cli', () => {
 
 		await program.parseAsync(['node', 'test', 'custom-field', 'get', 'cf1'], { from: 'node' })
 
-		expect(injectedGetCustomField).toHaveBeenCalledWith('cf1')
+		expect(injectedGetCustomField).toHaveBeenCalledWith('cf1', undefined)
 	})
 })
 

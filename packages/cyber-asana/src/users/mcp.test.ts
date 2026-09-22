@@ -57,7 +57,7 @@ describe('users/mcp', () => {
 
 		await server.handlers.get('asana_user_get')?.({ user_gid: 'user1' })
 
-		expect(getUserMock).toHaveBeenCalledWith('user1')
+		expect(getUserMock).toHaveBeenCalledWith('user1', undefined)
 	})
 
 	it('asana_user_me calls getMe', async () => {
@@ -67,7 +67,7 @@ describe('users/mcp', () => {
 
 		await server.handlers.get('asana_user_me')?.({})
 
-		expect(getMeMock).toHaveBeenCalledWith()
+		expect(getMeMock).toHaveBeenCalledWith(undefined)
 	})
 
 	it('user tools can use injected dependencies', async () => {
@@ -81,6 +81,6 @@ describe('users/mcp', () => {
 
 		await server.handlers.get('asana_user_me')?.({})
 
-		expect(injectedGetMe).toHaveBeenCalledWith()
+		expect(injectedGetMe).toHaveBeenCalledWith(undefined)
 	})
 })

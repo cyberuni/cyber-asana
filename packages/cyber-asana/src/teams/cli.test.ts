@@ -55,7 +55,7 @@ describe('teams/cli', () => {
 
 		await program.parseAsync(['node', 'test', 'team', 'get', 'team1'], { from: 'node' })
 
-		expect(getTeamMock).toHaveBeenCalledWith('team1')
+		expect(getTeamMock).toHaveBeenCalledWith('team1', undefined)
 	})
 
 	it('team command can use injected dependencies', async () => {
@@ -69,6 +69,6 @@ describe('teams/cli', () => {
 
 		await program.parseAsync(['node', 'test', 'team', 'get', 'team1'], { from: 'node' })
 
-		expect(injectedGetTeam).toHaveBeenCalledWith('team1')
+		expect(injectedGetTeam).toHaveBeenCalledWith('team1', undefined)
 	})
 })

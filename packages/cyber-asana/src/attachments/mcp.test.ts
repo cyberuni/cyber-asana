@@ -62,7 +62,7 @@ describe('attachments/mcp', () => {
 
 		await server.handlers.get('asana_attachment_get')?.({ attachment_gid: 'att1' })
 
-		expect(getAttachmentMock).toHaveBeenCalledWith('att1')
+		expect(getAttachmentMock).toHaveBeenCalledWith('att1', undefined)
 	})
 
 	it('asana_attachment_list accepts a non-task parent gid', async () => {
@@ -135,7 +135,7 @@ describe('attachments/mcp', () => {
 
 		await server.handlers.get('asana_attachment_get')?.({ attachment_gid: 'att1' })
 
-		expect(injectedGetAttachment).toHaveBeenCalledWith('att1')
+		expect(injectedGetAttachment).toHaveBeenCalledWith('att1', undefined)
 	})
 	it('asana_attachment_create forwards connect_to_app', async () => {
 		createAttachmentMock.mockResolvedValue({ gid: 'att1', name: 'Design doc' })

@@ -1,4 +1,5 @@
 import { Command } from 'commander'
+import { addReadOptions, readOptionsFromCli } from '../cli-options.js'
 import type { Job } from '../job-polling.js'
 import { output, printFields, printNextSteps } from '../output.js'
 import type { JobApi } from './api.js'
@@ -49,11 +50,9 @@ export function jobCommand(api?: JobApi | (() => JobApi)) {
 		].join('\n'),
 	)
 
-	cmd
-		.command('get <gid>')
-		.description('Get an async job by GID')
-		.action(async (gid: string) => {
-			const data = await resolveJobApi(api).getJob(gid)
+	addReadOptions(cmd.command('get <gid>').description('Get an async job by GID')).action(
+		async (gid: string, opts: { optFields?: string }) => {
+			const data = await resolveJobApi(api).getJob(gid, readOptionsFromCli(opts))
 			output(data, () => {
 				fmtJob(data)
 				const result = jobResult(data)
@@ -63,7 +62,8 @@ export function jobCommand(api?: JobApi | (() => JobApi)) {
 						: [`cyber-asana job get ${gid} — poll again until the status is succeeded or failed`],
 				)
 			})
-		})
+		},
+	)
 
 	return cmd
 }

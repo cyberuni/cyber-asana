@@ -2,10 +2,12 @@ import { Command } from 'commander'
 import {
 	addGidOption,
 	addPaginationOptions,
+	addReadOptions,
 	itemsForOutput,
 	normalizedGid,
 	paginationOptionsFromCli,
 	printNextPageHint,
+	readOptionsFromCli,
 	requiredGid,
 } from '../cli-options.js'
 import { deleteIdempotently, deleteMessage } from '../idempotent-delete.js'
@@ -132,13 +134,12 @@ export function portfolioCommand(api?: PortfolioApi | (() => PortfolioApi)) {
 		},
 	)
 
-	cmd
-		.command('get <gid>')
-		.description('Get a portfolio by GID')
-		.action(async (gid: string) => {
-			const data = await resolvePortfolioApi(api).getPortfolio(gid)
+	addReadOptions(cmd.command('get <gid>').description('Get a portfolio by GID')).action(
+		async (gid: string, opts: { optFields?: string }) => {
+			const data = await resolvePortfolioApi(api).getPortfolio(gid, readOptionsFromCli(opts))
 			output(data, () => fmtPortfolio(data))
-		})
+		},
+	)
 
 	const createCmd = addGidOption(
 		cmd.command('create <name>').description('Create a portfolio'),

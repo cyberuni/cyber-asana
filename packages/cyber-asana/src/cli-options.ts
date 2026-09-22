@@ -3,6 +3,7 @@ import { envValue } from './env.js'
 import { selectFormat } from './output.js'
 import type { ListResult, PaginationOptions } from './pagination.js'
 import { listItems, nextPageOffset } from './pagination.js'
+import type { ReadOptions } from './read-options.js'
 
 export type PaginationCliOptions = {
 	limit?: number
@@ -53,6 +54,15 @@ export function paginationOptionsFromCli(opts: PaginationCliOptions): Pagination
 		fetchAll: opts.all,
 		maxPages: opts.maxPages,
 	}
+}
+
+/** `--opt-fields` for a singular `get` command — the read-side twin of `addPaginationOptions`. */
+export function addReadOptions<T extends Command>(cmd: T) {
+	return cmd.option('--opt-fields <fields>', 'Comma-separated optional Asana fields to include')
+}
+
+export function readOptionsFromCli(opts: { optFields?: string }): ReadOptions | undefined {
+	return opts.optFields ? { optFields: opts.optFields } : undefined
 }
 
 export function itemsForOutput<T = any>(result: ListResult<T>) {

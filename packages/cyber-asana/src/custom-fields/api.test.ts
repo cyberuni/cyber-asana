@@ -46,7 +46,7 @@ describe('createCustomFieldApi', () => {
 		const result = await api.getCustomField('cf1')
 
 		expect(result).toEqual(mockCustomField)
-		expect(mockGetCustomField).toHaveBeenCalledWith('cf1')
+		expect(mockGetCustomField).toHaveBeenCalledWith('cf1', undefined)
 	})
 })
 

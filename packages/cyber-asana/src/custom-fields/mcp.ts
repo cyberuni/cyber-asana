@@ -1,6 +1,6 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import { paginationOptions, paginationParams } from '../mcp-options.js'
+import { paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
 import type { CustomFieldApi } from './api.js'
 import {
 	getCustomField,
@@ -45,10 +45,13 @@ export function registerCustomFieldTools(server: McpServer, api?: CustomFieldApi
 	server.tool(
 		'asana_custom_field_get',
 		'Get an Asana custom field by GID, including its enum options and their GIDs',
-		{ custom_field_gid: z.string().describe('Custom field GID') },
-		async ({ custom_field_gid }) => ({
+		{ custom_field_gid: z.string().describe('Custom field GID'), ...readParams },
+		async ({ custom_field_gid, ...params }) => ({
 			content: [
-				{ type: 'text', text: JSON.stringify(await resolveCustomFieldApi(api).getCustomField(custom_field_gid)) },
+				{
+					type: 'text',
+					text: JSON.stringify(await resolveCustomFieldApi(api).getCustomField(custom_field_gid, readOptions(params))),
+				},
 			],
 		}),
 	)

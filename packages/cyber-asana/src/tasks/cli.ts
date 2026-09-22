@@ -2,10 +2,12 @@ import { Command } from 'commander'
 import {
 	addGidOption,
 	addPaginationOptions,
+	addReadOptions,
 	itemsForOutput,
 	normalizedGid,
 	paginationOptionsFromCli,
 	printNextPageHint,
+	readOptionsFromCli,
 	requiredGid,
 } from '../cli-options.js'
 import { deleteIdempotently, deleteMessage } from '../idempotent-delete.js'
@@ -212,11 +214,9 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 		},
 	)
 
-	cmd
-		.command('get <gid>')
-		.description('Get a task by GID')
-		.action(async (gid: string) => {
-			const data = await resolveTaskApi(api).getTask(gid)
+	addReadOptions(cmd.command('get <gid>').description('Get a task by GID')).action(
+		async (gid: string, opts: { optFields?: string }) => {
+			const data = await resolveTaskApi(api).getTask(gid, readOptionsFromCli(opts))
 			output(data, () => {
 				fmtTask(data)
 				printNextSteps([
@@ -224,7 +224,8 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 					`cyber-asana task subtask list ${gid} — list subtasks`,
 				])
 			})
-		})
+		},
+	)
 
 	cmd
 		.command('get-many <gids...>')

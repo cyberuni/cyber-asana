@@ -1,5 +1,6 @@
 import { createClient } from '../client.js'
 import type { PaginationOptions } from '../pagination.js'
+import type { ReadOptions } from '../read-options.js'
 import { createAsanaUserGateway, type UserGateway } from './gateway.js'
 
 export type UserApi = ReturnType<typeof createUserApi>
@@ -9,11 +10,11 @@ export function createUserApi(gateway: UserGateway) {
 		listUsers(workspaceGid: string, opts?: Omit<PaginationOptions, 'limit' | 'fetchAll' | 'maxPages'>) {
 			return gateway.listUsers(workspaceGid, opts)
 		},
-		getUser(userGid: string) {
-			return gateway.getUser(userGid)
+		getUser(userGid: string, opts?: ReadOptions) {
+			return gateway.getUser(userGid, opts)
 		},
-		getMe() {
-			return gateway.getMe()
+		getMe(opts?: ReadOptions) {
+			return gateway.getMe(opts)
 		},
 	}
 }
@@ -29,10 +30,10 @@ export async function listUsers(
 	return defaultUserApi().listUsers(workspaceGid, opts)
 }
 
-export async function getUser(userGid: string) {
-	return defaultUserApi().getUser(userGid)
+export async function getUser(userGid: string, opts?: ReadOptions) {
+	return defaultUserApi().getUser(userGid, opts)
 }
 
-export async function getMe() {
-	return defaultUserApi().getMe()
+export async function getMe(opts?: ReadOptions) {
+	return defaultUserApi().getMe(opts)
 }

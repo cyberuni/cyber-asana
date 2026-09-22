@@ -1,6 +1,7 @@
 import { createClient } from '../client.js'
 import { type Job, type WaitForJobOptions, waitForJob } from '../job-polling.js'
 import type { PaginationOptions } from '../pagination.js'
+import type { ReadOptions } from '../read-options.js'
 import { createAsanaTaskTemplateGateway, type InstantiateTaskFields, type TaskTemplateGateway } from './gateway.js'
 
 export type TaskTemplateApi = ReturnType<typeof createTaskTemplateApi>
@@ -10,8 +11,8 @@ export function createTaskTemplateApi(gateway: TaskTemplateGateway) {
 		listTaskTemplates(projectGid: string, opts?: PaginationOptions) {
 			return gateway.listTaskTemplates(projectGid, opts)
 		},
-		getTaskTemplate(taskTemplateGid: string) {
-			return gateway.getTaskTemplate(taskTemplateGid)
+		getTaskTemplate(taskTemplateGid: string, opts?: ReadOptions) {
+			return gateway.getTaskTemplate(taskTemplateGid, opts)
 		},
 		async instantiateTask(
 			taskTemplateGid: string,
@@ -32,8 +33,8 @@ export async function listTaskTemplates(projectGid: string, opts?: PaginationOpt
 	return defaultTaskTemplateApi().listTaskTemplates(projectGid, opts)
 }
 
-export async function getTaskTemplate(taskTemplateGid: string) {
-	return defaultTaskTemplateApi().getTaskTemplate(taskTemplateGid)
+export async function getTaskTemplate(taskTemplateGid: string, opts?: ReadOptions) {
+	return defaultTaskTemplateApi().getTaskTemplate(taskTemplateGid, opts)
 }
 
 export async function instantiateTask(

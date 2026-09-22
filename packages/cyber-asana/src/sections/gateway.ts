@@ -5,10 +5,11 @@ import {
 	type PaginationOptions,
 	toAsanaPaginationOptions,
 } from '../pagination.js'
+import { type ReadOptions, toAsanaReadOptions } from '../read-options.js'
 
 export type SectionGateway = {
 	listSections(projectGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
-	getSection(sectionGid: string): Promise<any>
+	getSection(sectionGid: string, opts?: ReadOptions): Promise<any>
 	createSection(projectGid: string, name: string, opts?: SectionPlacement): Promise<any>
 	updateSection(sectionGid: string, name: string): Promise<any>
 	deleteSection(sectionGid: string): Promise<void>
@@ -30,8 +31,8 @@ export function createAsanaSectionGateway(client: Asana.ApiClient): SectionGatew
 			const res = await sectionsApi.getSectionsForProject(projectGid, toAsanaPaginationOptions(opts))
 			return await collectListResponse(res, opts)
 		},
-		async getSection(sectionGid) {
-			const res = await sectionsApi.getSection(sectionGid, {})
+		async getSection(sectionGid, opts) {
+			const res = await sectionsApi.getSection(sectionGid, toAsanaReadOptions(opts))
 			return res.data
 		},
 		async createSection(projectGid, name, opts) {

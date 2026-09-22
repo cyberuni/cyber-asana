@@ -5,6 +5,7 @@ import {
 	type PaginationOptions,
 	toAsanaPaginationOptions,
 } from '../pagination.js'
+import { type ReadOptions, toAsanaReadOptions } from '../read-options.js'
 
 export type TaskCustomFields = Record<string, unknown>
 
@@ -118,7 +119,7 @@ export type TaskGateway = {
 		sectionGid: string,
 		opts?: PaginationOptions & { completedSince?: string },
 	): Promise<ListResult<any>>
-	getTask(taskGid: string): Promise<any>
+	getTask(taskGid: string, opts?: ReadOptions): Promise<any>
 	getTasksByGid(taskGids: string[], opts?: { optFields?: string }): Promise<TaskBatchLookupResult[]>
 	createTask(workspaceGid: string, name: string, opts?: CreateTaskFields): Promise<any>
 	updateTask(taskGid: string, fields: UpdateTaskFields): Promise<any>
@@ -163,6 +164,10 @@ function taskBatchAction(taskGid: string, optFields?: string): TaskBatchAction {
 
 const DEFAULT_DEP_FIELDS = 'gid,name,completed,due_on'
 
+/** Fields `task get` returns when the caller requests none. */
+const TASK_GET_FIELDS =
+	'gid,name,notes,html_notes,assignee,assignee.name,completed,completed_at,due_on,start_on,permalink_url,parent,parent.name,projects,projects.name,custom_fields,tags,tags.name,followers,followers.name,memberships,memberships.project,memberships.section,memberships.section.name,num_subtasks,resource_subtype,created_at,modified_at'
+
 export function createAsanaTaskGateway(client: Asana.ApiClient): TaskGateway {
 	const tasksApi = new Asana.TasksApi(client)
 	const batchApi = new Asana.BatchAPIApi(client)
@@ -183,11 +188,8 @@ export function createAsanaTaskGateway(client: Asana.ApiClient): TaskGateway {
 			})
 			return await collectListResponse(res, opts)
 		},
-		async getTask(taskGid) {
-			const res = await tasksApi.getTask(taskGid, {
-				opt_fields:
-					'gid,name,notes,html_notes,assignee,assignee.name,completed,completed_at,due_on,start_on,permalink_url,parent,parent.name,projects,projects.name,custom_fields,tags,tags.name,followers,followers.name,memberships,memberships.project,memberships.section,memberships.section.name,num_subtasks,resource_subtype,created_at,modified_at',
-			})
+		async getTask(taskGid, opts) {
+			const res = await tasksApi.getTask(taskGid, toAsanaReadOptions(opts, TASK_GET_FIELDS))
 			return res.data
 		},
 		async getTasksByGid(taskGids, opts) {

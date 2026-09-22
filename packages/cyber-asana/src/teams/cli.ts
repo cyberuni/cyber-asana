@@ -2,9 +2,11 @@ import { Command } from 'commander'
 import {
 	addGidOption,
 	addPaginationOptions,
+	addReadOptions,
 	itemsForOutput,
 	paginationOptionsFromCli,
 	printNextPageHint,
+	readOptionsFromCli,
 	requiredGid,
 } from '../cli-options.js'
 import { output, printCountSummary, printFields, printNextSteps, printTable } from '../output.js'
@@ -73,13 +75,12 @@ export function teamCommand(api?: TeamApi | (() => TeamApi)) {
 		},
 	)
 
-	cmd
-		.command('get <gid>')
-		.description('Get a team by GID')
-		.action(async (gid: string) => {
-			const data = await resolveTeamApi(api).getTeam(gid)
+	addReadOptions(cmd.command('get <gid>').description('Get a team by GID')).action(
+		async (gid: string, opts: { optFields?: string }) => {
+			const data = await resolveTeamApi(api).getTeam(gid, readOptionsFromCli(opts))
 			output(data, () => printFields({ Name: (data as Team).name, ID: (data as Team).gid }))
-		})
+		},
+	)
 
 	return cmd
 }

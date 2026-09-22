@@ -1,6 +1,6 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import { paginationOptions, paginationParams } from '../mcp-options.js'
+import { paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
 import {
 	createProject,
 	deleteProject,
@@ -58,9 +58,14 @@ export function registerProjectTools(server: McpServer, api?: ProjectApi | (() =
 	server.tool(
 		'asana_project_get',
 		'Get an Asana project by GID',
-		{ project_gid: z.string().describe('Project GID') },
-		async ({ project_gid }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await resolveProjectApi(api).getProject(project_gid)) }],
+		{ project_gid: z.string().describe('Project GID'), ...readParams },
+		async ({ project_gid, ...params }) => ({
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(await resolveProjectApi(api).getProject(project_gid, readOptions(params))),
+				},
+			],
 		}),
 	)
 

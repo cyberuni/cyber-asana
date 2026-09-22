@@ -1,5 +1,6 @@
 import { createClient } from '../client.js'
 import type { PaginationOptions } from '../pagination.js'
+import type { ReadOptions } from '../read-options.js'
 import { createAsanaSectionGateway, type SectionGateway, type SectionPlacement, type TaskPlacement } from './gateway.js'
 
 export type SectionApi = ReturnType<typeof createSectionApi>
@@ -9,8 +10,8 @@ export function createSectionApi(gateway: SectionGateway) {
 		listSections(projectGid: string, opts?: PaginationOptions) {
 			return gateway.listSections(projectGid, opts)
 		},
-		getSection(sectionGid: string) {
-			return gateway.getSection(sectionGid)
+		getSection(sectionGid: string, opts?: ReadOptions) {
+			return gateway.getSection(sectionGid, opts)
 		},
 		createSection(projectGid: string, name: string, opts?: SectionPlacement) {
 			return gateway.createSection(projectGid, name, opts)
@@ -38,8 +39,8 @@ export async function listSections(projectGid: string, opts?: PaginationOptions)
 	return defaultSectionApi().listSections(projectGid, opts)
 }
 
-export async function getSection(sectionGid: string) {
-	return defaultSectionApi().getSection(sectionGid)
+export async function getSection(sectionGid: string, opts?: ReadOptions) {
+	return defaultSectionApi().getSection(sectionGid, opts)
 }
 
 export async function createSection(projectGid: string, name: string, opts?: SectionPlacement) {

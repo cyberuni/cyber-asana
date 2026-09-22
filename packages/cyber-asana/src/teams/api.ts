@@ -1,5 +1,6 @@
 import { createClient } from '../client.js'
 import type { PaginationOptions } from '../pagination.js'
+import type { ReadOptions } from '../read-options.js'
 import { createAsanaTeamGateway, type TeamGateway } from './gateway.js'
 
 export type TeamApi = ReturnType<typeof createTeamApi>
@@ -9,8 +10,8 @@ export function createTeamApi(gateway: TeamGateway) {
 		listTeams(workspaceGid: string, opts?: PaginationOptions) {
 			return gateway.listTeams(workspaceGid, opts)
 		},
-		getTeam(teamGid: string) {
-			return gateway.getTeam(teamGid)
+		getTeam(teamGid: string, opts?: ReadOptions) {
+			return gateway.getTeam(teamGid, opts)
 		},
 	}
 }
@@ -23,6 +24,6 @@ export async function listTeams(workspaceGid: string, opts?: PaginationOptions) 
 	return defaultTeamApi().listTeams(workspaceGid, opts)
 }
 
-export async function getTeam(teamGid: string) {
-	return defaultTeamApi().getTeam(teamGid)
+export async function getTeam(teamGid: string, opts?: ReadOptions) {
+	return defaultTeamApi().getTeam(teamGid, opts)
 }

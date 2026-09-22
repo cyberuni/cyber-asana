@@ -62,7 +62,7 @@ describe('attachments/cli', () => {
 
 		await program.parseAsync(['node', 'test', 'attachment', 'get', 'att1'], { from: 'node' })
 
-		expect(getAttachmentMock).toHaveBeenCalledWith('att1')
+		expect(getAttachmentMock).toHaveBeenCalledWith('att1', undefined)
 	})
 
 	it('attachment list accepts a non-task parent gid', async () => {
@@ -131,7 +131,7 @@ describe('attachments/cli', () => {
 
 		await program.parseAsync(['node', 'test', 'attachment', 'get', 'att1'], { from: 'node' })
 
-		expect(injectedGetAttachment).toHaveBeenCalledWith('att1')
+		expect(injectedGetAttachment).toHaveBeenCalledWith('att1', undefined)
 	})
 	it('attachment create forwards --connect-to-app for a url attachment', async () => {
 		createAttachmentMock.mockResolvedValue({ gid: 'att1', name: 'Design doc' })

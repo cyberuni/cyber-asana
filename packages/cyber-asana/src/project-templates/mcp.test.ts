@@ -63,7 +63,7 @@ describe('project-templates/mcp', () => {
 
 		const result = await server.handlers.get('asana_project_template_get')?.({ project_template_gid: 'tpl1' })
 
-		expect(getProjectTemplateMock).toHaveBeenCalledWith('tpl1')
+		expect(getProjectTemplateMock).toHaveBeenCalledWith('tpl1', undefined)
 		expect(JSON.parse(result.content[0].text)).toEqual({ gid: 'tpl1', name: 'Client onboarding' })
 	})
 

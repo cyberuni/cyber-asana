@@ -54,7 +54,7 @@ describe('workspaces/cli', () => {
 
 		await program.parseAsync(['node', 'test', 'workspace', 'get', 'ws1'], { from: 'node' })
 
-		expect(getWorkspaceMock).toHaveBeenCalledWith('ws1')
+		expect(getWorkspaceMock).toHaveBeenCalledWith('ws1', undefined)
 	})
 
 	it('workspace command can use injected dependencies', async () => {
@@ -68,6 +68,6 @@ describe('workspaces/cli', () => {
 
 		await program.parseAsync(['node', 'test', 'workspace', 'get', 'ws1'], { from: 'node' })
 
-		expect(injectedGetWorkspace).toHaveBeenCalledWith('ws1')
+		expect(injectedGetWorkspace).toHaveBeenCalledWith('ws1', undefined)
 	})
 })

@@ -5,10 +5,11 @@ import {
 	type PaginationOptions,
 	toAsanaPaginationOptions,
 } from '../pagination.js'
+import { type ReadOptions, toAsanaReadOptions } from '../read-options.js'
 
 export type CustomFieldGateway = {
 	listCustomFields(workspaceGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
-	getCustomField(customFieldGid: string): Promise<any>
+	getCustomField(customFieldGid: string, opts?: ReadOptions): Promise<any>
 	listCustomFieldSettingsForProject(projectGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
 	listCustomFieldSettingsForPortfolio(portfolioGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
 	listCustomFieldSettingsForGoal(goalGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
@@ -24,8 +25,8 @@ export function createAsanaCustomFieldGateway(client: Asana.ApiClient): CustomFi
 			const res = await customFieldsApi.getCustomFieldsForWorkspace(workspaceGid, toAsanaPaginationOptions(opts))
 			return await collectListResponse(res, opts)
 		},
-		async getCustomField(customFieldGid) {
-			const res = await customFieldsApi.getCustomField(customFieldGid, {})
+		async getCustomField(customFieldGid, opts) {
+			const res = await customFieldsApi.getCustomField(customFieldGid, toAsanaReadOptions(opts))
 			return res.data
 		},
 		async listCustomFieldSettingsForProject(projectGid, opts) {

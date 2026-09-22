@@ -32,7 +32,7 @@ describe('jobs/cli', () => {
 
 		await program.parseAsync(['node', 'test', 'job', 'get', 'job1'], { from: 'node' })
 
-		expect(getJob).toHaveBeenCalledWith('job1')
+		expect(getJob).toHaveBeenCalledWith('job1', undefined)
 		const lines = logSpy.mock.calls.map((c) => String(c[0]))
 		expect(lines.some((l) => l.includes('succeeded'))).toBe(true)
 		expect(lines.some((l) => l.includes('proj1'))).toBe(true)
@@ -72,6 +72,6 @@ describe('jobs/cli', () => {
 
 		await program.parseAsync(['node', 'test', 'job', 'get', 'job1'], { from: 'node' })
 
-		expect(getJobMock).toHaveBeenCalledWith('job1')
+		expect(getJobMock).toHaveBeenCalledWith('job1', undefined)
 	})
 })

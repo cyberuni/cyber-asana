@@ -55,7 +55,7 @@ describe('teams/mcp', () => {
 
 		await server.handlers.get('asana_team_get')?.({ team_gid: 'team1' })
 
-		expect(getTeamMock).toHaveBeenCalledWith('team1')
+		expect(getTeamMock).toHaveBeenCalledWith('team1', undefined)
 	})
 
 	it('team tools can use injected dependencies', async () => {
@@ -68,6 +68,6 @@ describe('teams/mcp', () => {
 
 		await server.handlers.get('asana_team_get')?.({ team_gid: 'team1' })
 
-		expect(injectedGetTeam).toHaveBeenCalledWith('team1')
+		expect(injectedGetTeam).toHaveBeenCalledWith('team1', undefined)
 	})
 })

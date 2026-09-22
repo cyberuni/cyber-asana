@@ -5,6 +5,7 @@ import {
 	type PaginationOptions,
 	toAsanaPaginationOptions,
 } from '../pagination.js'
+import { type ReadOptions, toAsanaReadOptions } from '../read-options.js'
 import type { StoryCreateFields, StoryUpdateFields } from './write-options.js'
 
 export type TaskTemplateData = {
@@ -17,7 +18,7 @@ export type TaskTemplateData = {
 export type StoryGateway = {
 	listStories(taskGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
 	createStory(taskGid: string, fields: StoryCreateFields): Promise<any>
-	getStory(storyGid: string): Promise<any>
+	getStory(storyGid: string, opts?: ReadOptions): Promise<any>
 	updateStory(storyGid: string, fields: StoryUpdateFields): Promise<any>
 	deleteStory(storyGid: string): Promise<void>
 	getTaskTemplateData(taskGid: string): Promise<TaskTemplateData>
@@ -36,8 +37,8 @@ export function createAsanaStoryGateway(client: Asana.ApiClient): StoryGateway {
 			const res = await storiesApi.createStoryForTask({ data: fields }, taskGid, {})
 			return res.data
 		},
-		async getStory(storyGid) {
-			const res = await storiesApi.getStory(storyGid, {})
+		async getStory(storyGid, opts) {
+			const res = await storiesApi.getStory(storyGid, toAsanaReadOptions(opts))
 			return res.data
 		},
 		async updateStory(storyGid, fields) {

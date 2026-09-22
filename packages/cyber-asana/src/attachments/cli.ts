@@ -2,11 +2,13 @@ import { Command, InvalidArgumentError } from 'commander'
 import {
 	addGidOption,
 	addPaginationOptions,
+	addReadOptions,
 	type CliGidOptions,
 	itemsForOutput,
 	normalizedGid,
 	paginationOptionsFromCli,
 	printNextPageHint,
+	readOptionsFromCli,
 } from '../cli-options.js'
 import { deleteIdempotently, deleteMessage } from '../idempotent-delete.js'
 import { output, printCountSummary, printFields, printNextSteps, printTable } from '../output.js'
@@ -87,11 +89,9 @@ export function attachmentCommand(api?: AttachmentApi | (() => AttachmentApi)) {
 		})
 	})
 
-	cmd
-		.command('get <gid>')
-		.description('Get an attachment by GID')
-		.action(async (gid: string) => {
-			const data = await resolveAttachmentApi(api).getAttachment(gid)
+	addReadOptions(cmd.command('get <gid>').description('Get an attachment by GID')).action(
+		async (gid: string, opts: { optFields?: string }) => {
+			const data = await resolveAttachmentApi(api).getAttachment(gid, readOptionsFromCli(opts))
 			output(data, () =>
 				printFields({
 					Name: (data as Attachment).name,
@@ -99,7 +99,8 @@ export function attachmentCommand(api?: AttachmentApi | (() => AttachmentApi)) {
 					URL: (data as Attachment).download_url ?? null,
 				}),
 			)
-		})
+		},
+	)
 
 	addGidOption(
 		cmd

@@ -81,7 +81,7 @@ describe('project-templates/cli', () => {
 
 		await program.parseAsync(['node', 'test', 'project-template', 'get', 'tpl1'], { from: 'node' })
 
-		expect(getProjectTemplate).toHaveBeenCalledWith('tpl1')
+		expect(getProjectTemplate).toHaveBeenCalledWith('tpl1', undefined)
 		const logged = logSpy.mock.calls.map((c) => String(c[0])).join('\n')
 		expect(logged).toContain('Client onboarding')
 		expect(logged).toContain('date1')

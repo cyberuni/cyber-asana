@@ -1,5 +1,6 @@
 import { createClient } from '../client.js'
 import type { PaginationOptions } from '../pagination.js'
+import type { ReadOptions } from '../read-options.js'
 import { createAsanaTagGateway, type TagGateway, type TagWriteFields } from './gateway.js'
 import type { TagCreateFields } from './write-options.js'
 
@@ -10,8 +11,8 @@ export function createTagApi(gateway: TagGateway) {
 		listTags(workspaceGid: string, opts?: PaginationOptions) {
 			return gateway.listTags(workspaceGid, opts)
 		},
-		getTag(tagGid: string) {
-			return gateway.getTag(tagGid)
+		getTag(tagGid: string, opts?: ReadOptions) {
+			return gateway.getTag(tagGid, opts)
 		},
 		createTag(workspaceGid: string, name: string, fields?: TagCreateFields) {
 			return gateway.createTag(workspaceGid, name, fields)
@@ -45,8 +46,8 @@ export async function listTags(workspaceGid: string, opts?: PaginationOptions) {
 	return defaultTagApi().listTags(workspaceGid, opts)
 }
 
-export async function getTag(tagGid: string) {
-	return defaultTagApi().getTag(tagGid)
+export async function getTag(tagGid: string, opts?: ReadOptions) {
+	return defaultTagApi().getTag(tagGid, opts)
 }
 
 export async function createTag(workspaceGid: string, name: string, fields?: TagCreateFields) {

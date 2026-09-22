@@ -1,5 +1,6 @@
 import { createClient } from '../client.js'
 import { listItems, type PaginationOptions } from '../pagination.js'
+import type { ReadOptions } from '../read-options.js'
 import { observeProjectIfConfigured, projectObservationFromApi } from '../repo-config.js'
 import {
 	type CreateProjectFields,
@@ -47,8 +48,8 @@ export function createProjectApi(gateway: ProjectGateway) {
 		listProjects(workspaceGid: string, opts?: PaginationOptions & { archived?: boolean }) {
 			return gateway.listProjects(workspaceGid, opts)
 		},
-		async getProject(projectGid: string) {
-			const project = await gateway.getProject(projectGid)
+		async getProject(projectGid: string, opts?: ReadOptions) {
+			const project = await gateway.getProject(projectGid, opts)
 			const observation = projectObservationFromApi(project)
 			if (observation) {
 				await observeProjectIfConfigured(observation).catch(() => undefined)
@@ -98,8 +99,8 @@ export async function listProjects(workspaceGid: string, opts?: PaginationOption
 	return defaultProjectApi().listProjects(workspaceGid, opts)
 }
 
-export async function getProject(projectGid: string) {
-	return defaultProjectApi().getProject(projectGid)
+export async function getProject(projectGid: string, opts?: ReadOptions) {
+	return defaultProjectApi().getProject(projectGid, opts)
 }
 
 export async function getProjectTaskCounts(projectGid: string, opts?: { optFields?: string }) {

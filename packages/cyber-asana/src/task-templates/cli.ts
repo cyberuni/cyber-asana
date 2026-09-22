@@ -2,9 +2,11 @@ import { Command, InvalidArgumentError } from 'commander'
 import {
 	addGidOption,
 	addPaginationOptions,
+	addReadOptions,
 	itemsForOutput,
 	paginationOptionsFromCli,
 	printNextPageHint,
+	readOptionsFromCli,
 	requiredGid,
 } from '../cli-options.js'
 import { DEFAULT_JOB_POLL_ATTEMPTS, DEFAULT_JOB_POLL_INTERVAL_MS, type Job } from '../job-polling.js'
@@ -87,11 +89,9 @@ export function taskTemplateCommand(api?: TaskTemplateApi | (() => TaskTemplateA
 		},
 	)
 
-	cmd
-		.command('get <gid>')
-		.description('Get a task template by GID')
-		.action(async (gid: string) => {
-			const data: TaskTemplate = await resolveTaskTemplateApi(api).getTaskTemplate(gid)
+	addReadOptions(cmd.command('get <gid>').description('Get a task template by GID')).action(
+		async (gid: string, opts: { optFields?: string }) => {
+			const data: TaskTemplate = await resolveTaskTemplateApi(api).getTaskTemplate(gid, readOptionsFromCli(opts))
 			output(data, () =>
 				printFields({
 					Name: data.name,
@@ -99,7 +99,8 @@ export function taskTemplateCommand(api?: TaskTemplateApi | (() => TaskTemplateA
 					Project: data.project?.name ?? data.project?.gid ?? null,
 				}),
 			)
-		})
+		},
+	)
 
 	cmd
 		.command('instantiate <gid>')

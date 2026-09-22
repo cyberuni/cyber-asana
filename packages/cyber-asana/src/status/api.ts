@@ -10,6 +10,7 @@ import {
 
 export type { StatusListOptions } from './gateway.js'
 
+import type { ReadOptions } from '../read-options.js'
 import { getStatusOverview as rollUpStatus, type StatusOverviewDeps, type StatusOverviewOptions } from './overview.js'
 
 export type {
@@ -29,8 +30,8 @@ export function createStatusApi(gateway: StatusGateway, overviewGateways: Status
 		listStatuses(parentGid: string, opts?: StatusListOptions) {
 			return gateway.listStatuses(parentGid, opts)
 		},
-		getStatus(statusGid: string) {
-			return gateway.getStatus(statusGid)
+		getStatus(statusGid: string, opts?: ReadOptions) {
+			return gateway.getStatus(statusGid, opts)
 		},
 		createStatus(parentGid: string, fields: StatusCreateFields) {
 			return gateway.createStatus(parentGid, fields)
@@ -56,8 +57,8 @@ export async function listStatuses(parentGid: string, opts?: StatusListOptions) 
 	return defaultStatusApi().listStatuses(parentGid, opts)
 }
 
-export async function getStatus(statusGid: string) {
-	return defaultStatusApi().getStatus(statusGid)
+export async function getStatus(statusGid: string, opts?: ReadOptions) {
+	return defaultStatusApi().getStatus(statusGid, opts)
 }
 
 export async function createStatus(parentGid: string, fields: StatusCreateFields) {

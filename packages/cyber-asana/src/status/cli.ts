@@ -2,10 +2,12 @@ import { Command, InvalidArgumentError } from 'commander'
 import {
 	addGidOption,
 	addPaginationOptions,
+	addReadOptions,
 	itemsForOutput,
 	paginationOptionsFromCli,
 	parseLimit,
 	printNextPageHint,
+	readOptionsFromCli,
 	requiredGid,
 } from '../cli-options.js'
 import { deleteIdempotently, deleteMessage } from '../idempotent-delete.js'
@@ -167,13 +169,12 @@ export function statusCommand(api?: StatusApi | (() => StatusApi)) {
 			output(data, () => fmtOverview(data))
 		})
 
-	cmd
-		.command('get <gid>')
-		.description('Get a status update by GID')
-		.action(async (gid: string) => {
-			const data = await resolveStatusApi(api).getStatus(gid)
+	addReadOptions(cmd.command('get <gid>').description('Get a status update by GID')).action(
+		async (gid: string, opts: { optFields?: string }) => {
+			const data = await resolveStatusApi(api).getStatus(gid, readOptionsFromCli(opts))
 			output(data, () => fmtStatus(data))
-		})
+		},
+	)
 
 	addGidOption(
 		cmd

@@ -2,9 +2,11 @@ import { Command } from 'commander'
 import {
 	addGidOption,
 	addPaginationOptions,
+	addReadOptions,
 	itemsForOutput,
 	paginationOptionsFromCli,
 	printNextPageHint,
+	readOptionsFromCli,
 	requiredGid,
 } from '../cli-options.js'
 import { deleteIdempotently, deleteMessage } from '../idempotent-delete.js'
@@ -97,13 +99,12 @@ export function goalCommand(api?: GoalApi | (() => GoalApi)) {
 		},
 	)
 
-	cmd
-		.command('get <gid>')
-		.description('Get a goal by GID')
-		.action(async (gid: string) => {
-			const data = await resolveGoalApi(api).getGoal(gid)
+	addReadOptions(cmd.command('get <gid>').description('Get a goal by GID')).action(
+		async (gid: string, opts: { optFields?: string }) => {
+			const data = await resolveGoalApi(api).getGoal(gid, readOptionsFromCli(opts))
 			output(data, () => fmtGoal(data))
-		})
+		},
+	)
 
 	const createCmd = addGidOption(
 		cmd.command('create <name>').description('Create a goal'),

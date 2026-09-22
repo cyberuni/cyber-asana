@@ -2,10 +2,12 @@ import { Command, InvalidArgumentError } from 'commander'
 import {
 	addGidOption,
 	addPaginationOptions,
+	addReadOptions,
 	itemsForOutput,
 	normalizedGid,
 	paginationOptionsFromCli,
 	printNextPageHint,
+	readOptionsFromCli,
 	requiredGid,
 } from '../cli-options.js'
 import type { Job } from '../job-polling.js'
@@ -174,11 +176,9 @@ export function projectTemplateCommand(api?: ProjectTemplateApi | (() => Project
 		},
 	)
 
-	cmd
-		.command('get <gid>')
-		.description('Get a project template by GID')
-		.action(async (gid: string) => {
-			const data = await resolveProjectTemplateApi(api).getProjectTemplate(gid)
+	addReadOptions(cmd.command('get <gid>').description('Get a project template by GID')).action(
+		async (gid: string, opts: { optFields?: string }) => {
+			const data = await resolveProjectTemplateApi(api).getProjectTemplate(gid, readOptionsFromCli(opts))
 			output(data, () => {
 				fmtTemplate(data)
 				fmtRequestedDates(data.requested_dates)
@@ -186,7 +186,8 @@ export function projectTemplateCommand(api?: ProjectTemplateApi | (() => Project
 					`cyber-asana project-template instantiate ${gid} --name "<project name>" — start a project from this template`,
 				])
 			})
-		})
+		},
+	)
 
 	const instantiateCmd = addGidOption(
 		cmd

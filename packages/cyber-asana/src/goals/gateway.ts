@@ -5,6 +5,7 @@ import {
 	type PaginationOptions,
 	toAsanaPaginationOptions,
 } from '../pagination.js'
+import { type ReadOptions, toAsanaReadOptions } from '../read-options.js'
 
 /** Fields Asana accepts on goal creation. */
 export type CreateGoalFields = {
@@ -29,7 +30,7 @@ export type UpdateGoalFields = {
 
 export type GoalGateway = {
 	listGoals(workspaceGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
-	getGoal(goalGid: string): Promise<any>
+	getGoal(goalGid: string, opts?: ReadOptions): Promise<any>
 	createGoal(workspaceGid: string, name: string, opts?: CreateGoalFields): Promise<any>
 	updateGoal(goalGid: string, fields: UpdateGoalFields): Promise<any>
 	deleteGoal(goalGid: string): Promise<void>
@@ -43,8 +44,8 @@ export function createAsanaGoalGateway(client: Asana.ApiClient): GoalGateway {
 			const res = await goalsApi.getGoals({ workspace: workspaceGid, ...toAsanaPaginationOptions(opts) })
 			return await collectListResponse(res, opts)
 		},
-		async getGoal(goalGid) {
-			const res = await goalsApi.getGoal(goalGid, {})
+		async getGoal(goalGid, opts) {
+			const res = await goalsApi.getGoal(goalGid, toAsanaReadOptions(opts))
 			return res.data
 		},
 		async createGoal(workspaceGid, name, opts) {

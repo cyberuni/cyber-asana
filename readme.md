@@ -472,6 +472,7 @@ Tools are named `asana_<resource>_<action>` (e.g. `asana_task_create`).
 | `url` | `asana_url_parse` (no API call; extracts GIDs from Asana app URLs) |
 
 List tools accept `limit`, `offset`, `opt_fields`, `fetch_all`, and `max_pages` where Asana supports them.
+Single-resource reads (`asana_<resource>_get` and `asana_user_me`) accept `opt_fields` too; leaving it out returns the same fields as before. `asana_membership_get` is the exception, because Asana's endpoint takes no `opt_fields`.
 Paginated responses include `data`, `next_page`, and `limit`; fetch-all responses also include `page_count` and `truncated`.
 `asana_user_list` omits `limit`; search tools are not paginated.
 
@@ -529,6 +530,13 @@ cyber-asana task list --project <gid> --json
 cyber-asana task list --project <gid> --limit 50 --offset <next_page.offset>
 cyber-asana task list --project <gid> --all --max-pages 5
 cyber-asana project list --opt-fields gid,name,permalink_url
+```
+
+`get` commands (and `user me`) take `--opt-fields` as well, to ask for fields Asana leaves out of a single-resource read.
+Without it, a `get` returns the same fields as before. `membership get` is the exception, because Asana's endpoint takes no `opt_fields`.
+
+```sh
+cyber-asana section get <gid> --opt-fields name,project.name,created_at
 ```
 
 List commands request 100 results per page by default.
