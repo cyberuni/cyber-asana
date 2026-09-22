@@ -181,6 +181,27 @@ export function addUser(config: RepoConfig, entry: RepoUserEntry): RepoConfig {
 	return { ...config, users: next }
 }
 
+/**
+ * Drop aliases from whichever users own them. An alias is unique, so no user query is needed.
+ * All aliases are checked first, so an unregistered one leaves the config unchanged.
+ */
+export function removeAliases(config: RepoConfig, aliases: string[]): RepoConfig {
+	const users = config.users ?? []
+	const targets = aliases.map(normalizeProjectName)
+	for (const [i, target] of targets.entries()) {
+		if (!users.some((user) => user.aliases.some((a) => normalizeProjectName(a) === target))) {
+			throw new Error(`alias "${aliases[i]}" is not registered`)
+		}
+	}
+	return {
+		...config,
+		users: users.map((user) => ({
+			...user,
+			aliases: user.aliases.filter((a) => !targets.includes(normalizeProjectName(a))),
+		})),
+	}
+}
+
 export function removeUser(config: RepoConfig, gid: string): RepoConfig {
 	return { ...config, users: (config.users ?? []).filter((user) => user.gid !== gid) }
 }

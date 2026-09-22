@@ -13,6 +13,7 @@ import {
 	observeUser,
 	parseRepoConfig,
 	type RepoUserEntry,
+	removeAliases,
 	removeProject,
 	removeUser,
 	resolveAssignee,
@@ -292,6 +293,20 @@ describe('user registry', () => {
 	describe('removeUser', () => {
 		it('removes the user with the given gid', () => {
 			expect(removeUser(withUsers(alice, bob), '100').users).toEqual([bob])
+		})
+	})
+
+	describe('removeAliases', () => {
+		it('removes aliases case-insensitively from whichever user owns them', () => {
+			const multi = { ...alice, aliases: ['ali', 'al', 'aa'] }
+			expect(removeAliases(withUsers(multi, bob), ['AL', 'bobby']).users).toEqual([
+				{ ...alice, aliases: ['ali', 'aa'] },
+				{ ...bob, aliases: [] },
+			])
+		})
+
+		it('rejects an alias that is not registered and changes nothing', () => {
+			expect(() => removeAliases(withUsers(alice), ['ali', 'nope'])).toThrow('alias "nope" is not registered')
 		})
 	})
 

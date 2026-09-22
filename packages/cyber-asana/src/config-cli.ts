@@ -14,6 +14,7 @@ import {
 	type RepoConfig,
 	type RepoProjectEntry,
 	type RepoUserEntry,
+	removeAliases,
 	removeProject,
 	removeUser,
 	resolveConfigPath,
@@ -29,8 +30,16 @@ type ConfigCliOptions = {
 	config?: string
 }
 
-function collectOption(value: string, previous: string[]) {
-	return [...previous, value]
+function splitAliases(value: string): string[] {
+	return value
+		.split(',')
+		.map((alias) => alias.trim())
+		.filter((alias) => alias.length > 0)
+}
+
+/** Accept `--alias a,b` as well as a repeated `--alias`; blank pieces are dropped. */
+function collectAliases(value: string, previous: string[]) {
+	return [...previous, ...splitAliases(value)]
 }
 
 function configPathFromOpts(opts: ConfigCliOptions): string | undefined {
@@ -136,6 +145,7 @@ export function configCommand(getProjects: () => ProjectApi, getUsers?: () => Us
 			'  cyber-asana config remove <gid-or-name>',
 			'  cyber-asana config add-user <user-gid> --alias <alias>',
 			'  cyber-asana config add-user --search "ada@example.com" --alias ada',
+			'  cyber-asana config remove-alias <alias>[,<alias>...]',
 			'  cyber-asana config resolve-user <alias-email-or-name>',
 			'  cyber-asana config list-users',
 			'  cyber-asana config sync',
@@ -318,7 +328,7 @@ export function configCommand(getProjects: () => ProjectApi, getUsers?: () => Us
 			.command('add-user [user-gid]')
 			.description('Add or update a user entry (fetches name and email from Asana)')
 			.option('--search <query>', 'Find the user by name or email (typeahead) instead of passing a GID')
-			.option('--alias <alias>', 'Alias to resolve to this user (repeatable)', collectOption, [])
+			.option('--alias <alias>', 'Alias to resolve to this user (repeatable or comma-separated)', collectAliases, [])
 			.option('--config <path>', 'Config file path (overrides CYBER_ASANA_CONFIG)'),
 		'workspace',
 		'Workspace GID for --search',
@@ -388,6 +398,23 @@ export function configCommand(getProjects: () => ProjectApi, getUsers?: () => Us
 			output({ path, users }, () => {
 				console.log(path)
 				printUserTable(users)
+			})
+		})
+
+	cmd
+		.command('remove-alias <alias...>')
+		.description('Remove aliases from whichever registered users own them (comma-separated or several)')
+		.option('--config <path>', 'Config file path (overrides CYBER_ASANA_CONFIG)')
+		.action(async (values: string[], opts: ConfigCliOptions) => {
+			const aliases = values.flatMap(splitAliases)
+			if (aliases.length === 0) {
+				throw new InvalidArgumentError('Pass at least one alias to remove')
+			}
+			const { path, config } = await loadExistingConfig(opts)
+			const next = removeAliases(config, aliases)
+			await saveRepoConfig(path, next)
+			output({ path, removed: aliases, users: next.users ?? [] }, () => {
+				console.log(`Removed alias(es) ${aliases.join(', ')} from ${path}`)
 			})
 		})
 
