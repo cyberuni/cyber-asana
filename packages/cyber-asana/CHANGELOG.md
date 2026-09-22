@@ -1,5 +1,20 @@
 # cyber-asana
 
+## 0.13.0
+
+### Minor Changes
+
+- 30a03a0: `config add-user --search <query>` finds a user by name or email through Asana's typeahead search and registers them, so you no longer need the GID up front. It registers a single hit, or the one hit whose name or email matches exactly. Otherwise it lists the candidates and writes nothing.
+- 199cd25: Add a repo-local user registry to `config`: `config add-user <user-gid> --alias <alias>` fetches and stores a user's name and email, `config resolve-user` turns an alias, email, or name into a GID with no API call, and `config list-users` / `config remove-user` manage the entries. `config sync` now refreshes registered users too.
+- 6dcddfe: Every singular `get` command now accepts `--opt-fields`, and every `asana_<resource>_get` MCP tool accepts `opt_fields`. `user me` and `asana_user_me` accept them too. Use them to request fields that Asana leaves out of a single-resource read.
+  
+  When you leave the option out, each `get` returns the same fields as before. `membership get` does not take the option, because Asana's endpoint has no `opt_fields`.
+- d6ef7d8: `--assignee` on `task create`, `task update`, and `task subtask create` — and a new `assignee` parameter on the matching MCP tools — now accepts an alias, email, or name registered with `config add-user`, in addition to a user GID or `me`. It resolves from the repo config with no API call and errors only when the value is unregistered or matches more than one user. `--assignee-gid` still takes a GID as-is.
+
+### Patch Changes
+
+- 4286acd: `user list` and `asana_user_list` no longer fail with `400 The result is too large` on large workspaces. They now page through `GET /users?workspace=` (sorted by user ID), and so accept `--limit`, `--all`, and `--max-pages` (MCP: `limit`, `fetch_all`, `max_pages`) like other list commands.
+
 ## 0.12.1
 
 ### Patch Changes
