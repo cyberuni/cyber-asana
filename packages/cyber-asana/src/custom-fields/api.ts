@@ -1,5 +1,6 @@
 import { createClient } from '../client.js'
 import type { PaginationOptions } from '../pagination.js'
+import type { ReadOptions } from '../read-options.js'
 import { type CustomFieldGateway, createAsanaCustomFieldGateway } from './gateway.js'
 
 export type CustomFieldApi = ReturnType<typeof createCustomFieldApi>
@@ -9,8 +10,8 @@ export function createCustomFieldApi(gateway: CustomFieldGateway) {
 		listCustomFields(workspaceGid: string, opts?: PaginationOptions) {
 			return gateway.listCustomFields(workspaceGid, opts)
 		},
-		getCustomField(customFieldGid: string) {
-			return gateway.getCustomField(customFieldGid)
+		getCustomField(customFieldGid: string, opts?: ReadOptions) {
+			return gateway.getCustomField(customFieldGid, opts)
 		},
 		listCustomFieldSettingsForProject(projectGid: string, opts?: PaginationOptions) {
 			return gateway.listCustomFieldSettingsForProject(projectGid, opts)
@@ -35,8 +36,8 @@ export async function listCustomFields(workspaceGid: string, opts?: PaginationOp
 	return defaultCustomFieldApi().listCustomFields(workspaceGid, opts)
 }
 
-export async function getCustomField(customFieldGid: string) {
-	return defaultCustomFieldApi().getCustomField(customFieldGid)
+export async function getCustomField(customFieldGid: string, opts?: ReadOptions) {
+	return defaultCustomFieldApi().getCustomField(customFieldGid, opts)
 }
 
 export async function listCustomFieldSettingsForProject(projectGid: string, opts?: PaginationOptions) {

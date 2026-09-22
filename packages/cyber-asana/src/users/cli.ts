@@ -2,9 +2,11 @@ import { Command } from 'commander'
 import {
 	addGidOption,
 	addPaginationOptions,
+	addReadOptions,
 	itemsForOutput,
 	paginationOptionsFromCli,
 	printNextPageHint,
+	readOptionsFromCli,
 	requiredGid,
 } from '../cli-options.js'
 import { output, printCountSummary, printFields, printNextSteps, printTable } from '../output.js'
@@ -82,27 +84,25 @@ export function userCommand(api?: UserApi | (() => UserApi)) {
 		})
 	})
 
-	cmd
-		.command('get <gid>')
-		.description('Get a user by GID')
-		.action(async (gid: string) => {
-			const data = await resolveUserApi(api).getUser(gid)
+	addReadOptions(cmd.command('get <gid>').description('Get a user by GID')).action(
+		async (gid: string, opts: { optFields?: string }) => {
+			const data = await resolveUserApi(api).getUser(gid, readOptionsFromCli(opts))
 			output(data, () => {
 				fmtUser(data)
 				printNextSteps([`cyber-asana ooo list --user-gid ${gid} — check whether this user is out of office`])
 			})
-		})
+		},
+	)
 
-	cmd
-		.command('me')
-		.description('Get the authenticated user')
-		.action(async () => {
-			const data = await resolveUserApi(api).getMe()
+	addReadOptions(cmd.command('me').description('Get the authenticated user')).action(
+		async (opts: { optFields?: string }) => {
+			const data = await resolveUserApi(api).getMe(readOptionsFromCli(opts))
 			output(data, () => {
 				fmtUser(data)
 				printNextSteps(['cyber-asana ooo list — your out-of-office entries'])
 			})
-		})
+		},
+	)
 
 	return cmd
 }

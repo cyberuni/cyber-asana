@@ -1,6 +1,6 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import { paginationOptions, paginationParams } from '../mcp-options.js'
+import { paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
 import type { WorkspaceApi } from './api.js'
 import { getWorkspace, listWorkspaces } from './api.js'
 
@@ -24,9 +24,14 @@ export function registerWorkspaceTools(server: McpServer, api?: WorkspaceApi | (
 	server.tool(
 		'asana_workspace_get',
 		'Get an Asana workspace by GID',
-		{ workspace_gid: z.string().describe('Workspace GID') },
-		async ({ workspace_gid }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await resolveWorkspaceApi(api).getWorkspace(workspace_gid)) }],
+		{ workspace_gid: z.string().describe('Workspace GID'), ...readParams },
+		async ({ workspace_gid, ...params }) => ({
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(await resolveWorkspaceApi(api).getWorkspace(workspace_gid, readOptions(params))),
+				},
+			],
 		}),
 	)
 }

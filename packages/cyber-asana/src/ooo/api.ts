@@ -1,4 +1,5 @@
 import { createClient } from '../client.js'
+import type { ReadOptions } from '../read-options.js'
 import {
 	createAsanaOooGateway,
 	type OooEntryListOptions,
@@ -13,8 +14,8 @@ export function createOooApi(gateway: OooGateway) {
 		listOooEntries(userGid: string, workspaceGid: string, opts?: OooEntryListOptions) {
 			return gateway.listOooEntries(userGid, workspaceGid, opts)
 		},
-		getOooEntry(oooEntryGid: string) {
-			return gateway.getOooEntry(oooEntryGid)
+		getOooEntry(oooEntryGid: string, opts?: ReadOptions) {
+			return gateway.getOooEntry(oooEntryGid, opts)
 		},
 		createOooEntry(userGid: string, workspaceGid: string, fields: { start_date: string; end_date: string }) {
 			return gateway.createOooEntry(userGid, workspaceGid, fields)
@@ -36,8 +37,8 @@ export async function listOooEntries(userGid: string, workspaceGid: string, opts
 	return defaultOooApi().listOooEntries(userGid, workspaceGid, opts)
 }
 
-export async function getOooEntry(oooEntryGid: string) {
-	return defaultOooApi().getOooEntry(oooEntryGid)
+export async function getOooEntry(oooEntryGid: string, opts?: ReadOptions) {
+	return defaultOooApi().getOooEntry(oooEntryGid, opts)
 }
 
 export async function createOooEntry(

@@ -1,7 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import { deleteIdempotently } from '../idempotent-delete.js'
-import { paginationOptions, paginationParams } from '../mcp-options.js'
+import { paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
 import type { PortfolioApi } from './api.js'
 import {
 	createPortfolio,
@@ -72,9 +72,14 @@ export function registerPortfolioTools(server: McpServer, api?: PortfolioApi | (
 	server.tool(
 		'asana_portfolio_get',
 		'Get an Asana portfolio by GID',
-		{ portfolio_gid: z.string().describe('Portfolio GID') },
-		async ({ portfolio_gid }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await resolvePortfolioApi(api).getPortfolio(portfolio_gid)) }],
+		{ portfolio_gid: z.string().describe('Portfolio GID'), ...readParams },
+		async ({ portfolio_gid, ...params }) => ({
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(await resolvePortfolioApi(api).getPortfolio(portfolio_gid, readOptions(params))),
+				},
+			],
 		}),
 	)
 

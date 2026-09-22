@@ -1,6 +1,6 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import { paginationOptions, paginationParams } from '../mcp-options.js'
+import { paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
 import {
 	addDependencies,
 	addDependents,
@@ -236,9 +236,11 @@ When setting notes, prefer html_notes over notes to preserve rich formatting (he
 	server.tool(
 		'asana_task_get',
 		'Get an Asana task by GID. Returns html_notes with rich formatting (headings, lists, code blocks) in addition to plain notes.',
-		{ task_gid: z.string().describe('Task GID') },
-		async ({ task_gid }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await resolveTaskApi(api).getTask(task_gid)) }],
+		{ task_gid: z.string().describe('Task GID'), ...readParams },
+		async ({ task_gid, ...params }) => ({
+			content: [
+				{ type: 'text', text: JSON.stringify(await resolveTaskApi(api).getTask(task_gid, readOptions(params))) },
+			],
 		}),
 	)
 

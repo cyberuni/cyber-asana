@@ -1,6 +1,6 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import { paginationOptions, paginationParams } from '../mcp-options.js'
+import { paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
 import type { StatusApi } from './api.js'
 import { createStatus, deleteStatus, getStatus, getStatusOverview, listStatuses } from './api.js'
 
@@ -64,9 +64,11 @@ export function registerStatusTools(server: McpServer, api?: StatusApi | (() => 
 	server.tool(
 		'asana_status_get',
 		'Get an Asana status update by GID',
-		{ status_gid: z.string().describe('Status update GID') },
-		async ({ status_gid }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await resolveStatusApi(api).getStatus(status_gid)) }],
+		{ status_gid: z.string().describe('Status update GID'), ...readParams },
+		async ({ status_gid, ...params }) => ({
+			content: [
+				{ type: 'text', text: JSON.stringify(await resolveStatusApi(api).getStatus(status_gid, readOptions(params))) },
+			],
 		}),
 	)
 

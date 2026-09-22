@@ -2,9 +2,11 @@ import { Command, InvalidArgumentError } from 'commander'
 import {
 	addGidOption,
 	addPaginationOptions,
+	addReadOptions,
 	itemsForOutput,
 	paginationOptionsFromCli,
 	printNextPageHint,
+	readOptionsFromCli,
 	requiredGid,
 } from '../cli-options.js'
 import { deleteIdempotently, deleteMessage } from '../idempotent-delete.js'
@@ -146,13 +148,12 @@ export function storyCommand(name = 'story', api?: StoryApi | (() => StoryApi)) 
 		},
 	)
 
-	cmd
-		.command('get <gid>')
-		.description('Get a story (comment) by GID')
-		.action(async (gid: string) => {
-			const data = await resolveStoryApi(api).getStory(gid)
+	addReadOptions(cmd.command('get <gid>').description('Get a story (comment) by GID')).action(
+		async (gid: string, opts: { optFields?: string }) => {
+			const data = await resolveStoryApi(api).getStory(gid, readOptionsFromCli(opts))
 			output(data, () => fmtStory(data))
-		})
+		},
+	)
 
 	cmd
 		.command('update <gid> [text]')

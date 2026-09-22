@@ -120,7 +120,7 @@ describe('ooo/cli', () => {
 
 		await program.parseAsync(['node', 'test', 'ooo', 'get', 'ooo1'], { from: 'node' })
 
-		expect(getOooEntry).toHaveBeenCalledWith('ooo1')
+		expect(getOooEntry).toHaveBeenCalledWith('ooo1', undefined)
 		expect(logSpy.mock.calls.map((c) => String(c[0])).some((l) => l.includes('Ada'))).toBe(true)
 		logSpy.mockRestore()
 	})

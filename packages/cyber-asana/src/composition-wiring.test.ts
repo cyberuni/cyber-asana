@@ -189,7 +189,7 @@ describe('composition wiring', () => {
 
 		await program.parseAsync(['node', 'test', 'workspace', 'get', 'ws1'], { from: 'node' })
 
-		expect(ctx.workspaces.getWorkspace).toHaveBeenCalledWith('ws1')
+		expect(ctx.workspaces.getWorkspace).toHaveBeenCalledWith('ws1', undefined)
 	})
 
 	it('CLI task create uses runtime context tasks api', async () => {
@@ -303,7 +303,7 @@ describe('composition wiring', () => {
 
 		await program.parseAsync(['node', 'test', 'custom-field', 'get', 'cf1'], { from: 'node' })
 
-		expect(ctx.customFields.getCustomField).toHaveBeenCalledWith('cf1')
+		expect(ctx.customFields.getCustomField).toHaveBeenCalledWith('cf1', undefined)
 	})
 
 	it('CLI custom-field project uses runtime context customFields api', async () => {
@@ -423,7 +423,7 @@ describe('composition wiring', () => {
 
 		await program.parseAsync(['node', 'test', 'job', 'get', 'job1'], { from: 'node' })
 
-		expect(ctx.jobs.getJob).toHaveBeenCalledWith('job1')
+		expect(ctx.jobs.getJob).toHaveBeenCalledWith('job1', undefined)
 	})
 
 	it('MCP asana_job_get uses runtime context jobs api', async () => {
@@ -434,7 +434,7 @@ describe('composition wiring', () => {
 
 		await server.handlers.get('asana_job_get')?.({ job_gid: 'job1' })
 
-		expect(ctx.jobs.getJob).toHaveBeenCalledWith('job1')
+		expect(ctx.jobs.getJob).toHaveBeenCalledWith('job1', undefined)
 	})
 
 	it('CLI project-template instantiate uses runtime context project templates api', async () => {
@@ -520,7 +520,7 @@ describe('composition wiring', () => {
 
 		await server.handlers.get('asana_workspace_get')?.({ workspace_gid: 'ws1' })
 
-		expect(ctx.workspaces.getWorkspace).toHaveBeenCalledWith('ws1')
+		expect(ctx.workspaces.getWorkspace).toHaveBeenCalledWith('ws1', undefined)
 	})
 
 	it('MCP asana_task_create uses runtime context tasks api', async () => {

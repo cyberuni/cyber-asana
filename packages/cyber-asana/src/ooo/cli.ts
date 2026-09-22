@@ -2,11 +2,13 @@ import { Command, InvalidArgumentError } from 'commander'
 import {
 	addGidOption,
 	addPaginationOptions,
+	addReadOptions,
 	type CliGidOptions,
 	itemsForOutput,
 	normalizedGid,
 	paginationOptionsFromCli,
 	printNextPageHint,
+	readOptionsFromCli,
 	requiredGid,
 } from '../cli-options.js'
 import { deleteIdempotently, deleteMessage } from '../idempotent-delete.js'
@@ -147,13 +149,12 @@ export function oooCommand(api?: OooApi | (() => OooApi)) {
 		},
 	)
 
-	cmd
-		.command('get <gid>')
-		.description('Get an out-of-office entry by GID')
-		.action(async (gid: string) => {
-			const data = await resolveOooApi(api).getOooEntry(gid)
+	addReadOptions(cmd.command('get <gid>').description('Get an out-of-office entry by GID')).action(
+		async (gid: string, opts: { optFields?: string }) => {
+			const data = await resolveOooApi(api).getOooEntry(gid, readOptionsFromCli(opts))
 			output(data, () => fmtEntry(data))
-		})
+		},
+	)
 
 	const createCmd = addGidOption(
 		addGidOption(

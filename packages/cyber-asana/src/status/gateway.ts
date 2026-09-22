@@ -5,6 +5,7 @@ import {
 	type PaginationOptions,
 	toAsanaPaginationOptions,
 } from '../pagination.js'
+import { type ReadOptions, toAsanaReadOptions } from '../read-options.js'
 
 export type StatusCreateFields = {
 	status_type: string
@@ -24,7 +25,7 @@ export type StatusListOptions = PaginationOptions & {
 
 export type StatusGateway = {
 	listStatuses(parentGid: string, opts?: StatusListOptions): Promise<ListResult<any>>
-	getStatus(statusGid: string): Promise<any>
+	getStatus(statusGid: string, opts?: ReadOptions): Promise<any>
 	createStatus(parentGid: string, fields: StatusCreateFields): Promise<any>
 	deleteStatus(statusGid: string): Promise<void>
 }
@@ -40,8 +41,8 @@ export function createAsanaStatusGateway(client: Asana.ApiClient): StatusGateway
 			})
 			return await collectListResponse(res, opts)
 		},
-		async getStatus(statusGid) {
-			const res = await statusUpdatesApi.getStatus(statusGid, {})
+		async getStatus(statusGid, opts) {
+			const res = await statusUpdatesApi.getStatus(statusGid, toAsanaReadOptions(opts))
 			return res.data
 		},
 		async createStatus(parentGid, fields) {

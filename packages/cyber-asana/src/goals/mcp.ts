@@ -1,6 +1,6 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import { paginationOptions, paginationParams } from '../mcp-options.js'
+import { paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
 import type { GoalApi } from './api.js'
 import { createGoal, deleteGoal, getGoal, listGoals, updateGoal } from './api.js'
 import { buildGoalCreateFields, buildGoalUpdateFields } from './write-options.js'
@@ -36,9 +36,11 @@ export function registerGoalTools(server: McpServer, api?: GoalApi | (() => Goal
 	server.tool(
 		'asana_goal_get',
 		'Get an Asana goal by GID',
-		{ goal_gid: z.string().describe('Goal GID') },
-		async ({ goal_gid }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await resolveGoalApi(api).getGoal(goal_gid)) }],
+		{ goal_gid: z.string().describe('Goal GID'), ...readParams },
+		async ({ goal_gid, ...params }) => ({
+			content: [
+				{ type: 'text', text: JSON.stringify(await resolveGoalApi(api).getGoal(goal_gid, readOptions(params))) },
+			],
 		}),
 	)
 

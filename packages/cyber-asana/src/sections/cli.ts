@@ -2,9 +2,11 @@ import { Command } from 'commander'
 import {
 	addGidOption,
 	addPaginationOptions,
+	addReadOptions,
 	itemsForOutput,
 	paginationOptionsFromCli,
 	printNextPageHint,
+	readOptionsFromCli,
 	requiredGid,
 } from '../cli-options.js'
 import { deleteIdempotently, deleteMessage } from '../idempotent-delete.js'
@@ -101,13 +103,12 @@ export function sectionCommand(api?: SectionApi | (() => SectionApi)) {
 		},
 	)
 
-	cmd
-		.command('get <gid>')
-		.description('Get a section by GID')
-		.action(async (gid: string) => {
-			const data = await resolveSectionApi(api).getSection(gid)
+	addReadOptions(cmd.command('get <gid>').description('Get a section by GID')).action(
+		async (gid: string, opts: { optFields?: string }) => {
+			const data = await resolveSectionApi(api).getSection(gid, readOptionsFromCli(opts))
 			output(data, () => fmtSection(data))
-		})
+		},
+	)
 
 	addGidOption(
 		cmd

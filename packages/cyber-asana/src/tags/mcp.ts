@@ -1,7 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import { deleteIdempotently } from '../idempotent-delete.js'
-import { paginationOptions, paginationParams } from '../mcp-options.js'
+import { paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
 import type { TagApi } from './api.js'
 import {
 	addTagToTask,
@@ -51,9 +51,9 @@ export function registerTagTools(server: McpServer, api?: TagApi | (() => TagApi
 	server.tool(
 		'asana_tag_get',
 		'Get an Asana tag by GID',
-		{ tag_gid: z.string().describe('Tag GID') },
-		async ({ tag_gid }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await resolveTagApi(api).getTag(tag_gid)) }],
+		{ tag_gid: z.string().describe('Tag GID'), ...readParams },
+		async ({ tag_gid, ...params }) => ({
+			content: [{ type: 'text', text: JSON.stringify(await resolveTagApi(api).getTag(tag_gid, readOptions(params))) }],
 		}),
 	)
 

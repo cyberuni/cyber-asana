@@ -5,11 +5,12 @@ import {
 	type PaginationOptions,
 	toAsanaPaginationOptions,
 } from '../pagination.js'
+import { type ReadOptions, toAsanaReadOptions } from '../read-options.js'
 
 export type PortfolioGateway = {
 	listPortfolios(workspaceGid: string, opts?: PaginationOptions & { owner?: string }): Promise<ListResult<any>>
 	listPortfolioItems(portfolioGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
-	getPortfolio(portfolioGid: string): Promise<any>
+	getPortfolio(portfolioGid: string, opts?: ReadOptions): Promise<any>
 	createPortfolio(workspaceGid: string, name: string): Promise<any>
 	updatePortfolio(portfolioGid: string, fields: { name?: string }): Promise<any>
 	deletePortfolio(portfolioGid: string): Promise<void>
@@ -30,8 +31,8 @@ export function createAsanaPortfolioGateway(client: Asana.ApiClient): PortfolioG
 			const res = await portfoliosApi.getItemsForPortfolio(portfolioGid, toAsanaPaginationOptions(opts))
 			return await collectListResponse(res, opts)
 		},
-		async getPortfolio(portfolioGid) {
-			const res = await portfoliosApi.getPortfolio(portfolioGid, {})
+		async getPortfolio(portfolioGid, opts) {
+			const res = await portfoliosApi.getPortfolio(portfolioGid, toAsanaReadOptions(opts))
 			return res.data
 		},
 		async createPortfolio(workspaceGid, name) {

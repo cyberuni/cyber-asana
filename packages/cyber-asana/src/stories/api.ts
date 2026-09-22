@@ -1,6 +1,7 @@
 import { createClient } from '../client.js'
 import { buildMcpToolErrorBody } from '../mcp-error.js'
 import type { PaginationOptions } from '../pagination.js'
+import type { ReadOptions } from '../read-options.js'
 import { createAsanaStoryGateway, type StoryGateway, type TaskTemplateData } from './gateway.js'
 import {
 	buildStoryCreateFields,
@@ -63,8 +64,8 @@ export function createStoryApi(gateway: StoryGateway) {
 				normalizeStoryCreateError(error)
 			}
 		},
-		getStory(storyGid: string) {
-			return gateway.getStory(storyGid)
+		getStory(storyGid: string, opts?: ReadOptions) {
+			return gateway.getStory(storyGid, opts)
 		},
 		async updateStory(storyGid: string, fields: StoryUpdateFields) {
 			// Same reasoning as createStory: validate outside the try so a locally
@@ -106,8 +107,8 @@ export async function createStory(taskGid: string, fields: StoryCreateFields) {
 	return defaultStoryApi().createStory(taskGid, fields)
 }
 
-export async function getStory(storyGid: string) {
-	return defaultStoryApi().getStory(storyGid)
+export async function getStory(storyGid: string, opts?: ReadOptions) {
+	return defaultStoryApi().getStory(storyGid, opts)
 }
 
 export async function updateStory(storyGid: string, fields: StoryUpdateFields) {

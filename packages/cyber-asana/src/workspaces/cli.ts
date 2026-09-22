@@ -1,5 +1,12 @@
 import { Command } from 'commander'
-import { addPaginationOptions, itemsForOutput, paginationOptionsFromCli, printNextPageHint } from '../cli-options.js'
+import {
+	addPaginationOptions,
+	addReadOptions,
+	itemsForOutput,
+	paginationOptionsFromCli,
+	printNextPageHint,
+	readOptionsFromCli,
+} from '../cli-options.js'
 import { output, printCountSummary, printFields, printNextSteps, printTable } from '../output.js'
 import type { WorkspaceApi } from './api.js'
 import { getWorkspace, listWorkspaces } from './api.js'
@@ -56,13 +63,12 @@ export function workspaceCommand(api?: WorkspaceApi | (() => WorkspaceApi)) {
 		},
 	)
 
-	cmd
-		.command('get <gid>')
-		.description('Get a workspace by GID')
-		.action(async (gid: string) => {
-			const data = await resolveWorkspaceApi(api).getWorkspace(gid)
+	addReadOptions(cmd.command('get <gid>').description('Get a workspace by GID')).action(
+		async (gid: string, opts: { optFields?: string }) => {
+			const data = await resolveWorkspaceApi(api).getWorkspace(gid, readOptionsFromCli(opts))
 			output(data, () => printFields({ Name: (data as Workspace).name, ID: (data as Workspace).gid }))
-		})
+		},
+	)
 
 	return cmd
 }

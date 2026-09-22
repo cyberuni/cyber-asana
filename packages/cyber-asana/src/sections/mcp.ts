@@ -1,6 +1,6 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import { paginationOptions, paginationParams } from '../mcp-options.js'
+import { paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
 import type { SectionApi } from './api.js'
 import {
 	addTaskToSection,
@@ -45,9 +45,14 @@ export function registerSectionTools(server: McpServer, api?: SectionApi | (() =
 	server.tool(
 		'asana_section_get',
 		'Get an Asana section by GID',
-		{ section_gid: z.string().describe('Section GID') },
-		async ({ section_gid }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await resolveSectionApi(api).getSection(section_gid)) }],
+		{ section_gid: z.string().describe('Section GID'), ...readParams },
+		async ({ section_gid, ...params }) => ({
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(await resolveSectionApi(api).getSection(section_gid, readOptions(params))),
+				},
+			],
 		}),
 	)
 

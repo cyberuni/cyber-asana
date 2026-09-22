@@ -3,9 +3,11 @@ import { Command } from 'commander'
 import {
 	addGidOption,
 	addPaginationOptions,
+	addReadOptions,
 	itemsForOutput,
 	paginationOptionsFromCli,
 	printNextPageHint,
+	readOptionsFromCli,
 	requiredGid,
 } from '../cli-options.js'
 import { deleteIdempotently, deleteMessage } from '../idempotent-delete.js'
@@ -143,13 +145,12 @@ export function projectCommand(api?: ProjectApi | (() => ProjectApi)) {
 			},
 		)
 
-	cmd
-		.command('get <gid>')
-		.description('Get a project by GID')
-		.action(async (gid: string) => {
-			const data = await resolveProjectApi(api).getProject(gid)
+	addReadOptions(cmd.command('get <gid>').description('Get a project by GID')).action(
+		async (gid: string, opts: { optFields?: string }) => {
+			const data = await resolveProjectApi(api).getProject(gid, readOptionsFromCli(opts))
 			output(data, () => fmtProject(data))
-		})
+		},
+	)
 
 	cmd
 		.command('counts <gid>')

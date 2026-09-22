@@ -180,7 +180,7 @@ describe('stories/cli', () => {
 
 		await program.parseAsync(['node', 'test', 'story', 'get', 'story1'], { from: 'node' })
 
-		expect(getStory).toHaveBeenCalledWith('story1')
+		expect(getStory).toHaveBeenCalledWith('story1', undefined)
 		expect(logSpy.mock.calls.map((c) => String(c[0])).some((l) => l.includes('story1'))).toBe(true)
 	})
 

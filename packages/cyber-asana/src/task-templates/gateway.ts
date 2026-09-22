@@ -6,6 +6,7 @@ import {
 	type PaginationOptions,
 	toAsanaPaginationOptions,
 } from '../pagination.js'
+import { type ReadOptions, toAsanaReadOptions } from '../read-options.js'
 
 export type InstantiateTaskFields = {
 	/** Name for the created task; Asana falls back to the template's own name. */
@@ -14,7 +15,7 @@ export type InstantiateTaskFields = {
 
 export type TaskTemplateGateway = {
 	listTaskTemplates(projectGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
-	getTaskTemplate(taskTemplateGid: string): Promise<any>
+	getTaskTemplate(taskTemplateGid: string, opts?: ReadOptions): Promise<any>
 	instantiateTask(taskTemplateGid: string, fields?: InstantiateTaskFields): Promise<Job>
 	getJob(jobGid: string): Promise<Job>
 }
@@ -31,8 +32,8 @@ export function createAsanaTaskTemplateGateway(client: Asana.ApiClient): TaskTem
 			})
 			return await collectListResponse(res, opts)
 		},
-		async getTaskTemplate(taskTemplateGid) {
-			const res = await taskTemplatesApi.getTaskTemplate(taskTemplateGid, {})
+		async getTaskTemplate(taskTemplateGid, opts) {
+			const res = await taskTemplatesApi.getTaskTemplate(taskTemplateGid, toAsanaReadOptions(opts))
 			return res.data
 		},
 		async instantiateTask(taskTemplateGid, fields) {

@@ -93,7 +93,7 @@ describe('users/cli', () => {
 
 		await program.parseAsync(['node', 'test', 'user', 'get', 'user1'], { from: 'node' })
 
-		expect(getUserMock).toHaveBeenCalledWith('user1')
+		expect(getUserMock).toHaveBeenCalledWith('user1', undefined)
 	})
 
 	it('user me calls getMe', async () => {
@@ -102,7 +102,7 @@ describe('users/cli', () => {
 
 		await program.parseAsync(['node', 'test', 'user', 'me'], { from: 'node' })
 
-		expect(getMeMock).toHaveBeenCalledWith()
+		expect(getMeMock).toHaveBeenCalledWith(undefined)
 	})
 
 	it('user command can use injected dependencies', async () => {
@@ -117,6 +117,6 @@ describe('users/cli', () => {
 
 		await program.parseAsync(['node', 'test', 'user', 'me'], { from: 'node' })
 
-		expect(injectedGetMe).toHaveBeenCalledWith()
+		expect(injectedGetMe).toHaveBeenCalledWith(undefined)
 	})
 })

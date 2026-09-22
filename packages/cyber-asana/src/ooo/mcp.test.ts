@@ -76,7 +76,7 @@ describe('ooo/mcp', () => {
 
 		const result = await server.handlers.get('asana_ooo_get')?.({ ooo_entry_gid: 'ooo1' })
 
-		expect(getOooEntryMock).toHaveBeenCalledWith('ooo1')
+		expect(getOooEntryMock).toHaveBeenCalledWith('ooo1', undefined)
 		expect(result).toEqual({ content: [{ type: 'text', text: JSON.stringify({ gid: 'ooo1' }) }] })
 	})
 

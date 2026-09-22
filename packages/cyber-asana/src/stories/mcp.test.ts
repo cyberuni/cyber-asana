@@ -88,7 +88,7 @@ describe('stories/mcp', () => {
 
 		await server.handlers.get('asana_story_get')?.({ story_gid: 'story1' })
 
-		expect(getStory).toHaveBeenCalledWith('story1')
+		expect(getStory).toHaveBeenCalledWith('story1', undefined)
 	})
 
 	it('asana_comment_update replaces the comment text', async () => {

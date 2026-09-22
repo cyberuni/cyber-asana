@@ -31,7 +31,7 @@ describe('jobs/mcp', () => {
 
 		const result = await server.handlers.get('asana_job_get')?.({ job_gid: 'job1' })
 
-		expect(getJobMock).toHaveBeenCalledWith('job1')
+		expect(getJobMock).toHaveBeenCalledWith('job1', undefined)
 		expect(JSON.parse(result.content[0].text)).toEqual({
 			gid: 'job1',
 			status: 'succeeded',

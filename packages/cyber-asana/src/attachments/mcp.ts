@@ -1,7 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import { deleteIdempotently } from '../idempotent-delete.js'
-import { paginationOptions, paginationParams } from '../mcp-options.js'
+import { paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
 import type { AttachmentApi } from './api.js'
 import { createAttachment, deleteAttachment, getAttachment, listAttachments } from './api.js'
 
@@ -43,9 +43,14 @@ export function registerAttachmentTools(server: McpServer, api?: AttachmentApi |
 	server.tool(
 		'asana_attachment_get',
 		'Get an Asana attachment by GID',
-		{ attachment_gid: z.string().describe('Attachment GID') },
-		async ({ attachment_gid }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await resolveAttachmentApi(api).getAttachment(attachment_gid)) }],
+		{ attachment_gid: z.string().describe('Attachment GID'), ...readParams },
+		async ({ attachment_gid, ...params }) => ({
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(await resolveAttachmentApi(api).getAttachment(attachment_gid, readOptions(params))),
+				},
+			],
 		}),
 	)
 

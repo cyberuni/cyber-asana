@@ -6,6 +6,7 @@ import {
 	type PaginationOptions,
 	toAsanaPaginationOptions,
 } from '../pagination.js'
+import { type ReadOptions, toAsanaReadOptions } from '../read-options.js'
 
 /** A date variable the template asks the caller to fill in at instantiation time. */
 export type RequestedDate = {
@@ -48,7 +49,7 @@ export type ProjectTemplateFilters = {
 export type ProjectTemplateGateway = {
 	listProjectTemplates(filters?: ProjectTemplateFilters, opts?: PaginationOptions): Promise<ListResult<any>>
 	listProjectTemplatesForTeam(teamGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
-	getProjectTemplate(templateGid: string): Promise<any>
+	getProjectTemplate(templateGid: string, opts?: ReadOptions): Promise<any>
 	instantiateProject(templateGid: string, fields: InstantiateProjectFields): Promise<Job>
 }
 
@@ -82,8 +83,8 @@ export function createAsanaProjectTemplateGateway(client: Asana.ApiClient): Proj
 			const res = await templatesApi.getProjectTemplatesForTeam(teamGid, toAsanaPaginationOptions(opts))
 			return await collectListResponse(res, opts)
 		},
-		async getProjectTemplate(templateGid) {
-			const res = await templatesApi.getProjectTemplate(templateGid, {})
+		async getProjectTemplate(templateGid, opts) {
+			const res = await templatesApi.getProjectTemplate(templateGid, toAsanaReadOptions(opts))
 			return res.data
 		},
 		async instantiateProject(templateGid, fields) {

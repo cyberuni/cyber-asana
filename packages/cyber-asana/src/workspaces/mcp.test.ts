@@ -54,7 +54,7 @@ describe('workspaces/mcp', () => {
 
 		await server.handlers.get('asana_workspace_get')?.({ workspace_gid: 'ws1' })
 
-		expect(getWorkspaceMock).toHaveBeenCalledWith('ws1')
+		expect(getWorkspaceMock).toHaveBeenCalledWith('ws1', undefined)
 	})
 
 	it('workspace tools can use injected dependencies', async () => {
@@ -67,6 +67,6 @@ describe('workspaces/mcp', () => {
 
 		await server.handlers.get('asana_workspace_get')?.({ workspace_gid: 'ws1' })
 
-		expect(injectedGetWorkspace).toHaveBeenCalledWith('ws1')
+		expect(injectedGetWorkspace).toHaveBeenCalledWith('ws1', undefined)
 	})
 })

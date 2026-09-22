@@ -1,6 +1,6 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import { paginationOptions, paginationParams } from '../mcp-options.js'
+import { paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
 import type { OooApi } from './api.js'
 import { createOooEntry, deleteOooEntry, getOooEntry, listOooEntries, updateOooEntry } from './api.js'
 
@@ -58,9 +58,14 @@ export function registerOooTools(server: McpServer, api?: OooApi | (() => OooApi
 	server.tool(
 		'asana_ooo_get',
 		'Get an Asana out-of-office entry by GID',
-		{ ooo_entry_gid: z.string().describe('OOO entry GID') },
-		async ({ ooo_entry_gid }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await resolveOooApi(api).getOooEntry(ooo_entry_gid)) }],
+		{ ooo_entry_gid: z.string().describe('OOO entry GID'), ...readParams },
+		async ({ ooo_entry_gid, ...params }) => ({
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(await resolveOooApi(api).getOooEntry(ooo_entry_gid, readOptions(params))),
+				},
+			],
 		}),
 	)
 

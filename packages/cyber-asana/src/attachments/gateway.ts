@@ -5,6 +5,7 @@ import {
 	type PaginationOptions,
 	toAsanaPaginationOptions,
 } from '../pagination.js'
+import { type ReadOptions, toAsanaReadOptions } from '../read-options.js'
 
 export type CreateAttachmentRequest = {
 	parent: string
@@ -19,7 +20,7 @@ export type CreateAttachmentRequest = {
 
 export type AttachmentGateway = {
 	listAttachments(taskGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
-	getAttachment(attachmentGid: string): Promise<any>
+	getAttachment(attachmentGid: string, opts?: ReadOptions): Promise<any>
 	createAttachment(request: CreateAttachmentRequest): Promise<any>
 	deleteAttachment(attachmentGid: string): Promise<void>
 }
@@ -32,8 +33,8 @@ export function createAsanaAttachmentGateway(client: Asana.ApiClient): Attachmen
 			const res = await attachmentsApi.getAttachmentsForObject(taskGid, toAsanaPaginationOptions(opts))
 			return await collectListResponse(res, opts)
 		},
-		async getAttachment(attachmentGid) {
-			const res = await attachmentsApi.getAttachment(attachmentGid, {})
+		async getAttachment(attachmentGid, opts) {
+			const res = await attachmentsApi.getAttachment(attachmentGid, toAsanaReadOptions(opts))
 			return res.data
 		},
 		async createAttachment(request) {

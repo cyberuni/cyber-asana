@@ -1,6 +1,7 @@
 import { createReadStream, statSync } from 'node:fs'
 import { createClient } from '../client.js'
 import type { PaginationOptions } from '../pagination.js'
+import type { ReadOptions } from '../read-options.js'
 import { type AttachmentCreateFields, buildAttachmentCreateInput } from './create-options.js'
 import { type AttachmentGateway, createAsanaAttachmentGateway } from './gateway.js'
 
@@ -19,8 +20,8 @@ export function createAttachmentApi(gateway: AttachmentGateway) {
 		listAttachments(parentGid: string, opts?: PaginationOptions) {
 			return gateway.listAttachments(parentGid, opts)
 		},
-		getAttachment(attachmentGid: string) {
-			return gateway.getAttachment(attachmentGid)
+		getAttachment(attachmentGid: string, opts?: ReadOptions) {
+			return gateway.getAttachment(attachmentGid, opts)
 		},
 		// async so a local validation or filesystem error surfaces as a rejected
 		// promise, like every other failure a caller of this facade awaits.
@@ -55,8 +56,8 @@ export async function listAttachments(parentGid: string, opts?: PaginationOption
 	return defaultAttachmentApi().listAttachments(parentGid, opts)
 }
 
-export async function getAttachment(attachmentGid: string) {
-	return defaultAttachmentApi().getAttachment(attachmentGid)
+export async function getAttachment(attachmentGid: string, opts?: ReadOptions) {
+	return defaultAttachmentApi().getAttachment(attachmentGid, opts)
 }
 
 export async function createAttachment(parentGid: string, fields: AttachmentCreateFields) {

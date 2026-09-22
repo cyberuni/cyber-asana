@@ -62,7 +62,7 @@ describe('task-templates/mcp', () => {
 
 		const result = await server.handlers.get('asana_task_template_get')?.({ task_template_gid: 'tt1' })
 
-		expect(api.getTaskTemplate).toHaveBeenCalledWith('tt1')
+		expect(api.getTaskTemplate).toHaveBeenCalledWith('tt1', undefined)
 		expect(payload(result)).toEqual({ gid: 'tt1', name: 'Release checklist' })
 	})
 

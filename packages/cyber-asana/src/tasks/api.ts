@@ -2,6 +2,7 @@ import { readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { createClient } from '../client.js'
 import type { PaginationOptions } from '../pagination.js'
+import type { ReadOptions } from '../read-options.js'
 import {
 	type CreateTaskFields,
 	createAsanaTaskGateway,
@@ -80,8 +81,8 @@ export function createTaskApi(gateway: TaskGateway) {
 		listTasksForSection(sectionGid: string, opts?: PaginationOptions & { completedSince?: string }) {
 			return gateway.listTasksForSection(sectionGid, opts)
 		},
-		getTask(taskGid: string) {
-			return gateway.getTask(taskGid)
+		getTask(taskGid: string, opts?: ReadOptions) {
+			return gateway.getTask(taskGid, opts)
 		},
 		getTasksByGid(taskGids: string[], opts?: { optFields?: string }) {
 			return gateway.getTasksByGid(taskGids, opts)
@@ -156,8 +157,8 @@ export async function listTasksForSection(sectionGid: string, opts?: PaginationO
 	return defaultTaskApi().listTasksForSection(sectionGid, opts)
 }
 
-export async function getTask(taskGid: string) {
-	return defaultTaskApi().getTask(taskGid)
+export async function getTask(taskGid: string, opts?: ReadOptions) {
+	return defaultTaskApi().getTask(taskGid, opts)
 }
 
 export async function getTasksByGid(

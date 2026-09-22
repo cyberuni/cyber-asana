@@ -2,9 +2,11 @@ import { Command } from 'commander'
 import {
 	addGidOption,
 	addPaginationOptions,
+	addReadOptions,
 	itemsForOutput,
 	paginationOptionsFromCli,
 	printNextPageHint,
+	readOptionsFromCli,
 	requiredGid,
 } from '../cli-options.js'
 import { output, printCountSummary, printFields, printNextSteps, printTable } from '../output.js'
@@ -157,11 +159,9 @@ export function customFieldCommand(api?: CustomFieldApi | (() => CustomFieldApi)
 		},
 	)
 
-	cmd
-		.command('get <gid>')
-		.description('Get a custom field by GID, including its enum options')
-		.action(async (gid: string) => {
-			const data = (await resolveCustomFieldApi(api).getCustomField(gid)) as CustomField
+	addReadOptions(cmd.command('get <gid>').description('Get a custom field by GID, including its enum options')).action(
+		async (gid: string, opts: { optFields?: string }) => {
+			const data = (await resolveCustomFieldApi(api).getCustomField(gid, readOptionsFromCli(opts))) as CustomField
 			output(data, () => {
 				printFields({
 					Name: data.name,
@@ -179,7 +179,8 @@ export function customFieldCommand(api?: CustomFieldApi | (() => CustomFieldApi)
 					{ entity: 'enum options' },
 				)
 			})
-		})
+		},
+	)
 
 	addAttachedFieldsSubcommand(
 		cmd,

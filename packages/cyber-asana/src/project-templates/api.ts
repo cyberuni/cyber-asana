@@ -3,6 +3,7 @@ import { assertJobSucceeded, type Job, type WaitForJobOptions, waitForJob } from
 import type { JobGateway } from '../jobs/gateway.js'
 import { createAsanaJobGateway } from '../jobs/gateway.js'
 import type { PaginationOptions } from '../pagination.js'
+import type { ReadOptions } from '../read-options.js'
 import {
 	createAsanaProjectTemplateGateway,
 	type InstantiateProjectFields,
@@ -44,8 +45,8 @@ export function createProjectTemplateApi(gateway: ProjectTemplateGateway, deps: 
 		listProjectTemplatesForTeam(teamGid: string, opts?: PaginationOptions) {
 			return gateway.listProjectTemplatesForTeam(teamGid, opts)
 		},
-		getProjectTemplate(templateGid: string) {
-			return gateway.getProjectTemplate(templateGid)
+		getProjectTemplate(templateGid: string, opts?: ReadOptions) {
+			return gateway.getProjectTemplate(templateGid, opts)
 		},
 		instantiateProject(templateGid: string, fields: InstantiateProjectFields) {
 			return gateway.instantiateProject(templateGid, fields)
@@ -82,8 +83,8 @@ export async function listProjectTemplatesForTeam(teamGid: string, opts?: Pagina
 	return defaultProjectTemplateApi().listProjectTemplatesForTeam(teamGid, opts)
 }
 
-export async function getProjectTemplate(templateGid: string) {
-	return defaultProjectTemplateApi().getProjectTemplate(templateGid)
+export async function getProjectTemplate(templateGid: string, opts?: ReadOptions) {
+	return defaultProjectTemplateApi().getProjectTemplate(templateGid, opts)
 }
 
 export async function instantiateProject(templateGid: string, fields: InstantiateProjectFields) {

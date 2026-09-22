@@ -5,6 +5,7 @@ import {
 	type PaginationOptions,
 	toAsanaPaginationOptions,
 } from '../pagination.js'
+import { type ReadOptions, toAsanaReadOptions } from '../read-options.js'
 
 export type ProjectPrivacySetting = 'public_to_workspace' | 'private' | 'private_to_team'
 export type ProjectDefaultView = 'list' | 'board' | 'calendar' | 'timeline'
@@ -70,7 +71,7 @@ export type SearchProjectsOptions = {
 
 export type ProjectGateway = {
 	listProjects(workspaceGid: string, opts?: PaginationOptions & { archived?: boolean }): Promise<ListResult<any>>
-	getProject(projectGid: string): Promise<any>
+	getProject(projectGid: string, opts?: ReadOptions): Promise<any>
 	getProjectTaskCounts(projectGid: string, opts?: { optFields?: string }): Promise<any>
 	createProject(workspaceGid: string, name: string, opts?: CreateProjectFields): Promise<any>
 	updateProject(projectGid: string, fields: UpdateProjectFields): Promise<any>
@@ -93,8 +94,8 @@ export function createAsanaProjectGateway(client: Asana.ApiClient): ProjectGatew
 			})
 			return await collectListResponse(res, opts)
 		},
-		async getProject(projectGid) {
-			const res = await projectsApi.getProject(projectGid, {})
+		async getProject(projectGid, opts) {
+			const res = await projectsApi.getProject(projectGid, toAsanaReadOptions(opts))
 			return res.data
 		},
 		async getProjectTaskCounts(projectGid, opts) {

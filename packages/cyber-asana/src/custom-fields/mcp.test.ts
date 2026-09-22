@@ -75,7 +75,7 @@ describe('custom-fields/mcp', () => {
 
 		const result = await server.handlers.get('asana_custom_field_get')?.({ custom_field_gid: 'cf1' })
 
-		expect(getCustomFieldMock).toHaveBeenCalledWith('cf1')
+		expect(getCustomFieldMock).toHaveBeenCalledWith('cf1', undefined)
 		expect(JSON.parse(result.content[0].text).enum_options).toEqual([{ gid: 'opt1', name: 'High' }])
 	})
 
@@ -93,7 +93,7 @@ describe('custom-fields/mcp', () => {
 
 		await server.handlers.get('asana_custom_field_get')?.({ custom_field_gid: 'cf1' })
 
-		expect(injectedGetCustomField).toHaveBeenCalledWith('cf1')
+		expect(injectedGetCustomField).toHaveBeenCalledWith('cf1', undefined)
 	})
 })
 

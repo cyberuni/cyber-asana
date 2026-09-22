@@ -1,7 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import { DEFAULT_JOB_POLL_ATTEMPTS, DEFAULT_JOB_POLL_INTERVAL_MS } from '../job-polling.js'
-import { paginationOptions, paginationParams } from '../mcp-options.js'
+import { paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
 import type { TaskTemplateApi } from './api.js'
 import { getTaskTemplate, instantiateTask, listTaskTemplates } from './api.js'
 
@@ -30,10 +30,15 @@ export function registerTaskTemplateTools(server: McpServer, api?: TaskTemplateA
 	server.tool(
 		'asana_task_template_get',
 		'Get an Asana task template by GID',
-		{ task_template_gid: z.string().describe('Task template GID') },
-		async ({ task_template_gid }) => ({
+		{ task_template_gid: z.string().describe('Task template GID'), ...readParams },
+		async ({ task_template_gid, ...params }) => ({
 			content: [
-				{ type: 'text', text: JSON.stringify(await resolveTaskTemplateApi(api).getTaskTemplate(task_template_gid)) },
+				{
+					type: 'text',
+					text: JSON.stringify(
+						await resolveTaskTemplateApi(api).getTaskTemplate(task_template_gid, readOptions(params)),
+					),
+				},
 			],
 		}),
 	)

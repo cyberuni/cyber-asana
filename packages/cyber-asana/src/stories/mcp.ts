@@ -1,7 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import { deleteIdempotently } from '../idempotent-delete.js'
-import { paginationOptions, paginationParams } from '../mcp-options.js'
+import { paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
 import type { StoryApi } from './api.js'
 import {
 	createStory,
@@ -90,9 +90,11 @@ function registerStoryToolsWithPrefix(
 	server.tool(
 		`asana_${prefix}_get`,
 		'Get an Asana story (comment) by GID',
-		{ story_gid: z.string().describe('Story GID') },
-		async ({ story_gid }) => ({
-			content: [{ type: 'text', text: JSON.stringify(await resolveStoryApi(api).getStory(story_gid)) }],
+		{ story_gid: z.string().describe('Story GID'), ...readParams },
+		async ({ story_gid, ...params }) => ({
+			content: [
+				{ type: 'text', text: JSON.stringify(await resolveStoryApi(api).getStory(story_gid, readOptions(params))) },
+			],
 		}),
 	)
 
