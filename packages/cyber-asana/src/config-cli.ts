@@ -1,5 +1,19 @@
 import { Command, InvalidArgumentError } from 'commander'
 import { addGidOption, requiredGid } from './cli-options.js'
+import { loadEffectiveProjects, resolveEffectiveProject } from './effective-config.js'
+import {
+	addGlobalProject,
+	createEmptyGlobalConfig,
+	findGlobalRepoEntry,
+	type GlobalConfig,
+	globalConfigPath,
+	loadGlobalConfig,
+	observeGlobalProject,
+	removeGlobalProject,
+	resolveGlobalProject,
+	resolveRepoKey,
+	saveGlobalConfig,
+} from './global-config.js'
 import { output, printFields, printNextSteps, printTable } from './output.js'
 import type { ProjectApi } from './projects/api.js'
 import {
@@ -11,6 +25,7 @@ import {
 	normalizeProjectName,
 	observeProject,
 	observeUser,
+	pathExists,
 	type RepoConfig,
 	type RepoProjectEntry,
 	type RepoUserEntry,
@@ -28,6 +43,103 @@ import type { UserApi } from './users/api.js'
 
 type ConfigCliOptions = {
 	config?: string
+}
+
+type GlobalFlags = {
+	global?: boolean
+	merged?: boolean
+	repo?: string
+}
+
+function assertGlobalMergedExclusive(opts: GlobalFlags) {
+	if (opts.global && opts.merged) {
+		throw new InvalidArgumentError('Pass --global or --merged, not both')
+	}
+}
+
+async function resolveRepoKeyOrThrow(repoOverride?: string): Promise<string> {
+	const repo = await resolveRepoKey(process.cwd(), repoOverride)
+	if (!repo) {
+		throw new Error('Cannot determine a repo for --global; pass --repo <key>')
+	}
+	return repo
+}
+
+async function loadGlobalConfigOrEmpty(path: string): Promise<{ path: string; config: GlobalConfig }> {
+	try {
+		return { path, config: await loadGlobalConfig(path) }
+	} catch (error) {
+		if (error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT') {
+			return { path, config: createEmptyGlobalConfig() }
+		}
+		throw error
+	}
+}
+
+async function resolveWritableGlobalConfig(): Promise<{ path: string; config: GlobalConfig }> {
+	return loadGlobalConfigOrEmpty(globalConfigPath())
+}
+
+async function requireGlobalConfig(): Promise<{ path: string; config: GlobalConfig }> {
+	const path = globalConfigPath()
+	if (!(await pathExists(path))) {
+		throw new Error('Global config not found')
+	}
+	return { path, config: await loadGlobalConfig(path) }
+}
+
+function printProjectTable(projects: RepoProjectEntry[]) {
+	printTable(
+		projects,
+		[
+			{ label: 'GID', get: (p: RepoProjectEntry) => p.gid },
+			{ label: 'Name', get: (p: RepoProjectEntry) => p.name },
+		],
+		{ entity: 'registered projects' },
+	)
+}
+
+async function showGlobalProjects(opts: GlobalFlags) {
+	const repo = await resolveRepoKeyOrThrow(opts.repo)
+	const { path, config } = await requireGlobalConfig()
+	const projects = findGlobalRepoEntry(config, repo)?.projects ?? []
+	output({ path, repo, projects }, () => {
+		console.log(path)
+		console.log(`Repo: ${repo}`)
+		printProjectTable(projects)
+	})
+}
+
+async function showMergedProjects(opts: ConfigCliOptions & GlobalFlags) {
+	const effective = await loadEffectiveProjects({ configPath: configPathFromOpts(opts), repo: opts.repo })
+	if (effective.localPath === null && effective.projects.length === 0) {
+		throw new Error('No repo or global config found')
+	}
+	output(effective, () => {
+		console.log(effective.localPath ?? '(no repo config found)')
+		console.log(effective.globalPath)
+		if (effective.repo) console.log(`Repo: ${effective.repo}`)
+		printProjectTable(effective.projects)
+	})
+}
+
+async function resolveProjectGlobal(name: string, opts: GlobalFlags) {
+	const repo = await resolveRepoKeyOrThrow(opts.repo)
+	const { config } = await requireGlobalConfig()
+	const project = resolveGlobalProject(config, repo, { name })
+	if (!project) {
+		throw new Error(`Project not found in global config: ${name}`)
+	}
+	output(project, () => printFields({ Name: project.name, GID: project.gid }))
+}
+
+async function resolveProjectMerged(name: string, opts: ConfigCliOptions & GlobalFlags) {
+	const effective = await loadEffectiveProjects({ configPath: configPathFromOpts(opts), repo: opts.repo })
+	const project = resolveEffectiveProject(effective, { name })
+	if (!project) {
+		throw new Error(`Project not found in merged config: ${name}`)
+	}
+	output(project, () => printFields({ Name: project.name, GID: project.gid }))
 }
 
 function splitAliases(value: string): string[] {
@@ -149,6 +261,8 @@ export function configCommand(getProjects: () => ProjectApi, getUsers?: () => Us
 			'  cyber-asana config resolve-user <alias-email-or-name>',
 			'  cyber-asana config list-users',
 			'  cyber-asana config sync',
+			'  cyber-asana config add <project-gid> --global   # personal registry, this repo',
+			'  cyber-asana config show --merged                # repo config + global, unioned',
 			'',
 			'Every subcommand supports --help for its own options.',
 		].join('\n'),
@@ -158,7 +272,13 @@ export function configCommand(getProjects: () => ProjectApi, getUsers?: () => Us
 		.command('show')
 		.description('Show the repo config')
 		.option('--config <path>', 'Config file path (overrides CYBER_ASANA_CONFIG)')
-		.action(async (opts: ConfigCliOptions) => {
+		.option('--global', 'Read the global registry (a repo/project registry outside any repo) instead')
+		.option('--repo <key>', 'Repo key for --global/--merged (default: auto-detected from the git remote)')
+		.option('--merged', 'Union the repo config with the global registry entry for this repo')
+		.action(async (opts: ConfigCliOptions & GlobalFlags) => {
+			assertGlobalMergedExclusive(opts)
+			if (opts.global) return showGlobalProjects(opts)
+			if (opts.merged) return showMergedProjects(opts)
 			const path = await resolveConfigPath(process.cwd(), configPathFromOpts(opts))
 			if (!path) {
 				throw new Error('Repo config not found')
@@ -182,7 +302,13 @@ export function configCommand(getProjects: () => ProjectApi, getUsers?: () => Us
 		.command('list')
 		.description('List projects in the repo config (alias for show)')
 		.option('--config <path>', 'Config file path (overrides CYBER_ASANA_CONFIG)')
-		.action(async (opts: ConfigCliOptions) => {
+		.option('--global', 'Read the global registry (a repo/project registry outside any repo) instead')
+		.option('--repo <key>', 'Repo key for --global/--merged (default: auto-detected from the git remote)')
+		.option('--merged', 'Union the repo config with the global registry entry for this repo')
+		.action(async (opts: ConfigCliOptions & GlobalFlags) => {
+			assertGlobalMergedExclusive(opts)
+			if (opts.global) return showGlobalProjects(opts)
+			if (opts.merged) return showMergedProjects(opts)
 			const path = await resolveConfigPath(process.cwd(), configPathFromOpts(opts))
 			if (!path) {
 				throw new Error('Repo config not found')
@@ -205,7 +331,14 @@ export function configCommand(getProjects: () => ProjectApi, getUsers?: () => Us
 		.command('path')
 		.description('Print the resolved config file path')
 		.option('--config <path>', 'Config file path (overrides CYBER_ASANA_CONFIG)')
-		.action(async (opts: ConfigCliOptions) => {
+		.option('--global', 'Print the global registry path instead')
+		.action(async (opts: ConfigCliOptions & { global?: boolean }) => {
+			if (opts.global) {
+				output({ path: globalConfigPath() }, () => {
+					console.log(globalConfigPath())
+				})
+				return
+			}
 			const path = await resolveConfigPath(process.cwd(), configPathFromOpts(opts))
 			output({ path }, () => {
 				console.log(path ?? '')
@@ -216,7 +349,13 @@ export function configCommand(getProjects: () => ProjectApi, getUsers?: () => Us
 		.command('resolve-project <name>')
 		.description('Resolve a project name to GID from the repo config (no API call)')
 		.option('--config <path>', 'Config file path (overrides CYBER_ASANA_CONFIG)')
-		.action(async (name: string, opts: ConfigCliOptions) => {
+		.option('--global', 'Resolve from the global registry instead')
+		.option('--repo <key>', 'Repo key for --global/--merged (default: auto-detected from the git remote)')
+		.option('--merged', 'Resolve against the repo config unioned with the global registry entry for this repo')
+		.action(async (name: string, opts: ConfigCliOptions & GlobalFlags) => {
+			assertGlobalMergedExclusive(opts)
+			if (opts.global) return resolveProjectGlobal(name, opts)
+			if (opts.merged) return resolveProjectMerged(name, opts)
 			const path = await resolveConfigPath(process.cwd(), configPathFromOpts(opts))
 			if (!path) {
 				throw new Error('Repo config not found')
@@ -238,7 +377,27 @@ export function configCommand(getProjects: () => ProjectApi, getUsers?: () => Us
 		.command('add <project-gid>')
 		.description('Add or update a project entry (fetches name from Asana)')
 		.option('--config <path>', 'Config file path (overrides CYBER_ASANA_CONFIG)')
-		.action(async (projectGid: string, opts: ConfigCliOptions) => {
+		.option('--global', 'Add to the global registry entry for this repo instead')
+		.option('--repo <key>', 'Repo key for --global (default: auto-detected from the git remote)')
+		.action(async (projectGid: string, opts: ConfigCliOptions & GlobalFlags) => {
+			if (opts.global) {
+				const repo = await resolveRepoKeyOrThrow(opts.repo)
+				const api = getProjects()
+				const project = await api.getProject(projectGid)
+				const entry: RepoProjectEntry = { gid: projectGid, name: projectNameFromApi(project) }
+				const { path, config } = await resolveWritableGlobalConfig()
+				const next = addGlobalProject(config, repo, entry)
+				await saveGlobalConfig(path, next)
+				output({ path, repo, project: entry }, () =>
+					printFields({
+						Path: path,
+						Repo: repo,
+						Name: entry.name,
+						GID: entry.gid,
+					}),
+				)
+				return
+			}
 			const api = getProjects()
 			const project = await api.getProject(projectGid)
 			const entry: RepoProjectEntry = { gid: projectGid, name: projectNameFromApi(project) }
@@ -258,7 +417,26 @@ export function configCommand(getProjects: () => ProjectApi, getUsers?: () => Us
 		.command('remove <gid-or-name>')
 		.description('Remove a project entry by GID or name')
 		.option('--config <path>', 'Config file path (overrides CYBER_ASANA_CONFIG)')
-		.action(async (gidOrName: string, opts: ConfigCliOptions) => {
+		.option('--global', 'Remove from the global registry entry for this repo instead')
+		.option('--repo <key>', 'Repo key for --global (default: auto-detected from the git remote)')
+		.action(async (gidOrName: string, opts: ConfigCliOptions & GlobalFlags) => {
+			if (opts.global) {
+				const repo = await resolveRepoKeyOrThrow(opts.repo)
+				const { path, config } = await resolveWritableGlobalConfig()
+				const next = /^\d+$/.test(gidOrName)
+					? removeGlobalProject(config, repo, { gid: gidOrName })
+					: removeGlobalProject(config, repo, { name: gidOrName })
+				const before = findGlobalRepoEntry(config, repo)?.projects.length ?? 0
+				const after = findGlobalRepoEntry(next, repo)?.projects.length ?? 0
+				if (after === before) {
+					throw new Error(`Project not found in global config: ${gidOrName}`)
+				}
+				await saveGlobalConfig(path, next)
+				output({ path, repo, removed: gidOrName }, () => {
+					console.log(`Removed ${gidOrName} from ${path} (repo: ${repo})`)
+				})
+				return
+			}
 			const { path, config } = await resolveWritableConfig(opts)
 			const next = /^\d+$/.test(gidOrName)
 				? removeProject(config, { gid: gidOrName })
@@ -276,7 +454,37 @@ export function configCommand(getProjects: () => ProjectApi, getUsers?: () => Us
 		.command('sync')
 		.description('Refresh all project names and user names/emails from Asana')
 		.option('--config <path>', 'Config file path (overrides CYBER_ASANA_CONFIG)')
-		.action(async (opts: ConfigCliOptions) => {
+		.option('--global', 'Refresh the global registry instead')
+		.option('--repo <key>', 'Scope --global to one repo (default: every repo in the global registry)')
+		.action(async (opts: ConfigCliOptions & GlobalFlags) => {
+			if (opts.global) {
+				const { path, config } = await requireGlobalConfig()
+				const api = getProjects()
+				let updated = 0
+				let configToSave = config
+				const targetRepos = opts.repo ? config.repos.filter((r) => r.repo === opts.repo) : config.repos
+				for (const repoEntry of targetRepos) {
+					for (const entry of repoEntry.projects) {
+						const project = await api.getProject(entry.gid)
+						const observation = { repo: repoEntry.repo, gid: entry.gid, name: projectNameFromApi(project) }
+						const result = observeGlobalProject(configToSave, observation)
+						if (result.updated) {
+							updated += 1
+							configToSave = result.config
+						}
+					}
+				}
+				if (updated > 0) {
+					await saveGlobalConfig(path, configToSave)
+				}
+				const totalProjects = configToSave.repos.reduce((sum, r) => sum + r.projects.length, 0)
+				output({ path, updated, repos: configToSave.repos }, () => {
+					console.log(
+						`Synced ${totalProjects} project(s) across ${configToSave.repos.length} repo(s); ${updated} name(s) updated`,
+					)
+				})
+				return
+			}
 			const path = await resolveConfigPath(process.cwd(), configPathFromOpts(opts))
 			if (!path) {
 				throw new Error('Repo config not found')

@@ -294,3 +294,213 @@ Feature: config
     When the server lists its tools
     Then no listed tool name starts with "asana_config"
     And no listed tool description mentions ".agents/cyber-asana.json"
+
+  # ── deriving the global-registry repo key ──
+
+  Scenario: --repo overrides the auto-detected key for the global registry
+    Given a git repository at "/work/harbour" whose origin remote is "git@github.com:cyberuni/cyber-asana.git"
+    And a global registry file holding the project "7702219900101" named "Lanternfish Rollout" under the repo key "manual-key"
+    And the working directory is "/work/harbour"
+    When config show runs with --global and --repo "manual-key"
+    Then stdout contains "7702219900101"
+
+  Scenario: the global repo key normalizes an SSH-style origin URL
+    Given a git repository at "/work/harbour" whose origin remote is "git@github.com:cyberuni/cyber-asana.git"
+    And a global registry file holding the project "7702219900101" named "Lanternfish Rollout" under the repo key "github.com/cyberuni/cyber-asana"
+    And the working directory is "/work/harbour"
+    When config show runs with --global and no --repo option
+    Then stdout contains "7702219900101"
+
+  Scenario: an HTTPS origin URL normalizes to the same key as its SSH equivalent
+    Given a git repository at "/work/harbour" whose origin remote is "https://github.com/cyberuni/cyber-asana.git"
+    And a global registry file holding the project "7702219900101" named "Lanternfish Rollout" under the repo key "github.com/cyberuni/cyber-asana"
+    And the working directory is "/work/harbour"
+    When config show runs with --global and no --repo option
+    Then stdout contains "7702219900101"
+
+  Scenario: the global repo key falls back to the git root path when there is no remote
+    Given a git repository at "/work/harbour" with no configured remote
+    And a global registry file holding the project "7702219900101" named "Lanternfish Rollout" under the repo key "/work/harbour"
+    And the working directory is "/work/harbour"
+    When config show runs with --global and no --repo option
+    Then stdout contains "7702219900101"
+
+  Scenario: --global without a resolvable repo key and no --repo is an error
+    Given "/scratch/loose" sits outside any git working tree
+    And the working directory is "/scratch/loose"
+    When config show runs with --global and no --repo option
+    Then the command fails with a message containing "--repo"
+
+  # ── reading and writing the global registry ──
+
+  Scenario: config path --global prints the default location under XDG_CONFIG_HOME
+    Given XDG_CONFIG_HOME is set to "/home/operator/.config"
+    And CYBER_ASANA_GLOBAL_CONFIG is absent from the environment
+    When config path runs with --global
+    Then stdout is "/home/operator/.config/cyber-asana/config.json"
+
+  Scenario: CYBER_ASANA_GLOBAL_CONFIG overrides the default global location
+    Given CYBER_ASANA_GLOBAL_CONFIG is set to "/work/harbour/personal.json"
+    When config path runs with --global
+    Then stdout is "/work/harbour/personal.json"
+
+  Scenario: show --global prints the projects paired with the derived repo key
+    Given a git repository at "/work/harbour" whose origin remote is "git@github.com:cyberuni/cyber-asana.git"
+    And a global registry file holding the project "7702219900101" named "Lanternfish Rollout" under the repo key "github.com/cyberuni/cyber-asana"
+    And that file also holds the project "7702219900303" named "Marmalade Signal" under the repo key "github.com/cyberuni/other-repo"
+    And the working directory is "/work/harbour"
+    When config show runs with --global and no --repo option
+    Then stdout contains "7702219900101"
+    And stdout does not contain "7702219900303"
+
+  Scenario: show --global prints zero rows for a repo key with no entry in an existing global file
+    Given a git repository at "/work/harbour" whose origin remote is "git@github.com:cyberuni/cyber-asana.git"
+    And a global registry file holding the project "7702219900303" named "Marmalade Signal" under the repo key "github.com/cyberuni/other-repo"
+    And the working directory is "/work/harbour"
+    When config show runs with --global and no --repo option
+    Then stdout contains "0 registered projects"
+
+  Scenario: show --global without a global file anywhere is an error
+    Given a git repository at "/work/harbour" whose origin remote is "git@github.com:cyberuni/cyber-asana.git"
+    And no global registry file exists at the resolved global location
+    And the working directory is "/work/harbour"
+    When config show runs with --global and no --repo option
+    Then the command fails with the message "Global config not found"
+
+  Scenario: add --global creates the global file and the repo entry when neither exists
+    Given a git repository at "/work/harbour" whose origin remote is "git@github.com:cyberuni/cyber-asana.git"
+    And no global registry file exists at the resolved global location
+    And the working directory is "/work/harbour"
+    And an Asana API that answers a fetch of project "7702219900101" with the name "Lanternfish Rollout"
+    When config add runs with the argument "7702219900101" and --global
+    Then the global registry file holds the project "7702219900101" named "Lanternfish Rollout" under the repo key "github.com/cyberuni/cyber-asana"
+
+  Scenario: add --global replaces the entry when the GID is already registered for that repo
+    Given a git repository at "/work/harbour" whose origin remote is "git@github.com:cyberuni/cyber-asana.git"
+    And a global registry file holding the project "7702219900101" named "Lanternfish Pilot" under the repo key "github.com/cyberuni/cyber-asana"
+    And the working directory is "/work/harbour"
+    And an Asana API that answers a fetch of project "7702219900101" with the name "Lanternfish Rollout"
+    When config add runs with the argument "7702219900101" and --global
+    Then the global registry file holds exactly one project entry under the repo key "github.com/cyberuni/cyber-asana"
+    And that entry has the gid "7702219900101" and the name "Lanternfish Rollout"
+
+  Scenario: remove --global deletes the entry whose GID matches, scoped to the derived repo
+    Given a git repository at "/work/harbour" whose origin remote is "git@github.com:cyberuni/cyber-asana.git"
+    And a global registry file holding the project "7702219900101" named "Lanternfish Rollout" under the repo key "github.com/cyberuni/cyber-asana"
+    And that file also holds the project "7702219900202" named "Quartz Bulkhead" under the repo key "github.com/cyberuni/cyber-asana"
+    And the working directory is "/work/harbour"
+    When config remove runs with the argument "7702219900101" and --global
+    Then the global registry file holds exactly one project entry under the repo key "github.com/cyberuni/cyber-asana"
+    And that entry has the gid "7702219900202" and the name "Quartz Bulkhead"
+
+  Scenario: remove --global reports an argument that matches no entry for that repo
+    Given a git repository at "/work/harbour" whose origin remote is "git@github.com:cyberuni/cyber-asana.git"
+    And a global registry file holding the project "7702219900101" named "Lanternfish Rollout" under the repo key "github.com/cyberuni/cyber-asana"
+    And the working directory is "/work/harbour"
+    When config remove runs with the argument "Marmalade Signal" and --global
+    Then the command fails with the message "Project not found in global config: Marmalade Signal"
+
+  Scenario: sync --global refreshes the drifted names across every repo entry in the file
+    Given a global registry file holding the project "7702219900101" named "Lanternfish Pilot" under the repo key "github.com/cyberuni/cyber-asana"
+    And that file also holds the project "7702219900303" named "Marmalade Pilot" under the repo key "github.com/cyberuni/other-repo"
+    And an Asana API that answers a fetch of project "7702219900101" with the name "Lanternfish Rollout"
+    And an Asana API that answers a fetch of project "7702219900303" with the name "Marmalade Signal"
+    When config sync runs with --global
+    Then the global registry file holds the project "7702219900101" named "Lanternfish Rollout" under the repo key "github.com/cyberuni/cyber-asana"
+    And the global registry file holds the project "7702219900303" named "Marmalade Signal" under the repo key "github.com/cyberuni/other-repo"
+
+  Scenario: sync --global without a global file anywhere is an error
+    Given no global registry file exists at the resolved global location
+    When config sync runs with --global
+    Then the command fails with the message "Global config not found"
+
+  Scenario: resolve-project --global resolves a name from the global entry with no Asana request
+    Given a git repository at "/work/harbour" whose origin remote is "git@github.com:cyberuni/cyber-asana.git"
+    And a global registry file holding the project "7702219900101" named "Lanternfish Rollout" under the repo key "github.com/cyberuni/cyber-asana"
+    And the working directory is "/work/harbour"
+    And an Asana API that answers every request with the project "7702219900101" named "Renamed In Asana"
+    When config resolve-project runs with the argument "Lanternfish Rollout" and --global
+    Then no request reaches any Asana API endpoint
+    And stdout contains "Lanternfish Rollout"
+
+  Scenario: add --global writes no workspace GID even when the workspace variable is set
+    Given a git repository at "/work/harbour" whose origin remote is "git@github.com:cyberuni/cyber-asana.git"
+    And no global registry file exists at the resolved global location
+    And the working directory is "/work/harbour"
+    And ASANA_WORKSPACE is set to "5500330011122"
+    And an Asana API that answers a fetch of project "7702219900101" with the name "Lanternfish Rollout"
+    When config add runs with the argument "7702219900101" and --global
+    Then the global registry file contains no text "5500330011122"
+
+  # ── the merged (effective) view ──
+
+  Scenario: show --merged unions the repo config and the global entry for this repo
+    Given a git repository at "/work/harbour" whose origin remote is "git@github.com:cyberuni/cyber-asana.git"
+    And that repository's .agents/cyber-asana.json holds the project "7702219900101" named "Lanternfish Rollout"
+    And a global registry file holding the project "7702219900303" named "Marmalade Signal" under the repo key "github.com/cyberuni/cyber-asana"
+    And the working directory is "/work/harbour"
+    When config show runs with --merged
+    Then stdout contains "7702219900101"
+    And stdout contains "7702219900303"
+
+  Scenario: show --merged keeps the repo-config name when the same GID differs between sources
+    Given a git repository at "/work/harbour" whose origin remote is "git@github.com:cyberuni/cyber-asana.git"
+    And that repository's .agents/cyber-asana.json holds the project "7702219900101" named "Lanternfish Rollout"
+    And a global registry file holding the project "7702219900101" named "Lanternfish Pilot" under the repo key "github.com/cyberuni/cyber-asana"
+    And the working directory is "/work/harbour"
+    When config show runs with --merged
+    Then stdout contains "Lanternfish Rollout"
+    And stdout does not contain "Lanternfish Pilot"
+
+  Scenario: resolve-project --merged resolves a name present only in the global entry
+    Given a git repository at "/work/harbour" whose origin remote is "git@github.com:cyberuni/cyber-asana.git"
+    And that repository's .agents/cyber-asana.json holds the project "7702219900101" named "Lanternfish Rollout"
+    And a global registry file holding the project "7702219900303" named "Marmalade Signal" under the repo key "github.com/cyberuni/cyber-asana"
+    And the working directory is "/work/harbour"
+    When config resolve-project runs with the argument "Marmalade Signal" and --merged
+    Then stdout contains "7702219900303"
+
+  Scenario: resolve-project --merged reports a name that is not registered in either source
+    Given a git repository at "/work/harbour" whose origin remote is "git@github.com:cyberuni/cyber-asana.git"
+    And that repository's .agents/cyber-asana.json holds the project "7702219900101" named "Lanternfish Rollout"
+    And a global registry file holding the project "7702219900303" named "Marmalade Signal" under the repo key "github.com/cyberuni/cyber-asana"
+    And the working directory is "/work/harbour"
+    When config resolve-project runs with the argument "Quartz Bulkhead" and --merged
+    Then the command fails with the message "Project not found in merged config: Quartz Bulkhead"
+
+  Scenario: --repo overrides the auto-detected key in the merged view
+    Given a git repository at "/work/harbour" whose origin remote is "git@github.com:cyberuni/cyber-asana.git"
+    And that repository's .agents/cyber-asana.json holds the project "7702219900101" named "Lanternfish Rollout"
+    And a global registry file holding the project "7702219900303" named "Marmalade Signal" under the repo key "manual-key"
+    And the working directory is "/work/harbour"
+    When config show runs with --merged and --repo "manual-key"
+    Then stdout contains "7702219900101"
+    And stdout contains "7702219900303"
+
+  Scenario: show --merged succeeds from the global entry alone when no repo config file exists
+    Given a git repository at "/work/harbour" whose origin remote is "git@github.com:cyberuni/cyber-asana.git"
+    And that repository contains no .agents directory
+    And a global registry file holding the project "7702219900303" named "Marmalade Signal" under the repo key "github.com/cyberuni/cyber-asana"
+    And the working directory is "/work/harbour"
+    When config show runs with --merged
+    Then stdout contains "7702219900303"
+
+  Scenario: show --merged tolerates an unresolvable repo key and falls back to the repo config alone
+    Given a file "/scratch/loose/registry.json" holding schema_version 1 and the project "7702219900101" named "Lanternfish Rollout"
+    And "/scratch/loose" sits outside any git working tree
+    And the working directory is "/scratch/loose"
+    When config show runs with --merged and --config "/scratch/loose/registry.json"
+    Then stdout contains "7702219900101"
+
+  Scenario: show --merged is an error when neither source produces anything
+    Given a git repository at "/work/harbour" whose origin remote is "git@github.com:cyberuni/cyber-asana.git"
+    And that repository contains no .agents directory
+    And no global registry file exists at the resolved global location
+    And the working directory is "/work/harbour"
+    When config show runs with --merged
+    Then the command fails with the message "No repo or global config found"
+
+  Scenario: --global and --merged together is a usage error
+    Given the working directory is "/work/harbour"
+    When config show runs with --global and --merged
+    Then the command fails with a message containing "not both"

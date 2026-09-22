@@ -255,6 +255,248 @@ describe('config/cli', () => {
 		])
 	})
 
+	describe('--global and --merged', () => {
+		let globalRoot: string | undefined
+		const prevGlobalOverride = process.env.CYBER_ASANA_GLOBAL_CONFIG
+
+		afterEach(async () => {
+			if (prevGlobalOverride === undefined) delete process.env.CYBER_ASANA_GLOBAL_CONFIG
+			else process.env.CYBER_ASANA_GLOBAL_CONFIG = prevGlobalOverride
+			if (globalRoot) {
+				await rm(globalRoot, { recursive: true, force: true })
+				globalRoot = undefined
+			}
+		})
+
+		async function writeGlobalConfig(config: unknown) {
+			globalRoot = await mkdtemp(join(tmpdir(), 'cyber-asana-global-cli-'))
+			const path = join(globalRoot, 'global.json')
+			await writeFile(path, JSON.stringify(config))
+			process.env.CYBER_ASANA_GLOBAL_CONFIG = path
+			return path
+		}
+
+		async function program() {
+			const configCommand = await loadConfigCommand()
+			return new Command().addCommand(configCommand(() => ({ getProject: getProjectMock }) as never))
+		}
+
+		it('add --global creates the file and writes under the given --repo', async () => {
+			globalRoot = await mkdtemp(join(tmpdir(), 'cyber-asana-global-cli-'))
+			const path = join(globalRoot, 'global.json')
+			process.env.CYBER_ASANA_GLOBAL_CONFIG = path
+			getProjectMock.mockResolvedValue({ gid: '111', name: 'Backend' })
+
+			process.argv = ['node', 'test', '--json']
+			await (await program()).parseAsync(['node', 'test', 'config', 'add', '111', '--global', '--repo', 'repo-a'], {
+				from: 'node',
+			})
+
+			expect(JSON.parse(await readFile(path, 'utf8')).repos).toEqual([
+				{ repo: 'repo-a', projects: [{ gid: '111', name: 'Backend' }] },
+			])
+		})
+
+		it('show --global lists only the matching repo entry', async () => {
+			await writeGlobalConfig({
+				schema_version: 1,
+				repos: [
+					{ repo: 'repo-a', projects: [{ gid: '1', name: 'A' }] },
+					{ repo: 'repo-b', projects: [{ gid: '2', name: 'B' }] },
+				],
+			})
+
+			process.argv = ['node', 'test', '--json']
+			await (await program()).parseAsync(['node', 'test', 'config', 'show', '--global', '--repo', 'repo-a'], {
+				from: 'node',
+			})
+
+			expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('"gid": "1"'))
+			expect(logSpy).not.toHaveBeenCalledWith(expect.stringContaining('"gid": "2"'))
+		})
+
+		it('show --global errors when the global file does not exist', async () => {
+			globalRoot = await mkdtemp(join(tmpdir(), 'cyber-asana-global-cli-'))
+			process.env.CYBER_ASANA_GLOBAL_CONFIG = join(globalRoot, 'missing.json')
+
+			await expect(
+				(await program()).parseAsync(['node', 'test', 'config', 'show', '--global', '--repo', 'repo-a'], {
+					from: 'node',
+				}),
+			).rejects.toThrow('Global config not found')
+		})
+
+		it('remove --global deletes the matching entry, scoped to the repo', async () => {
+			const path = await writeGlobalConfig({
+				schema_version: 1,
+				repos: [
+					{
+						repo: 'repo-a',
+						projects: [
+							{ gid: '1', name: 'A' },
+							{ gid: '2', name: 'B' },
+						],
+					},
+				],
+			})
+
+			process.argv = ['node', 'test', '--json']
+			await (await program()).parseAsync(['node', 'test', 'config', 'remove', '1', '--global', '--repo', 'repo-a'], {
+				from: 'node',
+			})
+
+			expect(JSON.parse(await readFile(path, 'utf8')).repos).toEqual([
+				{ repo: 'repo-a', projects: [{ gid: '2', name: 'B' }] },
+			])
+		})
+
+		it('remove --global reports an argument that matches no entry for that repo', async () => {
+			await writeGlobalConfig({
+				schema_version: 1,
+				repos: [{ repo: 'repo-a', projects: [{ gid: '1', name: 'A' }] }],
+			})
+
+			await expect(
+				(await program()).parseAsync(['node', 'test', 'config', 'remove', 'Missing', '--global', '--repo', 'repo-a'], {
+					from: 'node',
+				}),
+			).rejects.toThrow('Project not found in global config: Missing')
+		})
+
+		it('path --global prints the resolved global file path', async () => {
+			globalRoot = await mkdtemp(join(tmpdir(), 'cyber-asana-global-cli-'))
+			const path = join(globalRoot, 'global.json')
+			process.env.CYBER_ASANA_GLOBAL_CONFIG = path
+
+			process.argv = ['node', 'test', '--json']
+			await (await program()).parseAsync(['node', 'test', 'config', 'path', '--global'], { from: 'node' })
+
+			expect(logSpy).toHaveBeenCalledWith(expect.stringContaining(path))
+		})
+
+		it('resolve-project --global resolves without calling getProject', async () => {
+			await writeGlobalConfig({
+				schema_version: 1,
+				repos: [{ repo: 'repo-a', projects: [{ gid: '1', name: 'Backend' }] }],
+			})
+
+			process.argv = ['node', 'test', '--json']
+			await (await program()).parseAsync(
+				['node', 'test', 'config', 'resolve-project', 'backend', '--global', '--repo', 'repo-a'],
+				{ from: 'node' },
+			)
+
+			expect(getProjectMock).not.toHaveBeenCalled()
+			expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('"gid": "1"'))
+		})
+
+		it('sync --global refreshes names across every repo in the file', async () => {
+			const path = await writeGlobalConfig({
+				schema_version: 1,
+				repos: [
+					{ repo: 'repo-a', projects: [{ gid: '1', name: 'Old A' }] },
+					{ repo: 'repo-b', projects: [{ gid: '2', name: 'Old B' }] },
+				],
+			})
+			getProjectMock.mockImplementation(async (gid: string) =>
+				gid === '1' ? { gid: '1', name: 'New A' } : { gid: '2', name: 'New B' },
+			)
+
+			process.argv = ['node', 'test', '--json']
+			await (await program()).parseAsync(['node', 'test', 'config', 'sync', '--global'], { from: 'node' })
+
+			const saved = JSON.parse(await readFile(path, 'utf8'))
+			expect(saved.repos[0].projects[0].name).toBe('New A')
+			expect(saved.repos[1].projects[0].name).toBe('New B')
+		})
+
+		it('sync --global without a global file anywhere is an error', async () => {
+			globalRoot = await mkdtemp(join(tmpdir(), 'cyber-asana-global-cli-'))
+			process.env.CYBER_ASANA_GLOBAL_CONFIG = join(globalRoot, 'missing.json')
+
+			await expect(
+				(await program()).parseAsync(['node', 'test', 'config', 'sync', '--global'], { from: 'node' }),
+			).rejects.toThrow('Global config not found')
+		})
+
+		it('--global and --merged together is a usage error', async () => {
+			await expect(
+				(await program()).parseAsync(['node', 'test', 'config', 'show', '--global', '--merged'], { from: 'node' }),
+			).rejects.toThrow(/not both/)
+		})
+
+		it('show --merged unions the repo config and the global entry, local winning a gid collision', async () => {
+			root = await mkdtemp(join(tmpdir(), 'cyber-asana-merged-cli-'))
+			const configPath = join(root, 'config.json')
+			await writeFile(configPath, JSON.stringify({ schema_version: 1, projects: [{ gid: '1', name: 'Local Name' }] }))
+			await writeGlobalConfig({
+				schema_version: 1,
+				repos: [
+					{
+						repo: 'repo-a',
+						projects: [
+							{ gid: '1', name: 'Global Name' },
+							{ gid: '2', name: 'Global Only' },
+						],
+					},
+				],
+			})
+
+			process.argv = ['node', 'test', '--json']
+			await (await program()).parseAsync(
+				['node', 'test', 'config', 'show', '--merged', '--config', configPath, '--repo', 'repo-a'],
+				{ from: 'node' },
+			)
+
+			expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('"name": "Local Name"'))
+			expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('"gid": "2"'))
+			expect(logSpy).not.toHaveBeenCalledWith(expect.stringContaining('Global Name'))
+		})
+
+		it('resolve-project --merged resolves a name present only in the global entry', async () => {
+			root = await mkdtemp(join(tmpdir(), 'cyber-asana-merged-resolve-'))
+			const configPath = join(root, 'config.json')
+			await writeFile(configPath, JSON.stringify({ schema_version: 1, projects: [{ gid: '1', name: 'Local Name' }] }))
+			await writeGlobalConfig({
+				schema_version: 1,
+				repos: [{ repo: 'repo-a', projects: [{ gid: '2', name: 'Global Only' }] }],
+			})
+
+			process.argv = ['node', 'test', '--json']
+			await (await program()).parseAsync(
+				[
+					'node',
+					'test',
+					'config',
+					'resolve-project',
+					'Global Only',
+					'--merged',
+					'--config',
+					configPath,
+					'--repo',
+					'repo-a',
+				],
+				{ from: 'node' },
+			)
+
+			expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('"gid": "2"'))
+		})
+
+		it('show --merged errors when neither source has anything', async () => {
+			globalRoot = await mkdtemp(join(tmpdir(), 'cyber-asana-global-cli-'))
+			process.env.CYBER_ASANA_GLOBAL_CONFIG = join(globalRoot, 'missing.json')
+			root = await mkdtemp(join(tmpdir(), 'cyber-asana-merged-missing-'))
+			const configPath = join(root, 'missing-config.json')
+
+			await expect(
+				(await program()).parseAsync(
+					['node', 'test', 'config', 'show', '--merged', '--config', configPath, '--repo', 'repo-a'],
+					{ from: 'node' },
+				),
+			).rejects.toThrow('No repo or global config found')
+		})
+	})
+
 	describe('add-user --search', () => {
 		const ada = { gid: '100', name: 'Ada Lovelace', email: 'ada@example.com' }
 		const adam = { gid: '200', name: 'Adam Smith', email: 'adam@example.com' }

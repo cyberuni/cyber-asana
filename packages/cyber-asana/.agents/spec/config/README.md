@@ -25,6 +25,17 @@ input always wins; the environment is consulted only when nothing was passed; an
 name has an older alias behind it, tried in a fixed order. The order is the whole contract: get it
 wrong and a caller who typed a flag silently gets the machine's ambient setting instead.
 
+A third piece extends the first half rather than replacing it: the **global registry**, one file
+outside any repository (`--global` on the same verbs) that pairs a **repo key** — a normalized git
+remote URL, so the same entry applies wherever that repo is cloned — with its own `{ gid, name }`
+project list. It exists because the committed repo config is per-repo and optional: a repository
+that has none, or hasn't been set up yet, still needs a way for an agent to know which Asana
+projects it works with. The **merged (effective) view** (`--merged`) is the two files read together:
+the repo config's entries plus the global registry's entries for the current repo, unioned by GID,
+with the repo config's name winning a conflict — the same "explicit beats ambient" shape the
+environment precedence already uses, with the committed file playing explicit and the personal
+global file playing ambient.
+
 The one thing that never appears in the committed file is the **workspace GID**. That is
 [design decision 0001](../design/decisions/0001-no-workspace-gid-in-repo-config.md), and the reason
 is security, not tidiness. A committed file is world-readable to everyone who can read the git
@@ -46,6 +57,17 @@ enumerate and abuse the org. Workspace binding therefore stays in private enviro
   non-empty one wins and the rest are never consulted.
 - **Git root** — the nearest directory at or above the working directory that contains `.git`. It
   bounds the upward search for the config file.
+- **Global registry** — the file `<config dir>/cyber-asana/config.json` (`$XDG_CONFIG_HOME` if set,
+  else `~/.config`; `CYBER_ASANA_GLOBAL_CONFIG` overrides), holding `schema_version` and a `repos`
+  list. Lives outside every repository, so it is never committed and never shared by cloning.
+- **Repo key** — the identity a global-registry entry is filed under: the normalized `origin` remote
+  URL (`github.com/org/repo`, scheme and `.git` suffix stripped, lowercased) when the current
+  directory sits inside a git repo with a remote, else that repo's git-root absolute path, else
+  nothing — at which point a caller must pass `--repo` explicitly.
+- **Effective (merged) view** — the repo config's projects and the global registry's projects for
+  the current repo key, unioned by `gid`; the repo config's entry wins when both name the same `gid`
+  differently. Requested with `--merged`; never the default, so every existing verb's behavior is
+  unchanged when it is omitted.
 
 **Non-goals.** The repo config is **not** a settings file. It stores no token, no workspace GID, no
 default output format, no per-user preference. Two separate reasons: a secret must never be
@@ -54,7 +76,10 @@ private is an environment variable or a flag, which live outside the repository 
 file's schema. Nor is the registry a **cache of Asana**: it holds only a name and a GID, never a
 project's fields, so it can never serve a stale answer to a question it was not asked. And it is
 **not authoritative** — a name that is not registered is an error the caller handles, not a signal
-to go search Asana; searching is [projects](../projects/README.md)' job.
+to go search Asana; searching is [projects](../projects/README.md)' job. **The global registry
+inherits every one of these non-goals** — it is not private-config-outside-git-so-anything-goes; it
+stores the same `{ gid, name }` shape and nothing else, for the same reasons, restated rather than
+relaxed because the file happens to live outside a repository this time.
 
 **What this node does not own.** The `--json` / `--toon` output formats, the `0 results` empty
 state, exit-code mapping, and error rendering are the shared contract in [axi](../axi/README.md),
@@ -63,12 +88,15 @@ found, what may be written into it, and the order in which a value's sources are
 
 ## Use Cases
 
-**Subject** — the repo project registry and the resolution of configured values, over the
-`cyber-asana config` CLI verbs and the functions the other domains call in-process. There is **no
-MCP surface**: every config verb either reads the developer's filesystem or writes a file into their
-repository, and an MCP client is typically a remote agent with no business doing either. The values
-the config *produces* reach MCP anyway — the server process reads the same environment — so exposing
-the verbs would add write authority without adding reach.
+**Subject** — the repo project registry, the global registry, the merged view of the two, and the
+resolution of configured values, over the `cyber-asana config` CLI verbs and the functions the other
+domains — and skill scripts — call in-process. There is **no MCP surface**: every config verb either
+reads the developer's filesystem or writes a file on their machine (inside their repository, or in
+their home directory for `--global`), and an MCP client is typically a remote agent with no business
+doing either. The values the config *produces* reach MCP anyway — the server process reads the same
+environment, and `loadEffectiveProjects` is a plain function any in-process caller (including an MCP
+tool handler in another domain) can call — so exposing the verbs themselves would add write
+authority without adding reach.
 
 | Entry point | Trigger | Inputs | Outcome |
 |---|---|---|---|
@@ -79,10 +107,20 @@ the verbs would add write authority without adding reach.
 | `config add <project-gid>` (CLI) | a repository starts working with a new Asana project | the project GID, positionally | the project's current name fetched from Asana, and the entry written to the file |
 | `config remove <gid-or-name>` (CLI) | a project is no longer relevant to the repository | a GID or a name, positionally | the entry dropped and the file rewritten |
 | `config sync` (CLI) | projects were renamed in Asana and the committed names have drifted | optional `--config <path>` | every registered name refreshed from Asana, written only if something changed |
+| `config path --global` (CLI) | operator wants to know where the global registry lives | none | the resolved global file path (default location or `CYBER_ASANA_GLOBAL_CONFIG`) |
+| `config show --global` / `config list --global` (CLI) | operator or agent wants the projects paired with a repo in the personal registry | optional `--repo <key>` (else auto-detected) | the global path, the resolved repo key, and a GID/Name row per entry for that repo |
+| `config resolve-project <name> --global` (CLI) | a caller wants a name resolved from the personal registry only | the name; optional `--repo <key>` | the matching global entry, with no Asana request |
+| `config add <project-gid> --global` (CLI) | a project should be remembered for this repo across every clone/machine, without committing it | the project GID; optional `--repo <key>` | the project's name fetched from Asana, written into that repo's entry in the global file |
+| `config remove <gid-or-name> --global` (CLI) | a project no longer belongs in the personal registry for a repo | a GID or a name; optional `--repo <key>` | the entry dropped from that repo's global entry |
+| `config sync --global` (CLI) | projects were renamed in Asana since they were pinned globally | optional `--repo <key>` (else every repo in the file) | every matching registered name refreshed from Asana |
+| `config show --merged` / `config list --merged` (CLI) | an agent wants "every project that applies here," repo config and personal registry combined | optional `--config <path>`; optional `--repo <key>` for the global side | both source paths, the repo key used for the global side (or none, if unresolvable), and the unioned GID/Name rows |
+| `config resolve-project <name> --merged` (CLI) | a caller wants a name resolved against the combined view, with no API call | the name; optional `--repo <key>` | the matching entry from either source, repo config winning a `gid` collision |
 | `resolveConfigPath` / `findConfigFile` (exported) | any caller needs the config file's location | a starting directory and an optional explicit path | the path, or nothing |
 | `resolveProject(config, query)` (exported) | a caller has the parsed config and a name or GID | the config and the query | the matching entry, or nothing |
 | `observeProjectIfConfigured(observation)` (exported) | another domain just fetched a project and saw its current name | the GID and name observed | the registered name refreshed in place if that GID is registered |
 | `envValue(name)` (exported) | any caller needs a configured value from the environment | the current variable name | the first non-empty value among that name's aliases |
+| `resolveRepoKey(startDir)` (exported) | a caller needs the current repo's global-registry key | a starting directory | the normalized remote URL, the git-root path fallback, or nothing |
+| `loadEffectiveProjects(opts)` (exported) | a skill script needs "every project that applies here" without shelling out to the CLI | an optional explicit repo config path, global config path, repo key, and starting directory | `{ localPath, globalPath, repo, projects }` — the same union `config show --merged` prints |
 
 ## Logic
 
@@ -134,6 +172,41 @@ graph TD
     E3 -->|yes| EWIN
     E3 -->|no| ENONE[nothing — the caller raises its own error]
   end
+
+  subgraph repokey["deriving the global-registry repo key"]
+    K0[--global or --merged needs a repo key] --> K1{--repo given?}
+    K1 -->|yes| KWIN[use it verbatim]
+    K1 -->|no| K2[walk up looking for .git]
+    K2 --> K3{.git found?}
+    K3 -->|no| KNONE[no key — --global/--merged<br/>error naming --repo]
+    K3 -->|yes| K4{a remote named origin<br/>is configured?}
+    K4 -->|yes| K5[normalize the url —<br/>strip scheme/user, ':'→'/', trailing .git, lowercase]
+    K5 --> KWIN
+    K4 -->|no| K6[fall back to the git root's absolute path]
+    K6 --> KWIN
+  end
+
+  subgraph global["reading / writing the global registry"]
+    G0[show / resolve-project / add / remove / sync --global] --> G1{the global file exists?}
+    G1 -->|no, add| GEMPTY[start from an empty registry]
+    G1 -->|no, anything else| GERR[error: Global config not found]
+    G1 -->|yes| G2[find the repos[] entry<br/>whose repo equals the derived key]
+    G2 --> G3{add, and no entry yet?}
+    G3 -->|yes| G4[append a new repos[] entry]
+    G3 -->|no| G5[operate on the matched entry's projects —<br/>an unmatched repo reads as zero projects]
+    G4 --> G5
+  end
+
+  subgraph merged["the merged (effective) view"]
+    M0[show / list / resolve-project --merged] --> M1[load the repo config, if any path is found]
+    M1 --> M2{--repo given, or a repo key<br/>derivable — same rules as --global?}
+    M2 -->|yes| M3[load that repo's global entry, if any]
+    M2 -->|no| M3B[global side contributes nothing —<br/>not an error, unlike --global alone]
+    M3 --> M4{neither source produced anything?}
+    M3B --> M4
+    M4 -->|yes| MERR[error: no repo or global config found]
+    M4 -->|no| M5[union by gid — a repo-config entry<br/>always wins a gid also present globally]
+  end
 ```
 
 The load-bearing edges:
@@ -170,6 +243,31 @@ The load-bearing edges:
 
 - **A missing token is an error; a missing workspace is the caller's problem.** `envValue` itself
   never raises — it returns nothing, and the command that wanted the value decides what that means.
+
+- **`--global` and `--merged` are new flags on the existing verbs, never a new verb.** Every scenario
+  above still describes the default (no-flag) behavior of `show` / `list` / `resolve-project` /
+  `add` / `remove` / `sync` / `path` unchanged; `--global` and `--merged` are additive branches those
+  same verbs take, not a parallel command surface.
+- **The global file is found by fixed location, never by upward search.** Unlike the repo config,
+  there is exactly one global file and it does not live inside any repository, so `--global`/
+  `--merged` never walk up looking for it — they resolve `CYBER_ASANA_GLOBAL_CONFIG`, or the default
+  under `$XDG_CONFIG_HOME`/`~/.config`, and stop there.
+- **An unmatched repo key is an empty registry, not an error.** `show --global` against an existing
+  global file that simply has no entry for this repo prints zero rows, the same way an empty
+  `projects: []` repo config would — only a missing *file* is the error.
+- **The repo config always wins a `gid` collision in the merged view — by construction, not by a
+  tie-break step.** Union-by-gid keeps the repo-config entry and only appends global entries whose
+  `gid` is not already present, so there is no comparison to get backwards; the repo config's copy is
+  simply the one that survives.
+- **`--merged` and `--global` are mutually exclusive.** They read different things — one file scoped
+  to a repo key, or two files unioned — so combining them is a usage error, not a silently-resolved
+  precedence.
+- **An unresolvable repo key fails `--global` loudly but `--merged` quietly.** `--global` alone is
+  asking specifically for the global side, so a caller outside any git repo with no `--repo` gets an
+  error naming the flag. `--merged` is asking for "everything that applies here"; when the repo key
+  can't be derived, the global side simply contributes nothing and the repo config alone still
+  answers — the same "absence is not an error" shape `--global show` already uses for an unmatched
+  repo key.
 
 ## Scenario map
 
@@ -231,3 +329,45 @@ The load-bearing edges:
 | the explicit workspace beats the environment | a `--workspace-gid` value and a different `ASANA_WORKSPACE_GID` | `an explicit workspace flag wins over the workspace environment variables` |
 | the registry supplies no workspace (barred) | a populated registry in a shell where both workspace variables are absent | `the repo config supplies no workspace GID to a workspace-scoped command` |
 | no MCP surface for config (barred) | the registered MCP tool set | `no MCP tool is registered for the repo config` |
+
+### deriving the global-registry repo key
+
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| `--repo` beats auto-detection | a git repository with a remote, and a different key passed explicitly | `--repo overrides the auto-detected key for the global registry` |
+| a remote origin → normalize its URL | a git repository whose origin remote is an SSH-style URL | `the global repo key normalizes an SSH-style origin URL` |
+| an HTTPS origin normalizes the same way | a git repository whose origin remote is an HTTPS URL for the same host/org/repo | `an HTTPS origin URL normalizes to the same key as its SSH equivalent` |
+| no remote → fall back to the git root path | a git repository with no configured remote | `the global repo key falls back to the git root path when there is no remote` |
+| no `.git` and no `--repo` → error | a directory outside any git working tree | `--global without a resolvable repo key and no --repo is an error` |
+
+### reading and writing the global registry
+
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| default location, no search | `CYBER_ASANA_GLOBAL_CONFIG` unset, `$XDG_CONFIG_HOME` set | `config path --global prints the default location under XDG_CONFIG_HOME` |
+| override wins | `CYBER_ASANA_GLOBAL_CONFIG` set to a path | `CYBER_ASANA_GLOBAL_CONFIG overrides the default global location` |
+| render the repo key and a row per entry | a global file holding two projects under the derived repo key | `show --global prints the projects paired with the derived repo key` |
+| unmatched repo → zero rows, not an error | a global file holding entries for a different repo key only | `show --global prints zero rows for a repo key with no entry in an existing global file` |
+| no global file anywhere → error | no file at the resolved global location | `show --global without a global file anywhere is an error` |
+| GID not yet registered for this repo → append, creating the file | no global file, and an Asana project to fetch | `add --global creates the global file and the repo entry when neither exists` |
+| GID already registered for this repo → replace in place | a global file already holding this GID under this repo key, with a drifted name | `add --global replaces the entry when the GID is already registered for that repo` |
+| a digits-only argument → match by GID, scoped to this repo | a global file holding two projects under the derived repo key | `remove --global deletes the entry whose GID matches, scoped to the derived repo` |
+| nothing matches for this repo → error | a global file holding one project under the derived repo key | `remove --global reports an argument that matches no entry for that repo` |
+| a name differs → rewrite, across every repo in the file | a global file with entries for two different repos, one name drifted | `sync --global refreshes the drifted names across every repo entry in the file` |
+| no global file anywhere → error | no file at the resolved global location | `sync --global without a global file anywhere is an error` |
+| resolve locally, never over the network | a global file holding one project under the derived repo key | `resolve-project --global resolves a name from the global entry with no Asana request` |
+| never write a workspace GID (barred) | an empty global registry and a workspace variable set | `add --global writes no workspace GID even when the workspace variable is set` |
+
+### the merged (effective) view
+
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| union by gid | a repo config with one project and a global entry for this repo with a different project | `show --merged unions the repo config and the global entry for this repo` |
+| repo config wins a `gid` collision | a repo config and a global entry that disagree on the name for the same GID | `show --merged keeps the repo-config name when the same GID differs between sources` |
+| resolve a name that exists only globally | a repo config with one project and a global entry with a second, different project | `resolve-project --merged resolves a name present only in the global entry` |
+| no entry matches in either source → error | a repo config and a global entry, neither naming the queried project | `resolve-project --merged reports a name that is not registered in either source` |
+| `--repo` overrides auto-detection for the global side too | a repo config plus a global entry filed under a manual key | `--repo overrides the auto-detected key in the merged view` |
+| local file absent, global present → still succeeds | no repo config file, and a global entry for the derived repo key | `show --merged succeeds from the global entry alone when no repo config file exists` |
+| unresolvable repo key → global contributes nothing, not an error | a repo config reachable only by `--config`, outside any git working tree | `show --merged tolerates an unresolvable repo key and falls back to the repo config alone` |
+| neither source produces anything → error | no repo config file and no matching global entry | `show --merged is an error when neither source produces anything` |
+| the two flags don't compose | a CLI invocation naming both flags | `--global and --merged together is a usage error` |

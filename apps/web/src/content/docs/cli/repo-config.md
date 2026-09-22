@@ -57,6 +57,35 @@ cyber-asana config list-users
 Every subcommand accepts `--config <path>`, which overrides the `CYBER_ASANA_CONFIG`
 environment variable.
 
+## Global registry (across repositories)
+
+`.agents/cyber-asana.json` is committed and per-repo. For a personal, cross-machine registry that
+isn't committed — or for a repo that has no local file yet — `show`, `list`, `resolve-project`,
+`add`, `remove`, and `sync` also take `--global`:
+
+```sh
+cyber-asana config add <project-gid> --global   # remembered for this repo, not committed
+cyber-asana config show --global                # this repo's entry in the personal registry
+cyber-asana config path --global                # where that file lives
+```
+
+It lives at `$XDG_CONFIG_HOME/cyber-asana/config.json` (or `~/.config/cyber-asana/config.json`),
+overridable with `CYBER_ASANA_GLOBAL_CONFIG`, and pairs a **repo key** — the normalized git remote
+`origin` URL (`github.com/org/repo`), or the git root's path when there's no remote — with its own
+project list, so the same entry applies wherever that repo is cloned. Outside any git checkout, or
+to manage a repo you're not currently in, pass `--repo <key>` explicitly.
+
+To see everything that applies to the current repo — the committed file and the personal
+registry, combined — add `--merged` instead of `--global` to `show`, `list`, or `resolve-project`.
+The two sources are unioned by GID; the committed repo config wins a name conflict, and either
+source may be absent without it being an error.
+
+```sh
+cyber-asana config show --merged
+```
+
+`--global` and `--merged` are mutually exclusive.
+
 ## Finding a user's GID
 
 `add-user --search <query>` looks the person up with Asana's typeahead search (the same

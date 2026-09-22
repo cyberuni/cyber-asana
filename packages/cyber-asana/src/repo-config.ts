@@ -42,22 +42,7 @@ export function parseRepoConfig(raw: unknown): RepoConfig {
 	if (record.schema_version !== 1) {
 		throw new Error('Unsupported or missing schema_version; expected 1')
 	}
-	if (!Array.isArray(record.projects)) {
-		throw new Error('Repo config projects must be an array')
-	}
-	const projects = record.projects.map((entry, index) => {
-		if (!entry || typeof entry !== 'object') {
-			throw new Error(`projects[${index}] must be an object`)
-		}
-		const project = entry as Record<string, unknown>
-		if (typeof project.gid !== 'string' || project.gid.length === 0) {
-			throw new Error(`projects[${index}].gid must be a non-empty string`)
-		}
-		if (typeof project.name !== 'string' || project.name.length === 0) {
-			throw new Error(`projects[${index}].name must be a non-empty string`)
-		}
-		return { gid: project.gid, name: project.name }
-	})
+	const projects = parseProjectEntries(record.projects, 'projects')
 	if (record.users === undefined) {
 		return { schema_version: 1, projects }
 	}
@@ -66,6 +51,26 @@ export function parseRepoConfig(raw: unknown): RepoConfig {
 	}
 	const users = record.users.map((entry, index) => parseUserEntry(entry, index))
 	return { schema_version: 1, projects, users }
+}
+
+/** Parse a `{ gid, name }[]` array, shared by the repo config and the global registry's per-repo lists. */
+export function parseProjectEntries(raw: unknown, label: string): RepoProjectEntry[] {
+	if (!Array.isArray(raw)) {
+		throw new Error(`${label} must be an array`)
+	}
+	return raw.map((entry, index) => {
+		if (!entry || typeof entry !== 'object') {
+			throw new Error(`${label}[${index}] must be an object`)
+		}
+		const project = entry as Record<string, unknown>
+		if (typeof project.gid !== 'string' || project.gid.length === 0) {
+			throw new Error(`${label}[${index}].gid must be a non-empty string`)
+		}
+		if (typeof project.name !== 'string' || project.name.length === 0) {
+			throw new Error(`${label}[${index}].name must be a non-empty string`)
+		}
+		return { gid: project.gid, name: project.name }
+	})
 }
 
 function parseUserEntry(entry: unknown, index: number): RepoUserEntry {
@@ -277,7 +282,7 @@ export async function resolveAssignee(
 	return user.gid
 }
 
-async function pathExists(path: string): Promise<boolean> {
+export async function pathExists(path: string): Promise<boolean> {
 	try {
 		await access(path)
 		return true
