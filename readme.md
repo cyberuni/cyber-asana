@@ -155,7 +155,7 @@ Set [authentication](#authentication) before running any workflow.
 | Skill | Use when |
 | --- | --- |
 | [`init-asana`](packages/cyber-asana/skills/init-asana/SKILL.md) | First-time setup; `ASANA_ACCESS_TOKEN`, workspace GID, verify connection |
-| [`manage-asana-registry`](packages/cyber-asana/skills/manage-asana-registry/SKILL.md) | Add, remove, refresh, and show Asana projects and users in the repo config or the personal global registry |
+| [`config-asana`](packages/cyber-asana/skills/config-asana/SKILL.md) | Add, remove, refresh, and show Asana projects and users in the repo config or the personal global registry |
 | [`create-asana-task`](packages/cyber-asana/skills/create-asana-task/SKILL.md) | Create or file a task (URL parse, repo project lookup, MCP `asana_task_create`) |
 | [`improve-description`](packages/cyber-asana/skills/improve-description/SKILL.md) | Clean up or rewrite a description — light copy-edit by default, opt-in emoji/template/tone, Asana's HTML subset |
 | [`asana-standup`](packages/cyber-asana/skills/asana-standup/SKILL.md) | Standup update — recent completions and due-soon tasks |

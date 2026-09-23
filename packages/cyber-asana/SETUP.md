@@ -79,6 +79,6 @@ This file covers the credentials the plugin needs to work at all. The shipped sk
 
 - [`init-asana`](./skills/init-asana/SKILL.md) — the same setup for someone using the CLI without
   the plugin, plus verification and the dual-MCP layout.
-- [`manage-asana-registry`](./skills/manage-asana-registry/SKILL.md) — add, remove, and refresh
+- [`config-asana`](./skills/config-asana/SKILL.md) — add, remove, and refresh
   Asana projects and users in `.agents/cyber-asana.json` (or, with `--global`, a personal
   cross-repo registry) so skills can resolve them by name.

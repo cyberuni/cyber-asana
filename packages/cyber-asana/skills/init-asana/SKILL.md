@@ -88,7 +88,7 @@ A successful version print confirms the CLI runs with credentials loaded. If wor
 ### 6. Optional — project and user registry
 
 For repos that work against a fixed set of Asana projects, or a fixed set of people, use the
-**manage-asana-registry** skill. It searches projects by keyword with `project search` and users
+**config-asana** skill. It searches projects by keyword with `project search` and users
 by typeahead with `add-user --search`, confirms selections with the user, and adds, removes, or
 refreshes them in `.agents/cyber-asana.json` — or, with `--global`, a personal cross-repo registry.
 

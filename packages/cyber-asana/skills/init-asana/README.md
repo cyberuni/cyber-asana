@@ -20,7 +20,7 @@ The skill guides:
 - Ensuring the `cyber-asana` CLI is available (`npx` or global install); pinning `npx cyber-asana@<exact>` to the latest npm version (`npm view cyber-asana version`) for this and all other cyber-asana skills
 - Setting `ASANA_ACCESS_TOKEN` and verifying the connection
 - Listing workspaces and setting `ASANA_WORKSPACE_GID`
-- Optional pinned projects and users in `.agents/cyber-asana.json` (via [`manage-asana-registry`](../manage-asana-registry/README.md))
+- Optional pinned projects and users in `.agents/cyber-asana.json` (via [`config-asana`](../config-asana/README.md))
 - Optional dual MCP setup with the official Asana server (see [reference.md](./reference.md))
 
 ## Install

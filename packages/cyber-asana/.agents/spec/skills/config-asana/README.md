@@ -3,15 +3,16 @@ spec-type: reference
 concept: [cyber-asana, skills, repo-registry, setup]
 ---
 
-# manage-asana-registry — the registry management skill
+# config-asana — the registry management skill
 
-A **reference artifact**: the shipped skill at `packages/cyber-asana/skills/manage-asana-registry/`
-(renamed and broadened from `pin-asana-projects`, `git mv`-preserved), which adds, removes, refreshes,
-and shows Asana **projects and users** in either the repo config or the personal global registry.
+A **reference artifact**: the shipped skill at `packages/cyber-asana/skills/config-asana/`
+(renamed and broadened from `pin-asana-projects`, `git mv`-preserved through the intermediate
+name `manage-asana-registry`), which adds, removes, refreshes, and shows Asana **projects and
+users** in either the repo config or the personal global registry.
 
 ## Subject
 
-- **Artifact** — `skills/manage-asana-registry/SKILL.md`. No references directory.
+- **Artifact** — `skills/config-asana/SKILL.md`. No references directory.
 - **Trigger** — someone wants a project or a person added to, removed from, or refreshed in either
   registry; wants to see what's registered (including the merged view); or the committed registry
   is missing or stale. Its front block reads: *"Use this skill when adding, removing, or updating
@@ -26,11 +27,13 @@ establishes the credential, this skill establishes the *names* — and now also 
 and lets them be pruned, not just seeded once. Everything downstream that resolves a project or a
 person by name rather than by GID — task creation, the reports, `--assignee` — depends on it.
 
-**Why the rename.** `pin-asana-projects` only ever added projects, via search, to the committed
+**Why the rename(s).** `pin-asana-projects` only ever added projects, via search, to the committed
 file. Once the global registry and the user registry both grew `--global`/`--merged` support, a
 skill named after "pinning projects" no longer matched what it needed to teach an agent to do —
-remove, refresh, and manage users, in two registries, not just seed one list. The rename is a
-pure `git mv`; the underlying capabilities it composes are unchanged and still frozen elsewhere.
+remove, refresh, and manage users, in two registries, not just seed one list. `config-asana` won
+out over the intermediate `manage-asana-registry` because it names the actual `cyber-asana config`
+CLI namespace this skill wraps, rather than a paraphrase of it. Both renames are pure `git mv`s;
+the underlying capabilities the skill composes are unchanged and still frozen elsewhere.
 
 **What it adopts.** The catalog contract in [skills](../README.md).
 

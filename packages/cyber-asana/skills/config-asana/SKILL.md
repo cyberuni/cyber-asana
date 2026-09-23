@@ -1,10 +1,10 @@
 ---
-name: manage-asana-registry
+name: config-asana
 description: Use this skill when adding, removing, or updating Asana projects or users in the repo or global registry.
 argument-hint: [add|remove|sync|show] [project|user] [keyword...] [--global] [--merged]
 ---
 
-# Manage Asana Registry
+# Config Asana
 
 ## When to use
 

@@ -1,4 +1,4 @@
-# manage-asana-registry
+# config-asana
 
 Add, remove, refresh, and show Asana projects and users in the repo config
 (`.agents/cyber-asana.json`) or the personal, uncommitted global registry (`--global`).
@@ -34,7 +34,7 @@ The skill guides:
 ## Install
 
 ```bash
-npx skills add cyberuni/cyber-asana --skill manage-asana-registry
+npx skills add cyberuni/cyber-asana --skill config-asana
 ```
 
 Requires `ASANA_ACCESS_TOKEN` and `ASANA_WORKSPACE_GID`. See [`init-asana`](../init-asana/README.md)

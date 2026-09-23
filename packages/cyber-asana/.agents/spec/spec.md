@@ -67,7 +67,7 @@ Each is a reference node under the [skills](skills/README.md) capability, which 
 they all satisfy.
 
 - [init-asana](skills/init-asana/README.md)
-- [manage-asana-registry](skills/manage-asana-registry/README.md)
+- [config-asana](skills/config-asana/README.md)
 - [create-asana-task](skills/create-asana-task/README.md)
 - [improve-description](skills/improve-description/README.md)
 - [asana-standup](skills/asana-standup/README.md)
@@ -91,7 +91,7 @@ they all satisfy.
 | `catalog` | `skills/` (behavior) |
 | `comments` | `skills/link-pr-to-task/` (reference) · `stories/` (behavior) |
 | `config` | `config/` (behavior) |
-| `cyber-asana` | `attachments/` (behavior) · `axi/` (reference) · `config/` (behavior) · `goals/` (behavior) · `portfolios/` (behavior) · `projects/` (behavior) · `sections/` (behavior) · `skills/` (behavior) · `skills/asana-sprint-report/` (reference) · `skills/asana-standup/` (reference) · `skills/create-asana-task/` (reference) · `skills/create-tasks-from-code/` (reference) · `skills/improve-description/` (reference) · `skills/init-asana/` (reference) · `skills/link-pr-to-task/` (reference) · `skills/manage-asana-registry/` (reference) · `skills/sync-asana-project/` (reference) · `status/` (behavior) · `stories/` (behavior) · `tags/` (behavior) · `tasks/` (behavior) · `teams/` (behavior) · `url/` (behavior) · `users/` (behavior) · `workspaces/` (behavior) |
+| `cyber-asana` | `attachments/` (behavior) · `axi/` (reference) · `config/` (behavior) · `goals/` (behavior) · `portfolios/` (behavior) · `projects/` (behavior) · `sections/` (behavior) · `skills/` (behavior) · `skills/asana-sprint-report/` (reference) · `skills/asana-standup/` (reference) · `skills/create-asana-task/` (reference) · `skills/create-tasks-from-code/` (reference) · `skills/improve-description/` (reference) · `skills/init-asana/` (reference) · `skills/link-pr-to-task/` (reference) · `skills/config-asana/` (reference) · `skills/sync-asana-project/` (reference) · `status/` (behavior) · `stories/` (behavior) · `tags/` (behavior) · `tasks/` (behavior) · `teams/` (behavior) · `url/` (behavior) · `users/` (behavior) · `workspaces/` (behavior) |
 | `dependencies` | `tasks/` (behavior) |
 | `directory` | `users/` (behavior) |
 | `discovery` | `workspaces/` (behavior) |
@@ -115,14 +115,14 @@ they all satisfy.
 | `project-scoped-read` | `sections/` (behavior) |
 | `project-scoped-write` | `sections/` (behavior) |
 | `projects` | `projects/` (behavior) |
-| `repo-registry` | `config/` (behavior) · `skills/manage-asana-registry/` (reference) |
+| `repo-registry` | `config/` (behavior) · `skills/config-asana/` (reference) |
 | `reporting` | `skills/asana-sprint-report/` (reference) · `skills/asana-standup/` (reference) |
 | `resolution` | `skills/create-asana-task/` (reference) |
 | `rich-text` | `skills/improve-description/` (reference) · `stories/` (behavior) |
 | `search` | `tasks/` (behavior) |
 | `sections` | `sections/` (behavior) |
-| `setup` | `skills/init-asana/` (reference) · `skills/manage-asana-registry/` (reference) |
-| `skills` | `skills/` (behavior) · `skills/asana-sprint-report/` (reference) · `skills/asana-standup/` (reference) · `skills/create-asana-task/` (reference) · `skills/create-tasks-from-code/` (reference) · `skills/improve-description/` (reference) · `skills/init-asana/` (reference) · `skills/link-pr-to-task/` (reference) · `skills/manage-asana-registry/` (reference) · `skills/sync-asana-project/` (reference) |
+| `setup` | `skills/init-asana/` (reference) · `skills/config-asana/` (reference) |
+| `skills` | `skills/` (behavior) · `skills/asana-sprint-report/` (reference) · `skills/asana-standup/` (reference) · `skills/create-asana-task/` (reference) · `skills/create-tasks-from-code/` (reference) · `skills/improve-description/` (reference) · `skills/init-asana/` (reference) · `skills/link-pr-to-task/` (reference) · `skills/config-asana/` (reference) · `skills/sync-asana-project/` (reference) |
 | `status` | `status/` (behavior) |
 | `status-updates` | `status/` (behavior) |
 | `stories` | `stories/` (behavior) |
