@@ -3,11 +3,19 @@ import { homedir } from 'node:os'
 import { dirname, isAbsolute, join, resolve } from 'node:path'
 import {
 	addProject,
+	addUser,
+	observeUser,
 	parseProjectEntries,
+	parseUserEntry,
 	pathExists,
 	type RepoProjectEntry,
+	type RepoUserEntry,
+	removeAliases,
 	removeProject,
+	removeUser,
 	resolveProject,
+	resolveUser,
+	type UserObservation,
 } from './repo-config.js'
 
 const GLOBAL_CONFIG_DIR_NAME = 'cyber-asana'
@@ -21,6 +29,8 @@ export type GlobalRepoEntry = {
 export type GlobalConfig = {
 	schema_version: 1
 	repos: GlobalRepoEntry[]
+	/** Flat, unlike `repos` — a person's identity doesn't change with which repo you're in. */
+	users?: RepoUserEntry[]
 }
 
 export function createEmptyGlobalConfig(): GlobalConfig {
@@ -48,7 +58,14 @@ export function parseGlobalConfig(raw: unknown): GlobalConfig {
 		}
 		return { repo: repoEntry.repo, projects: parseProjectEntries(repoEntry.projects, `repos[${index}].projects`) }
 	})
-	return { schema_version: 1, repos }
+	if (record.users === undefined) {
+		return { schema_version: 1, repos }
+	}
+	if (!Array.isArray(record.users)) {
+		throw new Error('Global config users must be an array')
+	}
+	const users = record.users.map((entry, index) => parseUserEntry(entry, index))
+	return { schema_version: 1, repos, users }
 }
 
 /** Where the global registry lives: `CYBER_ASANA_GLOBAL_CONFIG`, else `$XDG_CONFIG_HOME`/`~/.config` + the fixed relative path. Never searched for — this is a single fixed file, not a per-repo one. */
@@ -199,4 +216,42 @@ export function observeGlobalProject(
 	const repos = config.repos.slice()
 	repos[index] = { repo: observation.repo, projects }
 	return { updated: true, config: { ...config, repos } }
+}
+
+/**
+ * Users are a flat top-level list, unlike `repos` — no repo key is involved at all. Every
+ * function below delegates to repo-config.ts's own user-registry logic (case-insensitive
+ * matching, alias-uniqueness, ambiguous-match detection) via a synthetic `RepoConfig` with an
+ * empty `projects`, so the matching rules never drift between the two registries.
+ */
+function asRepoConfig(users: RepoUserEntry[]) {
+	return { schema_version: 1 as const, projects: [], users }
+}
+
+export function addGlobalUser(config: GlobalConfig, entry: RepoUserEntry): GlobalConfig {
+	const result = addUser(asRepoConfig(config.users ?? []), entry)
+	return { ...config, users: result.users }
+}
+
+export function removeGlobalUser(config: GlobalConfig, gid: string): GlobalConfig {
+	const result = removeUser(asRepoConfig(config.users ?? []), gid)
+	return { ...config, users: result.users }
+}
+
+export function removeGlobalAliases(config: GlobalConfig, aliases: string[]): GlobalConfig {
+	const result = removeAliases(asRepoConfig(config.users ?? []), aliases)
+	return { ...config, users: result.users }
+}
+
+export function resolveGlobalUser(config: GlobalConfig, query: string): RepoUserEntry | null {
+	return resolveUser(asRepoConfig(config.users ?? []), query)
+}
+
+export function observeGlobalUser(
+	config: GlobalConfig,
+	observation: UserObservation,
+): { updated: boolean; config: GlobalConfig } {
+	const result = observeUser(asRepoConfig(config.users ?? []), observation)
+	if (!result.updated) return { updated: false, config }
+	return { updated: true, config: { ...config, users: result.config.users } }
 }

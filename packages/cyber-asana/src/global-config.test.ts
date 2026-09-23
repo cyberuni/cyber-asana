@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import {
 	addGlobalProject,
+	addGlobalUser,
 	createEmptyGlobalConfig,
 	findGlobalRepoEntry,
 	type GlobalConfig,
@@ -11,9 +12,13 @@ import {
 	loadGlobalConfig,
 	normalizeRepoUrl,
 	observeGlobalProject,
+	observeGlobalUser,
 	parseGlobalConfig,
+	removeGlobalAliases,
 	removeGlobalProject,
+	removeGlobalUser,
 	resolveGlobalProject,
+	resolveGlobalUser,
 	resolveRepoKey,
 	saveGlobalConfig,
 } from './global-config.js'
@@ -42,6 +47,26 @@ describe('parseGlobalConfig', () => {
 	it('rejects a project entry missing a name, scoped to its repo', () => {
 		expect(() => parseGlobalConfig({ schema_version: 1, repos: [{ repo: 'x', projects: [{ gid: '1' }] }] })).toThrow(
 			'repos[0].projects[0].name',
+		)
+	})
+
+	it('accepts a config without users (projects-only files stay valid)', () => {
+		expect(parseGlobalConfig({ schema_version: 1, repos: [] }).users).toBeUndefined()
+	})
+
+	it('parses a flat top-level users list, not nested under a repo', () => {
+		expect(
+			parseGlobalConfig({
+				schema_version: 1,
+				repos: [],
+				users: [{ gid: '100', name: 'Alice Anderson', email: 'alice@example.com', aliases: ['ali'] }],
+			}).users,
+		).toEqual([{ gid: '100', name: 'Alice Anderson', email: 'alice@example.com', aliases: ['ali'] }])
+	})
+
+	it('rejects a user without a gid, using the same message shape as the repo config', () => {
+		expect(() => parseGlobalConfig({ schema_version: 1, repos: [], users: [{ name: 'X', aliases: [] }] })).toThrow(
+			'users[0].gid',
 		)
 	})
 })
@@ -126,6 +151,61 @@ describe('observeGlobalProject', () => {
 		const config = addGlobalProject(createEmptyGlobalConfig(), 'repo-a', { gid: '1', name: 'A' })
 		expect(observeGlobalProject(config, { repo: 'repo-missing', gid: '1', name: 'X' }).updated).toBe(false)
 		expect(observeGlobalProject(config, { repo: 'repo-a', gid: '999', name: 'X' }).updated).toBe(false)
+	})
+})
+
+describe('global users (flat, no repo key)', () => {
+	const alice = { gid: '100', name: 'Alice Anderson', email: 'alice@example.com', aliases: ['ali'] }
+	const bob = { gid: '200', name: 'Bob Brown', email: 'bob@example.com', aliases: ['bobby'] }
+
+	it('addGlobalUser appends a new user to the flat list', () => {
+		expect(addGlobalUser(createEmptyGlobalConfig(), alice).users).toEqual([alice])
+	})
+
+	it('addGlobalUser merges aliases for an existing gid', () => {
+		let config = addGlobalUser(createEmptyGlobalConfig(), alice)
+		config = addGlobalUser(config, { ...alice, aliases: ['al'] })
+		expect(config.users).toEqual([{ ...alice, aliases: ['ali', 'al'] }])
+	})
+
+	it('addGlobalUser rejects an alias already registered to another user', () => {
+		const config = addGlobalUser(createEmptyGlobalConfig(), alice)
+		expect(() => addGlobalUser(config, { ...bob, aliases: ['ALI'] })).toThrow(/alias "ALI".*100/)
+	})
+
+	it('resolveGlobalUser resolves by gid, alias, email, or name, case-insensitively', () => {
+		const config = addGlobalUser(addGlobalUser(createEmptyGlobalConfig(), alice), bob)
+		expect(resolveGlobalUser(config, '200')).toEqual(bob)
+		expect(resolveGlobalUser(config, 'BOBBY')).toEqual(bob)
+		expect(resolveGlobalUser(config, 'alice@example.com')).toEqual(alice)
+		expect(resolveGlobalUser(config, 'carol')).toBeNull()
+	})
+
+	it('removeGlobalUser removes the user with the given gid', () => {
+		const config = addGlobalUser(addGlobalUser(createEmptyGlobalConfig(), alice), bob)
+		expect(removeGlobalUser(config, '100').users).toEqual([bob])
+	})
+
+	it('removeGlobalAliases drops aliases and keeps the user, case-insensitively', () => {
+		const config = addGlobalUser(createEmptyGlobalConfig(), { ...alice, aliases: ['ali', 'aa'] })
+		expect(removeGlobalAliases(config, ['AA']).users).toEqual([{ ...alice, aliases: ['ali'] }])
+	})
+
+	it('removeGlobalAliases rejects an unregistered alias and changes nothing', () => {
+		const config = addGlobalUser(createEmptyGlobalConfig(), alice)
+		expect(() => removeGlobalAliases(config, ['nope'])).toThrow('alias "nope" is not registered')
+	})
+
+	it('observeGlobalUser refreshes a drifted name and email', () => {
+		const config = addGlobalUser(createEmptyGlobalConfig(), alice)
+		const result = observeGlobalUser(config, { gid: '100', name: 'Alice Z', email: alice.email })
+		expect(result.updated).toBe(true)
+		expect(result.config.users).toEqual([{ ...alice, name: 'Alice Z' }])
+	})
+
+	it('observeGlobalUser does not update when nothing changed', () => {
+		const config = addGlobalUser(createEmptyGlobalConfig(), alice)
+		expect(observeGlobalUser(config, { gid: '100', name: alice.name, email: alice.email }).updated).toBe(false)
 	})
 })
 

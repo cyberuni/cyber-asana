@@ -10,9 +10,9 @@ import {
 	readOptionsFromCli,
 	requiredGid,
 } from '../cli-options.js'
+import { resolveEffectiveAssignee } from '../effective-config.js'
 import { deleteIdempotently, deleteMessage } from '../idempotent-delete.js'
 import { output, printEmpty, printFields, printNextSteps, printSummary, printTable } from '../output.js'
-import { resolveAssignee } from '../repo-config.js'
 import { isFull, truncate } from '../truncate.js'
 import {
 	addDependencies,
@@ -56,7 +56,7 @@ function addAssigneeOptions<T extends Command>(cmd: T) {
 /** `--assignee-gid` is taken as-is; `--assignee` may name a user in the repo registry. */
 async function assigneeFromCli(opts: { assignee?: string; assigneeGid?: string }) {
 	if (opts.assigneeGid) return opts.assigneeGid
-	if (opts.assignee) return resolveAssignee(opts.assignee)
+	if (opts.assignee) return resolveEffectiveAssignee(opts.assignee)
 	return undefined
 }
 

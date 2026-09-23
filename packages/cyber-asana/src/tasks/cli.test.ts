@@ -640,5 +640,35 @@ describe('tasks/cli', () => {
 			).rejects.toThrow(/config add-user/)
 			expect(createTaskMock).not.toHaveBeenCalled()
 		})
+
+		it('task create --assignee <alias> falls back to the global registry when the repo config has no match', async () => {
+			await useRegistry()
+			const globalDir = await mkdtemp(join(tmpdir(), 'cyber-asana-task-assignee-global-'))
+			const globalPath = join(globalDir, 'global.json')
+			await writeFile(
+				globalPath,
+				JSON.stringify({
+					schema_version: 1,
+					repos: [],
+					users: [{ gid: '200', name: 'Bob Brown', aliases: ['bobby'] }],
+				}),
+			)
+			const previousGlobal = process.env.CYBER_ASANA_GLOBAL_CONFIG
+			process.env.CYBER_ASANA_GLOBAL_CONFIG = globalPath
+			createTaskMock.mockResolvedValue({ gid: 't1', name: 'Task' })
+			const program = new Command().addCommand(taskCommand())
+
+			try {
+				await program.parseAsync(
+					['node', 'test', 'task', 'create', 'Task', '--workspace-gid', 'w1', '--assignee', 'bobby'],
+					{ from: 'node' },
+				)
+				expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ assignee: '200' }))
+			} finally {
+				if (previousGlobal === undefined) delete process.env.CYBER_ASANA_GLOBAL_CONFIG
+				else process.env.CYBER_ASANA_GLOBAL_CONFIG = previousGlobal
+				await rm(globalDir, { recursive: true, force: true })
+			}
+		})
 	})
 })

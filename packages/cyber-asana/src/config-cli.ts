@@ -1,16 +1,26 @@
 import { Command, InvalidArgumentError } from 'commander'
 import { addGidOption, requiredGid } from './cli-options.js'
-import { loadEffectiveProjects, resolveEffectiveProject } from './effective-config.js'
+import {
+	loadEffectiveProjects,
+	loadEffectiveUsers,
+	resolveEffectiveProject,
+	resolveEffectiveUser,
+} from './effective-config.js'
 import {
 	addGlobalProject,
+	addGlobalUser,
 	createEmptyGlobalConfig,
 	findGlobalRepoEntry,
 	type GlobalConfig,
 	globalConfigPath,
 	loadGlobalConfig,
 	observeGlobalProject,
+	observeGlobalUser,
+	removeGlobalAliases,
 	removeGlobalProject,
+	removeGlobalUser,
 	resolveGlobalProject,
+	resolveGlobalUser,
 	resolveRepoKey,
 	saveGlobalConfig,
 } from './global-config.js'
@@ -474,15 +484,36 @@ export function configCommand(getProjects: () => ProjectApi, getUsers?: () => Us
 						}
 					}
 				}
-				if (updated > 0) {
+				let usersUpdated = 0
+				const registeredGlobalUsers = configToSave.users ?? []
+				if (getUsers && registeredGlobalUsers.length > 0) {
+					const users = getUsers()
+					for (const entry of registeredGlobalUsers) {
+						const result = observeGlobalUser(
+							configToSave,
+							userObservationFromApi(entry.gid, await users.getUser(entry.gid)),
+						)
+						if (result.updated) {
+							usersUpdated += 1
+							configToSave = result.config
+						}
+					}
+				}
+				if (updated > 0 || usersUpdated > 0) {
 					await saveGlobalConfig(path, configToSave)
 				}
 				const totalProjects = configToSave.repos.reduce((sum, r) => sum + r.projects.length, 0)
-				output({ path, updated, repos: configToSave.repos }, () => {
-					console.log(
-						`Synced ${totalProjects} project(s) across ${configToSave.repos.length} repo(s); ${updated} name(s) updated`,
-					)
-				})
+				output(
+					{ path, updated, users_updated: usersUpdated, repos: configToSave.repos, users: configToSave.users },
+					() => {
+						console.log(
+							`Synced ${totalProjects} project(s) across ${configToSave.repos.length} repo(s); ${updated} name(s) updated`,
+						)
+						if (configToSave.users) {
+							console.log(`Synced ${configToSave.users.length} user(s); ${usersUpdated} updated`)
+						}
+					},
+				)
 				return
 			}
 			const path = await resolveConfigPath(process.cwd(), configPathFromOpts(opts))
@@ -537,14 +568,19 @@ export function configCommand(getProjects: () => ProjectApi, getUsers?: () => Us
 			.description('Add or update a user entry (fetches name and email from Asana)')
 			.option('--search <query>', 'Find the user by name or email (typeahead) instead of passing a GID')
 			.option('--alias <alias>', 'Alias to resolve to this user (repeatable or comma-separated)', collectAliases, [])
-			.option('--config <path>', 'Config file path (overrides CYBER_ASANA_CONFIG)'),
+			.option('--config <path>', 'Config file path (overrides CYBER_ASANA_CONFIG)')
+			.option(
+				'--global',
+				'Add to the global registry’s flat user list instead (no --repo — a person is not repo-scoped)',
+			),
 		'workspace',
 		'Workspace GID for --search',
 		{ env: 'ASANA_WORKSPACE', legacyAlias: false },
 	).action(
 		async (
 			gidArg: string | undefined,
-			opts: ConfigCliOptions & { alias: string[]; search?: string; workspace?: string; workspaceGid?: string },
+			opts: ConfigCliOptions &
+				GlobalFlags & { alias: string[]; search?: string; workspace?: string; workspaceGid?: string },
 		) => {
 			if (!getUsers) {
 				throw new Error('User API is not available')
@@ -559,6 +595,23 @@ export function configCommand(getProjects: () => ProjectApi, getUsers?: () => Us
 				gidArg ??
 				(await searchUserGid(getSearch, requiredGid(opts, 'workspace', 'Workspace GID'), opts.search as string))
 			const observation = userObservationFromApi(userGid, await getUsers().getUser(userGid))
+			if (opts.global) {
+				const { path, config } = await resolveWritableGlobalConfig()
+				const next = addGlobalUser(config, { ...observation, aliases: opts.alias })
+				await saveGlobalConfig(path, next)
+				const user = next.users?.find((u) => u.gid === userGid) as RepoUserEntry
+				output({ path, user }, () => {
+					printFields({
+						Path: path,
+						Name: user.name,
+						GID: user.gid,
+						Email: user.email ?? null,
+						Aliases: user.aliases.join(', '),
+					})
+					printNextSteps([`cyber-asana task create <name> --assignee ${user.aliases[0] ?? user.gid} — assign work`])
+				})
+				return
+			}
 			const { path, config } = await resolveWritableConfig(opts)
 			const next = addUser(config, { ...observation, aliases: opts.alias })
 			await saveRepoConfig(path, next)
@@ -580,7 +633,31 @@ export function configCommand(getProjects: () => ProjectApi, getUsers?: () => Us
 		.command('resolve-user <query>')
 		.description('Resolve a user alias, email, or name to GID from the repo config (no API call)')
 		.option('--config <path>', 'Config file path (overrides CYBER_ASANA_CONFIG)')
-		.action(async (query: string, opts: ConfigCliOptions) => {
+		.option('--global', 'Resolve from the global registry’s flat user list instead')
+		.option('--merged', 'Resolve the repo config first, falling back to the global registry (staged, not merged)')
+		.action(async (query: string, opts: ConfigCliOptions & GlobalFlags) => {
+			assertGlobalMergedExclusive(opts)
+			if (opts.global) {
+				const { config } = await requireGlobalConfig()
+				const user = resolveGlobalUser(config, query)
+				if (!user) {
+					throw new Error(`User not found in global config: ${query}`)
+				}
+				output(user, () =>
+					printFields({ Name: user.name, GID: user.gid, Email: user.email ?? null, Aliases: user.aliases.join(', ') }),
+				)
+				return
+			}
+			if (opts.merged) {
+				const user = await resolveEffectiveUser(query, { configPath: configPathFromOpts(opts) })
+				if (!user) {
+					throw new Error(`User not found in merged config: ${query}`)
+				}
+				output(user, () =>
+					printFields({ Name: user.name, GID: user.gid, Email: user.email ?? null, Aliases: user.aliases.join(', ') }),
+				)
+				return
+			}
 			const { config } = await loadExistingConfig(opts)
 			const user = resolveUser(config, query)
 			if (!user) {
@@ -600,7 +677,31 @@ export function configCommand(getProjects: () => ProjectApi, getUsers?: () => Us
 		.command('list-users')
 		.description('List users in the repo config')
 		.option('--config <path>', 'Config file path (overrides CYBER_ASANA_CONFIG)')
-		.action(async (opts: ConfigCliOptions) => {
+		.option('--global', 'List the global registry’s flat user list instead')
+		.option('--merged', 'Union the repo config’s users with the global registry’s')
+		.action(async (opts: ConfigCliOptions & GlobalFlags) => {
+			assertGlobalMergedExclusive(opts)
+			if (opts.global) {
+				const { path, config } = await requireGlobalConfig()
+				const users = config.users ?? []
+				output({ path, users }, () => {
+					console.log(path)
+					printUserTable(users)
+				})
+				return
+			}
+			if (opts.merged) {
+				const effective = await loadEffectiveUsers({ configPath: configPathFromOpts(opts) })
+				if (effective.localPath === null && effective.users.length === 0) {
+					throw new Error('No repo or global config found')
+				}
+				output(effective, () => {
+					console.log(effective.localPath ?? '(no repo config found)')
+					console.log(effective.globalPath)
+					printUserTable(effective.users)
+				})
+				return
+			}
 			const { path, config } = await loadExistingConfig(opts)
 			const users = config.users ?? []
 			output({ path, users }, () => {
@@ -613,10 +714,20 @@ export function configCommand(getProjects: () => ProjectApi, getUsers?: () => Us
 		.command('remove-alias <alias...>')
 		.description('Remove aliases from whichever registered users own them (comma-separated or several)')
 		.option('--config <path>', 'Config file path (overrides CYBER_ASANA_CONFIG)')
-		.action(async (values: string[], opts: ConfigCliOptions) => {
+		.option('--global', 'Remove from the global registry’s flat user list instead')
+		.action(async (values: string[], opts: ConfigCliOptions & GlobalFlags) => {
 			const aliases = values.flatMap(splitAliases)
 			if (aliases.length === 0) {
 				throw new InvalidArgumentError('Pass at least one alias to remove')
+			}
+			if (opts.global) {
+				const { path, config } = await resolveWritableGlobalConfig()
+				const next = removeGlobalAliases(config, aliases)
+				await saveGlobalConfig(path, next)
+				output({ path, removed: aliases, users: next.users ?? [] }, () => {
+					console.log(`Removed alias(es) ${aliases.join(', ')} from ${path}`)
+				})
+				return
 			}
 			const { path, config } = await loadExistingConfig(opts)
 			const next = removeAliases(config, aliases)
@@ -630,7 +741,20 @@ export function configCommand(getProjects: () => ProjectApi, getUsers?: () => Us
 		.command('remove-user <query>')
 		.description('Remove a user entry by GID, alias, email, or name')
 		.option('--config <path>', 'Config file path (overrides CYBER_ASANA_CONFIG)')
-		.action(async (query: string, opts: ConfigCliOptions) => {
+		.option('--global', 'Remove from the global registry’s flat user list instead')
+		.action(async (query: string, opts: ConfigCliOptions & GlobalFlags) => {
+			if (opts.global) {
+				const { path, config } = await resolveWritableGlobalConfig()
+				const user = resolveGlobalUser(config, query)
+				if (!user) {
+					throw new Error(`User not found in global config: ${query}`)
+				}
+				await saveGlobalConfig(path, removeGlobalUser(config, user.gid))
+				output({ path, removed: user.gid }, () => {
+					console.log(`Removed ${user.name} (${user.gid}) from ${path}`)
+				})
+				return
+			}
 			const { path, config } = await resolveWritableConfig(opts)
 			const user = resolveUser(config, query)
 			if (!user) {

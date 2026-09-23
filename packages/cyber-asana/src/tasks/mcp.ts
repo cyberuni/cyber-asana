@@ -1,7 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
+import { resolveEffectiveAssignee } from '../effective-config.js'
 import { paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
-import { resolveAssignee } from '../repo-config.js'
 import {
 	addDependencies,
 	addDependents,
@@ -32,7 +32,7 @@ import { buildTaskCreateFields, buildTaskUpdateFields, parseGidList } from './wr
 /** `assignee_gid` is taken as-is; `assignee` may name a user in the repo registry. */
 async function assigneeFromParams(assigneeGid?: string, assignee?: string) {
 	if (assigneeGid) return assigneeGid
-	if (assignee) return resolveAssignee(assignee)
+	if (assignee) return resolveEffectiveAssignee(assignee)
 	return undefined
 }
 

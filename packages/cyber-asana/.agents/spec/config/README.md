@@ -36,6 +36,20 @@ with the repo config's name winning a conflict — the same "explicit beats ambi
 environment precedence already uses, with the committed file playing explicit and the personal
 global file playing ambient.
 
+The global registry also mirrors the repo config's **user registry** (`add-user` / `resolve-user` /
+`remove-user` / `remove-alias` / `list-users`, all take `--global`) — but not shaped the same way as
+projects. A project is inherently tied to one repository; a person is not, so global users are one
+flat list on the global file, not filed per repo key the way projects are. That difference is also
+why resolving a user is **staged, not merged**: `--assignee <value>` on task create/update
+(`resolveEffectiveAssignee`) tries the repo config's own registry to completion first — including
+raising *its own* ambiguous-match error if it has one — and only opens the global registry when the
+repo config found nothing, so the same alias registered to two different people in the two scopes
+never manufactures a cross-scope ambiguity that neither registry actually has on its own. `--merged`
+on `resolve-user` / `list-users`, by contrast, is a **listing** view and does union the two (the
+repo config's entry winning a `gid` collision, same as projects) — because showing everything that
+resolves here is exactly the point of a merged listing, while resolving one value for `--assignee`
+is not.
+
 The one thing that never appears in the committed file is the **workspace GID**. That is
 [design decision 0001](../design/decisions/0001-no-workspace-gid-in-repo-config.md), and the reason
 is security, not tidiness. A committed file is world-readable to everyone who can read the git
@@ -68,6 +82,13 @@ enumerate and abuse the org. Workspace binding therefore stays in private enviro
   the current repo key, unioned by `gid`; the repo config's entry wins when both name the same `gid`
   differently. Requested with `--merged`; never the default, so every existing verb's behavior is
   unchanged when it is omitted.
+- **Global user registry** — the optional top-level `users` list on the global file, same shape as
+  the repo config's `users` (`{ gid, name, email?, aliases }`). Flat, not filed per repo key, because
+  a person's identity doesn't change with which repo you're in.
+- **Staged resolution** (users) — try the repo config's registry to completion first; only consult
+  the global registry if the repo config found no match at all. Used by `--assignee` resolution.
+  Contrast with the **union** used by `--merged` on `resolve-user` / `list-users`, which is a listing
+  view, not a single-value resolution.
 
 **Non-goals.** The repo config is **not** a settings file. It stores no token, no workspace GID, no
 default output format, no per-user preference. Two separate reasons: a secret must never be
@@ -78,8 +99,9 @@ project's fields, so it can never serve a stale answer to a question it was not 
 **not authoritative** — a name that is not registered is an error the caller handles, not a signal
 to go search Asana; searching is [projects](../projects/README.md)' job. **The global registry
 inherits every one of these non-goals** — it is not private-config-outside-git-so-anything-goes; it
-stores the same `{ gid, name }` shape and nothing else, for the same reasons, restated rather than
-relaxed because the file happens to live outside a repository this time.
+stores the same shapes the repo config stores (`{ gid, name }` projects, `{ gid, name, email?,
+aliases }` users) and nothing else, for the same reasons, restated rather than relaxed because the
+file happens to live outside a repository this time.
 
 **What this node does not own.** The `--json` / `--toon` output formats, the `0 results` empty
 state, exit-code mapping, and error rendering are the shared contract in [axi](../axi/README.md),
@@ -112,15 +134,23 @@ authority without adding reach.
 | `config resolve-project <name> --global` (CLI) | a caller wants a name resolved from the personal registry only | the name; optional `--repo <key>` | the matching global entry, with no Asana request |
 | `config add <project-gid> --global` (CLI) | a project should be remembered for this repo across every clone/machine, without committing it | the project GID; optional `--repo <key>` | the project's name fetched from Asana, written into that repo's entry in the global file |
 | `config remove <gid-or-name> --global` (CLI) | a project no longer belongs in the personal registry for a repo | a GID or a name; optional `--repo <key>` | the entry dropped from that repo's global entry |
-| `config sync --global` (CLI) | projects were renamed in Asana since they were pinned globally | optional `--repo <key>` (else every repo in the file) | every matching registered name refreshed from Asana |
+| `config sync --global` (CLI) | projects were renamed in Asana since they were pinned globally | optional `--repo <key>` (else every repo in the file); also refreshes every global user regardless of `--repo` | every matching registered project and user name refreshed from Asana |
 | `config show --merged` / `config list --merged` (CLI) | an agent wants "every project that applies here," repo config and personal registry combined | optional `--config <path>`; optional `--repo <key>` for the global side | both source paths, the repo key used for the global side (or none, if unresolvable), and the unioned GID/Name rows |
 | `config resolve-project <name> --merged` (CLI) | a caller wants a name resolved against the combined view, with no API call | the name; optional `--repo <key>` | the matching entry from either source, repo config winning a `gid` collision |
+| `config add-user <user-gid> --global` (CLI) | a person should be resolvable by alias personally, across every repo, without committing it | the user GID or `--search <query>`; `--alias <alias>...` | the user's name and email fetched from Asana, written into the global file's flat `users` list |
+| `config resolve-user <query> --global` (CLI) | a caller wants an alias/email/name resolved from the personal registry only | the query | the matching global user, with no Asana request |
+| `config resolve-user <query> --merged` (CLI) | a caller wants an alias resolved locally first, falling back to the personal registry | the query | the repo config's own match if it has one; otherwise the global registry's own match; never a cross-scope ambiguity |
+| `config remove-user <query> --global` / `config remove-alias <alias> --global` (CLI) | a personally-registered user or alias is no longer wanted | a GID/alias/email/name, or one or more aliases | the user or alias dropped from the global file |
+| `config list-users --global` / `config list-users --merged` (CLI) | operator wants the personal user registry, or the combined view | none | the global path and its users; or both source paths and the unioned users |
 | `resolveConfigPath` / `findConfigFile` (exported) | any caller needs the config file's location | a starting directory and an optional explicit path | the path, or nothing |
 | `resolveProject(config, query)` (exported) | a caller has the parsed config and a name or GID | the config and the query | the matching entry, or nothing |
 | `observeProjectIfConfigured(observation)` (exported) | another domain just fetched a project and saw its current name | the GID and name observed | the registered name refreshed in place if that GID is registered |
 | `envValue(name)` (exported) | any caller needs a configured value from the environment | the current variable name | the first non-empty value among that name's aliases |
 | `resolveRepoKey(startDir)` (exported) | a caller needs the current repo's global-registry key | a starting directory | the normalized remote URL, the git-root path fallback, or nothing |
 | `loadEffectiveProjects(opts)` (exported) | a skill script needs "every project that applies here" without shelling out to the CLI | an optional explicit repo config path, global config path, repo key, and starting directory | `{ localPath, globalPath, repo, projects }` — the same union `config show --merged` prints |
+| `loadEffectiveUsers(opts)` (exported) | a skill script needs every registered user, repo config and personal registry combined | an optional explicit repo config path and starting directory | `{ localPath, globalPath, users }` — the same union `config list-users --merged` prints |
+| `resolveEffectiveUser(query, opts)` (exported) | a caller needs one user resolved, repo config first, then the personal registry | the query and the same options as `loadEffectiveUsers`, plus an optional `--repo` for the global side | the repo config's own match, else the global registry's own match, else nothing — staged, never merged |
+| `resolveEffectiveAssignee(value, opts)` (exported) | `--assignee` on task create/update needs a GID | a GID, `me`, or a query for `resolveEffectiveUser` | the value verbatim (GID/`me`), or the staged match's GID, or a thrown error naming both `config add-user` and `config add-user --global` |
 
 ## Logic
 
@@ -207,6 +237,27 @@ graph TD
     M4 -->|yes| MERR[error: no repo or global config found]
     M4 -->|no| M5[union by gid — a repo-config entry<br/>always wins a gid also present globally]
   end
+
+  subgraph globalusers["reading / writing the global user registry"]
+    U0[add-user / resolve-user / remove-user /<br/>remove-alias / list-users --global] --> U1{the global file exists?}
+    U1 -->|no, add-user| UEMPTY[start from an empty registry]
+    U1 -->|no, anything else| UERR[error: Global config not found]
+    U1 -->|yes| U2[operate on the flat top-level users[] —<br/>no repo key involved at all]
+  end
+
+  subgraph staged["staged user resolution (--assignee)"]
+    S0[resolveEffectiveAssignee / resolveEffectiveUser] --> S1{a numeric gid, or 'me'?}
+    S1 -->|yes| SWIN[use it verbatim]
+    S1 -->|no| S2{a repo config found?}
+    S2 -->|yes| S3[resolveUser against it in full —<br/>its own ambiguous-match error still applies]
+    S3 -->|match| SWIN
+    S3 -->|no match, or no repo config| S4{a global file, and a repo<br/>-key-independent user list?}
+    S2 -->|no| S4
+    S4 -->|yes| S5[resolveUser against the global users only]
+    S5 -->|match| SWIN
+    S5 -->|no match| SNONE[error naming both<br/>config add-user and --global]
+    S4 -->|no| SNONE
+  end
 ```
 
 The load-bearing edges:
@@ -268,6 +319,25 @@ The load-bearing edges:
   can't be derived, the global side simply contributes nothing and the repo config alone still
   answers — the same "absence is not an error" shape `--global show` already uses for an unmatched
   repo key.
+- **Global users are flat; global projects are filed per repo key. Different shapes, on purpose.**
+  A project belongs to one repository; a person doesn't stop being the same person because you `cd`
+  into a different checkout. So `add-user --global` and its siblings never touch a repo key at all —
+  no `--repo` option, no per-repo filing, just one `users[]` list on the global file.
+- **User resolution is staged, not merged — the opposite of the projects `--merged` shape, and
+  deliberately so.** Projects union safely because looking a name up with `.find()` already prefers
+  whichever entry comes first (the repo config's, since it's placed first in the array) with no
+  ambiguity check at all. `resolveUser` is not that simple: it actively detects and rejects an
+  ambiguous match within one registry. Merging two registries before searching would let an alias
+  that is unambiguous in each scope on its own become an artificial cross-scope collision. Trying the
+  repo config to completion first, and only opening the global registry on a clean miss, avoids that
+  without weakening either registry's own ambiguity check.
+- **`--merged` on `resolve-user` / `list-users` is a listing view, so it unions after all.** Showing
+  "everything that resolves here" is the whole point of a merged listing — unlike a single
+  `--assignee` resolution, an ambiguous alias across scopes here is a genuine finding worth surfacing
+  (`resolveUser`'s own error), not a false collision to route around.
+- **`sync --global`'s `--repo` filter scopes projects only.** Global users carry no repo key, so
+  every registered global user is refreshed regardless of `--repo`; only which repos' *projects* get
+  refreshed narrows.
 
 ## Scenario map
 
@@ -371,3 +441,32 @@ The load-bearing edges:
 | unresolvable repo key → global contributes nothing, not an error | a repo config reachable only by `--config`, outside any git working tree | `show --merged tolerates an unresolvable repo key and falls back to the repo config alone` |
 | neither source produces anything → error | no repo config file and no matching global entry | `show --merged is an error when neither source produces anything` |
 | the two flags don't compose | a CLI invocation naming both flags | `--global and --merged together is a usage error` |
+
+### the global user registry
+
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| render the flat users list, no repo key involved | a global registry file holding two users | `list-users --global prints every personally-registered user` |
+| GID not yet registered → append, creating the file | no global file, and an Asana user to fetch | `add-user --global creates the global file and appends the user when neither exists` |
+| GID already registered → merge aliases in place | a global file already holding this GID with one alias | `add-user --global merges new aliases into the existing entry` |
+| resolve locally, never over the network | a global file holding one user | `resolve-user --global resolves an alias from the global entry with no Asana request` |
+| no match → error | a global file holding one user | `resolve-user --global reports a query that matches no entry` |
+| a GID/alias/email/name → remove that user | a global file holding two users | `remove-user --global removes the user a query resolves to` |
+| one or more aliases → drop them, keep the user | a global user with three aliases | `remove-alias --global drops the named aliases and keeps the user` |
+| a name differs → rewrite, regardless of --repo | a global file with one user and one project under a different repo | `sync --global refreshes a drifted user name regardless of the --repo project filter` |
+| never write a workspace GID (barred) | an empty global registry and a workspace variable set | `add-user --global writes no workspace GID even when the workspace variable is set` |
+
+### staged user resolution and --assignee
+
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| repo config has the alias → global is never read | a repo config and a global registry that both register the same alias to different people | `resolveEffectiveAssignee prefers the repo config's own match over the global registry` |
+| repo config misses → fall back to global | a repo config with no matching alias and a global registry that has one | `resolveEffectiveAssignee falls back to the global registry when the repo config has no match` |
+| repo config's own ambiguity still applies | a repo config where the alias matches two users | `resolveEffectiveAssignee raises the repo config's own ambiguous-match error without consulting global` |
+| neither resolves → a single clear error | no repo config and no global match | `resolveEffectiveAssignee names both config add-user and --global when nothing resolves` |
+| a numeric gid or "me" never triggers a lookup | a bare numeric string and the literal "me" | `resolveEffectiveAssignee passes a gid or "me" through without reading either registry` |
+| global users carry no repo key at all, unlike projects | a directory outside any git working tree, and a global registry with a matching alias | `resolveEffectiveAssignee resolves from the global registry when there is no git repository at all` |
+| `--merged` unions instead of staging | a repo config and a global registry each registering a different user | `list-users --merged prints both registries' users, repo config winning a gid collision` |
+| `--merged` resolves a global-only alias | a repo config with one user and a global registry with a second, different user | `resolve-user --merged resolves an alias present only in the global registry` |
+| `--merged` surfaces the cross-scope collision that staged resolution hides | the same two-registry alias collision `resolveEffectiveAssignee` is given, read through `--merged` instead | `resolve-user --merged surfaces a cross-scope alias collision that staged resolution would not` |
+| neither source produces anything → error | no repo config file and an empty or absent global registry | `list-users --merged is an error when neither source produces anything` |

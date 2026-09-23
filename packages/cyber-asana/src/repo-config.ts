@@ -73,7 +73,8 @@ export function parseProjectEntries(raw: unknown, label: string): RepoProjectEnt
 	})
 }
 
-function parseUserEntry(entry: unknown, index: number): RepoUserEntry {
+/** Parse one `{ gid, name, email?, aliases }` user entry, shared by the repo config and the global registry's flat user list. */
+export function parseUserEntry(entry: unknown, index: number): RepoUserEntry {
 	if (!entry || typeof entry !== 'object') {
 		throw new Error(`users[${index}] must be an object`)
 	}

@@ -497,6 +497,200 @@ describe('config/cli', () => {
 		})
 	})
 
+	describe('global and merged user registry', () => {
+		let globalRoot: string | undefined
+		const prevGlobalOverride = process.env.CYBER_ASANA_GLOBAL_CONFIG
+
+		afterEach(async () => {
+			if (prevGlobalOverride === undefined) delete process.env.CYBER_ASANA_GLOBAL_CONFIG
+			else process.env.CYBER_ASANA_GLOBAL_CONFIG = prevGlobalOverride
+			if (globalRoot) {
+				await rm(globalRoot, { recursive: true, force: true })
+				globalRoot = undefined
+			}
+		})
+
+		async function writeGlobalConfig(config: unknown) {
+			globalRoot = await mkdtemp(join(tmpdir(), 'cyber-asana-global-users-cli-'))
+			const path = join(globalRoot, 'global.json')
+			await writeFile(path, JSON.stringify(config))
+			process.env.CYBER_ASANA_GLOBAL_CONFIG = path
+			return path
+		}
+
+		async function userProgram() {
+			const configCommand = await loadConfigCommand()
+			return new Command().addCommand(
+				configCommand(
+					() => ({ getProject: getProjectMock }) as never,
+					() => ({ getUser: getUserMock }) as never,
+				),
+			)
+		}
+
+		it('add-user --global creates the global file and never accepts --repo', async () => {
+			globalRoot = await mkdtemp(join(tmpdir(), 'cyber-asana-global-users-cli-'))
+			const path = join(globalRoot, 'global.json')
+			process.env.CYBER_ASANA_GLOBAL_CONFIG = path
+			getUserMock.mockResolvedValue({ gid: '100', name: 'Alice Anderson', email: 'alice@example.com' })
+
+			process.argv = ['node', 'test', '--json']
+			await (await userProgram()).parseAsync(
+				['node', 'test', 'config', 'add-user', '100', '--global', '--alias', 'ali'],
+				{ from: 'node' },
+			)
+
+			expect(JSON.parse(await readFile(path, 'utf8')).users).toEqual([
+				{ gid: '100', name: 'Alice Anderson', email: 'alice@example.com', aliases: ['ali'] },
+			])
+		})
+
+		it('resolve-user --global resolves without calling getUser', async () => {
+			await writeGlobalConfig({
+				schema_version: 1,
+				repos: [],
+				users: [{ gid: '100', name: 'Alice Anderson', aliases: ['ali'] }],
+			})
+
+			process.argv = ['node', 'test', '--json']
+			await (await userProgram()).parseAsync(['node', 'test', 'config', 'resolve-user', 'ali', '--global'], {
+				from: 'node',
+			})
+
+			expect(getUserMock).not.toHaveBeenCalled()
+			expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('"gid": "100"'))
+		})
+
+		it('resolve-user --global reports an unknown query', async () => {
+			await writeGlobalConfig({ schema_version: 1, repos: [], users: [] })
+
+			await expect(
+				(await userProgram()).parseAsync(['node', 'test', 'config', 'resolve-user', 'carol', '--global'], {
+					from: 'node',
+				}),
+			).rejects.toThrow('User not found in global config: carol')
+		})
+
+		it('list-users --global lists the flat global user list', async () => {
+			await writeGlobalConfig({
+				schema_version: 1,
+				repos: [],
+				users: [{ gid: '100', name: 'Alice Anderson', aliases: ['ali'] }],
+			})
+
+			process.argv = ['node', 'test', '--json']
+			await (await userProgram()).parseAsync(['node', 'test', 'config', 'list-users', '--global'], { from: 'node' })
+
+			expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('"name": "Alice Anderson"'))
+		})
+
+		it('remove-alias --global drops the alias and keeps the user', async () => {
+			const path = await writeGlobalConfig({
+				schema_version: 1,
+				repos: [],
+				users: [{ gid: '100', name: 'Alice Anderson', aliases: ['ali', 'aa'] }],
+			})
+
+			process.argv = ['node', 'test', '--json']
+			await (await userProgram()).parseAsync(['node', 'test', 'config', 'remove-alias', 'aa', '--global'], {
+				from: 'node',
+			})
+
+			expect(JSON.parse(await readFile(path, 'utf8')).users[0].aliases).toEqual(['ali'])
+		})
+
+		it('remove-user --global removes the resolved user', async () => {
+			const path = await writeGlobalConfig({
+				schema_version: 1,
+				repos: [],
+				users: [{ gid: '100', name: 'Alice Anderson', aliases: ['ali'] }],
+			})
+
+			process.argv = ['node', 'test', '--json']
+			await (await userProgram()).parseAsync(['node', 'test', 'config', 'remove-user', 'ali', '--global'], {
+				from: 'node',
+			})
+
+			expect(JSON.parse(await readFile(path, 'utf8')).users).toEqual([])
+		})
+
+		it('sync --global refreshes global users regardless of a non-matching --repo project filter', async () => {
+			const path = await writeGlobalConfig({
+				schema_version: 1,
+				repos: [{ repo: 'repo-a', projects: [{ gid: '1', name: 'Old Project' }] }],
+				users: [{ gid: '100', name: 'Old Name', aliases: ['ali'] }],
+			})
+			getProjectMock.mockResolvedValue({ gid: '1', name: 'New Project' })
+			getUserMock.mockResolvedValue({ gid: '100', name: 'New Name', email: 'alice@example.com' })
+
+			process.argv = ['node', 'test', '--json']
+			await (await userProgram()).parseAsync(['node', 'test', 'config', 'sync', '--global', '--repo', 'repo-b'], {
+				from: 'node',
+			})
+
+			const saved = JSON.parse(await readFile(path, 'utf8'))
+			expect(saved.repos[0].projects[0].name).toBe('Old Project')
+			expect(saved.users[0].name).toBe('New Name')
+		})
+
+		it('list-users --merged unions the repo config and global users, local winning a gid collision', async () => {
+			root = await mkdtemp(join(tmpdir(), 'cyber-asana-merged-users-cli-'))
+			const configPath = join(root, 'config.json')
+			await writeFile(
+				configPath,
+				JSON.stringify({
+					schema_version: 1,
+					projects: [],
+					users: [{ gid: '100', name: 'Local Alice', aliases: ['ali'] }],
+				}),
+			)
+			await writeGlobalConfig({
+				schema_version: 1,
+				repos: [],
+				users: [
+					{ gid: '100', name: 'Global Alice', aliases: ['al'] },
+					{ gid: '200', name: 'Bob Brown', aliases: ['bobby'] },
+				],
+			})
+
+			process.argv = ['node', 'test', '--json']
+			await (await userProgram()).parseAsync(
+				['node', 'test', 'config', 'list-users', '--merged', '--config', configPath],
+				{ from: 'node' },
+			)
+
+			expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('"name": "Local Alice"'))
+			expect(logSpy).not.toHaveBeenCalledWith(expect.stringContaining('Global Alice'))
+			expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('"name": "Bob Brown"'))
+		})
+
+		it('resolve-user --merged falls back to the global registry when the repo config has no match', async () => {
+			root = await mkdtemp(join(tmpdir(), 'cyber-asana-merged-users-resolve-'))
+			const configPath = join(root, 'config.json')
+			await writeFile(
+				configPath,
+				JSON.stringify({
+					schema_version: 1,
+					projects: [],
+					users: [{ gid: '100', name: 'Local Alice', aliases: ['ali'] }],
+				}),
+			)
+			await writeGlobalConfig({
+				schema_version: 1,
+				repos: [],
+				users: [{ gid: '200', name: 'Bob Brown', aliases: ['bobby'] }],
+			})
+
+			process.argv = ['node', 'test', '--json']
+			await (await userProgram()).parseAsync(
+				['node', 'test', 'config', 'resolve-user', 'bobby', '--merged', '--config', configPath],
+				{ from: 'node' },
+			)
+
+			expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('"gid": "200"'))
+		})
+	})
+
 	describe('add-user --search', () => {
 		const ada = { gid: '100', name: 'Ada Lovelace', email: 'ada@example.com' }
 		const adam = { gid: '200', name: 'Adam Smith', email: 'adam@example.com' }

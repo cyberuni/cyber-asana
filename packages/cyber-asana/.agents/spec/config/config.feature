@@ -504,3 +504,144 @@ Feature: config
     Given the working directory is "/work/harbour"
     When config show runs with --global and --merged
     Then the command fails with a message containing "not both"
+
+  # ── the global user registry ──
+
+  Scenario: list-users --global prints every personally-registered user
+    Given a global registry file holding the user "100" named "Alice Anderson" with alias "ali"
+    And that file also holds the user "200" named "Bob Brown" with alias "bobby"
+    When config list-users runs with --global
+    Then stdout contains "Alice Anderson"
+    And stdout contains "Bob Brown"
+
+  Scenario: add-user --global creates the global file and appends the user when neither exists
+    Given no global registry file exists at the resolved global location
+    And an Asana API that answers a fetch of user "100" with the name "Alice Anderson" and the email "alice@example.com"
+    When config add-user runs with the argument "100" and --global and --alias "ali"
+    Then the global registry file holds the user "100" named "Alice Anderson" with alias "ali"
+
+  Scenario: add-user --global merges new aliases into the existing entry
+    Given a global registry file holding the user "100" named "Alice Anderson" with alias "ali"
+    And an Asana API that answers a fetch of user "100" with the name "Alice Anderson" and the email "alice@example.com"
+    When config add-user runs with the argument "100" and --global and --alias "aa"
+    Then the global registry file holds exactly one user entry
+    And that entry has the aliases "ali" and "aa"
+
+  Scenario: resolve-user --global resolves an alias from the global entry with no Asana request
+    Given a global registry file holding the user "100" named "Alice Anderson" with alias "ali"
+    And an Asana API that answers every request with the user "100" named "Renamed In Asana"
+    When config resolve-user runs with the argument "ali" and --global
+    Then no request reaches any Asana API endpoint
+    And stdout contains "Alice Anderson"
+
+  Scenario: resolve-user --global reports a query that matches no entry
+    Given a global registry file holding the user "100" named "Alice Anderson" with alias "ali"
+    When config resolve-user runs with the argument "carol" and --global
+    Then the command fails with the message "User not found in global config: carol"
+
+  Scenario: remove-user --global removes the user a query resolves to
+    Given a global registry file holding the user "100" named "Alice Anderson" with alias "ali"
+    And that file also holds the user "200" named "Bob Brown" with alias "bobby"
+    When config remove-user runs with the argument "ali" and --global
+    Then the global registry file holds exactly one user entry
+    And that entry has the gid "200"
+
+  Scenario: remove-alias --global drops the named aliases and keeps the user
+    Given a global registry file holding the user "100" named "Alice Anderson" with aliases "ali" and "aa"
+    When config remove-alias runs with the argument "aa" and --global
+    Then the global registry file holds exactly one user entry
+    And that entry has the gid "100" and the aliases "ali"
+
+  Scenario: sync --global refreshes a drifted user name regardless of the --repo project filter
+    Given a global registry file holding the user "100" named "Alice Pilot" with alias "ali"
+    And that file also holds the project "7702219900101" named "Lanternfish Pilot" under the repo key "github.com/cyberuni/cyber-asana"
+    And an Asana API that answers a fetch of user "100" with the name "Alice Anderson" and the email "alice@example.com"
+    And an Asana API that answers a fetch of project "7702219900101" with the name "Lanternfish Rollout"
+    When config sync runs with --global and --repo "github.com/cyberuni/other-repo"
+    Then the global registry file holds the user "100" named "Alice Anderson"
+    And the global registry file holds the project "7702219900101" named "Lanternfish Pilot" under the repo key "github.com/cyberuni/cyber-asana"
+
+  Scenario: add-user --global writes no workspace GID even when the workspace variable is set
+    Given no global registry file exists at the resolved global location
+    And ASANA_WORKSPACE is set to "5500330011122"
+    And an Asana API that answers a fetch of user "100" with the name "Alice Anderson" and the email "alice@example.com"
+    When config add-user runs with the argument "100" and --global and --alias "ali"
+    Then the global registry file contains no text "5500330011122"
+
+  # ── staged user resolution and --assignee ──
+
+  Scenario: resolveEffectiveAssignee prefers the repo config's own match over the global registry
+    Given a git repository at "/work/harbour" whose .agents/cyber-asana.json holds the user "100" named "Alice Anderson" with alias "ali"
+    And a global registry file holding the user "200" named "Alice Impostor" with alias "ali"
+    And the working directory is "/work/harbour"
+    When task create runs with the argument "Ship it" and --assignee "ali"
+    Then the outgoing request carries the assignee gid "100"
+
+  Scenario: resolveEffectiveAssignee falls back to the global registry when the repo config has no match
+    Given a git repository at "/work/harbour" whose .agents/cyber-asana.json holds the user "100" named "Alice Anderson" with alias "ali"
+    And a global registry file holding the user "200" named "Bob Brown" with alias "bobby"
+    And the working directory is "/work/harbour"
+    When task create runs with the argument "Ship it" and --assignee "bobby"
+    Then the outgoing request carries the assignee gid "200"
+
+  Scenario: resolveEffectiveAssignee raises the repo config's own ambiguous-match error without consulting global
+    Given a git repository at "/work/harbour" whose .agents/cyber-asana.json holds the user "100" named "Bob Brown" with alias "bb"
+    And that repository's .agents/cyber-asana.json also holds the user "200" named "Bob Brown" with alias "bb2"
+    And a global registry file holding the user "300" named "Bob Global" with alias "bobby"
+    And the working directory is "/work/harbour"
+    When task create runs with the argument "Ship it" and --assignee "Bob Brown"
+    Then the command fails with a message containing "matches 2 registered users"
+
+  Scenario: resolveEffectiveAssignee names both config add-user and --global when nothing resolves
+    Given a git repository at "/work/harbour" that contains no .agents directory
+    And no global registry file exists at the resolved global location
+    And the working directory is "/work/harbour"
+    When task create runs with the argument "Ship it" and --assignee "carol"
+    Then the command fails with a message containing "config add-user"
+    And the command fails with a message containing "--global"
+
+  Scenario: resolveEffectiveAssignee passes a gid or "me" through without reading either registry
+    Given a git repository at "/work/harbour" that contains no .agents directory
+    And no global registry file exists at the resolved global location
+    And the working directory is "/work/harbour"
+    When task create runs with the argument "Ship it" and --assignee "me"
+    Then the outgoing request carries the assignee gid "me"
+
+  Scenario: resolveEffectiveAssignee resolves from the global registry when there is no git repository at all
+    Given an empty directory "/scratch/loose"
+    And "/scratch/loose" sits outside any git working tree
+    And a global registry file holding the user "200" named "Bob Brown" with alias "bobby"
+    And the working directory is "/scratch/loose"
+    When task create runs with the argument "Ship it" and --assignee "bobby"
+    Then the outgoing request carries the assignee gid "200"
+
+  Scenario: list-users --merged prints both registries' users, repo config winning a gid collision
+    Given a git repository at "/work/harbour" whose .agents/cyber-asana.json holds the user "100" named "Alice Anderson" with alias "ali"
+    And a global registry file holding the user "100" named "Alice Impostor" with alias "ali"
+    And that file also holds the user "200" named "Bob Brown" with alias "bobby"
+    And the working directory is "/work/harbour"
+    When config list-users runs with --merged
+    Then stdout contains "Alice Anderson"
+    And stdout does not contain "Alice Impostor"
+    And stdout contains "Bob Brown"
+
+  Scenario: resolve-user --merged resolves an alias present only in the global registry
+    Given a git repository at "/work/harbour" whose .agents/cyber-asana.json holds the user "100" named "Alice Anderson" with alias "ali"
+    And a global registry file holding the user "200" named "Bob Brown" with alias "bobby"
+    And the working directory is "/work/harbour"
+    When config resolve-user runs with the argument "bobby" and --merged
+    Then stdout contains "Bob Brown"
+
+  Scenario: resolve-user --merged surfaces a cross-scope alias collision that staged resolution would not
+    Given a git repository at "/work/harbour" whose .agents/cyber-asana.json holds the user "100" named "Alice Anderson" with alias "ali"
+    And a global registry file holding the user "200" named "Bob Impostor" with alias "ali"
+    And the working directory is "/work/harbour"
+    When config resolve-user runs with the argument "ali" and --merged
+    Then the command fails with a message containing "matches 2 registered users"
+
+  Scenario: list-users --merged is an error when neither source produces anything
+    Given a git repository at "/work/harbour" that contains no .agents directory
+    And no global registry file exists at the resolved global location
+    And the working directory is "/work/harbour"
+    When config list-users runs with --merged
+    Then the command fails with the message "No repo or global config found"

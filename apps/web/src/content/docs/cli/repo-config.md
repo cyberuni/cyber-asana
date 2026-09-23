@@ -86,6 +86,22 @@ cyber-asana config show --merged
 
 `--global` and `--merged` are mutually exclusive.
 
+### The global registry also has users
+
+`add-user`, `resolve-user`, `remove-user`, `remove-alias`, and `list-users` take `--global` too —
+but unlike projects, global users are **flat**, not filed per repo, since the same person doesn't
+change identity when you `cd` into a different checkout:
+
+```sh
+cyber-asana config add-user <user-gid> --global --alias ali   # personal, no --repo
+cyber-asana config list-users --global
+```
+
+`--assignee` resolution (below) checks the repo config first and only opens the global registry on
+a clean miss — so an alias that's unambiguous in each registry on its own never collides across
+scopes. `resolve-user --merged` / `list-users --merged`, by contrast, are listing views and do
+union the two, so a genuine cross-scope alias collision surfaces there instead.
+
 ## Finding a user's GID
 
 `add-user --search <query>` looks the person up with Asana's typeahead search (the same
@@ -115,8 +131,9 @@ A query is matched case-insensitively in four tiers — GID, then alias, then em
 display name — and the first tier with a match decides. An alias is unique to one user, so
 it always wins over someone else's display name. A query that matches two users in the
 deciding tier (two people with the same display name, say) is an error that lists both
-candidates; give an alias or a GID instead. A name that matches nobody is an error too,
-naming the `config add-user --search` command that would fix it.
+candidates; give an alias or a GID instead. If the repo config has no match at all, the personal
+global registry is checked next before giving up. A name that matches nobody in either is an error
+too, naming both `config add-user --search` and `config add-user --global` as the fix.
 
 ## Keeping names fresh
 
