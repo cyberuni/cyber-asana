@@ -22,7 +22,7 @@ Set [authentication](/cyber-asana/getting-started/#authentication) before runnin
 | Skill | Use when |
 | --- | --- |
 | [`init-asana`](https://github.com/cyberuni/cyber-asana/blob/main/skills/init-asana/SKILL.md) | First-time setup; `ASANA_ACCESS_TOKEN`, workspace GID, verify connection |
-| [`pin-asana-projects`](https://github.com/cyberuni/cyber-asana/blob/main/skills/pin-asana-projects/SKILL.md) | Pin projects to `.agents/cyber-asana.json`, or a personal global registry (`--global`), via `project search` keywords |
+| [`manage-asana-registry`](https://github.com/cyberuni/cyber-asana/blob/main/skills/manage-asana-registry/SKILL.md) | Add, remove, refresh, and show Asana projects and users in the repo config or the personal global registry |
 | [`create-asana-task`](https://github.com/cyberuni/cyber-asana/blob/main/skills/create-asana-task/SKILL.md) | Create or file a task (URL parse, repo project lookup, MCP `asana_task_create`) |
 | [`improve-description`](https://github.com/cyberuni/cyber-asana/blob/main/skills/improve-description/SKILL.md) | Clean up or rewrite a description — light copy-edit by default, opt-in emoji/template/tone, Asana's HTML subset |
 | [`asana-standup`](https://github.com/cyberuni/cyber-asana/blob/main/skills/asana-standup/SKILL.md) | Standup update — recent completions and due-soon tasks |

@@ -85,9 +85,12 @@ npx cyber-asana@<exact> --version
 
 A successful version print confirms the CLI runs with credentials loaded. If workspace-scoped commands still fail, recheck `ASANA_WORKSPACE_GID` from step 4.
 
-### 6. Optional — repo project registry
+### 6. Optional — project and user registry
 
-For repos that work against a fixed set of Asana projects, use the **pin-asana-projects** skill. It searches projects by keyword with `project search`, confirms selections with the user, and pins them in `.agents/cyber-asana.json` via `config add`.
+For repos that work against a fixed set of Asana projects, or a fixed set of people, use the
+**manage-asana-registry** skill. It searches projects by keyword with `project search` and users
+by typeahead with `add-user --search`, confirms selections with the user, and adds, removes, or
+refreshes them in `.agents/cyber-asana.json` — or, with `--global`, a personal cross-repo registry.
 
 ### 7. Recommended — connect the MCP server (ambient session integration)
 
