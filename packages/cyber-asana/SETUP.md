@@ -80,4 +80,5 @@ This file covers the credentials the plugin needs to work at all. The shipped sk
 - [`init-asana`](./skills/init-asana/SKILL.md) — the same setup for someone using the CLI without
   the plugin, plus verification and the dual-MCP layout.
 - [`pin-asana-projects`](./skills/pin-asana-projects/SKILL.md) — pin a repo's Asana projects into
-  `.agents/cyber-asana.json` so skills can resolve them by name.
+  `.agents/cyber-asana.json` (or, with `--global`, a personal cross-repo registry) so skills can
+  resolve them by name.

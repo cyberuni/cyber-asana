@@ -6,18 +6,20 @@ concept: [cyber-asana, skills, repo-registry, setup]
 # pin-asana-projects — the registry-seeding skill
 
 A **reference artifact**: the shipped skill at `packages/cyber-asana/skills/pin-asana-projects/`,
-which fills the repository's committed project registry by searching Asana for the projects this
-codebase actually works with.
+which fills a repository's committed project registry — or a caller's personal, uncommitted global
+registry for that repo — by searching Asana for the projects this codebase actually works with.
 
 ## Subject
 
 - **Artifact** — `skills/pin-asana-projects/SKILL.md`. No references directory.
-- **Trigger** — someone wants this repository to know its Asana projects by name, or the committed
-  registry is missing or stale. Its front block reads: *"Use this skill when pinning repo Asana
-  projects to `.agents/cyber-asana.json` via keyword search."*
+- **Trigger** — someone wants this repository to know its Asana projects by name, the committed
+  registry is missing or stale, or they want a project pinned personally without committing it.
+  Its front block reads: *"Use this skill when pinning Asana projects to a repo's config, local or
+  global, via keyword search."*
 - **What it covers** — deriving short search keywords from the repository and the user's own words,
-  searching the workspace once per keyword, deduplicating hits by GID, confirming the shortlist with
-  the user, and writing the chosen entries into the registry.
+  searching the workspace once per keyword, deduplicating hits by GID, confirming the shortlist and
+  the target registry (committed repo config, or the personal global one via `--global`) with the
+  user, and writing the chosen entries.
 
 **Its place in the catalog.** It is the second half of setup: [init-asana](../init-asana/README.md)
 establishes the credential, this skill establishes the *names*. Everything downstream that resolves
