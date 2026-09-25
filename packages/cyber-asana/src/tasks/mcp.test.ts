@@ -383,4 +383,93 @@ describe('tasks/mcp', () => {
 			expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { assignee: '555' })
 		})
 	})
+	describe('asana_task_create resolves through the repo project registry', () => {
+		let dir: string | undefined
+		const previousConfig = process.env.CYBER_ASANA_CONFIG
+
+		async function useConfig(config: unknown) {
+			dir = await mkdtemp(join(tmpdir(), 'cyber-asana-mcp-project-'))
+			const path = join(dir, 'config.json')
+			await writeFile(path, JSON.stringify(config))
+			process.env.CYBER_ASANA_CONFIG = path
+		}
+
+		afterEach(async () => {
+			if (previousConfig === undefined) delete process.env.CYBER_ASANA_CONFIG
+			else process.env.CYBER_ASANA_CONFIG = previousConfig
+			if (dir) await rm(dir, { recursive: true, force: true })
+			dir = undefined
+		})
+
+		it('resolves a project alias', async () => {
+			await useConfig({ schema_version: 2, projects: [{ gid: '999', name: 'Backend', aliases: ['api'] }] })
+			createTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
+			const server = createServer()
+			registerTaskTools(server as any)
+
+			await server.handlers.get('asana_task_create')?.({ workspace_gid: 'ws1', name: 'Task', project: 'api' })
+
+			expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { projects: ['999'] })
+		})
+
+		it('falls back to the project marked default when none is given', async () => {
+			await useConfig({
+				schema_version: 2,
+				projects: [{ gid: '999', name: 'Backend', aliases: [], default: true }],
+			})
+			createTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
+			const server = createServer()
+			registerTaskTools(server as any)
+
+			await server.handlers.get('asana_task_create')?.({ workspace_gid: 'ws1', name: 'Task' })
+
+			expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { projects: ['999'] })
+		})
+
+		it('prefers an explicit project_gid over the default', async () => {
+			await useConfig({
+				schema_version: 2,
+				projects: [{ gid: '999', name: 'Backend', aliases: [], default: true }],
+			})
+			createTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
+			const server = createServer()
+			registerTaskTools(server as any)
+
+			await server.handlers.get('asana_task_create')?.({ workspace_gid: 'ws1', name: 'Task', project_gid: '777' })
+
+			expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { projects: ['777'] })
+		})
+
+		it('falls back to defaults.assignee when no assignee is given', async () => {
+			await useConfig({
+				schema_version: 2,
+				projects: [],
+				users: [{ gid: '100', name: 'Alice Anderson', aliases: ['ali'] }],
+				defaults: { assignee: 'ali' },
+			})
+			createTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
+			const server = createServer()
+			registerTaskTools(server as any)
+
+			await server.handlers.get('asana_task_create')?.({ workspace_gid: 'ws1', name: 'Task' })
+
+			expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { assignee: '100' })
+		})
+
+		it('leaves asana_task_update alone when only defaults.assignee is set', async () => {
+			await useConfig({
+				schema_version: 2,
+				projects: [],
+				users: [{ gid: '100', name: 'Alice Anderson', aliases: ['ali'] }],
+				defaults: { assignee: 'ali' },
+			})
+			updateTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
+			const server = createServer()
+			registerTaskTools(server as any)
+
+			await server.handlers.get('asana_task_update')?.({ task_gid: '123', name: 'Renamed' })
+
+			expect(updateTaskMock).toHaveBeenCalledWith('123', { name: 'Renamed' })
+		})
+	})
 })

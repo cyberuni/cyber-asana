@@ -2,6 +2,7 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import { resolveEffectiveAssignee } from '../effective-config.js'
 import { paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
+import { loadDefaults, resolveProjectRef } from '../repo-config.js'
 import {
 	addDependencies,
 	addDependents,
@@ -34,6 +35,28 @@ async function assigneeFromParams(assigneeGid?: string, assignee?: string) {
 	if (assigneeGid) return assigneeGid
 	if (assignee) return resolveEffectiveAssignee(assignee)
 	return undefined
+}
+
+/**
+ * The create-only twin of `assigneeFromParams`: with nothing given it falls back to
+ * `defaults.assignee`. Update does not, so editing a task cannot silently reassign it.
+ */
+async function assigneeForCreate(assigneeGid?: string, assignee?: string) {
+	if (assigneeGid) return assigneeGid
+	if (assignee) return resolveEffectiveAssignee(assignee)
+	const fallback = (await loadDefaults())?.assignee
+	return fallback ? resolveEffectiveAssignee(fallback) : undefined
+}
+
+/**
+ * Explicit GIDs win; otherwise `project` may name a project in the repo registry, and with
+ * nothing given the project marked `default: true` is used.
+ */
+async function projectsForCreate(projectGids?: string[], projectGid?: string, project?: string) {
+	if (projectGids) return projectGids
+	if (projectGid) return parseGidList(projectGid)
+	const resolved = await resolveProjectRef(project)
+	return resolved ? parseGidList(resolved) : undefined
 }
 
 function resolveTaskApi(api?: TaskApi | (() => TaskApi)): TaskApi {
@@ -290,6 +313,12 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 			name: z.string().describe('Task name'),
 			project_gid: z.string().optional().describe('Project GID'),
 			project_gids: z.array(z.string()).optional().describe('Project GIDs'),
+			project: z
+				.string()
+				.optional()
+				.describe(
+					'Project as a GID, or a name or alias registered with `cyber-asana config add` (resolved from the repo config, no API call). project_gid and project_gids win when set. With none of them set, the project marked default in the repo config is used.',
+				),
 			follower_gids: z
 				.union([z.array(z.string()), z.string()])
 				.optional()
@@ -325,6 +354,7 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 			name,
 			project_gid,
 			project_gids,
+			project,
 			follower_gids,
 			assignee_gid,
 			assignee,
@@ -350,8 +380,8 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 								notes,
 								htmlNotes: html_notes,
 								completed,
-								assignee: await assigneeFromParams(assignee_gid, assignee),
-								projectGids: project_gids ?? parseGidList(project_gid),
+								assignee: await assigneeForCreate(assignee_gid, assignee),
+								projectGids: await projectsForCreate(project_gids, project_gid, project),
 								followerGids: typeof follower_gids === 'string' ? parseGidList(follower_gids) : follower_gids,
 								dueOn: due_on,
 								dueAt: due_at,
