@@ -307,6 +307,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 		.option('--start-at <datetime>', 'Start date and time (ISO 8601 UTC); Asana requires a due time alongside it')
 		.option('--resource-subtype <subtype>', 'Task resource subtype (e.g. default_task, milestone)')
 		.option('--follower <gid[,gid...]>', 'Follower user GIDs')
+		.option('--tag <gid[,gid...]>', 'Tag GIDs to apply')
 		.option('--custom-fields-json <json>', 'Custom field values as a JSON object')
 		.option('--custom-field <gid=value>', 'Custom field value override', collectOption, [])
 		.action(
@@ -330,6 +331,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 					startAt?: string
 					resourceSubtype?: string
 					follower?: string
+					tag?: string
 					customFieldsJson?: string
 					customField: string[]
 				},
@@ -344,6 +346,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 						assignee: await assigneeForCreate(opts),
 						projectInput: opts.projectGid ?? (await resolveProjectRef(opts.project)),
 						followerInput: opts.follower,
+						tagInput: opts.tag,
 						dueOn: opts.dueOn,
 						dueAt: opts.dueAt,
 						startOn: opts.startOn,

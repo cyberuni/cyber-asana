@@ -23,6 +23,7 @@ export type CreateTaskFields = {
 	resource_subtype?: string
 	custom_fields?: TaskCustomFields
 	followers?: string[]
+	tags?: string[]
 }
 
 export type UpdateTaskFields = {

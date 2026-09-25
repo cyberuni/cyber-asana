@@ -401,6 +401,17 @@ describe('tasks/mcp', () => {
 			dir = undefined
 		})
 
+		it('sends tag_gids as a tag list', async () => {
+			await useConfig({ schema_version: 2, projects: [] })
+			createTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
+			const server = createServer()
+			registerTaskTools(server as any)
+
+			await server.handlers.get('asana_task_create')?.({ workspace_gid: 'ws1', name: 'Task', tag_gids: ['t1'] })
+
+			expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { tags: ['t1'] })
+		})
+
 		it('resolves a project alias', async () => {
 			await useConfig({ schema_version: 2, projects: [{ gid: '999', name: 'Backend', aliases: ['api'] }] })
 			createTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })

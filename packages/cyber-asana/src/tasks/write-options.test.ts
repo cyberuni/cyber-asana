@@ -23,6 +23,18 @@ describe('tasks/write-options', () => {
 		})
 	})
 
+	it('buildTaskCreateFields maps a comma-separated tag list', () => {
+		expect(buildTaskCreateFields({ tagInput: 't1, t2' })).toEqual({ tags: ['t1', 't2'] })
+	})
+
+	it('buildTaskCreateFields takes tagGids over tagInput', () => {
+		expect(buildTaskCreateFields({ tagGids: ['t9'], tagInput: 't1' })).toEqual({ tags: ['t9'] })
+	})
+
+	it('buildTaskCreateFields omits tags when none are given', () => {
+		expect(buildTaskCreateFields({ notes: 'plain' })).toEqual({ notes: 'plain' })
+	})
+
 	it('buildTaskCreateFields maps start_on', () => {
 		expect(buildTaskCreateFields({ startOn: '2026-09-01', dueOn: '2026-10-31' })).toEqual({
 			start_on: '2026-09-01',

@@ -19,8 +19,10 @@ type BuildTaskWriteInput = {
 type BuildTaskCreateInput = BuildTaskWriteInput & {
 	projectInput?: string
 	followerInput?: string
+	tagInput?: string
 	projectGids?: string[]
 	followerGids?: string[]
+	tagGids?: string[]
 }
 
 type BuildTaskUpdateInput = BuildTaskWriteInput & {
@@ -93,6 +95,7 @@ export function buildTaskCreateFields(input: BuildTaskCreateInput): CreateTaskFi
 	const customFields = { ...input.customFields, ...mergeCustomFields(input.customFieldsJson, input.customFieldEntries) }
 	const projects = input.projectGids ?? parseGidList(input.projectInput)
 	const followers = input.followerGids ?? parseGidList(input.followerInput)
+	const tags = input.tagGids ?? parseGidList(input.tagInput)
 	return {
 		...(input.notes !== undefined && { notes: input.notes }),
 		...(input.htmlNotes !== undefined && { html_notes: input.htmlNotes }),
@@ -106,6 +109,7 @@ export function buildTaskCreateFields(input: BuildTaskCreateInput): CreateTaskFi
 		...(input.resourceSubtype !== undefined && { resource_subtype: input.resourceSubtype }),
 		...(projects && { projects }),
 		...(followers && { followers }),
+		...(tags && { tags }),
 		...(Object.keys(customFields).length > 0 && { custom_fields: customFields }),
 	}
 }

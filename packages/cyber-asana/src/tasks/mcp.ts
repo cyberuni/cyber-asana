@@ -323,6 +323,10 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 				.union([z.array(z.string()), z.string()])
 				.optional()
 				.describe('Follower user GIDs'),
+			tag_gids: z
+				.union([z.array(z.string()), z.string()])
+				.optional()
+				.describe('Tag GIDs to apply'),
 			assignee_gid: z.string().optional().describe('Assignee user GID'),
 			assignee: z
 				.string()
@@ -356,6 +360,7 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 			project_gids,
 			project,
 			follower_gids,
+			tag_gids,
 			assignee_gid,
 			assignee,
 			notes,
@@ -383,6 +388,7 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 								assignee: await assigneeForCreate(assignee_gid, assignee),
 								projectGids: await projectsForCreate(project_gids, project_gid, project),
 								followerGids: typeof follower_gids === 'string' ? parseGidList(follower_gids) : follower_gids,
+								tagGids: typeof tag_gids === 'string' ? parseGidList(tag_gids) : tag_gids,
 								dueOn: due_on,
 								dueAt: due_at,
 								startOn: start_on,

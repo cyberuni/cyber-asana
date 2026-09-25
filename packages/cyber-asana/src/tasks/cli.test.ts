@@ -697,6 +697,18 @@ describe('tasks/cli', () => {
 			if (dir) await rm(dir, { recursive: true, force: true })
 		})
 
+		it('sends --tag as a tag list', async () => {
+			await useConfig({ schema_version: 2, projects: [] })
+			createTaskMock.mockResolvedValue({ gid: 't1', name: 'Task' })
+			const program = new Command().addCommand(taskCommand())
+
+			await program.parseAsync(['node', 'test', 'task', 'create', 'Task', '--workspace-gid', 'w1', '--tag', 't1,t2'], {
+				from: 'node',
+			})
+
+			expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ tags: ['t1', 't2'] }))
+		})
+
 		it('uses the project marked default when --project is not given', async () => {
 			await useConfig({
 				schema_version: 2,
