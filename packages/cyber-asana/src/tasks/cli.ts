@@ -342,7 +342,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 						htmlNotes: opts.htmlNotes,
 						completed: opts.completed,
 						assignee: await assigneeForCreate(opts),
-						projectInput: await resolveProjectRef(opts.projectGid ?? opts.project),
+						projectInput: opts.projectGid ?? (await resolveProjectRef(opts.project)),
 						followerInput: opts.follower,
 						dueOn: opts.dueOn,
 						dueAt: opts.dueAt,

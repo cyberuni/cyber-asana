@@ -12,4 +12,4 @@ Manage them with `config add --alias --purpose --default`, `config set-default`,
 
 Migration:
 
-- `--project` on `task create` now follows the same contract as `--assignee`: a numeric value is a GID, and anything else is looked up in the repo config. Pass `--project-gid` for a value that is not numeric and not registered.
+- `--project` on `task create` now follows the same contract as `--assignee`: a numeric value is a GID, and anything else is looked up in the repo config. `--project-gid` is sent to Asana untouched, so pass it for a value that is neither numeric nor registered.

@@ -728,6 +728,19 @@ describe('tasks/cli', () => {
 			expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ projects: ['p9'] }))
 		})
 
+		it('sends --project-gid to Asana untouched, as the registry escape hatch', async () => {
+			await useConfig({ schema_version: 2, projects: [{ gid: 'p9', name: 'Backend', aliases: [], default: true }] })
+			createTaskMock.mockResolvedValue({ gid: 't1', name: 'Task' })
+			const program = new Command().addCommand(taskCommand())
+
+			await program.parseAsync(
+				['node', 'test', 'task', 'create', 'Task', '--workspace-gid', 'w1', '--project-gid', 'unregistered'],
+				{ from: 'node' },
+			)
+
+			expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ projects: ['unregistered'] }))
+		})
+
 		it('uses defaults.assignee when --assignee is not given', async () => {
 			await useConfig({
 				schema_version: 2,
