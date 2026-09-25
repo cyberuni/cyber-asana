@@ -861,4 +861,72 @@ describe('config/cli', () => {
 			expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('"gid": "111"'))
 		})
 	})
+	describe('set and unset', () => {
+		async function run(configPath: string, ...args: string[]) {
+			process.argv = ['node', 'test', '--json']
+			await (await userProgram()).parseAsync(['node', 'test', 'config', ...args, '--config', configPath], {
+				from: 'node',
+			})
+			return JSON.parse(await readFile(configPath, 'utf8'))
+		}
+
+		it('set writes a defaults key', async () => {
+			const configPath = await writeConfig({ schema_version: 2, projects: [] })
+
+			expect((await run(configPath, 'set', 'defaults.assignee', 'ali')).defaults).toEqual({ assignee: 'ali' })
+		})
+
+		it('set writes a conventions key', async () => {
+			const configPath = await writeConfig({ schema_version: 2, projects: [] })
+
+			expect((await run(configPath, 'set', 'conventions.task_name_format', '<area>: <summary>')).conventions).toEqual({
+				task_name_format: '<area>: <summary>',
+			})
+		})
+
+		it('set splits conventions.default_tags on commas', async () => {
+			const configPath = await writeConfig({ schema_version: 2, projects: [] })
+
+			expect((await run(configPath, 'set', 'conventions.default_tags', 'eng, ops')).conventions).toEqual({
+				default_tags: ['eng', 'ops'],
+			})
+		})
+
+		it('unset clears a key and drops the emptied block', async () => {
+			const configPath = await writeConfig({
+				schema_version: 2,
+				projects: [],
+				defaults: { assignee: 'ali' },
+			})
+
+			expect(await run(configPath, 'unset', 'defaults.assignee')).not.toHaveProperty('defaults')
+		})
+
+		it('rejects an unknown key and names the ones it accepts', async () => {
+			const configPath = await writeConfig({ schema_version: 2, projects: [] })
+
+			await expect(run(configPath, 'set', 'defaults.assinee', 'ali')).rejects.toThrow(
+				/Unknown config key "defaults.assinee".*defaults.assignee/s,
+			)
+		})
+
+		it('show prints the defaults and conventions blocks', async () => {
+			const configPath = await writeConfig({
+				schema_version: 2,
+				projects: [],
+				defaults: { assignee: 'ali' },
+				conventions: { default_tags: ['eng'] },
+			})
+
+			process.argv = ['node', 'test']
+			await (await userProgram()).parseAsync(['node', 'test', 'config', 'show', '--config', configPath], {
+				from: 'node',
+			})
+
+			const printed = logSpy.mock.calls.map((call) => String(call[0])).join('\n')
+			expect(printed).toContain('defaults.assignee')
+			expect(printed).toContain('conventions.default_tags')
+			expect(printed).toContain('eng')
+		})
+	})
 })

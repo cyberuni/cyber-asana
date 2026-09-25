@@ -48,7 +48,9 @@ import {
 	resolveProject,
 	resolveUser,
 	saveRepoConfig,
+	setConventions,
 	setDefaultProject,
+	setDefaults,
 	type UserObservation,
 } from './repo-config.js'
 import type { SearchApi } from './search/api.js'
@@ -212,6 +214,50 @@ function printProjectTable(projects: RepoProjectEntry[]) {
 	)
 }
 
+/**
+ * The dotted keys `config set` accepts. Listing them here keeps the CLI's vocabulary and the
+ * parser's in one place, and lets an unknown key answer with what it should have been.
+ */
+const SETTABLE_KEYS = [
+	'defaults.assignee',
+	'defaults.workspace',
+	'defaults.section',
+	'conventions.task_name_format',
+	'conventions.description_template',
+	'conventions.default_tags',
+] as const
+
+type SettableKey = (typeof SETTABLE_KEYS)[number]
+
+function settableKey(key: string): SettableKey {
+	if (!(SETTABLE_KEYS as readonly string[]).includes(key)) {
+		throw new InvalidArgumentError(`Unknown config key "${key}". Expected one of:\n  ${SETTABLE_KEYS.join('\n  ')}`)
+	}
+	return key as SettableKey
+}
+
+/** `conventions.default_tags` is the one list-valued key, so a comma-separated value becomes a list. */
+function applySetting(config: RepoConfig, key: SettableKey, value: string[] | null): RepoConfig {
+	const [block, field] = key.split('.') as ['defaults' | 'conventions', string]
+	if (key === 'conventions.default_tags') {
+		return setConventions(config, { default_tags: value })
+	}
+	const scalar = value === null ? null : value.join(',')
+	return block === 'defaults' ? setDefaults(config, { [field]: scalar }) : setConventions(config, { [field]: scalar })
+}
+
+/** Print a block as the dotted keys `config set` takes, so what is shown can be typed back. */
+function printBlocks(config: RepoConfig) {
+	const entries = [
+		...Object.entries(config.defaults ?? {}).map(([key, value]) => [`defaults.${key}`, value] as const),
+		...Object.entries(config.conventions ?? {}).map(([key, value]) => [`conventions.${key}`, value] as const),
+	]
+	if (entries.length === 0) {
+		return
+	}
+	printFields(Object.fromEntries(entries.map(([key, value]) => [key, Array.isArray(value) ? value.join(', ') : value])))
+}
+
 function printUserTable(users: RepoUserEntry[]) {
 	printTable(
 		users,
@@ -279,6 +325,8 @@ export function configCommand(getProjects: () => ProjectApi, getUsers?: () => Us
 			'  cyber-asana config remove-alias <alias>[,<alias>...]',
 			'  cyber-asana config resolve-user <alias-email-or-name>',
 			'  cyber-asana config list-users',
+			'  cyber-asana config set defaults.assignee ali',
+			'  cyber-asana config unset defaults.assignee',
 			'  cyber-asana config sync',
 			'  cyber-asana config add <project-gid> --global   # personal registry, this repo',
 			'  cyber-asana config show --merged                # repo config + global, unioned',
@@ -307,6 +355,7 @@ export function configCommand(getProjects: () => ProjectApi, getUsers?: () => Us
 				console.log(path)
 				printProjectTable(config.projects)
 				if (config.users) printUserTable(config.users)
+				printBlocks(config)
 			})
 		})
 
@@ -836,6 +885,37 @@ export function configCommand(getProjects: () => ProjectApi, getUsers?: () => Us
 			await saveRepoConfig(path, removeUser(config, user.gid))
 			output({ path, removed: user.gid }, () => {
 				console.log(`Removed ${user.name} (${user.gid}) from ${path}`)
+			})
+		})
+
+	cmd
+		.command('set <key> <value>')
+		.description(`Set a config value (${SETTABLE_KEYS.join(', ')})`)
+		.option('--config <path>', 'Config file path (overrides CYBER_ASANA_CONFIG)')
+		.action(async (key: string, value: string, opts: ConfigCliOptions) => {
+			const settable = settableKey(key)
+			const { path, config } = await resolveWritableConfig(opts)
+			const parts = splitAliases(value)
+			if (parts.length === 0) {
+				throw new InvalidArgumentError(`${key} needs a non-empty value; use "config unset ${key}" to clear it`)
+			}
+			const next = applySetting(config, settable, parts)
+			await saveRepoConfig(path, next)
+			output({ path, key: settable, value: parts.length === 1 ? parts[0] : parts }, () =>
+				printFields({ Path: path, [settable]: parts.join(', ') }),
+			)
+		})
+
+	cmd
+		.command('unset <key>')
+		.description('Clear a config value set by `config set`')
+		.option('--config <path>', 'Config file path (overrides CYBER_ASANA_CONFIG)')
+		.action(async (key: string, opts: ConfigCliOptions) => {
+			const settable = settableKey(key)
+			const { path, config } = await loadExistingConfig(opts)
+			await saveRepoConfig(path, applySetting(config, settable, null))
+			output({ path, key: settable, value: null }, () => {
+				console.log(`Cleared ${settable} in ${path}`)
 			})
 		})
 
