@@ -1,5 +1,26 @@
 # cyber-asana
 
+## 0.15.0
+
+### Minor Changes
+
+- 6ae5a52: Rename and broaden the `pin-asana-projects` skill to `config-asana`. It now covers adding, removing, and refreshing both projects and users, in either the committed repo config or the personal global registry, rather than only seeding projects into the repo config. Anyone installing the old skill by name (`npx skills add cyberuni/cyber-asana --skill pin-asana-projects`) should switch to `config-asana`.
+- 1ab48da: Add a global, cross-repo Asana project registry. Pass `--global` to `config show`, `list`, `path`, `resolve-project`, `add`, `remove`, or `sync` to read or write a personal registry outside any repo (default `$XDG_CONFIG_HOME/cyber-asana/config.json`, or `CYBER_ASANA_GLOBAL_CONFIG`), keyed by a normalized git remote URL (override with `--repo <key>`). Pass `--merged` to `show`, `list`, or `resolve-project` to union it with the repo config, with the repo config winning a `gid` conflict. Also exports `resolveRepoKey` and `loadEffectiveProjects` for skill scripts to resolve the same merged view in-process.
+- 778e867: Mirror users into the global registry (`--global` on `add-user`, `resolve-user`, `remove-user`, `remove-alias`, and `list-users`), and add `--merged` to `resolve-user` / `list-users` to union them with the repo config. Unlike projects, global users are a flat list — not filed per repo — since a person's identity doesn't change with which repo you're in. `--assignee` on task create/update now falls back to the global registry when the repo config has no match (via the new `resolveEffectiveAssignee`/`resolveEffectiveUser` exports), trying the repo config to completion first so an alias that's unambiguous in each registry never becomes a false cross-scope collision.
+- 9ebd625: Give the repo config richer project entries and repo-wide defaults.
+  
+  Project entries carry `aliases`, a `purpose` line, and a `default: true` marker alongside `gid` and `name`, so a project can be reached by keyword and an agent can tell what belongs in it. Two optional top-level blocks join them: `defaults` (`assignee`, `section`) and `conventions` (`task_name_format`, `description_template`, `default_tags`). The schema moves to version 2; a version 1 file still parses and is upgraded in place on the next write.
+  
+  Manage them with `config add --alias --purpose --default`, `config set-default`, `config remove-project-alias`, and `config set` / `config unset` for the dotted keys.
+  
+  `task create` and `asana_task_create` resolve through the registry: a project may be given as a name or alias, and with none given the project marked `default: true` is used, as is `defaults.assignee` when no assignee is given. They also apply the repo's conventions — `description_template` as the description when no notes are given, and `default_tags` when no tags are given. Updates are unaffected, so editing a task cannot silently reassign it.
+  
+  Both surfaces can now send tags on creation: `--tag <gid-or-name[,...]>` on the CLI, `tag_gids` on `asana_task_create`. A tag may be named rather than given by GID — a numeric value is used as-is, and anything else is resolved against the workspace's tags.
+  
+  Migration:
+  
+  - `--project` on `task create` now follows the same contract as `--assignee`: a numeric value is a GID, and anything else is looked up in the repo config. `--project-gid` is sent to Asana untouched, so pass it for a value that is neither numeric nor registered.
+
 ## 0.14.0
 
 ### Minor Changes
