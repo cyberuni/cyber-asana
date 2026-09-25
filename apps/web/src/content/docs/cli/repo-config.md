@@ -97,14 +97,21 @@ environment variable.
 the same way `--assignee` is) and `section` (a section GID in the default project). The default
 project itself is not part of `defaults` — it is whichever project entry carries `default: true`.
 
-`conventions` records repo house style so an agent writes a task the way this repo writes one:
-`task_name_format` (e.g. `<area>: <summary>`), `description_template` (a description skeleton),
-and `default_tags` (tag GIDs or names applied to new tasks).
+`conventions` records repo house style so an agent writes a task the way this repo writes one.
+Task creation applies two of the three keys on its own:
+
+| Key | Effect on `task create` / `asana_task_create` |
+| --- | --- |
+| `description_template` | Becomes the description when no notes are given. A template opening with `<body>` is sent as `html_notes`, anything else as `notes` |
+| `default_tags` | Tag GIDs applied when no tags are given. Override with `--tag` (MCP: `tag_gids`) |
+| `task_name_format` | Not applied automatically — a shape such as `<area>: <summary>` for an agent to follow when it writes the name |
+
+`default_tags` holds GIDs rather than tag names, so applying them costs no API call.
 
 `task create` resolves `--project` as a GID or a registered project name or alias, falling back
 to the default project when `--project` is omitted; `--assignee` falls back to
-`defaults.assignee` the same way. Both fallbacks are create-only — `task update` with no
-`--assignee` leaves the assignee alone.
+`defaults.assignee` the same way. Every fallback here is create-only — `task update` with no
+`--assignee` leaves the assignee alone, and never picks up a template or default tags.
 
 ## Global registry (across repositories)
 

@@ -21,9 +21,20 @@ All three are required before `asana_task_create`. Infer when possible; ask if a
 | `workspace_gid` | `ASANA_WORKSPACE` env, Asana URL parse, or explicit GID — **not** repo config |
 | `project_gid` | Asana URL parse, explicit GID, repo config (name, alias, or the project marked `default: true`), or project search |
 
-Optional: `notes`, `due_on`, `assignee_gid` or `assignee`, `parent_gid`, `follower_gids`, `html_notes`, `custom_fields`. On the CLI, `task create` falls back to `defaults.assignee` when no assignee is given, and to the repo config's default project when no project is given — both come from the same registry as `--assignee` and `--project`.
+Optional: `notes`, `due_on`, `assignee_gid` or `assignee`, `parent_gid`, `follower_gids`, `tag_gids`, `html_notes`, `custom_fields`. On the CLI, `task create` falls back to `defaults.assignee` when no assignee is given, and to the repo config's default project when no project is given — both come from the same registry as `--assignee` and `--project`.
 
 Do **not** use section APIs unless the user explicitly names a section, column, or list **by name**.
+
+### 1a. Follow the repo's task conventions
+
+If `.agents/cyber-asana.json` has a `conventions` block (`cyber-asana config show`), write the
+task the way that repo writes tasks:
+
+| Key | How to use it |
+| --- | --- |
+| `task_name_format` | Shape the `name` you pass to match it (e.g. `<area>: <summary>` → `auth: expire idle sessions`). Nothing applies this for you — it is yours to follow |
+| `description_template` | The CLI and MCP fill it in as the description when you pass no notes. Pass your own `notes`/`html_notes` only when you have real content, and start from the template's headings when you do |
+| `default_tags` | Applied automatically when you pass no tags. Pass `tag_gids` (CLI: `--tag`) only to override them |
 
 ### 2. Resolve project
 

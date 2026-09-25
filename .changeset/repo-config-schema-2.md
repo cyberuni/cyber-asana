@@ -8,7 +8,9 @@ Project entries carry `aliases`, a `purpose` line, and a `default: true` marker 
 
 Manage them with `config add --alias --purpose --default`, `config set-default`, `config remove-project-alias`, and `config set` / `config unset` for the dotted keys.
 
-`task create` and `asana_task_create` resolve through the registry: a project may be given as a name or alias, and with none given the project marked `default: true` is used, as is `defaults.assignee` when no assignee is given. Updates are unaffected, so editing a task cannot silently reassign it.
+`task create` and `asana_task_create` resolve through the registry: a project may be given as a name or alias, and with none given the project marked `default: true` is used, as is `defaults.assignee` when no assignee is given. They also apply the repo's conventions — `description_template` as the description when no notes are given, and `default_tags` when no tags are given. Updates are unaffected, so editing a task cannot silently reassign it.
+
+Both surfaces can now send tags on creation: `--tag <gid[,gid...]>` on the CLI, `tag_gids` on `asana_task_create`.
 
 Migration:
 
