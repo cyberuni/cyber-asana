@@ -22,7 +22,10 @@ import {
 	removeUser,
 	resolveAssignee,
 	resolveProject,
+	resolveProjectRef,
+	resolveSectionRef,
 	resolveUser,
+	resolveWorkspaceRef,
 	saveRepoConfig,
 	setConventions,
 	setDefaultProject,
@@ -611,5 +614,93 @@ describe('resolveAssignee', () => {
 
 	it('explains how to register when there is no repo config', async () => {
 		await expect(resolveAssignee('carol', { configPath: join(dir, 'missing.json') })).rejects.toThrow(/config add-user/)
+	})
+})
+
+describe('resolveProjectRef', () => {
+	let dir: string
+	let path: string
+
+	beforeEach(async () => {
+		dir = await mkdtemp(join(tmpdir(), 'cyber-asana-project-ref-'))
+		path = join(dir, 'config.json')
+		await saveRepoConfig(path, {
+			schema_version: 2,
+			projects: [
+				{ gid: '111', name: 'Backend', aliases: ['api'] },
+				{ gid: '222', name: 'Frontend', aliases: [], default: true },
+			],
+		})
+	})
+
+	afterEach(async () => {
+		await rm(dir, { recursive: true, force: true })
+	})
+
+	it('passes a numeric GID through without reading the registry', async () => {
+		expect(await resolveProjectRef('12345', { configPath: join(dir, 'missing.json') })).toBe('12345')
+	})
+
+	it('resolves an alias to the registered GID', async () => {
+		expect(await resolveProjectRef('api', { configPath: path })).toBe('111')
+	})
+
+	it('falls back to the default project when given nothing', async () => {
+		expect(await resolveProjectRef(undefined, { configPath: path })).toBe('222')
+	})
+
+	it('returns undefined when given nothing and no project is marked default', async () => {
+		await saveRepoConfig(path, { schema_version: 2, projects: [{ gid: '111', name: 'Backend', aliases: [] }] })
+		expect(await resolveProjectRef(undefined, { configPath: path })).toBeUndefined()
+	})
+
+	it('returns undefined when given nothing and there is no repo config', async () => {
+		expect(await resolveProjectRef(undefined, { configPath: join(dir, 'missing.json') })).toBeUndefined()
+	})
+
+	it('explains how to register an unknown project', async () => {
+		await expect(resolveProjectRef('nope', { configPath: path })).rejects.toThrow(/nope.*config add/)
+	})
+})
+
+describe('defaults fallbacks', () => {
+	let dir: string
+	let path: string
+
+	beforeEach(async () => {
+		dir = await mkdtemp(join(tmpdir(), 'cyber-asana-defaults-'))
+		path = join(dir, 'config.json')
+		await saveRepoConfig(path, {
+			schema_version: 2,
+			projects: [],
+			users: [{ gid: '100', name: 'Alice Anderson', aliases: ['ali'] }],
+			defaults: { assignee: 'ali', workspace: '900' },
+		})
+	})
+
+	afterEach(async () => {
+		await rm(dir, { recursive: true, force: true })
+	})
+
+	it('resolveAssignee falls back to defaults.assignee when given nothing', async () => {
+		expect(await resolveAssignee(undefined, { configPath: path })).toBe('100')
+	})
+
+	it('resolveAssignee returns undefined when given nothing and no default is set', async () => {
+		await saveRepoConfig(path, { schema_version: 2, projects: [] })
+		expect(await resolveAssignee(undefined, { configPath: path })).toBeUndefined()
+	})
+
+	it('resolveWorkspaceRef prefers the given value over the default', async () => {
+		expect(await resolveWorkspaceRef('901', { configPath: path })).toBe('901')
+	})
+
+	it('resolveWorkspaceRef falls back to defaults.workspace', async () => {
+		expect(await resolveWorkspaceRef(undefined, { configPath: path })).toBe('900')
+	})
+
+	it('resolveSectionRef falls back to defaults.section', async () => {
+		await saveRepoConfig(path, { schema_version: 2, projects: [], defaults: { section: '800' } })
+		expect(await resolveSectionRef(undefined, { configPath: path })).toBe('800')
 	})
 })

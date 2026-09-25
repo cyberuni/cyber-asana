@@ -1,4 +1,4 @@
-import { Command } from 'commander'
+import { Command, InvalidArgumentError } from 'commander'
 import {
 	addGidOption,
 	addPaginationOptions,
@@ -13,6 +13,7 @@ import {
 import { resolveEffectiveAssignee } from '../effective-config.js'
 import { deleteIdempotently, deleteMessage } from '../idempotent-delete.js'
 import { output, printEmpty, printFields, printNextSteps, printSummary, printTable } from '../output.js'
+import { loadDefaults, resolveProjectRef, resolveWorkspaceRef } from '../repo-config.js'
 import { isFull, truncate } from '../truncate.js'
 import {
 	addDependencies,
@@ -58,6 +59,17 @@ async function assigneeFromCli(opts: { assignee?: string; assigneeGid?: string }
 	if (opts.assigneeGid) return opts.assigneeGid
 	if (opts.assignee) return resolveEffectiveAssignee(opts.assignee)
 	return undefined
+}
+
+/**
+ * The create-only twin of `assigneeFromCli`: with no assignee given it falls back to
+ * `defaults.assignee`. Update does not do this, so renaming a task cannot reassign it.
+ */
+async function assigneeForCreate(opts: { assignee?: string; assigneeGid?: string }) {
+	if (opts.assigneeGid) return opts.assigneeGid
+	if (opts.assignee) return resolveEffectiveAssignee(opts.assignee)
+	const fallback = (await loadDefaults())?.assignee
+	return fallback ? resolveEffectiveAssignee(fallback) : undefined
 }
 
 function resolveTaskApi(api?: TaskApi | (() => TaskApi)): TaskApi {
@@ -322,15 +334,17 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 					customField: string[]
 				},
 			) => {
+				const workspaceGid = await resolveWorkspaceRef(normalizedGid(opts, 'workspace'))
+				if (!workspaceGid) throw new InvalidArgumentError('Workspace GID is required')
 				const data = await resolveTaskApi(api).createTask(
-					requiredGid(opts, 'workspace', 'Workspace GID'),
+					workspaceGid,
 					name,
 					buildTaskCreateFields({
 						notes: opts.notes,
 						htmlNotes: opts.htmlNotes,
 						completed: opts.completed,
-						assignee: await assigneeFromCli(opts),
-						projectInput: opts.projectGid ?? opts.project,
+						assignee: await assigneeForCreate(opts),
+						projectInput: await resolveProjectRef(opts.projectGid ?? opts.project),
 						followerInput: opts.follower,
 						dueOn: opts.dueOn,
 						dueAt: opts.dueAt,

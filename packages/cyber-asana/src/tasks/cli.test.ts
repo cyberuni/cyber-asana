@@ -125,7 +125,7 @@ describe('tasks/cli', () => {
 				'--workspace-gid',
 				'ws1',
 				'--project',
-				'p1,p2',
+				'111,222',
 				'--follower',
 				'u1,u2',
 				'--html-notes',
@@ -144,7 +144,7 @@ describe('tasks/cli', () => {
 
 		expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', {
 			html_notes: '<body>Hi</body>',
-			projects: ['p1', 'p2'],
+			projects: ['111', '222'],
 			followers: ['u1', 'u2'],
 			parent: 'parent1',
 			resource_subtype: 'milestone',
@@ -669,6 +669,103 @@ describe('tasks/cli', () => {
 				else process.env.CYBER_ASANA_GLOBAL_CONFIG = previousGlobal
 				await rm(globalDir, { recursive: true, force: true })
 			}
+		})
+	})
+	describe('task create falls back to the repo config', () => {
+		let dir: string
+		const previousConfig = process.env.CYBER_ASANA_CONFIG
+
+		const previousWorkspace = process.env.ASANA_WORKSPACE
+		const previousWorkspaceGid = process.env.ASANA_WORKSPACE_GID
+
+		async function useConfig(config: unknown) {
+			delete process.env.ASANA_WORKSPACE
+			delete process.env.ASANA_WORKSPACE_GID
+			dir = await mkdtemp(join(tmpdir(), 'cyber-asana-task-defaults-'))
+			const path = join(dir, 'config.json')
+			await writeFile(path, JSON.stringify(config))
+			process.env.CYBER_ASANA_CONFIG = path
+		}
+
+		afterEach(async () => {
+			if (previousConfig === undefined) delete process.env.CYBER_ASANA_CONFIG
+			else process.env.CYBER_ASANA_CONFIG = previousConfig
+			if (previousWorkspace === undefined) delete process.env.ASANA_WORKSPACE
+			else process.env.ASANA_WORKSPACE = previousWorkspace
+			if (previousWorkspaceGid === undefined) delete process.env.ASANA_WORKSPACE_GID
+			else process.env.ASANA_WORKSPACE_GID = previousWorkspaceGid
+			if (dir) await rm(dir, { recursive: true, force: true })
+		})
+
+		it('uses the project marked default when --project is not given', async () => {
+			await useConfig({
+				schema_version: 2,
+				projects: [{ gid: 'p9', name: 'Backend', aliases: [], default: true }],
+			})
+			createTaskMock.mockResolvedValue({ gid: 't1', name: 'Task' })
+			const program = new Command().addCommand(taskCommand())
+
+			await program.parseAsync(['node', 'test', 'task', 'create', 'Task', '--workspace-gid', 'w1'], { from: 'node' })
+
+			expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ projects: ['p9'] }))
+		})
+
+		it('resolves --project through the project registry', async () => {
+			await useConfig({
+				schema_version: 2,
+				projects: [{ gid: 'p9', name: 'Backend', aliases: ['api'] }],
+			})
+			createTaskMock.mockResolvedValue({ gid: 't1', name: 'Task' })
+			const program = new Command().addCommand(taskCommand())
+
+			await program.parseAsync(
+				['node', 'test', 'task', 'create', 'Task', '--workspace-gid', 'w1', '--project', 'api'],
+				{
+					from: 'node',
+				},
+			)
+
+			expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ projects: ['p9'] }))
+		})
+
+		it('uses defaults.assignee when --assignee is not given', async () => {
+			await useConfig({
+				schema_version: 2,
+				projects: [],
+				users: [{ gid: '100', name: 'Alice Anderson', aliases: ['ali'] }],
+				defaults: { assignee: 'ali' },
+			})
+			createTaskMock.mockResolvedValue({ gid: 't1', name: 'Task' })
+			const program = new Command().addCommand(taskCommand())
+
+			await program.parseAsync(['node', 'test', 'task', 'create', 'Task', '--workspace-gid', 'w1'], { from: 'node' })
+
+			expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ assignee: '100' }))
+		})
+
+		it('uses defaults.workspace when no workspace is given', async () => {
+			await useConfig({ schema_version: 2, projects: [], defaults: { workspace: 'w9' } })
+			createTaskMock.mockResolvedValue({ gid: 't1', name: 'Task' })
+			const program = new Command().addCommand(taskCommand())
+
+			await program.parseAsync(['node', 'test', 'task', 'create', 'Task'], { from: 'node' })
+
+			expect(createTaskMock).toHaveBeenCalledWith('w9', 'Task', expect.anything())
+		})
+
+		it('leaves task update unassigned when only defaults.assignee is set', async () => {
+			await useConfig({
+				schema_version: 2,
+				projects: [],
+				users: [{ gid: '100', name: 'Alice Anderson', aliases: ['ali'] }],
+				defaults: { assignee: 'ali' },
+			})
+			updateTaskMock.mockResolvedValue({ gid: 't1', name: 'Task' })
+			const program = new Command().addCommand(taskCommand())
+
+			await program.parseAsync(['node', 'test', 'task', 'update', 't1', '--name', 'Renamed'], { from: 'node' })
+
+			expect(updateTaskMock).toHaveBeenCalledWith('t1', expect.not.objectContaining({ assignee: expect.anything() }))
 		})
 	})
 })

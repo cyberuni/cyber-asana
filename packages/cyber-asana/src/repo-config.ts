@@ -470,28 +470,90 @@ export function observeUser(
 	return { updated: true, config: { ...config, users: next } }
 }
 
+type ResolveOpts = { configPath?: string; startDir?: string }
+
+/** Load the repo config if one exists, without making its absence an error. */
+async function loadConfigIfPresent(opts?: ResolveOpts): Promise<{ path: string; config: RepoConfig } | null> {
+	const path = opts?.configPath ?? (await findConfigFile(opts?.startDir ?? process.cwd()))
+	if (!path || !(await pathExists(path))) {
+		return null
+	}
+	return { path, config: await loadRepoConfig(path) }
+}
+
 /**
  * Turn an `--assignee` value into something Asana accepts. A numeric GID or `me` passes
  * through untouched; anything else is looked up in the repo user registry (no API call).
+ * Given nothing, falls back to `defaults.assignee`, which is resolved the same way.
  */
-export async function resolveAssignee(
-	value: string,
-	opts?: { configPath?: string; startDir?: string },
-): Promise<string> {
-	const trimmed = value.trim()
-	if (/^\d+$/.test(trimmed) || trimmed === 'me') {
+export async function resolveAssignee(value: string | undefined, opts?: ResolveOpts): Promise<string | undefined> {
+	const trimmed = value?.trim()
+	if (trimmed && (/^\d+$/.test(trimmed) || trimmed === 'me')) {
 		return trimmed
 	}
-	const path = opts?.configPath ?? (await findConfigFile(opts?.startDir ?? process.cwd()))
 	const hint = `Register them with: cyber-asana config add-user --search "${value}" --alias <alias>`
-	if (!path || !(await pathExists(path))) {
+	const loaded = await loadConfigIfPresent(opts)
+	if (!trimmed) {
+		const fallback = loaded?.config.defaults?.assignee
+		return fallback ? resolveAssignee(fallback, opts) : undefined
+	}
+	if (!loaded) {
 		throw new Error(`Assignee "${value}" is not a user GID and no repo config was found. ${hint}`)
 	}
-	const user = resolveUser(await loadRepoConfig(path), trimmed)
+	const user = resolveUser(loaded.config, trimmed)
 	if (!user) {
-		throw new Error(`Assignee "${value}" is not registered in ${path}. ${hint}`)
+		throw new Error(`Assignee "${value}" is not registered in ${loaded.path}. ${hint}`)
 	}
 	return user.gid
+}
+
+/**
+ * Turn a `--project` value into a GID. A numeric GID passes through untouched; anything else is
+ * looked up in the repo project registry (no API call). Given nothing, falls back to the project
+ * marked `default: true`, and to nothing at all when neither is available.
+ */
+export async function resolveProjectRef(value: string | undefined, opts?: ResolveOpts): Promise<string | undefined> {
+	const parts = (value ?? '')
+		.split(',')
+		.map((part) => part.trim())
+		.filter((part) => part.length > 0)
+	if (parts.length > 0 && parts.every((part) => /^\d+$/.test(part))) {
+		return parts.join(',')
+	}
+	const loaded = await loadConfigIfPresent(opts)
+	if (parts.length === 0) {
+		return loaded ? (defaultProject(loaded.config)?.gid ?? undefined) : undefined
+	}
+	const resolved = parts.map((part) => {
+		if (/^\d+$/.test(part)) return part
+		const hint = `Register it with: cyber-asana config add <project-gid> --alias "${part}"`
+		if (!loaded) {
+			throw new Error(`Project "${part}" is not a project GID and no repo config was found. ${hint}`)
+		}
+		const project = resolveProject(loaded.config, { name: part })
+		if (!project) {
+			throw new Error(`Project "${part}" is not registered in ${loaded.path}. ${hint}`)
+		}
+		return project.gid
+	})
+	return resolved.join(',')
+}
+
+/** The given workspace GID, or `defaults.workspace` when none was given. */
+export async function resolveWorkspaceRef(value: string | undefined, opts?: ResolveOpts): Promise<string | undefined> {
+	if (value) return value
+	return (await loadConfigIfPresent(opts))?.config.defaults?.workspace
+}
+
+/** The repo's `defaults` block, or undefined when there is no config or no block. */
+export async function loadDefaults(opts?: ResolveOpts): Promise<RepoDefaults | undefined> {
+	return (await loadConfigIfPresent(opts))?.config.defaults
+}
+
+/** The given section GID, or `defaults.section` when none was given. */
+export async function resolveSectionRef(value: string | undefined, opts?: ResolveOpts): Promise<string | undefined> {
+	if (value) return value
+	return (await loadConfigIfPresent(opts))?.config.defaults?.section
 }
 
 export async function pathExists(path: string): Promise<boolean> {
