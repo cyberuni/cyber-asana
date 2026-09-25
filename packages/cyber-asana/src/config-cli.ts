@@ -220,7 +220,6 @@ function printProjectTable(projects: RepoProjectEntry[]) {
  */
 const SETTABLE_KEYS = [
 	'defaults.assignee',
-	'defaults.workspace',
 	'defaults.section',
 	'conventions.task_name_format',
 	'conventions.description_template',

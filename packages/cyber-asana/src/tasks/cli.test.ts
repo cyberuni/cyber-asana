@@ -743,16 +743,6 @@ describe('tasks/cli', () => {
 			expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ assignee: '100' }))
 		})
 
-		it('uses defaults.workspace when no workspace is given', async () => {
-			await useConfig({ schema_version: 2, projects: [], defaults: { workspace: 'w9' } })
-			createTaskMock.mockResolvedValue({ gid: 't1', name: 'Task' })
-			const program = new Command().addCommand(taskCommand())
-
-			await program.parseAsync(['node', 'test', 'task', 'create', 'Task'], { from: 'node' })
-
-			expect(createTaskMock).toHaveBeenCalledWith('w9', 'Task', expect.anything())
-		})
-
 		it('leaves task update unassigned when only defaults.assignee is set', async () => {
 			await useConfig({
 				schema_version: 2,

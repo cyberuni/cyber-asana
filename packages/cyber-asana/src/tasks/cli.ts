@@ -1,4 +1,4 @@
-import { Command, InvalidArgumentError } from 'commander'
+import { Command } from 'commander'
 import {
 	addGidOption,
 	addPaginationOptions,
@@ -13,7 +13,7 @@ import {
 import { resolveEffectiveAssignee } from '../effective-config.js'
 import { deleteIdempotently, deleteMessage } from '../idempotent-delete.js'
 import { output, printEmpty, printFields, printNextSteps, printSummary, printTable } from '../output.js'
-import { loadDefaults, resolveProjectRef, resolveWorkspaceRef } from '../repo-config.js'
+import { loadDefaults, resolveProjectRef } from '../repo-config.js'
 import { isFull, truncate } from '../truncate.js'
 import {
 	addDependencies,
@@ -334,10 +334,8 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 					customField: string[]
 				},
 			) => {
-				const workspaceGid = await resolveWorkspaceRef(normalizedGid(opts, 'workspace'))
-				if (!workspaceGid) throw new InvalidArgumentError('Workspace GID is required')
 				const data = await resolveTaskApi(api).createTask(
-					workspaceGid,
+					requiredGid(opts, 'workspace', 'Workspace GID'),
 					name,
 					buildTaskCreateFields({
 						notes: opts.notes,

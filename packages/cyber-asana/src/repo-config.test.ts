@@ -25,7 +25,6 @@ import {
 	resolveProjectRef,
 	resolveSectionRef,
 	resolveUser,
-	resolveWorkspaceRef,
 	saveRepoConfig,
 	setConventions,
 	setDefaultProject,
@@ -298,9 +297,9 @@ describe('defaults block', () => {
 			parseRepoConfig({
 				schema_version: 2,
 				projects: [],
-				defaults: { assignee: 'ali', workspace: '900', section: '800' },
+				defaults: { assignee: 'ali', section: '800' },
 			}).defaults,
-		).toEqual({ assignee: 'ali', workspace: '900', section: '800' })
+		).toEqual({ assignee: 'ali', section: '800' })
 	})
 
 	it('rejects an unknown defaults key so a typo is not silently ignored', () => {
@@ -310,7 +309,13 @@ describe('defaults block', () => {
 	})
 
 	it('rejects a non-string defaults value', () => {
-		expect(() => parseRepoConfig({ schema_version: 2, projects: [], defaults: { workspace: 900 } })).toThrow(
+		expect(() => parseRepoConfig({ schema_version: 2, projects: [], defaults: { section: 900 } })).toThrow(
+			'defaults.section',
+		)
+	})
+
+	it('rejects a workspace GID, which ADR 0001 keeps out of the committed config', () => {
+		expect(() => parseRepoConfig({ schema_version: 2, projects: [], defaults: { workspace: '900' } })).toThrow(
 			'defaults.workspace',
 		)
 	})
@@ -320,13 +325,13 @@ describe('defaults block', () => {
 	})
 
 	it('setDefaults leaves keys it was not given alone', () => {
-		const config = setDefaults(createEmptyRepoConfig(), { assignee: 'ali', workspace: '900' })
-		expect(setDefaults(config, { workspace: '901' }).defaults).toEqual({ assignee: 'ali', workspace: '901' })
+		const config = setDefaults(createEmptyRepoConfig(), { assignee: 'ali', section: '800' })
+		expect(setDefaults(config, { section: '801' }).defaults).toEqual({ assignee: 'ali', section: '801' })
 	})
 
 	it('setDefaults clears a key given null', () => {
-		const config = setDefaults(createEmptyRepoConfig(), { assignee: 'ali', workspace: '900' })
-		expect(setDefaults(config, { assignee: null }).defaults).toEqual({ workspace: '900' })
+		const config = setDefaults(createEmptyRepoConfig(), { assignee: 'ali', section: '800' })
+		expect(setDefaults(config, { assignee: null }).defaults).toEqual({ section: '800' })
 	})
 
 	it('setDefaults drops the block once it holds nothing', () => {
@@ -674,7 +679,7 @@ describe('defaults fallbacks', () => {
 			schema_version: 2,
 			projects: [],
 			users: [{ gid: '100', name: 'Alice Anderson', aliases: ['ali'] }],
-			defaults: { assignee: 'ali', workspace: '900' },
+			defaults: { assignee: 'ali' },
 		})
 	})
 
@@ -689,14 +694,6 @@ describe('defaults fallbacks', () => {
 	it('resolveAssignee returns undefined when given nothing and no default is set', async () => {
 		await saveRepoConfig(path, { schema_version: 2, projects: [] })
 		expect(await resolveAssignee(undefined, { configPath: path })).toBeUndefined()
-	})
-
-	it('resolveWorkspaceRef prefers the given value over the default', async () => {
-		expect(await resolveWorkspaceRef('901', { configPath: path })).toBe('901')
-	})
-
-	it('resolveWorkspaceRef falls back to defaults.workspace', async () => {
-		expect(await resolveWorkspaceRef(undefined, { configPath: path })).toBe('900')
 	})
 
 	it('resolveSectionRef falls back to defaults.section', async () => {

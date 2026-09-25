@@ -21,12 +21,14 @@ export type RepoUserEntry = {
 	aliases: string[]
 }
 
-/** Fallbacks for what a command was not told. The default project is the entry marked `default`. */
+/**
+ * Fallbacks for what a command was not told. The default project is the entry marked `default`.
+ * No workspace GID lives here: ADR 0001 keeps workspace binding in private environment
+ * configuration, because this file is committed and world-readable in git.
+ */
 export type RepoDefaults = {
 	/** A user GID, alias, email, or name, resolved through the user registry. */
 	assignee?: string
-	/** Workspace GID, used when neither `--workspace` nor `ASANA_WORKSPACE_GID` is set. */
-	workspace?: string
 	/** Section GID in the default project that new tasks land in. */
 	section?: string
 }
@@ -49,7 +51,7 @@ export type RepoConfig = {
 	conventions?: RepoConventions
 }
 
-const DEFAULTS_KEYS = ['assignee', 'workspace', 'section'] as const
+const DEFAULTS_KEYS = ['assignee', 'section'] as const
 const CONVENTIONS_KEYS = ['task_name_format', 'description_template', 'default_tags'] as const
 
 export type ProjectObservation = {
@@ -537,12 +539,6 @@ export async function resolveProjectRef(value: string | undefined, opts?: Resolv
 		return project.gid
 	})
 	return resolved.join(',')
-}
-
-/** The given workspace GID, or `defaults.workspace` when none was given. */
-export async function resolveWorkspaceRef(value: string | undefined, opts?: ResolveOpts): Promise<string | undefined> {
-	if (value) return value
-	return (await loadConfigIfPresent(opts))?.config.defaults?.workspace
 }
 
 /** The repo's `defaults` block, or undefined when there is no config or no block. */
