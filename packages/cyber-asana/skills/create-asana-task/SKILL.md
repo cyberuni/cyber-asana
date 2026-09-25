@@ -34,7 +34,7 @@ task the way that repo writes tasks:
 | --- | --- |
 | `task_name_format` | Shape the `name` you pass to match it (e.g. `<area>: <summary>` → `auth: expire idle sessions`). Nothing applies this for you — it is yours to follow |
 | `description_template` | The CLI and MCP fill it in as the description when you pass no notes. Pass your own `notes`/`html_notes` only when you have real content, and start from the template's headings when you do |
-| `default_tags` | Applied automatically when you pass no tags. Pass `tag_gids` (CLI: `--tag`) only to override them |
+| `default_tags` | Applied automatically when you pass no tags. Each entry is a tag GID or a tag name resolved in the workspace. Pass `tag_gids` (CLI: `--tag`) only to override them |
 
 ### 2. Resolve project
 

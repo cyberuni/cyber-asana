@@ -79,7 +79,7 @@ cyber-asana task delete <task-gid>
 | `--completed` | `create`, `update` | Mark as completed — on `create`, the task is created already closed |
 | `--resource-subtype <subtype>` | `create`, `update` | e.g. `default_task`, `milestone` |
 | `--follower <gid[,gid...]>` | `create` | Add followers right after creation |
-| `--tag <gid[,gid...]>` | `create` | Tags to apply. With none given, `conventions.default_tags` from the [repo config](/cyber-asana/cli/repo-config/) is used |
+| `--tag <gid-or-name[,...]>` | `create` | Tags to apply, each a GID or a tag name resolved in the workspace. With none given, `conventions.default_tags` from the [repo config](/cyber-asana/cli/repo-config/) is used |
 | `--custom-fields-json <json>` | `create`, `update` | JSON object keyed by custom field GID |
 | `--custom-field <gid=value>` | `create`, `update` | Repeatable override for simple values |
 

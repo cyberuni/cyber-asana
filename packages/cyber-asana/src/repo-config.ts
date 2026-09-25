@@ -39,7 +39,7 @@ export type RepoConventions = {
 	task_name_format?: string
 	/** A description skeleton new tasks start from. */
 	description_template?: string
-	/** Tag GIDs applied to new tasks. GIDs only, so applying them needs no API call. */
+	/** Tags applied to new tasks, each a tag GID or a tag name resolved in the workspace. */
 	default_tags?: string[]
 }
 

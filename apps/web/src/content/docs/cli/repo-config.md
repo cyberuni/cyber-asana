@@ -103,10 +103,13 @@ Task creation applies two of the three keys on its own:
 | Key | Effect on `task create` / `asana_task_create` |
 | --- | --- |
 | `description_template` | Becomes the description when no notes are given. A template opening with `<body>` is sent as `html_notes`, anything else as `notes` |
-| `default_tags` | Tag GIDs applied when no tags are given. Override with `--tag` (MCP: `tag_gids`) |
+| `default_tags` | Tags applied when no tags are given. Override with `--tag` (MCP: `tag_gids`) |
 | `task_name_format` | Not applied automatically — a shape such as `<area>: <summary>` for an agent to follow when it writes the name |
 
-`default_tags` holds GIDs rather than tag names, so applying them costs no API call.
+A tag may be written as a GID or as its name. An Asana GID is a long numeric string, so a
+numeric value is used as-is and a list of only GIDs costs no API call; a name is resolved
+case-insensitively against the workspace's tags. A name no tag matches reports how to create it,
+and a name two tags share is refused rather than guessed.
 
 `task create` resolves `--project` as a GID or a registered project name or alias, falling back
 to the default project when `--project` is omitted; `--assignee` falls back to
