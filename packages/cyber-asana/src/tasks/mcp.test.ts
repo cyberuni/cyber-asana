@@ -412,6 +412,41 @@ describe('tasks/mcp', () => {
 			expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { tags: ['t1'] })
 		})
 
+		it('applies conventions.default_tags and description_template', async () => {
+			await useConfig({
+				schema_version: 2,
+				projects: [],
+				conventions: { default_tags: ['t1'], description_template: '## Problem' },
+			})
+			createTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
+			const server = createServer()
+			registerTaskTools(server as any)
+
+			await server.handlers.get('asana_task_create')?.({ workspace_gid: 'ws1', name: 'Task' })
+
+			expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { notes: '## Problem', tags: ['t1'] })
+		})
+
+		it('leaves conventions out when the call gives its own notes and tags', async () => {
+			await useConfig({
+				schema_version: 2,
+				projects: [],
+				conventions: { default_tags: ['t1'], description_template: '## Problem' },
+			})
+			createTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
+			const server = createServer()
+			registerTaskTools(server as any)
+
+			await server.handlers.get('asana_task_create')?.({
+				workspace_gid: 'ws1',
+				name: 'Task',
+				notes: 'Mine',
+				tag_gids: ['t9'],
+			})
+
+			expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { notes: 'Mine', tags: ['t9'] })
+		})
+
 		it('resolves a project alias', async () => {
 			await useConfig({ schema_version: 2, projects: [{ gid: '999', name: 'Backend', aliases: ['api'] }] })
 			createTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })

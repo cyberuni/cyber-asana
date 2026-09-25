@@ -9,6 +9,7 @@ import {
 	createEmptyRepoConfig,
 	defaultProject,
 	findConfigFile,
+	loadConventions,
 	loadRepoConfig,
 	normalizeProjectName,
 	observeProject,
@@ -699,5 +700,40 @@ describe('defaults fallbacks', () => {
 	it('resolveSectionRef falls back to defaults.section', async () => {
 		await saveRepoConfig(path, { schema_version: 2, projects: [], defaults: { section: '800' } })
 		expect(await resolveSectionRef(undefined, { configPath: path })).toBe('800')
+	})
+})
+
+describe('loadConventions', () => {
+	let dir: string
+	let path: string
+
+	beforeEach(async () => {
+		dir = await mkdtemp(join(tmpdir(), 'cyber-asana-conventions-'))
+		path = join(dir, 'config.json')
+	})
+
+	afterEach(async () => {
+		await rm(dir, { recursive: true, force: true })
+	})
+
+	it('returns the conventions block when one is set', async () => {
+		await saveRepoConfig(path, {
+			schema_version: 2,
+			projects: [],
+			conventions: { task_name_format: '<area>: <summary>', default_tags: ['t1'] },
+		})
+		expect(await loadConventions({ configPath: path })).toEqual({
+			task_name_format: '<area>: <summary>',
+			default_tags: ['t1'],
+		})
+	})
+
+	it('returns undefined when the config has no conventions', async () => {
+		await saveRepoConfig(path, { schema_version: 2, projects: [] })
+		expect(await loadConventions({ configPath: path })).toBeUndefined()
+	})
+
+	it('returns undefined when there is no repo config', async () => {
+		expect(await loadConventions({ configPath: join(dir, 'missing.json') })).toBeUndefined()
 	})
 })

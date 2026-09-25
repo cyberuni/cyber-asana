@@ -709,6 +709,76 @@ describe('tasks/cli', () => {
 			expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ tags: ['t1', 't2'] }))
 		})
 
+		it('applies conventions.default_tags when --tag is not given', async () => {
+			await useConfig({ schema_version: 2, projects: [], conventions: { default_tags: ['t1', 't2'] } })
+			createTaskMock.mockResolvedValue({ gid: 't1', name: 'Task' })
+			const program = new Command().addCommand(taskCommand())
+
+			await program.parseAsync(['node', 'test', 'task', 'create', 'Task', '--workspace-gid', 'w1'], { from: 'node' })
+
+			expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ tags: ['t1', 't2'] }))
+		})
+
+		it('lets --tag override conventions.default_tags', async () => {
+			await useConfig({ schema_version: 2, projects: [], conventions: { default_tags: ['t1'] } })
+			createTaskMock.mockResolvedValue({ gid: 't1', name: 'Task' })
+			const program = new Command().addCommand(taskCommand())
+
+			await program.parseAsync(['node', 'test', 'task', 'create', 'Task', '--workspace-gid', 'w1', '--tag', 't9'], {
+				from: 'node',
+			})
+
+			expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ tags: ['t9'] }))
+		})
+
+		it('seeds notes from conventions.description_template when no notes are given', async () => {
+			await useConfig({
+				schema_version: 2,
+				projects: [],
+				conventions: { description_template: '## Problem\n\n## Plan' },
+			})
+			createTaskMock.mockResolvedValue({ gid: 't1', name: 'Task' })
+			const program = new Command().addCommand(taskCommand())
+
+			await program.parseAsync(['node', 'test', 'task', 'create', 'Task', '--workspace-gid', 'w1'], { from: 'node' })
+
+			expect(createTaskMock).toHaveBeenCalledWith(
+				'w1',
+				'Task',
+				expect.objectContaining({ notes: '## Problem\n\n## Plan' }),
+			)
+		})
+
+		it('seeds html_notes when the template is an HTML body', async () => {
+			await useConfig({
+				schema_version: 2,
+				projects: [],
+				conventions: { description_template: '<body><h1>Problem</h1></body>' },
+			})
+			createTaskMock.mockResolvedValue({ gid: 't1', name: 'Task' })
+			const program = new Command().addCommand(taskCommand())
+
+			await program.parseAsync(['node', 'test', 'task', 'create', 'Task', '--workspace-gid', 'w1'], { from: 'node' })
+
+			expect(createTaskMock).toHaveBeenCalledWith(
+				'w1',
+				'Task',
+				expect.objectContaining({ html_notes: '<body><h1>Problem</h1></body>' }),
+			)
+		})
+
+		it('leaves the template out when --notes is given', async () => {
+			await useConfig({ schema_version: 2, projects: [], conventions: { description_template: '## Problem' } })
+			createTaskMock.mockResolvedValue({ gid: 't1', name: 'Task' })
+			const program = new Command().addCommand(taskCommand())
+
+			await program.parseAsync(['node', 'test', 'task', 'create', 'Task', '--workspace-gid', 'w1', '--notes', 'Mine'], {
+				from: 'node',
+			})
+
+			expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ notes: 'Mine' }))
+		})
+
 		it('uses the project marked default when --project is not given', async () => {
 			await useConfig({
 				schema_version: 2,

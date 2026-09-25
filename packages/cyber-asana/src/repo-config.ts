@@ -39,7 +39,7 @@ export type RepoConventions = {
 	task_name_format?: string
 	/** A description skeleton new tasks start from. */
 	description_template?: string
-	/** Tag GIDs or names applied to new tasks. */
+	/** Tag GIDs applied to new tasks. GIDs only, so applying them needs no API call. */
 	default_tags?: string[]
 }
 
@@ -544,6 +544,11 @@ export async function resolveProjectRef(value: string | undefined, opts?: Resolv
 /** The repo's `defaults` block, or undefined when there is no config or no block. */
 export async function loadDefaults(opts?: ResolveOpts): Promise<RepoDefaults | undefined> {
 	return (await loadConfigIfPresent(opts))?.config.defaults
+}
+
+/** The repo's `conventions` block, or undefined when there is no config or no block. */
+export async function loadConventions(opts?: ResolveOpts): Promise<RepoConventions | undefined> {
+	return (await loadConfigIfPresent(opts))?.config.conventions
 }
 
 /** The given section GID, or `defaults.section` when none was given. */

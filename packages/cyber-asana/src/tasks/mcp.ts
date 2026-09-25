@@ -2,7 +2,7 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import { resolveEffectiveAssignee } from '../effective-config.js'
 import { paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
-import { loadDefaults, resolveProjectRef } from '../repo-config.js'
+import { loadConventions, loadDefaults, resolveProjectRef } from '../repo-config.js'
 import {
 	addDependencies,
 	addDependents,
@@ -28,7 +28,7 @@ import {
 	type TaskApi,
 	updateTask,
 } from './api.js'
-import { buildTaskCreateFields, buildTaskUpdateFields, parseGidList } from './write-options.js'
+import { applyConventions, buildTaskCreateFields, buildTaskUpdateFields, parseGidList } from './write-options.js'
 
 /** `assignee_gid` is taken as-is; `assignee` may name a user in the repo registry. */
 async function assigneeFromParams(assigneeGid?: string, assignee?: string) {
@@ -381,22 +381,25 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 						await resolveTaskApi(api).createTask(
 							workspace_gid,
 							name,
-							buildTaskCreateFields({
-								notes,
-								htmlNotes: html_notes,
-								completed,
-								assignee: await assigneeForCreate(assignee_gid, assignee),
-								projectGids: await projectsForCreate(project_gids, project_gid, project),
-								followerGids: typeof follower_gids === 'string' ? parseGidList(follower_gids) : follower_gids,
-								tagGids: typeof tag_gids === 'string' ? parseGidList(tag_gids) : tag_gids,
-								dueOn: due_on,
-								dueAt: due_at,
-								startOn: start_on,
-								startAt: start_at,
-								parent: parent_gid,
-								resourceSubtype: resource_subtype,
-								customFields: custom_fields,
-							}),
+							applyConventions(
+								buildTaskCreateFields({
+									notes,
+									htmlNotes: html_notes,
+									completed,
+									assignee: await assigneeForCreate(assignee_gid, assignee),
+									projectGids: await projectsForCreate(project_gids, project_gid, project),
+									followerGids: typeof follower_gids === 'string' ? parseGidList(follower_gids) : follower_gids,
+									tagGids: typeof tag_gids === 'string' ? parseGidList(tag_gids) : tag_gids,
+									dueOn: due_on,
+									dueAt: due_at,
+									startOn: start_on,
+									startAt: start_at,
+									parent: parent_gid,
+									resourceSubtype: resource_subtype,
+									customFields: custom_fields,
+								}),
+								await loadConventions(),
+							),
 						),
 					),
 				},

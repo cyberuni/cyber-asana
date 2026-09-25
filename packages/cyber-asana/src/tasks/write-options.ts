@@ -1,3 +1,4 @@
+import type { RepoConventions } from '../repo-config.js'
 import type { CreateTaskFields, UpdateTaskFields } from './api.js'
 
 type BuildTaskWriteInput = {
@@ -112,6 +113,25 @@ export function buildTaskCreateFields(input: BuildTaskCreateInput): CreateTaskFi
 		...(tags && { tags }),
 		...(Object.keys(customFields).length > 0 && { custom_fields: customFields }),
 	}
+}
+
+/**
+ * Fill the gaps in a create payload from the repo's house style. Only fields the caller left
+ * unset are touched, so an explicit `--notes` or `--tag` always wins. A template that opens with
+ * `<body>` is sent as `html_notes`, matching how Asana tells rich notes from plain ones.
+ */
+export function applyConventions(fields: CreateTaskFields, conventions?: RepoConventions): CreateTaskFields {
+	if (!conventions) return fields
+	const next = { ...fields }
+	const template = conventions.description_template
+	if (template && next.notes === undefined && next.html_notes === undefined) {
+		if (template.trimStart().startsWith('<body>')) next.html_notes = template
+		else next.notes = template
+	}
+	if (next.tags === undefined && conventions.default_tags && conventions.default_tags.length > 0) {
+		next.tags = conventions.default_tags
+	}
+	return next
 }
 
 export function buildTaskUpdateFields(input: BuildTaskUpdateInput): UpdateTaskFields {

@@ -13,7 +13,7 @@ import {
 import { resolveEffectiveAssignee } from '../effective-config.js'
 import { deleteIdempotently, deleteMessage } from '../idempotent-delete.js'
 import { output, printEmpty, printFields, printNextSteps, printSummary, printTable } from '../output.js'
-import { loadDefaults, resolveProjectRef } from '../repo-config.js'
+import { loadConventions, loadDefaults, resolveProjectRef } from '../repo-config.js'
 import { isFull, truncate } from '../truncate.js'
 import {
 	addDependencies,
@@ -42,7 +42,7 @@ import {
 	type TodoMatch,
 	updateTask,
 } from './api.js'
-import { buildTaskCreateFields, buildTaskUpdateFields } from './write-options.js'
+import { applyConventions, buildTaskCreateFields, buildTaskUpdateFields } from './write-options.js'
 
 const ASSIGNEE_FLAG = '--assignee <user>'
 const ASSIGNEE_DESCRIPTION = 'Assignee: user GID, "me", or an alias, email, or name registered with config add-user'
@@ -339,23 +339,26 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 				const data = await resolveTaskApi(api).createTask(
 					requiredGid(opts, 'workspace', 'Workspace GID'),
 					name,
-					buildTaskCreateFields({
-						notes: opts.notes,
-						htmlNotes: opts.htmlNotes,
-						completed: opts.completed,
-						assignee: await assigneeForCreate(opts),
-						projectInput: opts.projectGid ?? (await resolveProjectRef(opts.project)),
-						followerInput: opts.follower,
-						tagInput: opts.tag,
-						dueOn: opts.dueOn,
-						dueAt: opts.dueAt,
-						startOn: opts.startOn,
-						startAt: opts.startAt,
-						parent: normalizedGid(opts, 'parent'),
-						resourceSubtype: opts.resourceSubtype,
-						customFieldsJson: opts.customFieldsJson,
-						customFieldEntries: opts.customField,
-					}),
+					applyConventions(
+						buildTaskCreateFields({
+							notes: opts.notes,
+							htmlNotes: opts.htmlNotes,
+							completed: opts.completed,
+							assignee: await assigneeForCreate(opts),
+							projectInput: opts.projectGid ?? (await resolveProjectRef(opts.project)),
+							followerInput: opts.follower,
+							tagInput: opts.tag,
+							dueOn: opts.dueOn,
+							dueAt: opts.dueAt,
+							startOn: opts.startOn,
+							startAt: opts.startAt,
+							parent: normalizedGid(opts, 'parent'),
+							resourceSubtype: opts.resourceSubtype,
+							customFieldsJson: opts.customFieldsJson,
+							customFieldEntries: opts.customField,
+						}),
+						await loadConventions(),
+					),
 				)
 				output(data, () => {
 					fmtTask(data)
