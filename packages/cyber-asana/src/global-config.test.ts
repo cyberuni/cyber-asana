@@ -28,11 +28,11 @@ describe('parseGlobalConfig', () => {
 		expect(
 			parseGlobalConfig({
 				schema_version: 1,
-				repos: [{ repo: 'github.com/org/repo', projects: [{ gid: '123', name: 'Backend' }] }],
+				repos: [{ repo: 'github.com/org/repo', projects: [{ gid: '123', name: 'Backend', aliases: [] }] }],
 			}),
 		).toEqual({
 			schema_version: 1,
-			repos: [{ repo: 'github.com/org/repo', projects: [{ gid: '123', name: 'Backend' }] }],
+			repos: [{ repo: 'github.com/org/repo', projects: [{ gid: '123', name: 'Backend', aliases: [] }] }],
 		})
 	})
 
@@ -91,39 +91,48 @@ describe('normalizeRepoUrl', () => {
 
 describe('findGlobalRepoEntry / addGlobalProject / removeGlobalProject / resolveGlobalProject', () => {
 	it('addGlobalProject creates a new repo entry when none exists', () => {
-		const next = addGlobalProject(createEmptyGlobalConfig(), 'repo-a', { gid: '1', name: 'Backend' })
-		expect(findGlobalRepoEntry(next, 'repo-a')).toEqual({ repo: 'repo-a', projects: [{ gid: '1', name: 'Backend' }] })
+		const next = addGlobalProject(createEmptyGlobalConfig(), 'repo-a', { gid: '1', name: 'Backend', aliases: [] })
+		expect(findGlobalRepoEntry(next, 'repo-a')).toEqual({
+			repo: 'repo-a',
+			projects: [{ gid: '1', name: 'Backend', aliases: [] }],
+		})
 	})
 
 	it('addGlobalProject appends to an existing repo entry without touching other repos', () => {
-		let config = addGlobalProject(createEmptyGlobalConfig(), 'repo-a', { gid: '1', name: 'Backend' })
-		config = addGlobalProject(config, 'repo-b', { gid: '2', name: 'Other' })
-		config = addGlobalProject(config, 'repo-a', { gid: '3', name: 'Frontend' })
+		let config = addGlobalProject(createEmptyGlobalConfig(), 'repo-a', { gid: '1', name: 'Backend', aliases: [] })
+		config = addGlobalProject(config, 'repo-b', { gid: '2', name: 'Other', aliases: [] })
+		config = addGlobalProject(config, 'repo-a', { gid: '3', name: 'Frontend', aliases: [] })
 		expect(findGlobalRepoEntry(config, 'repo-a')?.projects).toEqual([
-			{ gid: '1', name: 'Backend' },
-			{ gid: '3', name: 'Frontend' },
+			{ gid: '1', name: 'Backend', aliases: [] },
+			{ gid: '3', name: 'Frontend', aliases: [] },
 		])
-		expect(findGlobalRepoEntry(config, 'repo-b')?.projects).toEqual([{ gid: '2', name: 'Other' }])
+		expect(findGlobalRepoEntry(config, 'repo-b')?.projects).toEqual([{ gid: '2', name: 'Other', aliases: [] }])
 	})
 
 	it('addGlobalProject replaces the entry when the gid is already registered for that repo', () => {
-		let config = addGlobalProject(createEmptyGlobalConfig(), 'repo-a', { gid: '1', name: 'Old' })
-		config = addGlobalProject(config, 'repo-a', { gid: '1', name: 'New' })
-		expect(findGlobalRepoEntry(config, 'repo-a')?.projects).toEqual([{ gid: '1', name: 'New' }])
+		let config = addGlobalProject(createEmptyGlobalConfig(), 'repo-a', { gid: '1', name: 'Old', aliases: [] })
+		config = addGlobalProject(config, 'repo-a', { gid: '1', name: 'New', aliases: [] })
+		expect(findGlobalRepoEntry(config, 'repo-a')?.projects).toEqual([{ gid: '1', name: 'New', aliases: [] }])
 	})
 
 	it('removeGlobalProject removes only from the matching repo', () => {
-		let config = addGlobalProject(createEmptyGlobalConfig(), 'repo-a', { gid: '1', name: 'Backend' })
-		config = addGlobalProject(config, 'repo-b', { gid: '1', name: 'Backend (other repo)' })
+		let config = addGlobalProject(createEmptyGlobalConfig(), 'repo-a', { gid: '1', name: 'Backend', aliases: [] })
+		config = addGlobalProject(config, 'repo-b', { gid: '1', name: 'Backend (other repo)', aliases: [] })
 		config = removeGlobalProject(config, 'repo-a', { gid: '1' })
 		expect(findGlobalRepoEntry(config, 'repo-a')?.projects).toEqual([])
-		expect(findGlobalRepoEntry(config, 'repo-b')?.projects).toEqual([{ gid: '1', name: 'Backend (other repo)' }])
+		expect(findGlobalRepoEntry(config, 'repo-b')?.projects).toEqual([
+			{ gid: '1', name: 'Backend (other repo)', aliases: [] },
+		])
 	})
 
 	it('resolveGlobalProject resolves by name, scoped to the repo, case-insensitively', () => {
-		let config = addGlobalProject(createEmptyGlobalConfig(), 'repo-a', { gid: '1', name: 'Backend' })
-		config = addGlobalProject(config, 'repo-b', { gid: '2', name: 'Different' })
-		expect(resolveGlobalProject(config, 'repo-a', { name: 'backend' })).toEqual({ gid: '1', name: 'Backend' })
+		let config = addGlobalProject(createEmptyGlobalConfig(), 'repo-a', { gid: '1', name: 'Backend', aliases: [] })
+		config = addGlobalProject(config, 'repo-b', { gid: '2', name: 'Different', aliases: [] })
+		expect(resolveGlobalProject(config, 'repo-a', { name: 'backend' })).toEqual({
+			gid: '1',
+			name: 'Backend',
+			aliases: [],
+		})
 		expect(resolveGlobalProject(config, 'repo-b', { name: 'backend' })).toBeNull()
 	})
 
@@ -134,21 +143,21 @@ describe('findGlobalRepoEntry / addGlobalProject / removeGlobalProject / resolve
 
 describe('observeGlobalProject', () => {
 	it('refreshes a drifted name, scoped to the repo and gid', () => {
-		let config = addGlobalProject(createEmptyGlobalConfig(), 'repo-a', { gid: '1', name: 'Old' })
-		config = addGlobalProject(config, 'repo-b', { gid: '1', name: 'Old' })
+		let config = addGlobalProject(createEmptyGlobalConfig(), 'repo-a', { gid: '1', name: 'Old', aliases: [] })
+		config = addGlobalProject(config, 'repo-b', { gid: '1', name: 'Old', aliases: [] })
 		const result = observeGlobalProject(config, { repo: 'repo-a', gid: '1', name: 'New' })
 		expect(result.updated).toBe(true)
-		expect(findGlobalRepoEntry(result.config, 'repo-a')?.projects).toEqual([{ gid: '1', name: 'New' }])
-		expect(findGlobalRepoEntry(result.config, 'repo-b')?.projects).toEqual([{ gid: '1', name: 'Old' }])
+		expect(findGlobalRepoEntry(result.config, 'repo-a')?.projects).toEqual([{ gid: '1', name: 'New', aliases: [] }])
+		expect(findGlobalRepoEntry(result.config, 'repo-b')?.projects).toEqual([{ gid: '1', name: 'Old', aliases: [] }])
 	})
 
 	it('does not update when the name already matches', () => {
-		const config = addGlobalProject(createEmptyGlobalConfig(), 'repo-a', { gid: '1', name: 'Same' })
+		const config = addGlobalProject(createEmptyGlobalConfig(), 'repo-a', { gid: '1', name: 'Same', aliases: [] })
 		expect(observeGlobalProject(config, { repo: 'repo-a', gid: '1', name: 'Same' }).updated).toBe(false)
 	})
 
 	it('ignores an unregistered repo or gid', () => {
-		const config = addGlobalProject(createEmptyGlobalConfig(), 'repo-a', { gid: '1', name: 'A' })
+		const config = addGlobalProject(createEmptyGlobalConfig(), 'repo-a', { gid: '1', name: 'A', aliases: [] })
 		expect(observeGlobalProject(config, { repo: 'repo-missing', gid: '1', name: 'X' }).updated).toBe(false)
 		expect(observeGlobalProject(config, { repo: 'repo-a', gid: '999', name: 'X' }).updated).toBe(false)
 	})
@@ -240,7 +249,7 @@ describe('loadGlobalConfig and saveGlobalConfig', () => {
 		try {
 			const config: GlobalConfig = {
 				schema_version: 1,
-				repos: [{ repo: 'repo-a', projects: [{ gid: '1', name: 'Backend' }] }],
+				repos: [{ repo: 'repo-a', projects: [{ gid: '1', name: 'Backend', aliases: [] }] }],
 			}
 			await saveGlobalConfig(path, config)
 			expect(await loadGlobalConfig(path)).toEqual(config)

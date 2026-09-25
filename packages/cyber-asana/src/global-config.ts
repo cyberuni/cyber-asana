@@ -165,7 +165,7 @@ export function resolveGlobalProject(
 ): RepoProjectEntry | null {
 	const entry = findGlobalRepoEntry(config, repo)
 	if (!entry) return null
-	return resolveProject({ schema_version: 1, projects: entry.projects }, query)
+	return resolveProject({ schema_version: 2, projects: entry.projects }, query)
 }
 
 export function addGlobalProject(config: GlobalConfig, repo: string, entry: RepoProjectEntry): GlobalConfig {
@@ -174,7 +174,7 @@ export function addGlobalProject(config: GlobalConfig, repo: string, entry: Repo
 		return { ...config, repos: [...config.repos, { repo, projects: [entry] }] }
 	}
 	const existing = config.repos[index] as GlobalRepoEntry
-	const projects = addProject({ schema_version: 1, projects: existing.projects }, entry).projects
+	const projects = addProject({ schema_version: 2, projects: existing.projects }, entry).projects
 	const repos = config.repos.slice()
 	repos[index] = { repo, projects }
 	return { ...config, repos }
@@ -188,7 +188,7 @@ export function removeGlobalProject(
 	const index = config.repos.findIndex((r) => r.repo === repo)
 	if (index === -1) return config
 	const existing = config.repos[index] as GlobalRepoEntry
-	const projects = removeProject({ schema_version: 1, projects: existing.projects }, query).projects
+	const projects = removeProject({ schema_version: 2, projects: existing.projects }, query).projects
 	const repos = config.repos.slice()
 	repos[index] = { repo, projects }
 	return { ...config, repos }
@@ -212,7 +212,7 @@ export function observeGlobalProject(
 	const project = existing.projects[projectIndex]
 	if (!project || project.name === observation.name) return { updated: false, config }
 	const projects = existing.projects.slice()
-	projects[projectIndex] = { gid: observation.gid, name: observation.name }
+	projects[projectIndex] = { ...project, name: observation.name }
 	const repos = config.repos.slice()
 	repos[index] = { repo: observation.repo, projects }
 	return { updated: true, config: { ...config, repos } }
@@ -225,7 +225,7 @@ export function observeGlobalProject(
  * empty `projects`, so the matching rules never drift between the two registries.
  */
 function asRepoConfig(users: RepoUserEntry[]) {
-	return { schema_version: 1 as const, projects: [], users }
+	return { schema_version: 2 as const, projects: [], users }
 }
 
 export function addGlobalUser(config: GlobalConfig, entry: RepoUserEntry): GlobalConfig {

@@ -65,7 +65,7 @@ export function resolveEffectiveProject(
 	effective: EffectiveProjects,
 	query: { name?: string; gid?: string },
 ): RepoProjectEntry | null {
-	return resolveProject({ schema_version: 1, projects: effective.projects }, query)
+	return resolveProject({ schema_version: 2, projects: effective.projects }, query)
 }
 
 export type EffectiveUsers = {
@@ -104,7 +104,7 @@ export async function loadEffectiveUsers(opts?: { configPath?: string; startDir?
 }
 
 export function resolveEffectiveUsersQuery(effective: EffectiveUsers, query: string): RepoUserEntry | null {
-	return resolveUser({ schema_version: 1, projects: [], users: effective.users }, query)
+	return resolveUser({ schema_version: 2, projects: [], users: effective.users }, query)
 }
 
 /**

@@ -293,7 +293,7 @@ describe('config/cli', () => {
 			})
 
 			expect(JSON.parse(await readFile(path, 'utf8')).repos).toEqual([
-				{ repo: 'repo-a', projects: [{ gid: '111', name: 'Backend' }] },
+				{ repo: 'repo-a', projects: [{ gid: '111', name: 'Backend', aliases: [] }] },
 			])
 		})
 
@@ -346,7 +346,7 @@ describe('config/cli', () => {
 			})
 
 			expect(JSON.parse(await readFile(path, 'utf8')).repos).toEqual([
-				{ repo: 'repo-a', projects: [{ gid: '2', name: 'B' }] },
+				{ repo: 'repo-a', projects: [{ gid: '2', name: 'B', aliases: [] }] },
 			])
 		})
 

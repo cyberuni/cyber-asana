@@ -6,6 +6,12 @@ export const DEFAULT_CONFIG_RELATIVE_PATH = join('.agents', 'cyber-asana.json')
 export type RepoProjectEntry = {
 	gid: string
 	name: string
+	/** Trigger keywords that resolve to this project, in addition to its display name. */
+	aliases: string[]
+	/** One line telling an agent what belongs here, so it can route work without asking. */
+	purpose?: string
+	/** Marks the project commands fall back to when none is given. At most one per config. */
+	default?: true
 }
 
 export type RepoUserEntry = {
@@ -16,7 +22,7 @@ export type RepoUserEntry = {
 }
 
 export type RepoConfig = {
-	schema_version: 1
+	schema_version: 2
 	projects: RepoProjectEntry[]
 	users?: RepoUserEntry[]
 }
@@ -27,7 +33,7 @@ export type ProjectObservation = {
 }
 
 export function createEmptyRepoConfig(): RepoConfig {
-	return { schema_version: 1, projects: [] }
+	return { schema_version: 2, projects: [] }
 }
 
 export function normalizeProjectName(name: string): string {
@@ -39,21 +45,30 @@ export function parseRepoConfig(raw: unknown): RepoConfig {
 		throw new Error('Repo config must be a JSON object')
 	}
 	const record = raw as Record<string, unknown>
-	if (record.schema_version !== 1) {
-		throw new Error('Unsupported or missing schema_version; expected 1')
+	if (record.schema_version !== 1 && record.schema_version !== 2) {
+		throw new Error('Unsupported or missing schema_version; expected 1 or 2')
 	}
 	const projects = parseProjectEntries(record.projects, 'projects')
+	const defaults = projects.filter((project) => project.default)
+	if (defaults.length > 1) {
+		const named = defaults.map((project) => `${project.gid} (${project.name})`).join(', ')
+		throw new Error(`Repo config may mark only one default project; found ${defaults.length}: ${named}`)
+	}
 	if (record.users === undefined) {
-		return { schema_version: 1, projects }
+		return { schema_version: 2, projects }
 	}
 	if (!Array.isArray(record.users)) {
 		throw new Error('Repo config users must be an array')
 	}
 	const users = record.users.map((entry, index) => parseUserEntry(entry, index))
-	return { schema_version: 1, projects, users }
+	return { schema_version: 2, projects, users }
 }
 
-/** Parse a `{ gid, name }[]` array, shared by the repo config and the global registry's per-repo lists. */
+/**
+ * Parse a project entry array, shared by the repo config and the global registry's per-repo
+ * lists. Reads both schema versions: a version 1 entry simply carries no aliases, purpose, or
+ * default marker, and comes back with an empty alias list.
+ */
 export function parseProjectEntries(raw: unknown, label: string): RepoProjectEntry[] {
 	if (!Array.isArray(raw)) {
 		throw new Error(`${label} must be an array`)
@@ -69,7 +84,23 @@ export function parseProjectEntries(raw: unknown, label: string): RepoProjectEnt
 		if (typeof project.name !== 'string' || project.name.length === 0) {
 			throw new Error(`${label}[${index}].name must be a non-empty string`)
 		}
-		return { gid: project.gid, name: project.name }
+		const aliases = project.aliases ?? []
+		if (!Array.isArray(aliases) || aliases.some((alias) => typeof alias !== 'string' || alias.length === 0)) {
+			throw new Error(`${label}[${index}].aliases must be an array of non-empty strings`)
+		}
+		if (project.purpose !== undefined && (typeof project.purpose !== 'string' || project.purpose.length === 0)) {
+			throw new Error(`${label}[${index}].purpose must be a non-empty string`)
+		}
+		if (project.default !== undefined && project.default !== true) {
+			throw new Error(`${label}[${index}].default must be true when present`)
+		}
+		return {
+			gid: project.gid,
+			name: project.name,
+			aliases: aliases as string[],
+			...(project.purpose !== undefined && { purpose: project.purpose as string }),
+			...(project.default === true && { default: true as const }),
+		}
 	})
 }
 
@@ -100,15 +131,62 @@ export function parseUserEntry(entry: unknown, index: number): RepoUserEntry {
 	}
 }
 
+/**
+ * Resolve a GID, alias, or display name to one registered project. Matching is case-insensitive
+ * and tiered in that order, so an explicitly registered alias wins over another project's display
+ * name. Throws when the deciding tier matches more than one project.
+ */
 export function resolveProject(config: RepoConfig, query: { name?: string; gid?: string }): RepoProjectEntry | null {
 	if (query.gid) {
 		return config.projects.find((project) => project.gid === query.gid) ?? null
 	}
-	if (query.name) {
-		const normalized = normalizeProjectName(query.name)
-		return config.projects.find((project) => normalizeProjectName(project.name) === normalized) ?? null
+	if (!query.name) {
+		return null
+	}
+	const normalized = normalizeProjectName(query.name)
+	const tiers: Array<(project: RepoProjectEntry) => boolean> = [
+		(project) => project.gid === query.name?.trim(),
+		(project) => project.aliases.some((alias) => normalizeProjectName(alias) === normalized),
+		(project) => normalizeProjectName(project.name) === normalized,
+	]
+	for (const matches of tiers) {
+		const found = config.projects.filter(matches)
+		if (found.length === 1) return found[0] as RepoProjectEntry
+		if (found.length > 1) {
+			const candidates = found.map((project) => `${project.gid} (${project.name})`).join(', ')
+			throw new Error(
+				`"${query.name}" matches ${found.length} registered projects: ${candidates}. Use an alias or GID instead.`,
+			)
+		}
 	}
 	return null
+}
+
+/** The project marked `default: true`, which commands fall back to when none is given. */
+export function defaultProject(config: RepoConfig): RepoProjectEntry | null {
+	return config.projects.find((project) => project.default) ?? null
+}
+
+/** Move the default marker onto one registered project, clearing it everywhere else. */
+export function setDefaultProject(config: RepoConfig, gid: string): RepoConfig {
+	if (!config.projects.some((project) => project.gid === gid)) {
+		throw new Error(`Project ${gid} is not registered in the repo config`)
+	}
+	return {
+		...config,
+		projects: config.projects.map((project) => {
+			const { default: _drop, ...rest } = project
+			return project.gid === gid ? { ...rest, default: true as const } : rest
+		}),
+	}
+}
+
+/** Leave no project marked as the default. */
+export function clearDefaultProject(config: RepoConfig): RepoConfig {
+	return {
+		...config,
+		projects: config.projects.map(({ default: _drop, ...rest }) => rest),
+	}
 }
 
 export function observeProject(
@@ -116,40 +194,76 @@ export function observeProject(
 	observation: ProjectObservation,
 ): { updated: boolean; config: RepoConfig } {
 	const index = config.projects.findIndex((project) => project.gid === observation.gid)
-	if (index === -1) {
-		return { updated: false, config }
-	}
 	const existing = config.projects[index]
 	if (!existing || existing.name === observation.name) {
 		return { updated: false, config }
 	}
 	const projects = config.projects.slice()
-	projects[index] = { gid: observation.gid, name: observation.name }
+	projects[index] = { ...existing, name: observation.name }
 	return { updated: true, config: { ...config, projects } }
 }
 
+/**
+ * Add a project, or refresh an existing one's name and merge in new aliases and purpose.
+ * An alias identifies exactly one project, so one already registered elsewhere is rejected.
+ */
 export function addProject(config: RepoConfig, entry: RepoProjectEntry): RepoConfig {
+	for (const alias of entry.aliases) {
+		const normalized = normalizeProjectName(alias)
+		const owner = config.projects.find(
+			(project) => project.gid !== entry.gid && project.aliases.some((a) => normalizeProjectName(a) === normalized),
+		)
+		if (owner) {
+			throw new Error(`alias "${alias}" is already registered to project ${owner.gid} (${owner.name})`)
+		}
+	}
 	const index = config.projects.findIndex((project) => project.gid === entry.gid)
 	if (index === -1) {
 		return { ...config, projects: [...config.projects, entry] }
 	}
+	const existing = config.projects[index] as RepoProjectEntry
+	const aliases = [...existing.aliases]
+	for (const alias of entry.aliases) {
+		if (!aliases.some((a) => normalizeProjectName(a) === normalizeProjectName(alias))) aliases.push(alias)
+	}
+	const purpose = entry.purpose ?? existing.purpose
 	const projects = config.projects.slice()
-	projects[index] = entry
+	projects[index] = {
+		gid: entry.gid,
+		name: entry.name,
+		aliases,
+		...(purpose !== undefined && { purpose }),
+		...(existing.default && { default: true as const }),
+	}
 	return { ...config, projects }
 }
 
 export function removeProject(config: RepoConfig, query: { gid?: string; name?: string }): RepoConfig {
-	if (query.gid) {
-		return { ...config, projects: config.projects.filter((project) => project.gid !== query.gid) }
+	const target = resolveProject(config, query)
+	if (!target) {
+		return config
 	}
-	if (query.name) {
-		const normalized = normalizeProjectName(query.name)
-		return {
-			...config,
-			projects: config.projects.filter((project) => normalizeProjectName(project.name) !== normalized),
+	return { ...config, projects: config.projects.filter((project) => project.gid !== target.gid) }
+}
+
+/**
+ * Drop aliases from whichever projects own them. An alias is unique, so no project query is
+ * needed. All aliases are checked first, so an unregistered one leaves the config unchanged.
+ */
+export function removeProjectAliases(config: RepoConfig, aliases: string[]): RepoConfig {
+	const targets = aliases.map(normalizeProjectName)
+	for (const [i, target] of targets.entries()) {
+		if (!config.projects.some((project) => project.aliases.some((a) => normalizeProjectName(a) === target))) {
+			throw new Error(`alias "${aliases[i]}" is not registered`)
 		}
 	}
-	return config
+	return {
+		...config,
+		projects: config.projects.map((project) => ({
+			...project,
+			aliases: project.aliases.filter((a) => !targets.includes(normalizeProjectName(a))),
+		})),
+	}
 }
 
 export type UserObservation = {

@@ -394,7 +394,7 @@ export function configCommand(getProjects: () => ProjectApi, getUsers?: () => Us
 				const repo = await resolveRepoKeyOrThrow(opts.repo)
 				const api = getProjects()
 				const project = await api.getProject(projectGid)
-				const entry: RepoProjectEntry = { gid: projectGid, name: projectNameFromApi(project) }
+				const entry: RepoProjectEntry = { gid: projectGid, name: projectNameFromApi(project), aliases: [] }
 				const { path, config } = await resolveWritableGlobalConfig()
 				const next = addGlobalProject(config, repo, entry)
 				await saveGlobalConfig(path, next)
@@ -410,7 +410,7 @@ export function configCommand(getProjects: () => ProjectApi, getUsers?: () => Us
 			}
 			const api = getProjects()
 			const project = await api.getProject(projectGid)
-			const entry: RepoProjectEntry = { gid: projectGid, name: projectNameFromApi(project) }
+			const entry: RepoProjectEntry = { gid: projectGid, name: projectNameFromApi(project), aliases: [] }
 			const { path, config } = await resolveWritableConfig(opts)
 			const next = addProject(config, entry)
 			await saveRepoConfig(path, next)

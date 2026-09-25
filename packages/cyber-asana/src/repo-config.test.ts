@@ -5,34 +5,51 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import {
 	addProject,
 	addUser,
+	clearDefaultProject,
 	createEmptyRepoConfig,
+	defaultProject,
 	findConfigFile,
 	loadRepoConfig,
 	normalizeProjectName,
 	observeProject,
 	observeUser,
 	parseRepoConfig,
+	type RepoConfig,
 	type RepoUserEntry,
 	removeAliases,
 	removeProject,
+	removeProjectAliases,
 	removeUser,
 	resolveAssignee,
 	resolveProject,
 	resolveUser,
 	saveRepoConfig,
+	setDefaultProject,
 	tryObserveProjectFromConfigPath,
 } from './repo-config.js'
 
 describe('parseRepoConfig', () => {
-	it('parses v1 schema with projects array', () => {
+	it('parses v2 schema with enriched project entries', () => {
+		expect(
+			parseRepoConfig({
+				schema_version: 2,
+				projects: [{ gid: '123', name: 'Backend', aliases: ['api'], purpose: 'Service work', default: true }],
+			}),
+		).toEqual({
+			schema_version: 2,
+			projects: [{ gid: '123', name: 'Backend', aliases: ['api'], purpose: 'Service work', default: true }],
+		})
+	})
+
+	it('migrates a v1 config to v2 with empty project aliases', () => {
 		expect(
 			parseRepoConfig({
 				schema_version: 1,
 				projects: [{ gid: '123', name: 'Backend' }],
 			}),
 		).toEqual({
-			schema_version: 1,
-			projects: [{ gid: '123', name: 'Backend' }],
+			schema_version: 2,
+			projects: [{ gid: '123', name: 'Backend', aliases: [] }],
 		})
 	})
 
@@ -41,23 +58,75 @@ describe('parseRepoConfig', () => {
 	})
 
 	it('rejects unsupported schema_version', () => {
-		expect(() => parseRepoConfig({ schema_version: 2, projects: [] })).toThrow('schema_version')
+		expect(() => parseRepoConfig({ schema_version: 3, projects: [] })).toThrow('schema_version')
+	})
+
+	it('rejects a project alias that is not a non-empty string', () => {
+		expect(() => parseRepoConfig({ schema_version: 2, projects: [{ gid: '1', name: 'A', aliases: [''] }] })).toThrow(
+			'projects[0].aliases',
+		)
+	})
+
+	it('rejects a non-string project purpose', () => {
+		expect(() => parseRepoConfig({ schema_version: 2, projects: [{ gid: '1', name: 'A', purpose: 7 }] })).toThrow(
+			'projects[0].purpose',
+		)
+	})
+
+	it('rejects more than one default project', () => {
+		expect(() =>
+			parseRepoConfig({
+				schema_version: 2,
+				projects: [
+					{ gid: '1', name: 'A', default: true },
+					{ gid: '2', name: 'B', default: true },
+				],
+			}),
+		).toThrow('one default project')
 	})
 })
 
 describe('resolveProject', () => {
-	const config = createEmptyRepoConfig()
-	config.projects = [
-		{ gid: '111', name: 'Backend' },
-		{ gid: '222', name: 'Frontend' },
-	]
+	const config: RepoConfig = {
+		schema_version: 2,
+		projects: [
+			{ gid: '111', name: 'Backend', aliases: ['api', 'svc'] },
+			{ gid: '222', name: 'Frontend', aliases: [] },
+		],
+	}
 
 	it('resolves by case-insensitive name without API calls', () => {
-		expect(resolveProject(config, { name: 'backend' })).toEqual({ gid: '111', name: 'Backend' })
+		expect(resolveProject(config, { name: 'backend' })?.gid).toBe('111')
 	})
 
 	it('resolves by gid', () => {
-		expect(resolveProject(config, { gid: '222' })).toEqual({ gid: '222', name: 'Frontend' })
+		expect(resolveProject(config, { gid: '222' })?.gid).toBe('222')
+	})
+
+	it('resolves by case-insensitive alias', () => {
+		expect(resolveProject(config, { name: 'API' })?.gid).toBe('111')
+	})
+
+	it('prefers a registered alias over another project display name', () => {
+		const shadowed: RepoConfig = {
+			schema_version: 2,
+			projects: [
+				{ gid: '111', name: 'Backend', aliases: ['Frontend'] },
+				{ gid: '222', name: 'Frontend', aliases: [] },
+			],
+		}
+		expect(resolveProject(shadowed, { name: 'frontend' })?.gid).toBe('111')
+	})
+
+	it('throws when a name matches more than one project', () => {
+		const ambiguous: RepoConfig = {
+			schema_version: 2,
+			projects: [
+				{ gid: '111', name: 'Shared', aliases: [] },
+				{ gid: '222', name: 'Shared', aliases: [] },
+			],
+		}
+		expect(() => resolveProject(ambiguous, { name: 'shared' })).toThrow('matches 2 registered projects')
 	})
 
 	it('returns null when not found', () => {
@@ -68,7 +137,7 @@ describe('resolveProject', () => {
 describe('observeProject', () => {
 	it('updates name when gid matches and name differs', () => {
 		const config = createEmptyRepoConfig()
-		config.projects = [{ gid: '111', name: 'Old Name' }]
+		config.projects = [{ gid: '111', name: 'Old Name', aliases: [] }]
 
 		const result = observeProject(config, { gid: '111', name: 'New Name' })
 
@@ -76,9 +145,26 @@ describe('observeProject', () => {
 		expect(result.config.projects[0]?.name).toBe('New Name')
 	})
 
+	it('preserves aliases, purpose and the default marker when refreshing the name', () => {
+		const config: RepoConfig = {
+			schema_version: 2,
+			projects: [{ gid: '111', name: 'Old', aliases: ['api'], purpose: 'Service work', default: true }],
+		}
+
+		const result = observeProject(config, { gid: '111', name: 'New' })
+
+		expect(result.config.projects[0]).toEqual({
+			gid: '111',
+			name: 'New',
+			aliases: ['api'],
+			purpose: 'Service work',
+			default: true,
+		})
+	})
+
 	it('does not update when name matches', () => {
 		const config = createEmptyRepoConfig()
-		config.projects = [{ gid: '111', name: 'Same' }]
+		config.projects = [{ gid: '111', name: 'Same', aliases: [] }]
 
 		const result = observeProject(config, { gid: '111', name: 'Same' })
 
@@ -87,7 +173,7 @@ describe('observeProject', () => {
 
 	it('ignores gid not in config', () => {
 		const config = createEmptyRepoConfig()
-		config.projects = [{ gid: '111', name: 'A' }]
+		config.projects = [{ gid: '111', name: 'A', aliases: [] }]
 
 		const result = observeProject(config, { gid: '999', name: 'Other' })
 
@@ -99,25 +185,105 @@ describe('observeProject', () => {
 describe('addProject and removeProject', () => {
 	it('addProject appends new entry', () => {
 		const config = createEmptyRepoConfig()
-		const next = addProject(config, { gid: '111', name: 'Backend' })
-		expect(next.projects).toEqual([{ gid: '111', name: 'Backend' }])
+		const next = addProject(config, { gid: '111', name: 'Backend', aliases: [] })
+		expect(next.projects).toEqual([{ gid: '111', name: 'Backend', aliases: [] }])
 	})
 
-	it('addProject updates name for duplicate gid', () => {
+	it('addProject refreshes the name and merges aliases for a duplicate gid', () => {
 		const config = createEmptyRepoConfig()
-		config.projects = [{ gid: '111', name: 'Old' }]
-		const next = addProject(config, { gid: '111', name: 'New' })
-		expect(next.projects).toEqual([{ gid: '111', name: 'New' }])
+		config.projects = [{ gid: '111', name: 'Old', aliases: ['api'] }]
+		const next = addProject(config, { gid: '111', name: 'New', aliases: ['svc', 'API'] })
+		expect(next.projects).toEqual([{ gid: '111', name: 'New', aliases: ['api', 'svc'] }])
 	})
 
-	it('removeProject removes by gid or name', () => {
+	it('addProject keeps an existing purpose when the new entry gives none', () => {
+		const config: RepoConfig = {
+			schema_version: 2,
+			projects: [{ gid: '111', name: 'Backend', aliases: [], purpose: 'Service work' }],
+		}
+		expect(addProject(config, { gid: '111', name: 'Backend', aliases: [] }).projects[0]?.purpose).toBe('Service work')
+	})
+
+	it('addProject replaces the purpose when the new entry gives one', () => {
+		const config: RepoConfig = {
+			schema_version: 2,
+			projects: [{ gid: '111', name: 'Backend', aliases: [], purpose: 'Old' }],
+		}
+		expect(addProject(config, { gid: '111', name: 'Backend', aliases: [], purpose: 'New' }).projects[0]?.purpose).toBe(
+			'New',
+		)
+	})
+
+	it('addProject rejects an alias already registered to another project', () => {
 		const config = createEmptyRepoConfig()
-		config.projects = [
-			{ gid: '111', name: 'Backend' },
-			{ gid: '222', name: 'Frontend' },
-		]
+		config.projects = [{ gid: '111', name: 'Backend', aliases: ['api'] }]
+		expect(() => addProject(config, { gid: '222', name: 'Frontend', aliases: ['API'] })).toThrow(
+			'already registered to project 111',
+		)
+	})
+
+	it('removeProject removes by gid, name, or alias', () => {
+		const config: RepoConfig = {
+			schema_version: 2,
+			projects: [
+				{ gid: '111', name: 'Backend', aliases: ['api'] },
+				{ gid: '222', name: 'Frontend', aliases: ['web'] },
+			],
+		}
 		expect(removeProject(config, { gid: '111' }).projects).toHaveLength(1)
-		expect(removeProject(config, { name: 'frontend' }).projects).toEqual([{ gid: '111', name: 'Backend' }])
+		expect(removeProject(config, { name: 'frontend' }).projects.map((p) => p.gid)).toEqual(['111'])
+		expect(removeProject(config, { name: 'API' }).projects.map((p) => p.gid)).toEqual(['222'])
+	})
+})
+
+describe('removeProjectAliases', () => {
+	const config: RepoConfig = {
+		schema_version: 2,
+		projects: [
+			{ gid: '111', name: 'Backend', aliases: ['api', 'svc'] },
+			{ gid: '222', name: 'Frontend', aliases: ['web'] },
+		],
+	}
+
+	it('drops aliases from whichever projects own them', () => {
+		const next = removeProjectAliases(config, ['API', 'web'])
+		expect(next.projects.map((p) => p.aliases)).toEqual([['svc'], []])
+	})
+
+	it('rejects an unregistered alias without changing the config', () => {
+		expect(() => removeProjectAliases(config, ['api', 'nope'])).toThrow('"nope" is not registered')
+		expect(config.projects[0]?.aliases).toEqual(['api', 'svc'])
+	})
+})
+
+describe('setDefaultProject and defaultProject', () => {
+	const config: RepoConfig = {
+		schema_version: 2,
+		projects: [
+			{ gid: '111', name: 'Backend', aliases: [] },
+			{ gid: '222', name: 'Frontend', aliases: [], default: true },
+		],
+	}
+
+	it('defaultProject returns the marked project', () => {
+		expect(defaultProject(config)?.gid).toBe('222')
+	})
+
+	it('defaultProject returns null when nothing is marked', () => {
+		expect(defaultProject(createEmptyRepoConfig())).toBeNull()
+	})
+
+	it('setDefaultProject moves the marker to exactly one project', () => {
+		const next = setDefaultProject(config, '111')
+		expect(next.projects.filter((p) => p.default).map((p) => p.gid)).toEqual(['111'])
+	})
+
+	it('setDefaultProject throws when the project is not registered', () => {
+		expect(() => setDefaultProject(config, '999')).toThrow('not registered')
+	})
+
+	it('clearDefaultProject leaves no project marked', () => {
+		expect(clearDefaultProject(config).projects.some((p) => p.default)).toBe(false)
 	})
 })
 
@@ -176,7 +342,7 @@ describe('loadRepoConfig and saveRepoConfig', () => {
 		const path = join(dir, 'config.json')
 		try {
 			const config = createEmptyRepoConfig()
-			config.projects = [{ gid: '111', name: 'Test' }]
+			config.projects = [{ gid: '111', name: 'Test', aliases: [] }]
 			await saveRepoConfig(path, config)
 			expect(await loadRepoConfig(path)).toEqual(config)
 		} finally {
@@ -191,8 +357,8 @@ describe('tryObserveProjectFromConfigPath', () => {
 		const path = join(dir, 'config.json')
 		try {
 			await saveRepoConfig(path, {
-				schema_version: 1,
-				projects: [{ gid: '111', name: 'Old' }],
+				schema_version: 2,
+				projects: [{ gid: '111', name: 'Old', aliases: [] }],
 			})
 			const updated = await tryObserveProjectFromConfigPath(path, { gid: '111', name: 'New' })
 			expect(updated).toBe(true)
@@ -214,7 +380,7 @@ describe('user registry', () => {
 
 	describe('parseRepoConfig', () => {
 		it('accepts a config without users (projects-only files stay valid)', () => {
-			expect(parseRepoConfig({ schema_version: 1, projects: [] })).toEqual({ schema_version: 1, projects: [] })
+			expect(parseRepoConfig({ schema_version: 2, projects: [] })).toEqual({ schema_version: 2, projects: [] })
 		})
 
 		it('parses users with aliases and optional email', () => {
@@ -331,7 +497,7 @@ describe('resolveAssignee', () => {
 		dir = await mkdtemp(join(tmpdir(), 'cyber-asana-assignee-'))
 		path = join(dir, 'config.json')
 		await saveRepoConfig(path, {
-			schema_version: 1,
+			schema_version: 2,
 			projects: [],
 			users: [{ gid: '100', name: 'Alice Anderson', email: 'alice@example.com', aliases: ['ali'] }],
 		})
