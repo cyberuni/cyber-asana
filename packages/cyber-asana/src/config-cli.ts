@@ -29,6 +29,7 @@ import type { ProjectApi } from './projects/api.js'
 import {
 	addProject,
 	addUser,
+	clearDefaultProject,
 	createEmptyRepoConfig,
 	defaultConfigPath,
 	loadRepoConfig,
@@ -41,11 +42,13 @@ import {
 	type RepoUserEntry,
 	removeAliases,
 	removeProject,
+	removeProjectAliases,
 	removeUser,
 	resolveConfigPath,
 	resolveProject,
 	resolveUser,
 	saveRepoConfig,
+	setDefaultProject,
 	type UserObservation,
 } from './repo-config.js'
 import type { SearchApi } from './search/api.js'
@@ -96,17 +99,6 @@ async function requireGlobalConfig(): Promise<{ path: string; config: GlobalConf
 		throw new Error('Global config not found')
 	}
 	return { path, config: await loadGlobalConfig(path) }
-}
-
-function printProjectTable(projects: RepoProjectEntry[]) {
-	printTable(
-		projects,
-		[
-			{ label: 'GID', get: (p: RepoProjectEntry) => p.gid },
-			{ label: 'Name', get: (p: RepoProjectEntry) => p.name },
-		],
-		{ entity: 'registered projects' },
-	)
 }
 
 async function showGlobalProjects(opts: GlobalFlags) {
@@ -206,6 +198,20 @@ async function loadExistingConfig(opts: ConfigCliOptions): Promise<{ path: strin
 	return { path, config: await loadRepoConfig(path) }
 }
 
+function printProjectTable(projects: RepoProjectEntry[]) {
+	printTable(
+		projects,
+		[
+			{ label: 'GID', get: (p) => p.gid },
+			{ label: 'Name', get: (p) => p.name },
+			{ label: 'Aliases', get: (p) => p.aliases.join(', ') },
+			{ label: 'Purpose', get: (p) => p.purpose ?? '' },
+			{ label: 'Default', get: (p) => (p.default ? 'yes' : '') },
+		],
+		{ entity: 'registered projects' },
+	)
+}
+
 function printUserTable(users: RepoUserEntry[]) {
 	printTable(
 		users,
@@ -263,7 +269,10 @@ export function configCommand(getProjects: () => ProjectApi, getUsers?: () => Us
 			'  cyber-asana config show',
 			'  cyber-asana config path',
 			'  cyber-asana config add <project-gid>',
+			'  cyber-asana config add <project-gid> --alias api --purpose "Service work" --default',
 			'  cyber-asana config resolve-project "My Project"',
+			'  cyber-asana config set-default <gid-name-or-alias>',
+			'  cyber-asana config remove-project-alias <alias>[,<alias>...]',
 			'  cyber-asana config remove <gid-or-name>',
 			'  cyber-asana config add-user <user-gid> --alias <alias>',
 			'  cyber-asana config add-user --search "ada@example.com" --alias ada',
@@ -296,14 +305,7 @@ export function configCommand(getProjects: () => ProjectApi, getUsers?: () => Us
 			const config = await loadRepoConfig(path)
 			output({ path, ...config }, () => {
 				console.log(path)
-				printTable(
-					config.projects,
-					[
-						{ label: 'GID', get: (p) => p.gid },
-						{ label: 'Name', get: (p) => p.name },
-					],
-					{ entity: 'registered projects' },
-				)
+				printProjectTable(config.projects)
 				if (config.users) printUserTable(config.users)
 			})
 		})
@@ -326,14 +328,7 @@ export function configCommand(getProjects: () => ProjectApi, getUsers?: () => Us
 			const config = await loadRepoConfig(path)
 			output({ path, ...config }, () => {
 				console.log(path)
-				printTable(
-					config.projects,
-					[
-						{ label: 'GID', get: (p) => p.gid },
-						{ label: 'Name', get: (p) => p.name },
-					],
-					{ entity: 'registered projects' },
-				)
+				printProjectTable(config.projects)
 			})
 		})
 
@@ -386,41 +381,119 @@ export function configCommand(getProjects: () => ProjectApi, getUsers?: () => Us
 	cmd
 		.command('add <project-gid>')
 		.description('Add or update a project entry (fetches name from Asana)')
+		.option(
+			'--alias <alias>',
+			'Alias that resolves to this project (repeatable or comma-separated)',
+			collectAliases,
+			[],
+		)
+		.option('--purpose <text>', 'One line saying what work belongs in this project')
+		.option('--default', 'Make this the project commands fall back to when none is given')
 		.option('--config <path>', 'Config file path (overrides CYBER_ASANA_CONFIG)')
 		.option('--global', 'Add to the global registry entry for this repo instead')
 		.option('--repo <key>', 'Repo key for --global (default: auto-detected from the git remote)')
-		.action(async (projectGid: string, opts: ConfigCliOptions & GlobalFlags) => {
-			if (opts.global) {
-				const repo = await resolveRepoKeyOrThrow(opts.repo)
+		.action(
+			async (
+				projectGid: string,
+				opts: ConfigCliOptions & GlobalFlags & { alias: string[]; purpose?: string; default?: boolean },
+			) => {
+				if (opts.global && opts.default) {
+					throw new InvalidArgumentError(
+						'--default marks the fallback project in the repo config; it is not supported with --global',
+					)
+				}
 				const api = getProjects()
 				const project = await api.getProject(projectGid)
-				const entry: RepoProjectEntry = { gid: projectGid, name: projectNameFromApi(project), aliases: [] }
-				const { path, config } = await resolveWritableGlobalConfig()
-				const next = addGlobalProject(config, repo, entry)
-				await saveGlobalConfig(path, next)
-				output({ path, repo, project: entry }, () =>
+				const entry: RepoProjectEntry = {
+					gid: projectGid,
+					name: projectNameFromApi(project),
+					aliases: opts.alias,
+					...(opts.purpose !== undefined && { purpose: opts.purpose }),
+				}
+				if (opts.global) {
+					const repo = await resolveRepoKeyOrThrow(opts.repo)
+					const { path, config } = await resolveWritableGlobalConfig()
+					const next = addGlobalProject(config, repo, entry)
+					await saveGlobalConfig(path, next)
+					output({ path, repo, project: entry }, () =>
+						printFields({
+							Path: path,
+							Repo: repo,
+							Name: entry.name,
+							GID: entry.gid,
+							Aliases: entry.aliases.join(', '),
+							Purpose: entry.purpose ?? null,
+						}),
+					)
+					return
+				}
+				const { path, config } = await resolveWritableConfig(opts)
+				const added = addProject(config, entry)
+				const next = opts.default ? setDefaultProject(added, projectGid) : added
+				await saveRepoConfig(path, next)
+				const saved = resolveProject(next, { gid: projectGid }) as RepoProjectEntry
+				output({ path, project: saved }, () =>
 					printFields({
 						Path: path,
-						Repo: repo,
-						Name: entry.name,
-						GID: entry.gid,
+						Name: saved.name,
+						GID: saved.gid,
+						Aliases: saved.aliases.join(', '),
+						Purpose: saved.purpose ?? null,
+						Default: saved.default ? 'yes' : 'no',
 					}),
 				)
+			},
+		)
+
+	cmd
+		.command('set-default [gid-name-or-alias]')
+		.description('Mark the project commands fall back to when none is given')
+		.option('--none', 'Leave no project marked as the default')
+		.option('--config <path>', 'Config file path (overrides CYBER_ASANA_CONFIG)')
+		.action(async (query: string | undefined, opts: ConfigCliOptions & { none?: boolean }) => {
+			if (query && opts.none) {
+				throw new InvalidArgumentError('Pass a project or --none, not both')
+			}
+			if (!query && !opts.none) {
+				throw new InvalidArgumentError('Pass a <gid-name-or-alias> or --none')
+			}
+			const { path, config } = await loadExistingConfig(opts)
+			if (opts.none) {
+				await saveRepoConfig(path, clearDefaultProject(config))
+				output({ path, default: null }, () => {
+					console.log(`Cleared the default project in ${path}`)
+				})
 				return
 			}
-			const api = getProjects()
-			const project = await api.getProject(projectGid)
-			const entry: RepoProjectEntry = { gid: projectGid, name: projectNameFromApi(project), aliases: [] }
-			const { path, config } = await resolveWritableConfig(opts)
-			const next = addProject(config, entry)
-			await saveRepoConfig(path, next)
-			output({ path, project: entry }, () =>
+			const project = resolveProject(config, { name: query })
+			if (!project) {
+				throw new Error(`Project not found in repo config: ${query}`)
+			}
+			await saveRepoConfig(path, setDefaultProject(config, project.gid))
+			output({ path, default: project }, () =>
 				printFields({
 					Path: path,
-					Name: entry.name,
-					GID: entry.gid,
+					Name: project.name,
+					GID: project.gid,
 				}),
 			)
+		})
+
+	cmd
+		.command('remove-project-alias <alias...>')
+		.description('Remove aliases from whichever registered projects own them (comma-separated or several)')
+		.option('--config <path>', 'Config file path (overrides CYBER_ASANA_CONFIG)')
+		.action(async (values: string[], opts: ConfigCliOptions) => {
+			const aliases = values.flatMap(splitAliases)
+			if (aliases.length === 0) {
+				throw new InvalidArgumentError('Pass at least one alias to remove')
+			}
+			const { path, config } = await loadExistingConfig(opts)
+			const next = removeProjectAliases(config, aliases)
+			await saveRepoConfig(path, next)
+			output({ path, removed: aliases, projects: next.projects }, () => {
+				console.log(`Removed alias(es) ${aliases.join(', ')} from ${path}`)
+			})
 		})
 
 	cmd

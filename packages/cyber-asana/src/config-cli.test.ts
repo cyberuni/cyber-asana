@@ -752,4 +752,113 @@ describe('config/cli', () => {
 			)
 		})
 	})
+	describe('project entries', () => {
+		async function run(configPath: string, ...args: string[]) {
+			process.argv = ['node', 'test', '--json']
+			await (await userProgram()).parseAsync(['node', 'test', 'config', ...args, '--config', configPath], {
+				from: 'node',
+			})
+			return JSON.parse(await readFile(configPath, 'utf8'))
+		}
+
+		it('add stores aliases, purpose, and the default marker', async () => {
+			const configPath = await writeConfig({ schema_version: 2, projects: [] })
+			getProjectMock.mockResolvedValue({ gid: '111', name: 'Backend' })
+
+			const written = await run(
+				configPath,
+				'add',
+				'111',
+				'--alias',
+				'api,svc',
+				'--purpose',
+				'Service work',
+				'--default',
+			)
+
+			expect(written.projects).toEqual([
+				{ gid: '111', name: 'Backend', aliases: ['api', 'svc'], purpose: 'Service work', default: true },
+			])
+		})
+
+		it('add upgrades a v1 file to schema_version 2 on write', async () => {
+			const configPath = await writeConfig({ schema_version: 1, projects: [{ gid: '111', name: 'Backend' }] })
+			getProjectMock.mockResolvedValue({ gid: '222', name: 'Frontend' })
+
+			const written = await run(configPath, 'add', '222')
+
+			expect(written.schema_version).toBe(2)
+			expect(written.projects).toEqual([
+				{ gid: '111', name: 'Backend', aliases: [] },
+				{ gid: '222', name: 'Frontend', aliases: [] },
+			])
+		})
+
+		it('set-default moves the marker to one project, addressed by alias', async () => {
+			const configPath = await writeConfig({
+				schema_version: 2,
+				projects: [
+					{ gid: '111', name: 'Backend', aliases: ['api'] },
+					{ gid: '222', name: 'Frontend', aliases: [], default: true },
+				],
+			})
+
+			const written = await run(configPath, 'set-default', 'api')
+
+			expect(written.projects.filter((p: { default?: true }) => p.default).map((p: { gid: string }) => p.gid)).toEqual([
+				'111',
+			])
+		})
+
+		it('set-default --none leaves no project marked', async () => {
+			const configPath = await writeConfig({
+				schema_version: 2,
+				projects: [{ gid: '111', name: 'Backend', aliases: [], default: true }],
+			})
+
+			const written = await run(configPath, 'set-default', '--none')
+
+			expect(written.projects[0].default).toBeUndefined()
+		})
+
+		it('remove-project-alias drops aliases from whichever project owns them', async () => {
+			const configPath = await writeConfig({
+				schema_version: 2,
+				projects: [{ gid: '111', name: 'Backend', aliases: ['api', 'svc'] }],
+			})
+
+			const written = await run(configPath, 'remove-project-alias', 'api')
+
+			expect(written.projects[0].aliases).toEqual(['svc'])
+		})
+
+		it('show lists aliases, purpose, and the default marker in text mode', async () => {
+			const configPath = await writeConfig({
+				schema_version: 2,
+				projects: [{ gid: '111', name: 'Backend', aliases: ['api'], purpose: 'Service work', default: true }],
+			})
+
+			process.argv = ['node', 'test']
+			await (await userProgram()).parseAsync(['node', 'test', 'config', 'show', '--config', configPath], {
+				from: 'node',
+			})
+
+			const printed = logSpy.mock.calls.map((call) => String(call[0])).join('\n')
+			expect(printed).toContain('api')
+			expect(printed).toContain('Service work')
+			expect(printed).toMatch(/DEFAULT\s*\n[-\s]+\n.*yes/)
+		})
+
+		it('resolve-project resolves an alias without calling getProject', async () => {
+			const configPath = await writeConfig({
+				schema_version: 2,
+				projects: [{ gid: '111', name: 'Backend', aliases: ['api'] }],
+			})
+
+			await run(configPath, 'resolve-project', 'api')
+
+			expect(getProjectMock).not.toHaveBeenCalled()
+			expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('"gid": "111"'))
+		})
+	})
 })
