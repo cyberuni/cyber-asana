@@ -53,9 +53,12 @@ Terms this spec leans on. Asana's own vocabulary first, then the vocabulary this
   as a deliberate blank.
 - **Template** (comment) — comment text carrying `{task.…}` placeholders substituted from the task
   before posting. Opt-in, because without the flag the placeholder syntax is ordinary literal text.
-- **Repo config** — the committed project registry a repo creates at `.agents/cyber-asana.json`
-  (shape documented by the tracked `.agents/cyber-asana.json.example`). Stores projects only;
-  the workspace GID deliberately stays out of it — see
+- **Repo config** — the committed project and user registry a repo creates at
+  `.agents/cyber-asana.json` (shape documented by the tracked `.agents/cyber-asana.json.example`).
+  A project entry carries `aliases`, an optional `purpose`, and an optional `default: true`
+  marking the fallback project; optional top-level `defaults` (assignee, section) and
+  `conventions` (task name format, description template, default tags) blocks round it out. The
+  workspace GID deliberately stays out of it — see
   [decision 0001](design/decisions/0001-no-workspace-gid-in-repo-config.md).
 - **AXI** — [Agent eXperience Interface](https://github.com/kunchenguid/axi), the 10 agent-CLI
   principles this package's output conforms to. See [axi](axi/README.md).

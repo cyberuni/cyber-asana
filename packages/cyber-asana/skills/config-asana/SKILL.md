@@ -71,9 +71,17 @@ registry** (repo config vs. `--global`) whenever it isn't already clear — see 
 
    ```bash
    cyber-asana config add <project-gid>                    # repo config
+   cyber-asana config add <project-gid> --alias <alias>[,<alias>...] --purpose "<one line>"
+   cyber-asana config add <project-gid> --default          # the fallback project (repo config only)
    cyber-asana config add <project-gid> --global            # personal registry, this repo
    cyber-asana config add <project-gid> --global --repo <key>  # a repo you're not currently in
    ```
+
+   `--alias` registers keyword(s) that resolve to the project ahead of its display name;
+   `--purpose` records one line saying what work belongs there; `--default` marks the project
+   commands fall back to when none is given (at most one project, and not available with
+   `--global`). Ask the user for aliases, a purpose, and whether the project should be the
+   default before adding, rather than guessing.
 5. **Verify:** `cyber-asana config show --json` (or `--global`, or `--merged`).
 6. If it was the repo config, tell the user to commit `.agents/cyber-asana.json`. `--global` has
    nothing to commit.

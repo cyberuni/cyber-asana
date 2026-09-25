@@ -10,25 +10,52 @@ tools then resolve a human-readable project or user name locally, with no API ca
 
 ```json
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "projects": [
-    { "gid": "1215109751173511", "name": "cyber-asana" }
+    {
+      "gid": "1215109751173511",
+      "name": "cyber-asana",
+      "aliases": ["cyber-asana", "cli"],
+      "purpose": "CLI, MCP server, and plugin work for this package",
+      "default": true
+    }
   ],
   "users": [
     { "gid": "1200000000000001", "name": "Alice Anderson", "email": "alice@example.com", "aliases": ["ali"] }
-  ]
+  ],
+  "defaults": {
+    "assignee": "ali",
+    "section": "1215109751173999"
+  },
+  "conventions": {
+    "task_name_format": "<area>: <summary>",
+    "description_template": "## Problem\n\n## Plan",
+    "default_tags": ["agent-created"]
+  }
 }
 ```
 
-`users` is optional; a file with only `projects` stays valid.
+A project entry's `aliases` are trigger keywords that resolve to it, matched
+case-insensitively and ahead of another project's display name; an alias is unique across the
+registry. `purpose` is one line saying what work belongs in the project. `default: true` marks
+the project commands fall back to when none is given — at most one project can carry it.
 
-Workspace GID deliberately stays out of this file — keep it in `ASANA_WORKSPACE`.
+`users`, `defaults`, and `conventions` are all optional; a file with only `projects` stays
+valid. A `schema_version: 1` file (project entries with only `gid` and `name`) still parses and
+is upgraded to `schema_version: 2` in place the next time the CLI writes the file.
+
+Workspace GID deliberately stays out of this file — keep it in `ASANA_WORKSPACE`. There is no
+`defaults.workspace` key; one in a config file is rejected by name.
 
 ## Commands
 
 ```sh
 cyber-asana config add <project-gid>                  # seed or update an entry
-cyber-asana config resolve-project "Backend" --json   # local lookup, no API call
+cyber-asana config add <project-gid> --alias api --purpose "Service work" --default
+cyber-asana config resolve-project "Backend" --json   # local lookup, no API call (name or alias)
+cyber-asana config set-default <gid-name-or-alias>    # mark the fallback project
+cyber-asana config set-default --none                 # clear the fallback project
+cyber-asana config remove-project-alias api,svc       # drop aliases, keep the project
 cyber-asana config sync                               # refresh cached names from Asana
 cyber-asana config show
 
@@ -37,15 +64,20 @@ cyber-asana config add-user --search "Ada" --alias ali  # find the GID by typeah
 cyber-asana config remove-alias ali,al                # drop aliases, keep the user
 cyber-asana config resolve-user ali --json            # local lookup, no API call
 cyber-asana config list-users
+
+cyber-asana config set defaults.assignee ali          # set a defaults/conventions key
+cyber-asana config unset defaults.assignee            # clear it
 ```
 
 | Command | Arguments | Description |
 | --- | --- | --- |
-| `show` | — | Print the repo config |
+| `show` | — | Print the repo config, including the `defaults` and `conventions` blocks |
 | `list` | — | Alias for `show` |
 | `path` | — | Print the resolved config file path |
-| `resolve-project` | `<name>` | Resolve a project name to its GID, no API call |
-| `add` | `<project-gid>` | Add or update an entry, fetching the name from Asana |
+| `resolve-project` | `<name>` | Resolve a project name or alias to its GID, no API call |
+| `add` | `<project-gid>`, `[--alias <alias>...]`, `[--purpose <text>]`, `[--default]` | Add or update an entry, fetching the name from Asana. Repeat `--alias` or pass a comma-separated list (`--alias api,svc`) |
+| `set-default` | `[gid-name-or-alias]` or `--none` | Mark the project commands fall back to when none is given, or clear it |
+| `remove-project-alias` | `<alias...>` | Remove aliases from whichever registered projects own them; pass several or a comma-separated list |
 | `remove` | `<gid-or-name>` | Remove an entry by GID or name |
 | `sync` | — | Refresh all cached project names, and user names and emails, from Asana |
 | `add-user` | `<user-gid>` or `--search <query>`, `[--alias <alias>...]` | Add or update a user, fetching name and email from Asana; aliases accumulate. Repeat `--alias` or pass a comma-separated list (`--alias ali,al`). `--search` needs a workspace (`--workspace-gid` or `ASANA_WORKSPACE`) |
@@ -53,9 +85,26 @@ cyber-asana config list-users
 | `resolve-user` | `<query>` | Resolve a GID, alias, email, or name to a user, no API call |
 | `list-users` | — | Print registered users |
 | `remove-user` | `<query>` | Remove the user a GID, alias, email, or name resolves to |
+| `set` | `<key> <value>` | Set `defaults.assignee`, `defaults.section`, `conventions.task_name_format`, `conventions.description_template`, or `conventions.default_tags` (comma-separated for the tags) |
+| `unset` | `<key>` | Clear a key `set` accepts |
 
 Every subcommand accepts `--config <path>`, which overrides the `CYBER_ASANA_CONFIG`
 environment variable.
+
+## Defaults and conventions
+
+`defaults` holds fallbacks a command uses when it was not told a value: `assignee` (resolved
+the same way `--assignee` is) and `section` (a section GID in the default project). The default
+project itself is not part of `defaults` — it is whichever project entry carries `default: true`.
+
+`conventions` records repo house style so an agent writes a task the way this repo writes one:
+`task_name_format` (e.g. `<area>: <summary>`), `description_template` (a description skeleton),
+and `default_tags` (tag GIDs or names applied to new tasks).
+
+`task create` resolves `--project` as a GID or a registered project name or alias, falling back
+to the default project when `--project` is omitted; `--assignee` falls back to
+`defaults.assignee` the same way. Both fallbacks are create-only — `task update` with no
+`--assignee` leaves the assignee alone.
 
 ## Global registry (across repositories)
 

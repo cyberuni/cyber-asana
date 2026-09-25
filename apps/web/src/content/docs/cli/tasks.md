@@ -59,9 +59,9 @@ cyber-asana task delete <task-gid>
 | Option | Commands | Description |
 | --- | --- | --- |
 | `--workspace-gid <gid>` | `create` | Workspace (defaults to `ASANA_WORKSPACE`) |
-| `--project-gid <gid[,gid...]>` | `create` | Initial project placement, comma-separated |
+| `--project-gid <gid[,gid...]>` / `--project <gid-name-or-alias[,...]>` | `create` | Initial project placement, comma-separated. `--project-gid` is sent to Asana untouched; a non-numeric `--project` value is resolved against the [repo config](/cyber-asana/cli/repo-config/) project registry. With neither given, it falls back to the project marked `default: true` |
 | `--assignee-gid <gid>` | `create`, `update` | Assignee user GID |
-| `--assignee <user>` | `create`, `update` | Assignee as a GID, `me`, or an alias, email, or name registered in the [repo config](/cyber-asana/cli/repo-config/#assigning-by-name) |
+| `--assignee <user>` | `create`, `update` | Assignee as a GID, `me`, or an alias, email, or name registered in the [repo config](/cyber-asana/cli/repo-config/#assigning-by-name). On `create`, omitting it falls back to `defaults.assignee`; `update` leaves the assignee untouched |
 | `--parent-gid <gid>` / `--parent <gid>` | `create`, `update` | Set the task parent |
 | `--clear-parent` | `update` | Remove the parent relationship |
 | `--name <name>` | `update` | New name |

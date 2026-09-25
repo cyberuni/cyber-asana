@@ -168,19 +168,20 @@ Prefer **`create-asana-task`** over ad-hoc `asana_task_create` calls so agents r
 
 ### Repo project registry
 
-Agents and MCP tools can resolve human-readable project and user names without an API call. Commit a name → GID map at [`.agents/cyber-asana.json`](.agents/cyber-asana.json.example) (see example). Workspace GID stays in `ASANA_WORKSPACE_GID` — not in this file ([ADR](docs/adr/0001-no-workspace-gid-in-repo-config.md)).
+Agents and MCP tools can resolve human-readable project and user names without an API call. Commit a name → GID map at [`.agents/cyber-asana.json`](.agents/cyber-asana.json.example) (see example). A project entry carries `aliases`, an optional `purpose`, and an optional `default: true` marking the project `task create` falls back to when `--project` is omitted. Workspace GID stays in `ASANA_WORKSPACE_GID` — not in this file ([ADR](docs/adr/0001-no-workspace-gid-in-repo-config.md)).
 
 ```sh
-cyber-asana config add <project-gid>              # seed or update an entry
-cyber-asana config resolve-project "Backend" --json  # local lookup, no API
+cyber-asana config add <project-gid> --alias api --purpose "Service work" --default  # seed or update an entry
+cyber-asana config resolve-project "Backend" --json  # local lookup, no API (name or alias)
 cyber-asana config sync                           # refresh cached names from Asana
 cyber-asana config add-user <user-gid> --alias ali  # register a user for --assignee ali
 cyber-asana config add-user --search "ada@example.com" --alias ada  # find the GID by typeahead
 cyber-asana config resolve-user ali --json        # local lookup, no API
+cyber-asana config set defaults.assignee ali      # fallback assignee for task create
 cyber-asana config show
 ```
 
-`asana_project_get` and `project get` opportunistically update cached names when results include `{ gid, name }`.
+`asana_project_get` and `project get` opportunistically update cached names when results include `{ gid, name }`. An optional top-level `defaults` block (`assignee`, `section`) and `conventions` block (`task_name_format`, `description_template`, `default_tags`) hold repo-wide fallbacks and house style — see [`.agents/cyber-asana.json.example`](.agents/cyber-asana.json.example).
 
 ## Plugin distribution
 

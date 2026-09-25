@@ -35,15 +35,16 @@ Prefer **`create-asana-task`** over ad-hoc `asana_task_create` calls so agents r
 
 ## Repo Project Registry
 
-Agents and MCP tools can resolve human-readable project names without an API call. Commit a name → GID map at `.agents/cyber-asana.json`:
+Agents and MCP tools can resolve human-readable project names without an API call. Commit a name → GID map at `.agents/cyber-asana.json`, where each project can also carry aliases, a purpose, and a `default` marker:
 
 ```bash
-cyber-asana config add <project-gid>              # seed or update an entry
-cyber-asana config resolve-project "Backend" --json  # local lookup, no API
+cyber-asana config add <project-gid> --alias api --purpose "Service work" --default  # seed or update an entry
+cyber-asana config resolve-project "Backend" --json  # local lookup, no API (name or alias)
 cyber-asana config sync                           # refresh cached names from Asana
 cyber-asana config add-user <user-gid> --alias ali  # register a user for --assignee ali
 cyber-asana config add-user --search "ada@example.com" --alias ada  # find the GID by typeahead
 cyber-asana config resolve-user ali --json        # local lookup, no API
+cyber-asana config set defaults.assignee ali      # fallback assignee for task create
 cyber-asana config show
 ```
 

@@ -1,6 +1,21 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "projects": [
-    { "gid": "1215109751173511", "name": "cyber-asana" }
-  ]
+    {
+      "gid": "1215109751173511",
+      "name": "cyber-asana",
+      "aliases": ["cyber-asana", "cli"],
+      "purpose": "CLI, MCP server, and plugin work for this package",
+      "default": true
+    }
+  ],
+  "defaults": {
+    "assignee": "ali",
+    "section": "1215109751173999"
+  },
+  "conventions": {
+    "task_name_format": "<area>: <summary>",
+    "description_template": "## Problem\n\n## Plan",
+    "default_tags": ["agent-created"]
+  }
 }
