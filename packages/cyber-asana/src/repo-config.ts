@@ -21,11 +21,36 @@ export type RepoUserEntry = {
 	aliases: string[]
 }
 
+/** Fallbacks for what a command was not told. The default project is the entry marked `default`. */
+export type RepoDefaults = {
+	/** A user GID, alias, email, or name, resolved through the user registry. */
+	assignee?: string
+	/** Workspace GID, used when neither `--workspace` nor `ASANA_WORKSPACE_GID` is set. */
+	workspace?: string
+	/** Section GID in the default project that new tasks land in. */
+	section?: string
+}
+
+/** Repo house style, so an agent writes tasks the way this repo writes them. */
+export type RepoConventions = {
+	/** A task title shape, e.g. `<area>: <summary>`. */
+	task_name_format?: string
+	/** A description skeleton new tasks start from. */
+	description_template?: string
+	/** Tag GIDs or names applied to new tasks. */
+	default_tags?: string[]
+}
+
 export type RepoConfig = {
 	schema_version: 2
 	projects: RepoProjectEntry[]
 	users?: RepoUserEntry[]
+	defaults?: RepoDefaults
+	conventions?: RepoConventions
 }
+
+const DEFAULTS_KEYS = ['assignee', 'workspace', 'section'] as const
+const CONVENTIONS_KEYS = ['task_name_format', 'description_template', 'default_tags'] as const
 
 export type ProjectObservation = {
 	gid: string
@@ -54,14 +79,86 @@ export function parseRepoConfig(raw: unknown): RepoConfig {
 		const named = defaults.map((project) => `${project.gid} (${project.name})`).join(', ')
 		throw new Error(`Repo config may mark only one default project; found ${defaults.length}: ${named}`)
 	}
+	const extras = {
+		...(record.defaults !== undefined && { defaults: parseDefaults(record.defaults) }),
+		...(record.conventions !== undefined && { conventions: parseConventions(record.conventions) }),
+	}
 	if (record.users === undefined) {
-		return { schema_version: 2, projects }
+		return { schema_version: 2, projects, ...extras }
 	}
 	if (!Array.isArray(record.users)) {
 		throw new Error('Repo config users must be an array')
 	}
 	const users = record.users.map((entry, index) => parseUserEntry(entry, index))
-	return { schema_version: 2, projects, users }
+	return { schema_version: 2, projects, users, ...extras }
+}
+
+/** Unknown keys are rejected rather than ignored, so a typo reports itself instead of doing nothing. */
+function parseDefaults(raw: unknown): RepoDefaults {
+	if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+		throw new Error('Repo config defaults must be an object')
+	}
+	const defaults: RepoDefaults = {}
+	for (const [key, value] of Object.entries(raw)) {
+		if (!(DEFAULTS_KEYS as readonly string[]).includes(key)) {
+			throw new Error(`Unknown repo config key defaults.${key}; expected one of ${DEFAULTS_KEYS.join(', ')}`)
+		}
+		if (typeof value !== 'string' || value.length === 0) {
+			throw new Error(`defaults.${key} must be a non-empty string`)
+		}
+		defaults[key as (typeof DEFAULTS_KEYS)[number]] = value
+	}
+	return defaults
+}
+
+function parseConventions(raw: unknown): RepoConventions {
+	if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+		throw new Error('Repo config conventions must be an object')
+	}
+	const conventions: RepoConventions = {}
+	for (const [key, value] of Object.entries(raw)) {
+		if (!(CONVENTIONS_KEYS as readonly string[]).includes(key)) {
+			throw new Error(`Unknown repo config key conventions.${key}; expected one of ${CONVENTIONS_KEYS.join(', ')}`)
+		}
+		if (key === 'default_tags') {
+			if (!Array.isArray(value) || value.some((tag) => typeof tag !== 'string' || tag.length === 0)) {
+				throw new Error('conventions.default_tags must be an array of non-empty strings')
+			}
+			conventions.default_tags = value as string[]
+			continue
+		}
+		if (typeof value !== 'string' || value.length === 0) {
+			throw new Error(`conventions.${key} must be a non-empty string`)
+		}
+		conventions[key as 'task_name_format' | 'description_template'] = value
+	}
+	return conventions
+}
+
+/** Merge a patch into a block; a `null` value clears that key, and an emptied block is dropped. */
+function patchBlock<T extends object>(block: T | undefined, patch: { [K in keyof T]?: T[K] | null }): T | undefined {
+	const next = { ...(block ?? ({} as T)) }
+	for (const [key, value] of Object.entries(patch) as Array<[keyof T, T[keyof T] | null | undefined]>) {
+		if (value === undefined) continue
+		if (value === null) delete next[key]
+		else next[key] = value
+	}
+	return Object.keys(next).length === 0 ? undefined : next
+}
+
+export function setDefaults(config: RepoConfig, patch: { [K in keyof RepoDefaults]?: RepoDefaults[K] | null }) {
+	const defaults = patchBlock(config.defaults, patch)
+	const { defaults: _drop, ...rest } = config
+	return (defaults ? { ...rest, defaults } : rest) as RepoConfig
+}
+
+export function setConventions(
+	config: RepoConfig,
+	patch: { [K in keyof RepoConventions]?: RepoConventions[K] | null },
+) {
+	const conventions = patchBlock(config.conventions, patch)
+	const { conventions: _drop, ...rest } = config
+	return (conventions ? { ...rest, conventions } : rest) as RepoConfig
 }
 
 /**

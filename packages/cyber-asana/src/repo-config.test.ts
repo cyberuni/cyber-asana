@@ -24,7 +24,9 @@ import {
 	resolveProject,
 	resolveUser,
 	saveRepoConfig,
+	setConventions,
 	setDefaultProject,
+	setDefaults,
 	tryObserveProjectFromConfigPath,
 } from './repo-config.js'
 
@@ -284,6 +286,90 @@ describe('setDefaultProject and defaultProject', () => {
 
 	it('clearDefaultProject leaves no project marked', () => {
 		expect(clearDefaultProject(config).projects.some((p) => p.default)).toBe(false)
+	})
+})
+
+describe('defaults block', () => {
+	it('parses a defaults block', () => {
+		expect(
+			parseRepoConfig({
+				schema_version: 2,
+				projects: [],
+				defaults: { assignee: 'ali', workspace: '900', section: '800' },
+			}).defaults,
+		).toEqual({ assignee: 'ali', workspace: '900', section: '800' })
+	})
+
+	it('rejects an unknown defaults key so a typo is not silently ignored', () => {
+		expect(() => parseRepoConfig({ schema_version: 2, projects: [], defaults: { assinee: 'ali' } })).toThrow(
+			'defaults.assinee',
+		)
+	})
+
+	it('rejects a non-string defaults value', () => {
+		expect(() => parseRepoConfig({ schema_version: 2, projects: [], defaults: { workspace: 900 } })).toThrow(
+			'defaults.workspace',
+		)
+	})
+
+	it('setDefaults merges into an absent block', () => {
+		expect(setDefaults(createEmptyRepoConfig(), { assignee: 'ali' }).defaults).toEqual({ assignee: 'ali' })
+	})
+
+	it('setDefaults leaves keys it was not given alone', () => {
+		const config = setDefaults(createEmptyRepoConfig(), { assignee: 'ali', workspace: '900' })
+		expect(setDefaults(config, { workspace: '901' }).defaults).toEqual({ assignee: 'ali', workspace: '901' })
+	})
+
+	it('setDefaults clears a key given null', () => {
+		const config = setDefaults(createEmptyRepoConfig(), { assignee: 'ali', workspace: '900' })
+		expect(setDefaults(config, { assignee: null }).defaults).toEqual({ workspace: '900' })
+	})
+
+	it('setDefaults drops the block once it holds nothing', () => {
+		const config = setDefaults(createEmptyRepoConfig(), { assignee: 'ali' })
+		expect(setDefaults(config, { assignee: null })).not.toHaveProperty('defaults')
+	})
+})
+
+describe('conventions block', () => {
+	it('parses a conventions block', () => {
+		expect(
+			parseRepoConfig({
+				schema_version: 2,
+				projects: [],
+				conventions: {
+					task_name_format: '<area>: <summary>',
+					description_template: '## Context\n\n## Acceptance',
+					default_tags: ['eng'],
+				},
+			}).conventions,
+		).toEqual({
+			task_name_format: '<area>: <summary>',
+			description_template: '## Context\n\n## Acceptance',
+			default_tags: ['eng'],
+		})
+	})
+
+	it('rejects an unknown conventions key', () => {
+		expect(() => parseRepoConfig({ schema_version: 2, projects: [], conventions: { naming: 'x' } })).toThrow(
+			'conventions.naming',
+		)
+	})
+
+	it('rejects default_tags that are not non-empty strings', () => {
+		expect(() => parseRepoConfig({ schema_version: 2, projects: [], conventions: { default_tags: [''] } })).toThrow(
+			'conventions.default_tags',
+		)
+	})
+
+	it('setConventions merges, clears with null, and drops the empty block', () => {
+		const config = setConventions(createEmptyRepoConfig(), { task_name_format: '<area>: <summary>' })
+		expect(setConventions(config, { default_tags: ['eng'] }).conventions).toEqual({
+			task_name_format: '<area>: <summary>',
+			default_tags: ['eng'],
+		})
+		expect(setConventions(config, { task_name_format: null })).not.toHaveProperty('conventions')
 	})
 })
 
