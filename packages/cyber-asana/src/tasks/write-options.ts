@@ -20,7 +20,6 @@ type BuildTaskWriteInput = {
 type BuildTaskCreateInput = BuildTaskWriteInput & {
 	projectInput?: string
 	followerInput?: string
-	tagInput?: string
 	projectGids?: string[]
 	followerGids?: string[]
 	tagGids?: string[]
@@ -96,7 +95,7 @@ export function buildTaskCreateFields(input: BuildTaskCreateInput): CreateTaskFi
 	const customFields = { ...input.customFields, ...mergeCustomFields(input.customFieldsJson, input.customFieldEntries) }
 	const projects = input.projectGids ?? parseGidList(input.projectInput)
 	const followers = input.followerGids ?? parseGidList(input.followerInput)
-	const tags = input.tagGids ?? parseGidList(input.tagInput)
+	const tags = input.tagGids
 	return {
 		...(input.notes !== undefined && { notes: input.notes }),
 		...(input.htmlNotes !== undefined && { html_notes: input.htmlNotes }),
@@ -116,9 +115,10 @@ export function buildTaskCreateFields(input: BuildTaskCreateInput): CreateTaskFi
 }
 
 /**
- * Fill the gaps in a create payload from the repo's house style. Only fields the caller left
- * unset are touched, so an explicit `--notes` or `--tag` always wins. A template that opens with
- * `<body>` is sent as `html_notes`, matching how Asana tells rich notes from plain ones.
+ * Fill the description of a create payload from the repo's house style, when the caller gave
+ * none. A template that opens with `<body>` is sent as `html_notes`, matching how Asana tells
+ * rich notes from plain ones. Tags are not handled here: `default_tags` may name a tag, and
+ * resolving a name needs the workspace, so the create path resolves tags before building fields.
  */
 export function applyConventions(fields: CreateTaskFields, conventions?: RepoConventions): CreateTaskFields {
 	if (!conventions) return fields
@@ -127,9 +127,6 @@ export function applyConventions(fields: CreateTaskFields, conventions?: RepoCon
 	if (template && next.notes === undefined && next.html_notes === undefined) {
 		if (template.trimStart().startsWith('<body>')) next.html_notes = template
 		else next.notes = template
-	}
-	if (next.tags === undefined && conventions.default_tags && conventions.default_tags.length > 0) {
-		next.tags = conventions.default_tags
 	}
 	return next
 }

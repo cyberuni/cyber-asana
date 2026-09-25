@@ -23,12 +23,8 @@ describe('tasks/write-options', () => {
 		})
 	})
 
-	it('buildTaskCreateFields maps a comma-separated tag list', () => {
-		expect(buildTaskCreateFields({ tagInput: 't1, t2' })).toEqual({ tags: ['t1', 't2'] })
-	})
-
-	it('buildTaskCreateFields takes tagGids over tagInput', () => {
-		expect(buildTaskCreateFields({ tagGids: ['t9'], tagInput: 't1' })).toEqual({ tags: ['t9'] })
+	it('buildTaskCreateFields maps resolved tag gids', () => {
+		expect(buildTaskCreateFields({ tagGids: ['t1', 't2'] })).toEqual({ tags: ['t1', 't2'] })
 	})
 
 	it('buildTaskCreateFields omits tags when none are given', () => {

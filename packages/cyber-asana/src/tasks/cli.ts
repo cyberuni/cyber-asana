@@ -14,6 +14,7 @@ import { resolveEffectiveAssignee } from '../effective-config.js'
 import { deleteIdempotently, deleteMessage } from '../idempotent-delete.js'
 import { output, printEmpty, printFields, printNextSteps, printSummary, printTable } from '../output.js'
 import { loadConventions, loadDefaults, resolveProjectRef } from '../repo-config.js'
+import { resolveTagRefs } from '../tags/resolve.js'
 import { isFull, truncate } from '../truncate.js'
 import {
 	addDependencies,
@@ -42,7 +43,7 @@ import {
 	type TodoMatch,
 	updateTask,
 } from './api.js'
-import { applyConventions, buildTaskCreateFields, buildTaskUpdateFields } from './write-options.js'
+import { applyConventions, buildTaskCreateFields, buildTaskUpdateFields, parseGidList } from './write-options.js'
 
 const ASSIGNEE_FLAG = '--assignee <user>'
 const ASSIGNEE_DESCRIPTION = 'Assignee: user GID, "me", or an alias, email, or name registered with config add-user'
@@ -336,8 +337,10 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 					customField: string[]
 				},
 			) => {
+				const workspaceGid = requiredGid(opts, 'workspace', 'Workspace GID')
+				const conventions = await loadConventions()
 				const data = await resolveTaskApi(api).createTask(
-					requiredGid(opts, 'workspace', 'Workspace GID'),
+					workspaceGid,
 					name,
 					applyConventions(
 						buildTaskCreateFields({
@@ -347,7 +350,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 							assignee: await assigneeForCreate(opts),
 							projectInput: opts.projectGid ?? (await resolveProjectRef(opts.project)),
 							followerInput: opts.follower,
-							tagInput: opts.tag,
+							tagGids: await resolveTagRefs(parseGidList(opts.tag) ?? conventions?.default_tags, workspaceGid),
 							dueOn: opts.dueOn,
 							dueAt: opts.dueAt,
 							startOn: opts.startOn,
@@ -357,7 +360,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 							customFieldsJson: opts.customFieldsJson,
 							customFieldEntries: opts.customField,
 						}),
-						await loadConventions(),
+						conventions,
 					),
 				)
 				output(data, () => {

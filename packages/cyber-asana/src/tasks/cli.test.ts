@@ -14,6 +14,12 @@ const listTasksMock = vi.fn()
 const getMyTasksMock = vi.fn()
 const listSubtasksMock = vi.fn()
 const createSubtaskMock = vi.fn()
+const listTagsMock = vi.fn()
+
+vi.mock('../tags/api.js', async () => {
+	const actual = await vi.importActual<typeof import('../tags/api.js')>('../tags/api.js')
+	return { ...actual, listTags: listTagsMock }
+})
 
 vi.mock('./api.js', async () => {
 	const actual = await vi.importActual<typeof import('./api.js')>('./api.js')
@@ -697,38 +703,67 @@ describe('tasks/cli', () => {
 			if (dir) await rm(dir, { recursive: true, force: true })
 		})
 
-		it('sends --tag as a tag list', async () => {
+		it('sends --tag GIDs without a tag lookup', async () => {
 			await useConfig({ schema_version: 2, projects: [] })
 			createTaskMock.mockResolvedValue({ gid: 't1', name: 'Task' })
 			const program = new Command().addCommand(taskCommand())
 
-			await program.parseAsync(['node', 'test', 'task', 'create', 'Task', '--workspace-gid', 'w1', '--tag', 't1,t2'], {
-				from: 'node',
-			})
+			await program.parseAsync(
+				['node', 'test', 'task', 'create', 'Task', '--workspace-gid', 'w1', '--tag', '900,901'],
+				{
+					from: 'node',
+				},
+			)
 
-			expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ tags: ['t1', 't2'] }))
+			expect(listTagsMock).not.toHaveBeenCalled()
+			expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ tags: ['900', '901'] }))
+		})
+
+		it('resolves a --tag name against the workspace', async () => {
+			await useConfig({ schema_version: 2, projects: [] })
+			createTaskMock.mockResolvedValue({ gid: 't1', name: 'Task' })
+			listTagsMock.mockResolvedValue({ data: [{ gid: '900', name: 'High Important' }], next_page: null })
+			const program = new Command().addCommand(taskCommand())
+
+			await program.parseAsync(
+				['node', 'test', 'task', 'create', 'Task', '--workspace-gid', 'w1', '--tag', 'high important'],
+				{ from: 'node' },
+			)
+
+			expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ tags: ['900'] }))
 		})
 
 		it('applies conventions.default_tags when --tag is not given', async () => {
-			await useConfig({ schema_version: 2, projects: [], conventions: { default_tags: ['t1', 't2'] } })
+			await useConfig({ schema_version: 2, projects: [], conventions: { default_tags: ['900', '901'] } })
 			createTaskMock.mockResolvedValue({ gid: 't1', name: 'Task' })
 			const program = new Command().addCommand(taskCommand())
 
 			await program.parseAsync(['node', 'test', 'task', 'create', 'Task', '--workspace-gid', 'w1'], { from: 'node' })
 
-			expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ tags: ['t1', 't2'] }))
+			expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ tags: ['900', '901'] }))
+		})
+
+		it('resolves a conventions.default_tags name against the workspace', async () => {
+			await useConfig({ schema_version: 2, projects: [], conventions: { default_tags: ['High Important'] } })
+			createTaskMock.mockResolvedValue({ gid: 't1', name: 'Task' })
+			listTagsMock.mockResolvedValue({ data: [{ gid: '900', name: 'High Important' }], next_page: null })
+			const program = new Command().addCommand(taskCommand())
+
+			await program.parseAsync(['node', 'test', 'task', 'create', 'Task', '--workspace-gid', 'w1'], { from: 'node' })
+
+			expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ tags: ['900'] }))
 		})
 
 		it('lets --tag override conventions.default_tags', async () => {
-			await useConfig({ schema_version: 2, projects: [], conventions: { default_tags: ['t1'] } })
+			await useConfig({ schema_version: 2, projects: [], conventions: { default_tags: ['900'] } })
 			createTaskMock.mockResolvedValue({ gid: 't1', name: 'Task' })
 			const program = new Command().addCommand(taskCommand())
 
-			await program.parseAsync(['node', 'test', 'task', 'create', 'Task', '--workspace-gid', 'w1', '--tag', 't9'], {
+			await program.parseAsync(['node', 'test', 'task', 'create', 'Task', '--workspace-gid', 'w1', '--tag', '909'], {
 				from: 'node',
 			})
 
-			expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ tags: ['t9'] }))
+			expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ tags: ['909'] }))
 		})
 
 		it('seeds notes from conventions.description_template when no notes are given', async () => {
