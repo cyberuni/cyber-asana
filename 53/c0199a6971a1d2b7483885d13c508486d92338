@@ -1,0 +1,34 @@
+.changeset/asana-gateway-skill.md
+  s_50dda24ec542b6::t_32d788b7917c7a 1-5
+readme.md
+  s_50dda24ec542b6::t_c7ef36e7e156fa 157
+packages/cyber-asana/src/skills/catalog.test.ts
+  s_50dda24ec542b6::t_bd7f85f3e024c5 109,113
+packages/cyber-asana/skills/asana/SKILL.md
+  s_50dda24ec542b6::t_cf85bd6d2efed2 1-2,4-39,41-46,48-56,61-81
+  s_50dda24ec542b6::t_64d5f4e1fcfbfc 58
+  s_50dda24ec542b6::t_d761ea7a4a73d7 40,47
+  s_50dda24ec542b6::t_737ebe74bb6811 59-60
+  s_50dda24ec542b6::t_9a1af578fe7193 57
+  s_50dda24ec542b6::t_c7ef36e7e156fa 3
+packages/cyber-asana/skills/asana/README.md
+  s_50dda24ec542b6::t_9c230e68f6068c 1-25
+apps/web/src/content/docs/skills/index.md
+  s_50dda24ec542b6::t_900c3e6c6ff63f 24
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "53c0199a6971a1d2b7483885d13c508486d92338",
+  "prompts": {},
+  "sessions": {
+    "s_50dda24ec542b6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "46e40a2e-6fca-47c9-a99f-55825722a920",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "unional <homawong@gmail.com>"
+    }
+  }
+}
