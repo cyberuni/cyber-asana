@@ -1,0 +1,31 @@
+AGENTS.md
+  s_699c614a308370::t_ff81341a20a2c8 43
+packages/cyber-asana/.agents/spec/skills/README.md
+  s_699c614a308370::t_cb399ab0f09a7d 85
+packages/cyber-asana/.agents/spec/skills/skills.feature
+  s_699c614a308370::t_ff56df5f43cb52 213
+packages/cyber-asana/plugin.json
+  s_699c614a308370::t_f8cabc45e74359 10-32
+packages/cyber-asana/src/skills/catalog.test.ts
+  s_699c614a308370::t_c96e63c211c10b 76-81,93,342
+packages/cyber-asana/src/skills/catalog.ts
+  s_699c614a308370::t_f8f62912e54dc4 42,70,269-272,276-277
+readme.md
+  s_699c614a308370::t_396cabc5a23060 230
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "b36a1e15e59ec91fd53a15e0759730a4ea5bdc1e",
+  "prompts": {},
+  "sessions": {
+    "s_699c614a308370": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0c6ee05e-9477-4dd1-9906-17d77f392da2",
+        "model": "unknown"
+      },
+      "human_author": "unional <homawong@gmail.com>"
+    }
+  }
+}
