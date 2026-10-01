@@ -34,7 +34,9 @@ not split a request or a session that serves one outcome.
   - The branch's commits: `git log --oneline <base>..HEAD`, where `<base>` is the default branch
     (`main` unless the repo says otherwise).
   - The change itself: `git diff --stat <base>...HEAD` and `git status --short`.
-  - The pull request, if one exists: `gh pr view --json url,title -q '.url + " " + .title'`.
+  - The pull request, if one exists: its URL and title, read with the command for this repo's git
+    host in [`link-pr.md` § 1](link-pr.md#1-find-the-pull-request). When there is none, or the
+    host's CLI is not available, plan without it.
 
 Commits are not units. Several commits usually serve one unit; split only where a part could be
 reviewed, shipped, or assigned on its own, and where the user would want to see it tracked apart.
