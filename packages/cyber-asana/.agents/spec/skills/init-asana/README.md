@@ -10,13 +10,14 @@ walks an agent through getting `cyber-asana` working for the first time.
 
 ## Subject
 
-- **Artifact** — `skills/init-asana/SKILL.md`. No references directory.
+- **Artifact** — `skills/init-asana/SKILL.md`, with `reference.md` for the per-client MCP config.
 - **Trigger** — a first-time setup, or any command failing on authentication or a missing
   workspace. Its front block reads: *"Use this skill when setting up cyber-asana — PAT, workspace
   GID, connection verify, optional registry."*
 - **What it covers** — resolving and pinning the CLI version before running anything, checking
   whether a token and workspace are already set, guiding the user through creating a personal
-  access token, verifying the connection, and offering to seed the repo project registry.
+  access token, verifying the connection, offering to seed the repo project registry, and
+  offering the MCP server as an opt-in (default no) written into the detected client's own config.
 
 **Its place in the catalog.** This skill is the **entry point of the whole plugin**: the universal
 manifest names it as the first-run skill, and the other eight assume the credentials it establishes.
