@@ -8,5 +8,6 @@
 	"homepage": "https://github.com/cyberuni/cyber-asana",
 	"repository": "https://github.com/cyberuni/cyber-asana",
 	"license": "MIT",
-	"keywords": ["asana", "mcp", "cli", "agent", "productivity"]
+	"keywords": ["asana", "mcp", "cli", "agent", "productivity"],
+	"dependencies": ["buddy-agent-harness"]
 }

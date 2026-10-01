@@ -12,7 +12,9 @@
 	"commands": "./commands/",
 	"vendors": ["claude-code", "cursor", "codex", "copilot-cli"],
 	"vendorExtensions": {
-		"claude-code": {},
+		"claude-code": {
+			"dependencies": ["buddy-agent-harness"]
+		},
 		"cursor": {
 			"category": "productivity",
 			"tags": ["asana", "mcp", "project-management"]
