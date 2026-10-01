@@ -570,6 +570,26 @@ describe('tasks/cli', () => {
 		expect(injectedCreateTask).toHaveBeenCalledWith('ws1', 'New Task', {})
 	})
 
+	// `--completed` / `--no-completed` (and `--subtask` / `--no-subtask`) are a
+	// tri-state: giving neither must leave the filter unset, not default it to true.
+	it.each([
+		{ flags: [], completed: undefined, isSubtask: undefined },
+		{ flags: ['--completed', '--subtask'], completed: true, isSubtask: true },
+		{ flags: ['--no-completed', '--no-subtask'], completed: false, isSubtask: false },
+	])(
+		'task search $flags forwards completed=$completed and isSubtask=$isSubtask',
+		async ({ flags, completed, isSubtask }) => {
+			const searchTasks = vi.fn().mockResolvedValue([])
+			const program = new Command().addCommand(taskCommand({ searchTasks } as never))
+
+			await program.parseAsync(['node', 'test', 'task', 'search', '--workspace-gid', 'ws1', ...flags], { from: 'node' })
+
+			const searchOpts = searchTasks.mock.calls[0]?.[1]
+			expect(searchOpts?.completed).toBe(completed)
+			expect(searchOpts?.isSubtask).toBe(isSubtask)
+		},
+	)
+
 	describe('--assignee resolves through the repo user registry', () => {
 		let dir: string
 		const previousConfig = process.env.CYBER_ASANA_CONFIG

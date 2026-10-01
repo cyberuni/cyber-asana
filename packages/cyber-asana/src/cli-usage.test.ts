@@ -66,6 +66,13 @@ describe('other usage mistakes', () => {
 		expect(exitCodeFor(await usageErrorFrom(['task', 'lst']))).toBe(2)
 	})
 
+	it('treats an excess positional argument as a usage error', async () => {
+		const error = await usageErrorFrom(['task', 'list', 'extra'])
+		expect(isUsageError(error)).toBe(true)
+		expect(exitCodeFor(error)).toBe(2)
+		expect(renderCliError(error, 'text')).toMatch(/^Error: too many arguments for 'list'/)
+	})
+
 	it('does not double the "error:" prefix Commander already adds', async () => {
 		const text = renderCliError(await usageErrorFrom(['task', 'list', '--nope']), 'text')
 		expect(text.startsWith("Error: unknown option '--nope'")).toBe(true)
