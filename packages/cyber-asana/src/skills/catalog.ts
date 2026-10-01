@@ -39,7 +39,7 @@ export type CatalogSources = {
 	repoRoot: string
 	/** Package manifest whose `files` allowlist decides whether the catalog ships. */
 	packageJsonPath: string
-	/** Universal plugin manifest whose `skills` field points a runtime at the catalog. */
+	/** Canonical plugin manifest whose universal-plugin `skills` path points every runtime at the catalog. */
 	pluginManifestPath: string
 	/** The plugin root's SETUP.md — what an agent reads to finish a plugin install. */
 	setupPath: string
@@ -62,12 +62,15 @@ const UNPINNED_INVOCATION = /npx\s+(?:--yes\s+|-y\s+)?cyber-asana(?!@)/
 /** Where the plugin surface actually lives; a manifest pointing elsewhere finds nothing. */
 const SHIPPED_SKILLS_POINTER = './skills/'
 
+/** The canonical manifest carries component paths in universal-plugin's extension namespace; the build derives each vendor's `skills` from it. */
+const UNIVERSAL_PLUGIN_EXTENSION = 'org.cyberuni.universal-plugin'
+
 export function repoCatalogSources(): CatalogSources {
 	return {
 		skillsRoot,
 		repoRoot,
 		packageJsonPath: path.resolve(skillsRoot, '../package.json'),
-		pluginManifestPath: path.resolve(skillsRoot, '../.plugin/plugin.json'),
+		pluginManifestPath: path.resolve(skillsRoot, '../plugin.json'),
 		setupPath: path.resolve(skillsRoot, '../SETUP.md'),
 		docsListings: ['readme.md', 'apps/web/src/content/docs/skills/index.md'],
 	}
@@ -266,12 +269,15 @@ async function checkPackaging(sources: CatalogSources): Promise<CatalogViolation
 		})
 	}
 
-	const pointer = (await readJson(sources.pluginManifestPath)).skills
+	const { extensions } = (await readJson(sources.pluginManifestPath)) as {
+		extensions?: Record<string, { skills?: unknown } | undefined>
+	}
+	const pointer = extensions?.[UNIVERSAL_PLUGIN_EXTENSION]?.skills
 	if (pointer !== SHIPPED_SKILLS_POINTER) {
 		violations.push({
 			rule: 'manifest-skills-pointer',
-			file: '.plugin/plugin.json',
-			message: `.plugin/plugin.json: skills points at ${JSON.stringify(pointer)}, not "${SHIPPED_SKILLS_POINTER}"`,
+			file: 'plugin.json',
+			message: `plugin.json: skills points at ${JSON.stringify(pointer)}, not "${SHIPPED_SKILLS_POINTER}"`,
 		})
 	}
 

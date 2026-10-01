@@ -8,12 +8,13 @@
 		"check": "biome check",
 		"check:fix": "biome check --write",
 		"knip": "knip",
+		"plugin:build": "universal-plugin plugin build --root packages/cyber-asana && biome format --write packages/cyber-asana/.claude-plugin packages/cyber-asana/.cursor-plugin packages/cyber-asana/.codex-plugin .claude-plugin/marketplace.json",
 		"prepare": "husky",
 		"release": "changeset publish",
 		"test": "turbo run test",
 		"typecheck": "turbo run typecheck",
 		"verify": "pnpm check && turbo run build typecheck test && pnpm knip",
-		"version": "changeset version && node scripts/sync-plugin-version.mjs",
+		"version": "changeset version && universal-plugin publish sync-version --root packages/cyber-asana && pnpm plugin:build",
 		"web": "turbo run --filter=@cyberuni/web"
 	},
 	"devDependencies": {
@@ -24,7 +25,8 @@
 		"@repobuddy/biome": "^2.5.0",
 		"husky": "^9.1.7",
 		"knip": "^6.38.0",
-		"turbo": "^2.11.5"
+		"turbo": "^2.11.5",
+		"universal-plugin": "^0.11.1"
 	},
 	"packageManager": "pnpm@11.28.2+sha512.755ce2fe3c05bfd7bb412b42aff3c5c55cd38c529c6eca810475497ae36746c571e4b6e1814e6e7e4b97d7ee864b8a0e44673c3b297a50e0ac28771c5ce15d27",
 	"engines": {

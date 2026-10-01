@@ -210,4 +210,4 @@ Feature: skills
     Given a plugin manifest whose skills field is "./agent-skills/"
     When the catalog contract is checked
     Then a violation is reported for the rule "manifest-skills-pointer"
-    And that violation names the file ".plugin/plugin.json"
+    And that violation names the file "plugin.json"

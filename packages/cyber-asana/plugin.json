@@ -3,9 +3,35 @@
 	"name": "cyber-asana",
 	"version": "0.15.0",
 	"description": "Asana CLI and agent skills, with an opt-in MCP server",
-	"author": { "name": "unional" },
+	"author": {
+		"name": "unional"
+	},
 	"homepage": "https://github.com/cyberuni/cyber-asana",
 	"repository": "https://github.com/cyberuni/cyber-asana.git",
 	"license": "MIT",
-	"keywords": ["asana", "mcp", "cli", "agent", "productivity"]
+	"keywords": ["asana", "mcp", "cli", "agent", "productivity"],
+	"extensions": {
+		"org.cyberuni.universal-plugin": {
+			"vendors": ["claude-code", "cursor", "codex", "copilot-cli"],
+			"skills": "./skills/",
+			"commands": "./commands/",
+			"harnesses": {
+				"claude-code": {
+					"$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+					"displayName": "Cyber Asana",
+					"repository": "https://github.com/cyberuni/cyber-asana"
+				},
+				"cursor": {
+					"category": "productivity",
+					"tags": ["asana", "mcp", "project-management"]
+				},
+				"codex": {
+					"interface": {
+						"displayName": "Cyber Asana",
+						"category": "productivity"
+					}
+				}
+			}
+		}
+	}
 }
