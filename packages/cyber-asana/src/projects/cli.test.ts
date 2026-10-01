@@ -388,6 +388,30 @@ describe('projects/cli', () => {
 		expect(listProjects.mock.calls[0]?.[1]).not.toHaveProperty('archived')
 	})
 
+	it('project list forwards --custom-type', async () => {
+		const listProjects = vi.fn().mockResolvedValue([])
+		const projectCommand = await loadProjectCommand()
+
+		await new Command()
+			.addCommand(
+				projectCommand({
+					listProjects,
+					getProject: vi.fn(),
+					getProjectTaskCounts: vi.fn(),
+					createProject: vi.fn(),
+					updateProject: vi.fn(),
+					deleteProject: vi.fn(),
+					searchProjects: vi.fn(),
+					exportProject: vi.fn(),
+				}),
+			)
+			.parseAsync(['node', 'test', 'project', 'list', '--workspace-gid', 'ws1', '--custom-type', 'ct1'], {
+				from: 'node',
+			})
+
+		expect(listProjects).toHaveBeenCalledWith('ws1', expect.objectContaining({ customType: 'ct1' }))
+	})
+
 	it('project update archives and unarchives a project', async () => {
 		updateProjectMock.mockResolvedValue({ gid: '1', name: 'Launch' })
 		const projectCommand = await loadProjectCommand()

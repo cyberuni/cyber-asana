@@ -171,6 +171,25 @@ describe('projects/mcp', () => {
 		expect(listProjects.mock.calls[0]?.[1]).not.toHaveProperty('workspace_gid')
 	})
 
+	it('asana_project_list forwards custom_type', async () => {
+		const listProjects = vi.fn().mockResolvedValue([])
+		const server = createServer()
+		registerProjectTools(server as any, {
+			listProjects,
+			getProject: vi.fn(),
+			getProjectTaskCounts: vi.fn(),
+			createProject: vi.fn(),
+			updateProject: vi.fn(),
+			deleteProject: vi.fn(),
+			searchProjects: vi.fn(),
+			exportProject: vi.fn(),
+		})
+
+		await server.handlers.get('asana_project_list')?.({ workspace_gid: 'ws1', custom_type: 'ct1' })
+
+		expect(listProjects).toHaveBeenCalledWith('ws1', expect.objectContaining({ customType: 'ct1' }))
+	})
+
 	it('asana_project_list leaves the archived filter unset when it is not given', async () => {
 		const listProjects = vi.fn().mockResolvedValue([])
 		const server = createServer()

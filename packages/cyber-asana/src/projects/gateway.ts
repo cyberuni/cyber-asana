@@ -69,8 +69,11 @@ export type SearchProjectsOptions = {
 	optFields?: string
 }
 
+/** `customType` filters by custom type GID; an empty string selects projects with no custom type. */
+export type ProjectListOptions = PaginationOptions & { archived?: boolean; customType?: string }
+
 export type ProjectGateway = {
-	listProjects(workspaceGid: string, opts?: PaginationOptions & { archived?: boolean }): Promise<ListResult<any>>
+	listProjects(workspaceGid: string, opts?: ProjectListOptions): Promise<ListResult<any>>
 	getProject(projectGid: string, opts?: ReadOptions): Promise<any>
 	getProjectTaskCounts(projectGid: string, opts?: { optFields?: string }): Promise<any>
 	createProject(workspaceGid: string, name: string, opts?: CreateProjectFields): Promise<any>
@@ -88,6 +91,16 @@ export function createAsanaProjectGateway(client: Asana.ApiClient): ProjectGatew
 
 	return {
 		async listProjects(workspaceGid, opts) {
+			// Only GET /projects takes custom_type; it returns the same workspace project list when scoped by workspace.
+			if (opts?.customType !== undefined) {
+				const res = await projectsApi.getProjects({
+					workspace: workspaceGid,
+					archived: opts.archived,
+					custom_type: opts.customType,
+					...toAsanaPaginationOptions(opts),
+				})
+				return await collectListResponse(res, opts)
+			}
 			const res = await projectsApi.getProjectsForWorkspace(workspaceGid, {
 				archived: opts?.archived,
 				...toAsanaPaginationOptions(opts),

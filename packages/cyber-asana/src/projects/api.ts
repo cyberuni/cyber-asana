@@ -1,11 +1,12 @@
 import { createClient } from '../client.js'
-import { listItems, type PaginationOptions } from '../pagination.js'
+import { listItems } from '../pagination.js'
 import type { ReadOptions } from '../read-options.js'
 import { observeProjectIfConfigured, projectObservationFromApi } from '../repo-config.js'
 import {
 	type CreateProjectFields,
 	createAsanaProjectGateway,
 	type ProjectGateway,
+	type ProjectListOptions,
 	type SearchProjectsOptions,
 	type UpdateProjectFields,
 } from './gateway.js'
@@ -14,6 +15,7 @@ export type {
 	CreateProjectFields,
 	ProjectAccessLevel,
 	ProjectDefaultView,
+	ProjectListOptions,
 	ProjectPrivacySetting,
 	SearchProjectsOptions,
 	UpdateProjectFields,
@@ -45,7 +47,7 @@ export type ProjectApi = ReturnType<typeof createProjectApi>
 
 export function createProjectApi(gateway: ProjectGateway) {
 	return {
-		listProjects(workspaceGid: string, opts?: PaginationOptions & { archived?: boolean }) {
+		listProjects(workspaceGid: string, opts?: ProjectListOptions) {
 			return gateway.listProjects(workspaceGid, opts)
 		},
 		async getProject(projectGid: string, opts?: ReadOptions) {
@@ -95,7 +97,7 @@ function defaultProjectApi() {
 	return createProjectApi(createAsanaProjectGateway(createClient()))
 }
 
-export async function listProjects(workspaceGid: string, opts?: PaginationOptions & { archived?: boolean }) {
+export async function listProjects(workspaceGid: string, opts?: ProjectListOptions) {
 	return defaultProjectApi().listProjects(workspaceGid, opts)
 }
 

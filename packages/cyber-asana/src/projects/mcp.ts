@@ -1,6 +1,6 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import { paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
+import { customTypeParam, paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
 import {
 	createProject,
 	deleteProject,
@@ -38,9 +38,10 @@ export function registerProjectTools(server: McpServer, api?: ProjectApi | (() =
 		{
 			workspace_gid: z.string().describe('Workspace GID'),
 			archived: z.boolean().optional().describe('Only return projects whose archived flag matches this value'),
+			custom_type: customTypeParam('projects'),
 			...paginationParams,
 		},
-		async ({ workspace_gid, archived, ...params }) => ({
+		async ({ workspace_gid, archived, custom_type, ...params }) => ({
 			content: [
 				{
 					type: 'text',
@@ -48,6 +49,7 @@ export function registerProjectTools(server: McpServer, api?: ProjectApi | (() =
 						await resolveProjectApi(api).listProjects(workspace_gid, {
 							...paginationOptions(params),
 							...(archived !== undefined && { archived }),
+							...(custom_type !== undefined && { customType: custom_type }),
 						}),
 					),
 				},
