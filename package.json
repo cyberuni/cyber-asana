@@ -9,11 +9,12 @@
 		"check:fix": "biome check --write",
 		"knip": "knip",
 		"plugin:build": "universal-plugin plugin build --root packages/cyber-asana && biome format --write packages/cyber-asana/.claude-plugin packages/cyber-asana/.cursor-plugin packages/cyber-asana/.codex-plugin .claude-plugin/marketplace.json",
+		"plugin:check": "node scripts/check-plugin-build.mjs",
 		"prepare": "husky",
 		"release": "changeset publish",
 		"test": "turbo run test",
 		"typecheck": "turbo run typecheck",
-		"verify": "pnpm check && turbo run build typecheck test && pnpm knip",
+		"verify": "pnpm check && pnpm plugin:check && turbo run build typecheck test && pnpm knip",
 		"version": "changeset version && universal-plugin publish sync-version --root packages/cyber-asana && pnpm plugin:build",
 		"web": "turbo run --filter=@cyberuni/web"
 	},
