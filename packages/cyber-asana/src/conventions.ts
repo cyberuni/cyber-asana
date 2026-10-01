@@ -9,7 +9,7 @@ import { parseReferenceName, type ReferenceLayer, referenceLayers, resolveRefere
  * them: resolved through the buddy-agent-harness layers (managed, repo, user, installed plugins,
  * then the copy this package ships) and merged key by key.
  */
-const CONVENTIONS_REFERENCE = 'cyber-asana.work-hierarchy'
+export const CONVENTIONS_REFERENCE = 'cyber-asana.work-hierarchy'
 
 const PLUGIN_NAME = 'cyber-asana'
 
@@ -23,7 +23,7 @@ export type RepoConventions = {
 	default_tags?: string[]
 }
 
-const CONVENTIONS_KEYS = ['task_name_format', 'description_template', 'default_tags'] as const
+export const CONVENTIONS_KEYS = ['task_name_format', 'description_template', 'default_tags'] as const
 
 /**
  * Pick the convention keys out of a reference's frontmatter. Other keys (`description`, `tags`,
