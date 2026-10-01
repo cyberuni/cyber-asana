@@ -36,6 +36,13 @@ describe('envValue', () => {
 		expect(envValue('ASANA_TOKEN')).toBeUndefined()
 	})
 
+	// Cursor spells its environment reference `${env:NAME}`.
+	it('treats an unexpanded env-prefixed placeholder as absent', () => {
+		// biome-ignore lint/suspicious/noTemplateCurlyInString: the literal placeholder text is the input under test
+		process.env.ASANA_ACCESS_TOKEN = '${env:ASANA_ACCESS_TOKEN}'
+		expect(envValue('ASANA_TOKEN')).toBeUndefined()
+	})
+
 	it('falls through to the deprecated alias when the preferred one is a placeholder', () => {
 		// biome-ignore lint/suspicious/noTemplateCurlyInString: the literal placeholder text is the input under test
 		process.env.ASANA_ACCESS_TOKEN = '${ASANA_ACCESS_TOKEN}'
