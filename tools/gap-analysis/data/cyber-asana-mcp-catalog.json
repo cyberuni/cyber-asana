@@ -1,8 +1,10 @@
 {
 	"source": "src/**/mcp.ts",
-	"fetched_at": "2026-08-08",
-	"tool_count": 109,
+	"fetched_at": "2026-10-01",
+	"tool_count": 111,
 	"tools": [
+		"asana_ai_studio_run_list",
+		"asana_ai_studio_seat_list",
 		"asana_attachment_create",
 		"asana_attachment_delete",
 		"asana_attachment_get",
