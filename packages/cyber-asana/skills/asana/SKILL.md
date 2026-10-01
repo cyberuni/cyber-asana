@@ -22,7 +22,7 @@ PR), run them in order.
 | add, remove, or sync projects or users in the registry | `config-asana` skill |
 | a standup update — done, today, blockers | `asana-standup` skill |
 | a sprint summary for a retro or stakeholders | `asana-sprint-report` skill |
-| post a PR URL on a task that already exists | `link-pr-to-task` skill |
+| link a pull or merge request to its task ("link this PR to Asana", "comment the MR on the task") | **Link a PR** below |
 | clean up a task or project description, or fix "XML is invalid" | `improve-description` skill |
 | turn TODO/FIXME comments in the code into tasks ("create tasks from TODOs", a tech-debt sweep) | **Import TODOs** below |
 | pull a project's tasks into local markdown | `sync-asana-project` skill |
@@ -46,6 +46,12 @@ steps: the files carry the lookup, conventions, URL, and section rules.
 Read [`references/import-todos.md`](references/import-todos.md) and follow it, with the user's
 request as its input. It is the one home of the TODO-import procedure; the
 `/cyber-asana:import-todos` command routes here too.
+
+## Link a PR
+
+Read [`references/link-pr.md`](references/link-pr.md) and follow it, with the user's request as its
+input. It is the one home of the PR-linking procedure, for every major git host; the
+`/cyber-asana:link-pr` command routes here too.
 
 ## Track session work
 

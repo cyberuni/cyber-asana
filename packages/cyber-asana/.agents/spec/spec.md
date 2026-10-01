@@ -73,7 +73,6 @@ they all satisfy.
 - [asana-standup](skills/asana-standup/README.md)
 - [asana-sprint-report](skills/asana-sprint-report/README.md)
 - [sync-asana-project](skills/sync-asana-project/README.md)
-- [link-pr-to-task](skills/link-pr-to-task/README.md)
 
 <!-- BEGIN generated: by-concept (project-spec/concept-index) -->
 
@@ -88,9 +87,9 @@ they all satisfy.
 | `axi` | `axi/` (reference) |
 | `batch-lookup` | `tasks/` (behavior) |
 | `catalog` | `skills/` (behavior) |
-| `comments` | `skills/link-pr-to-task/` (reference) · `stories/` (behavior) |
+| `comments` | `skills/asana/` (reference) · `stories/` (behavior) |
 | `config` | `config/` (behavior) |
-| `cyber-asana` | `attachments/` (behavior) · `axi/` (reference) · `config/` (behavior) · `goals/` (behavior) · `portfolios/` (behavior) · `projects/` (behavior) · `sections/` (behavior) · `skills/` (behavior) · `skills/asana-sprint-report/` (reference) · `skills/asana-standup/` (reference) · `skills/asana/` (reference) · `skills/improve-description/` (reference) · `skills/init-asana/` (reference) · `skills/link-pr-to-task/` (reference) · `skills/config-asana/` (reference) · `skills/sync-asana-project/` (reference) · `status/` (behavior) · `stories/` (behavior) · `tags/` (behavior) · `tasks/` (behavior) · `teams/` (behavior) · `url/` (behavior) · `users/` (behavior) · `workspaces/` (behavior) |
+| `cyber-asana` | `attachments/` (behavior) · `axi/` (reference) · `config/` (behavior) · `goals/` (behavior) · `portfolios/` (behavior) · `projects/` (behavior) · `sections/` (behavior) · `skills/` (behavior) · `skills/asana-sprint-report/` (reference) · `skills/asana-standup/` (reference) · `skills/asana/` (reference) · `skills/improve-description/` (reference) · `skills/init-asana/` (reference) · `skills/config-asana/` (reference) · `skills/sync-asana-project/` (reference) · `status/` (behavior) · `stories/` (behavior) · `tags/` (behavior) · `tasks/` (behavior) · `teams/` (behavior) · `url/` (behavior) · `users/` (behavior) · `workspaces/` (behavior) |
 | `dependencies` | `tasks/` (behavior) |
 | `directory` | `users/` (behavior) |
 | `discovery` | `workspaces/` (behavior) |
@@ -122,13 +121,13 @@ they all satisfy.
 | `search` | `tasks/` (behavior) |
 | `sections` | `sections/` (behavior) |
 | `setup` | `skills/init-asana/` (reference) · `skills/config-asana/` (reference) |
-| `skills` | `skills/` (behavior) · `skills/asana-sprint-report/` (reference) · `skills/asana-standup/` (reference) · `skills/asana/` (reference) · `skills/improve-description/` (reference) · `skills/init-asana/` (reference) · `skills/link-pr-to-task/` (reference) · `skills/config-asana/` (reference) · `skills/sync-asana-project/` (reference) |
+| `skills` | `skills/` (behavior) · `skills/asana-sprint-report/` (reference) · `skills/asana-standup/` (reference) · `skills/asana/` (reference) · `skills/improve-description/` (reference) · `skills/init-asana/` (reference) · `skills/config-asana/` (reference) · `skills/sync-asana-project/` (reference) |
 | `status` | `status/` (behavior) |
 | `status-updates` | `status/` (behavior) |
 | `stories` | `stories/` (behavior) |
 | `subtasks` | `tasks/` (behavior) |
 | `tags` | `tags/` (behavior) |
-| `task-association` | `skills/link-pr-to-task/` (reference) · `tags/` (behavior) |
+| `task-association` | `skills/asana/` (reference) · `tags/` (behavior) |
 | `tasks` | `skills/asana/` (reference) · `skills/improve-description/` (reference) · `tasks/` (behavior) |
 | `teams` | `teams/` (behavior) |
 | `templates` | `stories/` (behavior) |
