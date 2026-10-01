@@ -27,8 +27,10 @@ PR), run them in order.
 | turn TODO/FIXME comments into tasks | `create-tasks-from-code` skill |
 | pull a project's tasks into local markdown | `sync-asana-project` skill |
 
-Anything else — a single read or update of one Asana object — needs no procedure: call the
-matching `asana_*` MCP tool or `cyber-asana` CLI command directly.
+Anything else — a single read or update of one Asana object — needs no procedure: run the
+matching `cyber-asana <resource> <action>` command directly (see **Ensure cyber-asana CLI** in the
+`init-asana` skill for how to invoke it). The cyber-asana MCP server is opt-in; when it is enabled,
+its `asana_<resource>_<action>` tools are equivalent.
 
 ## Create a task
 
@@ -50,18 +52,19 @@ Record the work this session is doing as an Asana task. Reuse a task before crea
    - The current branch: `git branch --show-current`.
    - The pull request, if one exists: `gh pr view --json url -q .url`.
 3. **Look for a task to reuse.** Search the user's incomplete tasks for one that describes the
-   same outcome: `asana_task_my_tasks` with `incomplete: true` (CLI: `cyber-asana task my-tasks list --incomplete`),
-   or `asana_task_search` with `text` and `completed: false` when the list is long. When one
+   same outcome: `cyber-asana task my-tasks list --incomplete`, or
+   `cyber-asana task search "<text>" --no-completed` when the list is long (MCP, if enabled:
+   `asana_task_my_tasks`, `asana_task_search`). When one
    matches, confirm it with the user before writing to it.
 4. **Update a reused task** with a comment linking the branch and any pull request
-   (`asana_comment_create`; CLI: `cyber-asana comment create "<text>" --task <gid>`). Never
+   (`cyber-asana comment create "<text>" --task-gid <gid>`; MCP, if enabled: `asana_comment_create`). Never
    overwrite its description.
 5. **Otherwise create one** through [`references/create-task.md`](references/create-task.md),
    shaped as the reference says:
    - **Name:** the session's outcome.
    - **Description:** `## Context` from the user's request; `## Done when` from what was agreed;
      `## Links` with the branch and any pull request.
-   - **Assignee:** the user — `assignee_gid: "me"` (CLI: `--assignee-gid me`).
+   - **Assignee:** the user — `--assignee me`.
    - **Project:** the repo's default project, unless the work names another.
 6. **Confirm.** Return the task's `permalink_url`, and say whether it was reused or created.
 

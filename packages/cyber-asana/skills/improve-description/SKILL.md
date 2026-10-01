@@ -22,7 +22,7 @@ Plain prose with no formatting needs no HTML — use `--notes` / `notes` instead
 cyber-asana task get <gid> --json
 ```
 
-Always edit from `html_notes`. `task get` and `asana_task_get` return it unconditionally — an empty description comes back as `<body></body>`, never absent — so there is no case where you need the plain-text `notes` projection, which drops every link and list.
+Always edit from `html_notes`. `task get` returns it unconditionally — an empty description comes back as `<body></body>`, never absent — so there is no case where you need the plain-text `notes` projection, which drops every link and list.
 
 ### 2. Clean it up — light by default
 
@@ -73,7 +73,7 @@ Wrap the whole document in a bare `<body>` — required, and it must carry no at
 cyber-asana task update <gid> --html-notes '<body><h1>Summary</h1>Ship the thing.</body>'
 ```
 
-MCP: pass `html_notes` to `asana_task_create` / `asana_task_update` (or `asana_project_update`). `--notes` and `--html-notes` are mutually exclusive; the same holds for `notes` and `html_notes`.
+`project update` takes `--html-notes` too. `--notes` and `--html-notes` are mutually exclusive. With the cyber-asana MCP server enabled, the equivalents are `asana_task_update` / `asana_project_update` with `html_notes`.
 
 Read the task back afterward — Asana normalizes on save (`<b>`→`<strong>`, `<span>` stripped to text, list attributes dropped), so what you sent is not always what is stored.
 
@@ -116,7 +116,7 @@ First paragraph.
 Second paragraph.</body>
 ```
 
-Passing `html_notes` via MCP avoids shell quoting entirely and is the safer path for multi-line content. From a POSIX shell, use a quoted heredoc so the newlines survive:
+For multi-line content from a POSIX shell, use a quoted heredoc so the newlines survive (the MCP `html_notes` parameter, if enabled, avoids shell quoting entirely):
 
 ```sh
 cyber-asana task update <gid> --html-notes "$(cat <<'HTML'

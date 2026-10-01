@@ -135,7 +135,7 @@ cyber-asana config sync --global --repo <key>   # scope the *project* refresh to
 
 Run this after a batch of renames in Asana. `add`, `add-user`, `sync`, `discover-fields`, and
 `set-field` are the only commands
-that call Asana — everything else reads the file. `project get` / `asana_project_get` also
+that call Asana — everything else reads the file. `project get` also
 opportunistically refresh a registered project's cached name.
 
 ### F. Show / verify what's registered
@@ -183,7 +183,7 @@ It refuses a key the repo reference already sets; settle that one by hand.
 
 ## Assigning by name
 
-`task create`, `task update`, and `task subtask create` (`--assignee <value>`; MCP: `assignee`)
+`task create`, `task update`, and `task subtask create` (`--assignee <value>`)
 resolve a GID, `me`, or a query the same way `resolve-user` does — trying the repo config first,
 falling back to the personal registry only on a clean miss, so an alias that's unambiguous in each
 registry never becomes a false collision. A name matching nobody in either is an error naming both
