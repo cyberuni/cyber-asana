@@ -10,7 +10,7 @@ concept: [cyber-asana, skills, catalog, agent-configuration, packaging]
 A **skill** is a folder of instructions an AI agent loads when a task matches it. `cyber-asana`
 ships nine of them under `packages/cyber-asana/skills/`, and they are product: they sit on the
 package's publish allowlist, every plugin manifest points at them, and for most users the skills are
-the first thing the package does — the CLI and the MCP server are what the skills reach for.
+the first thing the package does — the CLI is what the skills reach for, with the opt-in MCP server as an optional equivalent.
 
 The problem this node solves is that a skill is **read by a machine before a human ever sees it**.
 An agent runtime scans every installed skill's front block, decides from one sentence whether this
@@ -39,8 +39,8 @@ answer to "what does a skill file look like".
   agent loads only when it needs it.
 - **Catalog** — all nine skills taken together, plus the two published tables that list them.
 - **Publish allowlist** — `package.json`'s `files`. A path not on it never reaches the tarball.
-- **`SETUP.md`** — the plugin root's setup instructions: what an agent reads once a plugin install
-  has already wired the MCP server, covering only the credentials the install cannot supply. It is
+- **`SETUP.md`** — the plugin root's setup instructions: what an agent reads once the plugin
+  is installed, covering only the credentials the install cannot supply. It is
   not a skill and does not live under `skills/`, but it is an instruction file an agent follows, so
   the contract holds it to the same bar — it must exist, ship, pin the commands it prescribes, and
   resolve every skill it hands off to.

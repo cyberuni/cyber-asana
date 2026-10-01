@@ -11,7 +11,8 @@ Good triggers include:
 - "Set up Asana for this repo"
 - "Configure ASANA_ACCESS_TOKEN"
 - "Find my Asana workspace GID"
-- First-time install of cyber-asana CLI or MCP
+- First-time install of the cyber-asana CLI or plugin
+- Enabling the cyber-asana MCP server
 
 ## What it does
 
@@ -21,7 +22,7 @@ The skill guides:
 - Setting `ASANA_ACCESS_TOKEN` and verifying the connection
 - Listing workspaces and setting `ASANA_WORKSPACE_GID`
 - Optional pinned projects and users in `.agents/cyber-asana.json` (via [`config-asana`](../config-asana/README.md))
-- Optional dual MCP setup with the official Asana server (see [reference.md](./reference.md))
+- Optional opt-in to the MCP server, written into the client's own config (default: no), and dual MCP setup with the official Asana server (see [reference.md](./reference.md))
 
 ## Install
 

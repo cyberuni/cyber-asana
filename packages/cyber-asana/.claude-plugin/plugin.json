@@ -3,7 +3,7 @@
 	"name": "cyber-asana",
 	"displayName": "Cyber Asana",
 	"version": "0.15.0",
-	"description": "Asana CLI and MCP server for AI agents",
+	"description": "Asana CLI and agent skills, with an opt-in MCP server",
 	"author": { "name": "unional" },
 	"homepage": "https://github.com/cyberuni/cyber-asana",
 	"repository": "https://github.com/cyberuni/cyber-asana",

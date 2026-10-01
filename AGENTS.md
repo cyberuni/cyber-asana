@@ -31,8 +31,8 @@ Before writing any production code, invoke the `test-driven-development` skill. 
 
 `cyber-asana` — an npm package that wraps the Asana API as:
 - A CLI (`cyber-asana <resource> <action>`) powered by Commander
-- A local MCP server powered by `@modelcontextprotocol/sdk` — see [CONTRIBUTING.md](CONTRIBUTING.md) for in-repo setup
-- An agent plugin — the package root *is* the plugin root, so the tarball ships `plugin.json`, `mcp.json`, `skills/`, and the per-vendor manifests
+- A local MCP server powered by `@modelcontextprotocol/sdk` (`cyber-asana mcp`) — opt-in, never started by the plugin; see [CONTRIBUTING.md](CONTRIBUTING.md) for in-repo setup
+- An agent plugin — the package root *is* the plugin root, so the tarball ships `plugin.json`, `skills/`, and the per-vendor manifests
 
 ### Plugin layout
 
@@ -40,8 +40,8 @@ Everything the plugin needs lives in `packages/cyber-asana/` and must stay liste
 
 | Path | Read by |
 | --- | --- |
-| `plugin.json` / `mcp.json` | [Agent Plugins 1.0.0](https://github.com/agentplugins/agent-plugins-spec) clients. Manifest schema is **closed** — components come from fixed locations, never inline fields |
-| `.claude-plugin/plugin.json` / `.mcp.json` | Claude Code |
+| `plugin.json` | [Agent Plugins 1.0.0](https://github.com/agentplugins/agent-plugins-spec) clients. Manifest schema is **closed** — components come from fixed locations, never inline fields |
+| `.claude-plugin/plugin.json` | Claude Code |
 | `.cursor-plugin/plugin.json` | Cursor |
 | `.codex-plugin/plugin.json` | Codex |
 | `.plugin/plugin.json` | Canonical universal-plugin source; not published |
@@ -49,9 +49,9 @@ Everything the plugin needs lives in `packages/cyber-asana/` and must stay liste
 
 `.claude-plugin/marketplace.json` at the **repo root** lists the plugin with an `npm` source. Version bumps flow from `packages/cyber-asana/package.json` through `scripts/sync-plugin-version.mjs` on `pnpm version` — add any new manifest to that script's list.
 
-Only `${PLUGIN_ROOT}` and `${PLUGIN_DATA}` expand in `mcp.json`; never put a `"${SOME_VAR}"` value in its `env`, as it arrives literally and shadows the real variable.
+The plugin declares **no MCP server** — no `mcp.json`, no `.mcp.json`, no `mcpServers` in any manifest; `src/plugin-manifests.test.ts` guards this. The skills drive the CLI. The MCP server is opt-in: the `init-asana` skill writes it into the client's own MCP config when the user asks (see [Why CLI + skills](apps/web/src/content/docs/reference/cli-vs-mcp.md)).
 
-Claude Code's `.mcp.json` does expand `${VAR}`, but forwards the literal text when the variable is unset. `envValue` in `src/env.ts` is the guard: a value that is exactly an unexpanded reference counts as absent, so the fallback alias still applies and a missing credential reports itself as missing. Keep that guard rather than working around it per manifest — it is the only thing covering configs this repo does not author.
+When writing an MCP config entry (in `init-asana` or the docs), never put a `"${SOME_VAR}"` value in its `env` for a client that does not expand it — it arrives literally and shadows the real variable. Prefer letting the server inherit the client's environment. Claude Code's `.mcp.json` does expand `${VAR}`, but forwards the literal text when the variable is unset. `envValue` in `src/env.ts` is the guard: a value that is exactly an unexpanded reference counts as absent, so the fallback alias still applies and a missing credential reports itself as missing. Keep that guard rather than working around it per config — it is the only thing covering configs this repo does not author.
 
 ## Commands
 

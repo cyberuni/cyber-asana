@@ -17,8 +17,6 @@
 		"references",
 		"SETUP.md",
 		"plugin.json",
-		"mcp.json",
-		".mcp.json",
 		".claude-plugin",
 		".cursor-plugin",
 		".codex-plugin"

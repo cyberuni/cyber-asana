@@ -29,8 +29,9 @@ Unused-export detection is **knip**. Git hooks are **husky**.
 ## What ships
 
 `package.json`'s `files` carries the built output (`dist`, with test and system-test artifacts
-excluded) **and the plugin surface**: `skills`, the per-vendor manifests (`plugin.json`, `mcp.json`,
-`.mcp.json`, `.claude-plugin`, `.cursor-plugin`, `.codex-plugin`). The package root *is* the plugin
+excluded) **and the plugin surface**: `skills`, the per-vendor manifests (`plugin.json`, `.claude-plugin`,
+`.cursor-plugin`, `.codex-plugin`). No MCP server config ships: the plugin surface is the CLI and
+skills, and the MCP server is opt-in through `init-asana`. The package root *is* the plugin
 root, so those paths are product, not repository furniture — the allowlist entry for `skills` is a
 frozen edge of [skills](../skills/README.md), not a build convention. This is also why the spec
 corpus under `.agents/` is never published: it is not on the allowlist. Two entry points are

@@ -6,7 +6,7 @@
 		{
 			"name": "cyber-asana",
 			"displayName": "Cyber Asana",
-			"description": "Asana CLI and MCP server for AI agents",
+			"description": "Asana CLI and agent skills, with an opt-in MCP server",
 			"source": {
 				"source": "npm",
 				"package": "cyber-asana"
