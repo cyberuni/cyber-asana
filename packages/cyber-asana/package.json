@@ -47,12 +47,12 @@
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
-		"@modelcontextprotocol/sdk": "^1.30.0",
-		"asana": "^3.1.12",
+		"@modelcontextprotocol/sdk": "^1.31.0",
+		"asana": "^3.2.0",
 		"buddy-agent-harness": "^0.14.0",
 		"commander": "^15.0.0",
-		"yaml": "^2.9.0",
-		"zod": "^4.4.3"
+		"yaml": "^2.9.1",
+		"zod": "^4.6.5"
 	},
 	"devDependencies": {
 		"@types/node": "^25.9.1",
