@@ -143,7 +143,8 @@ from-the-start walk are contradictory instructions. MCP spells them via `paginat
 Principles **#7** and **#10** are adopted too; neither carries a `// principle N` comment because
 neither has a shared module to hang one on. **#10 — "consistent way to get help"** is Commander's
 per-subcommand `--help`, advertised to agents by name in the root help text. **#7 — "ambient
-context"** lives in `plugin.json` rather than in source: the manifest declares the opt-in MCP server
-under `mcpServers` and points `skills` at the on-demand skills, with `init-asana` as the first-run
-entry — the install-then-offer ordering the principle asks for. The scope of adoption is therefore
+context"** lives in `plugin.json` rather than in source: the manifest points `skills` at the
+on-demand skills, with `init-asana` as the first-run entry, and declares no MCP server. `init-asana`
+offers the MCP server as an explicit opt-in after setup — the install-then-offer ordering the
+principle asks for. The scope of adoption is therefore
 **#1–#10**, with the partial-adoption finding on #2 unchanged.
