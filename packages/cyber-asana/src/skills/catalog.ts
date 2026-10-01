@@ -39,7 +39,7 @@ export type CatalogSources = {
 	repoRoot: string
 	/** Package manifest whose `files` allowlist decides whether the catalog ships. */
 	packageJsonPath: string
-	/** Universal plugin manifest whose `skills` field points a runtime at the catalog. */
+	/** Canonical plugin manifest whose `extensions["org.cyberuni.universal-plugin"].skills` field points a runtime at the catalog. */
 	pluginManifestPath: string
 	/** The plugin root's SETUP.md — what an agent reads to finish a plugin install. */
 	setupPath: string
@@ -67,7 +67,7 @@ export function repoCatalogSources(): CatalogSources {
 		skillsRoot,
 		repoRoot,
 		packageJsonPath: path.resolve(skillsRoot, '../package.json'),
-		pluginManifestPath: path.resolve(skillsRoot, '../.plugin/plugin.json'),
+		pluginManifestPath: path.resolve(skillsRoot, '../plugin.json'),
 		setupPath: path.resolve(skillsRoot, '../SETUP.md'),
 		docsListings: ['readme.md', 'apps/web/src/content/docs/skills/index.md'],
 	}
@@ -266,12 +266,15 @@ async function checkPackaging(sources: CatalogSources): Promise<CatalogViolation
 		})
 	}
 
-	const pointer = (await readJson(sources.pluginManifestPath)).skills
+	const manifest = (await readJson(sources.pluginManifestPath)) as {
+		extensions?: { 'org.cyberuni.universal-plugin'?: { skills?: unknown } }
+	}
+	const pointer = manifest.extensions?.['org.cyberuni.universal-plugin']?.skills
 	if (pointer !== SHIPPED_SKILLS_POINTER) {
 		violations.push({
 			rule: 'manifest-skills-pointer',
-			file: '.plugin/plugin.json',
-			message: `.plugin/plugin.json: skills points at ${JSON.stringify(pointer)}, not "${SHIPPED_SKILLS_POINTER}"`,
+			file: 'plugin.json',
+			message: `plugin.json: skills points at ${JSON.stringify(pointer)}, not "${SHIPPED_SKILLS_POINTER}"`,
 		})
 	}
 

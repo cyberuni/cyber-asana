@@ -11,7 +11,6 @@ const packageRoot = path.resolve(import.meta.dirname, '..')
 
 const MANIFESTS = [
 	'plugin.json',
-	'.plugin/plugin.json',
 	'.claude-plugin/plugin.json',
 	'.cursor-plugin/plugin.json',
 	'.codex-plugin/plugin.json',

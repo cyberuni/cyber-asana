@@ -40,11 +40,10 @@ Everything the plugin needs lives in `packages/cyber-asana/` and must stay liste
 
 | Path | Read by |
 | --- | --- |
-| `plugin.json` | [Agent Plugins 1.0.0](https://github.com/agentplugins/agent-plugins-spec) clients. Manifest schema is **closed** — components come from fixed locations, never inline fields |
+| `plugin.json` | The canonical manifest — [Agent Plugins 1.0.0](https://github.com/agentplugins/agent-plugins-spec) clients, and Copilot CLI directly. Top level is the closed Agent Plugins schema (components never go there); `extensions["org.cyberuni.universal-plugin"]` records the per-vendor build config (`vendors`, `harnesses`, component paths) that `.claude-plugin`/`.cursor-plugin`/`.codex-plugin` mirror by hand — nothing in this repo runs `universal-plugin plugin build` yet, so keep the three vendor manifests in sync with this block manually |
 | `.claude-plugin/plugin.json` | Claude Code |
 | `.cursor-plugin/plugin.json` | Cursor |
 | `.codex-plugin/plugin.json` | Codex |
-| `.plugin/plugin.json` | Canonical universal-plugin source; not published |
 | `skills/<name>/SKILL.md` | All of them (fixed location) |
 
 `.claude-plugin/marketplace.json` at the **repo root** lists the plugin with an `npm` source. Version bumps flow from `packages/cyber-asana/package.json` through `scripts/sync-plugin-version.mjs` on `pnpm version` — add any new manifest to that script's list.

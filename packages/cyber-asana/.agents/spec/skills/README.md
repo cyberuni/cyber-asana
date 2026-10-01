@@ -82,7 +82,7 @@ are already fixed and a failing check would only report a defect they cannot fix
 | an agent runtime loading the plugin | a user's request may match an installed skill | each skill's `SKILL.md` front block | the skill is found by name and considered against its description |
 | an agent following a loaded skill | the skill's body names `references/<file>` or a `cyber-asana` invocation | the skill directory's markdown | the referenced file resolves, and the invocation names an explicit version |
 | a reader browsing the catalog | someone wants to know which skills exist | `readme.md` and the docs site's skills index | every shipped skill appears in both tables |
-| `npm pack` / plugin install | the package is published or installed | `package.json` `files` and `.plugin/plugin.json` | the skills directory reaches the consumer, and the manifest points at it |
+| `npm pack` / plugin install | the package is published or installed | `package.json` `files` and `plugin.json` | the skills directory reaches the consumer, and the manifest points at it |
 
 ## Control Flow
 

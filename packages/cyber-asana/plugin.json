@@ -7,5 +7,27 @@
 	"homepage": "https://github.com/cyberuni/cyber-asana",
 	"repository": "https://github.com/cyberuni/cyber-asana.git",
 	"license": "MIT",
-	"keywords": ["asana", "mcp", "cli", "agent", "productivity"]
+	"keywords": ["asana", "mcp", "cli", "agent", "productivity", "project-management"],
+	"extensions": {
+		"org.cyberuni.universal-plugin": {
+			"skills": "./skills/",
+			"commands": "./commands/",
+			"vendors": ["claude-code", "cursor", "codex", "copilot-cli"],
+			"harnesses": {
+				"claude-code": {
+					"dependencies": ["buddy-agent-harness"]
+				},
+				"cursor": {
+					"category": "productivity",
+					"tags": ["asana", "mcp", "project-management"]
+				},
+				"codex": {
+					"interface": {
+						"displayName": "Cyber Asana",
+						"category": "productivity"
+					}
+				}
+			}
+		}
+	}
 }

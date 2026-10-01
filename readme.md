@@ -227,7 +227,7 @@ cyber-asana/                    # the package as installed
 
 The `envValue` guard in `src/env.ts` still treats a value that is exactly an unexpanded reference, like `${ASANA_ACCESS_TOKEN}`, as unset rather than as a credential. It covers MCP configs this repo does not author, where a host that cannot expand a reference forwards its text verbatim — Claude Code [does so when the variable is unset and has no default](https://code.claude.com/docs/en/mcp#environment-variable-expansion-in-mcp-json). Without it the placeholder would outrank the `ASANA_TOKEN` fallback and turn a missing token into a `401`.
 
-Sources live under `packages/cyber-asana/`; the canonical universal manifest is `packages/cyber-asana/.plugin/plugin.json`, and `pnpm version` syncs every manifest's version from the package.
+Sources live under `packages/cyber-asana/`; the canonical universal-plugin manifest is `packages/cyber-asana/plugin.json`, and `pnpm version` syncs every manifest's version from the package.
 
 ## MCP Server
 

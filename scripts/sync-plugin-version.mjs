@@ -11,7 +11,6 @@ const SOURCE = 'packages/cyber-asana/package.json'
 // The plugin root is the npm package itself, so every manifest lives beside the
 // package.json that carries the version.
 const MANIFESTS = [
-	'.plugin/plugin.json',
 	'.claude-plugin/plugin.json',
 	'.cursor-plugin/plugin.json',
 	'.codex-plugin/plugin.json',
