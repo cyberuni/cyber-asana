@@ -19,7 +19,8 @@
 		"plugin.json",
 		".claude-plugin",
 		".cursor-plugin",
-		".codex-plugin"
+		".codex-plugin",
+		"com.github.copilot"
 	],
 	"type": "module",
 	"exports": {
