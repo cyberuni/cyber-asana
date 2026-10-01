@@ -15,6 +15,8 @@ export type CreateTaskFields = {
 	completed?: boolean
 	assignee?: string
 	projects?: string[]
+	/** Project-and-section placements; create-only, and how a task lands in a section at creation. */
+	memberships?: Array<{ project: string; section: string }>
 	due_on?: string
 	due_at?: string
 	start_on?: string

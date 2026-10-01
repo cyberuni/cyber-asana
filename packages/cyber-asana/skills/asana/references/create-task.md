@@ -102,8 +102,13 @@ With the cyber-asana MCP server enabled, `asana_task_create` takes the same fiel
 
 ### Placing it in a section
 
-When the conventions' **Section** rule applies, place the task after creating it. `defaults.section`
-in `.agents/cyber-asana.json` is already a section GID. For a section the user named:
+`defaults.section` in `.agents/cyber-asana.json` needs no step: `task create` (and `asana_task_create`)
+creates a task in the default project straight into that section. It never applies to a task in
+another project. Pass `--no-default-section` (MCP: `default_section: false`) only when the user
+asks to leave the task out of it.
+
+For a section the user named, place the task after creating it (pass `--no-default-section` so it
+does not land in the default section first):
 
 1. `cyber-asana section list --project-gid <project_gid>` (MCP, if enabled: `asana_section_list`)
 2. Match the section by name

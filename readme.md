@@ -182,6 +182,7 @@ cyber-asana config add-user <user-gid> --alias ali  # register a user for --assi
 cyber-asana config add-user --search "ada@example.com" --alias ada  # find the GID by typeahead
 cyber-asana config resolve-user ali --json        # local lookup, no API
 cyber-asana config set defaults.assignee ali      # fallback assignee for task create
+cyber-asana config set defaults.section <section-gid>  # section in the default project new tasks land in
 cyber-asana config discover-fields Backend        # save the project's story point field GID
 cyber-asana config show
 ```
@@ -510,7 +511,7 @@ Notable parameters:
 - `asana_ai_studio_run_list` — `workspace_gid`, `start_at` (inclusive) / `end_at` (exclusive) as ISO 8601 date-times, `division_gid`; lists runs oldest first with the model and credits used, so poll forward by passing the last recorded time as `start_at`. Takes no `opt_fields`, and Asana restricts it to service accounts in AI Studio-licensed organizations
 - `asana_ai_studio_seat_list` — `workspace_gid`, `state` (`active` or `revoked`), `division_gid`; same access restriction and no `opt_fields`
 - `asana_task_subtask_list` — `assignee_email`, `follower_emails`, `num_subtasks`, `custom_fields` expand returned fields
-- `asana_task_create` — `project_gid`, `project_gids`, `follower_gids`, `html_notes`, `completed`, `due_on`, `due_at`, `start_on`, `start_at`, `parent_gid`, `resource_subtype`, `custom_fields`
+- `asana_task_create` — `project_gid`, `project_gids`, `default_section`, `follower_gids`, `html_notes`, `completed`, `due_on`, `due_at`, `start_on`, `start_at`, `parent_gid`, `resource_subtype`, `custom_fields`
 - `asana_task_update` — `html_notes`, `due_on` / `clear_due_on`, `due_at` / `clear_due_at`, `start_on` / `clear_start_on`, `start_at` / `clear_start_at`, `assignee_gid` / `assignee` (alias, email, or name from the repo registry) / `clear_assignee`, `parent_gid`, `clear_parent`, `resource_subtype`, `custom_fields`
 - `asana_task_subtask_create` — takes the same write fields as `asana_task_create`; the parent and its workspace come from `task_gid`
 - `asana_task_follower_add` / `asana_task_follower_remove` — manage followers on existing tasks

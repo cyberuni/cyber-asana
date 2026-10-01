@@ -90,6 +90,7 @@ Optional env vars for specific suites:
 | `ASANA_SYSTEM_TEST_PROJECT_GID` | sections and tasks list pagination system tests |
 | `ASANA_SYSTEM_TEST_TASK_GID` | tasks batch lookup; attachments and stories list pagination |
 | `ASANA_SYSTEM_TEST_SECOND_TASK_GID` | tasks batch lookup (multi-GID order) |
+| `ASANA_SYSTEM_TEST_SECTION_GID` | tasks create-in-section (a section of `ASANA_SYSTEM_TEST_PROJECT_GID`; also needs `ASANA_WORKSPACE_GID`). Creates and deletes a probe task |
 | `ASANA_SYSTEM_TEST_AI_STUDIO` | AI Studio runs/seats list pagination; needs a service-account token in an AI Studio–licensed org |
 
 Shared acceptance helpers: `src/testing/list-pagination.acceptance.ts`, `src/testing/paginating-gateway.ts`, `src/testing/system.ts`.
@@ -171,5 +172,6 @@ ASANA_WORKSPACE_GID=...                # workspace-scoped list pagination
 ASANA_SYSTEM_TEST_PROJECT_GID=...      # sections/tasks list pagination
 ASANA_SYSTEM_TEST_TASK_GID=...         # batch lookup, attachments/stories lists
 ASANA_SYSTEM_TEST_SECOND_TASK_GID=...  # tasks batch lookup (multi-GID)
+ASANA_SYSTEM_TEST_SECTION_GID=...      # tasks create-in-section (section of the project above)
 ASANA_SYSTEM_TEST_AI_STUDIO=1          # AI Studio usage (service account, licensed org)
 ```

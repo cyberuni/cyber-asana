@@ -23,7 +23,8 @@ marking the project commands fall back to when none is given — at most one pro
 `fields`, the custom fields that play a named role on that project (only `story_points` so far),
 each recorded as `{ gid, name }` so a convention can name a field without hard-coding its GID. An optional
 top-level `defaults` block (an `assignee` and a `section` a command falls back to when not told one)
-rounds the file out. Task conventions (`task_name_format`, `description_template`, `default_tags`)
+rounds the file out. `defaults.section` is a section GID in the default project, so task create
+applies it only to a task created in that project, and never to one created elsewhere. Task conventions (`task_name_format`, `description_template`, `default_tags`)
 are deliberately not here: their one source is the frontmatter of the `cyber-asana.task-conventions`
 reference, resolved through the buddy-agent-harness layers and merged key by key, and a file that
 still carries a `conventions` block is rejected with `config migrate-conventions` named as the fix.
