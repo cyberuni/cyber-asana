@@ -154,20 +154,21 @@ Set [authentication](#authentication) before running any workflow.
 
 | Skill | Use when |
 | --- | --- |
-| [`asana`](packages/cyber-asana/skills/asana/SKILL.md) | Entry point for Asana work — routes to the skill that owns the request; plans the work into tasks (reusing existing ones, grouping several under a parent task), imports TODO/FIXME comments as tasks, and tracks session work |
+| [`asana`](packages/cyber-asana/skills/asana/SKILL.md) | Entry point for Asana work — routes to the skill that owns the request; plans the work into tasks (reusing existing ones, grouping several under a parent task), imports TODO/FIXME comments as tasks, links a pull or merge request to its task, and tracks session work |
 | [`init-asana`](packages/cyber-asana/skills/init-asana/SKILL.md) | First-time setup; `ASANA_ACCESS_TOKEN`, workspace GID, verify connection |
 | [`config-asana`](packages/cyber-asana/skills/config-asana/SKILL.md) | Add, remove, refresh, and show Asana projects and users in the repo config or the personal global registry |
 | [`improve-description`](packages/cyber-asana/skills/improve-description/SKILL.md) | Clean up or rewrite a description — light copy-edit by default, opt-in emoji/template/tone, Asana's HTML subset |
 | [`asana-standup`](packages/cyber-asana/skills/asana-standup/SKILL.md) | Standup update — recent completions and due-soon tasks |
 | [`asana-sprint-report`](packages/cyber-asana/skills/asana-sprint-report/SKILL.md) | Sprint retro — completed vs incomplete in a project/section |
 | [`sync-asana-project`](packages/cyber-asana/skills/sync-asana-project/SKILL.md) | Pull project tasks into local markdown for planning |
-| [`link-pr-to-task`](packages/cyber-asana/skills/link-pr-to-task/SKILL.md) | Post a GitHub PR URL as a comment on the related task |
 
 To create a task explicitly, run the **`/cyber-asana:create-task`** command (plugin installs). It and the `asana` skill share one procedure, [`skills/asana/references/create-task.md`](packages/cyber-asana/skills/asana/references/create-task.md), so prefer either over ad-hoc `asana_task_create` calls: agents then resolve workspace, project, and URL fields consistently.
 
 Before it creates anything, the `asana` skill plans the work with [`skills/asana/references/plan-work.md`](packages/cyber-asana/skills/asana/references/plan-work.md), for both a task request and session tracking: it splits the request or the session (its conversation, commits, and diff) into units of work, looks each one up among the project's tasks, your incomplete tasks, and recently completed ones, groups two or more units that serve one outcome under a parent task, and shows the plan. It asks before creating more than one task or changing an existing one, and marks a task complete only when you say so.
 
 To turn the codebase's TODO and FIXME comments into tasks, run the **`/cyber-asana:import-todos`** command, or ask the `asana` skill. Both follow [`skills/asana/references/import-todos.md`](packages/cyber-asana/skills/asana/references/import-todos.md): scan, filter, deduplicate against the project, confirm, then create.
+
+To record a pull or merge request on its Asana task, run the **`/cyber-asana:link-pr`** command, or ask the `asana` skill. Both follow [`skills/asana/references/link-pr.md`](packages/cyber-asana/skills/asana/references/link-pr.md): find the current branch's PR on GitHub, GitLab, Bitbucket, Azure DevOps, Gitea, or Forgejo, infer the task from the branch name or PR text, confirm, then comment the PR on the task.
 
 ### Repo project registry
 
@@ -181,6 +182,7 @@ cyber-asana config add-user <user-gid> --alias ali  # register a user for --assi
 cyber-asana config add-user --search "ada@example.com" --alias ada  # find the GID by typeahead
 cyber-asana config resolve-user ali --json        # local lookup, no API
 cyber-asana config set defaults.assignee ali      # fallback assignee for task create
+cyber-asana config set defaults.section <section-gid>  # section in the default project new tasks land in
 cyber-asana config discover-fields Backend        # save the project's story point field GID
 cyber-asana config show
 ```
@@ -510,7 +512,7 @@ Notable parameters:
 - `asana_ai_studio_run_list` — `workspace_gid`, `start_at` (inclusive) / `end_at` (exclusive) as ISO 8601 date-times, `division_gid`; lists runs oldest first with the model and credits used, so poll forward by passing the last recorded time as `start_at`. Takes no `opt_fields`, and Asana restricts it to service accounts in AI Studio-licensed organizations
 - `asana_ai_studio_seat_list` — `workspace_gid`, `state` (`active` or `revoked`), `division_gid`; same access restriction and no `opt_fields`
 - `asana_task_subtask_list` — `assignee_email`, `follower_emails`, `num_subtasks`, `custom_fields` expand returned fields
-- `asana_task_create` — `project_gid`, `project_gids`, `follower_gids`, `html_notes`, `completed`, `due_on`, `due_at`, `start_on`, `start_at`, `parent_gid`, `resource_subtype`, `custom_fields`
+- `asana_task_create` — `project_gid`, `project_gids`, `default_section`, `follower_gids`, `html_notes`, `completed`, `due_on`, `due_at`, `start_on`, `start_at`, `parent_gid`, `resource_subtype`, `custom_fields`
 - `asana_task_update` — `html_notes`, `due_on` / `clear_due_on`, `due_at` / `clear_due_at`, `start_on` / `clear_start_on`, `start_at` / `clear_start_at`, `assignee_gid` / `assignee` (alias, email, or name from the repo registry) / `clear_assignee`, `parent_gid`, `clear_parent`, `resource_subtype`, `custom_fields`
 - `asana_task_subtask_create` — takes the same write fields as `asana_task_create`; the parent and its workspace come from `task_gid`
 - `asana_task_follower_add` / `asana_task_follower_remove` — manage followers on existing tasks

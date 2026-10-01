@@ -1,4 +1,5 @@
 import type { RepoConventions } from '../conventions.js'
+import type { TaskSectionPlacement } from '../repo-config.js'
 import type { CreateTaskFields, UpdateTaskFields } from './api.js'
 
 type BuildTaskWriteInput = {
@@ -129,6 +130,21 @@ export function applyConventions(fields: CreateTaskFields, conventions?: RepoCon
 		else next.notes = template
 	}
 	return next
+}
+
+/**
+ * Put a new task straight into a section by moving its project from `projects` into a
+ * `memberships` entry, so placement happens in the create call and cannot fail on its own.
+ */
+export function placeInSection(fields: CreateTaskFields, placement?: TaskSectionPlacement): CreateTaskFields {
+	if (!placement) return fields
+	const { projects, ...rest } = fields
+	const others = projects?.filter((gid) => gid !== placement.project) ?? []
+	return {
+		...rest,
+		...(others.length > 0 && { projects: others }),
+		memberships: [...(fields.memberships ?? []), placement],
+	}
 }
 
 export function buildTaskUpdateFields(input: BuildTaskUpdateInput): UpdateTaskFields {

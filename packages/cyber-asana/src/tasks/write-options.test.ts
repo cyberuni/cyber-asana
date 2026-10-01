@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildTaskCreateFields, buildTaskUpdateFields, parseGidList } from './write-options.js'
+import { buildTaskCreateFields, buildTaskUpdateFields, parseGidList, placeInSection } from './write-options.js'
 
 describe('tasks/write-options', () => {
 	it('parseGidList splits comma-separated gids and trims whitespace', () => {
@@ -143,5 +143,23 @@ describe('tasks/write-options', () => {
 			parent: 'parent1',
 			due_on: null,
 		})
+	})
+
+	it('placeInSection moves the placed project from projects into a section membership', () => {
+		expect(placeInSection({ notes: 'n', projects: ['p1', 'p2'] }, { project: 'p2', section: 's1' })).toEqual({
+			notes: 'n',
+			projects: ['p1'],
+			memberships: [{ project: 'p2', section: 's1' }],
+		})
+	})
+
+	it('placeInSection drops projects once the only project becomes a membership', () => {
+		expect(placeInSection({ projects: ['p1'] }, { project: 'p1', section: 's1' })).toEqual({
+			memberships: [{ project: 'p1', section: 's1' }],
+		})
+	})
+
+	it('placeInSection leaves the fields alone without a placement', () => {
+		expect(placeInSection({ projects: ['p1'] }, undefined)).toEqual({ projects: ['p1'] })
 	})
 })

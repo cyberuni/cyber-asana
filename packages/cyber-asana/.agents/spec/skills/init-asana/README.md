@@ -20,7 +20,7 @@ walks an agent through getting `cyber-asana` working for the first time.
   offering the MCP server as an opt-in (default no) written into the detected client's own config.
 
 **Its place in the catalog.** This skill is the **entry point of the whole plugin**: the universal
-manifest names it as the first-run skill, and the other eight assume the credentials it establishes.
+manifest names it as the first-run skill, and the other six assume the credentials it establishes.
 It is also where the **version-pinning rule** the catalog contract enforces is *explained* rather
 than merely obeyed — it tells the agent to resolve the exact published version once with
 `npm view cyber-asana version` and reuse it everywhere, and says in so many words never to use

@@ -571,10 +571,22 @@ export async function loadDefaults(opts?: ResolveOpts): Promise<RepoDefaults | u
 	return (await loadConfigIfPresent(opts))?.config.defaults
 }
 
-/** The given section GID, or `defaults.section` when none was given. */
-export async function resolveSectionRef(value: string | undefined, opts?: ResolveOpts): Promise<string | undefined> {
-	if (value) return value
-	return (await loadConfigIfPresent(opts))?.config.defaults?.section
+export type TaskSectionPlacement = { project: string; section: string }
+
+/**
+ * Where `defaults.section` puts a new task. The section lives in the default project, so it
+ * applies only when the task is created in that project, and never to a task in other projects.
+ */
+export async function resolveSectionPlacement(
+	projectGids: string[] | undefined,
+	opts?: ResolveOpts,
+): Promise<TaskSectionPlacement | undefined> {
+	if (!projectGids?.length) return undefined
+	const config = (await loadConfigIfPresent(opts))?.config
+	const section = config?.defaults?.section
+	const project = config && defaultProject(config)?.gid
+	if (!section || !project || !projectGids.includes(project)) return undefined
+	return { project, section }
 }
 
 export async function pathExists(path: string): Promise<boolean> {

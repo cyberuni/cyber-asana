@@ -102,6 +102,12 @@ environment variable.
 the same way `--assignee` is) and `section` (a section GID in the default project). The default
 project itself is not part of `defaults` — it is whichever project entry carries `default: true`.
 
+`task create` and `asana_task_create` apply `defaults.section` themselves: a task created in the
+default project lands directly in that section, in the same API call. A task created only in other
+projects is left alone, because the section belongs to the default project, and with no project
+marked default the key does nothing. Skip it per call with `--no-default-section` (MCP:
+`default_section: false`).
+
 ## Project custom fields
 
 A convention can name a custom field by the role it plays instead of by GID, because field GIDs

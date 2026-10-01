@@ -610,6 +610,64 @@ describe('tasks/cli', () => {
 		},
 	)
 
+	describe('task create applies defaults.section', () => {
+		let dir: string
+		const previousConfig = process.env.CYBER_ASANA_CONFIG
+
+		async function useSectionConfig() {
+			dir = await mkdtemp(join(tmpdir(), 'cyber-asana-task-section-'))
+			const path = join(dir, 'config.json')
+			await writeFile(
+				path,
+				JSON.stringify({
+					schema_version: 2,
+					projects: [
+						{ gid: '111', name: 'Frontend', aliases: [] },
+						{ gid: '999', name: 'Backend', aliases: [], default: true },
+					],
+					defaults: { section: '800' },
+				}),
+			)
+			process.env.CYBER_ASANA_CONFIG = path
+		}
+
+		async function create(...args: string[]) {
+			createTaskMock.mockResolvedValue({ gid: 't1', name: 'Task' })
+			const program = new Command().addCommand(taskCommand())
+			await program.parseAsync(['node', 'test', 'task', 'create', 'Task', '--workspace-gid', 'w1', ...args], {
+				from: 'node',
+			})
+			return createTaskMock.mock.calls[0]?.[2]
+		}
+
+		afterEach(async () => {
+			if (previousConfig === undefined) delete process.env.CYBER_ASANA_CONFIG
+			else process.env.CYBER_ASANA_CONFIG = previousConfig
+			if (dir) await rm(dir, { recursive: true, force: true })
+		})
+
+		it('creates a task in the default project straight into defaults.section', async () => {
+			await useSectionConfig()
+			const fields = await create()
+			expect(fields.memberships).toEqual([{ project: '999', section: '800' }])
+			expect(fields.projects).toBeUndefined()
+		})
+
+		it('leaves a task in another project out of defaults.section', async () => {
+			await useSectionConfig()
+			const fields = await create('--project-gid', '111')
+			expect(fields.projects).toEqual(['111'])
+			expect(fields.memberships).toBeUndefined()
+		})
+
+		it('--no-default-section keeps the task out of defaults.section', async () => {
+			await useSectionConfig()
+			const fields = await create('--no-default-section')
+			expect(fields.projects).toEqual(['999'])
+			expect(fields.memberships).toBeUndefined()
+		})
+	})
+
 	describe('--assignee resolves through the repo user registry', () => {
 		let dir: string
 		const previousConfig = process.env.CYBER_ASANA_CONFIG

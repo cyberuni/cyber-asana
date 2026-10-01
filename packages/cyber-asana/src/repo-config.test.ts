@@ -23,7 +23,7 @@ import {
 	resolveAssignee,
 	resolveProject,
 	resolveProjectRef,
-	resolveSectionRef,
+	resolveSectionPlacement,
 	resolveUser,
 	saveRepoConfig,
 	setDefaultProject,
@@ -662,10 +662,67 @@ describe('defaults fallbacks', () => {
 		await saveRepoConfig(path, { schema_version: 2, projects: [] })
 		expect(await resolveAssignee(undefined, { configPath: path })).toBeUndefined()
 	})
+})
 
-	it('resolveSectionRef falls back to defaults.section', async () => {
-		await saveRepoConfig(path, { schema_version: 2, projects: [], defaults: { section: '800' } })
-		expect(await resolveSectionRef(undefined, { configPath: path })).toBe('800')
+describe('resolveSectionPlacement', () => {
+	let dir: string
+	let path: string
+
+	beforeEach(async () => {
+		dir = await mkdtemp(join(tmpdir(), 'cyber-asana-section-'))
+		path = join(dir, 'config.json')
+		await saveRepoConfig(path, {
+			schema_version: 2,
+			projects: [
+				{ gid: '111', name: 'Backend', aliases: [] },
+				{ gid: '222', name: 'Frontend', aliases: [], default: true },
+			],
+			defaults: { section: '800' },
+		})
+	})
+
+	afterEach(async () => {
+		await rm(dir, { recursive: true, force: true })
+	})
+
+	it('places a task created in the default project in defaults.section', async () => {
+		expect(await resolveSectionPlacement(['222'], { configPath: path })).toEqual({ project: '222', section: '800' })
+	})
+
+	it('picks the default project out of several', async () => {
+		expect(await resolveSectionPlacement(['111', '222'], { configPath: path })).toEqual({
+			project: '222',
+			section: '800',
+		})
+	})
+
+	it('never applies defaults.section to a task outside the default project', async () => {
+		expect(await resolveSectionPlacement(['111'], { configPath: path })).toBeUndefined()
+	})
+
+	it('does nothing for a task in no project', async () => {
+		expect(await resolveSectionPlacement(undefined, { configPath: path })).toBeUndefined()
+	})
+
+	it('does nothing when no project is marked default', async () => {
+		await saveRepoConfig(path, {
+			schema_version: 2,
+			projects: [{ gid: '222', name: 'Frontend', aliases: [] }],
+			defaults: { section: '800' },
+		})
+		expect(await resolveSectionPlacement(['222'], { configPath: path })).toBeUndefined()
+	})
+
+	it('does nothing when defaults.section is unset', async () => {
+		await saveRepoConfig(path, {
+			schema_version: 2,
+			projects: [{ gid: '222', name: 'Frontend', aliases: [], default: true }],
+		})
+		expect(await resolveSectionPlacement(['222'], { configPath: path })).toBeUndefined()
+	})
+
+	it('does nothing when there is no repo config', async () => {
+		expect(await resolveSectionPlacement(['222'], { configPath: join(dir, 'missing.json') })).toBeUndefined()
 	})
 })
 

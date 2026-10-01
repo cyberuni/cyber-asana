@@ -96,6 +96,7 @@ Optional env vars for specific suites:
 | `ASANA_SYSTEM_TEST_PROJECT_GID` | sections and tasks list pagination system tests |
 | `ASANA_SYSTEM_TEST_TASK_GID` | tasks batch lookup; attachments and stories list pagination |
 | `ASANA_SYSTEM_TEST_SECOND_TASK_GID` | tasks batch lookup (multi-GID order) |
+| `ASANA_SYSTEM_TEST_SECTION_GID` | tasks create-in-section (a section of `ASANA_SYSTEM_TEST_PROJECT_GID`; also needs `ASANA_WORKSPACE_GID`). Creates and deletes a probe task |
 | `ASANA_SYSTEM_TEST_AI_STUDIO` | AI Studio runs/seats list pagination; needs a service-account token in an AI Studio–licensed org |
 
 Shared acceptance helpers: `src/testing/list-pagination.acceptance.ts`, `src/testing/paginating-gateway.ts`, `src/testing/system.ts`.
@@ -152,7 +153,7 @@ Reference (load on demand, not duplicated here):
 
 - Tool catalog by resource → `readme.md` MCP section
 - Per-tool params and Zod schemas → `src/<domain>/mcp.ts` for the domain you are editing
-- Asana work routing → [`packages/cyber-asana/skills/asana/SKILL.md`](packages/cyber-asana/skills/asana/SKILL.md); planning units of work before creating or reusing tasks → [`packages/cyber-asana/skills/asana/references/plan-work.md`](packages/cyber-asana/skills/asana/references/plan-work.md); task creation → [`packages/cyber-asana/skills/asana/references/create-task.md`](packages/cyber-asana/skills/asana/references/create-task.md) (also the `/cyber-asana:create-task` command in `packages/cyber-asana/commands/`); TODO/FIXME import → [`packages/cyber-asana/skills/asana/references/import-todos.md`](packages/cyber-asana/skills/asana/references/import-todos.md) (also `/cyber-asana:import-todos`); URL parsing → [`src/url.ts`](src/url.ts) when a URL is present; repo project registry → [`src/repo-config.ts`](src/repo-config.ts) / `.agents/cyber-asana.json`
+- Asana work routing → [`packages/cyber-asana/skills/asana/SKILL.md`](packages/cyber-asana/skills/asana/SKILL.md); planning units of work before creating or reusing tasks → [`packages/cyber-asana/skills/asana/references/plan-work.md`](packages/cyber-asana/skills/asana/references/plan-work.md); task creation → [`packages/cyber-asana/skills/asana/references/create-task.md`](packages/cyber-asana/skills/asana/references/create-task.md) (also the `/cyber-asana:create-task` command in `packages/cyber-asana/commands/`); TODO/FIXME import → [`packages/cyber-asana/skills/asana/references/import-todos.md`](packages/cyber-asana/skills/asana/references/import-todos.md) (also `/cyber-asana:import-todos`); PR/MR linking on any git host → [`packages/cyber-asana/skills/asana/references/link-pr.md`](packages/cyber-asana/skills/asana/references/link-pr.md) (also `/cyber-asana:link-pr`); URL parsing → [`src/url.ts`](src/url.ts) when a URL is present; repo project registry → [`src/repo-config.ts`](src/repo-config.ts) / `.agents/cyber-asana.json`
 - Adding or updating tools → `update-asana-sdk` skill
 
 #### Dual MCP (official + cyber-asana)
@@ -177,5 +178,6 @@ ASANA_WORKSPACE_GID=...                # workspace-scoped list pagination
 ASANA_SYSTEM_TEST_PROJECT_GID=...      # sections/tasks list pagination
 ASANA_SYSTEM_TEST_TASK_GID=...         # batch lookup, attachments/stories lists
 ASANA_SYSTEM_TEST_SECOND_TASK_GID=...  # tasks batch lookup (multi-GID)
+ASANA_SYSTEM_TEST_SECTION_GID=...      # tasks create-in-section (section of the project above)
 ASANA_SYSTEM_TEST_AI_STUDIO=1          # AI Studio usage (service account, licensed org)
 ```
