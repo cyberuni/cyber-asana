@@ -1,0 +1,39 @@
+.claude-plugin/marketplace.json
+  s_699c614a308370::t_7a7d035fa7b604 3-6,17-19,21,24-25
+package.json
+  s_699c614a308370::t_a41e9e65b443f7 11,17,28-29
+packages/cyber-asana/.claude-plugin/plugin.json
+  s_699c614a308370::t_f707d1507490dd 5-7,9,11-14
+packages/cyber-asana/.codex-plugin/plugin.json
+  s_699c614a308370::t_2dfac61f328635 5-7,11,13
+packages/cyber-asana/.cursor-plugin/plugin.json
+  s_699c614a308370::t_37bb3925afaa22 5-7,11
+packages/cyber-asana/com.github.copilot/commands/create-task.md
+  s_699c614a308370::t_d4cffda2521328 1-12
+packages/cyber-asana/com.github.copilot/commands/import-todos.md
+  s_699c614a308370::t_5d81dec53dadc7 1-12
+packages/cyber-asana/com.github.copilot/commands/link-pr.md
+  s_699c614a308370::t_7a1bf80b572d96 1-12
+packages/cyber-asana/package.json
+  s_699c614a308370::t_91e49de095ef63 22-23
+packages/cyber-asana/plugin.json
+  s_699c614a308370::t_6ebdb6f2027db2 18
+pnpm-lock.yaml
+  s_699c614a308370::t_85db130b8ce077 38-40,559-562,1277-1281,2070-2073,3619-3623,4438-4439,4969-4972,5637-5638,7443-7450
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "71012d0f1141881c49ff8e35d159bcd0e72038a7",
+  "prompts": {},
+  "sessions": {
+    "s_699c614a308370": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0c6ee05e-9477-4dd1-9906-17d77f392da2",
+        "model": "unknown"
+      },
+      "human_author": "unional <homawong@gmail.com>"
+    }
+  }
+}
