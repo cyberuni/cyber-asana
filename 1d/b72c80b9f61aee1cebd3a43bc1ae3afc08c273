@@ -1,0 +1,19 @@
+.changeset/conventions-to-reference.md
+  s_df970e2751e763::t_3d7c3b7a2ac3da 1-7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "1db72c80b9f61aee1cebd3a43bc1ae3afc08c273",
+  "prompts": {},
+  "sessions": {
+    "s_df970e2751e763": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0b0a67d3-99a5-446d-8bab-2d9271395411",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "unional <homawong@gmail.com>"
+    }
+  }
+}
