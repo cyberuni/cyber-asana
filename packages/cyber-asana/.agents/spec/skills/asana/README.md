@@ -1,29 +1,32 @@
 ---
 spec-type: reference
-concept: [cyber-asana, skills, tasks, resolution, todo-scan, planning]
+concept: [cyber-asana, skills, tasks, resolution, todo-scan, planning, comments, task-association]
 ---
 
-# asana — the routing skill, work planning, task filing, TODO import, and session tracking
+# asana — the routing skill, work planning, task filing, TODO import, PR linking, and session tracking
 
 A **reference artifact**: the shipped skill at `packages/cyber-asana/skills/asana/`, the single
-model-triggered entry for Asana work in the plugin, and the `/cyber-asana:create-task` and
-`/cyber-asana:import-todos` commands at `packages/cyber-asana/commands/` that reach the same
-procedures explicitly.
+model-triggered entry for Asana work in the plugin, and the `/cyber-asana:create-task`,
+`/cyber-asana:import-todos`, and `/cyber-asana:link-pr` commands at `packages/cyber-asana/commands/`
+that reach the same procedures explicitly.
 
 ## Subject
 
 - **Artifacts** — `skills/asana/SKILL.md` (the router),
   `skills/asana/references/plan-work.md` (the work-planning procedure),
   `skills/asana/references/create-task.md` (the task-filing procedure),
-  `skills/asana/references/import-todos.md` (the TODO-import procedure), and
-  `commands/create-task.md` and `commands/import-todos.md` (thin user-invoked entries into them).
-- **Trigger** — the user wants Asana work done, including turning code TODOs into tasks. Its front
+  `skills/asana/references/import-todos.md` (the TODO-import procedure),
+  `skills/asana/references/link-pr.md` (the PR-linking procedure), and
+  `commands/create-task.md`, `commands/import-todos.md`, and `commands/link-pr.md` (thin
+  user-invoked entries into them).
+- **Trigger** — the user wants Asana work done, including turning code TODOs into tasks and
+  linking a pull or merge request to its task. Its front
   block reads: *"Use this skill when the user wants Asana work — create a task, track a session,
   import TODOs, report, link a PR, set up."*
-  The commands never auto-trigger; a person types `/cyber-asana:create-task` or
-  `/cyber-asana:import-todos`.
+  The commands never auto-trigger; a person types `/cyber-asana:create-task`,
+  `/cyber-asana:import-todos`, or `/cyber-asana:link-pr`.
 - **What it covers** — classifying the request and handing it to the skill that owns it
-  (`init-asana`, `config-asana`, `asana-standup`, `asana-sprint-report`, `link-pr-to-task`,
+  (`init-asana`, `config-asana`, `asana-standup`, `asana-sprint-report`,
   `improve-description`, `sync-asana-project`), plus the procedures it owns itself:
   - **Plan the work** — run first for both a task request and session tracking: splitting the
     request or the session (conversation, the branch's commits and diff, any pull request) into
@@ -39,6 +42,11 @@ procedures explicitly.
     versus noise, **deduplicating semantically** against the tasks already in the project,
     presenting the filtered list for approval, and only then creating each task through the
     task-filing procedure.
+  - **Link a PR** — finding the pull or merge request for the current branch on whichever git host
+    the remote points at (GitHub, GitLab, Bitbucket Cloud and Data Center, Azure DevOps, Gitea,
+    Forgejo), **inferring the task** through a fixed order (a GID or URL the user mentioned, then
+    the branch name, then the PR title or body), falling back to a search with the user confirming
+    the match, and posting the PR as a comment.
   - **Track session work** — the plan step with the session as its input, each task shaped by the
     `cyber-asana.task-conventions` reference's *Tracking session work* section: a reused task gets
     a comment with the branch and pull request, a new one is assigned to the user.
@@ -60,6 +68,14 @@ live in the conventions reference, not here, so a repo can override them. Confir
 completing a task needs the user's explicit yes for that row: a wrong batch or a wrongly closed task
 is harder to undo than asking.
 
+PR linking is the only path that reaches outside Asana for its input, and the only one whose
+subject must be *inferred* rather than supplied. That is why its inference order is written down
+and why the search fallback ends in a confirmation rather than a guess: a comment posted on the
+wrong task is visible to the whole team and is not silently corrected. It is also the only
+host-specific path, so its one host table is the only place a git host is named; detecting the
+host and finding the task stay host-agnostic, and a missing or logged-out host CLI is handed to
+repobuddy's `init-buddy` skill when installed rather than set up here.
+
 TODO import is the one path whose failure mode is *volume*. A scan of any real codebase returns
 hundreds of rows, most of them noise — test fixtures, generated comments, notes that were resolved
 years ago. So most of its steps exist to throw results away, and the confirm-before-creating step
@@ -69,7 +85,8 @@ instruction is deliberately **semantic, not textual** — "Fix auth timeout" and
 filed on every sweep.
 
 **One home for each procedure.** Work planning lives in the skill's `references/plan-work.md`, task
-filing in `references/create-task.md`, and TODO import in `references/import-todos.md`, not in the
+filing in `references/create-task.md`, TODO import in `references/import-todos.md`, and PR linking
+in `references/link-pr.md`, not in the
 commands, so both ship with a skills-only
 install and reach runtimes that have no plugin commands (Codex). The commands and the router point
 at them and restate neither, and TODO import creates its tasks through the task-filing procedure
