@@ -14,7 +14,7 @@ import { loadConventions } from '../conventions.js'
 import { resolveEffectiveAssignee } from '../effective-config.js'
 import { deleteIdempotently, deleteMessage } from '../idempotent-delete.js'
 import { output, printEmpty, printFields, printNextSteps, printSummary, printTable } from '../output.js'
-import { loadDefaults, resolveProjectRef } from '../repo-config.js'
+import { loadDefaults, resolveProjectRef, resolveSectionPlacement } from '../repo-config.js'
 import { resolveTagRefs } from '../tags/resolve.js'
 import { isFull, truncate } from '../truncate.js'
 import {
@@ -44,7 +44,13 @@ import {
 	type TodoMatch,
 	updateTask,
 } from './api.js'
-import { applyConventions, buildTaskCreateFields, buildTaskUpdateFields, parseGidList } from './write-options.js'
+import {
+	applyConventions,
+	buildTaskCreateFields,
+	buildTaskUpdateFields,
+	parseGidList,
+	placeInSection,
+} from './write-options.js'
 
 const ASSIGNEE_FLAG = '--assignee <user>'
 const ASSIGNEE_DESCRIPTION = 'Assignee: user GID, "me", or an alias, email, or name registered with config add-user'
@@ -315,6 +321,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 		.option('--tag <gid[,gid...]>', 'Tag GIDs to apply')
 		.option('--custom-fields-json <json>', 'Custom field values as a JSON object')
 		.option('--custom-field <gid=value>', 'Custom field value override', collectOption, [])
+		.option('--no-default-section', "Do not place the task in the repo config's defaults.section")
 		.action(
 			async (
 				name: string,
@@ -339,34 +346,33 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 					tag?: string
 					customFieldsJson?: string
 					customField: string[]
+					defaultSection: boolean
 				},
 			) => {
 				const workspaceGid = requiredGid(opts, 'workspace', 'Workspace GID')
 				const conventions = await loadConventions()
-				const data = await resolveTaskApi(api).createTask(
-					workspaceGid,
-					name,
-					applyConventions(
-						buildTaskCreateFields({
-							notes: opts.notes,
-							htmlNotes: opts.htmlNotes,
-							completed: opts.completed,
-							assignee: await assigneeForCreate(opts),
-							projectInput: opts.projectGid ?? (await resolveProjectRef(opts.project)),
-							followerInput: opts.follower,
-							tagGids: await resolveTagRefs(parseGidList(opts.tag) ?? conventions?.default_tags, workspaceGid),
-							dueOn: opts.dueOn,
-							dueAt: opts.dueAt,
-							startOn: opts.startOn,
-							startAt: opts.startAt,
-							parent: normalizedGid(opts, 'parent'),
-							resourceSubtype: opts.resourceSubtype,
-							customFieldsJson: opts.customFieldsJson,
-							customFieldEntries: opts.customField,
-						}),
-						conventions,
-					),
+				const fields = applyConventions(
+					buildTaskCreateFields({
+						notes: opts.notes,
+						htmlNotes: opts.htmlNotes,
+						completed: opts.completed,
+						assignee: await assigneeForCreate(opts),
+						projectInput: opts.projectGid ?? (await resolveProjectRef(opts.project)),
+						followerInput: opts.follower,
+						tagGids: await resolveTagRefs(parseGidList(opts.tag) ?? conventions?.default_tags, workspaceGid),
+						dueOn: opts.dueOn,
+						dueAt: opts.dueAt,
+						startOn: opts.startOn,
+						startAt: opts.startAt,
+						parent: normalizedGid(opts, 'parent'),
+						resourceSubtype: opts.resourceSubtype,
+						customFieldsJson: opts.customFieldsJson,
+						customFieldEntries: opts.customField,
+					}),
+					conventions,
 				)
+				const placement = opts.defaultSection ? await resolveSectionPlacement(fields.projects) : undefined
+				const data = await resolveTaskApi(api).createTask(workspaceGid, name, placeInSection(fields, placement))
 				output(data, () => {
 					fmtTask(data)
 					printNextSteps([

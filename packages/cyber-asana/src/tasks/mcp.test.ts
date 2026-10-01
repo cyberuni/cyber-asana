@@ -515,6 +515,52 @@ describe('tasks/mcp', () => {
 			expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { projects: ['777'] })
 		})
 
+		describe('defaults.section', () => {
+			const sectionConfig = {
+				schema_version: 2,
+				projects: [
+					{ gid: '111', name: 'Frontend', aliases: [] },
+					{ gid: '999', name: 'Backend', aliases: [], default: true },
+				],
+				defaults: { section: '800' },
+			}
+
+			it('creates a task in the default project straight into defaults.section', async () => {
+				await useConfig(sectionConfig)
+				createTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
+				const server = createServer()
+				registerTaskTools(server as any)
+
+				await server.handlers.get('asana_task_create')?.({ workspace_gid: 'ws1', name: 'Task' })
+
+				expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', {
+					memberships: [{ project: '999', section: '800' }],
+				})
+			})
+
+			it('leaves a task in another project out of defaults.section', async () => {
+				await useConfig(sectionConfig)
+				createTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
+				const server = createServer()
+				registerTaskTools(server as any)
+
+				await server.handlers.get('asana_task_create')?.({ workspace_gid: 'ws1', name: 'Task', project_gid: '111' })
+
+				expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { projects: ['111'] })
+			})
+
+			it('skips defaults.section when default_section is false', async () => {
+				await useConfig(sectionConfig)
+				createTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
+				const server = createServer()
+				registerTaskTools(server as any)
+
+				await server.handlers.get('asana_task_create')?.({ workspace_gid: 'ws1', name: 'Task', default_section: false })
+
+				expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { projects: ['999'] })
+			})
+		})
+
 		it('falls back to defaults.assignee when no assignee is given', async () => {
 			await useConfig({
 				schema_version: 2,
