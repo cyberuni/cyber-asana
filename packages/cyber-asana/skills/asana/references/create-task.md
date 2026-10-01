@@ -9,36 +9,31 @@ model-triggered "create a task", and the `/cyber-asana:create-task` command rout
 explicit one, so both paths resolve context the same way. Prefer it over ad-hoc
 `cyber-asana task create` calls.
 
-It covers:
+**What the task looks like** is decided by the `cyber-asana.task-conventions` reference: task,
+subtask, or dependency; name; description; assignee; due date; tags; section; custom fields and
+story points; comments. This file does not restate those rules. **How the task reaches Asana** is
+decided here: workspace and project resolution, URL parsing, the registry, assignees named by a
+person, the CLI call, and the confirmation.
 
-- Gathering required fields (`name`, `workspace_gid`, `project_gid`)
-- Resolving project from URL parse, explicit GID, repo config, or search
-- Creating via `cyber-asana task create` (MCP equivalent, if enabled: `asana_task_create`)
-- Optional comments and section placement when explicitly requested
-- Routing between cyber-asana and official Asana MCP when both are connected
+Credentials and the optional repo project registry are set up by the `init-asana` skill; it also
+says how to invoke the CLI (**Ensure cyber-asana CLI**). Every `cyber-asana` command below means
+that form. The cyber-asana MCP server is opt-in; the `asana_*` tool names given in parentheses apply
+only when it is enabled.
 
-Credentials and the optional repo project registry are set up by the `init-asana` skill; it also says how to invoke the CLI (**Ensure cyber-asana CLI**). Every `cyber-asana` command below means that form. The cyber-asana MCP server is opt-in; the `asana_*` tool names given in parentheses apply only when it is enabled.
+## 1. Load the task conventions
 
-## 1. Gather required fields
+Before anything else, load the `cyber-asana.task-conventions` reference with the `reference` skill
+in the `buddy-agent-harness` plugin. It is merged from the repo copy (`.agents/references/`), the
+user copy, and the copy cyber-asana ships. Follow its body for the shape of the work:
 
-All three are required before `cyber-asana task create`. Infer when possible; ask if any are missing.
+- **Choosing the object** — whether this is a task, a subtask (`--parent-gid`), or a dependency
+  between tasks (`cyber-asana task dependency add`).
+- **Task** / **Subtask** — name, description, assignee, due date, tags, and section.
+- **Custom fields** and **Story points** — which fields to set and how to estimate.
+- **Comments** — when a comment is the right place instead of the description.
+- **Tracking session work** — when the task records work done in this agent session.
 
-| Field | Sources |
-| --- | --- |
-| `name` | User prompt |
-| `workspace_gid` | `ASANA_WORKSPACE_GID` env, Asana URL parse, or explicit GID — **not** repo config |
-| `project_gid` | Asana URL parse, explicit GID, repo config (name, alias, or the project marked `default: true`), or project search |
-
-Optional: `--notes`, `--html-notes`, `--due-on`, `--assignee-gid` or `--assignee`, `--parent-gid`, `--follower`, `--tag`, `--custom-field`. `task create` falls back to `defaults.assignee` when no assignee is given, and to the repo config's default project when no project is given — both come from the same registry as `--assignee` and `--project`.
-
-Do **not** use section APIs unless the user explicitly names a section, column, or list **by name**.
-
-### 1a. Follow the repo's task conventions
-
-Load the `cyber-asana.task-conventions` reference with the `reference` skill in the
-`buddy-agent-harness` plugin. Its body says how to shape the work; its frontmatter holds the
-repo's task conventions, merged from the repo copy (`.agents/references/`), the user copy, and the
-copy cyber-asana ships. The CLI (and the MCP server, if enabled) read the same frontmatter. Write the task the way it says:
+Its frontmatter holds the repo's settings, which the CLI (and the MCP server, if enabled) read too:
 
 | Key | How to use it |
 | --- | --- |
@@ -46,12 +41,23 @@ copy cyber-asana ships. The CLI (and the MCP server, if enabled) read the same f
 | `description_template` | The CLI fills it in as the description when you pass no notes. Pass your own `--notes`/`--html-notes` only when you have real content, and start from the template's headings when you do |
 | `default_tags` | Applied automatically when you pass no tags. Each entry is a tag GID or a tag name resolved in the workspace. Pass `--tag` only to override them |
 
-When the project has a story point or task point field, set it as the reference's **Story points**
-section says. The field's GID is in the project's `fields.story_points` in `.agents/cyber-asana.json`;
-when it is missing, `cyber-asana config discover-fields <project>` finds and saves it. Pass the
-estimate with `--custom-field <field-gid>=<points>`.
+## 2. Gather required fields
 
-## 2. Resolve project
+All three are required before `cyber-asana task create`. Infer when possible; ask if any are missing.
+
+| Field | Sources |
+| --- | --- |
+| `name` | The request, shaped as the conventions say |
+| `workspace_gid` | `ASANA_WORKSPACE_GID` env, Asana URL parse, or explicit GID — **not** repo config |
+| `project_gid` | Asana URL parse, explicit GID, repo config (name, alias, or the project marked `default: true`), or project search |
+
+The conventions decide which optional fields to fill. Their flags are `--notes`, `--html-notes`,
+`--due-on`, `--assignee` or `--assignee-gid`, `--parent-gid`, `--follower`, `--tag`, and
+`--custom-field <field-gid>=<value>`. `task create` falls back to `defaults.assignee` when no assignee
+is given, and to the repo config's default project when no project is given — both come from the
+same registry as `--assignee` and `--project`.
+
+## 3. Resolve the project
 
 Pick the first applicable source:
 
@@ -64,7 +70,7 @@ Pick the first applicable source:
 
 ### When parsing a URL
 
-**Ignore `list_view_gid` for placement** — browser list-view metadata, not a Sections API section GID. Do not call section APIs just because the URL contains `/list/`.
+`list_view_gid` is browser list-view metadata, not a section GID: it never decides placement.
 
 If `kind` is `unknown` or GIDs are missing, fall back to other resolution paths.
 
@@ -77,16 +83,25 @@ If `kind` is `unknown` or GIDs are missing, fall back to other resolution paths.
 
 When the user names an assignee ("assign it to Ali"), pass the name as `--assignee` — it resolves against the repo user registry with no API call. Use `--assignee-gid` only for a literal GID. If the name is not registered, the call fails and names the fix: `cyber-asana config add-user --search "<name or email>" --alias <alias>`, which registers the person only when typeahead finds a clear match. If it lists several candidates, or the registry matches more than one user, ask which one rather than guessing.
 
-## 3. Create the task
+## 4. Create the task
 
 ```sh
 cyber-asana task create "<name>" \
   --workspace-gid <workspace_gid> \
   --project-gid <project_gid> \
-  --notes "<optional notes>"
+  --notes "<description, when the conventions call for one>"
 ```
 
 With the cyber-asana MCP server enabled, `asana_task_create` takes the same fields (`workspace_gid`, `project_gid`, `name`, `notes`).
+
+### Placing it in a section
+
+When the conventions' **Section** rule applies, place the task after creating it. `defaults.section`
+in `.agents/cyber-asana.json` is already a section GID. For a section the user named:
+
+1. `cyber-asana section list --project-gid <project_gid>` (MCP, if enabled: `asana_section_list`)
+2. Match the section by name
+3. `cyber-asana task project add <task-gid> <project-gid> --section-gid <section_gid>` (MCP: `asana_task_project_add`)
 
 ### When the official Asana MCP is also connected
 
@@ -94,26 +109,6 @@ With the cyber-asana MCP server enabled, `asana_task_create` takes the same fiel
 - Official `create_tasks` / `create_task_preview` only when the user wants an interactive preview or cyber-asana is unavailable.
 - Never use the official MCP OAuth token as `ASANA_ACCESS_TOKEN` for CLI or cyber-asana.
 
-## 4. Optional comment
-
-If linking deferred work, PR context, or plan notes:
-
-```sh
-cyber-asana comment create "<context>" --task-gid <new task gid>
-```
-
-MCP, if enabled: `asana_comment_create`.
-
 ## 5. Confirm
 
 Return the task `permalink_url` from the create response (or `cyber-asana task get <gid> --opt-fields permalink_url`).
-
-## Section placement (only when explicitly requested)
-
-If the user names a section or column:
-
-1. `cyber-asana section list --project-gid <project_gid>` (MCP, if enabled: `asana_section_list`)
-2. Match the section by name
-3. `cyber-asana task project add <task-gid> <project-gid> --section-gid <section_gid>` (MCP: `asana_task_project_add`)
-
-Never infer section placement from `/list/{gid}` in the URL alone.
