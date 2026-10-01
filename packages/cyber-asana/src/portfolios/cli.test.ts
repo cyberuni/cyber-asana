@@ -184,6 +184,28 @@ describe('portfolios/cli', () => {
 		vi.restoreAllMocks()
 	})
 
+	it('portfolio list forwards --custom-type', async () => {
+		vi.spyOn(console, 'log').mockImplementation(() => {})
+		const listPortfolios = vi.fn().mockResolvedValue([])
+		const program = new Command().addCommand(
+			portfolioCommand({
+				listPortfolios,
+				listPortfolioItems: vi.fn(),
+				getPortfolio: vi.fn(),
+				createPortfolio: vi.fn(),
+				updatePortfolio: vi.fn(),
+				deletePortfolio: vi.fn(),
+			}),
+		)
+
+		await program.parseAsync(['node', 'test', 'portfolio', 'list', '--workspace-gid', 'ws1', '--custom-type', ''], {
+			from: 'node',
+		})
+
+		expect(listPortfolios).toHaveBeenCalledWith('ws1', expect.objectContaining({ customType: '' }))
+		vi.restoreAllMocks()
+	})
+
 	it('portfolio list accepts the legacy --owner alias', async () => {
 		vi.spyOn(console, 'log').mockImplementation(() => {})
 		const listPortfolios = vi.fn().mockResolvedValue([])

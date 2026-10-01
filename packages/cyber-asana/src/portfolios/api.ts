@@ -1,13 +1,15 @@
 import { createClient } from '../client.js'
 import type { PaginationOptions } from '../pagination.js'
 import type { ReadOptions } from '../read-options.js'
-import { createAsanaPortfolioGateway, type PortfolioGateway } from './gateway.js'
+import { createAsanaPortfolioGateway, type PortfolioGateway, type PortfolioListOptions } from './gateway.js'
+
+export type { PortfolioListOptions }
 
 export type PortfolioApi = ReturnType<typeof createPortfolioApi>
 
 export function createPortfolioApi(gateway: PortfolioGateway) {
 	return {
-		listPortfolios(workspaceGid: string, opts?: PaginationOptions & { owner?: string }) {
+		listPortfolios(workspaceGid: string, opts?: PortfolioListOptions) {
 			return gateway.listPortfolios(workspaceGid, opts)
 		},
 		listPortfolioItems(portfolioGid: string, opts?: PaginationOptions) {
@@ -32,7 +34,7 @@ function defaultPortfolioApi() {
 	return createPortfolioApi(createAsanaPortfolioGateway(createClient()))
 }
 
-export async function listPortfolios(workspaceGid: string, opts?: PaginationOptions & { owner?: string }) {
+export async function listPortfolios(workspaceGid: string, opts?: PortfolioListOptions) {
 	return defaultPortfolioApi().listPortfolios(workspaceGid, opts)
 }
 

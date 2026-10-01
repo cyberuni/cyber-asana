@@ -1,7 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import { deleteIdempotently } from '../idempotent-delete.js'
-import { paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
+import { customTypeParam, paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
 import type { PortfolioApi } from './api.js'
 import {
 	createPortfolio,
@@ -36,9 +36,10 @@ export function registerPortfolioTools(server: McpServer, api?: PortfolioApi | (
 				.string()
 				.optional()
 				.describe('Only list portfolios owned by this user GID; honored for service accounts only'),
+			custom_type: customTypeParam('portfolios'),
 			...paginationParams,
 		},
-		async ({ workspace_gid, owner_gid, ...params }) => ({
+		async ({ workspace_gid, owner_gid, custom_type, ...params }) => ({
 			content: [
 				{
 					type: 'text',
@@ -46,6 +47,7 @@ export function registerPortfolioTools(server: McpServer, api?: PortfolioApi | (
 						await resolvePortfolioApi(api).listPortfolios(workspace_gid, {
 							...paginationOptions(params),
 							...(owner_gid ? { owner: owner_gid } : {}),
+							...(custom_type !== undefined && { customType: custom_type }),
 						}),
 					),
 				},

@@ -7,8 +7,11 @@ import {
 } from '../pagination.js'
 import { type ReadOptions, toAsanaReadOptions } from '../read-options.js'
 
+/** `customType` filters by custom type GID; an empty string selects portfolios with no custom type. */
+export type PortfolioListOptions = PaginationOptions & { owner?: string; customType?: string }
+
 export type PortfolioGateway = {
-	listPortfolios(workspaceGid: string, opts?: PaginationOptions & { owner?: string }): Promise<ListResult<any>>
+	listPortfolios(workspaceGid: string, opts?: PortfolioListOptions): Promise<ListResult<any>>
 	listPortfolioItems(portfolioGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
 	getPortfolio(portfolioGid: string, opts?: ReadOptions): Promise<any>
 	createPortfolio(workspaceGid: string, name: string): Promise<any>
@@ -23,6 +26,7 @@ export function createAsanaPortfolioGateway(client: Asana.ApiClient): PortfolioG
 		async listPortfolios(workspaceGid, opts) {
 			const res = await portfoliosApi.getPortfolios(workspaceGid, {
 				owner: opts?.owner,
+				...(opts?.customType !== undefined && { custom_type: opts.customType }),
 				...toAsanaPaginationOptions(opts),
 			})
 			return await collectListResponse(res, opts)
