@@ -1,6 +1,7 @@
 import { dirname, join, resolve } from 'node:path'
 import { Command, InvalidArgumentError } from 'commander'
 import { addGidOption, requiredGid } from './cli-options.js'
+import type { CustomFieldApi } from './custom-fields/api.js'
 import {
 	loadEffectiveProjects,
 	loadEffectiveUsers,
@@ -27,6 +28,8 @@ import {
 } from './global-config.js'
 import { migrateConventions } from './migrate-conventions.js'
 import { output, printFields, printNextSteps, printTable } from './output.js'
+import { listItems } from './pagination.js'
+import { applyFieldDiscovery, type ProjectCustomField } from './project-fields.js'
 import type { ProjectApi } from './projects/api.js'
 import {
 	addProject,
@@ -34,6 +37,9 @@ import {
 	clearDefaultProject,
 	createEmptyRepoConfig,
 	defaultConfigPath,
+	defaultProject,
+	FIELD_ROLES,
+	type FieldRole,
 	loadRepoConfig,
 	normalizeProjectName,
 	observeProject,
@@ -52,6 +58,7 @@ import {
 	saveRepoConfig,
 	setDefaultProject,
 	setDefaults,
+	setProjectField,
 	type UserObservation,
 } from './repo-config.js'
 import type { SearchApi } from './search/api.js'
@@ -210,6 +217,34 @@ async function loadExistingConfig(opts: ConfigCliOptions): Promise<{ path: strin
 	return { path, config: await loadRepoConfig(path) }
 }
 
+/** A registered project named by GID, alias, or name, or the default project when none is named. */
+function registeredProject(config: RepoConfig, path: string, query: string | undefined): RepoProjectEntry {
+	const project = query ? resolveProject(config, { name: query }) : defaultProject(config)
+	if (project) return project
+	if (!query) {
+		throw new InvalidArgumentError(
+			'No project given and none is marked default. Pass one, or run: cyber-asana config set-default <project>',
+		)
+	}
+	throw new Error(
+		`Project "${query}" is not registered in ${path}. Register it with: cyber-asana config add <project-gid>`,
+	)
+}
+
+function fieldRole(role: string): FieldRole {
+	if (!(FIELD_ROLES as readonly string[]).includes(role)) {
+		throw new InvalidArgumentError(`Unknown field role "${role}". Expected one of: ${FIELD_ROLES.join(', ')}`)
+	}
+	return role as FieldRole
+}
+
+function requireCustomFields(getCustomFields: (() => CustomFieldApi) | undefined): CustomFieldApi {
+	if (!getCustomFields) {
+		throw new Error('Custom field API is not available')
+	}
+	return getCustomFields()
+}
+
 function printProjectTable(projects: RepoProjectEntry[]) {
 	printTable(
 		projects,
@@ -297,7 +332,12 @@ async function searchUserGid(getSearch: (() => SearchApi) | undefined, workspace
 	)
 }
 
-export function configCommand(getProjects: () => ProjectApi, getUsers?: () => UserApi, getSearch?: () => SearchApi) {
+export function configCommand(
+	getProjects: () => ProjectApi,
+	getUsers?: () => UserApi,
+	getSearch?: () => SearchApi,
+	getCustomFields?: () => CustomFieldApi,
+) {
 	const cmd = new Command('config').description(
 		'Manage repo-local Asana project and user registry (.agents/cyber-asana.json)',
 	)
@@ -323,6 +363,8 @@ export function configCommand(getProjects: () => ProjectApi, getUsers?: () => Us
 			'  cyber-asana config set defaults.assignee ali',
 			'  cyber-asana config unset defaults.assignee',
 			'  cyber-asana config sync',
+			'  cyber-asana config discover-fields <gid-name-or-alias>',
+			'  cyber-asana config set-field story_points <field-gid> --project <gid-name-or-alias>',
 			'  cyber-asana config migrate-conventions --dry-run',
 			'  cyber-asana config add <project-gid> --global   # personal registry, this repo',
 			'  cyber-asana config show --merged                # repo config + global, unioned',
@@ -912,6 +954,79 @@ export function configCommand(getProjects: () => ProjectApi, getUsers?: () => Us
 			await saveRepoConfig(path, applySetting(config, settable, null))
 			output({ path, key: settable, value: null }, () => {
 				console.log(`Cleared ${settable} in ${path}`)
+			})
+		})
+
+	cmd
+		.command('discover-fields [project]')
+		.description("Find a project's custom fields by role (e.g. story points) and save their GIDs to the repo config")
+		.option('--config <path>', 'Config file path (overrides CYBER_ASANA_CONFIG)')
+		.action(async (query: string | undefined, opts: ConfigCliOptions) => {
+			const { path, config } = await loadExistingConfig(opts)
+			const project = registeredProject(config, path, query)
+			const settings = await requireCustomFields(getCustomFields).listCustomFieldSettingsForProject(project.gid, {
+				fetchAll: true,
+				optFields: 'custom_field.name,custom_field.resource_subtype',
+			})
+			const fields = (listItems(settings) as Array<{ custom_field?: ProjectCustomField }>)
+				.map((setting) => setting.custom_field)
+				.filter((field): field is ProjectCustomField => Boolean(field?.gid && field.name))
+			const { config: next, discovered, ambiguous } = applyFieldDiscovery(config, project.gid, fields)
+			await saveRepoConfig(path, next)
+			const payload = { path, project: { gid: project.gid, name: project.name }, fields: discovered, ambiguous }
+			output(payload, () => {
+				console.log(`${project.name} (${project.gid})`)
+				printTable(
+					Object.entries(discovered),
+					[
+						{ label: 'Role', get: ([role]) => role },
+						{ label: 'GID', get: ([, field]) => field?.gid ?? '' },
+						{ label: 'Name', get: ([, field]) => field?.name ?? '' },
+					],
+					{ entity: 'field roles found' },
+				)
+				for (const [role, candidates] of Object.entries(ambiguous)) {
+					const named = candidates.map((field) => `${field.gid} (${field.name})`).join(', ')
+					console.log(`${role}: ${candidates.length} candidates, none saved: ${named}`)
+				}
+				if (Object.keys(ambiguous).length > 0) {
+					printNextSteps([`cyber-asana config set-field <role> <field-gid> --project ${project.gid} — pick one`])
+				}
+			})
+		})
+
+	cmd
+		.command('set-field <role> <field-gid>')
+		.description(`Register a custom field for a role on a project (roles: ${FIELD_ROLES.join(', ')})`)
+		.option('--project <project>', 'Project GID, alias, or name (default: the default project)')
+		.option('--config <path>', 'Config file path (overrides CYBER_ASANA_CONFIG)')
+		.action(async (roleArg: string, fieldGid: string, opts: ConfigCliOptions & { project?: string }) => {
+			const role = fieldRole(roleArg)
+			const { path, config } = await loadExistingConfig(opts)
+			const project = registeredProject(config, path, opts.project)
+			const field = await requireCustomFields(getCustomFields).getCustomField(fieldGid, { optFields: 'name' })
+			if (typeof field?.name !== 'string' || field.name.length === 0) {
+				throw new Error('Custom field response is missing name')
+			}
+			const entry = { gid: fieldGid, name: field.name as string }
+			await saveRepoConfig(path, setProjectField(config, project.gid, role, entry))
+			output({ path, project: { gid: project.gid, name: project.name }, role, field: entry }, () =>
+				printFields({ Path: path, Project: project.name, Role: role, GID: entry.gid, Name: entry.name }),
+			)
+		})
+
+	cmd
+		.command('unset-field <role>')
+		.description('Clear the custom field registered for a role on a project')
+		.option('--project <project>', 'Project GID, alias, or name (default: the default project)')
+		.option('--config <path>', 'Config file path (overrides CYBER_ASANA_CONFIG)')
+		.action(async (roleArg: string, opts: ConfigCliOptions & { project?: string }) => {
+			const role = fieldRole(roleArg)
+			const { path, config } = await loadExistingConfig(opts)
+			const project = registeredProject(config, path, opts.project)
+			await saveRepoConfig(path, setProjectField(config, project.gid, role, null))
+			output({ path, project: { gid: project.gid, name: project.name }, role, field: null }, () => {
+				console.log(`Cleared ${role} on ${project.name} in ${path}`)
 			})
 		})
 

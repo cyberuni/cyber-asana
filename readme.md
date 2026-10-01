@@ -178,6 +178,7 @@ cyber-asana config add-user <user-gid> --alias ali  # register a user for --assi
 cyber-asana config add-user --search "ada@example.com" --alias ada  # find the GID by typeahead
 cyber-asana config resolve-user ali --json        # local lookup, no API
 cyber-asana config set defaults.assignee ali      # fallback assignee for task create
+cyber-asana config discover-fields Backend        # save the project's story point field GID
 cyber-asana config show
 ```
 
@@ -198,6 +199,8 @@ description_template: |
 default_tags: [agent-created]
 ---
 ```
+
+The reference's body also tells agents to estimate story points when a task's project has a story point or task point field: 1 point is the effort a senior staff engineer who knows the stack and the domain needs to fix a one-line bug, about one hour. The field is never hard-coded. `cyber-asana config discover-fields <project>` finds it by name and saves its GID under the project's `fields.story_points` in `.agents/cyber-asana.json`.
 
 Agents read it with the `reference` skill in the `buddy-agent-harness` plugin. A config that still has a `conventions` block fails to load; move it with `cyber-asana config migrate-conventions` (`--dry-run` to preview).
 

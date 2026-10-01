@@ -19,7 +19,9 @@ alongside the code. It maps human project names to Asana project GIDs, so an age
 into a GID without searching the workspace first. The `cyber-asana config` verbs create, read, and
 maintain it. A project entry also carries `aliases` (trigger keywords resolved ahead of the display
 name), an optional `purpose` (one line saying what belongs there), and an optional `default: true`
-marking the project commands fall back to when none is given — at most one project. An optional
+marking the project commands fall back to when none is given — at most one project — and optional
+`fields`, the custom fields that play a named role on that project (only `story_points` so far),
+each recorded as `{ gid, name }` so a convention can name a field without hard-coding its GID. An optional
 top-level `defaults` block (an `assignee` and a `section` a command falls back to when not told one)
 rounds the file out. Task conventions (`task_name_format`, `description_template`, `default_tags`)
 are deliberately not here: their one source is the frontmatter of the `cyber-asana.task-conventions`
@@ -143,6 +145,9 @@ authority without adding reach.
 | `config sync` (CLI) | projects were renamed in Asana and the committed names have drifted | optional `--config <path>` | every registered name refreshed from Asana, written only if something changed |
 | `config set <key> <value>` (CLI) | a repository wants a fallback recorded | a dotted key (`defaults.assignee`, `defaults.section`) and a value | the block updated and the file rewritten |
 | `config unset <key>` (CLI) | a fallback no longer applies | a dotted key | the key cleared, and the block dropped once it holds nothing |
+| `config discover-fields [project]` (CLI) | a convention needs a project's field for a role and the entry has none | a GID, name, or alias, else the default project | the project's custom fields fetched from Asana and matched by name; a role one field matches saved under `fields`, several matches listed and none saved, a saved field still on the project kept, one no longer on it dropped |
+| `config set-field <role> <field-gid>` (CLI) | discovery found several candidates, or the field's name does not match | a role, a field GID, optional `--project` | the field's name fetched from Asana and saved for that role |
+| `config unset-field <role>` (CLI) | a field no longer plays that role | a role, optional `--project` | the role cleared, and `fields` dropped once it holds nothing |
 | `config migrate-conventions` (CLI) | a repo config still carries a legacy `conventions` block | optional `--config <path>`, `--dry-run` | the block's keys added to the frontmatter of `.agents/references/cyber-asana.task-conventions.md` (created with `merge: merge-sections` when absent; a key it already sets is refused), then the block dropped from the file |
 | `config path --global` (CLI) | operator wants to know where the global registry lives | none | the resolved global file path (default location or `CYBER_ASANA_GLOBAL_CONFIG`) |
 | `config show --global` / `config list --global` (CLI) | operator or agent wants the projects paired with a repo in the personal registry | optional `--repo <key>` (else auto-detected) | the global path, the resolved repo key, and a GID/Name row per entry for that repo |

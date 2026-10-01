@@ -28,6 +28,7 @@ import {
 	saveRepoConfig,
 	setDefaultProject,
 	setDefaults,
+	setProjectField,
 	tryObserveProjectFromConfigPath,
 } from './repo-config.js'
 
@@ -665,5 +666,53 @@ describe('defaults fallbacks', () => {
 	it('resolveSectionRef falls back to defaults.section', async () => {
 		await saveRepoConfig(path, { schema_version: 2, projects: [], defaults: { section: '800' } })
 		expect(await resolveSectionRef(undefined, { configPath: path })).toBe('800')
+	})
+})
+
+describe('project fields', () => {
+	const field = { gid: '900', name: 'Story Points' }
+
+	it('parses a story_points field on a project', () => {
+		const config = parseRepoConfig({
+			schema_version: 2,
+			projects: [{ gid: '1', name: 'A', fields: { story_points: field } }],
+		})
+		expect(config.projects[0]?.fields).toEqual({ story_points: field })
+	})
+
+	it('rejects an unknown field role so a typo reports itself', () => {
+		expect(() =>
+			parseRepoConfig({ schema_version: 2, projects: [{ gid: '1', name: 'A', fields: { story_point: field } }] }),
+		).toThrow(/projects\[0\]\.fields\.story_point.*story_points/)
+	})
+
+	it('rejects a field entry without a gid', () => {
+		expect(() =>
+			parseRepoConfig({
+				schema_version: 2,
+				projects: [{ gid: '1', name: 'A', fields: { story_points: { name: 'Points' } } }],
+			}),
+		).toThrow(/projects\[0\]\.fields\.story_points\.gid/)
+	})
+
+	it('addProject keeps the fields of an existing entry', () => {
+		const config: RepoConfig = {
+			schema_version: 2,
+			projects: [{ gid: '1', name: 'A', aliases: [], fields: { story_points: field } }],
+		}
+		const next = addProject(config, { gid: '1', name: 'A2', aliases: ['a'] })
+		expect(next.projects[0]?.fields).toEqual({ story_points: field })
+	})
+
+	it('setProjectField sets and clears one role', () => {
+		const config: RepoConfig = { schema_version: 2, projects: [{ gid: '1', name: 'A', aliases: [] }] }
+		const set = setProjectField(config, '1', 'story_points', field)
+		expect(set.projects[0]?.fields).toEqual({ story_points: field })
+		const cleared = setProjectField(set, '1', 'story_points', null)
+		expect(cleared.projects[0]).not.toHaveProperty('fields')
+	})
+
+	it('setProjectField rejects an unregistered project', () => {
+		expect(() => setProjectField(createEmptyRepoConfig(), '1', 'story_points', field)).toThrow(/not registered/)
 	})
 })

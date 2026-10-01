@@ -12,7 +12,24 @@ export type RepoProjectEntry = {
 	purpose?: string
 	/** Marks the project commands fall back to when none is given. At most one per config. */
 	default?: true
+	/** Custom fields discovered on this project, keyed by the role they play. */
+	fields?: ProjectFields
 }
+
+/**
+ * The roles a project custom field can be registered for. Field GIDs differ per workspace and
+ * project, so a role is how a convention names a field without hard-coding its GID.
+ */
+export const FIELD_ROLES = ['story_points'] as const
+
+export type FieldRole = (typeof FIELD_ROLES)[number]
+
+export type ProjectFieldEntry = {
+	gid: string
+	name: string
+}
+
+export type ProjectFields = { [K in FieldRole]?: ProjectFieldEntry }
 
 export type RepoUserEntry = {
 	gid: string
@@ -152,14 +169,62 @@ export function parseProjectEntries(raw: unknown, label: string): RepoProjectEnt
 		if (project.default !== undefined && project.default !== true) {
 			throw new Error(`${label}[${index}].default must be true when present`)
 		}
+		const fields = project.fields === undefined ? undefined : parseFields(project.fields, `${label}[${index}].fields`)
 		return {
 			gid: project.gid,
 			name: project.name,
 			aliases: aliases as string[],
 			...(project.purpose !== undefined && { purpose: project.purpose as string }),
 			...(project.default === true && { default: true as const }),
+			...(fields && { fields }),
 		}
 	})
+}
+
+/** Unknown roles are rejected rather than ignored, so a typo reports itself instead of doing nothing. */
+function parseFields(raw: unknown, label: string): ProjectFields {
+	if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+		throw new Error(`${label} must be an object`)
+	}
+	const fields: ProjectFields = {}
+	for (const [role, value] of Object.entries(raw)) {
+		if (!(FIELD_ROLES as readonly string[]).includes(role)) {
+			throw new Error(`Unknown field role ${label}.${role}; expected one of ${FIELD_ROLES.join(', ')}`)
+		}
+		const entry = value as Record<string, unknown> | null
+		if (!entry || typeof entry !== 'object') {
+			throw new Error(`${label}.${role} must be an object`)
+		}
+		if (typeof entry.gid !== 'string' || entry.gid.length === 0) {
+			throw new Error(`${label}.${role}.gid must be a non-empty string`)
+		}
+		if (typeof entry.name !== 'string' || entry.name.length === 0) {
+			throw new Error(`${label}.${role}.name must be a non-empty string`)
+		}
+		fields[role as FieldRole] = { gid: entry.gid, name: entry.name }
+	}
+	return fields
+}
+
+/** Register a field for one role on a project, or clear the role with `null`. */
+export function setProjectField(
+	config: RepoConfig,
+	projectGid: string,
+	role: FieldRole,
+	field: ProjectFieldEntry | null,
+): RepoConfig {
+	if (!config.projects.some((project) => project.gid === projectGid)) {
+		throw new Error(`Project ${projectGid} is not registered in the repo config`)
+	}
+	return {
+		...config,
+		projects: config.projects.map((project) => {
+			if (project.gid !== projectGid) return project
+			const { fields: _drop, ...rest } = project
+			const fields = patchBlock(project.fields, { [role]: field })
+			return fields ? { ...rest, fields } : rest
+		}),
+	}
 }
 
 /** Parse one `{ gid, name, email?, aliases }` user entry, shared by the repo config and the global registry's flat user list. */
@@ -292,6 +357,7 @@ export function addProject(config: RepoConfig, entry: RepoProjectEntry): RepoCon
 		aliases,
 		...(purpose !== undefined && { purpose }),
 		...(existing.default && { default: true as const }),
+		...(existing.fields && { fields: existing.fields }),
 	}
 	return { ...config, projects }
 }

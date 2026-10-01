@@ -38,6 +38,11 @@ copy cyber-asana ships. The CLI and MCP read the same frontmatter. Write the tas
 | `description_template` | The CLI and MCP fill it in as the description when you pass no notes. Pass your own `notes`/`html_notes` only when you have real content, and start from the template's headings when you do |
 | `default_tags` | Applied automatically when you pass no tags. Each entry is a tag GID or a tag name resolved in the workspace. Pass `tag_gids` (CLI: `--tag`) only to override them |
 
+When the project has a story point or task point field, set it as the reference's **Story points**
+section says. The field's GID is in the project's `fields.story_points` in `.agents/cyber-asana.json`;
+when it is missing, `cyber-asana config discover-fields <project>` finds and saves it. Pass the
+estimate in `custom_fields` (CLI: `--custom-field <field-gid>=<points>`).
+
 ### 2. Resolve project
 
 Pick the first applicable source:

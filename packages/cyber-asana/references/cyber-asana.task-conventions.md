@@ -46,6 +46,15 @@ Projects and milestones are out of scope for this reference.
 - Set a custom field only when the project defines it and the value is known.
 - Pass enum values by their option GID. Look them up with `asana_custom_field_get` rather than guessing.
 
+### Story points
+
+Apply when the task's project has a story point or task point field.
+
+- **Find the field:** read `fields.story_points` on the project's entry in `.agents/cyber-asana.json`. When the entry has none, run `cyber-asana config discover-fields <project>`. It finds the field by name and saves its GID there, so later tasks skip the lookup. When it reports several candidates, ask which one to use and save it with `cyber-asana config set-field story_points <field-gid> --project <project>`. Never hard-code a field GID: it differs per workspace and project.
+- **Unit:** 1 point is the effort a senior staff engineer who knows the tech stack and the domain needs to fix a one-line bug. That is about one hour of work.
+- **Estimate** a new task from its `## Done when`: the hours that engineer would need, in points. Round to the nearest value the field allows. For an enum field, pass the option GID of that value.
+- **Measure** a finished task the same way, from the work actually done rather than the work planned.
+
 ## Comments
 
 - Comment to record progress or a decision on an existing task. Do not rewrite its description for that.

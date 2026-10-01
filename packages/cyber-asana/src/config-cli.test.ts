@@ -968,4 +968,99 @@ describe('config/cli', () => {
 			expect(JSON.parse(await readFile(configPath, 'utf8')).conventions).toEqual({ default_tags: ['eng'] })
 		})
 	})
+
+	describe('project fields', () => {
+		const listSettingsMock = vi.fn()
+		const getCustomFieldMock = vi.fn()
+
+		async function setup(projects: unknown[]) {
+			root = await mkdtemp(join(tmpdir(), 'cyber-asana-config-cli-'))
+			await mkdir(join(root, '.git'))
+			await mkdir(join(root, '.agents'))
+			const configPath = join(root, '.agents', 'cyber-asana.json')
+			await writeFile(configPath, JSON.stringify({ schema_version: 2, projects }))
+			return configPath
+		}
+
+		async function run(...args: string[]) {
+			const configCommand = await loadConfigCommand()
+			const program = new Command().addCommand(
+				configCommand(
+					() => ({ getProject: getProjectMock }) as never,
+					undefined,
+					undefined,
+					() => ({ listCustomFieldSettingsForProject: listSettingsMock, getCustomField: getCustomFieldMock }) as never,
+				),
+			)
+			process.argv = ['node', 'test', '--json']
+			await program.parseAsync(['node', 'test', 'config', ...args], { from: 'node' })
+			return JSON.parse(logSpy.mock.calls.at(-1)?.[0] as string)
+		}
+
+		const readProjects = async (path: string) => JSON.parse(await readFile(path, 'utf8')).projects
+
+		it('discover-fields saves the story points field of a project named by alias', async () => {
+			const configPath = await setup([{ gid: '111', name: 'Backend', aliases: ['api'] }])
+			listSettingsMock.mockResolvedValue({
+				data: [
+					{ custom_field: { gid: '900', name: 'Story Points', resource_subtype: 'number' } },
+					{ custom_field: { gid: '901', name: 'Priority', resource_subtype: 'enum' } },
+				],
+			})
+
+			const result = await run('discover-fields', 'api', '--config', configPath)
+
+			expect(listSettingsMock).toHaveBeenCalledWith('111', expect.objectContaining({ fetchAll: true }))
+			expect(result).toMatchObject({ project: { gid: '111' }, fields: { story_points: { gid: '900' } } })
+			expect((await readProjects(configPath))[0].fields).toEqual({
+				story_points: { gid: '900', name: 'Story Points' },
+			})
+		})
+
+		it('discover-fields falls back to the default project', async () => {
+			const configPath = await setup([{ gid: '111', name: 'Backend', aliases: [], default: true }])
+			listSettingsMock.mockResolvedValue({ data: [] })
+			await run('discover-fields', '--config', configPath)
+			expect(listSettingsMock).toHaveBeenCalledWith('111', expect.anything())
+		})
+
+		it('discover-fields reports an unregistered project with the add command', async () => {
+			const configPath = await setup([])
+			await expect(run('discover-fields', 'nope', '--config', configPath)).rejects.toThrow(/cyber-asana config add/)
+			expect(listSettingsMock).not.toHaveBeenCalled()
+		})
+
+		it('discover-fields reports several candidates and points at set-field', async () => {
+			const configPath = await setup([{ gid: '111', name: 'Backend', aliases: [] }])
+			listSettingsMock.mockResolvedValue({
+				data: [
+					{ custom_field: { gid: '900', name: 'Story Points', resource_subtype: 'number' } },
+					{ custom_field: { gid: '902', name: 'Points', resource_subtype: 'number' } },
+				],
+			})
+			const result = await run('discover-fields', '111', '--config', configPath)
+			expect(result.ambiguous.story_points).toHaveLength(2)
+			expect((await readProjects(configPath))[0]).not.toHaveProperty('fields')
+		})
+
+		it('set-field registers a field by GID, fetching its name', async () => {
+			const configPath = await setup([{ gid: '111', name: 'Backend', aliases: ['api'] }])
+			getCustomFieldMock.mockResolvedValue({ gid: '700', name: 'Effort' })
+			await run('set-field', 'story_points', '700', '--project', 'api', '--config', configPath)
+			expect((await readProjects(configPath))[0].fields).toEqual({ story_points: { gid: '700', name: 'Effort' } })
+		})
+
+		it('set-field rejects an unknown role', async () => {
+			const configPath = await setup([{ gid: '111', name: 'Backend', aliases: [], default: true }])
+			await expect(run('set-field', 'velocity', '700', '--config', configPath)).rejects.toThrow(/story_points/)
+		})
+
+		it('unset-field clears a role', async () => {
+			const configPath = await setup([
+				{ gid: '111', name: 'Backend', aliases: [], default: true, fields: { story_points: { gid: '7', name: 'E' } } },
+			])
+			await run('unset-field', 'story_points', '--config', configPath)
+			expect((await readProjects(configPath))[0]).not.toHaveProperty('fields')
+		})
+	})
 })

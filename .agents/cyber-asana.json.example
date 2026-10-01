@@ -6,7 +6,10 @@
       "name": "cyber-asana",
       "aliases": ["cyber-asana", "cli"],
       "purpose": "CLI, MCP server, and plugin work for this package",
-      "default": true
+      "default": true,
+      "fields": {
+        "story_points": { "gid": "1215109751174000", "name": "Story Points" }
+      }
     }
   ],
   "defaults": {
