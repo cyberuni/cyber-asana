@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { loadConventions } from '../conventions.js'
 import { resolveEffectiveAssignee } from '../effective-config.js'
 import { customTypeParam, paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
-import { loadDefaults, resolveProjectRef } from '../repo-config.js'
+import { loadDefaults, resolveProjectRef, resolveSectionPlacement } from '../repo-config.js'
 import { resolveTagRefs } from '../tags/resolve.js'
 import {
 	addDependencies,
@@ -30,7 +30,13 @@ import {
 	type TaskApi,
 	updateTask,
 } from './api.js'
-import { applyConventions, buildTaskCreateFields, buildTaskUpdateFields, parseGidList } from './write-options.js'
+import {
+	applyConventions,
+	buildTaskCreateFields,
+	buildTaskUpdateFields,
+	parseGidList,
+	placeInSection,
+} from './write-options.js'
 
 /** `assignee_gid` is taken as-is; `assignee` may name a user in the repo registry. */
 async function assigneeFromParams(assigneeGid?: string, assignee?: string) {
@@ -356,6 +362,12 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 			parent_gid: z.string().optional().describe('Parent task GID'),
 			resource_subtype: z.string().optional().describe('Task resource subtype'),
 			custom_fields: z.record(z.string(), z.unknown()).optional().describe('Custom field values keyed by GID'),
+			default_section: z
+				.boolean()
+				.optional()
+				.describe(
+					"When the task lands in the repo config's default project and defaults.section is set, it is created in that section. Set false to skip it.",
+				),
 		},
 		async ({
 			workspace_gid,
@@ -377,6 +389,7 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 			parent_gid,
 			resource_subtype,
 			custom_fields,
+			default_section,
 		}) => {
 			const conventions = await loadConventions()
 			const givenTags = typeof tag_gids === 'string' ? parseGidList(tag_gids) : tag_gids
@@ -399,11 +412,14 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 				}),
 				conventions,
 			)
+			const placement = default_section === false ? undefined : await resolveSectionPlacement(fields.projects)
 			return {
 				content: [
 					{
 						type: 'text',
-						text: JSON.stringify(await resolveTaskApi(api).createTask(workspace_gid, name, fields)),
+						text: JSON.stringify(
+							await resolveTaskApi(api).createTask(workspace_gid, name, placeInSection(fields, placement)),
+						),
 					},
 				],
 			}
