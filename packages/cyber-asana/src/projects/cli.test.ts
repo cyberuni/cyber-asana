@@ -401,6 +401,11 @@ describe('projects/cli', () => {
 			.addCommand(projectCommand())
 			.parseAsync(['node', 'test', 'project', 'update', '123', '--no-archived'], { from: 'node' })
 		expect(updateProjectMock).toHaveBeenLastCalledWith('123', { archived: false })
+
+		await new Command()
+			.addCommand(projectCommand())
+			.parseAsync(['node', 'test', 'project', 'update', '123', '--name', 'Renamed'], { from: 'node' })
+		expect(updateProjectMock.mock.calls.at(-1)?.[1]).not.toHaveProperty('archived')
 	})
 
 	it('project create carries the archived flag', async () => {
