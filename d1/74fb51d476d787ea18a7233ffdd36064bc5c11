@@ -1,0 +1,23 @@
+packages/cyber-asana/package.json
+  s_50dda24ec542b6::t_6c037bcc58d6ce 16
+packages/cyber-asana/references/cyber-asana.work-hierarchy.md
+  s_50dda24ec542b6::t_c85baea7e391d2 1-77
+.changeset/work-hierarchy-reference.md
+  s_50dda24ec542b6::t_a5eaf079d53c13 1-5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "d174fb51d476d787ea18a7233ffdd36064bc5c11",
+  "prompts": {},
+  "sessions": {
+    "s_50dda24ec542b6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "46e40a2e-6fca-47c9-a99f-55825722a920",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "unional <homawong@gmail.com>"
+    }
+  }
+}
