@@ -147,6 +147,23 @@ cyber-asana config list-users [--global|--merged]
 cyber-asana config path [--global]    # where the file lives
 ```
 
+### G. Task conventions
+
+Task conventions (`task_name_format`, `description_template`, `default_tags`) are not part of
+either registry. They live in the frontmatter of the `cyber-asana.work-hierarchy` reference —
+load it with the `reference` skill in the `buddy-agent-harness` plugin. To set one for this repo,
+add the key to the frontmatter of `.agents/references/cyber-asana.work-hierarchy.md` (create it
+with `merge: merge-sections` so the shipped guidance still applies), and commit that file.
+
+A repo config that still has a `conventions` block fails to load. Move it:
+
+```bash
+cyber-asana config migrate-conventions --dry-run   # preview
+cyber-asana config migrate-conventions             # write the reference, drop the block
+```
+
+It refuses a key the repo reference already sets; settle that one by hand.
+
 ## Assigning by name
 
 `task create`, `task update`, and `task subtask create` (`--assignee <value>`; MCP: `assignee`)

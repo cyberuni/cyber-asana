@@ -12,10 +12,5 @@
   "defaults": {
     "assignee": "ali",
     "section": "1215109751173999"
-  },
-  "conventions": {
-    "task_name_format": "<area>: <summary>",
-    "description_template": "## Problem\n\n## Plan",
-    "default_tags": ["agent-created"]
   }
 }

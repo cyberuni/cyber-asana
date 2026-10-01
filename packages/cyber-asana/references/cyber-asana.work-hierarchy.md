@@ -1,7 +1,8 @@
 ---
 description: How to shape Asana work — which object to use, and what to fill in for projects, sections, tasks, subtasks, milestones, custom fields, and comments.
 tags: [asana, tasks, conventions, tracking]
-# Settings the cyber-asana CLI and MCP apply themselves. Uncomment one to set it.
+# Task conventions the cyber-asana CLI and MCP read from this frontmatter. Set them in a repo
+# copy at .agents/references/cyber-asana.work-hierarchy.md with `merge: merge-sections`, not here.
 # task_name_format: "<area>: <summary>"
 # description_template: |
 #   ## Context
