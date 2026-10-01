@@ -50,7 +50,7 @@
 		"@modelcontextprotocol/sdk": "^1.30.0",
 		"asana": "^3.1.12",
 		"buddy-agent-harness": "^0.14.0",
-		"commander": "^14.0.0",
+		"commander": "^15.0.0",
 		"yaml": "^2.9.0",
 		"zod": "^4.4.3"
 	},
