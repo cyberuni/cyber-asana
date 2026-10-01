@@ -15,6 +15,12 @@ story points; comments. This file does not restate those rules. **How the task r
 decided here: workspace and project resolution, URL parsing, the registry, assignees named by a
 person, the CLI call, and the confirmation.
 
+**Plan first.** A request to create a task starts in [`plan-work.md`](plan-work.md), which splits
+the request into units of work, looks each one up so an existing task is reused rather than filed
+twice, groups them, and confirms the plan. It hands each task to create back here. Arriving from
+`plan-work.md` or from [`import-todos.md`](import-todos.md), which has its own lookup and
+confirmation, the plan is done: start at § 1.
+
 Credentials and the optional repo project registry are set up by the `init-asana` skill; it also
 says how to invoke the CLI (**Ensure cyber-asana CLI**). Every `cyber-asana` command below means
 that form. The cyber-asana MCP server is opt-in; the `asana_*` tool names given in parentheses apply

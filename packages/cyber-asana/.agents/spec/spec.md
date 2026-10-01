@@ -105,6 +105,7 @@ they all satisfy.
 | `output-contract` | `axi/` (reference) |
 | `packaging` | `skills/` (behavior) |
 | `parsing` | `url/` (behavior) |
+| `planning` | `skills/asana/` (reference) |
 | `portfolio-write` | `portfolios/` (behavior) |
 | `portfolios` | `portfolios/` (behavior) |
 | `precedence` | `config/` (behavior) |
