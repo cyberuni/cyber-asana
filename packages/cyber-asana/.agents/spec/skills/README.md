@@ -8,7 +8,7 @@ concept: [cyber-asana, skills, catalog, agent-configuration, packaging]
 ## What
 
 A **skill** is a folder of instructions an AI agent loads when a task matches it. `cyber-asana`
-ships nine of them under `packages/cyber-asana/skills/`, and they are product: they sit on the
+ships eight of them under `packages/cyber-asana/skills/`, and they are product: they sit on the
 package's publish allowlist, every plugin manifest points at them, and for most users the skills are
 the first thing the package does — the CLI is what the skills reach for, with the opt-in MCP server as an optional equivalent.
 
@@ -19,9 +19,9 @@ folder is not found. A description that never says *when* to use it is never cho
 too long for the runtime's budget is cut, and the part that got cut is usually the trigger. None of
 those failures is visible in the file — the skill looks fine and simply never fires.
 
-So the nine skills share one **catalog contract**: the structural rules every skill in the folder
+So the eight skills share one **catalog contract**: the structural rules every skill in the folder
 satisfies in order to be loadable, followable, discoverable, and shipped. This node owns that
-contract. It is the thing that keeps nine skills, written months apart, from each inventing its own
+contract. It is the thing that keeps eight skills, written months apart, from each inventing its own
 answer to "what does a skill file look like".
 
 **Key terms**
@@ -37,7 +37,7 @@ answer to "what does a skill file look like".
   ("Use this skill when …"), as opposed to what it is about.
 - **Reference** — a file under a skill's `references/`, named from the body, holding detail the
   agent loads only when it needs it.
-- **Catalog** — all nine skills taken together, plus the two published tables that list them.
+- **Catalog** — all eight skills taken together, plus the two published tables that list them.
 - **Publish allowlist** — `package.json`'s `files`. A path not on it never reaches the tarball.
 - **`SETUP.md`** — the plugin root's setup instructions: what an agent reads once the plugin
   is installed, covering only the credentials the install cannot supply. It is
@@ -69,7 +69,7 @@ that names its subject and its trigger — and no suite of its own.
 
 ## Use Cases
 
-**Subject** — the shipped skill catalog: the nine directories under
+**Subject** — the shipped skill catalog: the eight directories under
 `packages/cyber-asana/skills/`, the plugin root's `SETUP.md` that hands off to them, the two
 published tables that list them, and the packaging that carries them to a consumer. The contract is enforced in-repo by `src/skills/catalog.ts`, run from
 `src/skills/catalog.test.ts`. There is **no CLI verb and no MCP tool**: the catalog is checked when
@@ -151,7 +151,7 @@ The load-bearing edges:
   different audiences reached by different paths. A skill listed in one and not the other is not
   half-discoverable; it is invisible to whoever uses the other door.
 - **Publishing is checked because the failure is silent and total.** `files` and the manifest are
-  two lines of configuration, and if either is wrong the nine skills are perfect and absent. Nothing
+  two lines of configuration, and if either is wrong the eight skills are perfect and absent. Nothing
   else in the repository notices — every test still passes against files that never shipped.
 
 ## Scenario map

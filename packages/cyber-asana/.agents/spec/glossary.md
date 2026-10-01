@@ -75,7 +75,7 @@ Terms this spec leans on. Asana's own vocabulary first, then the vocabulary this
   skill when …"), as opposed to what it is about. Without it a skill is never chosen.
 - **Description budget** — the 120-character ceiling on a skill's `description`. Past it, agent
   runtimes truncate, and what gets cut is usually the trigger language.
-- **Catalog** — the nine shipped skills taken together, plus the two published tables that list
+- **Catalog** — the eight shipped skills taken together, plus the two published tables that list
   them (the readme and the docs site's skills index).
 - **Publish allowlist** — `package.json`'s `files`. A path not on it never reaches the tarball,
   which is why the skills directory's presence there is a frozen edge rather than a convention.
