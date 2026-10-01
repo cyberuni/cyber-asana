@@ -1,0 +1,21 @@
+packages/cyber-asana/.claude-plugin/plugin.json
+  s_491878378365b3::t_972c5f3111af10 11-12
+packages/cyber-asana/.plugin/plugin.json
+  s_491878378365b3::t_94246ea566e880 15-17
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "399bb472e00841cb092d8c86156777a9fa710263",
+  "prompts": {},
+  "sessions": {
+    "s_491878378365b3": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "302ea640-f7fd-4276-a202-837c5c239cce",
+        "model": "unknown"
+      },
+      "human_author": "unional <homawong@gmail.com>"
+    }
+  }
+}
