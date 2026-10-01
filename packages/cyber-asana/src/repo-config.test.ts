@@ -342,7 +342,7 @@ describe('defaults block', () => {
 describe('conventions block', () => {
 	it('rejects a conventions block and names the migrate command', () => {
 		expect(() => parseRepoConfig({ schema_version: 2, projects: [], conventions: { default_tags: ['eng'] } })).toThrow(
-			/conventions.*cyber-asana\.work-hierarchy.*cyber-asana config migrate-conventions/s,
+			/conventions.*cyber-asana\.task-conventions.*cyber-asana config migrate-conventions/s,
 		)
 	})
 })

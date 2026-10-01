@@ -150,9 +150,9 @@ cyber-asana config path [--global]    # where the file lives
 ### G. Task conventions
 
 Task conventions (`task_name_format`, `description_template`, `default_tags`) are not part of
-either registry. They live in the frontmatter of the `cyber-asana.work-hierarchy` reference —
+either registry. They live in the frontmatter of the `cyber-asana.task-conventions` reference —
 load it with the `reference` skill in the `buddy-agent-harness` plugin. To set one for this repo,
-add the key to the frontmatter of `.agents/references/cyber-asana.work-hierarchy.md` (create it
+add the key to the frontmatter of `.agents/references/cyber-asana.task-conventions.md` (create it
 with `merge: merge-sections` so the shipped guidance still applies), and commit that file.
 
 A repo config that still has a `conventions` block fails to load. Move it:

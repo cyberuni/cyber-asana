@@ -185,7 +185,7 @@ cyber-asana config show
 
 ### Task conventions
 
-Repo house style for new tasks (`task_name_format`, `description_template`, `default_tags`) lives in the frontmatter of the `cyber-asana.work-hierarchy` reference, not in `.agents/cyber-asana.json`. The CLI and MCP resolve that reference the [buddy-agent-harness](https://github.com/repobuddy/buddy-agent-harness) way: the repo copy (`.agents/references/`), the user copy (`~/.agents/references/`), installed plugins, then the copy this package ships, merged key by key. To set a convention, write a repo copy:
+Repo house style for new tasks (`task_name_format`, `description_template`, `default_tags`) lives in the frontmatter of the `cyber-asana.task-conventions` reference, not in `.agents/cyber-asana.json`. The CLI and MCP resolve that reference the [buddy-agent-harness](https://github.com/repobuddy/buddy-agent-harness) way: the repo copy (`.agents/references/`), the user copy (`~/.agents/references/`), installed plugins, then the copy this package ships, merged key by key. To set a convention, write a repo copy:
 
 ```md
 ---

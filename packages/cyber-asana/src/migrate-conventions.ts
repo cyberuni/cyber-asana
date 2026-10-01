@@ -67,7 +67,7 @@ function withKeys(text: string, block: Record<string, unknown>): string {
 
 /**
  * Move a repo config's `conventions` block into the frontmatter of the repo copy of the
- * `cyber-asana.work-hierarchy` reference, then drop the block. The reference is written before
+ * `cyber-asana.task-conventions` reference, then drop the block. The reference is written before
  * the config, so a failure never loses the settings.
  */
 export async function migrateConventions({

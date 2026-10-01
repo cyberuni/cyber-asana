@@ -32,7 +32,7 @@ describe('migrateConventions', () => {
 		await mkdir(join(root, '.git'))
 		await mkdir(join(root, '.agents'))
 		configPath = join(root, '.agents', 'cyber-asana.json')
-		reference = join(root, '.agents', 'references', 'cyber-asana.work-hierarchy.md')
+		reference = join(root, '.agents', 'references', 'cyber-asana.task-conventions.md')
 	})
 
 	afterEach(async () => {
@@ -140,13 +140,13 @@ describe('migrateConventions', () => {
 describe('referencePath', () => {
 	it('puts the reference beside a config in .agents', () => {
 		expect(referencePath('/repo/.agents/cyber-asana.json', '/elsewhere')).toBe(
-			join('/repo', '.agents', 'references', 'cyber-asana.work-hierarchy.md'),
+			join('/repo', '.agents', 'references', 'cyber-asana.task-conventions.md'),
 		)
 	})
 
 	it('falls back to the given root for a config elsewhere', () => {
 		expect(referencePath('/tmp/config.json', '/repo')).toBe(
-			join('/repo', '.agents', 'references', 'cyber-asana.work-hierarchy.md'),
+			join('/repo', '.agents', 'references', 'cyber-asana.task-conventions.md'),
 		)
 	})
 })

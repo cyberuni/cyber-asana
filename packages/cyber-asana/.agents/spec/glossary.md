@@ -57,7 +57,7 @@ Terms this spec leans on. Asana's own vocabulary first, then the vocabulary this
   `.agents/cyber-asana.json` (shape documented by the tracked `.agents/cyber-asana.json.example`).
   A project entry carries `aliases`, an optional `purpose`, and an optional `default: true`
   marking the fallback project; an optional top-level `defaults` (assignee, section) block rounds
-  it out. Task conventions are not in it — they live in the `cyber-asana.work-hierarchy`
+  it out. Task conventions are not in it — they live in the `cyber-asana.task-conventions`
   reference's frontmatter. The
   workspace GID deliberately stays out of it — see
   [decision 0001](design/decisions/0001-no-workspace-gid-in-repo-config.md).

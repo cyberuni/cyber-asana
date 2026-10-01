@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { loadConventions, packageRoot, parseConventions } from './conventions.js'
 
-const REFERENCE = 'cyber-asana.work-hierarchy.md'
+const REFERENCE = 'cyber-asana.task-conventions.md'
 
 async function writeText(path: string, text: string) {
 	await mkdir(dirname(path), { recursive: true })

@@ -22,7 +22,7 @@ name), an optional `purpose` (one line saying what belongs there), and an option
 marking the project commands fall back to when none is given — at most one project. An optional
 top-level `defaults` block (an `assignee` and a `section` a command falls back to when not told one)
 rounds the file out. Task conventions (`task_name_format`, `description_template`, `default_tags`)
-are deliberately not here: their one source is the frontmatter of the `cyber-asana.work-hierarchy`
+are deliberately not here: their one source is the frontmatter of the `cyber-asana.task-conventions`
 reference, resolved through the buddy-agent-harness layers and merged key by key, and a file that
 still carries a `conventions` block is rejected with `config migrate-conventions` named as the fix.
 This is `schema_version: 2`;
@@ -143,7 +143,7 @@ authority without adding reach.
 | `config sync` (CLI) | projects were renamed in Asana and the committed names have drifted | optional `--config <path>` | every registered name refreshed from Asana, written only if something changed |
 | `config set <key> <value>` (CLI) | a repository wants a fallback recorded | a dotted key (`defaults.assignee`, `defaults.section`) and a value | the block updated and the file rewritten |
 | `config unset <key>` (CLI) | a fallback no longer applies | a dotted key | the key cleared, and the block dropped once it holds nothing |
-| `config migrate-conventions` (CLI) | a repo config still carries a legacy `conventions` block | optional `--config <path>`, `--dry-run` | the block's keys added to the frontmatter of `.agents/references/cyber-asana.work-hierarchy.md` (created with `merge: merge-sections` when absent; a key it already sets is refused), then the block dropped from the file |
+| `config migrate-conventions` (CLI) | a repo config still carries a legacy `conventions` block | optional `--config <path>`, `--dry-run` | the block's keys added to the frontmatter of `.agents/references/cyber-asana.task-conventions.md` (created with `merge: merge-sections` when absent; a key it already sets is refused), then the block dropped from the file |
 | `config path --global` (CLI) | operator wants to know where the global registry lives | none | the resolved global file path (default location or `CYBER_ASANA_GLOBAL_CONFIG`) |
 | `config show --global` / `config list --global` (CLI) | operator or agent wants the projects paired with a repo in the personal registry | optional `--repo <key>` (else auto-detected) | the global path, the resolved repo key, and a GID/Name row per entry for that repo |
 | `config resolve-project <name> --global` (CLI) | a caller wants a name resolved from the personal registry only | the name; optional `--repo <key>` | the matching global entry, with no Asana request |

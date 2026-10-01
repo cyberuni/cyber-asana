@@ -406,9 +406,9 @@ describe('tasks/mcp', () => {
 			process.env.CYBER_ASANA_CONFIG = path
 		}
 
-		/** Task conventions come from the work-hierarchy reference, so set them in a repo copy of it. */
+		/** Task conventions come from the task-conventions reference, so set them in a repo copy of it. */
 		async function useConventions(conventions: Record<string, unknown>) {
-			const path = join(dir as string, '.agents', 'references', 'cyber-asana.work-hierarchy.md')
+			const path = join(dir as string, '.agents', 'references', 'cyber-asana.task-conventions.md')
 			await mkdir(dirname(path), { recursive: true })
 			await writeFile(path, `---\n${stringify({ merge: 'merge-sections', ...conventions })}---\n`)
 		}

@@ -918,7 +918,7 @@ export function configCommand(getProjects: () => ProjectApi, getUsers?: () => Us
 	cmd
 		.command('migrate-conventions')
 		.description(
-			'Move a legacy conventions block into the frontmatter of .agents/references/cyber-asana.work-hierarchy.md',
+			'Move a legacy conventions block into the frontmatter of .agents/references/cyber-asana.task-conventions.md',
 		)
 		.option('--config <path>', 'Config file path (overrides CYBER_ASANA_CONFIG)')
 		.option('--dry-run', 'Show what would change without writing')

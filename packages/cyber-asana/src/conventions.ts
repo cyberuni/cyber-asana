@@ -9,7 +9,7 @@ import { parseReferenceName, type ReferenceLayer, referenceLayers, resolveRefere
  * them: resolved through the buddy-agent-harness layers (managed, repo, user, installed plugins,
  * then the copy this package ships) and merged key by key.
  */
-export const CONVENTIONS_REFERENCE = 'cyber-asana.work-hierarchy'
+export const CONVENTIONS_REFERENCE = 'cyber-asana.task-conventions'
 
 const PLUGIN_NAME = 'cyber-asana'
 
@@ -88,7 +88,7 @@ async function conventionLayers(opts: Required<Omit<LoadConventionsOptions, 'war
 }
 
 /**
- * The task conventions from the resolved `cyber-asana.work-hierarchy` frontmatter, or undefined
+ * The task conventions from the resolved `cyber-asana.task-conventions` frontmatter, or undefined
  * when nothing sets them. An ambiguous name warns rather than throws, so a normal task create
  * still goes through.
  */

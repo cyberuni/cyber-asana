@@ -876,7 +876,7 @@ describe('config/cli', () => {
 			expect((await run(configPath, 'set', 'defaults.assignee', 'ali')).defaults).toEqual({ assignee: 'ali' })
 		})
 
-		it('rejects a conventions key, which now lives in the work-hierarchy reference', async () => {
+		it('rejects a conventions key, which now lives in the task-conventions reference', async () => {
 			const configPath = await writeConfig({ schema_version: 2, projects: [] })
 
 			await expect(run(configPath, 'set', 'conventions.task_name_format', '<area>: <summary>')).rejects.toThrow(
@@ -944,7 +944,7 @@ describe('config/cli', () => {
 				projects: [],
 				conventions: { default_tags: ['eng'] },
 			})
-			const reference = join(root as string, '.agents', 'references', 'cyber-asana.work-hierarchy.md')
+			const reference = join(root as string, '.agents', 'references', 'cyber-asana.task-conventions.md')
 
 			expect(await migrate(configPath)).toEqual({
 				config: configPath,

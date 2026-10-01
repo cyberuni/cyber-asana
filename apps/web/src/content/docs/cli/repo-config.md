@@ -84,7 +84,7 @@ cyber-asana config migrate-conventions --dry-run      # move a legacy convention
 | `remove-user` | `<query>` | Remove the user a GID, alias, email, or name resolves to |
 | `set` | `<key> <value>` | Set `defaults.assignee` or `defaults.section` |
 | `unset` | `<key>` | Clear a key `set` accepts |
-| `migrate-conventions` | `[--dry-run]` | Move a legacy `conventions` block into the frontmatter of `.agents/references/cyber-asana.work-hierarchy.md` and drop it from the config. Creates the reference with `merge: merge-sections` when absent; refuses a key an existing reference already sets |
+| `migrate-conventions` | `[--dry-run]` | Move a legacy `conventions` block into the frontmatter of `.agents/references/cyber-asana.task-conventions.md` and drop it from the config. Creates the reference with `merge: merge-sections` when absent; refuses a key an existing reference already sets |
 
 Every subcommand accepts `--config <path>`, which overrides the `CYBER_ASANA_CONFIG`
 environment variable.
@@ -97,7 +97,7 @@ project itself is not part of `defaults` — it is whichever project entry carri
 
 ## Task conventions
 
-Repo house style lives in the frontmatter of the `cyber-asana.work-hierarchy` reference, not in
+Repo house style lives in the frontmatter of the `cyber-asana.task-conventions` reference, not in
 this file. The CLI and MCP resolve that reference through the
 [buddy-agent-harness](https://github.com/repobuddy/buddy-agent-harness) layers — the repo copy
 (`.agents/references/`), the user copy (`~/.agents/references/`), installed plugins, then the copy
