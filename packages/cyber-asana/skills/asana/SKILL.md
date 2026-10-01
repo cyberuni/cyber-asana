@@ -1,6 +1,6 @@
 ---
 name: asana
-description: Use this skill when the user wants Asana work done — create a task, track session work, report, link a PR, or set up.
+description: Use this skill when the user wants Asana work — create a task, track a session, import TODOs, report, link a PR, set up.
 ---
 
 # Asana
@@ -24,7 +24,7 @@ PR), run them in order.
 | a sprint summary for a retro or stakeholders | `asana-sprint-report` skill |
 | post a PR URL on a task that already exists | `link-pr-to-task` skill |
 | clean up a task or project description, or fix "XML is invalid" | `improve-description` skill |
-| turn TODO/FIXME comments into tasks | `create-tasks-from-code` skill |
+| turn TODO/FIXME comments in the code into tasks ("create tasks from TODOs", a tech-debt sweep) | **Import TODOs** below |
 | pull a project's tasks into local markdown | `sync-asana-project` skill |
 
 Anything else — a single read or update of one Asana object — needs no procedure: run the
@@ -38,6 +38,12 @@ Read [`references/create-task.md`](references/create-task.md) and follow it, wit
 request as its input. It is the one home of the task-creation procedure; the
 `/cyber-asana:create-task` command routes here too. Do not create a task from memory of its
 steps: the file carries the conventions, URL, and section rules.
+
+## Import TODOs
+
+Read [`references/import-todos.md`](references/import-todos.md) and follow it, with the user's
+request as its input. It is the one home of the TODO-import procedure; the
+`/cyber-asana:import-todos` command routes here too.
 
 ## Track session work
 

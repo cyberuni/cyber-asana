@@ -17,7 +17,7 @@ the agent does anything. The rest is paid only when the agent uses the surface.
 | --- | --- | --- |
 | MCP, every tool schema loaded up front | **~21,200** (111 tool schemas) | the tool call and its result |
 | MCP, schemas deferred (Claude Code tool search) | ~650 (111 tool names) | ~190 per tool schema on average, up to ~1,300 (`asana_task_search`) |
-| Skills + CLI | **~360** (9 skill descriptions) | the skill body (~250–2,400 per skill, ~8,600 for all 9), `--help` only if needed (~400 for `task create`) |
+| Skills + CLI | **~330** (8 skill descriptions) | the skill body (~250–2,400 per skill, ~8,300 for all 8), `--help` only if needed (~400 for `task create`) |
 
 Measured on cyber-asana 0.15.0 plus this change. Tokens are approximated as bytes ÷ 4.
 
@@ -34,7 +34,7 @@ The difference depends on the client.
 - **Claude Code** defers MCP tool schemas by default. It loads only the tool names and fetches a
   schema when the agent searches for the tool
   ([Claude Code — MCP tool search](https://code.claude.com/docs/en/mcp#scale-with-mcp-tool-search)).
-  The every-turn cost is then ~650 tokens for MCP against ~360 for the skills, which is a small
+  The every-turn cost is then ~650 tokens for MCP against ~330 for the skills, which is a small
   difference. Per task, a skill body (about 1,000 tokens for the `asana` router, plus its
   task-creation reference) can cost more than one deferred tool schema. Claude Code falls back to
   loading every schema up front with a custom `ANTHROPIC_BASE_URL` or `ENABLE_TOOL_SEARCH=false`.
@@ -86,8 +86,8 @@ Run from `packages/cyber-asana` after `pnpm build`:
 - **MCP tool schemas**: send `initialize`, `notifications/initialized` and `tools/list` as JSON-RPC to
   `node dist/cli.js mcp` over stdin. Measure the bytes of `JSON.stringify(result.tools)`: 84,981
   bytes for 111 tools. Names only: 2,585 bytes.
-- **Skill descriptions**: the bytes between the `---` fences of each `skills/*/SKILL.md`: 1,449 bytes
-  for 9 skills. **Skill bodies**: the rest of each file: 34,294 bytes.
+- **Skill descriptions**: the bytes between the `---` fences of each `skills/*/SKILL.md`: 1,306 bytes
+  for 8 skills. **Skill bodies**: the rest of each file: 33,303 bytes.
 - **CLI help**: the output of `node dist/cli.js task create --help`: 1,577 bytes.
 
 Bytes ÷ 4 is a rough approximation of tokens for English text and JSON. The exact count depends on
