@@ -2,12 +2,15 @@
 	"name": "cyber-asana",
 	"version": "0.15.0",
 	"description": "Asana CLI and agent skills, with an opt-in MCP server",
-	"author": { "name": "unional" },
+	"author": {
+		"name": "unional"
+	},
 	"homepage": "https://github.com/cyberuni/cyber-asana",
 	"repository": "https://github.com/cyberuni/cyber-asana.git",
 	"license": "MIT",
 	"keywords": ["asana", "mcp", "cli", "agent", "productivity"],
 	"skills": "./skills/",
+	"commands": "./commands/",
 	"interface": {
 		"displayName": "Cyber Asana",
 		"category": "productivity"

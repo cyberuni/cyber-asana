@@ -1,6 +1,9 @@
 {
 	"name": "cyberuni",
-	"owner": { "name": "unional", "url": "https://github.com/cyberuni" },
+	"owner": {
+		"name": "unional",
+		"url": "https://github.com/cyberuni"
+	},
 	"description": "Agent plugins from cyberuni",
 	"plugins": [
 		{
@@ -11,12 +14,15 @@
 				"source": "npm",
 				"package": "cyber-asana"
 			},
-			"author": { "name": "unional" },
+			"author": {
+				"name": "unional"
+			},
 			"homepage": "https://github.com/cyberuni/cyber-asana",
-			"repository": "https://github.com/cyberuni/cyber-asana",
+			"repository": "https://github.com/cyberuni/cyber-asana.git",
 			"license": "MIT",
 			"category": "productivity",
-			"keywords": ["asana", "mcp", "cli", "agent", "productivity"]
+			"keywords": ["asana", "mcp", "cli", "agent", "productivity"],
+			"version": "0.15.0"
 		}
 	]
 }

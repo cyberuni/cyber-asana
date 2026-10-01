@@ -35,6 +35,9 @@ importers:
       turbo:
         specifier: ^2.11.5
         version: 2.11.5
+      universal-plugin:
+        specifier: ^0.11.1
+        version: 0.11.1
 
   apps/web:
     dependencies:
@@ -552,6 +555,10 @@ packages:
   '@ctrl/tinycolor@4.2.0':
     resolution: {integrity: sha512-kzyuwOAQnXJNLS9PSyrk0CWk35nWJW/zl/6KvnTBMFK65gm7U1/Z5BqjxeapjZCIhQcM/DsrEmcbRwDyXyXK4A==}
     engines: {node: '>=14'}
+
+  '@cyberuni/agent-harness@0.1.0':
+    resolution: {integrity: sha512-EFi1GZpZ2ziQ+GoE7Fyu0dIn881IVUdxQNXSMDkSCsliz2O8P3hnCxBinLaJYtgN4CuqeE0o9twSLzqD1OIrgQ==}
+    engines: {node: '>=22'}
 
   '@cyberuni/agent-harness@0.3.0':
     resolution: {integrity: sha512-o1q19ZWll8IMpIdUwOZy0ETxryOQvCI3R56lAPOxrBKx/iabxrmZkhRdooDAlnYcny243GR/mkfrqm5e4DrpRg==}
@@ -1266,6 +1273,11 @@ packages:
     resolution: {integrity: sha512-/BGDUyepN6raSPBt+LEoLsWuCLFt5mhxNoogGnIF8voeIft/Oj/NlygGMNl8B0SF2QKw95TxH/WWcJmarW7Xnw==}
     peerDependencies:
       '@biomejs/biome': '>= 2'
+
+  '@repobuddy/upx@0.1.1':
+    resolution: {integrity: sha512-WBLoxQFQN41VmhX/GZ5PNZl8G54VmUL1ovHO1/w5RqOxVSFyOd8RhXrIITq7SVnQMaWJE7GvCmHoDsV+tqf2Cw==}
+    engines: {node: '>=22'}
+    hasBin: true
 
   '@rolldown/binding-android-arm-eabi@1.2.11':
     resolution: {integrity: sha512-A5kXfGKvKWWZE0TtPrfsvT+q4Y5d1QG8gGUzpYjGydM+fARM9MuX90PrXYXe0XbsDVgyxxNzHo6giCj90bsFNw==}
@@ -2054,6 +2066,10 @@ packages:
   commander@11.1.0:
     resolution: {integrity: sha512-yPVavfyCcRhmorC7rWlkHn15b4wDVgVmBA7kV4QVBsF7kv/9TKJAbAXVTxvTnwP8HHKjRCJDClKbciiYS7p0DQ==}
     engines: {node: '>=16'}
+
+  commander@14.0.3:
+    resolution: {integrity: sha512-H+y0Jo/T1RZ9qPP4Eh1pkcQcLRglraJaSLoyOtHxu6AapkjWVCy2Sit1QQ4x3Dng8qDlSsZEet7g5Pq06MvTgw==}
+    engines: {node: '>=20'}
 
   commander@15.0.0:
     resolution: {integrity: sha512-z67u4ZhzCL/Tydu1lJARtEZYWbWaN7oYLHbsuzocr6y4N6WZAagG3RQ4FW61V1/0+jImpj293XfrcYnd1qxtPg==}
@@ -3600,6 +3616,11 @@ packages:
   unist-util-visit@5.1.0:
     resolution: {integrity: sha512-m+vIdyeCOpdr/QeQCu2EzxX/ohgS8KbnPDgFni4dQsfSCtpz8UqDyY5GjRru8PDKuYn7Fq19j1CQ+nJSsGKOzg==}
 
+  universal-plugin@0.11.1:
+    resolution: {integrity: sha512-Cs1ceRTV8uQVYbajvaMcJww04DikyWj5O93GbKdPEMx8L0yaQQGfp/2HtW21wD+LWOyMhk+CfM/V+CUGIaD2nA==}
+    engines: {node: '>=22'}
+    hasBin: true
+
   unpartial@1.0.8:
     resolution: {integrity: sha512-LDZX3wrdUWQdVKLOgouW+fCqNfietx11UzdipDBRsnx1LWKBkv4FpA9OHVeSNz12STLk6oz07dgENEWnHyAgIg==}
     engines: {node: '>= 20'}
@@ -4414,6 +4435,8 @@ snapshots:
 
   '@ctrl/tinycolor@4.2.0': {}
 
+  '@cyberuni/agent-harness@0.1.0': {}
+
   '@cyberuni/agent-harness@0.3.0': {}
 
   '@emnapi/core@1.11.1':
@@ -4942,6 +4965,10 @@ snapshots:
   '@repobuddy/biome@2.5.0(@biomejs/biome@2.5.14)':
     dependencies:
       '@biomejs/biome': 2.5.14
+
+  '@repobuddy/upx@0.1.1':
+    dependencies:
+      semver: 7.8.5
 
   '@rolldown/binding-android-arm-eabi@1.2.11':
     optional: true
@@ -5606,6 +5633,8 @@ snapshots:
   comma-separated-tokens@2.0.3: {}
 
   commander@11.1.0: {}
+
+  commander@14.0.3: {}
 
   commander@15.0.0: {}
 
@@ -7410,6 +7439,14 @@ snapshots:
       '@types/unist': 3.0.3
       unist-util-is: 6.0.1
       unist-util-visit-parents: 6.0.2
+
+  universal-plugin@0.11.1:
+    dependencies:
+      '@cyberuni/agent-harness': 0.1.0
+      '@repobuddy/upx': 0.1.1
+      '@toon-format/toon': 4.1.1
+      commander: 14.0.3
+      semver: 7.8.5
 
   unpartial@1.0.8: {}
 

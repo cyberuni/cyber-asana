@@ -220,6 +220,7 @@ cyber-asana/                    # the package as installed
 ├── .claude-plugin/plugin.json  # Claude Code
 ├── .cursor-plugin/plugin.json  # Cursor
 ├── .codex-plugin/plugin.json   # Codex
+├── com.github.copilot/         # Copilot CLI's commands (spec mode)
 └── dist/                       # CLI (and the opt-in MCP server)
 ```
 
@@ -227,7 +228,7 @@ cyber-asana/                    # the package as installed
 
 The `envValue` guard in `src/env.ts` still treats a value that is exactly an unexpanded reference, like `${ASANA_ACCESS_TOKEN}`, as unset rather than as a credential. It covers MCP configs this repo does not author, where a host that cannot expand a reference forwards its text verbatim — Claude Code [does so when the variable is unset and has no default](https://code.claude.com/docs/en/mcp#environment-variable-expansion-in-mcp-json). Without it the placeholder would outrank the `ASANA_TOKEN` fallback and turn a missing token into a `401`.
 
-Sources live under `packages/cyber-asana/`; the canonical universal manifest is `packages/cyber-asana/.plugin/plugin.json`, and `pnpm version` syncs every manifest's version from the package.
+Sources live under `packages/cyber-asana/`. Root `plugin.json` is the canonical manifest; the vendor manifests and `com.github.copilot/` are derived from it by `pnpm plugin:build`, and `pnpm version` carries the package version into all of them.
 
 ## MCP Server
 

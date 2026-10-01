@@ -73,8 +73,10 @@ async function build(fixture: Fixture): Promise<CatalogSources> {
 		path.join(root, 'package.json'),
 		JSON.stringify({ files: fixture.allowlist ?? ['dist', 'skills', 'SETUP.md'] }),
 	)
-	await mkdir(path.join(root, '.plugin'), { recursive: true })
-	await writeFile(path.join(root, '.plugin', 'plugin.json'), JSON.stringify({ skills: fixture.pointer ?? './skills/' }))
+	await writeFile(
+		path.join(root, 'plugin.json'),
+		JSON.stringify({ extensions: { 'org.cyberuni.universal-plugin': { skills: fixture.pointer ?? './skills/' } } }),
+	)
 
 	const table = (listed: string[]) => `| Skill |\n|---|\n${listed.map((name) => `| ${name} |`).join('\n')}\n`
 	await writeFile(path.join(root, 'readme.md'), table(fixture.readmeLists ?? names))
@@ -86,7 +88,7 @@ async function build(fixture: Fixture): Promise<CatalogSources> {
 		skillsRoot,
 		repoRoot: root,
 		packageJsonPath: path.join(root, 'package.json'),
-		pluginManifestPath: path.join(root, '.plugin', 'plugin.json'),
+		pluginManifestPath: path.join(root, 'plugin.json'),
 		setupPath: path.join(root, 'SETUP.md'),
 		docsListings: ['readme.md', 'apps/web/src/content/docs/skills/index.md'],
 	}
@@ -335,6 +337,6 @@ describe('publishing the catalog', () => {
 	it('a plugin manifest pointing away from the shipped directory is rejected', async () => {
 		const found = await violationsFor('manifest-skills-pointer', { pointer: './agent-skills/' })
 		expect(found).toHaveLength(1)
-		expect(found[0].file).toBe('.plugin/plugin.json')
+		expect(found[0].file).toBe('plugin.json')
 	})
 })
