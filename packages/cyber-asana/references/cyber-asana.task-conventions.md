@@ -44,7 +44,7 @@ Projects and milestones are out of scope for this reference.
 ## Custom fields
 
 - Set a custom field only when the project defines it and the value is known.
-- Pass enum values by their option GID. Look them up with `asana_custom_field_get` rather than guessing.
+- Pass enum values by their option GID. Look them up with `cyber-asana custom-field get <field-gid>` (MCP, if enabled: `asana_custom_field_get`) rather than guessing.
 
 ### Story points
 
