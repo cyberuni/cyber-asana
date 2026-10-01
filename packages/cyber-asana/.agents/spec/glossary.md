@@ -67,7 +67,7 @@ Terms this spec leans on. Asana's own vocabulary first, then the vocabulary this
   uniform array of objects into one header row plus a length marker. Opt-in on both surfaces
   (`--toon`, `CYBER_ASANA_MCP_FORMAT=toon`).
 - **Skill** — one directory under `packages/cyber-asana/skills/`, holding a `SKILL.md` and
-  optionally a `references/` folder. An AI agent loads it when a task matches its description. Nine
+  optionally a `references/` folder. An AI agent loads it when a task matches its description. Eight
   ship with the package; see [skills](skills/README.md).
 - **Front block** — the `---`-fenced fields at the top of a `SKILL.md`. An agent runtime reads
   `name` and `description` from it to decide whether to load the skill at all, before the body.

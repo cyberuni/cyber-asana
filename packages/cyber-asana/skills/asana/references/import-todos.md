@@ -7,12 +7,15 @@ to surface technical debt ("create Asana tasks from TODOs", "scan the repo for F
 
 This file is the one home of the TODO-import procedure. The `asana` skill routes here for a
 model-triggered request, and the `/cyber-asana:import-todos` command routes here for an explicit
-one. Task creation itself is not restated here: each approved item is created through
-[`create-task.md`](create-task.md), which carries the project resolution and the repo's task
-conventions.
+one. Task creation itself is not restated here: each approved item is handed to
+[`create-task.md`](create-task.md), which loads the `cyber-asana.task-conventions` reference and
+resolves the project. The conventions decide what each task looks like; this file decides which
+comments become tasks.
 
 The request may name a directory to scan, a target project, or file extensions. Credentials and
-the optional repo project registry are set up by the `init-asana` skill.
+the optional repo project registry are set up by the `init-asana` skill; it also says how to invoke
+the CLI (**Ensure cyber-asana CLI**). The cyber-asana MCP server is opt-in; the `asana_*` tool names
+below apply only when it is enabled.
 
 A scan of any real codebase returns many rows, most of them noise. So most of the steps below throw
 results away, and nothing is created until the user approves the list: creating a hundred tasks is
@@ -28,12 +31,12 @@ Omit `[dir]` to scan the current working directory. Pass `--ext` or `--exclude` 
 search if needed.
 
 Read stdout: a token-efficient TOON table of `{ file, line, pattern, text }` rows. Use `--json`
-instead if you need raw JSON. With MCP connected, `asana_task_scan_todos` returns the same rows.
+instead if you need raw JSON. (MCP, if enabled: `asana_task_scan_todos` returns the same rows.)
 
 ## 2. Resolve the target project
 
 Resolve the project once, before filtering, with the precedence in
-[`create-task.md` § 2](create-task.md#2-resolve-project). The dedup in the next step needs it.
+[`create-task.md` § 3](create-task.md#3-resolve-the-project). The dedup in the next step needs it.
 
 ## 3. Review and filter
 
@@ -48,7 +51,7 @@ Check the actionable rows against the project's existing tasks to avoid duplicat
 cyber-asana task list --project-gid <project-gid> --toon
 ```
 
-With MCP connected, `asana_task_list` with `project_gid` returns the same list.
+(MCP, if enabled: `asana_task_list` with `project_gid` returns the same list.)
 
 Deduplicate semantically, not textually: "Fix auth timeout" and "TODO: fix auth timeout" are the
 same item. A string comparison would file the same debt again on every sweep.
@@ -59,19 +62,12 @@ Present the filtered list before creating anything. Let the user remove or renam
 
 ## 5. Create the tasks
 
-Create each approved item through [`create-task.md`](create-task.md), with the project already
-resolved in step 2:
+Hand each approved item to [`create-task.md`](create-task.md), with the project already resolved in
+step 2. Pass it two facts; the conventions it loads decide the task's name, description, and every
+other field:
 
-- **Name**: the work the comment describes, shaped to the repo's `task_name_format`, not the raw
-  comment text.
-- **Description**: the comment's location as `<file>:<line>`. Start from the
-  `description_template` headings when the conventions define one.
-
-The basic call is:
-
-```sh
-cyber-asana task create "<task name>" --project-gid <project-gid> --notes "<file>:<line>"
-```
+- **What the work is**: the work the comment describes, not the raw comment text.
+- **Where it is**: the comment's location as `<file>:<line>`, for the description.
 
 ## 6. Report
 
