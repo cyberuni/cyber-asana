@@ -63,6 +63,10 @@ cyber-asana config list-users
 cyber-asana config set defaults.assignee ali          # set a defaults key
 cyber-asana config unset defaults.assignee            # clear it
 
+cyber-asana config discover-fields api               # find a project's story point field, save it
+cyber-asana config set-field story_points <field-gid> --project api   # pick a field by hand
+cyber-asana config unset-field story_points --project api
+
 cyber-asana config migrate-conventions --dry-run      # move a legacy conventions block (preview)
 ```
 
@@ -84,6 +88,9 @@ cyber-asana config migrate-conventions --dry-run      # move a legacy convention
 | `remove-user` | `<query>` | Remove the user a GID, alias, email, or name resolves to |
 | `set` | `<key> <value>` | Set `defaults.assignee` or `defaults.section` |
 | `unset` | `<key>` | Clear a key `set` accepts |
+| `discover-fields` | `[project]` | Find the project's custom fields by role and save their GIDs under the entry's `fields`. Without a project, uses the default project. Several matches for one role are listed, not saved |
+| `set-field` | `<role> <field-gid>`, `[--project <project>]` | Register a custom field for a role, fetching its name from Asana |
+| `unset-field` | `<role>`, `[--project <project>]` | Clear the field registered for a role |
 | `migrate-conventions` | `[--dry-run]` | Move a legacy `conventions` block into the frontmatter of `.agents/references/cyber-asana.task-conventions.md` and drop it from the config. Creates the reference with `merge: merge-sections` when absent; refuses a key an existing reference already sets |
 
 Every subcommand accepts `--config <path>`, which overrides the `CYBER_ASANA_CONFIG`
@@ -94,6 +101,21 @@ environment variable.
 `defaults` holds fallbacks a command uses when it was not told a value: `assignee` (resolved
 the same way `--assignee` is) and `section` (a section GID in the default project). The default
 project itself is not part of `defaults` — it is whichever project entry carries `default: true`.
+
+## Project custom fields
+
+A convention can name a custom field by the role it plays instead of by GID, because field GIDs
+differ per workspace and project. The task conventions reference does this for story points. A
+project entry records the fields found for it:
+
+```json
+{ "gid": "1201", "name": "Backend", "aliases": ["api"], "fields": { "story_points": { "gid": "9001", "name": "Story Points" } } }
+```
+
+`story_points` is the only role so far. `discover-fields` fills it from a number or dropdown field
+named "Story Points", "Task Points", "Points", "pts", or "SP". When several fields match, it saves
+none and lists them; pick one with `set-field`. On a later run, a saved field that is still on the
+project is kept even if its name does not match, and one no longer on the project is dropped.
 
 ## Task conventions
 
@@ -218,7 +240,7 @@ too, naming both `config add-user --search` and `config add-user --global` as th
 
 ## Keeping names fresh
 
-`add`, `add-user`, and `sync` are the only commands that call Asana. Everything else reads the file.
+`add`, `add-user`, `sync`, `discover-fields`, and `set-field` are the only commands that call Asana. Everything else reads the file.
 Beyond those, `project get` and the `asana_project_get` MCP tool opportunistically update
 cached names whenever a result includes both `gid` and `name`, so the map drifts less than
 you would expect.

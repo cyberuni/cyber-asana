@@ -133,7 +133,8 @@ cyber-asana config sync --global   # personal registry: every repo's projects, a
 cyber-asana config sync --global --repo <key>   # scope the *project* refresh to one repo (users always refresh)
 ```
 
-Run this after a batch of renames in Asana. `add`, `add-user`, and `sync` are the only commands
+Run this after a batch of renames in Asana. `add`, `add-user`, `sync`, `discover-fields`, and
+`set-field` are the only commands
 that call Asana — everything else reads the file. `project get` / `asana_project_get` also
 opportunistically refresh a registered project's cached name.
 
@@ -147,7 +148,23 @@ cyber-asana config list-users [--global|--merged]
 cyber-asana config path [--global]    # where the file lives
 ```
 
-### G. Task conventions
+### G. Project custom fields
+
+A convention can name a field by role, such as story points, because field GIDs differ per
+workspace and project. A project entry records them under `fields`:
+
+```bash
+cyber-asana config discover-fields <gid-name-or-alias>   # find by name, save to the project entry
+cyber-asana config set-field story_points <field-gid> --project <gid-name-or-alias>   # pick one by hand
+cyber-asana config unset-field story_points --project <gid-name-or-alias>
+```
+
+`discover-fields` matches "Story Points", "Task Points", "Points", "pts", or "SP" on a number or
+dropdown field. When several fields match, it saves none and lists them; pick one with
+`set-field`. A field saved by hand is kept on a later `discover-fields` while it is still on the
+project. Without a project, all three use the default project. Commit the updated config.
+
+### H. Task conventions
 
 Task conventions (`task_name_format`, `description_template`, `default_tags`) are not part of
 either registry. They live in the frontmatter of the `cyber-asana.task-conventions` reference —
