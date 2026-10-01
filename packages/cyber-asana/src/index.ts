@@ -1,3 +1,5 @@
+export * from './ai-studio/api.js'
+export * from './ai-studio/gateway.js'
 export * from './attachments/api.js'
 export * from './attachments/gateway.js'
 export * from './client.js'

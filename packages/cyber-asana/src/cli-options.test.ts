@@ -1,5 +1,20 @@
+import { Command } from 'commander'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { printNextPageHint } from './cli-options.js'
+import { addPaginationOptions, printNextPageHint } from './cli-options.js'
+
+describe('addPaginationOptions', () => {
+	it('offers --opt-fields by default', () => {
+		const cmd = addPaginationOptions(new Command('list'))
+
+		expect(cmd.options.map((o) => o.long)).toContain('--opt-fields')
+	})
+
+	it('omits --opt-fields for endpoints with a fixed response shape', () => {
+		const cmd = addPaginationOptions(new Command('list'), { optFields: false })
+
+		expect(cmd.options.map((o) => o.long)).toEqual(['--limit', '--offset', '--all', '--max-pages'])
+	})
+})
 
 describe('printNextPageHint', () => {
 	afterEach(() => vi.restoreAllMocks())
