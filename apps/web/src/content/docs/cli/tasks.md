@@ -25,6 +25,7 @@ cyber-asana task my-tasks list --workspace-gid <gid>
 | `--workspace-gid <gid>` / `--workspace <gid>` | `my-tasks list` | Workspace (defaults to `ASANA_WORKSPACE`) |
 | `--completed-since <date>` | `list`, `my-tasks list` | Only tasks completed on or after this date (ISO 8601 or `now`) |
 | `--incomplete` | `list`, `my-tasks list`, `subtask list` | Shorthand for `--completed-since now` |
+| `--custom-type <gid>` | `list` | Only tasks of this custom type; an empty value selects tasks with no custom type |
 
 ## Reading tasks
 

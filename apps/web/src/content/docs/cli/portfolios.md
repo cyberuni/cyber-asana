@@ -20,7 +20,7 @@ cyber-asana portfolio delete <gid>
 
 | Command | Arguments | Options |
 | --- | --- | --- |
-| `list` | — | `--workspace-gid <gid>` / `--workspace <gid>`, `--owner-gid <gid>` / `--owner <gid>`, [pagination](/cyber-asana/cli/#pagination) |
+| `list` | — | `--workspace-gid <gid>` / `--workspace <gid>`, `--owner-gid <gid>` / `--owner <gid>`, `--custom-type <gid>`, [pagination](/cyber-asana/cli/#pagination) |
 | `items` | `<gid>` | [pagination](/cyber-asana/cli/#pagination) |
 | `get` | `<gid>` | — |
 | `create` | `<name>` | `--workspace-gid <gid>` / `--workspace <gid>` |
@@ -31,6 +31,9 @@ cyber-asana portfolio delete <gid>
 
 `--owner-gid` narrows `list` to the portfolios one user owns. Asana honors it for service-account
 tokens only; a regular personal access token can list just its own portfolios either way.
+
+`--custom-type` narrows `list` to portfolios of one custom type. An empty value selects portfolios
+with no custom type.
 
 Adding and removing portfolio items is not wrapped — see
 [API coverage](/cyber-asana/reference/api-coverage/). Portfolio members are managed with

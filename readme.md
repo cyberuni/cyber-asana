@@ -483,6 +483,7 @@ Tools are named `asana_<resource>_<action>` (e.g. `asana_task_create`).
 | `goal` | `asana_goal_list`, `asana_goal_get`, `asana_goal_create`, `asana_goal_update`, `asana_goal_delete` |
 | `tag` | `asana_tag_list`, `asana_tag_get`, `asana_tag_create`, `asana_tag_update`, `asana_tag_delete`, `asana_tag_list_for_task`, `asana_tag_list_tasks`, `asana_tag_add_to_task`, `asana_tag_remove_from_task` |
 | `ooo` | `asana_ooo_list`, `asana_ooo_get`, `asana_ooo_create`, `asana_ooo_update`, `asana_ooo_delete` |
+| `ai-studio` | `asana_ai_studio_run_list`, `asana_ai_studio_seat_list` (AI Studio usage; service accounts in AI Studio-licensed organizations only) |
 | `attachment` | `asana_attachment_list`, `asana_attachment_get`, `asana_attachment_create`, `asana_attachment_delete` |
 | `project-template` | `asana_project_template_list`, `asana_project_template_get`, `asana_project_template_instantiate` |
 | `job` | `asana_job_get` |
@@ -509,6 +510,9 @@ Notable parameters:
 - `asana_task_template_instantiate` — `name` names the created task; instantiation is a job, so the tool polls it for `timeout_seconds` (default 10) and returns the job with `new_task` once it succeeds. `wait: false` returns the pending job immediately
 - `asana_event_list` — `resource_gid` is a task, project, or goal GID; omit `sync` on the first call and the response carries a fresh token with `sync_reset: true` and no events; pass that token back next time; poll again immediately while `has_more` is true (Asana caps one token at 100 events)
 - `asana_task_list`, `asana_task_my_tasks`, `asana_task_subtask_list` — `incomplete: true` filters to incomplete tasks
+- `asana_task_list`, `asana_project_list`, `asana_portfolio_list` — `custom_type` is a custom type GID that narrows the listing to objects of that type; an empty string selects objects with no custom type
+- `asana_ai_studio_run_list` — `workspace_gid`, `start_at` (inclusive) / `end_at` (exclusive) as ISO 8601 date-times, `division_gid`; lists runs oldest first with the model and credits used, so poll forward by passing the last recorded time as `start_at`. Takes no `opt_fields`, and Asana restricts it to service accounts in AI Studio-licensed organizations
+- `asana_ai_studio_seat_list` — `workspace_gid`, `state` (`active` or `revoked`), `division_gid`; same access restriction and no `opt_fields`
 - `asana_task_subtask_list` — `assignee_email`, `follower_emails`, `num_subtasks`, `custom_fields` expand returned fields
 - `asana_task_create` — `project_gid`, `project_gids`, `follower_gids`, `html_notes`, `completed`, `due_on`, `due_at`, `start_on`, `start_at`, `parent_gid`, `resource_subtype`, `custom_fields`
 - `asana_task_update` — `html_notes`, `due_on` / `clear_due_on`, `due_at` / `clear_due_at`, `start_on` / `clear_start_on`, `start_at` / `clear_start_at`, `assignee_gid` / `assignee` (alias, email, or name from the repo registry) / `clear_assignee`, `parent_gid`, `clear_parent`, `resource_subtype`, `custom_fields`
@@ -629,6 +633,7 @@ Installing twice is a no-op, and unrelated settings are preserved.
 | `goal` | `list`, `get`, `create`, `update`, `delete` |
 | `tag` | `list`, `get`, `create`, `update`, `delete`, `tasks`, `task list/add/remove` |
 | `ooo` | `list`, `get`, `create`, `update`, `delete` |
+| `ai-studio` | `runs`, `seats` |
 | `attachment` | `list`, `get`, `create`, `delete` |
 | `project-template` | `list`, `get`, `instantiate` |
 | `job` | `get` |
@@ -906,6 +911,10 @@ cyber-asana project list --workspace-gid <gid> --no-archived
 ```
 
 Omitting both flags leaves the filter unset and takes Asana's own default.
+
+`task list`, `project list`, and `portfolio list` also accept `--custom-type <gid>`, which keeps
+only objects of that custom type. An empty value (`--custom-type ""`) selects objects with no
+custom type.
 
 Archiving is a write, not a filter: `project update <gid> --archived` archives a
 project and `--no-archived` restores it. `project create` accepts `--archived` too.

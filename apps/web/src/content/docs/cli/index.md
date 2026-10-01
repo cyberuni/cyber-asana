@@ -41,6 +41,7 @@ help text. Every resource group's `--help` ends with worked examples.
 | [Repo config](/cyber-asana/cli/repo-config/) | `config show/list/path/resolve-project/add/set-default/remove-project-alias/remove/sync/add-user/resolve-user/list-users/remove-user/set/unset/discover-fields/set-field/unset-field` |
 | [Memberships](/cyber-asana/cli/memberships/) | `list`, `get`, `create`, `update`, `delete` |
 | [Out of office](/cyber-asana/cli/ooo/) | `list`, `get`, `create`, `update`, `delete` |
+| [AI Studio](/cyber-asana/cli/ai-studio/) | `runs`, `seats` (credit usage and seats; service accounts only) |
 | [Search](/cyber-asana/cli/search/) | `objects` (typeahead; turn a name into a GID) |
 | [Utilities](/cyber-asana/cli/utilities/) | `url parse`, `task scan-todos`, `setup hook`, `mcp` |
 
