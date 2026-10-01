@@ -8,6 +8,7 @@
 	"license": "MIT",
 	"keywords": ["asana", "mcp", "cli", "agent", "productivity"],
 	"skills": "./skills/",
+	"commands": "./commands/",
 	"mcpServers": {
 		"cyber-asana": {
 			"command": "npx",

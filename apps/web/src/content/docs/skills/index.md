@@ -21,9 +21,9 @@ Set [authentication](/cyber-asana/getting-started/#authentication) before runnin
 
 | Skill | Use when |
 | --- | --- |
+| [`asana`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana/SKILL.md) | Entry point for Asana work — routes to the skill that owns the request; creates tasks and tracks session work itself |
 | [`init-asana`](https://github.com/cyberuni/cyber-asana/blob/main/skills/init-asana/SKILL.md) | First-time setup; `ASANA_ACCESS_TOKEN`, workspace GID, verify connection |
 | [`config-asana`](https://github.com/cyberuni/cyber-asana/blob/main/skills/config-asana/SKILL.md) | Add, remove, refresh, and show Asana projects and users in the repo config or the personal global registry |
-| [`create-asana-task`](https://github.com/cyberuni/cyber-asana/blob/main/skills/create-asana-task/SKILL.md) | Create or file a task (URL parse, repo project lookup, MCP `asana_task_create`) |
 | [`improve-description`](https://github.com/cyberuni/cyber-asana/blob/main/skills/improve-description/SKILL.md) | Clean up or rewrite a description — light copy-edit by default, opt-in emoji/template/tone, Asana's HTML subset |
 | [`asana-standup`](https://github.com/cyberuni/cyber-asana/blob/main/skills/asana-standup/SKILL.md) | Standup update — recent completions and due-soon tasks |
 | [`asana-sprint-report`](https://github.com/cyberuni/cyber-asana/blob/main/skills/asana-sprint-report/SKILL.md) | Sprint retro — completed vs incomplete in a project/section |
@@ -31,7 +31,7 @@ Set [authentication](/cyber-asana/getting-started/#authentication) before runnin
 | [`create-tasks-from-code`](https://github.com/cyberuni/cyber-asana/blob/main/skills/create-tasks-from-code/SKILL.md) | Scan TODO/FIXME comments and create actionable Asana tasks |
 | [`link-pr-to-task`](https://github.com/cyberuni/cyber-asana/blob/main/skills/link-pr-to-task/SKILL.md) | Post a GitHub PR URL as a comment on the related task |
 
-Prefer **`create-asana-task`** over ad-hoc `asana_task_create` calls so agents resolve workspace, project, and URL fields consistently.
+To create a task explicitly, run the **`/cyber-asana:create-task`** command (plugin installs). It and the `asana` skill share one procedure, [`skills/asana/references/create-task.md`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana/references/create-task.md), so prefer either over ad-hoc `asana_task_create` calls: agents then resolve workspace, project, and URL fields consistently.
 
 ## Repo Project Registry
 

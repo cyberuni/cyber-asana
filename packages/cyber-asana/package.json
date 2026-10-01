@@ -13,6 +13,7 @@
 		"!dist/**/*.test.*",
 		"!dist/**/*.system.*",
 		"skills",
+		"commands",
 		"references",
 		"SETUP.md",
 		"plugin.json",

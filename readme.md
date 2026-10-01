@@ -154,9 +154,9 @@ Set [authentication](#authentication) before running any workflow.
 
 | Skill | Use when |
 | --- | --- |
+| [`asana`](packages/cyber-asana/skills/asana/SKILL.md) | Entry point for Asana work — routes to the skill that owns the request; creates tasks and tracks session work itself |
 | [`init-asana`](packages/cyber-asana/skills/init-asana/SKILL.md) | First-time setup; `ASANA_ACCESS_TOKEN`, workspace GID, verify connection |
 | [`config-asana`](packages/cyber-asana/skills/config-asana/SKILL.md) | Add, remove, refresh, and show Asana projects and users in the repo config or the personal global registry |
-| [`create-asana-task`](packages/cyber-asana/skills/create-asana-task/SKILL.md) | Create or file a task (URL parse, repo project lookup, MCP `asana_task_create`) |
 | [`improve-description`](packages/cyber-asana/skills/improve-description/SKILL.md) | Clean up or rewrite a description — light copy-edit by default, opt-in emoji/template/tone, Asana's HTML subset |
 | [`asana-standup`](packages/cyber-asana/skills/asana-standup/SKILL.md) | Standup update — recent completions and due-soon tasks |
 | [`asana-sprint-report`](packages/cyber-asana/skills/asana-sprint-report/SKILL.md) | Sprint retro — completed vs incomplete in a project/section |
@@ -164,7 +164,7 @@ Set [authentication](#authentication) before running any workflow.
 | [`create-tasks-from-code`](packages/cyber-asana/skills/create-tasks-from-code/SKILL.md) | Scan TODO/FIXME comments and create actionable Asana tasks |
 | [`link-pr-to-task`](packages/cyber-asana/skills/link-pr-to-task/SKILL.md) | Post a GitHub PR URL as a comment on the related task |
 
-Prefer **`create-asana-task`** over ad-hoc `asana_task_create` calls so agents resolve workspace, project, and URL fields consistently.
+To create a task explicitly, run the **`/cyber-asana:create-task`** command (plugin installs). It and the `asana` skill share one procedure, [`skills/asana/references/create-task.md`](packages/cyber-asana/skills/asana/references/create-task.md), so prefer either over ad-hoc `asana_task_create` calls: agents then resolve workspace, project, and URL fields consistently.
 
 ### Repo project registry
 
@@ -538,7 +538,7 @@ Notable parameters:
 
 Per-tool parameter schemas live in `src/<domain>/mcp.ts` (e.g. `src/tasks/mcp.ts`) and [`src/url-mcp.ts`](src/url-mcp.ts). MCP hosts also expose tool schemas at runtime when the server is connected.
 
-For task creation workflows, use the [`create-asana-task`](packages/cyber-asana/skills/create-asana-task/SKILL.md) skill ([Agent skills](#agent-skills)).
+For task creation workflows, use the `/cyber-asana:create-task` command or the [`asana`](packages/cyber-asana/skills/asana/SKILL.md) skill ([Agent skills](#agent-skills)).
 
 ## CLI
 
@@ -1068,7 +1068,7 @@ Supported paths include `/project/...`, `/project/.../task/...`, `/project/.../l
 | `task_gid` | Comments, updates — not create |
 | `list_view_gid` | **No** — browser list-view metadata, not a section GID |
 
-For agent-driven task creation and repo project lookup, see [Agent skills](#agent-skills) (`create-asana-task`, repo config).
+For agent-driven task creation and repo project lookup, see [Agent skills](#agent-skills) (`asana`, `/cyber-asana:create-task`, repo config).
 
 ## License
 
