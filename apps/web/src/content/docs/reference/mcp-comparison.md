@@ -6,7 +6,7 @@ description: How the cyber-asana MCP server compares to Asana's official MCP ser
 Asana ships an [official MCP server](https://developers.asana.com/docs/mcp-tools-reference)
 (hosted, OAuth) alongside which cyber-asana runs its own local MCP server. They are not
 competitors — tool names do not collide, and running **both** in the same host is the
-intended setup. This page shows what each one covers so you know which to reach for.
+intended setup. The MCP server is opt-in: the cyber-asana plugin does not start it (see [CLI vs MCP](/cyber-asana/reference/cli-vs-mcp/)). This page shows what each one covers so you know which to reach for.
 
 :::note
 Compared against Asana's documented MCP tools reference (27 tools). The official server

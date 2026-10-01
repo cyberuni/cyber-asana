@@ -81,12 +81,12 @@ cyber-asana task list --project <gid>
 # Create a task
 cyber-asana task create "Fix the bug" --workspace-gid <gid> --project-gid <gid>
 
-# Start the MCP server
+# Start the MCP server (optional; MCP is opt-in)
 cyber-asana mcp
 ```
 
 ## Next Steps
 
 - [Install agent skills](/cyber-asana/skills/) for guided workflows
-- [Configure MCP](/cyber-asana/mcp/) for AI agents
+- [Opt in to MCP](/cyber-asana/mcp/) if your agent should use tools instead of the CLI ([why the CLI is the default](/cyber-asana/reference/cli-vs-mcp/))
 - [Explore CLI commands](/cyber-asana/cli/) for scripting

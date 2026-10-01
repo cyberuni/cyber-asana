@@ -25,6 +25,8 @@ See [AGENTS.md](AGENTS.md) for the full command list, architecture, and conventi
 
 ## MCP server
 
+The plugin does not ship or start the MCP server; it is opt-in for consumers. This section is for running it from this source tree.
+
 When working in this source tree, `import('cyber-asana/mcp')` does not resolve — there is no `node_modules/cyber-asana` self-link. Build first, then point MCP hosts at the built entry under `packages/cyber-asana/dist/`.
 
 ```sh
@@ -47,8 +49,8 @@ In `~/.cursor/mcp.json` or `.cursor/mcp.json`:
       "command": "node",
       "args": ["/absolute/path/to/cyber-asana/packages/cyber-asana/dist/mcp.js"],
       "env": {
-        "ASANA_ACCESS_TOKEN": "${ASANA_ACCESS_TOKEN}",
-        "ASANA_WORKSPACE_GID": "${ASANA_WORKSPACE_GID}"
+        "ASANA_ACCESS_TOKEN": "${env:ASANA_ACCESS_TOKEN}",
+        "ASANA_WORKSPACE_GID": "${env:ASANA_WORKSPACE_GID}"
       }
     }
   }

@@ -3,7 +3,7 @@ title: Agent Skills
 description: AI agent skills powered by cyber-asana
 ---
 
-`cyber-asana` ships workflow skills for Cursor, Claude Code, and other agents. **Start here** — skills encode when to use MCP tools vs CLI, how to resolve projects from repo config, and common workflows.
+`cyber-asana` ships workflow skills for Cursor, Claude Code, and other agents. **Start here** — skills drive the CLI (and MCP tools if you have opted into the server), how to resolve projects from repo config, and common workflows.
 
 ## Installation
 
@@ -31,7 +31,7 @@ Set [authentication](/cyber-asana/getting-started/#authentication) before runnin
 | [`create-tasks-from-code`](https://github.com/cyberuni/cyber-asana/blob/main/skills/create-tasks-from-code/SKILL.md) | Scan TODO/FIXME comments and create actionable Asana tasks |
 | [`link-pr-to-task`](https://github.com/cyberuni/cyber-asana/blob/main/skills/link-pr-to-task/SKILL.md) | Post a GitHub PR URL as a comment on the related task |
 
-To create a task explicitly, run the **`/cyber-asana:create-task`** command (plugin installs). It and the `asana` skill share one procedure, [`skills/asana/references/create-task.md`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana/references/create-task.md), so prefer either over ad-hoc `asana_task_create` calls: agents then resolve workspace, project, and URL fields consistently.
+To create a task explicitly, run the **`/cyber-asana:create-task`** command (plugin installs). It and the `asana` skill share one procedure, [`skills/asana/references/create-task.md`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana/references/create-task.md), so prefer either over ad-hoc task creation: agents then resolve workspace, project, and URL fields consistently.
 
 ## Repo Project Registry
 

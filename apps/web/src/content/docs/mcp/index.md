@@ -3,9 +3,14 @@ title: MCP Server
 description: cyber-asana Model Context Protocol server reference
 ---
 
-`cyber-asana` ships a stdio MCP server. Set [authentication](/cyber-asana/getting-started/#authentication) env vars (`ASANA_ACCESS_TOKEN`, optional `ASANA_WORKSPACE_GID`) before connecting.
+`cyber-asana` includes a stdio MCP server. Set [authentication](/cyber-asana/getting-started/#authentication) env vars (`ASANA_ACCESS_TOKEN`, optional `ASANA_WORKSPACE_GID`) before connecting.
 
 ## Server Configuration
+
+:::note[MCP is opt-in]
+The cyber-asana plugin does not start the MCP server. Plugin installs give agents the CLI and skills only, which costs far fewer context tokens than loading 100+ tool schemas. To use MCP, run the `init-asana` skill and accept its MCP step, or add the server to your client's MCP config as below. See [CLI vs MCP](/cyber-asana/reference/cli-vs-mcp/) for why.
+:::
+
 
 Install `cyber-asana` in the project that hosts your agent (`npm install cyber-asana`). The host spawns a child process and talks MCP over stdio.
 
@@ -13,7 +18,7 @@ Install `cyber-asana` in the project that hosts your agent (`npm install cyber-a
 | --- | --- | --- |
 | Project dependency | `node` | `["-e", "import('cyber-asana/mcp')"]` |
 | Project dependency (bin) | `cyber-asana` | `["mcp"]` |
-| Ephemeral (`npx`) | `npx` | `["-y", "cyber-asana", "mcp"]` |
+| Ephemeral (`npx`) | `npx` | `["-y", "cyber-asana@<version>", "mcp"]` |
 
 ### Output Format
 
@@ -51,18 +56,14 @@ claude mcp add -e ASANA_ACCESS_TOKEN=<your-pat> -e ASANA_WORKSPACE_GID=<workspac
   node -e "import('cyber-asana/mcp')"
 ```
 
-**Project scope** — commit `.mcp.json` in the repo root:
+**Project scope** — commit `.mcp.json` in the repo root. Omit `env`: the server inherits `ASANA_ACCESS_TOKEN` and `ASANA_WORKSPACE_GID` from the environment Claude Code launches in, so export them first:
 
 ```json
 {
   "mcpServers": {
     "cyber-asana": {
       "command": "node",
-      "args": ["-e", "import('cyber-asana/mcp')"],
-      "env": {
-        "ASANA_ACCESS_TOKEN": "${ASANA_ACCESS_TOKEN}",
-        "ASANA_WORKSPACE_GID": "${ASANA_WORKSPACE_GID}"
-      }
+      "args": ["-e", "import('cyber-asana/mcp')"]
     }
   }
 }
@@ -72,7 +73,7 @@ Verify with `claude mcp list`. Use `/mcp` in a session to reconnect without rest
 
 ## Cursor
 
-User-wide: `~/.cursor/mcp.json`. Project-specific: `.cursor/mcp.json` in the repo root. Agent mode is required for tool use.
+User-wide: `~/.cursor/mcp.json`. Project-specific: `.cursor/mcp.json` in the repo root. Reference your environment with Cursor's `${env:NAME}` syntax (`"ASANA_ACCESS_TOKEN": "${env:ASANA_ACCESS_TOKEN}"`). Agent mode is required for tool use.
 
 ## Codex
 
@@ -96,7 +97,7 @@ Debug tools and schemas without an agent host:
 npx @modelcontextprotocol/inspector \
   -e ASANA_ACCESS_TOKEN=<your-pat> \
   -e ASANA_WORKSPACE_GID=<workspace-gid> \
-  -- npx -y cyber-asana mcp
+  -- npx -y cyber-asana@<version> mcp
 ```
 
 ## Using alongside Official Asana MCP

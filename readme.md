@@ -3,7 +3,7 @@
 Agent skills, MCP tools, and a CLI for Asana — built for AI-assisted workflows.
 
 - **Skills** — guided workflows (task creation, standups, repo project lookup). [Jump to skills →](#agent-skills)
-- **MCP** — `asana_*` tools for agents. [Jump to MCP →](#mcp-server)
+- **MCP** — optional `asana_*` tools for agents; opt-in, not started by the plugin. [Jump to MCP →](#mcp-server)
 - **CLI** — `cyber-asana` for terminals and scripts. [Jump to CLI →](#cli)
 
 ## Installation
@@ -127,11 +127,11 @@ curl -H "Authorization: Bearer $(cyber-asana auth token)" https://app.asana.com/
 
 ## Agent skills
 
-`cyber-asana` ships workflow skills under [`packages/cyber-asana/skills/`](packages/cyber-asana/skills/) for Cursor, Claude Code, and other agents. **Start here** — skills encode when to use MCP tools vs CLI, how to resolve projects from repo config, and common workflows (standups, sprint reports, task creation).
+`cyber-asana` ships workflow skills under [`packages/cyber-asana/skills/`](packages/cyber-asana/skills/) for Cursor, Claude Code, and other agents. **Start here** — skills drive the CLI (and MCP tools when you have opted into the server), encode how to resolve projects from repo config, and common workflows (standups, sprint reports, task creation).
 
 ### Install skills
 
-The skills, the MCP server, and the CLI ship together as a plugin inside the `cyber-asana` npm package. Installing the plugin gets you all three at once:
+The skills and the CLI ship together as a plugin inside the `cyber-asana` npm package. Installing the plugin gets you both. It does **not** start the MCP server; that is opt-in (see [MCP Server](#mcp-server)):
 
 ```sh
 /plugin marketplace add cyberuni/cyber-asana
@@ -211,28 +211,24 @@ The published npm package **is** the plugin root, so `npm install cyber-asana` y
 ```text
 cyber-asana/                    # the package as installed
 ├── plugin.json                 # Agent Plugins 1.0.0 manifest
-├── mcp.json                    # Agent Plugins 1.0.0 MCP config
 ├── skills/<name>/SKILL.md      # discovered from the fixed location
 ├── .claude-plugin/plugin.json  # Claude Code
-├── .mcp.json                   # Claude Code MCP config
 ├── .cursor-plugin/plugin.json  # Cursor
 ├── .codex-plugin/plugin.json   # Codex
-└── dist/                       # CLI and MCP server
+└── dist/                       # CLI (and the opt-in MCP server)
 ```
 
-`plugin.json` and `mcp.json` follow the [Agent Plugins specification](https://github.com/agentplugins/agent-plugins-spec) v1.0.0, whose manifest schema is closed: components are discovered from the fixed `skills/` and `mcp.json` locations rather than declared inline. Clients that predate the spec read their own manifest from the vendor directory beside it.
+`plugin.json` follows the [Agent Plugins specification](https://github.com/agentplugins/agent-plugins-spec) v1.0.0, whose manifest schema is closed: components are discovered from the fixed `skills/` location rather than declared inline. The plugin ships no `mcp.json`; it registers no MCP server. Clients that predate the spec read their own manifest from the vendor directory beside it.
 
-The spec expands only `${PLUGIN_ROOT}` and `${PLUGIN_DATA}`, so the portable `mcp.json` sets no `env` block — a `"${ASANA_ACCESS_TOKEN}"` value there would reach the server as that literal string and shadow the real token. Under a spec-conformant client, export the [authentication](#authentication) variables in the environment that launches the agent.
-
-Claude Code's `.mcp.json` does expand `${VAR}`, so it passes the variables through explicitly, as do the Cursor and Codex manifests.
-
-Either way the server defends itself: a value that is exactly an unexpanded reference, like `${ASANA_ACCESS_TOKEN}`, is treated as unset rather than as a credential. This matters because a host that cannot expand a reference forwards its text verbatim — Claude Code [does so when the variable is unset and has no default](https://code.claude.com/docs/en/mcp#environment-variable-expansion-in-mcp-json). Without that guard the placeholder would outrank the `ASANA_TOKEN` fallback and turn a missing token into a `401`.
+The `envValue` guard in `src/env.ts` still treats a value that is exactly an unexpanded reference, like `${ASANA_ACCESS_TOKEN}`, as unset rather than as a credential. It covers MCP configs this repo does not author, where a host that cannot expand a reference forwards its text verbatim — Claude Code [does so when the variable is unset and has no default](https://code.claude.com/docs/en/mcp#environment-variable-expansion-in-mcp-json). Without it the placeholder would outrank the `ASANA_TOKEN` fallback and turn a missing token into a `401`.
 
 Sources live under `packages/cyber-asana/`; the canonical universal manifest is `packages/cyber-asana/.plugin/plugin.json`, and `pnpm version` syncs every manifest's version from the package.
 
 ## MCP Server
 
-`cyber-asana` ships a stdio MCP server. Set [authentication](#authentication) env vars (`ASANA_ACCESS_TOKEN`, optional `ASANA_WORKSPACE_GID`) before connecting.
+`cyber-asana` includes a stdio MCP server (`cyber-asana mcp`, 111 `asana_*` tools). It is **opt-in**: the plugin does not start it, and agents use the CLI through the skills by default, which costs far fewer context tokens than loading every tool schema. See [CLI vs MCP](https://cyberuni.github.io/cyber-asana/reference/cli-vs-mcp/) for why.
+
+To opt in, run the `init-asana` skill and accept its MCP step, or add the server to your client's MCP config yourself as below. Set [authentication](#authentication) env vars (`ASANA_ACCESS_TOKEN`, optional `ASANA_WORKSPACE_GID`) before connecting.
 
 Install `cyber-asana` in the project that hosts your agent (`npm install cyber-asana`). The host spawns a child process and talks MCP over stdio — not a shared daemon.
 
@@ -240,7 +236,7 @@ Install `cyber-asana` in the project that hosts your agent (`npm install cyber-a
 | --- | --- | --- |
 | Project dependency (`npm install cyber-asana`) | `node` | `["-e", "import('cyber-asana/mcp')"]` |
 | Project dependency (bin on `PATH`) | `cyber-asana` | `["mcp"]` |
-| Ephemeral (`npx`, no project install) | `npx` | `["-y", "cyber-asana", "mcp"]` |
+| Ephemeral (`npx`, no project install) | `npx` | `["-y", "cyber-asana@<version>", "mcp"]` |
 | Developing this repo (`pnpm build`) | `node` | `["dist/cli.js", "mcp"]` or `["dist/mcp.js"]` — see [CONTRIBUTING.md](CONTRIBUTING.md) |
 
 The package exports `./mcp` → `dist/mcp.js` and exposes the same server via `cyber-asana mcp`. Do not use `["--import", "cyber-asana/mcp"]` alone — without a main script, Node does not wire stdin to the MCP server and the host times out on `initialize`. `["--import", "cyber-asana/mcp", "-e", ""]` also works, but prefer the dynamic-import row above.
@@ -284,11 +280,7 @@ Dual-config example (Cursor-style; see [Asana's connecting doc](https://develope
     },
     "cyber-asana": {
       "command": "node",
-      "args": ["-e", "import('cyber-asana/mcp')"],
-      "env": {
-        "ASANA_ACCESS_TOKEN": "${ASANA_ACCESS_TOKEN}",
-        "ASANA_WORKSPACE_GID": "${ASANA_WORKSPACE_GID}"
-      }
+      "args": ["-e", "import('cyber-asana/mcp')"]
     }
   }
 }
@@ -363,7 +355,7 @@ Ephemeral alternative (no `npm install`; uses the `cyber-asana mcp` subcommand):
   "mcpServers": {
     "cyber-asana": {
       "command": "npx",
-      "args": ["-y", "cyber-asana", "mcp"],
+      "args": ["-y", "cyber-asana@<version>", "mcp"],
       "env": {
         "ASANA_ACCESS_TOKEN": "<your-pat>",
         "ASANA_WORKSPACE_GID": "<workspace-gid>"
@@ -398,7 +390,7 @@ Official Asana MCP (OAuth; see [Asana connecting doc](https://developers.asana.c
 claude mcp add --transport http asana https://mcp.asana.com/v2/mcp
 ```
 
-**Project scope** — commit `.mcp.json` in the repo root. Claude Code expands `${VAR}` from your shell environment (export `ASANA_ACCESS_TOKEN` before launching):
+**Project scope** — commit `.mcp.json` in the repo root. Omit `env`: the server inherits `ASANA_ACCESS_TOKEN` and `ASANA_WORKSPACE_GID` from the environment Claude Code launches in, so export them first:
 
 ```json
 {
@@ -419,7 +411,7 @@ Verify with `claude mcp list`. Use `/mcp` in a session to reconnect without rest
 
 ### Cursor
 
-User-wide: `~/.cursor/mcp.json`. Project-specific: `.cursor/mcp.json` in the repo root. Use the shared JSON block above. Reload MCP servers after changes; Agent mode is required for tool use.
+User-wide: `~/.cursor/mcp.json`. Project-specific: `.cursor/mcp.json` in the repo root. Use the shared JSON block above, or reference your environment with Cursor's `${env:NAME}` syntax (`"ASANA_ACCESS_TOKEN": "${env:ASANA_ACCESS_TOKEN}"`). Reload MCP servers after changes; Agent mode is required for tool use.
 
 ### Codex
 
@@ -454,7 +446,7 @@ Ephemeral (no project install):
 npx @modelcontextprotocol/inspector \
   -e ASANA_ACCESS_TOKEN=<your-pat> \
   -e ASANA_WORKSPACE_GID=<workspace-gid> \
-  -- npx -y cyber-asana mcp
+  -- npx -y cyber-asana@<version> mcp
 ```
 
 Developing this repo (`pnpm build` first):
@@ -542,7 +534,7 @@ For task creation workflows, use the `/cyber-asana:create-task` command or the [
 
 ## CLI
 
-Terminal and scripting interface — same API surface as MCP, without an agent host. For agents, prefer [Agent skills](#agent-skills) and [MCP](#mcp-server) first.
+Terminal and scripting interface — same API surface as MCP, without an agent host. For agents, prefer [Agent skills](#agent-skills), which drive this CLI; [MCP](#mcp-server) is an opt-in alternative ([why](https://cyberuni.github.io/cyber-asana/reference/cli-vs-mcp/)).
 
 ```sh
 cyber-asana <resource> <action> [options]

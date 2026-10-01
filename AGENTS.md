@@ -49,7 +49,7 @@ Everything the plugin needs lives in `packages/cyber-asana/` and must stay liste
 
 `.claude-plugin/marketplace.json` at the **repo root** lists the plugin with an `npm` source. Version bumps flow from `packages/cyber-asana/package.json` through `scripts/sync-plugin-version.mjs` on `pnpm version` — add any new manifest to that script's list.
 
-The plugin declares **no MCP server** — no `mcp.json`, no `.mcp.json`, no `mcpServers` in any manifest; `src/plugin-manifests.test.ts` guards this. The skills drive the CLI. The MCP server is opt-in: the `init-asana` skill writes it into the client's own MCP config when the user asks.
+The plugin declares **no MCP server** — no `mcp.json`, no `.mcp.json`, no `mcpServers` in any manifest; `src/plugin-manifests.test.ts` guards this. The skills drive the CLI. The MCP server is opt-in: the `init-asana` skill writes it into the client's own MCP config when the user asks (see [Why CLI + skills](apps/web/src/content/docs/reference/cli-vs-mcp.md)).
 
 When writing an MCP config entry (in `init-asana` or the docs), never put a `"${SOME_VAR}"` value in its `env` for a client that does not expand it — it arrives literally and shadows the real variable. Prefer letting the server inherit the client's environment. Claude Code's `.mcp.json` does expand `${VAR}`, but forwards the literal text when the variable is unset. `envValue` in `src/env.ts` is the guard: a value that is exactly an unexpanded reference counts as absent, so the fallback alias still applies and a missing credential reports itself as missing. Keep that guard rather than working around it per config — it is the only thing covering configs this repo does not author.
 

@@ -68,6 +68,6 @@ Installing twice is a no-op, and unrelated settings in the file are preserved.
 cyber-asana mcp
 ```
 
-Starts the stdio MCP server. This is the command MCP hosts invoke — see the
+Starts the stdio MCP server. This is the command MCP hosts invoke. MCP is opt-in; the plugin does not start it (see [CLI vs MCP](/cyber-asana/reference/cli-vs-mcp/)). See the
 [MCP reference](/cyber-asana/mcp/) for host configuration and the
 [comparison with Asana's official server](/cyber-asana/reference/mcp-comparison/).

@@ -1,52 +1,48 @@
 ---
 name: setup
-description: Use this skill when finishing cyber-asana plugin setup — the token and workspace its MCP server needs.
+description: Use this skill when finishing cyber-asana plugin setup — the token and workspace the CLI needs.
 ---
 
 # Setup — cyber-asana
 
-Installing the plugin already registered the MCP server. What it still needs is an Asana credential
-and a workspace to scope requests to. Both are read from the environment, so this is the one part
-the plugin cannot do for the user.
+Installing the plugin gave the agent the cyber-asana skills and the `cyber-asana` CLI. It did **not**
+start an MCP server: the skills drive the CLI, and MCP is opt-in. What the CLI still needs is an
+Asana credential and a workspace to scope requests to. Both are read from the environment, so this
+is the one part the plugin cannot do for the user.
 
-## What the install already did
-
-`mcp.json` registers a stdio server named `cyber-asana`, launched through `npx` from the published
-package. It reads two variables from the environment:
+## What the CLI reads
 
 | Variable | Purpose |
 | --- | --- |
 | `ASANA_ACCESS_TOKEN` | Personal access token; every request authenticates with it |
-| `ASANA_WORKSPACE_GID` | Default workspace, so workspace-scoped tools need no argument |
-
-There is no host MCP config to edit. Do not add a second `cyber-asana` entry by hand — see
-**Running alongside the official Asana MCP** below for the case where two Asana servers are wanted.
+| `ASANA_WORKSPACE_GID` | Default workspace, so workspace-scoped commands need no `--workspace` |
 
 ## 1. Create a personal access token
 
 Ask the user to open Asana → **Profile Settings** → **Apps** → **Personal access tokens**, create a
 token, and copy it. Asana shows the value once.
 
-## 2. Export the token where the host can see it
+## 2. Export the token where the agent can see it
 
-`mcp.json` passes the variables through by reference, so they must be set in the environment the
-agent host inherits — the user's shell profile, not a project `.env` the host never reads.
+The variables must be set in the environment the agent host inherits — the user's shell profile,
+not a project `.env` the host never reads.
 
 ```sh
 export ASANA_ACCESS_TOKEN=<token>
 ```
 
-Restart the agent host afterwards; an MCP server started before the export keeps the old
-environment.
-
-If a variable is unset, the host may forward the literal text `${ASANA_ACCESS_TOKEN}` instead of a
-value. `cyber-asana` treats a value that is exactly an unexpanded reference as absent, so the
-failure reports itself as a missing credential rather than as a rejected token.
+Restart the agent host afterwards; a process started before the export keeps the old environment.
 
 ## 3. Find the workspace GID
 
-With the token in place, the MCP server can answer this itself — call `asana_workspace_list` and
-read the `{ gid, name }` rows. Ask the user which workspace to use.
+With the token in place, list the workspaces and read the `{ gid, name }` rows. Ask the user which
+workspace to use.
+
+```sh
+npx -y cyber-asana@<version> workspace list
+```
+
+Use the installed plugin's version for `<version>`, or plain `cyber-asana` if it is on `PATH`.
 
 ## 4. Export the workspace GID
 
@@ -58,27 +54,26 @@ Restart the host again.
 
 ## 5. Verify
 
-Call `asana_workspace_get` with the chosen GID. A workspace record back means the token and the
-workspace both resolve, and setup is done.
+Run `cyber-asana workspace get <gid>` with the chosen GID. A workspace record back means the token
+and the workspace both resolve, and setup is done.
 
-## Optional — token-efficient output
+## Optional — MCP server
 
-Setting `CYBER_ASANA_MCP_FORMAT=toon` in the same environment makes every tool return TOON instead
-of JSON, which costs fewer tokens for the same rows.
+No MCP server is running. If the user wants the `asana_*` tools (for example in a client without a
+shell), run the [`init-asana`](./skills/init-asana/SKILL.md) skill and accept its MCP step, which
+writes the entry for their client. The default is no. See
+[CLI vs MCP](https://cyberuni.github.io/cyber-asana/reference/cli-vs-mcp/) for the trade-off.
 
-## Optional — running alongside the official Asana MCP
-
-Both servers can run together; their tool names do not collide. They authenticate differently — the
-official server registers as an MCP app with a client ID and secret, while `cyber-asana` uses the
-personal access token above. See
-[`skills/init-asana/reference.md`](./skills/init-asana/reference.md).
+With the server enabled, `CYBER_ASANA_MCP_FORMAT=toon` in its environment makes every tool return
+TOON instead of JSON, which costs fewer tokens for the same rows. The official Asana MCP can run
+alongside it; see [`skills/init-asana/reference.md`](./skills/init-asana/reference.md).
 
 ## Where the rest lives
 
 This file covers the credentials the plugin needs to work at all. The shipped skills cover the rest:
 
 - [`init-asana`](./skills/init-asana/SKILL.md) — the same setup for someone using the CLI without
-  the plugin, plus verification and the dual-MCP layout.
+  the plugin, plus verification, the optional MCP step, and the dual-MCP layout.
 - [`config-asana`](./skills/config-asana/SKILL.md) — add, remove, and refresh
   Asana projects and users in `.agents/cyber-asana.json` (or, with `--global`, a personal
   cross-repo registry) so skills can resolve them by name.
