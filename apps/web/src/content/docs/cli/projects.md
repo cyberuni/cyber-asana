@@ -25,6 +25,7 @@ cyber-asana project list --workspace-gid <gid> --no-archived
 | --- | --- |
 | `--archived` | Only archived projects |
 | `--no-archived` | Only projects that are not archived |
+| `--custom-type <gid>` | Only projects of this custom type; an empty value selects projects with no custom type |
 
 With neither flag the filter is left unset and Asana's own default applies.
 

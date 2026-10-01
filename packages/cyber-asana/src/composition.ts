@@ -1,5 +1,9 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import type { Command } from 'commander'
+import { type AiStudioApi, createAiStudioApi } from './ai-studio/api.js'
+import { aiStudioCommand } from './ai-studio/cli.js'
+import { createAsanaAiStudioGateway } from './ai-studio/gateway.js'
+import { registerAiStudioTools } from './ai-studio/mcp.js'
 import { type AttachmentApi, createAttachmentApi } from './attachments/api.js'
 import { attachmentCommand } from './attachments/cli.js'
 import { createAsanaAttachmentGateway } from './attachments/gateway.js'
@@ -93,6 +97,7 @@ import { createAsanaWorkspaceGateway } from './workspaces/gateway.js'
 import { registerWorkspaceTools } from './workspaces/mcp.js'
 
 export type RuntimeContext = {
+	aiStudio: AiStudioApi
 	attachments: AttachmentApi
 	customFields: CustomFieldApi
 	events: EventApi
@@ -122,6 +127,7 @@ export function createRuntimeContext(): RuntimeContext {
 	const projectGateway = createAsanaProjectGateway(client)
 	const jobGateway = createAsanaJobGateway(client)
 	return {
+		aiStudio: createAiStudioApi(createAsanaAiStudioGateway(client)),
 		attachments: createAttachmentApi(createAsanaAttachmentGateway(client)),
 		customFields: createCustomFieldApi(createAsanaCustomFieldGateway(client)),
 		events: createEventApi(createAsanaEventGateway(client)),
@@ -170,6 +176,7 @@ export function registerCliCommands(program: Command, getContext: () => RuntimeC
 	program.addCommand(statusCommand(() => getContext().status))
 	program.addCommand(ruleCommand(() => getContext().rules))
 	program.addCommand(eventCommand(() => getContext().events))
+	program.addCommand(aiStudioCommand(() => getContext().aiStudio))
 	program.addCommand(storyCommand('story', () => getContext().stories))
 	program.addCommand(storyCommand('comment', () => getContext().stories))
 	program.addCommand(authCommand())
@@ -207,6 +214,7 @@ export function registerMcpTools(server: McpServer, getContext: () => RuntimeCon
 	registerStatusTools(server, () => getContext().status)
 	registerRuleTools(server, () => getContext().rules)
 	registerEventTools(server, () => getContext().events)
+	registerAiStudioTools(server, () => getContext().aiStudio)
 	registerStoryTools(server, () => getContext().stories)
 	registerUrlTools(server)
 }

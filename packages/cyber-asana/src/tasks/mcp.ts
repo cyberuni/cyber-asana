@@ -2,7 +2,7 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import { loadConventions } from '../conventions.js'
 import { resolveEffectiveAssignee } from '../effective-config.js'
-import { paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
+import { customTypeParam, paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
 import { loadDefaults, resolveProjectRef } from '../repo-config.js'
 import { resolveTagRefs } from '../tags/resolve.js'
 import {
@@ -101,15 +101,17 @@ export function registerTaskTools(server: McpServer, api?: TaskApi | (() => Task
 				.optional()
 				.describe('Only include tasks completed on or after this date (ISO 8601, or "now" for incomplete only)'),
 			incomplete: z.boolean().optional().describe('Only show incomplete tasks (shorthand for completed_since=now)'),
+			custom_type: customTypeParam('tasks'),
 			...paginationParams,
 		},
-		async ({ project_gid, completed_since, incomplete, ...params }) => ({
+		async ({ project_gid, completed_since, incomplete, custom_type, ...params }) => ({
 			content: [
 				{
 					type: 'text',
 					text: JSON.stringify(
 						await resolveTaskApi(api).listTasks(project_gid, {
 							completedSince: incomplete ? 'now' : completed_since,
+							...(custom_type !== undefined && { customType: custom_type }),
 							...paginationOptions(params),
 						}),
 					),

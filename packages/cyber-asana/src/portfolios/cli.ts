@@ -77,13 +77,14 @@ export function portfolioCommand(api?: PortfolioApi | (() => PortfolioApi)) {
 			}),
 			'owner',
 			'Only list portfolios owned by this user GID (service accounts only)',
-		),
+		).option('--custom-type <gid>', 'Only portfolios of this custom type GID ("" for portfolios with no custom type)'),
 	).action(
 		async (opts: {
 			workspace?: string
 			workspaceGid?: string
 			owner?: string
 			ownerGid?: string
+			customType?: string
 			limit?: number
 			offset?: string
 			optFields?: string
@@ -94,6 +95,7 @@ export function portfolioCommand(api?: PortfolioApi | (() => PortfolioApi)) {
 			const data = await resolvePortfolioApi(api).listPortfolios(requiredGid(opts, 'workspace', 'Workspace GID'), {
 				...pagination,
 				...(owner ? { owner } : {}),
+				...(opts.customType !== undefined && { customType: opts.customType }),
 			})
 			output(data, () => {
 				const items = itemsForOutput(data)

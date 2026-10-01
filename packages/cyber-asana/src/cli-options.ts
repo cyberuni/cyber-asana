@@ -31,16 +31,13 @@ function parseMaxPages(value: string) {
 	return maxPages
 }
 
-export function addPaginationOptions<T extends Command>(cmd: T, opts?: { limit?: boolean }) {
-	if (opts?.limit === false) {
-		return cmd
-			.option('--offset <token>', 'Offset token returned by a previous paginated response')
-			.option('--opt-fields <fields>', 'Comma-separated optional Asana fields to include')
-	}
+export function addPaginationOptions<T extends Command>(cmd: T, opts?: { limit?: boolean; optFields?: boolean }) {
+	if (opts?.limit !== false)
+		cmd.option('--limit <number>', 'Results per page, from 1 to 100 (default: 100)', parseLimit)
+	cmd.option('--offset <token>', 'Offset token returned by a previous paginated response')
+	if (opts?.optFields !== false) cmd.option('--opt-fields <fields>', 'Comma-separated optional Asana fields to include')
+	if (opts?.limit === false) return cmd
 	return cmd
-		.option('--limit <number>', 'Results per page, from 1 to 100 (default: 100)', parseLimit)
-		.option('--offset <token>', 'Offset token returned by a previous paginated response')
-		.option('--opt-fields <fields>', 'Comma-separated optional Asana fields to include')
 		.option('--all', 'Fetch all pages up to --max-pages')
 		.option('--max-pages <number>', 'Maximum pages to fetch with --all (default: 10)', parseMaxPages)
 }

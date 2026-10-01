@@ -14,14 +14,14 @@ same core, so nothing is CLI-only or MCP-only. For how the MCP server compares t
 own, see [cyber-asana vs official Asana MCP](/cyber-asana/reference/mcp-comparison/).
 
 :::note
-Coverage is measured against the `asana` npm SDK v3.1.12, which is generated from the
+Coverage is measured against the `asana` npm SDK v3.2.0, which is generated from the
 public REST API spec. Counts exclude duplicate SDK aliases (e.g. `createTag` vs
 `createTagForWorkspace`).
 :::
 
 ## Coverage at a glance
 
-Asana documents **49 resource groups**. cyber-asana wraps **24** of them. A resource is
+Asana documents **49 resource groups**. cyber-asana wraps **25** of them. A resource is
 fully covered only when every distinct REST operation in its SDK group is available; helper
 operations such as project export and TODO scanning are described separately below.
 
@@ -45,6 +45,7 @@ operations such as project export and TODO scanning are described separately bel
 | Attachments | ✅ | 4 / 4 | `attachment` | List, get, upload (file or external URL), and delete |
 | Memberships | ✅ | 5 / 5 | `membership` | Complete; the unified endpoint covering project, portfolio, and goal memberships |
 | Ooo entries | ✅ | 5 / 5 | `ooo` | Complete |
+| AI Studio usage | ✅ | 2 / 2 | `ai-studio` | Runs and seats; Asana limits both to service accounts in AI Studio-licensed organizations |
 | Jobs | ✅ | 1 / 1 | `job` | Complete; reads the async jobs other operations return |
 | Project templates | 🟡 | 4 / 5 | `project-template` | List, get, and instantiate; no template deletion |
 | Sections | ✅ | 7 / 7 | `section` | Complete, including section reordering and section-scoped task placement |
@@ -62,7 +63,7 @@ operations such as project export and TODO scanning are described separately bel
 
 ### Not wrapped
 
-Access requests, Agents, AI Studio usage, Allocations, Audit log, Budgets, Custom types,
+Access requests, Agents, Allocations, Audit log, Budgets, Custom types,
 Exports, Goal relationships, Organization exports, Project briefs,
 Project portfolio settings, Project statuses (superseded by Status updates),
 Rates, Reactions, Roles, Team memberships†, Time periods, Time tracking
@@ -159,6 +160,7 @@ using one.
 | Stories / comments | `story list\|get\|create\|update\|delete`, same under `comment` | `asana_story_*`, `asana_comment_*` |
 | Memberships | `membership list\|get\|create\|update\|delete` | `asana_membership_*` |
 | Ooo entries | `ooo list\|get\|create\|update\|delete` | `asana_ooo_*` |
+| AI Studio usage | `ai-studio runs\|seats` | `asana_ai_studio_*` |
 
 Asana only allows editing and deleting comment stories you authored — system stories
 (assignee changed, due date set) are immutable, and an attempt to change one comes back as

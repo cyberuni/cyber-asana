@@ -4,6 +4,7 @@ import { type RuntimeContext, registerCliCommands, registerMcpTools } from './co
 
 function mockRuntimeContext(): RuntimeContext {
 	return {
+		aiStudio: { listAiStudioRuns: vi.fn(), listAiStudioSeats: vi.fn() },
 		workspaces: { listWorkspaces: vi.fn(), getWorkspace: vi.fn() },
 		projects: {
 			listProjects: vi.fn(),
@@ -242,6 +243,28 @@ describe('composition wiring', () => {
 		await server.handlers.get('asana_task_template_list')?.({ project_gid: 'p1' })
 
 		expect(ctx.taskTemplates.listTaskTemplates).toHaveBeenCalledWith('p1', expect.any(Object))
+	})
+
+	it('CLI ai-studio runs uses runtime context aiStudio api', async () => {
+		const ctx = mockRuntimeContext()
+		ctx.aiStudio.listAiStudioRuns = vi.fn().mockResolvedValue({ data: [] })
+		const program = new Command()
+		registerCliCommands(program, () => ctx)
+
+		await program.parseAsync(['node', 'test', 'ai-studio', 'runs', '--workspace-gid', 'ws1'], { from: 'node' })
+
+		expect(ctx.aiStudio.listAiStudioRuns).toHaveBeenCalledWith('ws1', expect.anything())
+	})
+
+	it('MCP asana_ai_studio_seat_list uses runtime context aiStudio api', async () => {
+		const ctx = mockRuntimeContext()
+		ctx.aiStudio.listAiStudioSeats = vi.fn().mockResolvedValue({ data: [] })
+		const server = createMcpServer()
+		registerMcpTools(server as never, () => ctx)
+
+		await server.handlers.get('asana_ai_studio_seat_list')?.({ workspace_gid: 'ws1' })
+
+		expect(ctx.aiStudio.listAiStudioSeats).toHaveBeenCalledWith('ws1', expect.anything())
 	})
 
 	it('CLI ooo list uses runtime context ooo api', async () => {

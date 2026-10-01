@@ -34,6 +34,29 @@ describe('projects/api', () => {
 		})
 	})
 
+	it('listProjects with customType reads GET /projects, the only project list that filters by custom type', async () => {
+		vi.spyOn(Asana.ProjectsApi.prototype, 'getProjects').mockResolvedValue({ data: [mockData] } as never)
+		const getProjectsForWorkspace = vi.spyOn(Asana.ProjectsApi.prototype, 'getProjectsForWorkspace')
+
+		await listProjects('ws1', { customType: 'ct1', archived: false })
+
+		expect(getProjectsForWorkspace).not.toHaveBeenCalled()
+		expect(Asana.ProjectsApi.prototype.getProjects).toHaveBeenCalledWith({
+			workspace: 'ws1',
+			archived: false,
+			custom_type: 'ct1',
+			limit: 100,
+		})
+	})
+
+	it('listProjects forwards an empty customType, which selects projects with no custom type', async () => {
+		vi.spyOn(Asana.ProjectsApi.prototype, 'getProjects').mockResolvedValue({ data: [] } as never)
+
+		await listProjects('ws1', { customType: '' })
+
+		expect(Asana.ProjectsApi.prototype.getProjects).toHaveBeenCalledWith(expect.objectContaining({ custom_type: '' }))
+	})
+
 	it('listProjects forwards pagination options and returns next page metadata', async () => {
 		vi.spyOn(Asana.ProjectsApi.prototype, 'getProjectsForWorkspace').mockResolvedValue({
 			data: [mockData],

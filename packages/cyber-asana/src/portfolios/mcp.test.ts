@@ -112,6 +112,23 @@ describe('portfolios/mcp', () => {
 		expect(listPortfolios).toHaveBeenCalledWith('ws1', expect.objectContaining({ owner: 'u1' }))
 	})
 
+	it('asana_portfolio_list forwards custom_type', async () => {
+		const listPortfolios = vi.fn().mockResolvedValue([])
+		const server = createServer()
+		registerPortfolioTools(server as any, {
+			listPortfolios,
+			listPortfolioItems: vi.fn(),
+			getPortfolio: vi.fn(),
+			createPortfolio: vi.fn(),
+			updatePortfolio: vi.fn(),
+			deletePortfolio: vi.fn(),
+		})
+
+		await server.handlers.get('asana_portfolio_list')?.({ workspace_gid: 'ws1', custom_type: 'ct1' })
+
+		expect(listPortfolios).toHaveBeenCalledWith('ws1', expect.objectContaining({ customType: 'ct1' }))
+	})
+
 	it('asana_portfolio_list omits the owner filter when no owner_gid is given', async () => {
 		const listPortfolios = vi.fn().mockResolvedValue([])
 		const server = createServer()

@@ -120,11 +120,13 @@ export function projectCommand(api?: ProjectApi | (() => ProjectApi)) {
 	)
 		.option('--archived', 'Only archived projects')
 		.option('--no-archived', 'Only projects that are not archived')
+		.option('--custom-type <gid>', 'Only projects of this custom type GID ("" for projects with no custom type)')
 		.action(
 			async (opts: {
 				workspace?: string
 				workspaceGid?: string
 				archived?: boolean
+				customType?: string
 				limit?: number
 				offset?: string
 				optFields?: string
@@ -134,6 +136,7 @@ export function projectCommand(api?: ProjectApi | (() => ProjectApi)) {
 				const data = await resolveProjectApi(api).listProjects(requiredGid(opts, 'workspace', 'Workspace GID'), {
 					...pagination,
 					...(opts.archived !== undefined && { archived: opts.archived }),
+					...(opts.customType !== undefined && { customType: opts.customType }),
 				})
 				output(data, () => {
 					const items = itemsForOutput(data)
