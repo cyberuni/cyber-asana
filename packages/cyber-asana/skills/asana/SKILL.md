@@ -6,8 +6,8 @@ description: Use this skill when the user wants Asana work — create a task, tr
 # Asana
 
 The entry point for Asana work in the cyber-asana plugin. Classify the request, then hand it to
-the one procedure that owns it. This skill owns only the routing and the session-tracking
-procedure; every other procedure lives in its own file.
+the one procedure that owns it. This skill owns only the routing; every procedure lives in its
+own file.
 
 ## Route the request
 
@@ -16,7 +16,7 @@ PR), run them in order.
 
 | The user wants to… | Go to |
 | --- | --- |
-| create, add, or file a task ("create an Asana task for this", "file this bug in Asana", a pasted Asana URL to create a related task) | **Create a task** below |
+| create, add, or file a task or several ("create an Asana task for this", "file this bug in Asana", "break this work into tasks", a pasted Asana URL to create a related task) | **Create a task** below |
 | record this session's work as a task ("track this in Asana", "log what we did") | **Track session work** below |
 | set up credentials, the workspace, or verify the connection | `init-asana` skill |
 | add, remove, or sync projects or users in the registry | `config-asana` skill |
@@ -34,10 +34,12 @@ its `asana_<resource>_<action>` tools are equivalent.
 
 ## Create a task
 
-Read [`references/create-task.md`](references/create-task.md) and follow it, with the user's
-request as its input. It is the one home of the task-creation procedure; the
-`/cyber-asana:create-task` command routes here too. Do not create a task from memory of its
-steps: the file carries the conventions, URL, and section rules.
+Read [`references/plan-work.md`](references/plan-work.md) and follow it, with the user's request
+as its input. It finds the units of work in the request, reuses a task that already tracks one,
+groups several under a parent task, and confirms the plan; it then files each new task through
+[`references/create-task.md`](references/create-task.md), the one home of task creation. The
+`/cyber-asana:create-task` command routes here too. Do not create a task from memory of these
+steps: the files carry the lookup, conventions, URL, and section rules.
 
 ## Import TODOs
 
@@ -47,31 +49,11 @@ request as its input. It is the one home of the TODO-import procedure; the
 
 ## Track session work
 
-Record the work this session is doing as an Asana task. Reuse a task before creating one.
+Record the work this session is doing in Asana. Read
+[`references/plan-work.md`](references/plan-work.md) and follow it, with the session as its input:
+the conversation, the branch's commits and diff, and any pull request. The
+`cyber-asana.task-conventions` reference's **Tracking session work** section shapes each task it
+creates or reuses: named for the outcome, assigned to the user, in the repo's default project.
 
-1. **Load the conventions.** Load the `cyber-asana.task-conventions` reference with the
-   `reference` skill in the `buddy-agent-harness` plugin, and follow its **Tracking session work**
-   section. Its rules win over this summary where they differ.
-2. **Gather the session's context.**
-   - The outcome the session is working toward — from the user's request and what was agreed. Not
-     the steps taken.
-   - The current branch: `git branch --show-current`.
-   - The pull request, if one exists: `gh pr view --json url -q .url`.
-3. **Look for a task to reuse.** Search the user's incomplete tasks for one that describes the
-   same outcome: `cyber-asana task my-tasks list --incomplete`, or
-   `cyber-asana task search "<text>" --no-completed` when the list is long (MCP, if enabled:
-   `asana_task_my_tasks`, `asana_task_search`). When one
-   matches, confirm it with the user before writing to it.
-4. **Update a reused task** with a comment linking the branch and any pull request
-   (`cyber-asana comment create "<text>" --task-gid <gid>`; MCP, if enabled: `asana_comment_create`). Never
-   overwrite its description.
-5. **Otherwise create one** through [`references/create-task.md`](references/create-task.md),
-   shaped as the reference says:
-   - **Name:** the session's outcome.
-   - **Description:** `## Context` from the user's request; `## Done when` from what was agreed;
-     `## Links` with the branch and any pull request.
-   - **Assignee:** the user — `--assignee me`.
-   - **Project:** the repo's default project, unless the work names another.
-6. **Confirm.** Return the task's `permalink_url`, and say whether it was reused or created.
-
-When the pull request opens later in the session, link it with step 4 on the same task.
+When the pull request opens later in the session, link it in a comment on the same tasks, as
+plan-work § 7 does for a reused task.

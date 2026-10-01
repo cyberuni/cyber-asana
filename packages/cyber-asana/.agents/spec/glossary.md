@@ -16,6 +16,9 @@ Terms this spec leans on. Asana's own vocabulary first, then the vocabulary this
 - **Section** — a named bucket dividing a project's task list; the column on a board.
 - **Task** — the unit of work.
 - **Subtask** — a task whose parent is another task.
+- **Unit of work** — one deliverable one person can finish on its own; the `asana` skill's plan
+  step files one task per unit, and groups two or more units that serve one outcome under a parent
+  task.
 - **Story** — Asana's word for anything in a task's activity feed: a comment somebody wrote, or a
   record that a field changed. Most people say "comment", which is why both spellings are
   registered — see [stories](stories/README.md).

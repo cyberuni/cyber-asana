@@ -1,5 +1,5 @@
 ---
-description: How to write Asana tasks — when to use a task, a subtask, or a dependency; what to fill in for a task and its subtasks, custom fields, and comments; and how to track session work.
+description: How to write Asana tasks — when to use a task, a subtask, or a dependency; how to group several units of work under a parent task; what to fill in for a task and its subtasks, custom fields, and comments; and how to track session work.
 tags: [asana, tasks, conventions, tracking]
 # Task conventions the cyber-asana CLI and MCP read from this frontmatter. Set them in a repo
 # copy at .agents/references/cyber-asana.task-conventions.md with `merge: merge-sections`, not here.
@@ -17,11 +17,27 @@ tags: [asana, tasks, conventions, tracking]
 | --- | --- |
 | one deliverable one person can finish | a task |
 | a step of a task that is tracked on its own | a subtask |
+| two or more units of work that serve one outcome | a parent task with a subtask per unit (see **Grouping**) |
 | a task that cannot start until another is done | a dependency between the two tasks |
 
-Prefer a task over a subtask. Use a subtask only when its parent is the natural place to look for it.
+Prefer a task over a subtask. Use a subtask only when its parent is the natural place to look for it:
+a step of an existing task, or a unit grouped under a parent task as **Grouping** says. A lone unit of
+work is always a plain task.
 
 Projects and milestones are out of scope for this reference.
+
+## Grouping
+
+Apply when one request or one session holds more than one unit of work. A unit is one deliverable
+one person can finish on its own.
+
+- **Parent task:** create one only when two or more units serve one outcome. Make each unit a
+  subtask of it. A lone unit is a plain task with no parent.
+- **Name the parent task** for the outcome the units serve, as a **Task** name. Name each subtask
+  as a step, as **Subtask** says.
+- **Separate outcomes** stay separate tasks. Do not make a parent task only to hold unrelated units.
+- **Order:** when a unit cannot start until another is done, add a dependency between the two
+  rather than relying on the subtask order.
 
 ## Task
 
@@ -62,10 +78,14 @@ Apply when the task's project has a story point or task point field.
 
 ## Tracking session work
 
-Apply when recording work done in an agent session as a task.
+Apply when recording work done in an agent session as a task. The `asana` skill's plan step finds
+the session's units of work and looks each one up before anything is created; these rules shape what
+it writes.
 
-- **Reuse before creating:** an incomplete task already assigned to the user that describes the same outcome.
-- **Name:** the outcome the session is working toward, not the steps it took.
+- **Reuse before creating:** an existing task that describes the same outcome — an incomplete one
+  assigned to the user or in the project, or one completed recently.
+- **Name:** the outcome the session is working toward, not the steps it took. When the session holds
+  several units that serve that outcome, the parent task carries it and each subtask names one unit.
 - **Description:** `## Context` from the user's request; `## Done when` from what was agreed; `## Links` with the current branch and any pull request.
 - **Assignee:** the user (`me`).
 - **Project:** the repo's default project, unless the work names another.
