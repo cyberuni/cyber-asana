@@ -13,6 +13,7 @@
 		"!dist/**/*.test.*",
 		"!dist/**/*.system.*",
 		"skills",
+		"references",
 		"SETUP.md",
 		"plugin.json",
 		"mcp.json",
@@ -48,7 +49,9 @@
 	"dependencies": {
 		"@modelcontextprotocol/sdk": "^1.30.0",
 		"asana": "^3.1.12",
+		"buddy-agent-harness": "^0.14.0",
 		"commander": "^14.0.0",
+		"yaml": "^2.9.0",
 		"zod": "^4.4.3"
 	},
 	"devDependencies": {

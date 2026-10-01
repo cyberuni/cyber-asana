@@ -10,10 +10,11 @@ import {
 	readOptionsFromCli,
 	requiredGid,
 } from '../cli-options.js'
+import { loadConventions } from '../conventions.js'
 import { resolveEffectiveAssignee } from '../effective-config.js'
 import { deleteIdempotently, deleteMessage } from '../idempotent-delete.js'
 import { output, printEmpty, printFields, printNextSteps, printSummary, printTable } from '../output.js'
-import { loadConventions, loadDefaults, resolveProjectRef } from '../repo-config.js'
+import { loadDefaults, resolveProjectRef } from '../repo-config.js'
 import { resolveTagRefs } from '../tags/resolve.js'
 import { isFull, truncate } from '../truncate.js'
 import {

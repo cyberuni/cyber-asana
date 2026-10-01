@@ -1,4 +1,4 @@
-import type { RepoConventions } from '../repo-config.js'
+import type { RepoConventions } from '../conventions.js'
 import type { CreateTaskFields, UpdateTaskFields } from './api.js'
 
 type BuildTaskWriteInput = {

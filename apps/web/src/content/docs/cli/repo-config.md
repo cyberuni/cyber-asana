@@ -26,11 +26,6 @@ tools then resolve a human-readable project or user name locally, with no API ca
   "defaults": {
     "assignee": "ali",
     "section": "1215109751173999"
-  },
-  "conventions": {
-    "task_name_format": "<area>: <summary>",
-    "description_template": "## Problem\n\n## Plan",
-    "default_tags": ["agent-created"]
   }
 }
 ```
@@ -40,7 +35,7 @@ case-insensitively and ahead of another project's display name; an alias is uniq
 registry. `purpose` is one line saying what work belongs in the project. `default: true` marks
 the project commands fall back to when none is given — at most one project can carry it.
 
-`users`, `defaults`, and `conventions` are all optional; a file with only `projects` stays
+`users` and `defaults` are both optional; a file with only `projects` stays
 valid. A `schema_version: 1` file (project entries with only `gid` and `name`) still parses and
 is upgraded to `schema_version: 2` in place the next time the CLI writes the file.
 
@@ -65,13 +60,15 @@ cyber-asana config remove-alias ali,al                # drop aliases, keep the u
 cyber-asana config resolve-user ali --json            # local lookup, no API call
 cyber-asana config list-users
 
-cyber-asana config set defaults.assignee ali          # set a defaults/conventions key
+cyber-asana config set defaults.assignee ali          # set a defaults key
 cyber-asana config unset defaults.assignee            # clear it
+
+cyber-asana config migrate-conventions --dry-run      # move a legacy conventions block (preview)
 ```
 
 | Command | Arguments | Description |
 | --- | --- | --- |
-| `show` | — | Print the repo config, including the `defaults` and `conventions` blocks |
+| `show` | — | Print the repo config, including the `defaults` block |
 | `list` | — | Alias for `show` |
 | `path` | — | Print the resolved config file path |
 | `resolve-project` | `<name>` | Resolve a project name or alias to its GID, no API call |
@@ -85,19 +82,44 @@ cyber-asana config unset defaults.assignee            # clear it
 | `resolve-user` | `<query>` | Resolve a GID, alias, email, or name to a user, no API call |
 | `list-users` | — | Print registered users |
 | `remove-user` | `<query>` | Remove the user a GID, alias, email, or name resolves to |
-| `set` | `<key> <value>` | Set `defaults.assignee`, `defaults.section`, `conventions.task_name_format`, `conventions.description_template`, or `conventions.default_tags` (comma-separated for the tags) |
+| `set` | `<key> <value>` | Set `defaults.assignee` or `defaults.section` |
 | `unset` | `<key>` | Clear a key `set` accepts |
+| `migrate-conventions` | `[--dry-run]` | Move a legacy `conventions` block into the frontmatter of `.agents/references/cyber-asana.task-conventions.md` and drop it from the config. Creates the reference with `merge: merge-sections` when absent; refuses a key an existing reference already sets |
 
 Every subcommand accepts `--config <path>`, which overrides the `CYBER_ASANA_CONFIG`
 environment variable.
 
-## Defaults and conventions
+## Defaults
 
 `defaults` holds fallbacks a command uses when it was not told a value: `assignee` (resolved
 the same way `--assignee` is) and `section` (a section GID in the default project). The default
 project itself is not part of `defaults` — it is whichever project entry carries `default: true`.
 
-`conventions` records repo house style so an agent writes a task the way this repo writes one.
+## Task conventions
+
+Repo house style lives in the frontmatter of the `cyber-asana.task-conventions` reference, not in
+this file. The CLI and MCP resolve that reference through the
+[buddy-agent-harness](https://github.com/repobuddy/buddy-agent-harness) layers — the repo copy
+(`.agents/references/`), the user copy (`~/.agents/references/`), installed plugins, then the copy
+cyber-asana ships — and merge the frontmatter key by key, the higher layer winning. Set a
+convention in a repo copy:
+
+```md
+---
+merge: merge-sections
+task_name_format: "<area>: <summary>"
+description_template: |
+  ## Problem
+
+  ## Plan
+default_tags: [agent-created]
+---
+```
+
+A config file that still has a `conventions` block fails to load and names
+`config migrate-conventions` as the fix. If two plugins ship the reference, the name is
+ambiguous: a warning goes to stderr and no conventions apply.
+
 Task creation applies two of the three keys on its own:
 
 | Key | Effect on `task create` / `asana_task_create` |

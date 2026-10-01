@@ -1,8 +1,9 @@
-import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
 import { Command } from 'commander'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { stringify } from 'yaml'
 
 const createTaskMock = vi.fn()
 const updateTaskMock = vi.fn()
@@ -684,16 +685,31 @@ describe('tasks/cli', () => {
 		const previousWorkspace = process.env.ASANA_WORKSPACE
 		const previousWorkspaceGid = process.env.ASANA_WORKSPACE_GID
 
+		const previousHome = process.env.HOME
+
 		async function useConfig(config: unknown) {
 			delete process.env.ASANA_WORKSPACE
 			delete process.env.ASANA_WORKSPACE_GID
 			dir = await mkdtemp(join(tmpdir(), 'cyber-asana-task-defaults-'))
+			await mkdir(join(dir, '.git'))
+			vi.spyOn(process, 'cwd').mockReturnValue(dir)
+			process.env.HOME = join(dir, 'home')
 			const path = join(dir, 'config.json')
 			await writeFile(path, JSON.stringify(config))
 			process.env.CYBER_ASANA_CONFIG = path
 		}
 
+		/** Task conventions come from the task-conventions reference, so set them in a repo copy of it. */
+		async function useConventions(conventions: Record<string, unknown>) {
+			const path = join(dir as string, '.agents', 'references', 'cyber-asana.task-conventions.md')
+			await mkdir(dirname(path), { recursive: true })
+			await writeFile(path, `---\n${stringify({ merge: 'merge-sections', ...conventions })}---\n`)
+		}
+
 		afterEach(async () => {
+			vi.mocked(process.cwd).mockRestore()
+			if (previousHome === undefined) delete process.env.HOME
+			else process.env.HOME = previousHome
 			if (previousConfig === undefined) delete process.env.CYBER_ASANA_CONFIG
 			else process.env.CYBER_ASANA_CONFIG = previousConfig
 			if (previousWorkspace === undefined) delete process.env.ASANA_WORKSPACE
@@ -734,7 +750,8 @@ describe('tasks/cli', () => {
 		})
 
 		it('applies conventions.default_tags when --tag is not given', async () => {
-			await useConfig({ schema_version: 2, projects: [], conventions: { default_tags: ['900', '901'] } })
+			await useConfig({ schema_version: 2, projects: [] })
+			await useConventions({ default_tags: ['900', '901'] })
 			createTaskMock.mockResolvedValue({ gid: 't1', name: 'Task' })
 			const program = new Command().addCommand(taskCommand())
 
@@ -744,7 +761,8 @@ describe('tasks/cli', () => {
 		})
 
 		it('resolves a conventions.default_tags name against the workspace', async () => {
-			await useConfig({ schema_version: 2, projects: [], conventions: { default_tags: ['High Important'] } })
+			await useConfig({ schema_version: 2, projects: [] })
+			await useConventions({ default_tags: ['High Important'] })
 			createTaskMock.mockResolvedValue({ gid: 't1', name: 'Task' })
 			listTagsMock.mockResolvedValue({ data: [{ gid: '900', name: 'High Important' }], next_page: null })
 			const program = new Command().addCommand(taskCommand())
@@ -755,7 +773,8 @@ describe('tasks/cli', () => {
 		})
 
 		it('lets --tag override conventions.default_tags', async () => {
-			await useConfig({ schema_version: 2, projects: [], conventions: { default_tags: ['900'] } })
+			await useConfig({ schema_version: 2, projects: [] })
+			await useConventions({ default_tags: ['900'] })
 			createTaskMock.mockResolvedValue({ gid: 't1', name: 'Task' })
 			const program = new Command().addCommand(taskCommand())
 
@@ -767,11 +786,8 @@ describe('tasks/cli', () => {
 		})
 
 		it('seeds notes from conventions.description_template when no notes are given', async () => {
-			await useConfig({
-				schema_version: 2,
-				projects: [],
-				conventions: { description_template: '## Problem\n\n## Plan' },
-			})
+			await useConfig({ schema_version: 2, projects: [] })
+			await useConventions({ description_template: '## Problem\n\n## Plan' })
 			createTaskMock.mockResolvedValue({ gid: 't1', name: 'Task' })
 			const program = new Command().addCommand(taskCommand())
 
@@ -785,11 +801,8 @@ describe('tasks/cli', () => {
 		})
 
 		it('seeds html_notes when the template is an HTML body', async () => {
-			await useConfig({
-				schema_version: 2,
-				projects: [],
-				conventions: { description_template: '<body><h1>Problem</h1></body>' },
-			})
+			await useConfig({ schema_version: 2, projects: [] })
+			await useConventions({ description_template: '<body><h1>Problem</h1></body>' })
 			createTaskMock.mockResolvedValue({ gid: 't1', name: 'Task' })
 			const program = new Command().addCommand(taskCommand())
 
@@ -803,7 +816,8 @@ describe('tasks/cli', () => {
 		})
 
 		it('leaves the template out when --notes is given', async () => {
-			await useConfig({ schema_version: 2, projects: [], conventions: { description_template: '## Problem' } })
+			await useConfig({ schema_version: 2, projects: [] })
+			await useConventions({ description_template: '## Problem' })
 			createTaskMock.mockResolvedValue({ gid: 't1', name: 'Task' })
 			const program = new Command().addCommand(taskCommand())
 

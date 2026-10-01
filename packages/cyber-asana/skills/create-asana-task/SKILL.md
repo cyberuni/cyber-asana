@@ -27,8 +27,10 @@ Do **not** use section APIs unless the user explicitly names a section, column, 
 
 ### 1a. Follow the repo's task conventions
 
-If `.agents/cyber-asana.json` has a `conventions` block (`cyber-asana config show`), write the
-task the way that repo writes tasks:
+Load the `cyber-asana.task-conventions` reference with the `reference` skill in the
+`buddy-agent-harness` plugin. Its body says how to shape the work; its frontmatter holds the
+repo's task conventions, merged from the repo copy (`.agents/references/`), the user copy, and the
+copy cyber-asana ships. The CLI and MCP read the same frontmatter. Write the task the way it says:
 
 | Key | How to use it |
 | --- | --- |

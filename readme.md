@@ -181,7 +181,25 @@ cyber-asana config set defaults.assignee ali      # fallback assignee for task c
 cyber-asana config show
 ```
 
-`asana_project_get` and `project get` opportunistically update cached names when results include `{ gid, name }`. An optional top-level `defaults` block (`assignee`, `section`) and `conventions` block (`task_name_format`, `description_template`, `default_tags`) hold repo-wide fallbacks and house style — see [`.agents/cyber-asana.json.example`](.agents/cyber-asana.json.example).
+`asana_project_get` and `project get` opportunistically update cached names when results include `{ gid, name }`. An optional top-level `defaults` block (`assignee`, `section`) holds repo-wide fallbacks — see [`.agents/cyber-asana.json.example`](.agents/cyber-asana.json.example).
+
+### Task conventions
+
+Repo house style for new tasks (`task_name_format`, `description_template`, `default_tags`) lives in the frontmatter of the `cyber-asana.task-conventions` reference, not in `.agents/cyber-asana.json`. The CLI and MCP resolve that reference the [buddy-agent-harness](https://github.com/repobuddy/buddy-agent-harness) way: the repo copy (`.agents/references/`), the user copy (`~/.agents/references/`), installed plugins, then the copy this package ships, merged key by key. To set a convention, write a repo copy:
+
+```md
+---
+merge: merge-sections
+task_name_format: "<area>: <summary>"
+description_template: |
+  ## Context
+
+  ## Done when
+default_tags: [agent-created]
+---
+```
+
+Agents read it with the `reference` skill in the `buddy-agent-harness` plugin. A config that still has a `conventions` block fails to load; move it with `cyber-asana config migrate-conventions` (`--dry-run` to preview).
 
 ## Plugin distribution
 

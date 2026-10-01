@@ -19,10 +19,13 @@ alongside the code. It maps human project names to Asana project GIDs, so an age
 into a GID without searching the workspace first. The `cyber-asana config` verbs create, read, and
 maintain it. A project entry also carries `aliases` (trigger keywords resolved ahead of the display
 name), an optional `purpose` (one line saying what belongs there), and an optional `default: true`
-marking the project commands fall back to when none is given — at most one project. Two optional
-top-level blocks round the file out: `defaults` (an `assignee` and a `section` a command falls back
-to when not told one) and `conventions` (a `task_name_format`, a `description_template`, and
-`default_tags`, so an agent writes a task the way this repo writes one). This is `schema_version: 2`;
+marking the project commands fall back to when none is given — at most one project. An optional
+top-level `defaults` block (an `assignee` and a `section` a command falls back to when not told one)
+rounds the file out. Task conventions (`task_name_format`, `description_template`, `default_tags`)
+are deliberately not here: their one source is the frontmatter of the `cyber-asana.task-conventions`
+reference, resolved through the buddy-agent-harness layers and merged key by key, and a file that
+still carries a `conventions` block is rejected with `config migrate-conventions` named as the fix.
+This is `schema_version: 2`;
 a `schema_version: 1` file (project entries with only `gid` and `name`) still parses and is upgraded
 in place the next time the CLI writes the file.
 
@@ -70,7 +73,7 @@ enumerate and abuse the org. Workspace binding therefore stays in private enviro
 - **GID** — Asana's global id for an object; an opaque digit string, never parsed and never
   arithmetic.
 - **Repo config** — the committed file `.agents/cyber-asana.json`, holding `schema_version`,
-  `projects`, an optional `users`, and the optional `defaults` and `conventions` blocks.
+  `projects`, an optional `users`, and the optional `defaults` block.
 - **Registry entry** — one project inside `projects`: `gid`, `name`, `aliases`, an optional
   `purpose`, and an optional `default: true`.
 - **Alias** — an older environment variable name still honored behind the current one.
@@ -138,8 +141,9 @@ authority without adding reach.
 | `config remove-project-alias <alias...>` (CLI) | an alias no longer applies | one or more aliases, comma-separated or repeated | the alias dropped from whichever project owns it |
 | `config remove <gid-or-name>` (CLI) | a project is no longer relevant to the repository | a GID or a name, positionally | the entry dropped and the file rewritten |
 | `config sync` (CLI) | projects were renamed in Asana and the committed names have drifted | optional `--config <path>` | every registered name refreshed from Asana, written only if something changed |
-| `config set <key> <value>` (CLI) | a repository wants a fallback or a house-style convention recorded | a dotted key (`defaults.assignee`, `defaults.section`, `conventions.task_name_format`, `conventions.description_template`, `conventions.default_tags`) and a value | the block updated and the file rewritten; `conventions.default_tags` splits its value on commas |
-| `config unset <key>` (CLI) | a fallback or convention no longer applies | a dotted key | the key cleared, and the block dropped once it holds nothing |
+| `config set <key> <value>` (CLI) | a repository wants a fallback recorded | a dotted key (`defaults.assignee`, `defaults.section`) and a value | the block updated and the file rewritten |
+| `config unset <key>` (CLI) | a fallback no longer applies | a dotted key | the key cleared, and the block dropped once it holds nothing |
+| `config migrate-conventions` (CLI) | a repo config still carries a legacy `conventions` block | optional `--config <path>`, `--dry-run` | the block's keys added to the frontmatter of `.agents/references/cyber-asana.task-conventions.md` (created with `merge: merge-sections` when absent; a key it already sets is refused), then the block dropped from the file |
 | `config path --global` (CLI) | operator wants to know where the global registry lives | none | the resolved global file path (default location or `CYBER_ASANA_GLOBAL_CONFIG`) |
 | `config show --global` / `config list --global` (CLI) | operator or agent wants the projects paired with a repo in the personal registry | optional `--repo <key>` (else auto-detected) | the global path, the resolved repo key, and a GID/Name row per entry for that repo |
 | `config resolve-project <name> --global` (CLI) | a caller wants a name resolved from the personal registry only | the name; optional `--repo <key>` | the matching global entry, with no Asana request |
@@ -190,7 +194,7 @@ graph TD
     R1 -->|no| RERR[error: Repo config not found]
     R1 -->|yes| R2{schema_version is 1 or 2, and every entry<br/>has a non-empty gid and name?}
     R2 -->|no| RBAD[error naming the offending field]
-    R2 -->|yes| R3[keep gid, name, aliases, purpose, default,<br/>plus defaults and conventions if present —<br/>an unknown key in defaults/conventions errors by name]
+    R2 -->|yes| R3[keep gid, name, aliases, purpose, default,<br/>plus defaults if present —<br/>an unknown defaults key, or any conventions block, errors by name]
   end
 
   subgraph write["writing the registry"]
@@ -201,7 +205,7 @@ graph TD
     WEMPTY --> W2
     W2 --> W3{anything changed?}
     W3 -->|no| WSKIP[leave the file alone]
-    W3 -->|yes| WOUT[write schema_version 2 + projects,<br/>plus users, defaults, and conventions when present]
+    W3 -->|yes| WOUT[write schema_version 2 + projects,<br/>plus users and defaults when present]
   end
 
   subgraph env["resolving a configured value"]
@@ -291,10 +295,10 @@ The load-bearing edges:
 
 - **Parsing is a whitelist, and that is what enforces decision 0001.** Only the documented keys
   survive parsing: `schema_version`, each project's `gid`/`name`/`aliases`/`purpose`/`default`,
-  each user's `gid`/`name`/`email`/`aliases`, and `defaults`/`conventions` restricted to their own
-  known keys. There is no `workspace` key in `defaults` at all — a `defaults.workspace` in the file
-  is rejected by name rather than silently dropped, so a config that tries to smuggle one in fails
-  loudly instead of writing an empty file back. The rule is enforced by construction rather than by
+  each user's `gid`/`name`/`email`/`aliases`, and `defaults` restricted to its own known keys; a
+  legacy `conventions` block is rejected outright. There is no `workspace` key in `defaults` at
+  all — a `defaults.workspace` in the file is rejected by name rather than silently dropped, so a
+  config that tries to smuggle one in fails loudly instead of writing an empty file back. The rule is enforced by construction rather than by
   a check someone could forget to run.
 - **The newer environment alias is tried first.** `envValue` consults `ASANA_ACCESS_TOKEN` before
   `ASANA_TOKEN`, and `ASANA_WORKSPACE_GID` before `ASANA_WORKSPACE`. An empty string counts as
@@ -380,7 +384,7 @@ The load-bearing edges:
 | `schema_version` is neither 1 nor 2 → error | a registry file declaring schema_version 3 | `a config file declaring an unsupported schema_version is rejected` |
 | an entry field is missing → error | a registry file whose only entry carries a gid alone | `a project entry without a name is rejected` |
 | a `schema_version: 1` file still parses | a registry file with plain `{ gid, name }` entries only | `a schema_version 1 file loads with empty aliases and no purpose or default` |
-| an unknown `defaults`/`conventions` key → error | a registry file with `defaults.workspace` set | `a defaults.workspace key in the config file is rejected by name` |
+| an unknown `defaults` key → error | a registry file with `defaults.workspace` set | `a defaults.workspace key in the config file is rejected by name` |
 | drop every key outside the schema | a registry file carrying a hand-added top-level `workspace_gid` | `show omits a workspace GID found in the config file` |
 
 ### writing the registry

@@ -33,26 +33,14 @@ export type RepoDefaults = {
 	section?: string
 }
 
-/** Repo house style, so an agent writes tasks the way this repo writes them. */
-export type RepoConventions = {
-	/** A task title shape, e.g. `<area>: <summary>`. */
-	task_name_format?: string
-	/** A description skeleton new tasks start from. */
-	description_template?: string
-	/** Tags applied to new tasks, each a tag GID or a tag name resolved in the workspace. */
-	default_tags?: string[]
-}
-
 export type RepoConfig = {
 	schema_version: 2
 	projects: RepoProjectEntry[]
 	users?: RepoUserEntry[]
 	defaults?: RepoDefaults
-	conventions?: RepoConventions
 }
 
 const DEFAULTS_KEYS = ['assignee', 'section'] as const
-const CONVENTIONS_KEYS = ['task_name_format', 'description_template', 'default_tags'] as const
 
 export type ProjectObservation = {
 	gid: string
@@ -81,9 +69,13 @@ export function parseRepoConfig(raw: unknown): RepoConfig {
 		const named = defaults.map((project) => `${project.gid} (${project.name})`).join(', ')
 		throw new Error(`Repo config may mark only one default project; found ${defaults.length}: ${named}`)
 	}
+	if (record.conventions !== undefined) {
+		throw new Error(
+			'Repo config has a conventions block, which is no longer read: task conventions now live in the frontmatter of the cyber-asana.task-conventions reference. Move them with: cyber-asana config migrate-conventions',
+		)
+	}
 	const extras = {
 		...(record.defaults !== undefined && { defaults: parseDefaults(record.defaults) }),
-		...(record.conventions !== undefined && { conventions: parseConventions(record.conventions) }),
 	}
 	if (record.users === undefined) {
 		return { schema_version: 2, projects, ...extras }
@@ -113,30 +105,6 @@ function parseDefaults(raw: unknown): RepoDefaults {
 	return defaults
 }
 
-function parseConventions(raw: unknown): RepoConventions {
-	if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
-		throw new Error('Repo config conventions must be an object')
-	}
-	const conventions: RepoConventions = {}
-	for (const [key, value] of Object.entries(raw)) {
-		if (!(CONVENTIONS_KEYS as readonly string[]).includes(key)) {
-			throw new Error(`Unknown repo config key conventions.${key}; expected one of ${CONVENTIONS_KEYS.join(', ')}`)
-		}
-		if (key === 'default_tags') {
-			if (!Array.isArray(value) || value.some((tag) => typeof tag !== 'string' || tag.length === 0)) {
-				throw new Error('conventions.default_tags must be an array of non-empty strings')
-			}
-			conventions.default_tags = value as string[]
-			continue
-		}
-		if (typeof value !== 'string' || value.length === 0) {
-			throw new Error(`conventions.${key} must be a non-empty string`)
-		}
-		conventions[key as 'task_name_format' | 'description_template'] = value
-	}
-	return conventions
-}
-
 /** Merge a patch into a block; a `null` value clears that key, and an emptied block is dropped. */
 function patchBlock<T extends object>(block: T | undefined, patch: { [K in keyof T]?: T[K] | null }): T | undefined {
 	const next = { ...(block ?? ({} as T)) }
@@ -152,15 +120,6 @@ export function setDefaults(config: RepoConfig, patch: { [K in keyof RepoDefault
 	const defaults = patchBlock(config.defaults, patch)
 	const { defaults: _drop, ...rest } = config
 	return (defaults ? { ...rest, defaults } : rest) as RepoConfig
-}
-
-export function setConventions(
-	config: RepoConfig,
-	patch: { [K in keyof RepoConventions]?: RepoConventions[K] | null },
-) {
-	const conventions = patchBlock(config.conventions, patch)
-	const { conventions: _drop, ...rest } = config
-	return (conventions ? { ...rest, conventions } : rest) as RepoConfig
 }
 
 /**
@@ -544,11 +503,6 @@ export async function resolveProjectRef(value: string | undefined, opts?: Resolv
 /** The repo's `defaults` block, or undefined when there is no config or no block. */
 export async function loadDefaults(opts?: ResolveOpts): Promise<RepoDefaults | undefined> {
 	return (await loadConfigIfPresent(opts))?.config.defaults
-}
-
-/** The repo's `conventions` block, or undefined when there is no config or no block. */
-export async function loadConventions(opts?: ResolveOpts): Promise<RepoConventions | undefined> {
-	return (await loadConfigIfPresent(opts))?.config.conventions
 }
 
 /** The given section GID, or `defaults.section` when none was given. */
