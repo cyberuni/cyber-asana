@@ -16,8 +16,9 @@ procedures explicitly.
   `skills/asana/references/create-task.md` (the task-filing procedure),
   `skills/asana/references/import-todos.md` (the TODO-import procedure), and
   `commands/create-task.md` and `commands/import-todos.md` (thin user-invoked entries into them).
-- **Trigger** — the user wants Asana work done. Its front block reads: *"Use this skill when the
-  user wants Asana work done — create a task, track session work, report, link a PR, or set up."*
+- **Trigger** — the user wants Asana work done, including turning code TODOs into tasks. Its front
+  block reads: *"Use this skill when the user wants Asana work — create a task, track a session,
+  import TODOs, report, link a PR, set up."*
   The commands never auto-trigger; a person types `/cyber-asana:create-task` or
   `/cyber-asana:import-todos`.
 - **What it covers** — classifying the request and handing it to the skill that owns it

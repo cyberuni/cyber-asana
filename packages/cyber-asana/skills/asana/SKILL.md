@@ -1,6 +1,6 @@
 ---
 name: asana
-description: Use this skill when the user wants Asana work done — create a task, track session work, report, link a PR, or set up.
+description: Use this skill when the user wants Asana work — create a task, track a session, import TODOs, report, link a PR, set up.
 ---
 
 # Asana
