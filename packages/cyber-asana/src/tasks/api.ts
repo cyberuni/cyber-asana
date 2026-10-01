@@ -9,11 +9,12 @@ import {
 	type SearchTasksOptions,
 	type TaskBatchLookupResult,
 	type TaskGateway,
+	type TaskListOptions,
 	type UpdateTaskFields,
 } from './gateway.js'
 
 export type { TaskBatchLookupFailure, TaskBatchLookupSuccess, TaskCustomFields } from './gateway.js'
-export type { CreateTaskFields, SearchTasksOptions, TaskBatchLookupResult, UpdateTaskFields }
+export type { CreateTaskFields, SearchTasksOptions, TaskBatchLookupResult, TaskListOptions, UpdateTaskFields }
 
 export type TodoMatch = {
 	file: string
@@ -75,7 +76,7 @@ export type TaskApi = ReturnType<typeof createTaskApi>
 
 export function createTaskApi(gateway: TaskGateway) {
 	return {
-		listTasks(projectGid: string, opts?: PaginationOptions & { completedSince?: string }) {
+		listTasks(projectGid: string, opts?: TaskListOptions) {
 			return gateway.listTasks(projectGid, opts)
 		},
 		listTasksForSection(sectionGid: string, opts?: PaginationOptions & { completedSince?: string }) {
@@ -149,7 +150,7 @@ function defaultTaskApi() {
 	return createTaskApi(createAsanaTaskGateway(createClient()))
 }
 
-export async function listTasks(projectGid: string, opts?: PaginationOptions & { completedSince?: string }) {
+export async function listTasks(projectGid: string, opts?: TaskListOptions) {
 	return defaultTaskApi().listTasks(projectGid, opts)
 }
 

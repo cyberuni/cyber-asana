@@ -413,6 +413,26 @@ describe('tasks/cli', () => {
 		expect(listTasksMock).toHaveBeenCalledWith('p1', expect.objectContaining({ optFields: 'name,notes' }))
 	})
 
+	it('task list forwards --custom-type', async () => {
+		listTasksMock.mockResolvedValue([])
+		const program = new Command().addCommand(taskCommand())
+
+		await program.parseAsync(['node', 'test', 'task', 'list', '--project-gid', 'p1', '--custom-type', 'ct1'], {
+			from: 'node',
+		})
+
+		expect(listTasksMock).toHaveBeenCalledWith('p1', expect.objectContaining({ customType: 'ct1' }))
+	})
+
+	it('task list leaves customType unset without --custom-type', async () => {
+		listTasksMock.mockResolvedValue([])
+		const program = new Command().addCommand(taskCommand())
+
+		await program.parseAsync(['node', 'test', 'task', 'list', '--project-gid', 'p1'], { from: 'node' })
+
+		expect(listTasksMock.mock.calls[0][1]).not.toHaveProperty('customType')
+	})
+
 	it('task my-tasks list requests a minimal default field set when none is given', async () => {
 		getMyTasksMock.mockResolvedValue([])
 		const program = new Command().addCommand(taskCommand())

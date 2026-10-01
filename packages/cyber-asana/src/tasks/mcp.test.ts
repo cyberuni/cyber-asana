@@ -548,3 +548,15 @@ describe('tasks/mcp', () => {
 		})
 	})
 })
+
+describe('tasks/mcp asana_task_list', () => {
+	it('forwards custom_type to listTasks', async () => {
+		const listTasks = vi.fn().mockResolvedValue({ data: [] })
+		const server = createServer()
+		registerTaskTools(server as any, { listTasks } as never)
+
+		await server.handlers.get('asana_task_list')?.({ project_gid: 'p1', custom_type: 'ct1' })
+
+		expect(listTasks).toHaveBeenCalledWith('p1', expect.objectContaining({ customType: 'ct1' }))
+	})
+})

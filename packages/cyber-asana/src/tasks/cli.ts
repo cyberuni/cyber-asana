@@ -185,13 +185,15 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 	addPaginationOptions(
 		addGidOption(cmd.command('list').description('List tasks in a project'), 'project', 'Project GID')
 			.option('--completed-since <date>', 'Only include tasks completed on or after this date (ISO 8601 or "now")')
-			.option('--incomplete', 'Only show incomplete tasks (shorthand for --completed-since now)'),
+			.option('--incomplete', 'Only show incomplete tasks (shorthand for --completed-since now)')
+			.option('--custom-type <gid>', 'Only tasks of this custom type GID ("" for tasks with no custom type)'),
 	).action(
 		async (opts: {
 			project?: string
 			projectGid?: string
 			completedSince?: string
 			incomplete?: boolean
+			customType?: string
 			limit?: number
 			offset?: string
 			optFields?: string
@@ -200,6 +202,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 			pagination.optFields ??= TASK_LIST_FIELDS
 			const data = await resolveTaskApi(api).listTasks(requiredGid(opts, 'project', 'Project GID'), {
 				completedSince: opts.incomplete ? 'now' : opts.completedSince,
+				...(opts.customType !== undefined && { customType: opts.customType }),
 				...pagination,
 			})
 			output(data, () => {

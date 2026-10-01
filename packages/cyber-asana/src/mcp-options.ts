@@ -33,3 +33,11 @@ export const readParams = {
 export function readOptions(params: { opt_fields?: string }): ReadOptions | undefined {
 	return params.opt_fields ? { optFields: params.opt_fields } : undefined
 }
+
+/** Asana's `custom_type` list filter: a custom type GID, or an empty string for objects with none. */
+export function customTypeParam(objects: string) {
+	return z
+		.string()
+		.optional()
+		.describe(`Only ${objects} of this custom type GID; an empty string selects ${objects} with no custom type`)
+}

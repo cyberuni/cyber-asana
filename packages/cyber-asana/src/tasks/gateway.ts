@@ -114,8 +114,11 @@ export type SearchTasksOptions = {
 	optFields?: string
 }
 
+/** `customType` filters by custom type GID; an empty string selects tasks with no custom type. */
+export type TaskListOptions = PaginationOptions & { completedSince?: string; customType?: string }
+
 export type TaskGateway = {
-	listTasks(projectGid: string, opts?: PaginationOptions & { completedSince?: string }): Promise<ListResult<any>>
+	listTasks(projectGid: string, opts?: TaskListOptions): Promise<ListResult<any>>
 	listTasksForSection(
 		sectionGid: string,
 		opts?: PaginationOptions & { completedSince?: string },
@@ -176,6 +179,16 @@ export function createAsanaTaskGateway(client: Asana.ApiClient): TaskGateway {
 
 	return {
 		async listTasks(projectGid, opts) {
+			// Only GET /tasks takes custom_type; it returns the same project task list when scoped by project.
+			if (opts?.customType !== undefined) {
+				const res = await tasksApi.getTasks({
+					project: projectGid,
+					custom_type: opts.customType,
+					completed_since: opts.completedSince,
+					...toAsanaPaginationOptions(opts),
+				})
+				return await collectListResponse(res, opts)
+			}
 			const res = await tasksApi.getTasksForProject(projectGid, {
 				completed_since: opts?.completedSince,
 				...toAsanaPaginationOptions(opts),

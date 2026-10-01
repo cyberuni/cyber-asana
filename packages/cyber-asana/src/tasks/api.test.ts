@@ -572,6 +572,29 @@ describe('tasks/api', () => {
 		)
 	})
 
+	it('listTasks with customType reads GET /tasks scoped to the project, the only task list that filters by custom type', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'getTasks').mockResolvedValue({ data: [mockTask] } as never)
+		const getTasksForProject = vi.spyOn(Asana.TasksApi.prototype, 'getTasksForProject')
+
+		await listTasks('proj1', { customType: 'ct1', completedSince: 'now' })
+
+		expect(getTasksForProject).not.toHaveBeenCalled()
+		expect(Asana.TasksApi.prototype.getTasks).toHaveBeenCalledWith({
+			project: 'proj1',
+			custom_type: 'ct1',
+			completed_since: 'now',
+			limit: 100,
+		})
+	})
+
+	it('listTasks forwards an empty customType, which selects tasks with no custom type', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'getTasks').mockResolvedValue({ data: [] } as never)
+
+		await listTasks('proj1', { customType: '' })
+
+		expect(Asana.TasksApi.prototype.getTasks).toHaveBeenCalledWith(expect.objectContaining({ custom_type: '' }))
+	})
+
 	it('listTasks passes completed_since to SDK', async () => {
 		vi.spyOn(Asana.TasksApi.prototype, 'getTasksForProject').mockResolvedValue({
 			data: [mockTask],
