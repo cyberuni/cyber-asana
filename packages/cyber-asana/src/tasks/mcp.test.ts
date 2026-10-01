@@ -1,7 +1,8 @@
-import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { stringify } from 'yaml'
 
 const createTaskMock = vi.fn()
 const updateTaskMock = vi.fn()
@@ -393,14 +394,29 @@ describe('tasks/mcp', () => {
 		let dir: string | undefined
 		const previousConfig = process.env.CYBER_ASANA_CONFIG
 
+		const previousHome = process.env.HOME
+
 		async function useConfig(config: unknown) {
 			dir = await mkdtemp(join(tmpdir(), 'cyber-asana-mcp-project-'))
+			await mkdir(join(dir, '.git'))
+			vi.spyOn(process, 'cwd').mockReturnValue(dir)
+			process.env.HOME = join(dir, 'home')
 			const path = join(dir, 'config.json')
 			await writeFile(path, JSON.stringify(config))
 			process.env.CYBER_ASANA_CONFIG = path
 		}
 
+		/** Task conventions come from the work-hierarchy reference, so set them in a repo copy of it. */
+		async function useConventions(conventions: Record<string, unknown>) {
+			const path = join(dir as string, '.agents', 'references', 'cyber-asana.work-hierarchy.md')
+			await mkdir(dirname(path), { recursive: true })
+			await writeFile(path, `---\n${stringify({ merge: 'merge-sections', ...conventions })}---\n`)
+		}
+
 		afterEach(async () => {
+			vi.mocked(process.cwd).mockRestore()
+			if (previousHome === undefined) delete process.env.HOME
+			else process.env.HOME = previousHome
 			if (previousConfig === undefined) delete process.env.CYBER_ASANA_CONFIG
 			else process.env.CYBER_ASANA_CONFIG = previousConfig
 			if (dir) await rm(dir, { recursive: true, force: true })
@@ -419,7 +435,8 @@ describe('tasks/mcp', () => {
 		})
 
 		it('resolves a tag name against the workspace', async () => {
-			await useConfig({ schema_version: 2, projects: [], conventions: { default_tags: ['High Important'] } })
+			await useConfig({ schema_version: 2, projects: [] })
+			await useConventions({ default_tags: ['High Important'] })
 			createTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
 			listTagsMock.mockResolvedValue({ data: [{ gid: '900', name: 'High Important' }], next_page: null })
 			const server = createServer()
@@ -431,11 +448,8 @@ describe('tasks/mcp', () => {
 		})
 
 		it('applies conventions.default_tags and description_template', async () => {
-			await useConfig({
-				schema_version: 2,
-				projects: [],
-				conventions: { default_tags: ['900'], description_template: '## Problem' },
-			})
+			await useConfig({ schema_version: 2, projects: [] })
+			await useConventions({ default_tags: ['900'], description_template: '## Problem' })
 			createTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
 			const server = createServer()
 			registerTaskTools(server as any)
@@ -446,11 +460,8 @@ describe('tasks/mcp', () => {
 		})
 
 		it('leaves conventions out when the call gives its own notes and tags', async () => {
-			await useConfig({
-				schema_version: 2,
-				projects: [],
-				conventions: { default_tags: ['900'], description_template: '## Problem' },
-			})
+			await useConfig({ schema_version: 2, projects: [] })
+			await useConventions({ default_tags: ['900'], description_template: '## Problem' })
 			createTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
 			const server = createServer()
 			registerTaskTools(server as any)

@@ -48,7 +48,6 @@ import {
 	resolveProject,
 	resolveUser,
 	saveRepoConfig,
-	setConventions,
 	setDefaultProject,
 	setDefaults,
 	type UserObservation,
@@ -218,13 +217,7 @@ function printProjectTable(projects: RepoProjectEntry[]) {
  * The dotted keys `config set` accepts. Listing them here keeps the CLI's vocabulary and the
  * parser's in one place, and lets an unknown key answer with what it should have been.
  */
-const SETTABLE_KEYS = [
-	'defaults.assignee',
-	'defaults.section',
-	'conventions.task_name_format',
-	'conventions.description_template',
-	'conventions.default_tags',
-] as const
+const SETTABLE_KEYS = ['defaults.assignee', 'defaults.section'] as const
 
 type SettableKey = (typeof SETTABLE_KEYS)[number]
 
@@ -235,26 +228,18 @@ function settableKey(key: string): SettableKey {
 	return key as SettableKey
 }
 
-/** `conventions.default_tags` is the one list-valued key, so a comma-separated value becomes a list. */
 function applySetting(config: RepoConfig, key: SettableKey, value: string[] | null): RepoConfig {
-	const [block, field] = key.split('.') as ['defaults' | 'conventions', string]
-	if (key === 'conventions.default_tags') {
-		return setConventions(config, { default_tags: value })
-	}
-	const scalar = value === null ? null : value.join(',')
-	return block === 'defaults' ? setDefaults(config, { [field]: scalar }) : setConventions(config, { [field]: scalar })
+	const field = key.split('.')[1] as string
+	return setDefaults(config, { [field]: value === null ? null : value.join(',') })
 }
 
 /** Print a block as the dotted keys `config set` takes, so what is shown can be typed back. */
 function printBlocks(config: RepoConfig) {
-	const entries = [
-		...Object.entries(config.defaults ?? {}).map(([key, value]) => [`defaults.${key}`, value] as const),
-		...Object.entries(config.conventions ?? {}).map(([key, value]) => [`conventions.${key}`, value] as const),
-	]
+	const entries = Object.entries(config.defaults ?? {}).map(([key, value]) => [`defaults.${key}`, value] as const)
 	if (entries.length === 0) {
 		return
 	}
-	printFields(Object.fromEntries(entries.map(([key, value]) => [key, Array.isArray(value) ? value.join(', ') : value])))
+	printFields(Object.fromEntries(entries))
 }
 
 function printUserTable(users: RepoUserEntry[]) {

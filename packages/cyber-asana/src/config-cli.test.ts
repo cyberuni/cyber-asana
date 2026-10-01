@@ -876,20 +876,12 @@ describe('config/cli', () => {
 			expect((await run(configPath, 'set', 'defaults.assignee', 'ali')).defaults).toEqual({ assignee: 'ali' })
 		})
 
-		it('set writes a conventions key', async () => {
+		it('rejects a conventions key, which now lives in the work-hierarchy reference', async () => {
 			const configPath = await writeConfig({ schema_version: 2, projects: [] })
 
-			expect((await run(configPath, 'set', 'conventions.task_name_format', '<area>: <summary>')).conventions).toEqual({
-				task_name_format: '<area>: <summary>',
-			})
-		})
-
-		it('set splits conventions.default_tags on commas', async () => {
-			const configPath = await writeConfig({ schema_version: 2, projects: [] })
-
-			expect((await run(configPath, 'set', 'conventions.default_tags', 'eng, ops')).conventions).toEqual({
-				default_tags: ['eng', 'ops'],
-			})
+			await expect(run(configPath, 'set', 'conventions.task_name_format', '<area>: <summary>')).rejects.toThrow(
+				/Unknown config key "conventions.task_name_format"/,
+			)
 		})
 
 		it('unset clears a key and drops the emptied block', async () => {
@@ -910,12 +902,11 @@ describe('config/cli', () => {
 			)
 		})
 
-		it('show prints the defaults and conventions blocks', async () => {
+		it('show prints the defaults block', async () => {
 			const configPath = await writeConfig({
 				schema_version: 2,
 				projects: [],
 				defaults: { assignee: 'ali' },
-				conventions: { default_tags: ['eng'] },
 			})
 
 			process.argv = ['node', 'test']
@@ -925,8 +916,7 @@ describe('config/cli', () => {
 
 			const printed = logSpy.mock.calls.map((call) => String(call[0])).join('\n')
 			expect(printed).toContain('defaults.assignee')
-			expect(printed).toContain('conventions.default_tags')
-			expect(printed).toContain('eng')
+			expect(printed).toContain('ali')
 		})
 	})
 })

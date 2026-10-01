@@ -42,8 +42,19 @@ export default defineConfig([
 		entry: { cli: 'src/cli.ts' },
 		dts: false,
 		deps: {
-			alwaysBundle: [/^@modelcontextprotocol\/sdk(\/|$)/, /^asana(\/|$)/, /^commander(\/|$)/, /^zod(\/|$)/],
+			alwaysBundle: [
+				/^@modelcontextprotocol\/sdk(\/|$)/,
+				/^asana(\/|$)/,
+				/^buddy-agent-harness(\/|$)/,
+				/^commander(\/|$)/,
+				/^yaml(\/|$)/,
+				/^zod(\/|$)/,
+			],
 			onlyBundle: false,
 		},
+		// Prefer a dependency's ESM build. jsonc-parser (reached through buddy-agent-harness) points
+		// `main` at a UMD build whose relative `require('./impl/…')` calls are left unresolved once
+		// bundled, so the CLI would crash at startup.
+		inputOptions: { resolve: { mainFields: ['module', 'main'] } },
 	},
 ])

@@ -12,7 +12,7 @@ function normalize(value: string) {
 }
 
 /**
- * Turn `--tag` values or `conventions.default_tags` into tag GIDs. An Asana GID is a long numeric
+ * Turn `--tag` values or the `default_tags` convention into tag GIDs. An Asana GID is a long numeric
  * string, so a numeric value is taken as-is and a list of only GIDs costs no API call at all.
  * Anything else is a tag name, resolved against one listing of the workspace's tags.
  */
