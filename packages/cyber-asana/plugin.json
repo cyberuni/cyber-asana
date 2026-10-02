@@ -1,9 +1,11 @@
 {
 	"$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
 	"name": "cyber-asana",
-	"version": "0.16.0",
+	"version": "0.17.0",
 	"description": "Asana CLI and agent skills, with an opt-in MCP server",
-	"author": { "name": "unional" },
+	"author": {
+		"name": "unional"
+	},
 	"homepage": "https://github.com/cyberuni/cyber-asana",
 	"repository": "https://github.com/cyberuni/cyber-asana.git",
 	"license": "MIT",
