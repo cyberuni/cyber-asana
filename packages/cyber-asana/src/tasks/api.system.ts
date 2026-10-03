@@ -3,6 +3,7 @@ import { createRuntimeContext, type RuntimeContext } from '../composition.js'
 import { isSystemTestEnabled, systemEnv } from '../testing/system.js'
 import { defineBatchLookupAcceptanceSpecs } from './batch-lookup.acceptance.js'
 import { defineCreateInSectionAcceptanceSpecs } from './create-in-section.acceptance.js'
+import { defineGetWithStoriesAcceptanceSpecs } from './get-with-stories.acceptance.js'
 import { defineTaskListPaginationAcceptanceSpecs } from './list-pagination.acceptance.js'
 
 const primaryTaskGid = systemEnv('ASANA_SYSTEM_TEST_TASK_GID')
@@ -27,6 +28,11 @@ describe.skipIf(!systemEnabled)(
 		primaryTaskGid: primaryTaskGid!,
 		secondaryTaskGid: systemEnv('ASANA_SYSTEM_TEST_SECOND_TASK_GID'),
 	}),
+)
+
+describe.skipIf(!systemEnabled)(
+	'tasks/api get with stories system',
+	defineGetWithStoriesAcceptanceSpecs({ getApi: getTaskApi, taskGid: primaryTaskGid! }),
 )
 
 describe.skipIf(!listPaginationEnabled)(

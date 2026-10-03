@@ -11,6 +11,7 @@ const addFollowersToTaskMock = vi.fn()
 const removeFollowersFromTaskMock = vi.fn()
 const getTasksByGidMock = vi.fn()
 const getTaskMock = vi.fn()
+const getTaskWithStoriesMock = vi.fn()
 const listTasksMock = vi.fn()
 const getMyTasksMock = vi.fn()
 const listSubtasksMock = vi.fn()
@@ -32,6 +33,7 @@ vi.mock('./api.js', async () => {
 		removeFollowersFromTask: removeFollowersFromTaskMock,
 		getTasksByGid: getTasksByGidMock,
 		getTask: getTaskMock,
+		getTaskWithStories: getTaskWithStoriesMock,
 		listTasks: listTasksMock,
 		getMyTasks: getMyTasksMock,
 		listSubtasks: listSubtasksMock,
@@ -548,6 +550,99 @@ describe('tasks/cli', () => {
 		expect(notesLine).toContain('x'.repeat(600))
 	})
 
+	describe('task get --with-stories', () => {
+		const taskWithStories = {
+			gid: '1',
+			name: 'Task',
+			stories: [
+				{
+					gid: 's1',
+					type: 'comment',
+					text: 'y'.repeat(600),
+					created_at: '2026-01-02T00:00:00.000Z',
+					created_by: { name: 'Alice' },
+				},
+			],
+		}
+
+		it('reads the task and its stories through getTaskWithStories', async () => {
+			getTaskWithStoriesMock.mockResolvedValue(taskWithStories)
+			const program = new Command().addCommand(taskCommand())
+
+			await program.parseAsync(['node', 'test', 'task', 'get', '1', '--with-stories'], { from: 'node' })
+
+			expect(getTaskWithStoriesMock).toHaveBeenCalledWith('1', {})
+			expect(getTaskMock).not.toHaveBeenCalled()
+		})
+
+		it('passes --since and --opt-fields through', async () => {
+			getTaskWithStoriesMock.mockResolvedValue(taskWithStories)
+			const program = new Command().addCommand(taskCommand())
+
+			await program.parseAsync(
+				[
+					'node',
+					'test',
+					'task',
+					'get',
+					'1',
+					'--with-stories',
+					'--since',
+					'2026-01-01T00:00:00Z',
+					'--opt-fields',
+					'gid,name',
+				],
+				{ from: 'node' },
+			)
+
+			expect(getTaskWithStoriesMock).toHaveBeenCalledWith('1', { since: '2026-01-01T00:00:00Z', optFields: 'gid,name' })
+		})
+
+		it('treats --since alone as --with-stories', async () => {
+			getTaskWithStoriesMock.mockResolvedValue(taskWithStories)
+			const program = new Command().addCommand(taskCommand())
+
+			await program.parseAsync(['node', 'test', 'task', 'get', '1', '--since', '2026-01-01T00:00:00Z'], {
+				from: 'node',
+			})
+
+			expect(getTaskWithStoriesMock).toHaveBeenCalledWith('1', { since: '2026-01-01T00:00:00Z' })
+			expect(getTaskMock).not.toHaveBeenCalled()
+		})
+
+		it('prints the task and its stories as one json payload with --json', async () => {
+			getTaskWithStoriesMock.mockResolvedValue(taskWithStories)
+			process.argv = ['node', 'test', '--json']
+			const program = new Command().option('--json').addCommand(taskCommand())
+
+			await program.parseAsync(['node', 'test', '--json', 'task', 'get', '1', '--with-stories'], { from: 'node' })
+
+			expect(logSpy).toHaveBeenCalledWith(JSON.stringify(taskWithStories, null, 2))
+		})
+
+		it('lists the stories after the task in text mode, truncating long text', async () => {
+			getTaskWithStoriesMock.mockResolvedValue(taskWithStories)
+			const program = new Command().addCommand(taskCommand())
+
+			await program.parseAsync(['node', 'test', 'task', 'get', '1', '--with-stories'], { from: 'node' })
+
+			const lines = logSpy.mock.calls.map((c) => String(c[0]))
+			expect(lines).toContain('\n1 story(s)')
+			const storyLine = lines.find((line) => line.includes('Alice'))
+			expect(storyLine).toContain('2026-01-02T00:00:00.000Z')
+			expect(storyLine).toContain('[truncated, 600 chars total; use --full for the rest]')
+		})
+
+		it('names the empty story list', async () => {
+			getTaskWithStoriesMock.mockResolvedValue({ gid: '1', name: 'Task', stories: [] })
+			const program = new Command().addCommand(taskCommand())
+
+			await program.parseAsync(['node', 'test', 'task', 'get', '1', '--with-stories'], { from: 'node' })
+
+			expect(logSpy.mock.calls.map((c) => String(c[0]))).toContain('0 stories found')
+		})
+	})
+
 	it('task --help includes a concise examples reference', () => {
 		let help = ''
 		const cmd = taskCommand()
@@ -565,6 +660,7 @@ describe('tasks/cli', () => {
 				listTasksForSection: vi.fn(),
 				getTask: vi.fn(),
 				getTasksByGid: vi.fn(),
+				getTaskWithStories: vi.fn(),
 				createTask: injectedCreateTask,
 				updateTask: vi.fn(),
 				deleteTask: vi.fn(),

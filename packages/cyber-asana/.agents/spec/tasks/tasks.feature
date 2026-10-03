@@ -102,6 +102,25 @@ Feature: tasks
     When the task get entry point runs in text mode with the GID "7301"
     Then stdout contains "<strong>grind to 400 grit</strong>"
 
+  Scenario: get with stories returns the task and every story page in one payload
+    Given a task with GID "7301" named "Regrind the theodolite lens"
+    And that task has twelve stories spread across twelve pages of the stories endpoint
+    When the task get entry point runs with the GID "7301" and the with-stories flag
+    Then the returned record carries the task name "Regrind the theodolite lens"
+    And the returned record carries a stories field holding all twelve stories
+
+  Scenario: get with since keeps only the stories created at or after that time
+    Given a task with GID "7301" whose stories were created on "2026-01-01", "2026-01-05" and "2026-01-09"
+    When the task get entry point runs with the GID "7301" and the since time "2026-01-05T00:00:00Z"
+    Then the returned stories field holds the stories created on "2026-01-05" and "2026-01-09"
+    And the request reaching the stories endpoint carries no since filter
+
+  Scenario: get with a since value that is not an ISO 8601 time is rejected before any request
+    Given a task with GID "7301"
+    When the task get entry point runs with the GID "7301" and the since value "yesterday"
+    Then the run fails with a message naming --since
+    And no request reaches the single-task endpoint or the stories endpoint
+
   Scenario: get-many returns one record per requested GID in the order given
     Given a task with GID "7303" named "Index the tidal almanac"
     And a task with GID "7301" named "Regrind the theodolite lens"

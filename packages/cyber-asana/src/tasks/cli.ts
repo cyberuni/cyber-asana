@@ -13,7 +13,15 @@ import {
 import { loadConventions } from '../conventions.js'
 import { resolveEffectiveAssignee } from '../effective-config.js'
 import { deleteIdempotently, deleteMessage } from '../idempotent-delete.js'
-import { output, printEmpty, printFields, printNextSteps, printSummary, printTable } from '../output.js'
+import {
+	output,
+	printCountSummary,
+	printEmpty,
+	printFields,
+	printNextSteps,
+	printSummary,
+	printTable,
+} from '../output.js'
 import { loadDefaults, resolveProjectRef, resolveSectionPlacement } from '../repo-config.js'
 import { resolveTagRefs } from '../tags/resolve.js'
 import { isFull, truncate } from '../truncate.js'
@@ -30,6 +38,7 @@ import {
 	getMyTasks,
 	getTask,
 	getTasksByGid,
+	getTaskWithStories,
 	listSubtasks,
 	listTasks,
 	listTasksForSection,
@@ -88,6 +97,7 @@ function resolveTaskApi(api?: TaskApi | (() => TaskApi)): TaskApi {
 			listTasksForSection,
 			getTask,
 			getTasksByGid,
+			getTaskWithStories,
 			createTask,
 			updateTask,
 			deleteTask,
@@ -130,6 +140,24 @@ function fmtTask(t: Task) {
 		Done: t.completed != null ? String(t.completed) : null,
 		Notes: truncate(t.html_notes || t.notes, { full: isFull() }) || null,
 	})
+}
+
+type TaskStory = { type?: string; text?: string; created_at?: string; created_by?: { name: string } | null }
+
+// Same 60-character column as `story list`; --full and the size hint come from truncate().
+const STORY_TEXT_COLUMN_LIMIT = 60
+
+function fmtTaskStories(stories: TaskStory[]) {
+	printTable(
+		stories,
+		[
+			{ label: 'At', get: (s) => s.created_at ?? '' },
+			{ label: 'By', get: (s) => s.created_by?.name ?? '' },
+			{ label: 'Type', get: (s) => s.type ?? '' },
+			{ label: 'Text', get: (s) => truncate(s.text, { limit: STORY_TEXT_COLUMN_LIMIT, full: isFull() }) },
+		],
+		{ entity: 'stories' },
+	)
 }
 
 function fmtTaskList(tasks: Task[]) {
@@ -181,6 +209,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 			'  cyber-asana task list --project-gid <gid>',
 			'  cyber-asana task my-tasks list --workspace-gid <gid> --incomplete',
 			'  cyber-asana task get <gid> --toon',
+			'  cyber-asana task get <gid> --with-stories --since 2026-01-01T00:00:00Z --json',
 			'  cyber-asana task search "bug" --workspace-gid <gid> --no-completed',
 			'  cyber-asana task create "New task" --project-gid <gid>',
 			'',
@@ -255,18 +284,34 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 		},
 	)
 
-	addReadOptions(cmd.command('get <gid>').description('Get a task by GID')).action(
-		async (gid: string, opts: { optFields?: string }) => {
+	addReadOptions(cmd.command('get <gid>').description('Get a task by GID'))
+		.option('--with-stories', 'Include the task stories (comments and history), paging through all of them')
+		.option('--since <iso-time>', 'Only include stories created at or after this ISO 8601 time; implies --with-stories')
+		.action(async (gid: string, opts: { optFields?: string; withStories?: boolean; since?: string }) => {
+			const nextSteps = [
+				`cyber-asana task update ${gid} --completed — complete this task`,
+				`cyber-asana task subtask list ${gid} — list subtasks`,
+			]
+			if (opts.withStories || opts.since !== undefined) {
+				const data = await resolveTaskApi(api).getTaskWithStories(gid, {
+					...(opts.since !== undefined && { since: opts.since }),
+					...readOptionsFromCli(opts),
+				})
+				output(data, () => {
+					fmtTask(data)
+					console.log('')
+					fmtTaskStories(data.stories)
+					printCountSummary(data.stories.length, 'story(s)')
+					printNextSteps(nextSteps)
+				})
+				return
+			}
 			const data = await resolveTaskApi(api).getTask(gid, readOptionsFromCli(opts))
 			output(data, () => {
 				fmtTask(data)
-				printNextSteps([
-					`cyber-asana task update ${gid} --completed — complete this task`,
-					`cyber-asana task subtask list ${gid} — list subtasks`,
-				])
+				printNextSteps(nextSteps)
 			})
-		},
-	)
+		})
 
 	cmd
 		.command('get-many <gids...>')
