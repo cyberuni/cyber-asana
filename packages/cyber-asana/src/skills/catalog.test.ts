@@ -75,7 +75,9 @@ async function build(fixture: Fixture): Promise<CatalogSources> {
 	)
 	await writeFile(
 		path.join(root, 'plugin.json'),
-		JSON.stringify({ extensions: { 'org.cyberuni.universal-plugin': { skills: fixture.pointer ?? './skills/' } } }),
+		JSON.stringify({
+			extensions: { 'org.cyberuni.universal-plugin': { skills: fixture.pointer ?? './skills/' } },
+		}),
 	)
 
 	const table = (listed: string[]) => `| Skill |\n|---|\n${listed.map((name) => `| ${name} |`).join('\n')}\n`

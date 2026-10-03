@@ -9,6 +9,8 @@ const updateTaskMock = vi.fn()
 const addFollowersToTaskMock = vi.fn()
 const removeFollowersFromTaskMock = vi.fn()
 const getTasksByGidMock = vi.fn()
+const getTaskMock = vi.fn()
+const getTaskWithStoriesMock = vi.fn()
 const createSubtaskMock = vi.fn()
 const listTagsMock = vi.fn()
 
@@ -26,6 +28,8 @@ vi.mock('./api.js', async () => {
 		addFollowersToTask: addFollowersToTaskMock,
 		removeFollowersFromTask: removeFollowersFromTaskMock,
 		getTasksByGid: getTasksByGidMock,
+		getTask: getTaskMock,
+		getTaskWithStories: getTaskWithStoriesMock,
 		createSubtask: createSubtaskMock,
 	}
 })
@@ -255,6 +259,45 @@ describe('tasks/mcp', () => {
 		expect(removeFollowersFromTaskMock).toHaveBeenCalledWith('123', ['u1', 'u2'])
 	})
 
+	it('asana_task_get without with_stories reads the task alone', async () => {
+		getTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
+		const server = createServer()
+		registerTaskTools(server as any)
+
+		await server.handlers.get('asana_task_get')?.({ task_gid: '1' })
+
+		expect(getTaskMock).toHaveBeenCalledWith('1', undefined)
+		expect(getTaskWithStoriesMock).not.toHaveBeenCalled()
+	})
+
+	it('asana_task_get with with_stories returns the task and its stories in one payload', async () => {
+		const payload = { gid: '1', name: 'Task', stories: [{ gid: 's1', created_at: '2026-01-02T00:00:00.000Z' }] }
+		getTaskWithStoriesMock.mockResolvedValue(payload)
+		const server = createServer()
+		registerTaskTools(server as any)
+
+		const result = await server.handlers.get('asana_task_get')?.({
+			task_gid: '1',
+			with_stories: true,
+			since: '2026-01-01T00:00:00Z',
+			opt_fields: 'gid,name',
+		})
+
+		expect(getTaskWithStoriesMock).toHaveBeenCalledWith('1', { since: '2026-01-01T00:00:00Z', optFields: 'gid,name' })
+		expect(getTaskMock).not.toHaveBeenCalled()
+		expect(result).toEqual({ content: [{ type: 'text', text: JSON.stringify(payload) }] })
+	})
+
+	it('asana_task_get treats since alone as with_stories', async () => {
+		getTaskWithStoriesMock.mockResolvedValue({ gid: '1', name: 'Task', stories: [] })
+		const server = createServer()
+		registerTaskTools(server as any)
+
+		await server.handlers.get('asana_task_get')?.({ task_gid: '1', since: '2026-01-01T00:00:00Z' })
+
+		expect(getTaskWithStoriesMock).toHaveBeenCalledWith('1', { since: '2026-01-01T00:00:00Z' })
+	})
+
 	it('asana_task_get_many forwards gids and opt_fields to batch lookup', async () => {
 		getTasksByGidMock.mockResolvedValue([{ gid: '123', ok: true, task: { gid: '123', name: 'Task 1' } }])
 		const server = createServer()
@@ -286,6 +329,7 @@ describe('tasks/mcp', () => {
 			listTasksForSection: vi.fn(),
 			getTask: vi.fn(),
 			getTasksByGid: vi.fn(),
+			getTaskWithStories: vi.fn(),
 			createTask: injectedCreateTask,
 			updateTask: vi.fn(),
 			deleteTask: vi.fn(),

@@ -38,6 +38,18 @@ cyber-asana task get-many <gid> <gid> --opt-fields gid,name,assignee
 `get-many` batches lookups into a single Asana Batch API request rather than one call per
 GID.
 
+`--with-stories` adds the task's stories (comments and change history) to the output as a
+`stories` field, so one command returns the task and its history. The command pages through
+every story itself. `--since <iso-time>` keeps only stories created at or after that time;
+Asana has no such filter, so it applies on the client. `--since` implies `--with-stories`.
+
+```sh
+cyber-asana task get <gid> --with-stories --json
+cyber-asana task get <gid> --since 2026-01-01T00:00:00Z --json
+```
+
+The MCP tool `asana_task_get` takes the same options as `with_stories` and `since`.
+
 ## Creating and updating
 
 ```sh

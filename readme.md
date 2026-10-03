@@ -512,6 +512,7 @@ Notable parameters:
 - `asana_ai_studio_run_list` — `workspace_gid`, `start_at` (inclusive) / `end_at` (exclusive) as ISO 8601 date-times, `division_gid`; lists runs oldest first with the model and credits used, so poll forward by passing the last recorded time as `start_at`. Takes no `opt_fields`, and Asana restricts it to service accounts in AI Studio-licensed organizations
 - `asana_ai_studio_seat_list` — `workspace_gid`, `state` (`active` or `revoked`), `division_gid`; same access restriction and no `opt_fields`
 - `asana_task_subtask_list` — `assignee_email`, `follower_emails`, `num_subtasks`, `custom_fields` expand returned fields
+- `asana_task_get` — `with_stories: true` adds the task's stories (comments and change history) as a `stories` field, paged internally; `since` keeps stories created at or after an ISO 8601 time (filtered on the client) and implies `with_stories`
 - `asana_task_create` — `project_gid`, `project_gids`, `default_section`, `follower_gids`, `html_notes`, `completed`, `due_on`, `due_at`, `start_on`, `start_at`, `parent_gid`, `resource_subtype`, `custom_fields`
 - `asana_task_update` — `html_notes`, `due_on` / `clear_due_on`, `due_at` / `clear_due_at`, `start_on` / `clear_start_on`, `start_at` / `clear_start_at`, `assignee_gid` / `assignee` (alias, email, or name from the repo registry) / `clear_assignee`, `parent_gid`, `clear_parent`, `resource_subtype`, `custom_fields`
 - `asana_task_subtask_create` — takes the same write fields as `asana_task_create`; the parent and its workspace come from `task_gid`
@@ -688,6 +689,18 @@ cyber-asana task subtask list <task-gid> --assignee-email --opt-fields "due_on,n
 | `--follower-emails` | `followers,followers.email` |
 | `--num-subtasks` | `num_subtasks` |
 | `--custom-fields` | `custom_fields` |
+
+### Task with its stories
+
+`task get --with-stories` returns the task and its stories (comments and change history) in one
+output, as a `stories` field. The command pages through every story itself. `--since` keeps
+only stories created at or after an ISO 8601 time; Asana has no such filter, so it applies on
+the client. `--since` implies `--with-stories`.
+
+```sh
+cyber-asana task get <task-gid> --with-stories --json
+cyber-asana task get <task-gid> --since 2026-01-01T00:00:00Z --json
+```
 
 ### Task project membership
 

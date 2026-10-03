@@ -1,5 +1,47 @@
 # cyber-asana
 
+## 0.17.0
+
+### Minor Changes
+
+- 04b47fe: `task create` and `asana_task_create` now apply `defaults.section` themselves. When a task is created in the repo config's default project and `defaults.section` is set, it is created directly in that section, in the same API call, so there is no separate placement step to forget or to fail on its own. A task created only in other projects is never placed, because the section belongs to the default project. Opt out per call with `--no-default-section` (CLI) or `default_section: false` (MCP).
+- b00118b: Update runtime dependencies.
+- 509677d: Update runtime dependencies.
+
+## 0.16.0
+
+### Minor Changes
+
+- 455285b: Add the `asana` skill: the single entry point for Asana work. It routes a request to the skill that owns it (`init-asana`, `config-asana`, `asana-standup`, `asana-sprint-report`, `link-pr-to-task`, `improve-description`, `create-tasks-from-code`, `sync-asana-project`), creates tasks, and tracks session work — reusing an incomplete task of yours that describes the same outcome and commenting the branch and pull request on it, or creating one, per the `cyber-asana.task-conventions` reference.
+  
+  **Renamed:** the `create-asana-task` skill is replaced by the `/cyber-asana:create-task` command. Its procedure is unchanged and now lives in the `asana` skill's `references/create-task.md`, which both the command and the `asana` skill follow. Codex has no plugin commands; there, and in skills-only installs, ask for a task and the `asana` skill files it. If you installed `create-asana-task` on its own with `npx skills add`, install `asana` instead.
+- 74ff399: Expose the API surface added in `asana` 3.2.0.
+  
+  - New `ai-studio` commands and MCP tools for AI Studio usage: `ai-studio runs` / `asana_ai_studio_run_list` lists each AI Studio run with its model and credits used, oldest first (poll forward with `--start-at`), and `ai-studio seats` / `asana_ai_studio_seat_list` lists seat allocations (`--state active|revoked`). Both take `--division-gid`. Asana restricts these endpoints to service accounts in organizations licensed for AI Studio.
+  - `task list`, `project list`, and `portfolio list` (and `asana_task_list`, `asana_project_list`, `asana_portfolio_list`) accept a custom type filter (`--custom-type <gid>` / `custom_type`). An empty value selects items with no custom type.
+- f200828: **Breaking:** task conventions (`task_name_format`, `description_template`, `default_tags`) now come only from the frontmatter of the `cyber-asana.task-conventions` reference, resolved the buddy-agent-harness way (repo `.agents/references/`, user `~/.agents/references/`, installed plugins, then the copy cyber-asana ships) and merged key by key. The `conventions` block in `.agents/cyber-asana.json` is no longer read: a config that still has one fails to load, and `config set`/`config show` no longer accept or print `conventions.*` keys.
+  
+  Move an existing block with the new `cyber-asana config migrate-conventions` command. It writes the keys into the frontmatter of `.agents/references/cyber-asana.task-conventions.md` (created with `merge: merge-sections` when absent; an existing file only gains frontmatter keys, and a key it already sets is refused) and then drops the block. It honors `--json`, `--toon`, and `--dry-run`.
+- 4514686: Fold the `create-tasks-from-code` skill into the `asana` router as the **Import TODOs** route, and add the `/cyber-asana:import-todos` command. The `create-tasks-from-code` skill is removed: ask the `asana` skill to turn TODO/FIXME comments into tasks, or run `/cyber-asana:import-todos`. The procedure lives in `skills/asana/references/import-todos.md` and now creates each task through `references/create-task.md`, so imported tasks follow the repo's task conventions.
+- 3a1edb5: Fold the `link-pr-to-task` skill into the `asana` router as the **Link a PR** route, and add the `/cyber-asana:link-pr` command. The `link-pr-to-task` skill is removed: ask the `asana` skill to link a pull request to its task, or run `/cyber-asana:link-pr`. The procedure lives in `skills/asana/references/link-pr.md` and now works on every major git host — GitHub (including Enterprise), GitLab (including self-hosted), Bitbucket Cloud and Data Center, Azure DevOps, Gitea, and Forgejo/Codeberg — with that host's official CLI or REST API. When the host's CLI is missing or logged out it hands off to repobuddy's `init-buddy` skill if installed, or asks for the pull request URL.
+- f4d1092: The plugin no longer starts the MCP server. It ships the CLI and skills only, and the MCP server is opt-in.
+  
+  **Breaking:** a plugin install (Claude Code, Cursor, Codex, Copilot CLI) no longer registers the `cyber-asana` MCP server, and the package no longer publishes `mcp.json` or `.mcp.json`. The skills drive the CLI instead, which costs far fewer context tokens than 100+ MCP tool schemas. To keep the MCP tools, run the `init-asana` skill and accept its MCP step, or add `npx -y cyber-asana@<version> mcp` to your client's MCP config yourself. The `cyber-asana mcp` command, the `cyber-asana/mcp` export, and every MCP tool are unchanged.
+- 68e08f7: The `asana` skill now plans the work before it creates a task. For a task request and for session tracking alike, it splits the request or the session (its conversation, commits, and diff) into units of work, looks each one up among the project's tasks, your incomplete tasks, and recently completed ones, and reuses a match instead of filing it twice. Two or more units that serve one outcome become subtasks of a parent task; a unit that waits on another gets a dependency. It shows the plan first and asks before creating more than one task or changing an existing one, and it marks a task complete only when you say so. The procedure lives in the skill's `references/plan-work.md`; the grouping rules live in a new **Grouping** section of the `cyber-asana.task-conventions` reference.
+- 815f9f8: Estimate story points without hard-coding a field GID. A project entry in `.agents/cyber-asana.json` can now record custom fields by role (`fields.story_points: { gid, name }`):
+  
+  - `cyber-asana config discover-fields [project]` finds the project's story point field by name ("Story Points", "Task Points", "Points", "pts", "SP" on a number or dropdown field) and saves it. When several fields match, it lists them and saves none.
+  - `cyber-asana config set-field <role> <field-gid>` and `config unset-field <role>` register or clear one by hand.
+  
+  The `cyber-asana.task-conventions` reference gains a **Story points** section: when a task's project has such a field, estimate or measure it with 1 point as the effort a senior staff engineer who knows the stack and the domain needs to fix a one-line bug, about one hour.
+- b66e257: Ship the `cyber-asana.task-conventions` reference: when to use a task, a subtask, or a dependency; what to fill in for a task and its subtasks, custom fields, and comments; and how to track session work. Its frontmatter holds the task conventions the CLI and MCP apply. Agents load it by name, and a repository or user can override it section by section.
+
+### Patch Changes
+
+- f894d94: Update the bundled `commander` to v15. CLI behavior is unchanged, except that a "too many arguments" usage error now also names the extra arguments (for example `Expected 0 arguments but got 1: extra.`). It still exits with code `2`.
+- 915a379: The `asana` skill's work planning now reads the session's pull or merge request on any major git host, through the host table in `skills/asana/references/link-pr.md`, instead of calling `gh` directly.
+- 7ede5f2: Update runtime dependencies: `@modelcontextprotocol/sdk` 1.31.0, `asana` 3.2.0, `yaml` 2.9.1, and `zod` 4.6.5.
+
 ## 0.15.0
 
 ### Minor Changes

@@ -39,7 +39,7 @@ export type CatalogSources = {
 	repoRoot: string
 	/** Package manifest whose `files` allowlist decides whether the catalog ships. */
 	packageJsonPath: string
-	/** Canonical plugin manifest whose universal-plugin `skills` path points every runtime at the catalog. */
+	/** Canonical plugin manifest whose `extensions["org.cyberuni.universal-plugin"].skills` field points a runtime at the catalog. */
 	pluginManifestPath: string
 	/** The plugin root's SETUP.md — what an agent reads to finish a plugin install. */
 	setupPath: string
@@ -61,9 +61,6 @@ const UNPINNED_INVOCATION = /npx\s+(?:--yes\s+|-y\s+)?cyber-asana(?!@)/
 
 /** Where the plugin surface actually lives; a manifest pointing elsewhere finds nothing. */
 const SHIPPED_SKILLS_POINTER = './skills/'
-
-/** The canonical manifest carries component paths in universal-plugin's extension namespace; the build derives each vendor's `skills` from it. */
-const UNIVERSAL_PLUGIN_EXTENSION = 'org.cyberuni.universal-plugin'
 
 export function repoCatalogSources(): CatalogSources {
 	return {
@@ -269,10 +266,10 @@ async function checkPackaging(sources: CatalogSources): Promise<CatalogViolation
 		})
 	}
 
-	const { extensions } = (await readJson(sources.pluginManifestPath)) as {
-		extensions?: Record<string, { skills?: unknown } | undefined>
+	const manifest = (await readJson(sources.pluginManifestPath)) as {
+		extensions?: { 'org.cyberuni.universal-plugin'?: { skills?: unknown } }
 	}
-	const pointer = extensions?.[UNIVERSAL_PLUGIN_EXTENSION]?.skills
+	const pointer = manifest.extensions?.['org.cyberuni.universal-plugin']?.skills
 	if (pointer !== SHIPPED_SKILLS_POINTER) {
 		violations.push({
 			rule: 'manifest-skills-pointer',

@@ -31,6 +31,9 @@ Anything else — a single read or update of one Asana object — needs no proce
 matching `cyber-asana <resource> <action>` command directly (see **Ensure cyber-asana CLI** in the
 `init-asana` skill for how to invoke it). The cyber-asana MCP server is opt-in; when it is enabled,
 its `asana_<resource>_<action>` tools are equivalent.
+To read a task together with its comments and change history, run
+`cyber-asana task get <gid> --with-stories [--since <iso-time>] --json` — one call instead of
+`task get` plus `story list`.
 
 ## Create a task
 

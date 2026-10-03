@@ -93,6 +93,8 @@ MCP) that share one `api.ts`. Neither `cli.ts` nor `mcp.ts` calls the Asana SDK 
 |---|---|---|---|
 | `task get <gid>` (CLI) | caller holds one GID and wants the whole task | the task GID, positionally | the task rendered as Name/ID/URL/Assignee/Due/Done/Notes fields |
 | `asana_task_get` (MCP) | agent wants the same | `task_gid` | the same record, JSON-serialized, including `html_notes` |
+| `task get <gid> --with-stories [--since <iso-time>]` (CLI) | caller wants the task and its comment and change history in one call | the task GID, `--with-stories`, optional `--since` (implies `--with-stories`), `--opt-fields` for the task | the task with a `stories` field holding every story, paged internally and filtered by `created_at` on the client; text mode lists the stories after the task with truncated text |
+| `asana_task_get` with `with_stories` / `since` (MCP) | agent wants the same | `task_gid`, `with_stories`, `since` (implies `with_stories`), `opt_fields` | the same record, JSON-serialized |
 | `task get-many <gids...>` (CLI) | caller holds several GIDs and wants them in one trip | the GIDs, positionally, plus `--opt-fields` | one record per GID in order, each a task or a status-and-errors block |
 | `asana_task_get_many` (MCP) | agent wants the same | `task_gids` array, `opt_fields` | the same array, JSON-serialized |
 

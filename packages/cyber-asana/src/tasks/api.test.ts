@@ -17,6 +17,7 @@ import {
 	getMyTasks,
 	getTask,
 	getTasksByGid,
+	getTaskWithStories,
 	listSubtasks,
 	listTasks,
 	listTasksForSection,
@@ -54,6 +55,24 @@ describe('tasks/api', () => {
 		vi.spyOn(Asana.TasksApi.prototype, 'getTask').mockResolvedValue({ data: mockTask } as never)
 		const result = await getTask('456')
 		expect(result).toEqual(mockTask)
+	})
+
+	it('getTaskWithStories reads every story page through StoriesApi and adds them to the task', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'getTask').mockResolvedValue({ data: mockTask } as never)
+		const second = { data: [{ gid: 's2', created_at: '2026-02-01T00:00:00.000Z' }], _response: { next_page: null } }
+		vi.spyOn(Asana.StoriesApi.prototype, 'getStoriesForTask').mockResolvedValue({
+			data: [{ gid: 's1', created_at: '2026-01-01T00:00:00.000Z' }],
+			_response: { next_page: { offset: 'o2' } },
+			nextPage: async () => second,
+		} as never)
+
+		const result = await getTaskWithStories('456', { since: '2026-01-15T00:00:00Z' })
+
+		expect(result).toEqual({ ...mockTask, stories: [{ gid: 's2', created_at: '2026-02-01T00:00:00.000Z' }] })
+		expect(Asana.StoriesApi.prototype.getStoriesForTask).toHaveBeenCalledWith('456', {
+			limit: 100,
+			opt_fields: 'gid,type,resource_subtype,text,created_at,created_by.name',
+		})
 	})
 
 	it('getTasksByGid batches task reads with opt_fields and preserves input order', async () => {
@@ -711,7 +730,7 @@ describe('tasks/api', () => {
 		const result = await addDependencies('456', ['111', '222'])
 		expect(result).toEqual({})
 		expect(Asana.TasksApi.prototype.addDependenciesForTask).toHaveBeenCalledWith(
-			{ data: { dependencies: [{ gid: '111' }, { gid: '222' }] } },
+			{ data: { dependencies: ['111', '222'] } },
 			'456',
 		)
 	})
@@ -721,7 +740,7 @@ describe('tasks/api', () => {
 		const result = await addDependents('456', ['333', '444'])
 		expect(result).toEqual({})
 		expect(Asana.TasksApi.prototype.addDependentsForTask).toHaveBeenCalledWith(
-			{ data: { dependents: [{ gid: '333' }, { gid: '444' }] } },
+			{ data: { dependents: ['333', '444'] } },
 			'456',
 		)
 	})
@@ -777,7 +796,7 @@ describe('tasks/api', () => {
 		vi.spyOn(Asana.TasksApi.prototype, 'removeDependenciesForTask').mockResolvedValue(undefined as never)
 		await removeDependencies('456', ['111'])
 		expect(Asana.TasksApi.prototype.removeDependenciesForTask).toHaveBeenCalledWith(
-			{ data: { dependencies: [{ gid: '111' }] } },
+			{ data: { dependencies: ['111'] } },
 			'456',
 		)
 	})
@@ -786,7 +805,7 @@ describe('tasks/api', () => {
 		vi.spyOn(Asana.TasksApi.prototype, 'removeDependentsForTask').mockResolvedValue(undefined as never)
 		await removeDependents('456', ['333'])
 		expect(Asana.TasksApi.prototype.removeDependentsForTask).toHaveBeenCalledWith(
-			{ data: { dependents: [{ gid: '333' }] } },
+			{ data: { dependents: ['333'] } },
 			'456',
 		)
 	})
@@ -864,6 +883,7 @@ describe('createTaskApi', () => {
 			removeDependencies: vi.fn(),
 			removeDependents: vi.fn(),
 			searchTasks: vi.fn(),
+			listStories: vi.fn(),
 		})
 
 		const result = await api.listTasks('proj1')
