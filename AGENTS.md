@@ -38,15 +38,22 @@ Before writing any production code, invoke the `test-driven-development` skill. 
 
 Everything the plugin needs lives in `packages/cyber-asana/` and must stay listed in that package's `files`, or it will not reach consumers.
 
-| Path | Read by |
-| --- | --- |
-| `plugin.json` | The canonical manifest — [Agent Plugins 1.0.0](https://github.com/agentplugins/agent-plugins-spec) clients, and Copilot CLI directly. Top level is the closed Agent Plugins schema (components never go there); `extensions["org.cyberuni.universal-plugin"]` records the per-vendor build config (`vendors`, `harnesses`, component paths) that `.claude-plugin`/`.cursor-plugin`/`.codex-plugin` mirror by hand — nothing in this repo runs `universal-plugin plugin build` yet, so keep the three vendor manifests in sync with this block manually |
-| `.claude-plugin/plugin.json` | Claude Code |
-| `.cursor-plugin/plugin.json` | Cursor |
-| `.codex-plugin/plugin.json` | Codex |
-| `skills/<name>/SKILL.md` | All of them (fixed location) |
+Root `plugin.json` is the **only** manifest anyone authors. Every vendor's form is derived from it by [universal-plugin](https://github.com/cyberuni/universal-plugin) (`pnpm plugin:build`); never hand-edit a derived file — the next build overwrites it.
 
-`.claude-plugin/marketplace.json` at the **repo root** lists the plugin with an `npm` source. Version bumps flow from `packages/cyber-asana/package.json` through `scripts/sync-plugin-version.mjs` on `pnpm version` — add any new manifest to that script's list.
+| Path | Read by | Authored? |
+| --- | --- | --- |
+| `plugin.json` | [Agent Plugins 1.0.0](https://github.com/agentplugins/agent-plugins-spec) clients and Copilot CLI. Top level is the spec's **closed** field set; component paths and per-vendor fields live under `extensions["org.cyberuni.universal-plugin"]` (`skills`, `commands`, `vendors`, `harnesses.<vendor>`) | yes — the canonical manifest |
+| `.claude-plugin/plugin.json` | Claude Code | derived |
+| `.cursor-plugin/plugin.json` | Cursor | derived |
+| `.codex-plugin/plugin.json` | Codex | derived |
+| `com.github.copilot/commands/` | Copilot CLI, which reads native components only from here once `plugin.json` declares the spec `$schema` | derived (copied from `commands/`) |
+| `skills/<name>/SKILL.md`, `commands/<name>.md` | All of them | yes |
+
+There is no `.plugin/plugin.json`: it would outrank root in Copilot CLI's search order and shadow the canonical manifest.
+
+After editing `plugin.json`, `skills/`, or `commands/`, run `pnpm plugin:build` and commit the derived files with the change. `pnpm plugin:check` (also run by `pnpm verify`) rebuilds and fails if a derived file drifted.
+
+`.claude-plugin/marketplace.json` at the **repo root** lists the plugin with an `npm` source; the build refreshes its entry from `plugin.json`. Versions flow from `packages/cyber-asana/package.json` on `pnpm version`: `changeset version`, then `universal-plugin publish sync-version` carries the number into `plugin.json`, then `pnpm plugin:build` re-derives every manifest and the catalog. Never hand-edit a `version` field.
 
 The plugin declares **no MCP server** — no `mcp.json`, no `.mcp.json`, no `mcpServers` in any manifest; `src/plugin-manifests.test.ts` guards this. The skills drive the CLI. The MCP server is opt-in: the `init-asana` skill writes it into the client's own MCP config when the user asks (see [Why CLI + skills](apps/web/src/content/docs/reference/cli-vs-mcp.md)).
 

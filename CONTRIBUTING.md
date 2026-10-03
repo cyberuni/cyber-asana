@@ -23,6 +23,19 @@ pnpm ca test:system                     # live API tests (requires ASANA_SYSTEM_
 
 See [AGENTS.md](AGENTS.md) for the full command list, architecture, and conventions.
 
+## Plugin manifests
+
+`packages/cyber-asana/plugin.json` is the only manifest you edit. The Claude Code, Cursor, and Codex manifests, the Copilot CLI `com.github.copilot/` tree, and the entry in `.claude-plugin/marketplace.json` are derived from it.
+
+After changing `plugin.json`, a skill, or a command:
+
+```sh
+pnpm plugin:build   # regenerate every derived manifest, then format them
+pnpm plugin:check   # rebuild and fail on drift (pnpm verify runs this)
+```
+
+Commit the derived files together with the change that caused them. Do not edit a `version` field; `pnpm version` moves it. See [AGENTS.md](AGENTS.md#plugin-layout) for the layout.
+
 ## MCP server
 
 The plugin does not ship or start the MCP server; it is opt-in for consumers. This section is for running it from this source tree.
