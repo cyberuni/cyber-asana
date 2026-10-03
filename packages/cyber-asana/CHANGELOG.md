@@ -1,5 +1,16 @@
 # cyber-asana
 
+## 0.18.0
+
+### Minor Changes
+
+- e5c4a0b: Update runtime dependencies.
+- 2f766cd: `task get --with-stories [--since <iso-time>]` returns the task and its stories (comments and change history) in one output as a `stories` field, paging through every story. `--since` filters stories by `created_at` on the client and implies `--with-stories`. The MCP tool `asana_task_get` takes the same options as `with_stories` and `since`.
+
+### Patch Changes
+
+- 545bd03: Fix `task dependency add|remove` and `task dependent add|remove` (and the matching MCP tools): send dependency and dependent GIDs as plain strings, which Asana requires, instead of `{ gid }` objects that it rejects with "Not a valid GID type: object".
+
 ## 0.17.0
 
 ### Minor Changes
