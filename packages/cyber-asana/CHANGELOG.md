@@ -1,5 +1,15 @@
 # cyber-asana
 
+## 0.18.0
+
+### Minor Changes
+
+- e5c4a0b: Update runtime dependencies.
+
+### Patch Changes
+
+- 545bd03: Fix `task dependency add|remove` and `task dependent add|remove` (and the matching MCP tools): send dependency and dependent GIDs as plain strings, which Asana requires, instead of `{ gid }` objects that it rejects with "Not a valid GID type: object".
+
 ## 0.17.0
 
 ### Minor Changes
