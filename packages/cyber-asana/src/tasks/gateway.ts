@@ -6,6 +6,7 @@ import {
 	toAsanaPaginationOptions,
 } from '../pagination.js'
 import { type ReadOptions, toAsanaReadOptions } from '../read-options.js'
+import { createAsanaStoryGateway } from '../stories/gateway.js'
 
 export type TaskCustomFields = Record<string, unknown>
 
@@ -148,6 +149,7 @@ export type TaskGateway = {
 	removeDependencies(taskGid: string, dependencyGids: string[]): Promise<void>
 	removeDependents(taskGid: string, dependentGids: string[]): Promise<void>
 	searchTasks(workspaceGid: string, opts?: SearchTasksOptions): Promise<any>
+	listStories(taskGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
 }
 
 const TASK_BATCH_ACTION_LIMIT = 10
@@ -178,6 +180,8 @@ export function createAsanaTaskGateway(client: Asana.ApiClient): TaskGateway {
 	const tasksApi = new Asana.TasksApi(client)
 	const batchApi = new Asana.BatchAPIApi(client)
 	const utlApi = new Asana.UserTaskListsApi(client)
+	// Stories are read through the story gateway so the SDK call lives in one place.
+	const storyGateway = createAsanaStoryGateway(client)
 
 	return {
 		async listTasks(projectGid, opts) {
@@ -381,6 +385,9 @@ export function createAsanaTaskGateway(client: Asana.ApiClient): TaskGateway {
 				opt_fields: opts?.optFields,
 			})
 			return res.data
+		},
+		listStories(taskGid, opts) {
+			return storyGateway.listStories(taskGid, opts)
 		},
 	}
 }

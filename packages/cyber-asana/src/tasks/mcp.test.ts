@@ -286,6 +286,7 @@ describe('tasks/mcp', () => {
 			listTasksForSection: vi.fn(),
 			getTask: vi.fn(),
 			getTasksByGid: vi.fn(),
+			getTaskWithStories: vi.fn(),
 			createTask: injectedCreateTask,
 			updateTask: vi.fn(),
 			deleteTask: vi.fn(),

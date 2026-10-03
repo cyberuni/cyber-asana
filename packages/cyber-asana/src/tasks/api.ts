@@ -1,7 +1,7 @@
 import { readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { createClient } from '../client.js'
-import type { PaginationOptions } from '../pagination.js'
+import { listItems, type PaginationOptions } from '../pagination.js'
 import type { ReadOptions } from '../read-options.js'
 import {
 	type CreateTaskFields,
@@ -15,6 +15,19 @@ import {
 
 export type { TaskBatchLookupFailure, TaskBatchLookupSuccess, TaskCustomFields } from './gateway.js'
 export type { CreateTaskFields, SearchTasksOptions, TaskBatchLookupResult, TaskListOptions, UpdateTaskFields }
+
+/** `since` keeps stories created at or after that ISO 8601 time; Asana has no such filter, so it applies here. */
+export type TaskWithStoriesOptions = ReadOptions & { since?: string }
+
+/** Story fields `task get --with-stories` returns; `created_at` is what `since` filters on. */
+const TASK_STORY_FIELDS = 'gid,type,resource_subtype,text,created_at,created_by.name'
+
+function parseSince(since: string | undefined) {
+	if (since === undefined) return undefined
+	const time = Date.parse(since)
+	if (Number.isNaN(time)) throw new Error(`--since must be an ISO 8601 time, got "${since}"`)
+	return time
+}
 
 export type TodoMatch = {
 	file: string
@@ -84,6 +97,27 @@ export function createTaskApi(gateway: TaskGateway) {
 		},
 		getTask(taskGid: string, opts?: ReadOptions) {
 			return gateway.getTask(taskGid, opts)
+		},
+		async getTaskWithStories(taskGid: string, opts?: TaskWithStoriesOptions) {
+			const { since, ...readOptions } = opts ?? {}
+			const sinceTime = parseSince(since)
+			const [task, stories] = await Promise.all([
+				gateway.getTask(taskGid, Object.keys(readOptions).length > 0 ? readOptions : undefined),
+				// Page until done: a task's history is read whole, then filtered.
+				gateway.listStories(taskGid, {
+					optFields: TASK_STORY_FIELDS,
+					fetchAll: true,
+					maxPages: Number.POSITIVE_INFINITY,
+				}),
+			])
+			const items = listItems(stories) as { created_at?: string }[]
+			return {
+				...task,
+				stories:
+					sinceTime === undefined
+						? items
+						: items.filter((story) => story.created_at !== undefined && Date.parse(story.created_at) >= sinceTime),
+			}
 		},
 		getTasksByGid(taskGids: string[], opts?: { optFields?: string }) {
 			return gateway.getTasksByGid(taskGids, opts)
@@ -160,6 +194,10 @@ export async function listTasksForSection(sectionGid: string, opts?: PaginationO
 
 export async function getTask(taskGid: string, opts?: ReadOptions) {
 	return defaultTaskApi().getTask(taskGid, opts)
+}
+
+export async function getTaskWithStories(taskGid: string, opts?: TaskWithStoriesOptions) {
+	return defaultTaskApi().getTaskWithStories(taskGid, opts)
 }
 
 export async function getTasksByGid(

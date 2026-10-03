@@ -17,6 +17,7 @@ import {
 	getMyTasks,
 	getTask,
 	getTasksByGid,
+	getTaskWithStories,
 	listSubtasks,
 	listTasks,
 	listTasksForSection,
@@ -54,6 +55,24 @@ describe('tasks/api', () => {
 		vi.spyOn(Asana.TasksApi.prototype, 'getTask').mockResolvedValue({ data: mockTask } as never)
 		const result = await getTask('456')
 		expect(result).toEqual(mockTask)
+	})
+
+	it('getTaskWithStories reads every story page through StoriesApi and adds them to the task', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'getTask').mockResolvedValue({ data: mockTask } as never)
+		const second = { data: [{ gid: 's2', created_at: '2026-02-01T00:00:00.000Z' }], _response: { next_page: null } }
+		vi.spyOn(Asana.StoriesApi.prototype, 'getStoriesForTask').mockResolvedValue({
+			data: [{ gid: 's1', created_at: '2026-01-01T00:00:00.000Z' }],
+			_response: { next_page: { offset: 'o2' } },
+			nextPage: async () => second,
+		} as never)
+
+		const result = await getTaskWithStories('456', { since: '2026-01-15T00:00:00Z' })
+
+		expect(result).toEqual({ ...mockTask, stories: [{ gid: 's2', created_at: '2026-02-01T00:00:00.000Z' }] })
+		expect(Asana.StoriesApi.prototype.getStoriesForTask).toHaveBeenCalledWith('456', {
+			limit: 100,
+			opt_fields: 'gid,type,resource_subtype,text,created_at,created_by.name',
+		})
 	})
 
 	it('getTasksByGid batches task reads with opt_fields and preserves input order', async () => {
@@ -864,6 +883,7 @@ describe('createTaskApi', () => {
 			removeDependencies: vi.fn(),
 			removeDependents: vi.fn(),
 			searchTasks: vi.fn(),
+			listStories: vi.fn(),
 		})
 
 		const result = await api.listTasks('proj1')

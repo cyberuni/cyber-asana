@@ -30,6 +30,7 @@ function createPaginatingTaskGateway(): TaskGateway {
 		removeDependencies: vi.fn(),
 		removeDependents: vi.fn(),
 		searchTasks: vi.fn(),
+		listStories: vi.fn(),
 	}
 }
 
