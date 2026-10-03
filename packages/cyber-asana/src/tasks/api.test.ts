@@ -711,7 +711,7 @@ describe('tasks/api', () => {
 		const result = await addDependencies('456', ['111', '222'])
 		expect(result).toEqual({})
 		expect(Asana.TasksApi.prototype.addDependenciesForTask).toHaveBeenCalledWith(
-			{ data: { dependencies: [{ gid: '111' }, { gid: '222' }] } },
+			{ data: { dependencies: ['111', '222'] } },
 			'456',
 		)
 	})
@@ -721,7 +721,7 @@ describe('tasks/api', () => {
 		const result = await addDependents('456', ['333', '444'])
 		expect(result).toEqual({})
 		expect(Asana.TasksApi.prototype.addDependentsForTask).toHaveBeenCalledWith(
-			{ data: { dependents: [{ gid: '333' }, { gid: '444' }] } },
+			{ data: { dependents: ['333', '444'] } },
 			'456',
 		)
 	})
@@ -777,7 +777,7 @@ describe('tasks/api', () => {
 		vi.spyOn(Asana.TasksApi.prototype, 'removeDependenciesForTask').mockResolvedValue(undefined as never)
 		await removeDependencies('456', ['111'])
 		expect(Asana.TasksApi.prototype.removeDependenciesForTask).toHaveBeenCalledWith(
-			{ data: { dependencies: [{ gid: '111' }] } },
+			{ data: { dependencies: ['111'] } },
 			'456',
 		)
 	})
@@ -786,7 +786,7 @@ describe('tasks/api', () => {
 		vi.spyOn(Asana.TasksApi.prototype, 'removeDependentsForTask').mockResolvedValue(undefined as never)
 		await removeDependents('456', ['333'])
 		expect(Asana.TasksApi.prototype.removeDependentsForTask).toHaveBeenCalledWith(
-			{ data: { dependents: [{ gid: '333' }] } },
+			{ data: { dependents: ['333'] } },
 			'456',
 		)
 	})

@@ -306,22 +306,16 @@ export function createAsanaTaskGateway(client: Asana.ApiClient): TaskGateway {
 			return res.data
 		},
 		async addDependencies(taskGid, dependencyGids) {
-			return tasksApi.addDependenciesForTask(
-				{ data: { dependencies: dependencyGids.map((gid) => ({ gid })) } },
-				taskGid,
-			)
+			return tasksApi.addDependenciesForTask({ data: { dependencies: dependencyGids } }, taskGid)
 		},
 		async addDependents(taskGid, dependentGids) {
-			return tasksApi.addDependentsForTask({ data: { dependents: dependentGids.map((gid) => ({ gid })) } }, taskGid)
+			return tasksApi.addDependentsForTask({ data: { dependents: dependentGids } }, taskGid)
 		},
 		async removeDependencies(taskGid, dependencyGids) {
-			await tasksApi.removeDependenciesForTask(
-				{ data: { dependencies: dependencyGids.map((gid) => ({ gid })) } },
-				taskGid,
-			)
+			await tasksApi.removeDependenciesForTask({ data: { dependencies: dependencyGids } }, taskGid)
 		},
 		async removeDependents(taskGid, dependentGids) {
-			await tasksApi.removeDependentsForTask({ data: { dependents: dependentGids.map((gid) => ({ gid })) } }, taskGid)
+			await tasksApi.removeDependentsForTask({ data: { dependents: dependentGids } }, taskGid)
 		},
 		async searchTasks(workspaceGid, opts) {
 			const res = await tasksApi.searchTasksForWorkspace(workspaceGid, {
