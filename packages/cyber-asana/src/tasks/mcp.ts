@@ -285,13 +285,30 @@ When setting notes, prefer html_notes over notes to preserve rich formatting (he
 
 	server.tool(
 		'asana_task_get',
-		'Get an Asana task by GID. Returns html_notes with rich formatting (headings, lists, code blocks) in addition to plain notes.',
-		{ task_gid: z.string().describe('Task GID'), ...readParams },
-		async ({ task_gid, ...params }) => ({
-			content: [
-				{ type: 'text', text: JSON.stringify(await resolveTaskApi(api).getTask(task_gid, readOptions(params))) },
-			],
-		}),
+		'Get an Asana task by GID. Returns html_notes with rich formatting (headings, lists, code blocks) in addition to plain notes. With with_stories, also returns the task stories (comments and history) as a stories field.',
+		{
+			task_gid: z.string().describe('Task GID'),
+			...readParams,
+			with_stories: z
+				.boolean()
+				.optional()
+				.describe('Include the task stories (comments and history) as a stories field, paging through all of them'),
+			since: z
+				.string()
+				.optional()
+				.describe('Only include stories created at or after this ISO 8601 time; implies with_stories'),
+		},
+		async ({ task_gid, with_stories, since, ...params }) => {
+			const taskApi = resolveTaskApi(api)
+			const data =
+				with_stories || since !== undefined
+					? await taskApi.getTaskWithStories(task_gid, {
+							...(since !== undefined && { since }),
+							...readOptions(params),
+						})
+					: await taskApi.getTask(task_gid, readOptions(params))
+			return { content: [{ type: 'text', text: JSON.stringify(data) }] }
+		},
 	)
 
 	server.tool(
