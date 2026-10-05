@@ -1,5 +1,15 @@
 # cyber-asana
 
+## 0.19.0
+
+### Minor Changes
+
+- c84a66d: Update runtime dependencies.
+
+### Patch Changes
+
+- 956a3ab: Resolve the `cyber-asana.task-conventions` reference through `@cyberuni/agent-harness` instead of `buddy-agent-harness`, and point the skills and the Claude Code plugin dependency at the `cyber-agent-harness` plugin, which now ships the `reference` skill.
+
 ## 0.18.0
 
 ### Minor Changes
