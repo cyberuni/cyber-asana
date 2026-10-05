@@ -219,8 +219,8 @@ importers:
         specifier: ^3.2.0
         version: 3.2.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1)
       buddy-agent-harness:
-        specifier: ^0.17.0
-        version: 0.17.0(typescript@7.0.2)
+        specifier: ^0.18.0
+        version: 0.18.0(typescript@7.0.2)
       commander:
         specifier: ^15.0.0
         version: 15.0.0
@@ -2160,8 +2160,8 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
 
-  buddy-agent-harness@0.17.0:
-    resolution: {integrity: sha512-bAqqOjU7Y+hFVQ9Mo69Z1mZTwVOJlPycKyursYM/0R/4xk5r+m9mndDtBaRCNToXDWWtR91BRykdKjEO8OXtbg==}
+  buddy-agent-harness@0.18.0:
+    resolution: {integrity: sha512-BavPv4SOrz4567OEViIMSxQB+Rl60pKYOdwFYS0PVyDWBroJORKJw3OAdElEXjugRfBHgM7TZfVFxgsKeiokpA==}
     engines: {node: '>=22'}
     hasBin: true
 
@@ -5708,7 +5708,7 @@ snapshots:
       node-releases: 2.0.51
       update-browserslist-db: 1.2.3(browserslist@4.28.7)
 
-  buddy-agent-harness@0.17.0(typescript@7.0.2):
+  buddy-agent-harness@0.18.0(typescript@7.0.2):
     dependencies:
       '@cyberuni/agent-harness': 0.3.0
       '@toon-format/toon': 4.1.1
@@ -5773,7 +5773,7 @@ snapshots:
     dependencies:
       find-installed-packages: 4.0.1
       import-meta-resolve: 4.2.0
-      js-yaml: 4.3.1
+      js-yaml: 4.3.2
       jsonc-parser: 3.3.1
       pad-right: 0.2.2
       search-packages: 2.2.3
