@@ -18,7 +18,7 @@
 			"harnesses": {
 				"claude-code": {
 					"displayName": "Cyber Asana",
-					"dependencies": ["buddy-agent-harness"]
+					"dependencies": ["cyber-agent-harness"]
 				},
 				"cursor": {
 					"category": "productivity",

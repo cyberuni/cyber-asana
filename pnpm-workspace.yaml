@@ -36,3 +36,7 @@ overrides:
 # should carry its reason and the date it becomes removable.
 minimumReleaseAge: 1440 # 1 day
 minimumReleaseAgeStrict: true
+minimumReleaseAgeExclude:
+  # First-party (cyberuni). 0.5.0 is the first release carrying the reference engine that
+  # buddy-agent-harness@0.20.0 moved out; published 2026-10-05T01:11Z, removable 2026-10-06T01:11Z.
+  - '@cyberuni/agent-harness@0.5.0'

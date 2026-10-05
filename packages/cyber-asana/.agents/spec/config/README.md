@@ -26,7 +26,7 @@ top-level `defaults` block (an `assignee` and a `section` a command falls back t
 rounds the file out. `defaults.section` is a section GID in the default project, so task create
 applies it only to a task created in that project, and never to one created elsewhere. Task conventions (`task_name_format`, `description_template`, `default_tags`)
 are deliberately not here: their one source is the frontmatter of the `cyber-asana.task-conventions`
-reference, resolved through the buddy-agent-harness layers and merged key by key, and a file that
+reference, resolved through the @cyberuni/agent-harness layers and merged key by key, and a file that
 still carries a `conventions` block is rejected with `config migrate-conventions` named as the fix.
 This is `schema_version: 2`;
 a `schema_version: 1` file (project entries with only `gid` and `name`) still parses and is upgraded

@@ -191,7 +191,7 @@ cyber-asana config show
 
 ### Task conventions
 
-Repo house style for new tasks (`task_name_format`, `description_template`, `default_tags`) lives in the frontmatter of the `cyber-asana.task-conventions` reference, not in `.agents/cyber-asana.json`. The CLI and MCP resolve that reference the [buddy-agent-harness](https://github.com/repobuddy/buddy-agent-harness) way: the repo copy (`.agents/references/`), the user copy (`~/.agents/references/`), installed plugins, then the copy this package ships, merged key by key. To set a convention, write a repo copy:
+Repo house style for new tasks (`task_name_format`, `description_template`, `default_tags`) lives in the frontmatter of the `cyber-asana.task-conventions` reference, not in `.agents/cyber-asana.json`. The CLI and MCP resolve that reference the [@cyberuni/agent-harness](https://github.com/cyberuni/agent-harness) way: the repo copy (`.agents/references/`), the user copy (`~/.agents/references/`), installed plugins, then the copy this package ships, merged key by key. To set a convention, write a repo copy:
 
 ```md
 ---
@@ -207,7 +207,7 @@ default_tags: [agent-created]
 
 The reference's body also tells agents to estimate story points when a task's project has a story point or task point field: 1 point is the effort a senior staff engineer who knows the stack and the domain needs to fix a one-line bug, about one hour. The field is never hard-coded. `cyber-asana config discover-fields <project>` finds it by name and saves its GID under the project's `fields.story_points` in `.agents/cyber-asana.json`.
 
-Agents read it with the `reference` skill in the `buddy-agent-harness` plugin. A config that still has a `conventions` block fails to load; move it with `cyber-asana config migrate-conventions` (`--dry-run` to preview).
+Agents read it with the `reference` skill in the `cyber-agent-harness` plugin. A config that still has a `conventions` block fails to load; move it with `cyber-asana config migrate-conventions` (`--dry-run` to preview).
 
 ## Plugin distribution
 
