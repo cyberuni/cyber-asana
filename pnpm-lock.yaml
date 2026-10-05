@@ -212,15 +212,15 @@ importers:
 
   packages/cyber-asana:
     dependencies:
+      '@cyberuni/agent-harness':
+        specifier: ^0.5.0
+        version: 0.5.0(typescript@7.0.2)
       '@modelcontextprotocol/sdk':
         specifier: ^1.31.0
         version: 1.31.0(supports-color@8.1.1)(zod@4.6.5)
       asana:
         specifier: ^3.2.0
         version: 3.2.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1)
-      buddy-agent-harness:
-        specifier: ^0.18.0
-        version: 0.18.0(typescript@7.0.2)
       commander:
         specifier: ^15.0.0
         version: 15.0.0
@@ -718,9 +718,10 @@ packages:
     resolution: {integrity: sha512-EFi1GZpZ2ziQ+GoE7Fyu0dIn881IVUdxQNXSMDkSCsliz2O8P3hnCxBinLaJYtgN4CuqeE0o9twSLzqD1OIrgQ==}
     engines: {node: '>=22'}
 
-  '@cyberuni/agent-harness@0.3.0':
-    resolution: {integrity: sha512-o1q19ZWll8IMpIdUwOZy0ETxryOQvCI3R56lAPOxrBKx/iabxrmZkhRdooDAlnYcny243GR/mkfrqm5e4DrpRg==}
+  '@cyberuni/agent-harness@0.5.0':
+    resolution: {integrity: sha512-TyfqEHYfHiU9Uw8CE1J393+H/CyBv9Vv7+w3YrAKHmTgMqoH+cFPujFpgkU3uT5sr7xUg1RiEHICXuVao14Wbg==}
     engines: {node: '>=22'}
+    hasBin: true
 
   '@emnapi/core@1.11.1':
     resolution: {integrity: sha512-RSvbQmHzdKzNsLYa/wHrbc3KN4sYLKAdPZxqiM2HATqv/SBk2/ENSHpvXGaLOMcsAyz0poEGqkmmKYG3OWiJEQ==}
@@ -2160,11 +2161,6 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
 
-  buddy-agent-harness@0.18.0:
-    resolution: {integrity: sha512-BavPv4SOrz4567OEViIMSxQB+Rl60pKYOdwFYS0PVyDWBroJORKJw3OAdElEXjugRfBHgM7TZfVFxgsKeiokpA==}
-    engines: {node: '>=22'}
-    hasBin: true
-
   bytes@3.1.2:
     resolution: {integrity: sha512-/Nf7TyzTx6S3yRJObOAV7956r8cr2+Oj8AC5dt8wSP3BQAoeX58NoHyCU8P8zGkNXStjTSi6fzO6F0pBdcYbEg==}
     engines: {node: '>= 0.8'}
@@ -2508,10 +2504,6 @@ packages:
 
   escape-html@1.0.3:
     resolution: {integrity: sha512-NiSupZ4OeuGwr68lGIeym/ksIZMJodUGOSCZ/FSnTxcrekbvqrgdUxlJOMpijaKZVjAJrWrGs/6Jy8OMuyj9ow==}
-
-  eslint-visitor-keys@5.0.1:
-    resolution: {integrity: sha512-tD40eHxA35h0PEIZNeIjkHoDR4YjjJp34biM0mDvplBe//mB+IHCqHDGV7pxF+7MklTvighcCPPZC7ynWyjdTA==}
-    engines: {node: ^20.19.0 || ^22.13.0 || >=24}
 
   estree-walker@3.0.3:
     resolution: {integrity: sha512-7RUKfXgSMMkzt6ZuXmqapOurLGPPfgj6l9uRZ7lRGolvk0y2yocc35LdcxKC5PQZdn2DMqioAQ2NoWcrTKmm6g==}
@@ -3668,10 +3660,6 @@ packages:
     resolution: {integrity: sha512-o5sSPKEkg/DIQNmH43V0/uerLrpzVedkUh8tGNvaeXpfpuwjKenlSox/2O/BTlZUtEe+JG7s5YhEz608PlAHRA==}
     engines: {node: '>=0.6'}
 
-  toml-eslint-parser@1.0.3:
-    resolution: {integrity: sha512-A5F0cM6+mDleacLIEUkmfpkBbnHJFV1d2rprHU2MXNk7mlxHq2zGojA+SRvQD1RoMo9gqjZPWEaKG4v1BQ48lw==}
-    engines: {node: ^20.19.0 || ^22.13.0 || >=24}
-
   tree-kill@1.2.2:
     resolution: {integrity: sha512-L0Orpi8qGpRG//Nd+H90vFB+3iHnue1zSSGmNOOCh1GLJ7rUKVwV2HvijphGQS2UmhUZewS9VgvxYIdgr+fG1A==}
     hasBin: true
@@ -4613,7 +4601,13 @@ snapshots:
 
   '@cyberuni/agent-harness@0.1.0': {}
 
-  '@cyberuni/agent-harness@0.3.0': {}
+  '@cyberuni/agent-harness@0.5.0(typescript@7.0.2)':
+    dependencies:
+      '@toon-format/toon': 4.1.1
+      clibuilder: 11.3.2(typescript@7.0.2)
+      yaml: 2.9.1
+    transitivePeerDependencies:
+      - typescript
 
   '@emnapi/core@1.11.1':
     dependencies:
@@ -5708,18 +5702,6 @@ snapshots:
       node-releases: 2.0.51
       update-browserslist-db: 1.2.3(browserslist@4.28.7)
 
-  buddy-agent-harness@0.18.0(typescript@7.0.2):
-    dependencies:
-      '@cyberuni/agent-harness': 0.3.0
-      '@toon-format/toon': 4.1.1
-      clibuilder: 11.3.2(typescript@7.0.2)
-      jsonc-parser: 3.3.1
-      smol-toml: 1.9.0
-      toml-eslint-parser: 1.0.3
-      yaml: 2.9.1
-    transitivePeerDependencies:
-      - typescript
-
   bytes@3.1.2: {}
 
   cac@7.0.0: {}
@@ -6039,8 +6021,6 @@ snapshots:
   escalade@3.2.0: {}
 
   escape-html@1.0.3: {}
-
-  eslint-visitor-keys@5.0.1: {}
 
   estree-walker@3.0.3:
     dependencies:
@@ -7458,10 +7438,6 @@ snapshots:
     optional: true
 
   toidentifier@1.0.1: {}
-
-  toml-eslint-parser@1.0.3:
-    dependencies:
-      eslint-visitor-keys: 5.0.1
 
   tree-kill@1.2.2: {}
 

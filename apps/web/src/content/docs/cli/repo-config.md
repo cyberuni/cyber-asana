@@ -127,7 +127,7 @@ project is kept even if its name does not match, and one no longer on the projec
 
 Repo house style lives in the frontmatter of the `cyber-asana.task-conventions` reference, not in
 this file. The CLI and MCP resolve that reference through the
-[buddy-agent-harness](https://github.com/repobuddy/buddy-agent-harness) layers — the repo copy
+[@cyberuni/agent-harness](https://github.com/cyberuni/agent-harness) layers — the repo copy
 (`.agents/references/`), the user copy (`~/.agents/references/`), installed plugins, then the copy
 cyber-asana ships — and merge the frontmatter key by key, the higher layer winning. Set a
 convention in a repo copy:

@@ -12,5 +12,5 @@
 	"skills": "./skills/",
 	"commands": "./commands/",
 	"displayName": "Cyber Asana",
-	"dependencies": ["buddy-agent-harness"]
+	"dependencies": ["cyber-agent-harness"]
 }

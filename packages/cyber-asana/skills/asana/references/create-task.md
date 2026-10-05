@@ -29,7 +29,7 @@ only when it is enabled.
 ## 1. Load the task conventions
 
 Before anything else, load the `cyber-asana.task-conventions` reference with the `reference` skill
-in the `buddy-agent-harness` plugin. It is merged from the repo copy (`.agents/references/`), the
+in the `cyber-agent-harness` plugin. It is merged from the repo copy (`.agents/references/`), the
 user copy, and the copy cyber-asana ships. Follow its body for the shape of the work:
 
 - **Choosing the object** — whether this is a task, a subtask (`--parent-gid`), or a dependency

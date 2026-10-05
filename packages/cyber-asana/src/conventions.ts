@@ -2,11 +2,11 @@ import { existsSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { parseReferenceName, type ReferenceLayer, referenceLayers, resolveReference } from 'buddy-agent-harness'
+import { parseReferenceName, type ReferenceLayer, referenceLayers, resolveReference } from '@cyberuni/agent-harness'
 
 /**
  * The reference whose frontmatter holds the repo's task conventions. It is the only source of
- * them: resolved through the buddy-agent-harness layers (managed, repo, user, installed plugins,
+ * them: resolved through the @cyberuni/agent-harness layers (managed, repo, user, installed plugins,
  * then the copy this package ships) and merged key by key.
  */
 export const CONVENTIONS_REFERENCE = 'cyber-asana.task-conventions'
@@ -73,7 +73,7 @@ export type LoadConventionsOptions = {
 }
 
 /**
- * Every layer buddy-agent-harness reads, with this package standing in as the one `cyber-asana`
+ * Every layer @cyberuni/agent-harness reads, with this package standing in as the one `cyber-asana`
  * plugin. Another copy of cyber-asana — an enabled harness plugin or a declared dependency — is
  * the same plugin, so it is dropped rather than read as a second holder of the name.
  */

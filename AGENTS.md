@@ -108,7 +108,7 @@ Shared acceptance helpers: `src/testing/list-pagination.acceptance.ts`, `src/tes
 - **Asana SDK**: `asana` npm package v3.x — API methods return `{ data: ... }`; always unwrap to `res.data`
 - **No duplication**: CLI and MCP both call `api.ts`; never inline Asana SDK calls in cli.ts or mcp.ts
 - **Workspace GID in requests**: pass as a plain string (`workspace: workspaceGid`), not as an object (`workspace: { gid: ... }`)
-- **Task conventions**: `task_name_format`, `description_template`, and `default_tags` come only from the frontmatter of the `cyber-asana.task-conventions` reference (`packages/cyber-asana/references/`), resolved through buddy-agent-harness layers by `loadConventions()` in `src/conventions.ts`. Never add them back to `.agents/cyber-asana.json`; that block is rejected and `config migrate-conventions` moves it
+- **Task conventions**: `task_name_format`, `description_template`, and `default_tags` come only from the frontmatter of the `cyber-asana.task-conventions` reference (`packages/cyber-asana/references/`), resolved through `@cyberuni/agent-harness` layers by `loadConventions()` in `src/conventions.ts`. Never add them back to `.agents/cyber-asana.json`; that block is rejected and `config migrate-conventions` moves it
 
 ### Agent-friendly output
 

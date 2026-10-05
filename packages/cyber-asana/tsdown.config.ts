@@ -45,14 +45,14 @@ export default defineConfig([
 			alwaysBundle: [
 				/^@modelcontextprotocol\/sdk(\/|$)/,
 				/^asana(\/|$)/,
-				/^buddy-agent-harness(\/|$)/,
+				/^@cyberuni\/agent-harness(\/|$)/,
 				/^commander(\/|$)/,
 				/^yaml(\/|$)/,
 				/^zod(\/|$)/,
 			],
 			onlyBundle: false,
 		},
-		// Prefer a dependency's ESM build. jsonc-parser (reached through buddy-agent-harness) points
+		// Prefer a dependency's ESM build. jsonc-parser (if a bundled dependency reaches it) points
 		// `main` at a UMD build whose relative `require('./impl/…')` calls are left unresolved once
 		// bundled, so the CLI would crash at startup.
 		inputOptions: { resolve: { mainFields: ['module', 'main'] } },

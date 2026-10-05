@@ -168,7 +168,7 @@ project. Without a project, all three use the default project. Commit the update
 
 Task conventions (`task_name_format`, `description_template`, `default_tags`) are not part of
 either registry. They live in the frontmatter of the `cyber-asana.task-conventions` reference —
-load it with the `reference` skill in the `buddy-agent-harness` plugin. To set one for this repo,
+load it with the `reference` skill in the `cyber-agent-harness` plugin. To set one for this repo,
 add the key to the frontmatter of `.agents/references/cyber-asana.task-conventions.md` (create it
 with `merge: merge-sections` so the shipped guidance still applies), and commit that file.
 
