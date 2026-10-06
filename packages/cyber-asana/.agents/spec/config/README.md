@@ -20,7 +20,7 @@ into a GID without searching the workspace first. The `cyber-asana config` verbs
 maintain it. A project entry also carries `aliases` (trigger keywords resolved ahead of the display
 name), an optional `purpose` (one line saying what belongs there), and an optional `default: true`
 marking the project commands fall back to when none is given — at most one project — and optional
-`fields`, the custom fields that play a named role on that project (only `story_points` so far),
+`fields`, the custom fields that play a named role on that project (`story_points` and `task_points`),
 each recorded as `{ gid, name }` so a convention can name a field without hard-coding its GID. An optional
 top-level `defaults` block (an `assignee` and a `section` a command falls back to when not told one)
 rounds the file out. `defaults.section` is a section GID in the default project, so task create

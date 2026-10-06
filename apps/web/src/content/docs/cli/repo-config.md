@@ -63,7 +63,7 @@ cyber-asana config list-users
 cyber-asana config set defaults.assignee ali          # set a defaults key
 cyber-asana config unset defaults.assignee            # clear it
 
-cyber-asana config discover-fields api               # find a project's story point field, save it
+cyber-asana config discover-fields api               # find a project's points fields, save them
 cyber-asana config set-field story_points <field-gid> --project api   # pick a field by hand
 cyber-asana config unset-field story_points --project api
 
@@ -118,9 +118,13 @@ project entry records the fields found for it:
 { "gid": "1201", "name": "Backend", "aliases": ["api"], "fields": { "story_points": { "gid": "9001", "name": "Story Points" } } }
 ```
 
-`story_points` is the only role so far. `discover-fields` fills it from a number or dropdown field
-named "Story Points", "Task Points", "Points", "pts", or "SP". When several fields match, it saves
-none and lists them; pick one with `set-field`. On a later run, a saved field that is still on the
+There are two roles: `story_points`, for work on a user story, and `task_points`, for chore work.
+A task carries one of the two, never both; the task conventions reference says which. On a number
+or dropdown field, `discover-fields` fills `story_points` from "Story Points", "Story pts", or "SP",
+and `task_points` from "Task Points", "Task pts", or "TP". A bare "Points" or "pts" fills
+`story_points`, which a project with a single points field uses for everything. A project with both
+a story points and a task points field gets both roles saved. When several fields match one role,
+it saves none for that role and lists them; pick one with `set-field`. On a later run, a saved field that is still on the
 project is kept even if its name does not match, and one no longer on the project is dropped.
 
 ## Task conventions

@@ -3,12 +3,13 @@ import { applyFieldDiscovery, matchFieldRole } from './project-fields.js'
 import type { RepoConfig } from './repo-config.js'
 
 describe('matchFieldRole', () => {
-	it.each(['Story Points', 'story point', 'Task Points', 'task_points', 'Points', 'Story pts', 'SP'])(
-		'matches %s as story_points',
-		(name) => {
-			expect(matchFieldRole({ name, resource_subtype: 'number' })).toBe('story_points')
-		},
-	)
+	it.each(['Story Points', 'story point', 'Points', 'Story pts', 'SP'])('matches %s as story_points', (name) => {
+		expect(matchFieldRole({ name, resource_subtype: 'number' })).toBe('story_points')
+	})
+
+	it.each(['Task Points', 'task_points', 'Task pts', 'TP'])('matches %s as task_points', (name) => {
+		expect(matchFieldRole({ name, resource_subtype: 'number' })).toBe('task_points')
+	})
 
 	it('accepts an enum field, for teams that pick points from a scale', () => {
 		expect(matchFieldRole({ name: 'Story Points', resource_subtype: 'enum' })).toBe('story_points')
@@ -37,6 +38,18 @@ describe('applyFieldDiscovery', () => {
 		])
 		expect(config.projects[0]?.fields).toEqual({ story_points: { gid: '900', name: 'Story Points' } })
 		expect(discovered).toEqual({ story_points: { gid: '900', name: 'Story Points' } })
+		expect(ambiguous).toEqual({})
+	})
+
+	it('saves both roles without asking when the project has a story points and a task points field', () => {
+		const { config, ambiguous } = applyFieldDiscovery(base(), '1', [
+			points,
+			{ gid: '910', name: 'Task Points', resource_subtype: 'number' },
+		])
+		expect(config.projects[0]?.fields).toEqual({
+			story_points: { gid: '900', name: 'Story Points' },
+			task_points: { gid: '910', name: 'Task Points' },
+		})
 		expect(ambiguous).toEqual({})
 	})
 

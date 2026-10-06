@@ -1017,6 +1017,24 @@ describe('config/cli', () => {
 			})
 		})
 
+		it('discover-fields saves both story points and task points without asking', async () => {
+			const configPath = await setup([{ gid: '111', name: 'Backend', aliases: [], default: true }])
+			listSettingsMock.mockResolvedValue({
+				data: [
+					{ custom_field: { gid: '900', name: 'Story Points', resource_subtype: 'number' } },
+					{ custom_field: { gid: '910', name: 'Task Points', resource_subtype: 'number' } },
+				],
+			})
+
+			const result = await run('discover-fields', '--config', configPath)
+
+			expect(result.ambiguous).toEqual({})
+			expect((await readProjects(configPath))[0].fields).toEqual({
+				story_points: { gid: '900', name: 'Story Points' },
+				task_points: { gid: '910', name: 'Task Points' },
+			})
+		})
+
 		it('discover-fields falls back to the default project', async () => {
 			const configPath = await setup([{ gid: '111', name: 'Backend', aliases: [], default: true }])
 			listSettingsMock.mockResolvedValue({ data: [] })

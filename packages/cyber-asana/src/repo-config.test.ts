@@ -729,6 +729,14 @@ describe('resolveSectionPlacement', () => {
 describe('project fields', () => {
 	const field = { gid: '900', name: 'Story Points' }
 
+	it('parses a task_points field on a project', () => {
+		const config = parseRepoConfig({
+			schema_version: 2,
+			projects: [{ gid: '1', name: 'A', fields: { task_points: field } }],
+		})
+		expect(config.projects[0]?.fields).toEqual({ task_points: field })
+	})
+
 	it('parses a story_points field on a project', () => {
 		const config = parseRepoConfig({
 			schema_version: 2,

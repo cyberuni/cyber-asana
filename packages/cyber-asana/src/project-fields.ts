@@ -17,10 +17,13 @@ export type ProjectCustomField = {
 /**
  * Field names that play each role, after lower-casing and collapsing separators to one space.
  * Matching is by name because GIDs differ per workspace; the subtype check keeps a text note
- * that happens to be called "Points" from being mistaken for an estimate.
+ * that happens to be called "Points" from being mistaken for an estimate. A bare "Points" field
+ * is taken as `story_points`, the role a project with a single points field uses for everything;
+ * next to a "Story Points" field it is ambiguous and discovery asks.
  */
 const ROLE_MATCHERS: Record<FieldRole, { names: RegExp; subtypes: string[] }> = {
-	story_points: { names: /^(?:(?:story|task) )?(?:points?|pts)$|^sp$/, subtypes: ['number', 'enum'] },
+	story_points: { names: /^(?:story )?(?:points?|pts)$|^sp$/, subtypes: ['number', 'enum'] },
+	task_points: { names: /^task (?:points?|pts)$|^tp$/, subtypes: ['number', 'enum'] },
 }
 
 function normalizeFieldName(name: string): string {

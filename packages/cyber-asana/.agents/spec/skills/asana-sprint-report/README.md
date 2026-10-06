@@ -18,6 +18,8 @@ stakeholder.
 - **What it covers** — establishing the scope (which project, which section is the sprint, and the
   sprint start date), fetching the completed and incomplete lists, optionally narrowing both to one
   section, and writing a narrative summary **alongside** the raw counts rather than instead of them.
+  When the project registers `story_points` or `task_points` fields, it totals the two separately;
+  the line between them is drawn only in the `cyber-asana.task-conventions` reference.
 
 **Its place in the catalog.** It is the longer-horizon reporting skill. Its distinguishing
 instruction is that the report carries **both** numbers and narrative: a completion rate with no

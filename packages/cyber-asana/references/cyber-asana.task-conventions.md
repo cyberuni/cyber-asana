@@ -62,12 +62,18 @@ one person can finish on its own.
 - Set a custom field only when the project defines it and the value is known.
 - Pass enum values by their option GID. Look them up with `cyber-asana custom-field get <field-gid>` (MCP, if enabled: `asana_custom_field_get`) rather than guessing.
 
-### Story points
+### Story points and task points
 
-Apply when the task's project has a story point or task point field.
+Apply when the task's project has a story points field, a task points field, or both. This section is
+the one place the two are told apart; other skills point here.
 
-- **Find the field:** read `fields.story_points` on the project's entry in `.agents/cyber-asana.json`. When the entry has none, run `cyber-asana config discover-fields <project>`. It finds the field by name and saves its GID there, so later tasks skip the lookup. When it reports several candidates, ask which one to use and save it with `cyber-asana config set-field story_points <field-gid> --project <project>`. Never hard-code a field GID: it differs per workspace and project.
-- **Unit:** 1 point is the effort a senior staff engineer who knows the tech stack and the domain needs to fix a one-line bug. That is about one hour of work.
+- **Two roles:** story points count work that contributes to a user story, value a user can see.
+  Task points count effort on chore work: infrastructure, repository moves, tooling, cleanup.
+- **Find the fields:** read `fields.story_points` and `fields.task_points` on the project's entry in `.agents/cyber-asana.json`. When the entry has neither, run `cyber-asana config discover-fields <project>`. It finds the fields by name and saves their GIDs there, so later tasks skip the lookup. When it reports several candidates for a role, ask which one to use and save it with `cyber-asana config set-field <role> <field-gid> --project <project>`. Never hard-code a field GID: it differs per workspace and project.
+- **Classify, then set one:** decide whether the task is user-story work or a chore. Set `story_points` for user-story work and `task_points` for a chore. When the project has only one of the two fields, put every task's points in it.
+- **Never both:** a task gets one points field. Never write the same value into both; a report that sums the two would count the effort twice.
+- **Parents stay empty:** leave both points fields empty on a parent task or epic. Its subtasks carry the points, so a sum over the project counts each unit once.
+- **Unit:** the same for both. 1 point is the effort a senior staff engineer who knows the tech stack and the domain needs to fix a one-line bug. That is about one hour of work.
 - **Estimate** a new task from its `## Done when`: the hours that engineer would need, in points. Round to the nearest value the field allows. For an enum field, pass the option GID of that value.
 - **Measure** a finished task the same way, from the work actually done rather than the work planned.
 
