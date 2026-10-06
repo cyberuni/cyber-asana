@@ -437,6 +437,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 				.option('--notes <text>', 'New notes')
 				.option('--html-notes <html>', 'New notes as HTML')
 				.option('--completed', 'Mark as completed')
+				.option('--no-completed', 'Mark as incomplete (reopen a completed task)')
 				.option('--due-on <date>', 'Due date (YYYY-MM-DD)')
 				.option('--clear-due-on', 'Clear the due date')
 				.option('--due-at <datetime>', 'Due date and time (ISO 8601 UTC); not usable with --due-on')

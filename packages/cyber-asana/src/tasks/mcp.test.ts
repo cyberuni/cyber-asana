@@ -132,6 +132,16 @@ describe('tasks/mcp', () => {
 		})
 	})
 
+	it('asana_task_update sends completed false to uncomplete a task', async () => {
+		updateTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
+		const server = createServer()
+		registerTaskTools(server as any)
+
+		await server.handlers.get('asana_task_update')?.({ task_gid: '123', completed: false })
+
+		expect(updateTaskMock).toHaveBeenCalledWith('123', { completed: false })
+	})
+
 	it('asana_task_update maps clear assignee flag to assignee null', async () => {
 		updateTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
 		const server = createServer()

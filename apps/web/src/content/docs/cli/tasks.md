@@ -66,6 +66,7 @@ cyber-asana task update <task-gid> \
   --custom-fields-json '{"<custom-field-gid>":"value"}'
 
 cyber-asana task update <task-gid> --completed
+cyber-asana task update <task-gid> --no-completed   # reopen a completed task
 cyber-asana task delete <task-gid>
 ```
 
@@ -91,6 +92,7 @@ cyber-asana task delete <task-gid>
 | `--clear-start-at` | `update` | Clear the start date and time |
 | `--clear-assignee` | `update` | Unassign the task |
 | `--completed` | `create`, `update` | Mark as completed — on `create`, the task is created already closed |
+| `--no-completed` | `update` | Mark as incomplete, reopening a completed task. With neither flag, completion is left as it is |
 | `--resource-subtype <subtype>` | `create`, `update` | e.g. `default_task`, `milestone` |
 | `--follower <gid[,gid...]>` | `create` | Add followers right after creation |
 | `--tag <gid-or-name[,...]>` | `create` | Tags to apply, each a GID or a tag name resolved in the workspace. With none given, the `default_tags` [task convention](/cyber-asana/cli/repo-config/#task-conventions) is used |
