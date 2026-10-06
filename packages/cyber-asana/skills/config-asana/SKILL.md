@@ -159,9 +159,12 @@ cyber-asana config set-field story_points <field-gid> --project <gid-name-or-ali
 cyber-asana config unset-field story_points --project <gid-name-or-alias>
 ```
 
-`discover-fields` matches "Story Points", "Task Points", "Points", "pts", or "SP" on a number or
-dropdown field. When several fields match, it saves none and lists them; pick one with
-`set-field`. A field saved by hand is kept on a later `discover-fields` while it is still on the
+The roles are `story_points` (user-story work) and `task_points` (chore work); which one a task
+gets is decided in the `cyber-asana.task-conventions` reference. On a number or dropdown field,
+`discover-fields` matches "Story Points", "Story pts", or "SP" for `story_points` and "Task
+Points", "Task pts", or "TP" for `task_points`. A bare "Points" or "pts" counts as `story_points`.
+A project with both fields gets both roles saved. When several fields match one role, it saves
+none for that role and lists them; pick one with `set-field`. A field saved by hand is kept on a later `discover-fields` while it is still on the
 project. Without a project, all three use the default project. Commit the updated config.
 
 ### H. Task conventions

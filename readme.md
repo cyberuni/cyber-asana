@@ -183,7 +183,7 @@ cyber-asana config add-user --search "ada@example.com" --alias ada  # find the G
 cyber-asana config resolve-user ali --json        # local lookup, no API
 cyber-asana config set defaults.assignee ali      # fallback assignee for task create
 cyber-asana config set defaults.section <section-gid>  # section in the default project new tasks land in
-cyber-asana config discover-fields Backend        # save the project's story point field GID
+cyber-asana config discover-fields Backend        # save the project's story/task points field GIDs
 cyber-asana config show
 ```
 
