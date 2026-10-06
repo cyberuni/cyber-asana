@@ -16,7 +16,8 @@ assembles a standup update out of a project's recent task activity.
   today, and blockers."*
 - **What it covers** — two list calls (tasks completed since a cutoff, defaulting to two days ago;
   tasks still incomplete), then a **selection** step: pick what is worth mentioning under *Done*,
-  *Today*, and *Up next*, and drop the rest.
+  *Today*, and *Up next*, and drop the rest. Points, when asked for, show story points and task
+  points apart, deferring their definition to the `cyber-asana.task-conventions` reference.
 
 **Its place in the catalog.** It is one of the two reporting skills, and the shorter-horizon one.
 The load-bearing part is not the fetching — two list calls with flags — but the discarding: a

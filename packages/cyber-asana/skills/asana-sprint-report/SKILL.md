@@ -36,6 +36,16 @@ cyber-asana task list --project-gid <project-gid> --incomplete --toon
 
 Filter both lists by section GID if reporting on a specific sprint section.
 
+### 3b. Points (when the project has points fields)
+
+Read `fields.story_points` and `fields.task_points` on the project's entry in `.agents/cyber-asana.json`. Skip this step when it has neither. Otherwise add the field values to both fetches:
+
+```bash
+--opt-fields name,assignee.name,due_on,completed,custom_fields.gid,custom_fields.display_value
+```
+
+Report story points and task points as two separate totals, completed and incomplete. Story points measure user-story work and task points measure chores; the `cyber-asana.task-conventions` reference (§ Story points and task points) is the one place that draws the line. A task carries only one of the two and parent tasks carry neither, so a combined total may add the two without double counting. Do not count a parent task's subtasks again through the parent.
+
 ### 4. Produce the report (LLM judgment)
 
 Compute completion rate and identify patterns — blocked tasks, scope creep, assignee load. Write a narrative summary alongside the raw counts.
@@ -51,6 +61,7 @@ Period: <start> – <end>
 - Task name — assignee — due <date>
 
 Completion rate: X%
+Story points: <done> of <total> · Task points: <done> of <total>   (only when the project has the fields)
 
 <narrative: patterns, blockers, notes>
 ```

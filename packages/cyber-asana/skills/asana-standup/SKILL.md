@@ -33,6 +33,8 @@ cyber-asana project list --toon
 
 Read the output to pick a project GID. (`--toon` is the token-efficient format; use `--json` if you need raw JSON.)
 
+When the project's entry in `.agents/cyber-asana.json` has `fields.story_points` or `fields.task_points`, and the user wants points in the update, add `--opt-fields name,due_on,completed,custom_fields.gid,custom_fields.display_value` to both fetches. Show story points and task points apart, never merged into one "points" figure that hides which is which. The `cyber-asana.task-conventions` reference (§ Story points and task points) defines the two; a task carries one of them and a parent task neither, so they never overlap.
+
 ### 3. Format standup (LLM judgment)
 
 From the two result sets, select and prioritize:
