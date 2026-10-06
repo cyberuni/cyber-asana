@@ -192,6 +192,33 @@ describe('tasks/cli', () => {
 		})
 	})
 
+	it('task update --no-completed sends completed false', async () => {
+		updateTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
+		const program = new Command().addCommand(taskCommand())
+
+		await program.parseAsync(['node', 'test', 'task', 'update', '123', '--no-completed'], { from: 'node' })
+
+		expect(updateTaskMock).toHaveBeenCalledWith('123', { completed: false })
+	})
+
+	it('task update --completed sends completed true', async () => {
+		updateTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
+		const program = new Command().addCommand(taskCommand())
+
+		await program.parseAsync(['node', 'test', 'task', 'update', '123', '--completed'], { from: 'node' })
+
+		expect(updateTaskMock).toHaveBeenCalledWith('123', { completed: true })
+	})
+
+	it('task update without a completion flag leaves completed untouched', async () => {
+		updateTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
+		const program = new Command().addCommand(taskCommand())
+
+		await program.parseAsync(['node', 'test', 'task', 'update', '123', '--name', 'Renamed'], { from: 'node' })
+
+		expect(updateTaskMock).toHaveBeenCalledWith('123', { name: 'Renamed' })
+	})
+
 	it('task update maps clear due flag to due_on null', async () => {
 		updateTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
 		const program = new Command().addCommand(taskCommand())

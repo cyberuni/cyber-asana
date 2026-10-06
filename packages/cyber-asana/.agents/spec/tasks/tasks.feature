@@ -266,6 +266,11 @@ Feature: tasks
     When the task update entry point runs for the GID "7301" with the clear-assignee flag as its only input
     Then the request body reaching the task-update endpoint carries an assignee value of null
 
+  Scenario: no-completed reopens a completed task
+    Given a completed task with GID "7301"
+    When the task update entry point runs for the GID "7301" with the no-completed flag as its only input
+    Then the request body reaching the task-update endpoint carries a completed value of false
+
   Scenario: update routes a parent change through a separate request from the other fields
     Given a task with GID "7301"
     And a task with GID "7302" named "Varnish the plane table"
