@@ -11,7 +11,7 @@ explicit one, so both paths resolve context the same way. Prefer it over ad-hoc
 
 **What the task looks like** is decided by the `cyber-asana.task-conventions` reference: task,
 subtask, or dependency; name; description; assignee; due date; tags; section; custom fields and
-story points; comments. This file does not restate those rules. **How the task reaches Asana** is
+story and task points; comments. This file does not restate those rules. **How the task reaches Asana** is
 decided here: workspace and project resolution, URL parsing, the registry, assignees named by a
 person, the CLI call, and the confirmation.
 
@@ -35,7 +35,7 @@ user copy, and the copy cyber-asana ships. Follow its body for the shape of the 
 - **Choosing the object** — whether this is a task, a subtask (`--parent-gid`), or a dependency
   between tasks (`cyber-asana task dependency add`).
 - **Task** / **Subtask** — name, description, assignee, due date, tags, and section.
-- **Custom fields** and **Story points** — which fields to set and how to estimate.
+- **Custom fields** and **Story points and task points** — which fields to set, which one of the two points fields a task gets, and how to estimate.
 - **Comments** — when a comment is the right place instead of the description.
 - **Tracking session work** — when the task records work done in this agent session.
 
