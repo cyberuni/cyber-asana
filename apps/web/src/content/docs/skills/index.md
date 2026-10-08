@@ -26,8 +26,8 @@ Set [authentication](/cyber-asana/getting-started/#authentication) before runnin
 | [`config-asana`](https://github.com/cyberuni/cyber-asana/blob/main/skills/config-asana/SKILL.md) | Add, remove, refresh, and show Asana projects and users in the repo config or the personal global registry |
 | [`improve-description`](https://github.com/cyberuni/cyber-asana/blob/main/skills/improve-description/SKILL.md) | Clean up or rewrite a description — light copy-edit by default, opt-in emoji/template/tone, Asana's HTML subset |
 | [`asana-standup`](https://github.com/cyberuni/cyber-asana/blob/main/skills/asana-standup/SKILL.md) | Standup update — recent completions and due-soon tasks |
-| [`asana-sprint-report`](https://github.com/cyberuni/cyber-asana/blob/main/skills/asana-sprint-report/SKILL.md) | Sprint retro — completed vs incomplete in a project/section |
-| [`sync-asana-project`](https://github.com/cyberuni/cyber-asana/blob/main/skills/sync-asana-project/SKILL.md) | Pull project tasks into local markdown for planning |
+| [`asana-sprint-report`](https://github.com/cyberuni/cyber-asana/blob/main/skills/asana-sprint-report/SKILL.md) (alpha) | Sprint retro — completed vs incomplete in a project/section |
+| [`sync-asana-project`](https://github.com/cyberuni/cyber-asana/blob/main/skills/sync-asana-project/SKILL.md) (alpha) | Pull project tasks into local markdown for planning |
 
 To create a task explicitly, run the **`/cyber-asana:create-task`** command (plugin installs). It and the `asana` skill share one procedure, [`skills/asana/references/create-task.md`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana/references/create-task.md), so prefer either over ad-hoc task creation: agents then resolve workspace, project, and URL fields consistently.
 
