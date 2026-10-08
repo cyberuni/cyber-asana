@@ -13,6 +13,10 @@
 		"test": {
 			"dependsOn": ["^build"]
 		},
+		"cyber-asana#test": {
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/readme.md"]
+		},
 		"dev": {
 			"persistent": true,
 			"cache": false
