@@ -1,5 +1,19 @@
 # cyber-asana
 
+## 0.20.0
+
+### Minor Changes
+
+- beeddc9: Update runtime dependencies.
+- 8647abd: Treat story points and task points as two field roles. `config discover-fields` now maps "Story Points"/"SP" to `story_points` and "Task Points"/"TP" to `task_points`, so a project with both fields saves both without asking. The task conventions tell agents to classify each task as user-story work or a chore and set only the matching field — never the same value in both, and nothing on a parent task. The sprint report and standup skills total the two separately.
+- e3406eb: The `improve-description` skill is now the `/cyber-asana:tidy-description` command. Its procedure moved into the `asana` skill as the **Tidy a description** route (`skills/asana/references/tidy-description.md`), so a request to clean up a task or project description, or to recover when `html_notes` fails with "XML is invalid", reaches it through the `asana` skill. The command takes the same arguments: `[task-gid] [emoji] [template:prd|bug|research] [tone] [sources]`. If you invoked `improve-description` by name, use `/cyber-asana:tidy-description` or ask the `asana` skill instead.
+
+### Patch Changes
+
+- 5e9faae: Ship the readme in the npm package so the npm page renders it. Readme links now point at absolute GitHub URLs.
+- da63ed9: Task conventions: story points cover all work needed to deliver a story, including its tests and required refactors. A finished task records its actual effort split across both points fields.
+- 892eb18: `task update` accepts `--no-completed` to reopen a completed task, sending `completed: false`. Omitting both `--completed` and `--no-completed` still leaves completion untouched.
+
 ## 0.19.0
 
 ### Minor Changes
