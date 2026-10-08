@@ -127,7 +127,7 @@ curl -H "Authorization: Bearer $(cyber-asana auth token)" https://app.asana.com/
 
 ## Agent skills
 
-`cyber-asana` ships workflow skills under [`packages/cyber-asana/skills/`](packages/cyber-asana/skills/) for Cursor, Claude Code, and other agents. **Start here** — skills drive the CLI (and MCP tools when you have opted into the server), encode how to resolve projects from repo config, and common workflows (standups, sprint reports, task creation).
+`cyber-asana` ships workflow skills under [`packages/cyber-asana/skills/`](https://github.com/cyberuni/cyber-asana/tree/main/packages/cyber-asana/skills) for Cursor, Claude Code, and other agents. **Start here** — skills drive the CLI (and MCP tools when you have opted into the server), encode how to resolve projects from repo config, and common workflows (standups, sprint reports, task creation).
 
 ### Install skills
 
@@ -154,25 +154,25 @@ Set [authentication](#authentication) before running any workflow.
 
 | Skill | Use when |
 | --- | --- |
-| [`asana`](packages/cyber-asana/skills/asana/SKILL.md) | Entry point for Asana work — routes to the skill that owns the request; plans the work into tasks (reusing existing ones, grouping several under a parent task), imports TODO/FIXME comments as tasks, links a pull or merge request to its task, and tracks session work |
-| [`init-asana`](packages/cyber-asana/skills/init-asana/SKILL.md) | First-time setup; `ASANA_ACCESS_TOKEN`, workspace GID, verify connection |
-| [`config-asana`](packages/cyber-asana/skills/config-asana/SKILL.md) | Add, remove, refresh, and show Asana projects and users in the repo config or the personal global registry |
-| [`improve-description`](packages/cyber-asana/skills/improve-description/SKILL.md) | Clean up or rewrite a description — light copy-edit by default, opt-in emoji/template/tone, Asana's HTML subset |
-| [`asana-standup`](packages/cyber-asana/skills/asana-standup/SKILL.md) | Standup update — recent completions and due-soon tasks |
-| [`asana-sprint-report`](packages/cyber-asana/skills/asana-sprint-report/SKILL.md) | Sprint retro — completed vs incomplete in a project/section |
-| [`sync-asana-project`](packages/cyber-asana/skills/sync-asana-project/SKILL.md) | Pull project tasks into local markdown for planning |
+| [`asana`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana/SKILL.md) | Entry point for Asana work — routes to the skill that owns the request; plans the work into tasks (reusing existing ones, grouping several under a parent task), imports TODO/FIXME comments as tasks, links a pull or merge request to its task, and tracks session work |
+| [`init-asana`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/init-asana/SKILL.md) | First-time setup; `ASANA_ACCESS_TOKEN`, workspace GID, verify connection |
+| [`config-asana`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/config-asana/SKILL.md) | Add, remove, refresh, and show Asana projects and users in the repo config or the personal global registry |
+| [`improve-description`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/improve-description/SKILL.md) | Clean up or rewrite a description — light copy-edit by default, opt-in emoji/template/tone, Asana's HTML subset |
+| [`asana-standup`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana-standup/SKILL.md) | Standup update — recent completions and due-soon tasks |
+| [`asana-sprint-report`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana-sprint-report/SKILL.md) | Sprint retro — completed vs incomplete in a project/section |
+| [`sync-asana-project`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/sync-asana-project/SKILL.md) | Pull project tasks into local markdown for planning |
 
-To create a task explicitly, run the **`/cyber-asana:create-task`** command (plugin installs). It and the `asana` skill share one procedure, [`skills/asana/references/create-task.md`](packages/cyber-asana/skills/asana/references/create-task.md), so prefer either over ad-hoc `asana_task_create` calls: agents then resolve workspace, project, and URL fields consistently.
+To create a task explicitly, run the **`/cyber-asana:create-task`** command (plugin installs). It and the `asana` skill share one procedure, [`skills/asana/references/create-task.md`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana/references/create-task.md), so prefer either over ad-hoc `asana_task_create` calls: agents then resolve workspace, project, and URL fields consistently.
 
-Before it creates anything, the `asana` skill plans the work with [`skills/asana/references/plan-work.md`](packages/cyber-asana/skills/asana/references/plan-work.md), for both a task request and session tracking: it splits the request or the session (its conversation, commits, and diff) into units of work, looks each one up among the project's tasks, your incomplete tasks, and recently completed ones, groups two or more units that serve one outcome under a parent task, and shows the plan. It asks before creating more than one task or changing an existing one, and marks a task complete only when you say so.
+Before it creates anything, the `asana` skill plans the work with [`skills/asana/references/plan-work.md`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana/references/plan-work.md), for both a task request and session tracking: it splits the request or the session (its conversation, commits, and diff) into units of work, looks each one up among the project's tasks, your incomplete tasks, and recently completed ones, groups two or more units that serve one outcome under a parent task, and shows the plan. It asks before creating more than one task or changing an existing one, and marks a task complete only when you say so.
 
-To turn the codebase's TODO and FIXME comments into tasks, run the **`/cyber-asana:import-todos`** command, or ask the `asana` skill. Both follow [`skills/asana/references/import-todos.md`](packages/cyber-asana/skills/asana/references/import-todos.md): scan, filter, deduplicate against the project, confirm, then create.
+To turn the codebase's TODO and FIXME comments into tasks, run the **`/cyber-asana:import-todos`** command, or ask the `asana` skill. Both follow [`skills/asana/references/import-todos.md`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana/references/import-todos.md): scan, filter, deduplicate against the project, confirm, then create.
 
-To record a pull or merge request on its Asana task, run the **`/cyber-asana:link-pr`** command, or ask the `asana` skill. Both follow [`skills/asana/references/link-pr.md`](packages/cyber-asana/skills/asana/references/link-pr.md): find the current branch's PR on GitHub, GitLab, Bitbucket, Azure DevOps, Gitea, or Forgejo, infer the task from the branch name or PR text, confirm, then comment the PR on the task.
+To record a pull or merge request on its Asana task, run the **`/cyber-asana:link-pr`** command, or ask the `asana` skill. Both follow [`skills/asana/references/link-pr.md`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana/references/link-pr.md): find the current branch's PR on GitHub, GitLab, Bitbucket, Azure DevOps, Gitea, or Forgejo, infer the task from the branch name or PR text, confirm, then comment the PR on the task.
 
 ### Repo project registry
 
-Agents and MCP tools can resolve human-readable project and user names without an API call. Commit a name → GID map at [`.agents/cyber-asana.json`](.agents/cyber-asana.json.example) (see example). A project entry carries `aliases`, an optional `purpose`, and an optional `default: true` marking the project `task create` falls back to when `--project` is omitted. Workspace GID stays in `ASANA_WORKSPACE_GID` — not in this file ([ADR](docs/adr/0001-no-workspace-gid-in-repo-config.md)).
+Agents and MCP tools can resolve human-readable project and user names without an API call. Commit a name → GID map at [`.agents/cyber-asana.json`](https://github.com/cyberuni/cyber-asana/blob/main/.agents/cyber-asana.json.example) (see example). A project entry carries `aliases`, an optional `purpose`, and an optional `default: true` marking the project `task create` falls back to when `--project` is omitted. Workspace GID stays in `ASANA_WORKSPACE_GID` — not in this file ([ADR](https://github.com/cyberuni/cyber-asana/blob/main/docs/adr/0001-no-workspace-gid-in-repo-config.md)).
 
 ```sh
 cyber-asana config add <project-gid> --alias api --purpose "Service work" --default  # seed or update an entry
@@ -187,7 +187,7 @@ cyber-asana config discover-fields Backend        # save the project's story/tas
 cyber-asana config show
 ```
 
-`asana_project_get` and `project get` opportunistically update cached names when results include `{ gid, name }`. An optional top-level `defaults` block (`assignee`, `section`) holds repo-wide fallbacks — see [`.agents/cyber-asana.json.example`](.agents/cyber-asana.json.example).
+`asana_project_get` and `project get` opportunistically update cached names when results include `{ gid, name }`. An optional top-level `defaults` block (`assignee`, `section`) holds repo-wide fallbacks — see [`.agents/cyber-asana.json.example`](https://github.com/cyberuni/cyber-asana/blob/main/.agents/cyber-asana.json.example).
 
 ### Task conventions
 
@@ -243,7 +243,7 @@ Install `cyber-asana` in the project that hosts your agent (`npm install cyber-a
 | Project dependency (`npm install cyber-asana`) | `node` | `["-e", "import('cyber-asana/mcp')"]` |
 | Project dependency (bin on `PATH`) | `cyber-asana` | `["mcp"]` |
 | Ephemeral (`npx`, no project install) | `npx` | `["-y", "cyber-asana@<version>", "mcp"]` |
-| Developing this repo (`pnpm build`) | `node` | `["dist/cli.js", "mcp"]` or `["dist/mcp.js"]` — see [CONTRIBUTING.md](CONTRIBUTING.md) |
+| Developing this repo (`pnpm build`) | `node` | `["dist/cli.js", "mcp"]` or `["dist/mcp.js"]` — see [CONTRIBUTING.md](https://github.com/cyberuni/cyber-asana/blob/main/CONTRIBUTING.md) |
 
 The package exports `./mcp` → `dist/mcp.js` and exposes the same server via `cyber-asana mcp`. Do not use `["--import", "cyber-asana/mcp"]` alone — without a main script, Node does not wire stdin to the MCP server and the host times out on `initialize`. `["--import", "cyber-asana/mcp", "-e", ""]` also works, but prefer the dynamic-import row above.
 
@@ -535,9 +535,9 @@ Notable parameters:
 - `asana_custom_field_list_for_project` — the fields actually attached to one project, with their enum options. Narrower than `asana_custom_field_list`, and the right lookup before writing `custom_fields`: Asana rejects a payload naming a field the project does not have. Same shape for `_for_portfolio`, `_for_goal`, `_for_team`
 - `asana_url_parse` — local URL parsing; use `workspace_gid` + `project_gid` for create; `list_view_gid` is not a section GID
 
-Per-tool parameter schemas live in `src/<domain>/mcp.ts` (e.g. `src/tasks/mcp.ts`) and [`src/url-mcp.ts`](src/url-mcp.ts). MCP hosts also expose tool schemas at runtime when the server is connected.
+Per-tool parameter schemas live in `src/<domain>/mcp.ts` (e.g. `src/tasks/mcp.ts`) and [`src/url-mcp.ts`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/src/url-mcp.ts). MCP hosts also expose tool schemas at runtime when the server is connected.
 
-For task creation workflows, use the `/cyber-asana:create-task` command or the [`asana`](packages/cyber-asana/skills/asana/SKILL.md) skill ([Agent skills](#agent-skills)).
+For task creation workflows, use the `/cyber-asana:create-task` command or the [`asana`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana/SKILL.md) skill ([Agent skills](#agent-skills)).
 
 ## CLI
 
