@@ -154,10 +154,9 @@ Set [authentication](#authentication) before running any workflow.
 
 | Skill | Use when |
 | --- | --- |
-| [`asana`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana/SKILL.md) | Entry point for Asana work — routes to the skill that owns the request; plans the work into tasks (reusing existing ones, grouping several under a parent task), imports TODO/FIXME comments as tasks, links a pull or merge request to its task, and tracks session work |
+| [`asana`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana/SKILL.md) | Entry point for Asana work — routes to the skill that owns the request; plans the work into tasks (reusing existing ones, grouping several under a parent task), imports TODO/FIXME comments as tasks, links a pull or merge request to its task, tidies descriptions, and tracks session work |
 | [`init-asana`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/init-asana/SKILL.md) | First-time setup; `ASANA_ACCESS_TOKEN`, workspace GID, verify connection |
 | [`config-asana`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/config-asana/SKILL.md) | Add, remove, refresh, and show Asana projects and users in the repo config or the personal global registry |
-| [`improve-description`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/improve-description/SKILL.md) | Clean up or rewrite a description — light copy-edit by default, opt-in emoji/template/tone, Asana's HTML subset |
 | [`asana-standup`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana-standup/SKILL.md) | Standup update — recent completions and due-soon tasks |
 | [`asana-sprint-report`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana-sprint-report/SKILL.md) (alpha) | Sprint retro — completed vs incomplete in a project/section |
 | [`sync-asana-project`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/sync-asana-project/SKILL.md) (alpha) | Pull project tasks into local markdown for planning |
@@ -169,6 +168,8 @@ Before it creates anything, the `asana` skill plans the work with [`skills/asana
 To turn the codebase's TODO and FIXME comments into tasks, run the **`/cyber-asana:import-todos`** command, or ask the `asana` skill. Both follow [`skills/asana/references/import-todos.md`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana/references/import-todos.md): scan, filter, deduplicate against the project, confirm, then create.
 
 To record a pull or merge request on its Asana task, run the **`/cyber-asana:link-pr`** command, or ask the `asana` skill. Both follow [`skills/asana/references/link-pr.md`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana/references/link-pr.md): find the current branch's PR on GitHub, GitLab, Bitbucket, Azure DevOps, Gitea, or Forgejo, infer the task from the branch name or PR text, confirm, then comment the PR on the task.
+
+To tidy a task or project description, run the **`/cyber-asana:tidy-description`** command, or ask the `asana` skill. Both follow [`skills/asana/references/tidy-description.md`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana/references/tidy-description.md): a light copy-edit by default, with opt-in emoji, a PRD, bug, or research template, a tone rewrite, or sources, written back in the HTML subset Asana accepts. It is also the fix when `html_notes` fails with `XML is invalid`.
 
 ### Repo project registry
 

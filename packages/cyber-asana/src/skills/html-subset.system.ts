@@ -74,7 +74,7 @@ async function putHtmlNotes(html: string): Promise<{ ok: true } | { ok: false; m
 	}
 }
 
-describe.skipIf(!systemEnabled)('skills/improve-description HTML subset system', { timeout: 30_000 }, () => {
+describe.skipIf(!systemEnabled)('skills/asana tidy-description HTML subset system', { timeout: 30_000 }, () => {
 	beforeAll(async () => {
 		// Assigned to the caller so a crashed run leaves the scratch task in My Tasks
 		// rather than orphaned in the workspace — task search is premium-only.
@@ -89,7 +89,7 @@ describe.skipIf(!systemEnabled)('skills/improve-description HTML subset system',
 	})
 
 	it('has a probe sample for every documented tag', () => {
-		// A tag added to SKILL.md without a sample would otherwise go unverified.
+		// A tag added to tidy-description.md without a sample would otherwise go unverified.
 		expect([...documented.supported].filter((tag) => !SUPPORTED_SAMPLE[tag])).toEqual([])
 		expect([...documented.rejected].filter((tag) => !REJECTED_SAMPLE[tag])).toEqual([])
 	})

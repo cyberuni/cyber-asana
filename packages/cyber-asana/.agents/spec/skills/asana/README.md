@@ -1,14 +1,14 @@
 ---
 spec-type: reference
-concept: [cyber-asana, skills, tasks, resolution, todo-scan, planning, comments, task-association]
+concept: [cyber-asana, skills, tasks, resolution, todo-scan, planning, comments, task-association, rich-text]
 ---
 
-# asana — the routing skill, work planning, task filing, TODO import, PR linking, and session tracking
+# asana — the routing skill, work planning, task filing, TODO import, PR linking, description tidying, and session tracking
 
 A **reference artifact**: the shipped skill at `packages/cyber-asana/skills/asana/`, the single
 model-triggered entry for Asana work in the plugin, and the `/cyber-asana:create-task`,
-`/cyber-asana:import-todos`, and `/cyber-asana:link-pr` commands at `packages/cyber-asana/commands/`
-that reach the same procedures explicitly.
+`/cyber-asana:import-todos`, `/cyber-asana:link-pr`, and `/cyber-asana:tidy-description` commands at
+`packages/cyber-asana/commands/` that reach the same procedures explicitly.
 
 ## Subject
 
@@ -16,18 +16,23 @@ that reach the same procedures explicitly.
   `skills/asana/references/plan-work.md` (the work-planning procedure),
   `skills/asana/references/create-task.md` (the task-filing procedure),
   `skills/asana/references/import-todos.md` (the TODO-import procedure),
-  `skills/asana/references/link-pr.md` (the PR-linking procedure), and
-  `commands/create-task.md`, `commands/import-todos.md`, and `commands/link-pr.md` (thin
-  user-invoked entries into them).
-- **Trigger** — the user wants Asana work done, including turning code TODOs into tasks and
-  linking a pull or merge request to its task. Its front
-  block reads: *"Use this skill when the user wants Asana work — create a task, track a session,
-  import TODOs, report, link a PR, set up."*
+  `skills/asana/references/link-pr.md` (the PR-linking procedure),
+  `skills/asana/references/tidy-description.md` (the description-tidying procedure, with
+  `tidy-description-templates.md` beside it, loaded only when the user opts into a template), and
+  `commands/create-task.md`, `commands/import-todos.md`, `commands/link-pr.md`, and
+  `commands/tidy-description.md` (thin user-invoked entries into them).
+- **Trigger** — the user wants Asana work done, including turning code TODOs into tasks, linking a
+  pull or merge request to its task, and tidying a description or recovering when a rich-text write
+  fails with `XML is invalid` / `Rich text should be wrapped in <body> tag`. Its front block reads:
+  *"Use this skill when doing Asana work — create or track tasks, import TODOs, tidy descriptions,
+  link PRs, report, set up."*
   The commands never auto-trigger; a person types `/cyber-asana:create-task`,
-  `/cyber-asana:import-todos`, or `/cyber-asana:link-pr`.
+  `/cyber-asana:import-todos`, `/cyber-asana:link-pr`, or `/cyber-asana:tidy-description`. The last
+  one declares an `argument-hint` (`[task-gid] [emoji] [template:prd|bug|research] [tone]
+  [sources]`).
 - **What it covers** — classifying the request and handing it to the skill that owns it
   (`init-asana`, `config-asana`, `asana-standup`, `asana-sprint-report`,
-  `improve-description`, `sync-asana-project`), plus the procedures it owns itself:
+  `sync-asana-project`), plus the procedures it owns itself:
   - **Plan the work** — run first for both a task request and session tracking: splitting the
     request or the session (conversation, the branch's commits and diff, any pull request) into
     units of work, looking each one up among the project's incomplete tasks, the user's
@@ -47,6 +52,9 @@ that reach the same procedures explicitly.
     Forgejo), **inferring the task** through a fixed order (a GID or URL the user mentioned, then
     the branch name, then the PR title or body), falling back to a search with the user confirming
     the match, and posting the PR as a comment.
+  - **Tidy a description** — reading the existing description as `html_notes` rather than the
+    plain-text projection, a **light copy-edit by default** with an explicit do / do-not list,
+    opt-in emoji, template, tone, and sources, and writing back inside Asana's accepted HTML subset.
   - **Track session work** — the plan step with the session as its input, each task shaped by the
     `cyber-asana.task-conventions` reference's *Tracking session work* section: a reused task gets
     a comment with the branch and pull request, a new one is assigned to the user.
@@ -84,9 +92,16 @@ instruction is deliberately **semantic, not textual** — "Fix auth timeout" and
 "TODO: fix auth timeout" are the same item — because a string comparison would let the same debt be
 filed on every sweep.
 
+Description tidying is the one path whose default is stated as a *restraint*: the instruction is
+to preserve the author's message, wording, and structure and remove only the noise. Left unstated, a
+capable model rewrites, and the user gets back a description that is better prose and no longer
+theirs. It is also the one path backed by verified code: `src/skills/html-subset.ts` parses the
+subset `references/tidy-description.md` documents, and its system test probes which tags Asana
+actually accepts, so the subset the procedure teaches is measured rather than assumed.
+
 **One home for each procedure.** Work planning lives in the skill's `references/plan-work.md`, task
-filing in `references/create-task.md`, TODO import in `references/import-todos.md`, and PR linking
-in `references/link-pr.md`, not in the
+filing in `references/create-task.md`, TODO import in `references/import-todos.md`, PR linking in `references/link-pr.md`, and
+description tidying in `references/tidy-description.md`, not in the
 commands, so both ship with a skills-only
 install and reach runtimes that have no plugin commands (Codex). The commands and the router point
 at them and restate neither, and TODO import creates its tasks through the task-filing procedure
@@ -105,8 +120,8 @@ API.
 **What decides its behavior lives elsewhere.** URL parsing is [url](../../url/README.md); the
 registry lookup and the environment precedence are [config](../../config/README.md); creating the
 task is [tasks](../../tasks/README.md); searching for the project is
-[projects](../../projects/README.md); the lookup is task search and My Tasks in [tasks](../../tasks/README.md); the comment is [stories](../../stories/README.md); the scan is [tasks](../../tasks/README.md) and
+[projects](../../projects/README.md); the lookup is task search and My Tasks in [tasks](../../tasks/README.md); the comment is [stories](../../stories/README.md), whose vocabulary also owns `html_text` and its accepted subset; the scan is [tasks](../../tasks/README.md) and
 its output format is [axi](../../axi/README.md). This skill
 is the composition, and none of those contracts is re-frozen here. Whether an agent engages it,
-routes correctly, splits and finds the right units, follows the precedence, and filters and deduplicates the right rows is ACED's
+routes correctly, splits and finds the right units, copy-edits a description rather than rewriting it, follows the precedence, and filters and deduplicates the right rows is ACED's
 measurement.

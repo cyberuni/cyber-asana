@@ -1,5 +1,7 @@
+import { existsSync, readFileSync } from 'node:fs'
+import path from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { parseDocumentedSubset, readSubsetSkill } from './html-subset.js'
+import { parseDocumentedSubset, readSubsetSkill, skillsRoot } from './html-subset.js'
 
 // Verified against the live Asana API (PUT /tasks/{gid}), 2026-08. Issue #159 reported
 // several of these backwards, so the claims are pinned rather than trusted. When Asana
@@ -116,5 +118,20 @@ describe('reading the description', () => {
 		const content = readSubsetSkill()
 		expect(content).toMatch(/Always edit from `html_notes`/)
 		expect(content).toMatch(/no case where you need the plain-text `notes` projection/)
+	})
+})
+
+describe('where the procedure lives', () => {
+	it('is a reference of the asana skill, routed to as "Tidy a description"', () => {
+		const router = readFileSync(path.join(skillsRoot, 'asana', 'SKILL.md'), 'utf8')
+		expect(router).toMatch(/## Tidy a description/)
+		expect(router).toContain('`references/tidy-description.md`')
+		expect(existsSync(path.join(skillsRoot, 'improve-description'))).toBe(false)
+	})
+
+	it('is reached explicitly by the /cyber-asana:tidy-description command', () => {
+		const command = readFileSync(path.join(skillsRoot, '..', 'commands', 'tidy-description.md'), 'utf8')
+		expect(command).toMatch(/\*\*Tidy a description\*\* route/)
+		expect(command).toContain('references/tidy-description.md')
 	})
 })

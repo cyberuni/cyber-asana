@@ -8,7 +8,7 @@ concept: [cyber-asana, skills, catalog, agent-configuration, packaging]
 ## What
 
 A **skill** is a folder of instructions an AI agent loads when a task matches it. `cyber-asana`
-ships seven of them under `packages/cyber-asana/skills/`, and they are product: they sit on the
+ships six of them under `packages/cyber-asana/skills/`, and they are product: they sit on the
 package's publish allowlist, every plugin manifest points at them, and for most users the skills are
 the first thing the package does — the CLI is what the skills reach for, with the opt-in MCP server as an optional equivalent.
 
@@ -19,9 +19,9 @@ folder is not found. A description that never says *when* to use it is never cho
 too long for the runtime's budget is cut, and the part that got cut is usually the trigger. None of
 those failures is visible in the file — the skill looks fine and simply never fires.
 
-So the seven skills share one **catalog contract**: the structural rules every skill in the folder
+So the six skills share one **catalog contract**: the structural rules every skill in the folder
 satisfies in order to be loadable, followable, discoverable, and shipped. This node owns that
-contract. It is the thing that keeps seven skills, written months apart, from each inventing its own
+contract. It is the thing that keeps six skills, written months apart, from each inventing its own
 answer to "what does a skill file look like".
 
 **Key terms**
@@ -37,7 +37,7 @@ answer to "what does a skill file look like".
   ("Use this skill when …"), as opposed to what it is about.
 - **Reference** — a file under a skill's `references/`, named from the body, holding detail the
   agent loads only when it needs it.
-- **Catalog** — all seven skills taken together, plus the two published tables that list them.
+- **Catalog** — all six skills taken together, plus the two published tables that list them.
 - **Publish allowlist** — `package.json`'s `files`. A path not on it never reaches the tarball.
 - **`SETUP.md`** — the plugin root's setup instructions: what an agent reads once the plugin
   is installed, covering only the credentials the install cannot supply. It is
@@ -69,7 +69,7 @@ that names its subject and its trigger — and no suite of its own.
 
 ## Use Cases
 
-**Subject** — the shipped skill catalog: the seven directories under
+**Subject** — the shipped skill catalog: the six directories under
 `packages/cyber-asana/skills/`, the plugin root's `SETUP.md` that hands off to them, the two
 published tables that list them, and the packaging that carries them to a consumer. The contract is enforced in-repo by `src/skills/catalog.ts`, run from
 `src/skills/catalog.test.ts`. There is **no CLI verb and no MCP tool**: the catalog is checked when
@@ -151,7 +151,7 @@ The load-bearing edges:
   different audiences reached by different paths. A skill listed in one and not the other is not
   half-discoverable; it is invisible to whoever uses the other door.
 - **Publishing is checked because the failure is silent and total.** `files` and the manifest are
-  two lines of configuration, and if either is wrong the seven skills are perfect and absent. Nothing
+  two lines of configuration, and if either is wrong the six skills are perfect and absent. Nothing
   else in the repository notices — every test still passes against files that never shipped.
 
 ## Scenario map
@@ -173,8 +173,8 @@ The load-bearing edges:
 
 | Edge | Path (Given) | Scenario |
 |---|---|---|
-| the reference resolves → accepted | a skill naming `references/templates.md`, which it ships | `a reference the skill ships is accepted` |
-| the reference is missing → violation | a skill naming `references/templates.md`, with no references directory | `a reference the skill names but does not ship is rejected by file name` |
+| the reference resolves → accepted | a skill naming `references/tidy-description-templates.md`, which it ships | `a reference the skill ships is accepted` |
+| the reference is missing → violation | a skill naming `references/tidy-description-templates.md`, with no references directory | `a reference the skill names but does not ship is rejected by file name` |
 
 ### running a prescribed command
 
