@@ -1,6 +1,8 @@
 ---
 name: asana-sprint-report
 description: Use this skill when the user wants a sprint summary — completed vs incomplete tasks for retro or stakeholders.
+metadata:
+  stability: alpha
 ---
 
 # Asana Sprint Report

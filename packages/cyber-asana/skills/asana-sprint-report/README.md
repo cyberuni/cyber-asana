@@ -1,5 +1,7 @@
 # asana-sprint-report
 
+> **Alpha:** this skill is alpha. Its behavior and output may change in any release.
+
 Produce a sprint summary — completed vs incomplete tasks — for retrospectives or stakeholder updates.
 
 ## When to use

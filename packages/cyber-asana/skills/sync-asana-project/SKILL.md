@@ -1,6 +1,8 @@
 ---
 name: sync-asana-project
 description: Use this skill when pulling Asana project tasks into local markdown for offline planning or documentation.
+metadata:
+  stability: alpha
 ---
 
 # Sync Asana Project

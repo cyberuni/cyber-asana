@@ -1,5 +1,7 @@
 # sync-asana-project
 
+> **Alpha:** this skill is alpha. Its behavior and output may change in any release.
+
 Pull Asana project tasks into local markdown for offline planning, sprint prep, or codebase documentation.
 
 ## When to use
