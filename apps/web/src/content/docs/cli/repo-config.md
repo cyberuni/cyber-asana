@@ -118,8 +118,8 @@ project entry records the fields found for it:
 { "gid": "1201", "name": "Backend", "aliases": ["api"], "fields": { "story_points": { "gid": "9001", "name": "Story Points" } } }
 ```
 
-There are two roles: `story_points`, for work on a user story, and `task_points`, for chore work.
-A task carries one of the two, never both; the task conventions reference says which. On a number
+There are two roles: `story_points` and `task_points`. The task conventions reference says what
+each measures. On a number
 or dropdown field, `discover-fields` fills `story_points` from "Story Points", "Story pts", or "SP",
 and `task_points` from "Task Points", "Task pts", or "TP". A bare "Points" or "pts" fills
 `story_points`, which a project with a single points field uses for everything. A project with both

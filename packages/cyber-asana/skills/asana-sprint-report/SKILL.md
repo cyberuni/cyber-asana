@@ -44,7 +44,7 @@ Read `fields.story_points` and `fields.task_points` on the project's entry in `.
 --opt-fields name,assignee.name,due_on,completed,custom_fields.gid,custom_fields.display_value
 ```
 
-Report story points and task points as two separate totals, completed and incomplete. Story points measure user-story work and task points measure chores; the `cyber-asana.task-conventions` reference (§ Story points and task points) is the one place that draws the line. A task carries only one of the two and parent tasks carry neither, so a combined total may add the two without double counting. Do not count a parent task's subtasks again through the parent.
+Report story points and task points as two separate totals, completed and incomplete. The `cyber-asana.task-conventions` reference (§ Story points and task points) draws the line between them. A finished task may carry both. Its two values split its effort, so a combined total may add them. Parent tasks carry neither; do not count a parent's subtasks again through the parent.
 
 ### 4. Produce the report (LLM judgment)
 

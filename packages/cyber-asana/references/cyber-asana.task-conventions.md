@@ -64,18 +64,16 @@ one person can finish on its own.
 
 ### Story points and task points
 
-Apply when the task's project has a story points field, a task points field, or both. This section is
-the one place the two are told apart; other skills point here.
+Apply when the task's project has a story points field, a task points field, or both. Other skills point here for the line between them.
 
-- **Two roles:** story points count work that contributes to a user story, value a user can see.
-  Task points count effort on chore work: infrastructure, repository moves, tooling, cleanup.
-- **Find the fields:** read `fields.story_points` and `fields.task_points` on the project's entry in `.agents/cyber-asana.json`. When the entry has neither, run `cyber-asana config discover-fields <project>`. It finds the fields by name and saves their GIDs there, so later tasks skip the lookup. When it reports several candidates for a role, ask which one to use and save it with `cyber-asana config set-field <role> <field-gid> --project <project>`. Never hard-code a field GID: it differs per workspace and project.
-- **Classify, then set one:** decide whether the task is user-story work or a chore. Set `story_points` for user-story work and `task_points` for a chore. When the project has only one of the two fields, put every task's points in it.
-- **Never both:** a task gets one points field. Never write the same value into both; a report that sums the two would count the effort twice.
-- **Parents stay empty:** leave both points fields empty on a parent task or epic. Its subtasks carry the points, so a sum over the project counts each unit once.
-- **Unit:** the same for both. 1 point is the effort a senior staff engineer who knows the tech stack and the domain needs to fix a one-line bug. That is about one hour of work.
-- **Estimate** a new task from its `## Done when`: the hours that engineer would need, in points. Round to the nearest value the field allows. For an enum field, pass the option GID of that value.
-- **Measure** a finished task the same way, from the work actually done rather than the work planned.
+- **Story points** measure work needed to deliver a user story. Technical work counts when the story cannot ship without it: a refactor it depends on, its tests, its CI changes.
+- **Task points** measure everything else: chores, infrastructure, cleanup, and work beyond the story's scope.
+- **Find the fields** in `fields.story_points` and `fields.task_points` on the project's entry in `.agents/cyber-asana.json`. When the entry has neither, run `cyber-asana config discover-fields <project>`. When it reports several candidates for a role, ask which one to use and save it with `cyber-asana config set-field <role> <field-gid> --project <project>`. Never hard-code a field GID.
+- **Unit:** 1 point is the effort a senior staff engineer who knows the stack and the domain needs to fix a one-line bug. That is about one hour.
+- **Estimate** a new task from its `## Done when`, in one field: story points for a story, task points for a chore. Round to the nearest value the field allows. For an enum field, pass the option GID.
+- **Record actuals** when the task is done. Replace the estimate with the effort spent, split across the two fields by kind. A story task that needed unrelated cleanup carries both. The two values divide the total: never count the same hour in both.
+- **One field only:** when the project has a single points field, put all points in it.
+- **Parents stay empty.** Leave both fields empty on a parent task or epic. Its subtasks carry the points.
 
 ## Comments
 

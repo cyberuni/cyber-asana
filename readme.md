@@ -205,7 +205,7 @@ default_tags: [agent-created]
 ---
 ```
 
-The reference's body also tells agents to estimate points when a task's project has a story points or task points field: 1 point is the effort a senior staff engineer who knows the stack and the domain needs to fix a one-line bug, about one hour. Story points go on user-story work and task points on chore work; a task gets one of the two, never both, and a parent task gets neither. The fields are never hard-coded. `cyber-asana config discover-fields <project>` finds them by name and saves their GIDs under the project's `fields.story_points` and `fields.task_points` in `.agents/cyber-asana.json`.
+The reference's body also sets the rules for story points and task points: what each measures, how to estimate, and how to record actuals. `cyber-asana config discover-fields <project>` finds the two fields by name and saves their GIDs under the project's `fields` in `.agents/cyber-asana.json`.
 
 Agents read it with the `reference` skill in the `cyber-agent-harness` plugin. A config that still has a `conventions` block fails to load; move it with `cyber-asana config migrate-conventions` (`--dry-run` to preview).
 
