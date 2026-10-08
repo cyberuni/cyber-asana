@@ -92,7 +92,7 @@ Optional env vars for specific suites:
 
 | Variable | Used by |
 | --- | --- |
-| `ASANA_WORKSPACE_GID` | workspace-scoped list pagination; `improve-description` HTML-subset probe |
+| `ASANA_WORKSPACE_GID` | workspace-scoped list pagination; `tidy-description` HTML-subset probe |
 | `ASANA_SYSTEM_TEST_PROJECT_GID` | sections and tasks list pagination system tests |
 | `ASANA_SYSTEM_TEST_TASK_GID` | tasks batch lookup; attachments and stories list pagination |
 | `ASANA_SYSTEM_TEST_SECOND_TASK_GID` | tasks batch lookup (multi-GID order) |
@@ -153,7 +153,7 @@ Reference (load on demand, not duplicated here):
 
 - Tool catalog by resource → `readme.md` MCP section
 - Per-tool params and Zod schemas → `src/<domain>/mcp.ts` for the domain you are editing
-- Asana work routing → [`packages/cyber-asana/skills/asana/SKILL.md`](packages/cyber-asana/skills/asana/SKILL.md); planning units of work before creating or reusing tasks → [`packages/cyber-asana/skills/asana/references/plan-work.md`](packages/cyber-asana/skills/asana/references/plan-work.md); task creation → [`packages/cyber-asana/skills/asana/references/create-task.md`](packages/cyber-asana/skills/asana/references/create-task.md) (also the `/cyber-asana:create-task` command in `packages/cyber-asana/commands/`); TODO/FIXME import → [`packages/cyber-asana/skills/asana/references/import-todos.md`](packages/cyber-asana/skills/asana/references/import-todos.md) (also `/cyber-asana:import-todos`); PR/MR linking on any git host → [`packages/cyber-asana/skills/asana/references/link-pr.md`](packages/cyber-asana/skills/asana/references/link-pr.md) (also `/cyber-asana:link-pr`); URL parsing → [`src/url.ts`](src/url.ts) when a URL is present; repo project registry → [`src/repo-config.ts`](src/repo-config.ts) / `.agents/cyber-asana.json`
+- Asana work routing → [`packages/cyber-asana/skills/asana/SKILL.md`](packages/cyber-asana/skills/asana/SKILL.md); planning units of work before creating or reusing tasks → [`packages/cyber-asana/skills/asana/references/plan-work.md`](packages/cyber-asana/skills/asana/references/plan-work.md); task creation → [`packages/cyber-asana/skills/asana/references/create-task.md`](packages/cyber-asana/skills/asana/references/create-task.md) (also the `/cyber-asana:create-task` command in `packages/cyber-asana/commands/`); TODO/FIXME import → [`packages/cyber-asana/skills/asana/references/import-todos.md`](packages/cyber-asana/skills/asana/references/import-todos.md) (also `/cyber-asana:import-todos`); PR/MR linking on any git host → [`packages/cyber-asana/skills/asana/references/link-pr.md`](packages/cyber-asana/skills/asana/references/link-pr.md) (also `/cyber-asana:link-pr`); description tidying and Asana's HTML subset → [`packages/cyber-asana/skills/asana/references/tidy-description.md`](packages/cyber-asana/skills/asana/references/tidy-description.md) (also `/cyber-asana:tidy-description`); URL parsing → [`src/url.ts`](src/url.ts) when a URL is present; repo project registry → [`src/repo-config.ts`](src/repo-config.ts) / `.agents/cyber-asana.json`
 - Adding or updating tools → `update-asana-sdk` skill
 
 #### Dual MCP (official + cyber-asana)

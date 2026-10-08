@@ -1,10 +1,11 @@
----
-name: improve-description
-description: Use this skill when cleaning up an Asana task or project description, or when html_notes fails with "XML is invalid".
-argument-hint: [task-gid] [emoji] [template:prd|bug|research] [tone] [sources]
----
+# Tidy description
 
-# Improve Description
+Clean up an Asana task or project description without rewriting it, or write one as rich text that
+Asana accepts.
+
+This file is the one home of the description-tidying procedure. The `asana` skill routes here for a
+model-triggered request, and the `/cyber-asana:tidy-description` command routes here for an explicit
+one.
 
 ## When to use
 
@@ -59,7 +60,7 @@ Only when the user asks for them, in the same request or a follow-up. Each is op
 | Ask | Do |
 | --- | --- |
 | "add emoji" / "make it scannable" | Prefix each heading with one emoji matching the section. One per heading, never mid-sentence. |
-| "use the PRD / bug / research template" | Load the template reference, then restructure into the matching skeleton, mapping existing content into sections and leaving absent sections out. |
+| "use the PRD / bug / research template" | Load [`tidy-description-templates.md`](tidy-description-templates.md), then restructure into the matching skeleton, mapping existing content into sections and leaving absent sections out. |
 | "make it more formal / friendlier / terser" | Rewrite for tone. This is the one case where wording changes are the point. |
 | "back up the claims" / "add sources" | Research the assertions, then add `<a href="...">` citations. Never cite a source you did not read. Flag any claim you could not support instead of quietly dropping it. |
 
@@ -169,4 +170,4 @@ A rejected update writes nothing — the stored description is left byte-identic
 
 ## References
 
-- `references/templates.md` — PRD, research-note, and bug-report skeletons. Load only when the user asks for a named template (step 3).
+- [`tidy-description-templates.md`](tidy-description-templates.md) — PRD, research-note, and bug-report skeletons. Load only when the user asks for a named template (step 3).

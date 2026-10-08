@@ -4,10 +4,10 @@ import path from 'node:path'
 export const skillsRoot = path.resolve(import.meta.dirname, '../../skills')
 export const repoRoot = path.resolve(import.meta.dirname, '../../../..')
 
-const subsetSkill = 'improve-description'
+const subsetDoc = path.join('asana', 'references', 'tidy-description.md')
 
 export function readSubsetSkill(): string {
-	return readFileSync(path.join(skillsRoot, subsetSkill, 'SKILL.md'), 'utf8')
+	return readFileSync(path.join(skillsRoot, subsetDoc), 'utf8')
 }
 
 /** `<h4>`–`<h6>` in the docs stands for three tags; probing needs them one by one. */
@@ -26,14 +26,14 @@ function tagsIn(text: string): string[] {
 
 /**
  * The tag classification the skill documents. Parsed rather than duplicated so the
- * SKILL.md stays the single source of truth for both the offline drift test and the
+ * procedure file stays the single source of truth for both the offline drift test and the
  * live system probe.
  */
 export function parseDocumentedSubset(content = readSubsetSkill()) {
 	const supportedStart = content.indexOf('**Supported**')
 	const rejectedStart = content.indexOf('**Rejected')
-	if (supportedStart < 0) throw new Error('SKILL.md is missing its **Supported** tag table')
-	if (rejectedStart < supportedStart) throw new Error('SKILL.md is missing its **Rejected** tag list')
+	if (supportedStart < 0) throw new Error('tidy-description.md is missing its **Supported** tag table')
+	if (rejectedStart < supportedStart) throw new Error('tidy-description.md is missing its **Rejected** tag list')
 
 	// First cell only — the Notes column names tags that are rejected, not supported.
 	const supported = new Set<string>()
@@ -48,7 +48,7 @@ export function parseDocumentedSubset(content = readSubsetSkill()) {
 		.slice(rejectedStart)
 		.split('\n')
 		.find((line) => line.includes('·'))
-	if (!rejectedLine) throw new Error('SKILL.md no longer enumerates rejected tags on one line')
+	if (!rejectedLine) throw new Error('tidy-description.md no longer enumerates rejected tags on one line')
 
 	return { supported, rejected: new Set(tagsIn(rejectedLine)) }
 }

@@ -1,6 +1,6 @@
 ---
 name: asana
-description: Use this skill when the user wants Asana work — create a task, track a session, import TODOs, report, link a PR, set up.
+description: Use this skill when doing Asana work — create or track tasks, import TODOs, tidy descriptions, link PRs, report, set up.
 ---
 
 # Asana
@@ -23,7 +23,7 @@ PR), run them in order.
 | a standup update — done, today, blockers | `asana-standup` skill |
 | a sprint summary for a retro or stakeholders | `asana-sprint-report` skill |
 | link a pull or merge request to its task ("link this PR to Asana", "comment the MR on the task") | **Link a PR** below |
-| clean up a task or project description, or fix "XML is invalid" | `improve-description` skill |
+| clean up, restructure, or write a task or project description ("tidy this description", "use the PRD template"), or recover when `html_notes` fails with "XML is invalid" or "Rich text should be wrapped in <body> tag" | **Tidy a description** below |
 | turn TODO/FIXME comments in the code into tasks ("create tasks from TODOs", a tech-debt sweep) | **Import TODOs** below |
 | pull a project's tasks into local markdown | `sync-asana-project` skill |
 
@@ -55,6 +55,12 @@ request as its input. It is the one home of the TODO-import procedure; the
 Read [`references/link-pr.md`](references/link-pr.md) and follow it, with the user's request as its
 input. It is the one home of the PR-linking procedure, for every major git host; the
 `/cyber-asana:link-pr` command routes here too.
+
+## Tidy a description
+
+Read [`references/tidy-description.md`](references/tidy-description.md) and follow it, with the
+user's request as its input. It is the one home of the description-tidying procedure and of Asana's
+accepted HTML subset; the `/cyber-asana:tidy-description` command routes here too.
 
 ## Track session work
 

@@ -110,11 +110,11 @@ describe('the shipped catalog', () => {
 		expect(found.map((violation) => violation.message)).toEqual([])
 	})
 
-	it('covers all seven shipped skills', async () => {
+	it('covers all six shipped skills', async () => {
 		// A contract that silently checked nothing would also report no violations.
 		const { skillsRoot } = repoCatalogSources()
 		const entries = await readdir(skillsRoot, { withFileTypes: true })
-		expect(entries.filter((entry) => entry.isDirectory())).toHaveLength(7)
+		expect(entries.filter((entry) => entry.isDirectory())).toHaveLength(6)
 	})
 })
 
@@ -185,14 +185,14 @@ function describedIn(length: number): Record<string, SkillFixture> {
 }
 
 describe('following a reference', () => {
-	const body = (extra: string) => frontBlock({ name: 'improve-description', description: TRIGGER }) + extra
+	const body = (extra: string) => frontBlock({ name: 'asana', description: TRIGGER }) + extra
 
 	it('a reference the skill ships is accepted', async () => {
 		const found = await violationsFor('reference-resolves', {
 			skills: {
-				'improve-description': {
-					'SKILL.md': body('\nSee `references/templates.md` for the templates.\n'),
-					'references/templates.md': '# Templates\n',
+				asana: {
+					'SKILL.md': body('\nSee `references/tidy-description-templates.md` for the templates.\n'),
+					'references/tidy-description-templates.md': '# Templates\n',
 				},
 			},
 		})
@@ -202,11 +202,11 @@ describe('following a reference', () => {
 	it('a reference the skill names but does not ship is rejected by file name', async () => {
 		const found = await violationsFor('reference-resolves', {
 			skills: {
-				'improve-description': { 'SKILL.md': body('\nSee `references/templates.md` for the templates.\n') },
+				asana: { 'SKILL.md': body('\nSee `references/tidy-description-templates.md` for the templates.\n') },
 			},
 		})
 		expect(found).toHaveLength(1)
-		expect(found[0].file).toBe('references/templates.md')
+		expect(found[0].file).toBe('references/tidy-description-templates.md')
 	})
 })
 
@@ -245,13 +245,13 @@ describe('running a prescribed command', () => {
 
 	it('an unpinned invocation inside a reference file is rejected by file name', async () => {
 		const found = await violationsFor('npx-pinned', {
-			skills: withCommand('improve-description', {
-				'SKILL.md': skillMd('improve-description', '\nNothing to run here.\n'),
-				'references/templates.md': '```sh\nnpx --yes cyber-asana task list\n```\n',
+			skills: withCommand('asana', {
+				'SKILL.md': skillMd('asana', '\nNothing to run here.\n'),
+				'references/tidy-description-templates.md': '```sh\nnpx --yes cyber-asana task list\n```\n',
 			}),
 		})
 		expect(found).toHaveLength(1)
-		expect(found[0].file).toBe('references/templates.md')
+		expect(found[0].file).toBe('references/tidy-description-templates.md')
 	})
 })
 

@@ -73,19 +73,19 @@ Feature: skills
   # ── following a reference ──
 
   Scenario: a reference the skill ships is accepted
-    Given a skill directory "improve-description"
-    And its SKILL.md body names the reference "references/templates.md"
-    And the file "references/templates.md" exists in that skill directory
+    Given a skill directory "asana"
+    And its SKILL.md body names the reference "references/tidy-description-templates.md"
+    And the file "references/tidy-description-templates.md" exists in that skill directory
     When the catalog contract is checked
     Then no violation is reported for the rule "reference-resolves"
 
   Scenario: a reference the skill names but does not ship is rejected by file name
-    Given a skill directory "improve-description"
-    And its SKILL.md body names the reference "references/templates.md"
+    Given a skill directory "asana"
+    And its SKILL.md body names the reference "references/tidy-description-templates.md"
     And that skill directory has no references directory
     When the catalog contract is checked
     Then a violation is reported for the rule "reference-resolves"
-    And that violation names the file "references/templates.md"
+    And that violation names the file "references/tidy-description-templates.md"
 
   # ── running a prescribed command ──
 
@@ -110,11 +110,11 @@ Feature: skills
     And that violation names the file "SKILL.md"
 
   Scenario: an unpinned invocation inside a reference file is rejected by file name
-    Given a skill directory "improve-description"
-    And the file "references/templates.md" in that skill directory contains the command "npx --yes cyber-asana task list"
+    Given a skill directory "asana"
+    And the file "references/tidy-description-templates.md" in that skill directory contains the command "npx --yes cyber-asana task list"
     When the catalog contract is checked
     Then a violation is reported for the rule "npx-pinned"
-    And that violation names the file "references/templates.md"
+    And that violation names the file "references/tidy-description-templates.md"
 
   # ── discovering the catalog ──
 

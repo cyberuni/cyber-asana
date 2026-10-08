@@ -1,6 +1,6 @@
 # Description templates
 
-Load only when the user asks for a named template (step 3 of SKILL.md). Map existing content into the sections; leave a section out rather than filling it with a placeholder.
+Load only when the user asks for a named template (step 3 of `tidy-description.md`). Map existing content into the sections; leave a section out rather than filling it with a placeholder.
 
 ## PRD
 
