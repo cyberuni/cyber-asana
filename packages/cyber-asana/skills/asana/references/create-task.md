@@ -35,7 +35,7 @@ user copy, and the copy cyber-asana ships. Follow its body for the shape of the 
 - **Choosing the object** — whether this is a task, a subtask (`--parent-gid`), or a dependency
   between tasks (`cyber-asana task dependency add`).
 - **Task** / **Subtask** — name, description, assignee, due date, tags, and section.
-- **Custom fields** and **Story points and task points** — which fields to set, which one of the two points fields a task gets, and how to estimate.
+- **Custom fields** and **Story points and task points** — which fields to set, which points field to estimate in, and how.
 - **Comments** — when a comment is the right place instead of the description.
 - **Tracking session work** — when the task records work done in this agent session.
 

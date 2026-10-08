@@ -19,8 +19,7 @@ export type RepoProjectEntry = {
 /**
  * The roles a project custom field can be registered for. Field GIDs differ per workspace and
  * project, so a role is how a convention names a field without hard-coding its GID.
- * `story_points` counts user-story work and `task_points` counts chore work; a task carries one
- * of the two, never both (see the `cyber-asana.task-conventions` reference).
+ * The `cyber-asana.task-conventions` reference says what `story_points` and `task_points` measure.
  */
 export const FIELD_ROLES = ['story_points', 'task_points'] as const
 
