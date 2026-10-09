@@ -1,12 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { ensureSystemFixtures, type FixtureContext, formatFixtureEnv } from './system-fixtures.js'
 
-type Counts = { sections: number; tasks: number; stories: number; attachments: number }
+type Counts = { projects: number; sections: number; tasks: number; stories: number; attachments: number }
 
-function createFakeContext(seed?: { sections?: string[] }) {
+function createFakeContext(seed?: { sections?: string[]; projects?: string[] }) {
 	let nextGid = 1000
 	const gid = () => String(nextGid++)
-	const created: Counts = { sections: 0, tasks: 0, stories: 0, attachments: 0 }
+	const created: Counts = { projects: 0, sections: 0, tasks: 0, stories: 0, attachments: 0 }
+	const projects = (seed?.projects ?? []).map((name) => ({ gid: gid(), name }))
 	const sections = (seed?.sections ?? ['Untitled section']).map((name) => ({ gid: gid(), name }))
 	const tasks: Array<{ gid: string; name: string; section: string }> = []
 	const stories: Array<{ gid: string; task: string; text: string; type: string }> = []
@@ -15,6 +16,13 @@ function createFakeContext(seed?: { sections?: string[] }) {
 
 	const context: FixtureContext = {
 		projects: {
+			listProjects: async () => page(projects),
+			createProject: async (_workspaceGid: string, name: string) => {
+				created.projects++
+				const project = { gid: gid(), name }
+				projects.push(project)
+				return project
+			},
 			getProject: async (projectGid: string) => ({
 				gid: projectGid,
 				name: 'fixture project',
@@ -65,14 +73,14 @@ function createFakeContext(seed?: { sections?: string[] }) {
 		},
 	} as unknown as FixtureContext
 
-	return { context, created, sections, tasks, stories, attachments }
+	return { context, created, projects, sections, tasks, stories, attachments }
 }
 
 describe('ensureSystemFixtures', () => {
 	it('creates two sections, two tasks, and the comments and attachments the list specs page over', async () => {
 		const fake = createFakeContext()
 
-		const fixtures = await ensureSystemFixtures(fake.context, 'project-1')
+		const fixtures = await ensureSystemFixtures(fake.context, { projectGid: 'project-1' })
 
 		expect(fixtures.workspaceGid).toBe('ws-1')
 		expect(fixtures.projectGid).toBe('project-1')
@@ -88,10 +96,10 @@ describe('ensureSystemFixtures', () => {
 
 	it('creates nothing on a second run', async () => {
 		const fake = createFakeContext()
-		const first = await ensureSystemFixtures(fake.context, 'project-1')
+		const first = await ensureSystemFixtures(fake.context, { projectGid: 'project-1' })
 		const created = { ...fake.created }
 
-		const second = await ensureSystemFixtures(fake.context, 'project-1')
+		const second = await ensureSystemFixtures(fake.context, { projectGid: 'project-1' })
 
 		expect(fake.created).toEqual(created)
 		expect(second).toEqual(first)
@@ -100,9 +108,34 @@ describe('ensureSystemFixtures', () => {
 	it('reuses a section that already has a fixture name', async () => {
 		const fake = createFakeContext({ sections: ['Untitled section', 'System test A'] })
 
-		await ensureSystemFixtures(fake.context, 'project-1')
+		await ensureSystemFixtures(fake.context, { projectGid: 'project-1' })
 
 		expect(fake.created.sections).toBe(1)
+	})
+})
+
+describe('ensureSystemFixtures given a workspace', () => {
+	it('creates a cyber-asana prefixed project and fills it', async () => {
+		const fake = createFakeContext()
+
+		const fixtures = await ensureSystemFixtures(fake.context, { workspaceGid: 'ws-9' })
+
+		expect(fake.projects.map((p) => p.name)).toEqual(['cyber-asana system test'])
+		expect(fixtures.workspaceGid).toBe('ws-9')
+		expect(fixtures.projectGid).toBe(fake.projects[0]?.gid)
+		expect(fake.tasks).toHaveLength(2)
+	})
+
+	it('reuses the project on a second run and leaves other projects alone', async () => {
+		const fake = createFakeContext({ projects: ['Unite Note'] })
+		const first = await ensureSystemFixtures(fake.context, { workspaceGid: 'ws-9' })
+		const created = { ...fake.created }
+
+		const second = await ensureSystemFixtures(fake.context, { workspaceGid: 'ws-9' })
+
+		expect(fake.projects.map((p) => p.name)).toEqual(['Unite Note', 'cyber-asana system test'])
+		expect(fake.created).toEqual(created)
+		expect(second).toEqual(first)
 	})
 })
 

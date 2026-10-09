@@ -88,7 +88,7 @@ Run system tests:
 ASANA_SYSTEM_TEST=1 ASANA_ACCESS_TOKEN=<pat> pnpm test:system
 ```
 
-To fill a project with what those suites page over (two sections, two tasks, and on the first task two comments and two link attachments), run `pnpm test:system:setup <project-gid>` in `packages/cyber-asana`. It is idempotent, looks fixtures up by name, and prints the `ASANA_WORKSPACE_GID` and `ASANA_SYSTEM_TEST_*` lines to export. Use the workspace it prints: it is the project's own, which can differ from your ambient `ASANA_WORKSPACE`.
+To fill a project with what those suites page over (two sections, two tasks, and on the first task two comments and two link attachments), run `pnpm test:system:setup [project-gid]` in `packages/cyber-asana`. Without a project it finds or creates `cyber-asana system test` in `ASANA_WORKSPACE_GID`. It is idempotent, looks fixtures up by name, and prints the `ASANA_WORKSPACE_GID` and `ASANA_SYSTEM_TEST_*` lines to export. Use the workspace it prints: it is the project's own, which can differ from your ambient `ASANA_WORKSPACE`.
 
 Optional env vars for specific suites:
 
