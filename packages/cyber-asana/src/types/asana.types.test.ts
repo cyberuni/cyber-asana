@@ -313,4 +313,46 @@ describe('asana type augmentation', () => {
 		testType.equal<R<Asana.JobsApi, 'getJob'>, Asana.AsanaResponse<Asana.Job>>(true)
 		testType.equal<Asana.Job['resource_type'], 'job'>(true)
 	})
+
+	it('types PortfoliosApi and GoalsApi', () => {
+		type R<A, K extends keyof A> = A[K] extends (...args: any) => infer Ret ? Awaited<Ret> : never
+
+		testType.false<IsAny<R<Asana.PortfoliosApi, 'getPortfolio'>>>(true)
+		testType.equal<R<Asana.PortfoliosApi, 'getPortfolio'>, Asana.AsanaResponse<Asana.Portfolio>>(true)
+		testType.equal<R<Asana.PortfoliosApi, 'createPortfolio'>, Asana.AsanaResponse<Asana.Portfolio>>(true)
+		testType.equal<R<Asana.PortfoliosApi, 'updatePortfolio'>, Asana.AsanaResponse<Asana.Portfolio>>(true)
+		testType.equal<R<Asana.PortfoliosApi, 'deletePortfolio'>, Asana.EmptyResponse>(true)
+		testType.equal<R<Asana.PortfoliosApi, 'getPortfolios'>, Asana.AsanaCollection<Asana.Portfolio>>(true)
+		testType.equal<R<Asana.PortfoliosApi, 'getItemsForPortfolio'>, Asana.AsanaCollection<Asana.AsanaResource>>(true)
+
+		testType.equal<R<Asana.GoalsApi, 'getGoal'>, Asana.AsanaResponse<Asana.Goal>>(true)
+		testType.equal<R<Asana.GoalsApi, 'createGoal'>, Asana.AsanaResponse<Asana.Goal>>(true)
+		testType.equal<R<Asana.GoalsApi, 'updateGoal'>, Asana.AsanaResponse<Asana.Goal>>(true)
+		testType.equal<R<Asana.GoalsApi, 'deleteGoal'>, Asana.EmptyResponse>(true)
+		testType.equal<R<Asana.GoalsApi, 'getGoals'>, Asana.AsanaCollection<Asana.Goal>>(true)
+		testType.equal<Asana.Goal['resource_type'], 'goal'>(true)
+		testType.equal<Asana.Portfolio['resource_type'], 'portfolio'>(true)
+	})
+
+	it('types CustomFieldsApi, CustomFieldSettingsApi and AIStudioUsageAPIApi', () => {
+		type R<A, K extends keyof A> = A[K] extends (...args: any) => infer Ret ? Awaited<Ret> : never
+
+		testType.false<IsAny<R<Asana.CustomFieldsApi, 'getCustomField'>>>(true)
+		testType.equal<R<Asana.CustomFieldsApi, 'getCustomField'>, Asana.AsanaResponse<Asana.CustomField>>(true)
+		testType.equal<R<Asana.CustomFieldsApi, 'getCustomFieldsForWorkspace'>, Asana.AsanaCollection<Asana.CustomField>>(
+			true,
+		)
+		for (const method of [
+			'getCustomFieldSettingsForGoal',
+			'getCustomFieldSettingsForPortfolio',
+			'getCustomFieldSettingsForProject',
+			'getCustomFieldSettingsForTeam',
+		] as const) {
+			testType.equal<R<Asana.CustomFieldSettingsApi, typeof method>, Asana.AsanaCollection<Asana.CustomFieldSetting>>(
+				true,
+			)
+		}
+		testType.equal<R<Asana.AIStudioUsageAPIApi, 'getAiStudioRuns'>, Asana.AsanaCollection<Asana.AiStudioRecord>>(true)
+		testType.equal<R<Asana.AIStudioUsageAPIApi, 'getAiStudioSeats'>, Asana.AsanaCollection<Asana.AiStudioRecord>>(true)
+	})
 })

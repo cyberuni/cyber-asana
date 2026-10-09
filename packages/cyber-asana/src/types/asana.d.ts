@@ -553,6 +553,124 @@ declare module 'asana' {
 		): Promise<AsanaResponse<Job>>
 	}
 
+	interface Portfolio extends AsanaResource {
+		resource_type: 'portfolio'
+		color?: string | undefined
+		created_at?: string | undefined
+		owner?: User | undefined
+		permalink_url?: string | undefined
+		public?: boolean | undefined
+		workspace?: Workspace | undefined
+	}
+
+	interface Goal extends AsanaResource {
+		resource_type: 'goal'
+		notes?: string | undefined
+		html_notes?: string | undefined
+		due_on?: string | null | undefined
+		start_on?: string | null | undefined
+		is_workspace_level?: boolean | undefined
+		liked?: boolean | undefined
+		owner?: User | undefined
+		workspace?: Workspace | undefined
+	}
+
+	interface CustomField extends AsanaResource {
+		resource_type: 'custom_field'
+		type?: string | undefined
+		description?: string | undefined
+		enabled?: boolean | undefined
+		precision?: number | undefined
+		enum_options?: Array<{ gid: string; name: string; enabled?: boolean; color?: string }> | undefined
+	}
+
+	interface CustomFieldSetting {
+		gid: string
+		resource_type: 'custom_field_setting'
+		is_important?: boolean | undefined
+		custom_field?: CustomField | undefined
+		parent?: AsanaResource | undefined
+		project?: Project | undefined
+	}
+
+	/** AI Studio usage rows have no documented shape beyond their fields, so each is an open record. */
+	type AiStudioRecord = Record<string, unknown>
+
+	interface PortfoliosApi {
+		getPortfolio(portfolio_gid: string, opts?: OptionalFields): Promise<AsanaResponse<Portfolio>>
+		getPortfolios(
+			workspace: string,
+			opts?: PaginationOptions & { owner?: string | undefined; custom_type?: string | undefined },
+		): Promise<AsanaCollection<Portfolio>>
+		getItemsForPortfolio(portfolio_gid: string, opts?: PaginationOptions): Promise<AsanaCollection<AsanaResource>>
+		createPortfolio(
+			body: { data: { name: string; workspace: string } },
+			opts?: OptionalFields,
+		): Promise<AsanaResponse<Portfolio>>
+		updatePortfolio(
+			body: { data: { name?: string | undefined } },
+			portfolio_gid: string,
+			opts?: OptionalFields,
+		): Promise<AsanaResponse<Portfolio>>
+		deletePortfolio(portfolio_gid: string): Promise<EmptyResponse>
+	}
+
+	interface GoalRequest {
+		name?: string | undefined
+		workspace?: string | undefined
+		notes?: string | undefined
+		html_notes?: string | undefined
+		due_on?: string | null | undefined
+		start_on?: string | null | undefined
+	}
+
+	interface GoalsApi {
+		getGoal(goal_gid: string, opts?: OptionalFields): Promise<AsanaResponse<Goal>>
+		getGoals(opts?: PaginationOptions & { workspace?: string | undefined }): Promise<AsanaCollection<Goal>>
+		createGoal(body: { data: GoalRequest }, opts?: OptionalFields): Promise<AsanaResponse<Goal>>
+		updateGoal(body: { data: GoalRequest }, goal_gid: string, opts?: OptionalFields): Promise<AsanaResponse<Goal>>
+		deleteGoal(goal_gid: string): Promise<EmptyResponse>
+	}
+
+	interface CustomFieldsApi {
+		getCustomField(custom_field_gid: string, opts?: OptionalFields): Promise<AsanaResponse<CustomField>>
+		getCustomFieldsForWorkspace(workspace_gid: string, opts?: PaginationOptions): Promise<AsanaCollection<CustomField>>
+	}
+
+	interface CustomFieldSettingsApi {
+		getCustomFieldSettingsForGoal(
+			goal_gid: string,
+			opts?: PaginationOptions,
+		): Promise<AsanaCollection<CustomFieldSetting>>
+		getCustomFieldSettingsForPortfolio(
+			portfolio_gid: string,
+			opts?: PaginationOptions,
+		): Promise<AsanaCollection<CustomFieldSetting>>
+		getCustomFieldSettingsForProject(
+			project_gid: string,
+			opts?: PaginationOptions,
+		): Promise<AsanaCollection<CustomFieldSetting>>
+		getCustomFieldSettingsForTeam(
+			team_gid: string,
+			opts?: PaginationOptions,
+		): Promise<AsanaCollection<CustomFieldSetting>>
+	}
+
+	interface AIStudioUsageAPIApi {
+		getAiStudioRuns(
+			workspace_gid: string,
+			opts?: PaginationOptions & {
+				start_at?: string | undefined
+				end_at?: string | undefined
+				division_gid?: string | undefined
+			},
+		): Promise<AsanaCollection<AiStudioRecord>>
+		getAiStudioSeats(
+			workspace_gid: string,
+			opts?: PaginationOptions & { state?: string | undefined; division_gid?: string | undefined },
+		): Promise<AsanaCollection<AiStudioRecord>>
+	}
+
 	interface TagRequest {
 		name?: string | undefined
 		color?: string | null | undefined

@@ -747,3 +747,107 @@ describe.skipIf(!workspaceEnabled || !projectEnabled)('asana types: typeahead, b
 		expect(Array.isArray(projectTemplates.data)).toBe(true)
 	})
 })
+
+describe.skipIf(!workspaceEnabled || !isPaidPlan())(
+	'asana types: portfolios, goals and custom fields (paid plans only)',
+	() => {
+		it('portfolio create, get, update, list, items and delete resolve to the augmented shapes', async () => {
+			const api = new Asana.PortfoliosApi(createClient())
+			const created = await api.createPortfolio(
+				{ data: { name: 'cyber-asana learn probe: portfolio', workspace: workspaceGid! } },
+				{ opt_fields: 'name,resource_type' },
+			)
+			expectTypeOf(created).toEqualTypeOf<Asana.AsanaResponse<Asana.Portfolio>>()
+			const gid = created.data.gid
+			try {
+				expect(created.data.resource_type).toBe('portfolio')
+
+				const read = await api.getPortfolio(gid, { opt_fields: 'name' })
+				expectTypeOf(read).toEqualTypeOf<Asana.AsanaResponse<Asana.Portfolio>>()
+				expect(read.data.name).toBe('cyber-asana learn probe: portfolio')
+
+				const updated = await api.updatePortfolio({ data: { name: 'cyber-asana learn probe: renamed' } }, gid, {
+					opt_fields: 'name',
+				})
+				expectTypeOf(updated).toEqualTypeOf<Asana.AsanaResponse<Asana.Portfolio>>()
+				expect(updated.data.name).toBe('cyber-asana learn probe: renamed')
+
+				const listed = await api.getPortfolios(workspaceGid!, { owner: 'me', opt_fields: 'name' })
+				expectTypeOf(listed).toEqualTypeOf<Asana.AsanaCollection<Asana.Portfolio>>()
+				expect(listed.data.map((p) => p.gid)).toContain(gid)
+
+				const items = await api.getItemsForPortfolio(gid, { opt_fields: 'name' })
+				expectTypeOf(items).toEqualTypeOf<Asana.AsanaCollection<Asana.AsanaResource>>()
+				expect(items.data).toEqual([])
+			} finally {
+				const deleted = await api.deletePortfolio(gid)
+				expectTypeOf(deleted).toEqualTypeOf<Asana.EmptyResponse>()
+				expect(deleted.data).toEqual({})
+			}
+		})
+
+		it('goal create, get, update, list and delete resolve to the augmented shapes', async () => {
+			const client = createClient()
+			const api = new Asana.GoalsApi(client)
+			const created = await api.createGoal(
+				{ data: { name: 'cyber-asana learn probe: goal', workspace: workspaceGid!, due_on: '2099-01-01' } },
+				{ opt_fields: 'name,due_on,resource_type' },
+			)
+			expectTypeOf(created).toEqualTypeOf<Asana.AsanaResponse<Asana.Goal>>()
+			const gid = created.data.gid
+			try {
+				expect(created.data.resource_type).toBe('goal')
+				expect(created.data.due_on).toBe('2099-01-01')
+
+				const read = await api.getGoal(gid, { opt_fields: 'name' })
+				expectTypeOf(read).toEqualTypeOf<Asana.AsanaResponse<Asana.Goal>>()
+
+				const updated = await api.updateGoal({ data: { due_on: null } }, gid, { opt_fields: 'due_on' })
+				expectTypeOf(updated).toEqualTypeOf<Asana.AsanaResponse<Asana.Goal>>()
+				expect(updated.data.due_on ?? null).toBeNull()
+
+				const listed = await api.getGoals({ workspace: workspaceGid!, opt_fields: 'name' })
+				expectTypeOf(listed).toEqualTypeOf<Asana.AsanaCollection<Asana.Goal>>()
+				expect(listed.data.map((g) => g.gid)).toContain(gid)
+
+				const settings = await new Asana.CustomFieldSettingsApi(client).getCustomFieldSettingsForGoal(gid)
+				expectTypeOf(settings).toEqualTypeOf<Asana.AsanaCollection<Asana.CustomFieldSetting>>()
+				expect(Array.isArray(settings.data)).toBe(true)
+			} finally {
+				const deleted = await api.deleteGoal(gid)
+				expectTypeOf(deleted).toEqualTypeOf<Asana.EmptyResponse>()
+				expect(deleted.data).toEqual({})
+			}
+		})
+
+		it('custom fields and project, portfolio and team settings resolve to the augmented shapes', async () => {
+			const client = createClient()
+			const fields = await new Asana.CustomFieldsApi(client).getCustomFieldsForWorkspace(workspaceGid!, {
+				opt_fields: 'name,resource_type,type',
+			})
+			expectTypeOf(fields).toEqualTypeOf<Asana.AsanaCollection<Asana.CustomField>>()
+			if (fields.data[0]) {
+				const one = await new Asana.CustomFieldsApi(client).getCustomField(fields.data[0].gid, { opt_fields: 'name' })
+				expectTypeOf(one).toEqualTypeOf<Asana.AsanaResponse<Asana.CustomField>>()
+				expect(one.data.gid).toBe(fields.data[0].gid)
+			}
+			const settings = await new Asana.CustomFieldSettingsApi(client).getCustomFieldSettingsForProject(projectGid!, {
+				opt_fields: 'is_important,custom_field.name',
+			})
+			expectTypeOf(settings).toEqualTypeOf<Asana.AsanaCollection<Asana.CustomFieldSetting>>()
+			expect(Array.isArray(settings.data)).toBe(true)
+		})
+	},
+)
+
+describe.skipIf(!workspaceEnabled || !systemEnv('ASANA_SYSTEM_TEST_AI_STUDIO'))('asana types: AI Studio usage', () => {
+	it('getAiStudioRuns and getAiStudioSeats return Collections', async () => {
+		const api = new Asana.AIStudioUsageAPIApi(createClient())
+		const runs = await api.getAiStudioRuns(workspaceGid!, { limit: 1 })
+		expectTypeOf(runs).toEqualTypeOf<Asana.AsanaCollection<Asana.AiStudioRecord>>()
+		expect(Array.isArray(runs.data)).toBe(true)
+		const seats = await api.getAiStudioSeats(workspaceGid!, { limit: 1 })
+		expectTypeOf(seats).toEqualTypeOf<Asana.AsanaCollection<Asana.AiStudioRecord>>()
+		expect(Array.isArray(seats.data)).toBe(true)
+	})
+})
