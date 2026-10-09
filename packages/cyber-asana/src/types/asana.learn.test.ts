@@ -8,6 +8,8 @@ const enabled = isSystemTestEnabled() && Boolean(taskGid)
 const projectGid = systemEnv('ASANA_SYSTEM_TEST_PROJECT_GID')
 const workspaceGid = systemEnv('ASANA_WORKSPACE')
 const workspaceEnabled = isSystemTestEnabled() && Boolean(workspaceGid)
+const sectionGid = systemEnv('ASANA_SYSTEM_TEST_SECTION_GID')
+const sectionEnabled = isSystemTestEnabled() && Boolean(sectionGid) && Boolean(projectGid)
 const projectEnabled = isSystemTestEnabled() && Boolean(projectGid)
 
 describe.skipIf(!enabled)('asana types: TasksApi', () => {
@@ -84,5 +86,94 @@ describe.skipIf(!projectEnabled)('asana types: task list collections', () => {
 			page = await page.nextPage()
 		}
 		expect(page.data).toBeNull()
+	})
+})
+
+describe.skipIf(!sectionEnabled)('asana types: SectionsApi', () => {
+	it('getSection returns a Section whose shape matches the augmented type', async () => {
+		const api = new Asana.SectionsApi(createClient())
+
+		const res = await api.getSection(sectionGid!, { opt_fields: 'name,resource_type,created_at,project.name' })
+
+		expectTypeOf(res).toEqualTypeOf<Asana.AsanaResponse<Asana.Section>>()
+		expect(res.data.gid).toBe(sectionGid)
+		expect(res.data.resource_type).toBe('section')
+		expect(typeof res.data.name).toBe('string')
+		expect(typeof res.data.created_at).toBe('string')
+		expect(res.data.project?.gid).toBe(projectGid)
+	})
+
+	it('getSectionsForProject returns a Collection of Sections that includes it', async () => {
+		const api = new Asana.SectionsApi(createClient())
+
+		const page = await api.getSectionsForProject(projectGid!, { opt_fields: 'name,resource_type' })
+
+		expectTypeOf(page).toEqualTypeOf<Asana.AsanaCollection<Asana.Section>>()
+		expect(page.data.map((section) => section.gid)).toContain(sectionGid)
+		for (const section of page.data) expect(section.resource_type).toBe('section')
+	})
+})
+
+describe.skipIf(!isSystemTestEnabled())('asana types: UsersApi', () => {
+	it('getUser("me") returns a User whose shape matches the augmented type', async () => {
+		const api = new Asana.UsersApi(createClient())
+
+		const res = await api.getUser('me', { opt_fields: 'name,email,resource_type,workspaces.name' })
+
+		expectTypeOf(res).toEqualTypeOf<Asana.AsanaResponse<Asana.User>>()
+		expect(res.data.resource_type).toBe('user')
+		expect(typeof res.data.name).toBe('string')
+		expect(typeof res.data.email).toBe('string')
+		expect(Array.isArray(res.data.workspaces)).toBe(true)
+		for (const workspace of res.data.workspaces ?? []) expect(typeof workspace.gid).toBe('string')
+	})
+})
+
+describe.skipIf(!workspaceEnabled)('asana types: workspace users, workspaces and tags', () => {
+	it('getUsersForWorkspace returns a Collection of Users', async () => {
+		const api = new Asana.UsersApi(createClient())
+
+		const page = await api.getUsersForWorkspace(workspaceGid!, { opt_fields: 'name,resource_type' })
+
+		expectTypeOf(page).toEqualTypeOf<Asana.AsanaCollection<Asana.User>>()
+		expect(page.data.length).toBeGreaterThan(0)
+		for (const user of page.data) expect(user.resource_type).toBe('user')
+	})
+
+	it('getWorkspace returns a Workspace whose shape matches the augmented type', async () => {
+		const api = new Asana.WorkspacesApi(createClient())
+
+		const res = await api.getWorkspace(workspaceGid!, { opt_fields: 'name,resource_type,is_organization' })
+
+		expectTypeOf(res).toEqualTypeOf<Asana.AsanaResponse<Asana.Workspace>>()
+		expect(res.data.gid).toBe(workspaceGid)
+		expect(res.data.resource_type).toBe('workspace')
+		expect(typeof res.data.name).toBe('string')
+		expect(typeof res.data.is_organization).toBe('boolean')
+	})
+
+	it('getWorkspaces returns a Collection of Workspaces that includes it', async () => {
+		const api = new Asana.WorkspacesApi(createClient())
+
+		const page = await api.getWorkspaces({ opt_fields: 'name,resource_type' })
+
+		expectTypeOf(page).toEqualTypeOf<Asana.AsanaCollection<Asana.Workspace>>()
+		expect(page.data.map((workspace) => workspace.gid)).toContain(workspaceGid)
+	})
+
+	it('getTagsForWorkspace lists Tags, and getTag returns the first one with the same shape', async () => {
+		const tags = new Asana.TagsApi(createClient())
+
+		const page = await tags.getTagsForWorkspace(workspaceGid!, { limit: 5, opt_fields: 'name,resource_type' })
+
+		expectTypeOf(page).toEqualTypeOf<Asana.AsanaCollection<Asana.Tag>>()
+		for (const tag of page.data) expect(tag.resource_type).toBe('tag')
+		const first = page.data[0]
+		if (!first) return // a workspace with no tags has nothing for getTag to read
+		const res = await tags.getTag(first.gid, { opt_fields: 'name,resource_type,color,workspace.gid' })
+		expectTypeOf(res).toEqualTypeOf<Asana.AsanaResponse<Asana.Tag>>()
+		expect(res.data.gid).toBe(first.gid)
+		expect(res.data.resource_type).toBe('tag')
+		expect(res.data.workspace?.gid).toBe(workspaceGid)
 	})
 })

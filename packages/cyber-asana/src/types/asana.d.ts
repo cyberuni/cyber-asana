@@ -64,7 +64,9 @@ declare module 'asana' {
 	}
 
 	interface User extends AsanaResource {
+		resource_type: 'user'
 		email?: string | undefined
+		workspaces?: Workspace[] | undefined
 	}
 
 	interface Project extends AsanaResource {
@@ -85,11 +87,24 @@ declare module 'asana' {
 	}
 
 	interface Tag extends AsanaResource {
+		resource_type: 'tag'
 		color?: string | undefined
+		notes?: string | undefined
+		permalink_url?: string | undefined
+		workspace?: Workspace | undefined
 	}
 
 	interface Workspace extends AsanaResource {
+		resource_type: 'workspace'
+		email_domains?: string[] | undefined
 		is_organization?: boolean | undefined
+	}
+
+	interface Section extends AsanaResource {
+		resource_type: 'section'
+		created_at?: string | undefined
+		project?: Project | undefined
+		projects?: Project[] | undefined
 	}
 
 	interface TasksApi {
@@ -98,6 +113,30 @@ declare module 'asana' {
 			project_gid: string,
 			opts?: PaginationOptions & { completed_since?: string | undefined },
 		): Promise<AsanaCollection<Task>>
+	}
+
+	interface SectionsApi {
+		getSection(section_gid: string, opts?: OptionalFields): Promise<AsanaResponse<Section>>
+		getSectionsForProject(project_gid: string, opts?: PaginationOptions): Promise<AsanaCollection<Section>>
+	}
+
+	interface UsersApi {
+		getUser(user_gid: string, opts?: OptionalFields & { workspace?: string | undefined }): Promise<AsanaResponse<User>>
+		// The SDK passes only `offset` and `opt_fields` here; a `limit` would be dropped.
+		getUsersForWorkspace(
+			workspace_gid: string,
+			opts?: OptionalFields & { offset?: string | undefined },
+		): Promise<AsanaCollection<User>>
+	}
+
+	interface WorkspacesApi {
+		getWorkspace(workspace_gid: string, opts?: OptionalFields): Promise<AsanaResponse<Workspace>>
+		getWorkspaces(opts?: PaginationOptions): Promise<AsanaCollection<Workspace>>
+	}
+
+	interface TagsApi {
+		getTag(tag_gid: string, opts?: OptionalFields): Promise<AsanaResponse<Tag>>
+		getTagsForWorkspace(workspace_gid: string, opts?: PaginationOptions): Promise<AsanaCollection<Tag>>
 	}
 
 	interface ProjectsApi {
