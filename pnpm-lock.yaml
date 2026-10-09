@@ -216,10 +216,10 @@ importers:
         specifier: ^0.6.0
         version: 0.6.0(typescript@7.0.2)
       '@modelcontextprotocol/sdk':
-        specifier: ^1.31.0
+        specifier: ^1.32.1
         version: 1.32.1(supports-color@8.1.1)(zod@4.6.5)
       asana:
-        specifier: ^3.2.0
+        specifier: ^3.3.0
         version: 3.3.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1)
       commander:
         specifier: ^15.0.0
@@ -232,7 +232,7 @@ importers:
         version: 4.6.5
     devDependencies:
       '@types/node':
-        specifier: ^24.0.0
+        specifier: ^24.19.1
         version: 24.19.1
       tsdown:
         specifier: ^0.23.0
@@ -244,13 +244,13 @@ importers:
         specifier: ^7.0.2
         version: 7.0.2
       vitest:
-        specifier: ^5.0.2
+        specifier: ^5.0.3
         version: 5.0.3(@types/node@24.19.1)(vite@8.3.4(@types/node@24.19.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1))
 
   tools/gap-analysis:
     devDependencies:
       '@types/node':
-        specifier: ^24.0.0
+        specifier: ^24.19.1
         version: 24.19.1
       tsx:
         specifier: ^4.23.15
@@ -259,7 +259,7 @@ importers:
         specifier: ^7.0.2
         version: 7.0.2
       vitest:
-        specifier: ^5.0.2
+        specifier: ^5.0.3
         version: 5.0.3(@types/node@24.19.1)(vite@8.3.4(@types/node@24.19.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1))
 
 packages:

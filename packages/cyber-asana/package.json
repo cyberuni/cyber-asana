@@ -49,18 +49,18 @@
 	},
 	"dependencies": {
 		"@cyberuni/agent-harness": "^0.6.0",
-		"@modelcontextprotocol/sdk": "^1.31.0",
-		"asana": "^3.2.0",
+		"@modelcontextprotocol/sdk": "^1.32.1",
+		"asana": "^3.3.0",
 		"commander": "^15.0.0",
 		"yaml": "^2.9.1",
 		"zod": "^4.6.5"
 	},
 	"devDependencies": {
-		"@types/node": "^24.0.0",
+		"@types/node": "^24.19.1",
 		"tsdown": "^0.23.0",
 		"tsx": "^4.23.15",
 		"typescript": "^7.0.2",
-		"vitest": "^5.0.2"
+		"vitest": "^5.0.3"
 	},
 	"engines": {
 		"node": ">=22"
