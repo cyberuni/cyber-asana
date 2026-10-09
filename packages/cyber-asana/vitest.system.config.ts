@@ -9,5 +9,7 @@ export default defineConfig({
 	test: {
 		include: ['src/**/*.system.ts', 'src/**/*.learn.test.ts'],
 		exclude: ['node_modules', 'dist'],
+		// Live calls take about half a second each; a test that makes ten outruns the 5s default.
+		testTimeout: 30_000,
 	},
 })

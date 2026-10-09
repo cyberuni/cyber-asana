@@ -372,5 +372,5 @@ describe.skipIf(!projectEnabled || !workspaceEnabled)('asana types: section upda
 			await sections.deleteSection(first.data.gid)
 			await sections.deleteSection(second.data.gid)
 		}
-	}, 30_000)
+	})
 })
