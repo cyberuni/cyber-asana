@@ -1,9 +1,10 @@
 import Asana from 'asana'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { createTaskTemplateApi, getTaskTemplate, instantiateTask, listTaskTemplates } from './api.js'
+import { createTaskTemplateApi } from './api.js'
+import { getTaskTemplate, instantiateTask, listTaskTemplates } from './default.js'
 import { createAsanaTaskTemplateGateway } from './gateway.js'
 
-vi.mock('../client.js', () => ({
+vi.mock('../platform/client.js', () => ({
 	createClient: () => ({}),
 }))
 

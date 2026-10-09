@@ -125,6 +125,19 @@ curl -H "Authorization: Bearer $(cyber-asana auth token)" https://app.asana.com/
 
 `auth logout` revokes the grant with Asana and then deletes the local credentials. Revoking first matters: Asana revokes only refresh tokens, so once the file is gone there is nothing left to revoke with. If revocation fails the credentials are still deleted, and the output tells you the grant may still be live so you can remove it at [app.asana.com/0/my-apps](https://app.asana.com/0/my-apps). `--local` skips revocation, and logging out twice is not an error.
 
+## Rate limits
+
+Every request, from the CLI, the MCP server and the library alike, goes through one limiter per token that keeps you under Asana's [rate limits](https://developers.asana.com/docs/rate-limits). A call that would go over waits instead, and says so on stderr (`waiting 59s to stay within the Asana rate limit`). A `429` that still gets through is retried up to three times, after the wait in `Retry-After`.
+
+Asana allows 150 requests a minute on a free plan and 1,500 on a paid one, and 60 a minute for search. Tell cyber-asana which you have:
+
+```sh
+export ASANA_PLAN=paid                 # free (default) or paid
+export ASANA_RATE_LIMIT_PER_MINUTE=300 # optional: set the budget yourself
+```
+
+The default budget is 80% of the limit (120 free, 1,200 paid, 48 for search), so another tool on the same token has some room. An unset or unrecognised `ASANA_PLAN` counts as `free`. `ASANA_RATE_LIMIT_PER_MINUTE` must be a positive whole number and replaces the plan's budget; search keeps its own.
+
 ## Agent skills
 
 `cyber-asana` ships workflow skills under [`packages/cyber-asana/skills/`](https://github.com/cyberuni/cyber-asana/tree/main/packages/cyber-asana/skills) for Cursor, Claude Code, and other agents. **Start here** — skills drive the CLI (and MCP tools when you have opted into the server), encode how to resolve projects from repo config, and common workflows (standups, sprint reports, task creation).
@@ -227,7 +240,7 @@ cyber-asana/                    # the package as installed
 
 `plugin.json` follows the [Agent Plugins specification](https://github.com/agentplugins/agent-plugins-spec) v1.0.0, whose manifest schema is closed: components are discovered from the fixed `skills/` location rather than declared inline. The plugin ships no `mcp.json`; it registers no MCP server. Clients that predate the spec read their own manifest from the vendor directory beside it.
 
-The `envValue` guard in `src/env.ts` still treats a value that is exactly an unexpanded reference, like `${ASANA_ACCESS_TOKEN}`, as unset rather than as a credential. It covers MCP configs this repo does not author, where a host that cannot expand a reference forwards its text verbatim — Claude Code [does so when the variable is unset and has no default](https://code.claude.com/docs/en/mcp#environment-variable-expansion-in-mcp-json). Without it the placeholder would outrank the `ASANA_TOKEN` fallback and turn a missing token into a `401`.
+The `envValue` guard in `src/platform/env.ts` still treats a value that is exactly an unexpanded reference, like `${ASANA_ACCESS_TOKEN}`, as unset rather than as a credential. It covers MCP configs this repo does not author, where a host that cannot expand a reference forwards its text verbatim — Claude Code [does so when the variable is unset and has no default](https://code.claude.com/docs/en/mcp#environment-variable-expansion-in-mcp-json). Without it the placeholder would outrank the `ASANA_TOKEN` fallback and turn a missing token into a `401`.
 
 Sources live under `packages/cyber-asana/`. Root `plugin.json` is the canonical manifest; the vendor manifests and `com.github.copilot/` are derived from it by `pnpm plugin:build`, and `pnpm version` carries the package version into all of them.
 
@@ -536,7 +549,7 @@ Notable parameters:
 - `asana_custom_field_list_for_project` — the fields actually attached to one project, with their enum options. Narrower than `asana_custom_field_list`, and the right lookup before writing `custom_fields`: Asana rejects a payload naming a field the project does not have. Same shape for `_for_portfolio`, `_for_goal`, `_for_team`
 - `asana_url_parse` — local URL parsing; use `workspace_gid` + `project_gid` for create; `list_view_gid` is not a section GID
 
-Per-tool parameter schemas live in `src/<domain>/mcp.ts` (e.g. `src/tasks/mcp.ts`) and [`src/url-mcp.ts`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/src/url-mcp.ts). MCP hosts also expose tool schemas at runtime when the server is connected.
+Per-tool parameter schemas live in `src/<domain>/mcp.ts` (e.g. `src/tasks/mcp.ts`) and [`src/url/mcp.ts`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/src/url/mcp.ts). MCP hosts also expose tool schemas at runtime when the server is connected.
 
 For task creation workflows, use the `/cyber-asana:create-task` command or the [`asana`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana/SKILL.md) skill ([Agent skills](#agent-skills)).
 

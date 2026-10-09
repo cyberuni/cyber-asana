@@ -1,7 +1,7 @@
 import { Command } from 'commander'
-import { output, printFields, printNextSteps } from '../output.js'
+import { output, printFields, printNextSteps } from '../platform/cli/output.js'
 import type { RuleApi, RuleTriggerAck, RuleTriggerFields } from './api.js'
-import { triggerRule } from './api.js'
+import { triggerRule } from './default.js'
 
 function resolveRuleApi(api?: RuleApi | (() => RuleApi)): RuleApi {
 	if (typeof api === 'function') return api()

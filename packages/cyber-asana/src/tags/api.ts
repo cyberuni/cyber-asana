@@ -1,7 +1,6 @@
-import { createClient } from '../client.js'
-import type { PaginationOptions } from '../pagination.js'
-import type { ReadOptions } from '../read-options.js'
-import { createAsanaTagGateway, type TagGateway, type TagWriteFields } from './gateway.js'
+import type { PaginationOptions } from '../platform/pagination.js'
+import type { ReadOptions } from '../platform/read-options.js'
+import type { TagGateway, TagWriteFields } from './gateway.js'
 import type { TagCreateFields } from './write-options.js'
 
 export type TagApi = ReturnType<typeof createTagApi>
@@ -36,44 +35,4 @@ export function createTagApi(gateway: TagGateway) {
 			return gateway.removeTagFromTask(taskGid, tagGid)
 		},
 	}
-}
-
-function defaultTagApi() {
-	return createTagApi(createAsanaTagGateway(createClient()))
-}
-
-export async function listTags(workspaceGid: string, opts?: PaginationOptions) {
-	return defaultTagApi().listTags(workspaceGid, opts)
-}
-
-export async function getTag(tagGid: string, opts?: ReadOptions) {
-	return defaultTagApi().getTag(tagGid, opts)
-}
-
-export async function createTag(workspaceGid: string, name: string, fields?: TagCreateFields) {
-	return defaultTagApi().createTag(workspaceGid, name, fields)
-}
-
-export async function updateTag(tagGid: string, fields: TagWriteFields) {
-	return defaultTagApi().updateTag(tagGid, fields)
-}
-
-export async function deleteTag(tagGid: string) {
-	return defaultTagApi().deleteTag(tagGid)
-}
-
-export async function listTagsForTask(taskGid: string, opts?: PaginationOptions) {
-	return defaultTagApi().listTagsForTask(taskGid, opts)
-}
-
-export async function listTasksForTag(tagGid: string, opts?: PaginationOptions) {
-	return defaultTagApi().listTasksForTag(tagGid, opts)
-}
-
-export async function addTagToTask(taskGid: string, tagGid: string) {
-	return defaultTagApi().addTagToTask(taskGid, tagGid)
-}
-
-export async function removeTagFromTask(taskGid: string, tagGid: string) {
-	return defaultTagApi().removeTagFromTask(taskGid, tagGid)
 }

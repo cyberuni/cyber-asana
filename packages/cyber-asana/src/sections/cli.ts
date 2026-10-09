@@ -8,9 +8,9 @@ import {
 	printNextPageHint,
 	readOptionsFromCli,
 	requiredGid,
-} from '../cli-options.js'
-import { deleteIdempotently, deleteMessage } from '../idempotent-delete.js'
-import { output, printCountSummary, printFields, printNextSteps, printTable } from '../output.js'
+} from '../platform/cli/options.js'
+import { output, printCountSummary, printFields, printNextSteps, printTable } from '../platform/cli/output.js'
+import { deleteIdempotently, deleteMessage } from '../platform/idempotent-delete.js'
 import type { SectionApi } from './api.js'
 import {
 	addTaskToSection,
@@ -20,7 +20,7 @@ import {
 	listSections,
 	moveSection,
 	updateSection,
-} from './api.js'
+} from './default.js'
 
 type Section = { gid: string; name: string }
 

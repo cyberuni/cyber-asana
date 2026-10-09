@@ -8,10 +8,10 @@ import {
 	paginationOptionsFromCli,
 	printNextPageHint,
 	requiredGid,
-} from '../cli-options.js'
-import { output, printCountSummary, printNextSteps, printTable } from '../output.js'
+} from '../platform/cli/options.js'
+import { output, printCountSummary, printNextSteps, printTable } from '../platform/cli/output.js'
 import type { AiStudioApi } from './api.js'
-import { listAiStudioRuns, listAiStudioSeats } from './api.js'
+import { listAiStudioRuns, listAiStudioSeats } from './default.js'
 import { AI_STUDIO_SEAT_FILTER_STATES, type AiStudioSeatFilterState } from './gateway.js'
 
 type Ref = { gid?: string; name?: string } | null | undefined

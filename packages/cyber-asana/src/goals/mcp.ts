@@ -1,8 +1,8 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import { paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
+import { paginationOptions, paginationParams, readOptions, readParams } from '../platform/mcp/options.js'
 import type { GoalApi } from './api.js'
-import { createGoal, deleteGoal, getGoal, listGoals, updateGoal } from './api.js'
+import { createGoal, deleteGoal, getGoal, listGoals, updateGoal } from './default.js'
 import { buildGoalCreateFields, buildGoalUpdateFields } from './write-options.js'
 
 function resolveGoalApi(api?: GoalApi | (() => GoalApi)): GoalApi {

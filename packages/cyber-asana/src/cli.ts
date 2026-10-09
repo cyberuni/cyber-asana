@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 import { Command } from 'commander'
 import { defaultAmbientDeps, ensureStoredCredential } from './auth/ambient.js'
-import { exitCodeFor, renderCliError } from './cli-error.js'
-import { installUsageErrors, isCleanCommanderExit } from './cli-usage.js'
-import { setAmbientToken, setTokenOverride } from './client.js'
 import { createRuntimeContext, type RuntimeContext, registerCliCommands } from './composition.js'
-import { runDefaultCommand } from './default-command.js'
-import { envValue } from './env.js'
-import { selectFormat } from './output.js'
-import { getMe } from './users/api.js'
+import { runDefaultCommand } from './platform/cli/default-command.js'
+import { exitCodeFor, renderCliError } from './platform/cli/error.js'
+import { selectFormat } from './platform/cli/output.js'
+import { installUsageErrors, isCleanCommanderExit } from './platform/cli/usage.js'
+import { setAmbientToken, setTokenOverride } from './platform/client.js'
+import { envValue } from './platform/env.js'
+import { getMe } from './users/default.js'
 import { VERSION } from './version.js'
 
 const program = new Command()

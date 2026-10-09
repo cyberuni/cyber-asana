@@ -9,12 +9,19 @@ import {
 	printNextPageHint,
 	readOptionsFromCli,
 	requiredGid,
-} from '../cli-options.js'
-import { deleteIdempotently, deleteMessage } from '../idempotent-delete.js'
-import { output, printCountSummary, printFields, printNextSteps, printSummary, printTable } from '../output.js'
-import { isFull, truncate } from '../truncate.js'
+} from '../platform/cli/options.js'
+import {
+	output,
+	printCountSummary,
+	printFields,
+	printNextSteps,
+	printSummary,
+	printTable,
+} from '../platform/cli/output.js'
+import { deleteIdempotently, deleteMessage } from '../platform/idempotent-delete.js'
+import { isFull, truncate } from '../platform/truncate.js'
 import type { StatusApi, StatusOverview, StatusOverviewEntry, StatusOverviewParentType } from './api.js'
-import { createStatus, deleteStatus, getStatus, getStatusOverview, listStatuses } from './api.js'
+import { createStatus, deleteStatus, getStatus, getStatusOverview, listStatuses } from './default.js'
 
 type Status = { gid: string; status_type?: string; title?: string; text?: string; created_at?: string }
 

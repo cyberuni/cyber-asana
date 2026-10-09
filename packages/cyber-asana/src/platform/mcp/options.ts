@@ -1,0 +1,43 @@
+import { z } from 'zod'
+import type { ReadOptions } from '../read-options.js'
+
+export const paginationParams = {
+	limit: z.number().int().min(1).max(100).optional().describe('Results per page, from 1 to 100'),
+	offset: z.string().optional().describe('Offset token returned by a previous paginated response'),
+	opt_fields: z.string().optional().describe('Comma-separated optional Asana fields to include'),
+	fetch_all: z.boolean().optional().describe('Fetch all pages up to max_pages'),
+	max_pages: z.number().int().min(1).optional().describe('Maximum pages to fetch when fetch_all is true'),
+}
+
+export function paginationOptions(params: {
+	limit?: number
+	offset?: string
+	opt_fields?: string
+	fetch_all?: boolean
+	max_pages?: number
+}) {
+	return {
+		limit: params.limit,
+		offset: params.offset,
+		optFields: params.opt_fields,
+		fetchAll: params.fetch_all,
+		maxPages: params.max_pages,
+	}
+}
+
+/** `opt_fields` for a singular `get` tool — the read-side twin of `paginationParams`. */
+export const readParams = {
+	opt_fields: paginationParams.opt_fields,
+}
+
+export function readOptions(params: { opt_fields?: string }): ReadOptions | undefined {
+	return params.opt_fields ? { optFields: params.opt_fields } : undefined
+}
+
+/** Asana's `custom_type` list filter: a custom type GID, or an empty string for objects with none. */
+export function customTypeParam(objects: string) {
+	return z
+		.string()
+		.optional()
+		.describe(`Only ${objects} of this custom type GID; an empty string selects ${objects} with no custom type`)
+}

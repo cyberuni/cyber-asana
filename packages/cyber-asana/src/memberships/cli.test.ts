@@ -5,8 +5,8 @@ import type { MembershipApi } from './api.js'
 const createMembershipMock = vi.fn()
 const updateMembershipMock = vi.fn()
 
-vi.mock('./api.js', async () => {
-	const actual = await vi.importActual<typeof import('./api.js')>('./api.js')
+vi.mock('./default.js', async () => {
+	const actual = await vi.importActual<typeof import('./default.js')>('./default.js')
 	return {
 		...actual,
 		createMembership: createMembershipMock,

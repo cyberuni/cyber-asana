@@ -1,6 +1,6 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import { paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
+import { paginationOptions, paginationParams, readOptions, readParams } from '../platform/mcp/options.js'
 import type { SectionApi } from './api.js'
 import {
 	addTaskToSection,
@@ -10,7 +10,7 @@ import {
 	listSections,
 	moveSection,
 	updateSection,
-} from './api.js'
+} from './default.js'
 
 function resolveSectionApi(api?: SectionApi | (() => SectionApi)): SectionApi {
 	if (typeof api === 'function') return api()

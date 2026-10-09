@@ -7,8 +7,8 @@ const listForPortfolioMock = vi.fn()
 const listForGoalMock = vi.fn()
 const listForTeamMock = vi.fn()
 
-vi.mock('./api.js', async () => {
-	const actual = await vi.importActual<typeof import('./api.js')>('./api.js')
+vi.mock('./default.js', async () => {
+	const actual = await vi.importActual<typeof import('./default.js')>('./default.js')
 	return {
 		...actual,
 		listCustomFields: listCustomFieldsMock,

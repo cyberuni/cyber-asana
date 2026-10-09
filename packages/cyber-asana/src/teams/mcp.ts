@@ -1,8 +1,8 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import { paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
+import { paginationOptions, paginationParams, readOptions, readParams } from '../platform/mcp/options.js'
 import type { TeamApi } from './api.js'
-import { getTeam, listTeams } from './api.js'
+import { getTeam, listTeams } from './default.js'
 
 function resolveTeamApi(api?: TeamApi | (() => TeamApi)): TeamApi {
 	if (typeof api === 'function') return api()

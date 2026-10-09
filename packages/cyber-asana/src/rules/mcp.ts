@@ -1,7 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import type { RuleApi, RuleTriggerFields } from './api.js'
-import { triggerRule } from './api.js'
+import { triggerRule } from './default.js'
 
 function resolveRuleApi(api?: RuleApi | (() => RuleApi)): RuleApi {
 	if (typeof api === 'function') return api()

@@ -1,17 +1,10 @@
 import Asana from 'asana'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { buildMcpToolErrorBody } from '../mcp-error.js'
-import {
-	createStory,
-	createStoryApi,
-	deleteStory,
-	getStory,
-	interpolateTemplate,
-	listStories,
-	updateStory,
-} from './api.js'
+import { buildErrorBody } from '../platform/error-body.js'
+import { createStoryApi, interpolateTemplate } from './api.js'
+import { createStory, deleteStory, getStory, listStories, updateStory } from './default.js'
 
-vi.mock('../client.js', () => ({
+vi.mock('../platform/client.js', () => ({
 	createClient: () => ({}),
 }))
 
@@ -129,7 +122,7 @@ describe('stories/api single-story operations', () => {
 
 		const error = await updateStory('123', { text: 'Corrected' }).catch((thrown: unknown) => thrown)
 
-		expect(buildMcpToolErrorBody(error).error).toMatchObject({
+		expect(buildErrorBody(error).error).toMatchObject({
 			status: 403,
 			hint: expect.stringContaining('you authored'),
 		})
@@ -140,7 +133,7 @@ describe('stories/api single-story operations', () => {
 
 		const error = await deleteStory('123').catch((thrown: unknown) => thrown)
 
-		expect(buildMcpToolErrorBody(error).error).toMatchObject({
+		expect(buildErrorBody(error).error).toMatchObject({
 			status: 403,
 			hint: expect.stringContaining('you authored'),
 		})
@@ -153,7 +146,7 @@ describe('stories/api single-story operations', () => {
 
 		const error = await deleteStory('123').catch((thrown: unknown) => thrown)
 
-		expect(buildMcpToolErrorBody(error).error.hint).toBeUndefined()
+		expect(buildErrorBody(error).error.hint).toBeUndefined()
 	})
 })
 

@@ -1,6 +1,13 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import { customTypeParam, paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
+import {
+	customTypeParam,
+	paginationOptions,
+	paginationParams,
+	readOptions,
+	readParams,
+} from '../platform/mcp/options.js'
+import { type ProjectApi, renderProjectMarkdown } from './api.js'
 import {
 	createProject,
 	deleteProject,
@@ -8,11 +15,9 @@ import {
 	getProject,
 	getProjectTaskCounts,
 	listProjects,
-	type ProjectApi,
-	renderProjectMarkdown,
 	searchProjects,
 	updateProject,
-} from './api.js'
+} from './default.js'
 import { buildProjectCreateFields, buildProjectUpdateFields } from './write-options.js'
 
 function resolveProjectApi(api?: ProjectApi | (() => ProjectApi)): ProjectApi {

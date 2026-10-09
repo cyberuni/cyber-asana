@@ -1,8 +1,7 @@
-import { createClient } from '../client.js'
-import { buildMcpToolErrorBody } from '../mcp-error.js'
-import type { PaginationOptions } from '../pagination.js'
-import type { ReadOptions } from '../read-options.js'
-import { createAsanaStoryGateway, type StoryGateway, type TaskTemplateData } from './gateway.js'
+import { buildErrorBody } from '../platform/error-body.js'
+import type { PaginationOptions } from '../platform/pagination.js'
+import type { ReadOptions } from '../platform/read-options.js'
+import type { StoryGateway, TaskTemplateData } from './gateway.js'
 import {
 	buildStoryCreateFields,
 	buildStoryUpdateFields,
@@ -35,7 +34,7 @@ const STORY_PERMISSION_HINT =
 	'Asana only allows editing or deleting comment stories you authored. System stories (assignee changed, due date set) are immutable.'
 
 function annotateStoryPermissionError(error: unknown): never {
-	if (buildMcpToolErrorBody(error).error.status === 403 && error && typeof error === 'object') {
+	if (buildErrorBody(error).error.status === 403 && error && typeof error === 'object') {
 		const annotated = error as { hint?: string }
 		annotated.hint ??= STORY_PERMISSION_HINT
 	}
@@ -93,32 +92,4 @@ export function createStoryApi(gateway: StoryGateway) {
 			return gateway.getTaskTemplateData(taskGid)
 		},
 	}
-}
-
-function defaultStoryApi() {
-	return createStoryApi(createAsanaStoryGateway(createClient()))
-}
-
-export async function listStories(taskGid: string, opts?: PaginationOptions) {
-	return defaultStoryApi().listStories(taskGid, opts)
-}
-
-export async function createStory(taskGid: string, fields: StoryCreateFields) {
-	return defaultStoryApi().createStory(taskGid, fields)
-}
-
-export async function getStory(storyGid: string, opts?: ReadOptions) {
-	return defaultStoryApi().getStory(storyGid, opts)
-}
-
-export async function updateStory(storyGid: string, fields: StoryUpdateFields) {
-	return defaultStoryApi().updateStory(storyGid, fields)
-}
-
-export async function deleteStory(storyGid: string) {
-	return defaultStoryApi().deleteStory(storyGid)
-}
-
-export async function getTaskTemplateData(taskGid: string) {
-	return defaultStoryApi().getTaskTemplateData(taskGid)
 }

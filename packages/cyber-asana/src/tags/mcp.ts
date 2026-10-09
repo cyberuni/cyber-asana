@@ -1,7 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import { deleteIdempotently } from '../idempotent-delete.js'
-import { paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
+import { deleteIdempotently } from '../platform/idempotent-delete.js'
+import { paginationOptions, paginationParams, readOptions, readParams } from '../platform/mcp/options.js'
 import type { TagApi } from './api.js'
 import {
 	addTagToTask,
@@ -13,7 +13,7 @@ import {
 	listTasksForTag,
 	removeTagFromTask,
 	updateTag,
-} from './api.js'
+} from './default.js'
 import { buildTagUpdateFields, parseFollowerGids } from './write-options.js'
 
 function resolveTagApi(api?: TagApi | (() => TagApi)): TagApi {

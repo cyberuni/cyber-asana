@@ -1,9 +1,8 @@
 import { createReadStream, statSync } from 'node:fs'
-import { createClient } from '../client.js'
-import type { PaginationOptions } from '../pagination.js'
-import type { ReadOptions } from '../read-options.js'
+import type { PaginationOptions } from '../platform/pagination.js'
+import type { ReadOptions } from '../platform/read-options.js'
 import { type AttachmentCreateFields, buildAttachmentCreateInput } from './create-options.js'
-import { type AttachmentGateway, createAsanaAttachmentGateway } from './gateway.js'
+import type { AttachmentGateway } from './gateway.js'
 
 export type AttachmentApi = ReturnType<typeof createAttachmentApi>
 
@@ -46,24 +45,4 @@ export function createAttachmentApi(gateway: AttachmentGateway) {
 			return gateway.deleteAttachment(attachmentGid)
 		},
 	}
-}
-
-function defaultAttachmentApi() {
-	return createAttachmentApi(createAsanaAttachmentGateway(createClient()))
-}
-
-export async function listAttachments(parentGid: string, opts?: PaginationOptions) {
-	return defaultAttachmentApi().listAttachments(parentGid, opts)
-}
-
-export async function getAttachment(attachmentGid: string, opts?: ReadOptions) {
-	return defaultAttachmentApi().getAttachment(attachmentGid, opts)
-}
-
-export async function createAttachment(parentGid: string, fields: AttachmentCreateFields) {
-	return defaultAttachmentApi().createAttachment(parentGid, fields)
-}
-
-export async function deleteAttachment(attachmentGid: string) {
-	return defaultAttachmentApi().deleteAttachment(attachmentGid)
 }

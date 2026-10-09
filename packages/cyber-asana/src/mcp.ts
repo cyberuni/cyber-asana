@@ -1,3 +1,3 @@
-import { startMcpServer } from './mcp-server.js'
+import { startMcpServer } from './platform/mcp/server.js'
 
 await startMcpServer()

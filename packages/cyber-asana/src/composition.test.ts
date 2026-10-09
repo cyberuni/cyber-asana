@@ -22,7 +22,7 @@ const createAsanaTeamGatewayMock = vi.fn()
 const createAsanaUserGatewayMock = vi.fn()
 const createAsanaWorkspaceGatewayMock = vi.fn()
 
-vi.mock('./client.js', () => ({
+vi.mock('./platform/client.js', () => ({
 	createClient: createClientMock,
 }))
 

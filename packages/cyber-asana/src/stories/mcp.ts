@@ -1,17 +1,10 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import { deleteIdempotently } from '../idempotent-delete.js'
-import { paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
+import { deleteIdempotently } from '../platform/idempotent-delete.js'
+import { paginationOptions, paginationParams, readOptions, readParams } from '../platform/mcp/options.js'
 import type { StoryApi } from './api.js'
-import {
-	createStory,
-	deleteStory,
-	getStory,
-	getTaskTemplateData,
-	interpolateTemplate,
-	listStories,
-	updateStory,
-} from './api.js'
+import { interpolateTemplate } from './api.js'
+import { createStory, deleteStory, getStory, getTaskTemplateData, listStories, updateStory } from './default.js'
 import { STICKER_NAMES } from './write-options.js'
 
 function resolveStoryApi(api?: StoryApi | (() => StoryApi)): StoryApi {

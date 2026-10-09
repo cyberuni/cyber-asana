@@ -14,13 +14,13 @@ const getTaskWithStoriesMock = vi.fn()
 const createSubtaskMock = vi.fn()
 const listTagsMock = vi.fn()
 
-vi.mock('../tags/api.js', async () => {
-	const actual = await vi.importActual<typeof import('../tags/api.js')>('../tags/api.js')
+vi.mock('../tags/default.js', async () => {
+	const actual = await vi.importActual<typeof import('../tags/default.js')>('../tags/default.js')
 	return { ...actual, listTags: listTagsMock }
 })
 
-vi.mock('./api.js', async () => {
-	const actual = await vi.importActual<typeof import('./api.js')>('./api.js')
+vi.mock('./default.js', async () => {
+	const actual = await vi.importActual<typeof import('./default.js')>('./default.js')
 	return {
 		...actual,
 		createTask: createTaskMock,

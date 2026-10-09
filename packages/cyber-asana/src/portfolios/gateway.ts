@@ -4,8 +4,8 @@ import {
 	type ListResult,
 	type PaginationOptions,
 	toAsanaPaginationOptions,
-} from '../pagination.js'
-import { type ReadOptions, toAsanaReadOptions } from '../read-options.js'
+} from '../platform/pagination.js'
+import { type ReadOptions, toAsanaReadOptions } from '../platform/read-options.js'
 
 /** `customType` filters by custom type GID; an empty string selects portfolios with no custom type. */
 export type PortfolioListOptions = PaginationOptions & { owner?: string; customType?: string }

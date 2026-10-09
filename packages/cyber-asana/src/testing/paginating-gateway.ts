@@ -1,5 +1,5 @@
 import { vi } from 'vitest'
-import type { ListResult, PaginationOptions } from '../pagination.js'
+import type { ListResult, PaginationOptions } from '../platform/pagination.js'
 
 export function paginatingListResult<T>(pages: T[][], opts?: PaginationOptions): ListResult<T> {
 	const pageOne = pages[0] ?? []

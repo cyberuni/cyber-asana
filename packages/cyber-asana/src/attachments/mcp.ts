@@ -1,9 +1,9 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import { deleteIdempotently } from '../idempotent-delete.js'
-import { paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
+import { deleteIdempotently } from '../platform/idempotent-delete.js'
+import { paginationOptions, paginationParams, readOptions, readParams } from '../platform/mcp/options.js'
 import type { AttachmentApi } from './api.js'
-import { createAttachment, deleteAttachment, getAttachment, listAttachments } from './api.js'
+import { createAttachment, deleteAttachment, getAttachment, listAttachments } from './default.js'
 
 function resolveAttachmentApi(api?: AttachmentApi | (() => AttachmentApi)): AttachmentApi {
 	if (typeof api === 'function') return api()

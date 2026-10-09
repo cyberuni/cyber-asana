@@ -1,3 +1,272 @@
+import 'asana'
+
+/**
+ * Augments the `asana` SDK, whose generated declarations type every request and
+ * response as `any`. Each shape here is pinned by `asana.learn.test.ts`.
+ *
+ * The block below is migrated in slices: a type moves out of the commented
+ * legacy sketch at the bottom only together with the learning test that proves it.
+ */
+declare module 'asana' {
+	interface AsanaResource {
+		gid: string
+		name: string
+		resource_type: string
+	}
+
+	interface AsanaResponse<T> {
+		data: T
+	}
+
+	interface OptionalFields {
+		opt_fields?: string | undefined
+	}
+
+	interface PaginationOptions extends OptionalFields {
+		limit?: number | undefined
+		offset?: string | undefined
+	}
+
+	interface NextPage {
+		offset: string
+		path: string
+		uri: string
+	}
+
+	/**
+	 * What list endpoints resolve to: the SDK's `Collection` class, whose
+	 * declaration is `export =` and cannot be merged, so this mirrors its runtime shape.
+	 * `nextPage()` resolves to `{ data: null }` once the pages run out.
+	 */
+	interface AsanaCollection<T> {
+		data: T[]
+		_response: { data: T[]; next_page: NextPage | null }
+		nextPage(): Promise<AsanaCollection<T> | { data: null }>
+	}
+
+	interface Task extends AsanaResource {
+		resource_type: 'task'
+		completed?: boolean | undefined
+		completed_at?: string | undefined
+		created_at?: string | undefined
+		due_at?: string | undefined
+		due_on?: string | undefined
+		html_notes?: string | undefined
+		modified_at?: string | undefined
+		notes?: string | undefined
+		permalink_url?: string | undefined
+		resource_subtype?: string | undefined
+		start_on?: string | undefined
+		assignee?: User | undefined
+		projects?: Project[] | undefined
+		tags?: Tag[] | undefined
+		workspace?: Workspace | undefined
+	}
+
+	interface User extends AsanaResource {
+		resource_type: 'user'
+		email?: string | undefined
+		workspaces?: Workspace[] | undefined
+	}
+
+	interface Project extends AsanaResource {
+		resource_type: 'project'
+		archived?: boolean | undefined
+		color?: string | undefined
+		completed?: boolean | undefined
+		created_at?: string | undefined
+		due_on?: string | undefined
+		html_notes?: string | undefined
+		modified_at?: string | undefined
+		notes?: string | undefined
+		owner?: User | undefined
+		permalink_url?: string | undefined
+		public?: boolean | undefined
+		start_on?: string | undefined
+		workspace?: Workspace | undefined
+	}
+
+	interface Tag extends AsanaResource {
+		resource_type: 'tag'
+		color?: string | undefined
+		notes?: string | undefined
+		permalink_url?: string | undefined
+		workspace?: Workspace | undefined
+	}
+
+	interface Workspace extends AsanaResource {
+		resource_type: 'workspace'
+		email_domains?: string[] | undefined
+		is_organization?: boolean | undefined
+	}
+
+	interface Section extends AsanaResource {
+		resource_type: 'section'
+		created_at?: string | undefined
+		project?: Project | undefined
+		projects?: Project[] | undefined
+	}
+
+	/** What a delete resolves to: Asana answers `{ data: {} }`. */
+	type EmptyResponse = AsanaResponse<Record<string, never>>
+
+	interface TaskRequest {
+		name?: string | undefined
+		notes?: string | undefined
+		html_notes?: string | undefined
+		completed?: boolean | undefined
+		due_on?: string | null | undefined
+		due_at?: string | null | undefined
+		start_on?: string | null | undefined
+		start_at?: string | null | undefined
+		assignee?: string | null | undefined
+		resource_subtype?: 'default_task' | 'milestone' | 'approval' | undefined
+		custom_fields?: Record<string, string | number | string[] | null> | undefined
+		followers?: string[] | undefined
+		projects?: string[] | undefined
+		tags?: string[] | undefined
+		workspace?: string | undefined
+	}
+
+	interface SectionRequest {
+		name: string
+		insert_before?: string | undefined
+		insert_after?: string | undefined
+	}
+
+	type StickerName =
+		| 'green_checkmark'
+		| 'people_dancing'
+		| 'dancing_unicorn'
+		| 'heart'
+		| 'party_popper'
+		| 'people_waving_flags'
+		| 'splashing_narwhal'
+		| 'trophy'
+		| 'yeti_riding_unicorn'
+		| 'celebrating_people'
+		| 'determined_climbers'
+		| 'phoenix_spreading_love'
+
+	/** Unlike the other resources a story has no `name`, so it stands apart from AsanaResource. */
+	interface Story {
+		gid: string
+		resource_type: 'story'
+		created_at?: string | undefined
+		created_by?: User | undefined
+		html_text?: string | undefined
+		is_editable?: boolean | undefined
+		is_edited?: boolean | undefined
+		is_pinned?: boolean | undefined
+		resource_subtype?: string | undefined
+		sticker_name?: StickerName | undefined
+		text?: string | undefined
+		type?: 'comment' | 'system' | undefined
+	}
+
+	interface StoryRequest {
+		text?: string | undefined
+		html_text?: string | undefined
+		is_pinned?: boolean | undefined
+		sticker_name?: StickerName | undefined
+	}
+
+	interface Attachment extends AsanaResource {
+		resource_type: 'attachment'
+		created_at?: string | undefined
+		download_url?: string | undefined
+		host?: string | undefined
+		parent?: AsanaResource | undefined
+		permanent_url?: string | undefined
+		resource_subtype?: string | undefined
+		size?: number | undefined
+		view_url?: string | undefined
+	}
+
+	interface AttachmentRequest extends OptionalFields {
+		parent: string
+		name?: string | undefined
+		url?: string | undefined
+		file?: string | undefined
+		resource_subtype?: 'external' | 'asana' | undefined
+		connect_to_app?: boolean | undefined
+	}
+
+	interface StoriesApi {
+		createStoryForTask(
+			body: { data: StoryRequest },
+			task_gid: string,
+			opts?: OptionalFields,
+		): Promise<AsanaResponse<Story>>
+		getStory(story_gid: string, opts?: OptionalFields): Promise<AsanaResponse<Story>>
+		getStoriesForTask(
+			task_gid: string,
+			opts?: PaginationOptions & {
+				created_after?: string | undefined
+				resource_subtype?: string | undefined
+				sort_ascending?: boolean | undefined
+			},
+		): Promise<AsanaCollection<Story>>
+		updateStory(body: { data: StoryRequest }, story_gid: string, opts?: OptionalFields): Promise<AsanaResponse<Story>>
+		deleteStory(story_gid: string): Promise<EmptyResponse>
+	}
+
+	interface AttachmentsApi {
+		createAttachmentForObject(opts: AttachmentRequest): Promise<AsanaResponse<Attachment>>
+		getAttachment(attachment_gid: string, opts?: OptionalFields): Promise<AsanaResponse<Attachment>>
+		getAttachmentsForObject(parent: string, opts?: PaginationOptions): Promise<AsanaCollection<Attachment>>
+		deleteAttachment(attachment_gid: string): Promise<EmptyResponse>
+	}
+
+	interface TasksApi {
+		createTask(body: { data: TaskRequest }, opts?: OptionalFields): Promise<AsanaResponse<Task>>
+		updateTask(body: { data: TaskRequest }, task_gid: string, opts?: OptionalFields): Promise<AsanaResponse<Task>>
+		deleteTask(task_gid: string): Promise<EmptyResponse>
+		getTask(task_gid: string, opts?: OptionalFields): Promise<AsanaResponse<Task>>
+		getTasksForProject(
+			project_gid: string,
+			opts?: PaginationOptions & { completed_since?: string | undefined },
+		): Promise<AsanaCollection<Task>>
+	}
+
+	interface SectionsApi {
+		createSectionForProject(
+			project_gid: string,
+			opts: { body: { data: SectionRequest }; opt_fields?: string | undefined },
+		): Promise<AsanaResponse<Section>>
+		deleteSection(section_gid: string): Promise<EmptyResponse>
+		getSection(section_gid: string, opts?: OptionalFields): Promise<AsanaResponse<Section>>
+		getSectionsForProject(project_gid: string, opts?: PaginationOptions): Promise<AsanaCollection<Section>>
+	}
+
+	interface UsersApi {
+		getUser(user_gid: string, opts?: OptionalFields & { workspace?: string | undefined }): Promise<AsanaResponse<User>>
+		// The SDK passes only `offset` and `opt_fields` here; a `limit` would be dropped.
+		getUsersForWorkspace(
+			workspace_gid: string,
+			opts?: OptionalFields & { offset?: string | undefined },
+		): Promise<AsanaCollection<User>>
+	}
+
+	interface WorkspacesApi {
+		getWorkspace(workspace_gid: string, opts?: OptionalFields): Promise<AsanaResponse<Workspace>>
+		getWorkspaces(opts?: PaginationOptions): Promise<AsanaCollection<Workspace>>
+	}
+
+	interface TagsApi {
+		getTag(tag_gid: string, opts?: OptionalFields): Promise<AsanaResponse<Tag>>
+		getTagsForWorkspace(workspace_gid: string, opts?: PaginationOptions): Promise<AsanaCollection<Tag>>
+	}
+
+	interface ProjectsApi {
+		getProject(project_gid: string, opts?: OptionalFields): Promise<AsanaResponse<Project>>
+		getProjectsForWorkspace(
+			workspace_gid: string,
+			opts?: PaginationOptions & { archived?: boolean | undefined },
+		): Promise<AsanaCollection<Project>>
+	}
+}
+
 // declare module 'asana' {
 // 	interface Authentication {
 // 		type: string

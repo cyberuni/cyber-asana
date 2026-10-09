@@ -1,7 +1,6 @@
-import { createClient } from '../client.js'
-import type { Job } from '../job-polling.js'
-import type { ReadOptions } from '../read-options.js'
-import { createAsanaJobGateway, type JobGateway } from './gateway.js'
+import type { Job } from '../platform/job-polling.js'
+import type { ReadOptions } from '../platform/read-options.js'
+import type { JobGateway } from './gateway.js'
 
 export type { Job }
 
@@ -13,12 +12,4 @@ export function createJobApi(gateway: JobGateway) {
 			return gateway.getJob(jobGid, opts)
 		},
 	}
-}
-
-function defaultJobApi() {
-	return createJobApi(createAsanaJobGateway(createClient()))
-}
-
-export async function getJob(jobGid: string, opts?: ReadOptions) {
-	return defaultJobApi().getJob(jobGid, opts)
 }

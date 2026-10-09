@@ -4,7 +4,7 @@ import {
 	type ListResult,
 	type PaginationOptions,
 	toAsanaPaginationOptions,
-} from '../pagination.js'
+} from '../platform/pagination.js'
 
 /**
  * Filters for the unified memberships endpoint. `parent` is a goal, project,

@@ -9,21 +9,20 @@ import {
 	printNextPageHint,
 	readOptionsFromCli,
 	requiredGid,
-} from '../cli-options.js'
-import type { Job } from '../job-polling.js'
-import { DEFAULT_JOB_POLL_INTERVAL_MS } from '../job-polling.js'
-import { output, printCountSummary, printFields, printNextSteps, printTable } from '../output.js'
-import { isFull, truncate } from '../truncate.js'
+} from '../platform/cli/options.js'
+import { output, printCountSummary, printFields, printNextSteps, printTable } from '../platform/cli/output.js'
+import type { Job } from '../platform/job-polling.js'
+import { DEFAULT_JOB_POLL_INTERVAL_MS } from '../platform/job-polling.js'
+import { isFull, truncate } from '../platform/truncate.js'
 import type { ProjectTemplateApi } from './api.js'
+import { DEFAULT_INSTANTIATE_TIMEOUT_SECONDS, newProjectOf } from './api.js'
 import {
-	DEFAULT_INSTANTIATE_TIMEOUT_SECONDS,
 	getProjectTemplate,
 	instantiateProject,
 	instantiateProjectAndWait,
 	listProjectTemplates,
 	listProjectTemplatesForTeam,
-	newProjectOf,
-} from './api.js'
+} from './default.js'
 import type { ProjectTemplatePrivacySetting, RequestedDate, RequestedRole } from './gateway.js'
 
 type ProjectTemplate = {

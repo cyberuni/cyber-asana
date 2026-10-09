@@ -1,5 +1,5 @@
-import type { RepoConventions } from '../conventions.js'
-import type { TaskSectionPlacement } from '../repo-config.js'
+import type { RepoConventions } from '../config/conventions.js'
+import type { TaskSectionPlacement } from '../config/repo-config.js'
 import type { CreateTaskFields, UpdateTaskFields } from './api.js'
 
 type BuildTaskWriteInput = {

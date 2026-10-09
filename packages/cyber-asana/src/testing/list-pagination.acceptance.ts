@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest'
-import type { PaginatedResult, PaginationOptions } from '../pagination.js'
+import type { PaginatedResult, PaginationOptions } from '../platform/pagination.js'
 
 export type ListPaginationAcceptanceDeps = {
 	list: (opts?: PaginationOptions) => Promise<unknown>

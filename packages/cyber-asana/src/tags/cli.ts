@@ -8,9 +8,9 @@ import {
 	printNextPageHint,
 	readOptionsFromCli,
 	requiredGid,
-} from '../cli-options.js'
-import { deleteIdempotently, deleteMessage } from '../idempotent-delete.js'
-import { output, printCountSummary, printFields, printNextSteps, printTable } from '../output.js'
+} from '../platform/cli/options.js'
+import { output, printCountSummary, printFields, printNextSteps, printTable } from '../platform/cli/output.js'
+import { deleteIdempotently, deleteMessage } from '../platform/idempotent-delete.js'
 import type { TagApi } from './api.js'
 import {
 	addTagToTask,
@@ -22,7 +22,7 @@ import {
 	listTasksForTag,
 	removeTagFromTask,
 	updateTag,
-} from './api.js'
+} from './default.js'
 import { buildTagUpdateFields, parseFollowerGids } from './write-options.js'
 
 type Tag = { gid: string; name: string; color?: string | null }

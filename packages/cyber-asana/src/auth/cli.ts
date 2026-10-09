@@ -1,6 +1,6 @@
 import { Command } from 'commander'
-import { getTokenOverride } from '../client.js'
-import { output, printFields, printNextSteps } from '../output.js'
+import { output, printFields, printNextSteps } from '../platform/cli/output.js'
+import { getTokenOverride } from '../platform/client.js'
 import { defaultAmbientDeps, ensureStoredCredential } from './ambient.js'
 import { type Credential, maskToken, resolveCredential, type StoredCredential } from './credential.js'
 import { defaultLoginDeps, type LoginParams, performLogin } from './login.js'

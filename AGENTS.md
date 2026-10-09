@@ -20,7 +20,6 @@ When reading any `SKILL.md` file, always check whether a `SKILL.local.md` exists
 
 ### References
 
-- **`commit-work` skill** — staging, splitting, and message writing when committing
 - `npx cyber-skills@<version> governance show skill-repo-structure` — discipline section format rules
 
 ## Development Workflow
@@ -57,12 +56,14 @@ After editing `plugin.json`, `skills/`, or `commands/`, run `pnpm plugin:build` 
 
 The plugin declares **no MCP server** — no `mcp.json`, no `.mcp.json`, no `mcpServers` in any manifest; `src/plugin-manifests.test.ts` guards this. The skills drive the CLI. The MCP server is opt-in: the `init-asana` skill writes it into the client's own MCP config when the user asks (see [Why CLI + skills](apps/web/src/content/docs/reference/cli-vs-mcp.md)).
 
-When writing an MCP config entry (in `init-asana` or the docs), never put a `"${SOME_VAR}"` value in its `env` for a client that does not expand it — it arrives literally and shadows the real variable. Prefer letting the server inherit the client's environment. Claude Code's `.mcp.json` does expand `${VAR}`, but forwards the literal text when the variable is unset. `envValue` in `src/env.ts` is the guard: a value that is exactly an unexpanded reference counts as absent, so the fallback alias still applies and a missing credential reports itself as missing. Keep that guard rather than working around it per config — it is the only thing covering configs this repo does not author.
+When writing an MCP config entry (in `init-asana` or the docs), never put a `"${SOME_VAR}"` value in its `env` for a client that does not expand it — it arrives literally and shadows the real variable. Prefer letting the server inherit the client's environment. Claude Code's `.mcp.json` does expand `${VAR}`, but forwards the literal text when the variable is unset. `envValue` in `src/platform/env.ts` is the guard: a value that is exactly an unexpanded reference counts as absent, so the fallback alias still applies and a missing credential reports itself as missing. Keep that guard rather than working around it per config — it is the only thing covering configs this repo does not author.
 
 ## Commands
 
+Run these from `packages/cyber-asana`, or from the repo root as `pnpm ca <script>`. `verify`, `check` and `plugin:*` run at the root.
+
 ```
-pnpm test src/client.test.ts  # run one test file
+pnpm test src/platform/client.test.ts  # run one test file
 pnpm test                     # unit + acceptance tests
 pnpm test:system              # live API tests when env vars are set
 pnpm verify                   # typecheck + lint + test + build
@@ -74,7 +75,23 @@ pnpm dev <resource> <action>  # run CLI from source
 
 The codebase is organized by Asana resource domain rather than by technical layer. Each domain keeps its gateway, API facade, CLI bindings, and MCP registrations together so CLI commands and MCP tools share the same core operations instead of duplicating Asana SDK calls.
 
-Shared wiring lives in `src/composition.ts`, while common concerns such as client creation, pagination, option normalization, and output formatting stay in top-level support modules. Tests mirror the architecture: unit tests sit beside modules, acceptance specs exercise gateway contracts against doubles, and system tests reuse those specs against the live API.
+Shared wiring lives in `src/composition.ts`. Tests mirror the architecture: unit tests sit beside modules, acceptance specs exercise gateway contracts against doubles, and system tests reuse those specs against the live API.
+
+### Layout and dependency direction
+
+The top of `src/` names what the tool does, not how it is built:
+
+| Where | What lives there | May import |
+| --- | --- | --- |
+| `<domain>/` (`tasks/`, `projects/`, ...) and capability folders (`config/`, `url/`, `auth/`) | `api.ts` (use cases), `gateway.ts` (the port and its Asana SDK adapter), `default.ts` (library wiring), `cli.ts` and `mcp.ts` (delivery) | `platform/`, `rate-limit/`, other domains' `api`/`gateway` |
+| `platform/` | Domain-free helpers: `client`, `env`, `error-body`, `pagination`, `read-options`, `truncate`, `idempotent-delete`, `job-polling`, `toon` | itself and `rate-limit/` only |
+| `platform/cli/`, `platform/mcp/` | Output and option support for one delivery channel | `platform/` only; not each other, not domains |
+| `rate-limit/` | Pure budget, limiter and retry code | nothing outside itself |
+| `cli.ts`, `mcp.ts`, `index.ts`, `composition.ts`, `version.ts` at the root | Entry points and the composition root | anything |
+
+Dependencies point inward: delivery (`cli.ts`/`mcp.ts` and `platform/cli`, `platform/mcp`) may use a domain core, never the reverse. `src/architecture.test.ts` fails on a forbidden import. New shared code goes in `platform/` only if it knows nothing about a domain; if it names an Asana resource, it belongs in that domain's folder. A new cross-cutting capability gets its own folder shaped like a domain (`cli.ts`, `mcp.ts`, the logic) instead of a `*-cli.ts` file at the root.
+
+Each domain's `api.ts` is wiring-free: `createXApi(gateway)` takes its gateway as an argument. The standalone functions the package root exports (`listTasks`, `getProject`, ...) live in a sibling `default.ts`, which builds the gateway from `createClient()` and is re-exported from `src/index.ts`. Only `composition.ts`, `platform/client.ts` and a `default.ts` may call `createClient()`, and a domain core never imports a `default.ts`; delivery code (`cli.ts`, `mcp.ts`) may, and passes what it takes from there into the core as a dependency (see `resolveTagRefs`). Tests that stub a standalone function mock `./default.js`, not `./api.js`.
 
 ### Testing
 
@@ -87,6 +104,8 @@ Run system tests:
 ```sh
 ASANA_SYSTEM_TEST=1 ASANA_ACCESS_TOKEN=<pat> pnpm test:system
 ```
+
+To fill a project with what those suites page over (two sections, two tasks, and on the first task two comments and two link attachments), run `pnpm test:system:setup [project-gid]` in `packages/cyber-asana`. Without a project it finds or creates `cyber-asana system test` in `ASANA_WORKSPACE_GID`. It is idempotent, looks fixtures up by name, and prints the `ASANA_WORKSPACE_GID` and `ASANA_SYSTEM_TEST_*` lines to export. Paste those lines into a gitignored `.env` (in the package or the repo root): `pnpm test:system` loads it, and a variable already exported in the shell wins over the file. `ASANA_SYSTEM_TEST=1` and the token still come from the shell. Use the workspace it prints: it is the project's own, which can differ from your ambient `ASANA_WORKSPACE`.
 
 Optional env vars for specific suites:
 
@@ -108,24 +127,28 @@ Shared acceptance helpers: `src/testing/list-pagination.acceptance.ts`, `src/tes
 - **Asana SDK**: `asana` npm package v3.x — API methods return `{ data: ... }`; always unwrap to `res.data`
 - **No duplication**: CLI and MCP both call `api.ts`; never inline Asana SDK calls in cli.ts or mcp.ts
 - **Workspace GID in requests**: pass as a plain string (`workspace: workspaceGid`), not as an object (`workspace: { gid: ... }`)
-- **Task conventions**: `task_name_format`, `description_template`, and `default_tags` come only from the frontmatter of the `cyber-asana.task-conventions` reference (`packages/cyber-asana/references/`), resolved through `@cyberuni/agent-harness` layers by `loadConventions()` in `src/conventions.ts`. Never add them back to `.agents/cyber-asana.json`; that block is rejected and `config migrate-conventions` moves it
+- **Task conventions**: `task_name_format`, `description_template`, and `default_tags` come only from the frontmatter of the `cyber-asana.task-conventions` reference (`packages/cyber-asana/references/`), resolved through `@cyberuni/agent-harness` layers by `loadConventions()` in `src/config/conventions.ts`. Never add them back to `.agents/cyber-asana.json`; that block is rejected and `config migrate-conventions` moves it
+
+### Rate limiting
+
+Every Asana request goes through `callApi` on the client `createClient()` builds, which `src/rate-limit/` wraps with a per-token limiter shared by the whole process (`ASANA_PLAN` = `free` | `paid`, optional `ASANA_RATE_LIMIT_PER_MINUTE`). Gateways and domains know nothing about it; do not add retry or throttling in a gateway. `src/rate-limit/` is pure (injected clock, no SDK or domain imports); only `rate-limit-client.ts` touches the client shape, and `src/platform/client.ts` is the one place that wires it.
 
 ### Agent-friendly output
 
 The CLI and MCP follow the [10 agent-CLI principles](https://github.com/kunchenguid/axi#the-10-principles). Keep new commands consistent:
 
-- **Structured output** goes through `src/output.ts` (`output(data, readable)`); `--toon` (TOON, `src/toon.ts`) and `--json` are handled there — never branch on `process.argv` for format in a command.
+- **Structured output** goes through `src/platform/cli/output.ts` (`output(data, readable)`); `--toon` (TOON, `src/platform/toon.ts`) and `--json` are handled there — never branch on `process.argv` for format in a command.
 - **Empty states**: use `printEmpty(entity)` / `printTable(items, cols, { entity })` so an empty result names what was empty (`0 tasks found`), never `(none)` or a blank line.
-- **Truncation**: wrap large free-text fields with `truncate(value, { full: isFull() })` from `src/truncate.ts`.
-- **Aggregates & next steps**: use `printCountSummary()` / `printSummary()` and `printNextSteps()` (text-mode only) from `src/output.ts`.
+- **Truncation**: wrap large free-text fields with `truncate(value, { full: isFull() })` from `src/platform/truncate.ts`.
+- **Aggregates & next steps**: use `printCountSummary()` / `printSummary()` and `printNextSteps()` (text-mode only) from `src/platform/cli/output.ts`.
 - **Minimal default schemas**: list commands set a small default `optFields` (3–4 fields) when the user gives none.
-- **Errors & exit codes**: the top-level CLI catch uses `renderCliError` / `exitCodeFor` from `src/cli-error.ts`; throw structured Asana/Error objects, never call `process.exit` inside a command. Commander usage errors (unknown flag or subcommand) are handled by `src/cli-usage.ts` and exit `2`.
-- **Mutations**: acknowledgements go through `output(payload, readable)` so `--json`/`--toon` are honored; deletes go through `deleteIdempotently()` from `src/idempotent-delete.ts`.
+- **Errors & exit codes**: the top-level CLI catch uses `renderCliError` / `exitCodeFor` from `src/platform/cli/error.ts`; throw structured Asana/Error objects, never call `process.exit` inside a command. Commander usage errors (unknown flag or subcommand) are handled by `src/platform/cli/usage.ts` and exit `2`.
+- **Mutations**: acknowledgements go through `output(payload, readable)` so `--json`/`--toon` are honored; deletes go through `deleteIdempotently()` from `src/platform/idempotent-delete.ts`.
 - **MCP**: tools serialize JSON; TOON is applied centrally by `withMcpOutputFormat` (env `CYBER_ASANA_MCP_FORMAT=toon`). Do not re-implement formatting per tool.
 
 ### Pagination
 
-All list endpoints in `api.ts` accept `PaginationOptions` from `src/pagination.ts`:
+All list endpoints in `api.ts` accept `PaginationOptions` from `src/platform/pagination.ts`:
 
 ```ts
 type PaginationOptions = {
@@ -139,7 +162,7 @@ type PaginationOptions = {
 
 Use `toAsanaPaginationOptions(opts)` to convert to SDK params, and `collectListResponse(res, opts)` to return a `PaginatedResult`. Response shape: `{ data, next_page, limit, page_count?, truncated? }`.
 
-MCP list tools use `paginationParams` / `paginationOptions(params)` from `src/mcp-options.ts`.
+MCP list tools use `paginationParams` / `paginationOptions(params)` from `src/platform/mcp/options.ts`.
 
 ### MCP Tools
 
@@ -147,13 +170,13 @@ MCP list tools use `paginationParams` / `paginationOptions(params)` from `src/mc
 - Schemas: use Zod (`z.string()`, `z.string().optional()`) for all parameters
 - Return: `{ content: [{ type: 'text', text: JSON.stringify(result) }] }`
 - Registrations live in each domain's `mcp.ts`; wired via `registerMcpTools` in `src/composition.ts`
-- List tools spread `paginationParams` from `src/mcp-options.ts` (see **Pagination** above)
+- List tools spread `paginationParams` from `src/platform/mcp/options.ts` (see **Pagination** above)
 
 Reference (load on demand, not duplicated here):
 
 - Tool catalog by resource → `readme.md` MCP section
 - Per-tool params and Zod schemas → `src/<domain>/mcp.ts` for the domain you are editing
-- Asana work routing → [`packages/cyber-asana/skills/asana/SKILL.md`](packages/cyber-asana/skills/asana/SKILL.md); planning units of work before creating or reusing tasks → [`packages/cyber-asana/skills/asana/references/plan-work.md`](packages/cyber-asana/skills/asana/references/plan-work.md); task creation → [`packages/cyber-asana/skills/asana/references/create-task.md`](packages/cyber-asana/skills/asana/references/create-task.md) (also the `/cyber-asana:create-task` command in `packages/cyber-asana/commands/`); TODO/FIXME import → [`packages/cyber-asana/skills/asana/references/import-todos.md`](packages/cyber-asana/skills/asana/references/import-todos.md) (also `/cyber-asana:import-todos`); PR/MR linking on any git host → [`packages/cyber-asana/skills/asana/references/link-pr.md`](packages/cyber-asana/skills/asana/references/link-pr.md) (also `/cyber-asana:link-pr`); description tidying and Asana's HTML subset → [`packages/cyber-asana/skills/asana/references/tidy-description.md`](packages/cyber-asana/skills/asana/references/tidy-description.md) (also `/cyber-asana:tidy-description`); URL parsing → [`src/url.ts`](src/url.ts) when a URL is present; repo project registry → [`src/repo-config.ts`](src/repo-config.ts) / `.agents/cyber-asana.json`
+- Asana work routing → [`packages/cyber-asana/skills/asana/SKILL.md`](packages/cyber-asana/skills/asana/SKILL.md); planning units of work before creating or reusing tasks → [`packages/cyber-asana/skills/asana/references/plan-work.md`](packages/cyber-asana/skills/asana/references/plan-work.md); task creation → [`packages/cyber-asana/skills/asana/references/create-task.md`](packages/cyber-asana/skills/asana/references/create-task.md) (also the `/cyber-asana:create-task` command in `packages/cyber-asana/commands/`); TODO/FIXME import → [`packages/cyber-asana/skills/asana/references/import-todos.md`](packages/cyber-asana/skills/asana/references/import-todos.md) (also `/cyber-asana:import-todos`); PR/MR linking on any git host → [`packages/cyber-asana/skills/asana/references/link-pr.md`](packages/cyber-asana/skills/asana/references/link-pr.md) (also `/cyber-asana:link-pr`); description tidying and Asana's HTML subset → [`packages/cyber-asana/skills/asana/references/tidy-description.md`](packages/cyber-asana/skills/asana/references/tidy-description.md) (also `/cyber-asana:tidy-description`); URL parsing → [`src/url/parse.ts`](packages/cyber-asana/src/url/parse.ts) when a URL is present; repo project registry → [`src/config/repo-config.ts`](packages/cyber-asana/src/config/repo-config.ts) / `.agents/cyber-asana.json`
 - Adding or updating tools → `update-asana-sdk` skill
 
 #### Dual MCP (official + cyber-asana)
@@ -168,7 +191,7 @@ ASANA_WORKSPACE_GID=<workspace GID>   # optional; avoids --workspace on every co
 ```
 
 `ASANA_TOKEN` and `ASANA_WORKSPACE` still resolve as deprecated fallbacks (see
-`src/env.ts`), but new code and docs should use the names above.
+`src/platform/env.ts`), but new code and docs should use the names above.
 
 System tests (see **Testing** above):
 

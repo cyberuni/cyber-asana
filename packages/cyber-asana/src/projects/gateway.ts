@@ -4,8 +4,8 @@ import {
 	type ListResult,
 	type PaginationOptions,
 	toAsanaPaginationOptions,
-} from '../pagination.js'
-import { type ReadOptions, toAsanaReadOptions } from '../read-options.js'
+} from '../platform/pagination.js'
+import { type ReadOptions, toAsanaReadOptions } from '../platform/read-options.js'
 
 export type ProjectPrivacySetting = 'public_to_workspace' | 'private' | 'private_to_team'
 export type ProjectDefaultView = 'list' | 'board' | 'calendar' | 'timeline'

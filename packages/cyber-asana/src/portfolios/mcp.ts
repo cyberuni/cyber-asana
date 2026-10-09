@@ -1,7 +1,13 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import { deleteIdempotently } from '../idempotent-delete.js'
-import { customTypeParam, paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
+import { deleteIdempotently } from '../platform/idempotent-delete.js'
+import {
+	customTypeParam,
+	paginationOptions,
+	paginationParams,
+	readOptions,
+	readParams,
+} from '../platform/mcp/options.js'
 import type { PortfolioApi } from './api.js'
 import {
 	createPortfolio,
@@ -10,7 +16,7 @@ import {
 	listPortfolioItems,
 	listPortfolios,
 	updatePortfolio,
-} from './api.js'
+} from './default.js'
 
 function resolvePortfolioApi(api?: PortfolioApi | (() => PortfolioApi)): PortfolioApi {
 	if (typeof api === 'function') return api()

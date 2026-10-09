@@ -6,8 +6,8 @@ const getProjectTaskCountsMock = vi.fn()
 const createProjectMock = vi.fn()
 const updateProjectMock = vi.fn()
 
-vi.mock('./api.js', async () => {
-	const actual = await vi.importActual<typeof import('./api.js')>('./api.js')
+vi.mock('./default.js', async () => {
+	const actual = await vi.importActual<typeof import('./default.js')>('./default.js')
 	return {
 		...actual,
 		searchProjects: searchProjectsMock,

@@ -4,7 +4,7 @@ import {
 	type ListResult,
 	type PaginationOptions,
 	toAsanaPaginationOptions,
-} from '../pagination.js'
+} from '../platform/pagination.js'
 
 /** Asana filters runs by when their credit usage was recorded, not by `run_started_at`. */
 export type AiStudioRunListOptions = PaginationOptions & {

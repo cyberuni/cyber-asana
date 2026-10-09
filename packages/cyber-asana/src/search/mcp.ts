@@ -1,7 +1,8 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import type { SearchApi } from './api.js'
-import { searchObjects, TYPEAHEAD_RESOURCE_TYPES } from './api.js'
+import { TYPEAHEAD_RESOURCE_TYPES } from './api.js'
+import { searchObjects } from './default.js'
 
 function resolveSearchApi(api?: SearchApi | (() => SearchApi)): SearchApi {
 	if (typeof api === 'function') return api()
