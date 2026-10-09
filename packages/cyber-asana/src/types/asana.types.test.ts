@@ -228,4 +228,31 @@ describe('asana type augmentation', () => {
 		testType.equal<Asana.Task['parent'], Asana.Task | null | undefined>(true)
 		testType.equal<Asana.Task['followers'], Asana.User[] | undefined>(true)
 	})
+
+	it('types the TagsApi writes and getTagsForTask', () => {
+		type Created = Awaited<ReturnType<Asana.TagsApi['createTagForWorkspace']>>
+		type Updated = Awaited<ReturnType<Asana.TagsApi['updateTag']>>
+		type Deleted = Awaited<ReturnType<Asana.TagsApi['deleteTag']>>
+		type ForTask = Awaited<ReturnType<Asana.TagsApi['getTagsForTask']>>
+
+		testType.false<IsAny<Created>>(true)
+		testType.equal<Created, Asana.AsanaResponse<Asana.Tag>>(true)
+		testType.equal<Updated, Asana.AsanaResponse<Asana.Tag>>(true)
+		testType.equal<Deleted, Asana.EmptyResponse>(true)
+		testType.equal<ForTask, Asana.AsanaCollection<Asana.Tag>>(true)
+	})
+
+	it('types TeamsApi, UsersApi.getUsers and UserTaskListsApi', () => {
+		type Team = Awaited<ReturnType<Asana.TeamsApi['getTeam']>>
+		type Teams = Awaited<ReturnType<Asana.TeamsApi['getTeamsForWorkspace']>>
+		type Users = Awaited<ReturnType<Asana.UsersApi['getUsers']>>
+		type List = Awaited<ReturnType<Asana.UserTaskListsApi['getUserTaskListForUser']>>
+
+		testType.false<IsAny<Team>>(true)
+		testType.equal<Team, Asana.AsanaResponse<Asana.Team>>(true)
+		testType.equal<Teams, Asana.AsanaCollection<Asana.Team>>(true)
+		testType.equal<Users, Asana.AsanaCollection<Asana.User>>(true)
+		testType.equal<List, Asana.AsanaResponse<Asana.UserTaskList>>(true)
+		testType.equal<Asana.Team['resource_type'], 'team'>(true)
+	})
 })

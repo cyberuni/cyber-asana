@@ -321,6 +321,9 @@ declare module 'asana' {
 	}
 
 	interface UsersApi {
+		getUsers(
+			opts?: PaginationOptions & { workspace?: string | undefined; team?: string | undefined },
+		): Promise<AsanaCollection<User>>
 		getUser(user_gid: string, opts?: OptionalFields & { workspace?: string | undefined }): Promise<AsanaResponse<User>>
 		// The SDK passes only `offset` and `opt_fields` here; a `limit` would be dropped.
 		getUsersForWorkspace(
@@ -334,7 +337,48 @@ declare module 'asana' {
 		getWorkspaces(opts?: PaginationOptions): Promise<AsanaCollection<Workspace>>
 	}
 
+	interface Team extends AsanaResource {
+		resource_type: 'team'
+		description?: string | undefined
+		html_description?: string | undefined
+		organization?: Workspace | undefined
+		permalink_url?: string | undefined
+	}
+
+	interface UserTaskList extends AsanaResource {
+		resource_type: 'user_task_list'
+		owner?: User | undefined
+		workspace?: Workspace | undefined
+	}
+
+	interface TagRequest {
+		name?: string | undefined
+		color?: string | null | undefined
+		notes?: string | undefined
+	}
+
+	interface TeamsApi {
+		getTeam(team_gid: string, opts?: OptionalFields): Promise<AsanaResponse<Team>>
+		getTeamsForWorkspace(workspace_gid: string, opts?: PaginationOptions): Promise<AsanaCollection<Team>>
+	}
+
+	interface UserTaskListsApi {
+		getUserTaskListForUser(
+			user_gid: string,
+			workspace: string,
+			opts?: OptionalFields,
+		): Promise<AsanaResponse<UserTaskList>>
+	}
+
 	interface TagsApi {
+		createTagForWorkspace(
+			body: { data: TagRequest },
+			workspace_gid: string,
+			opts?: OptionalFields,
+		): Promise<AsanaResponse<Tag>>
+		updateTag(body: { data: TagRequest }, tag_gid: string, opts?: OptionalFields): Promise<AsanaResponse<Tag>>
+		deleteTag(tag_gid: string): Promise<EmptyResponse>
+		getTagsForTask(task_gid: string, opts?: PaginationOptions): Promise<AsanaCollection<Tag>>
 		getTag(tag_gid: string, opts?: OptionalFields): Promise<AsanaResponse<Tag>>
 		getTagsForWorkspace(workspace_gid: string, opts?: PaginationOptions): Promise<AsanaCollection<Tag>>
 	}

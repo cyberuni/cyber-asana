@@ -544,3 +544,79 @@ describe.skipIf(!projectEnabled || !workspaceEnabled)('asana types: task relatio
 		expect(Array.isArray(found.data)).toBe(true)
 	})
 })
+
+describe.skipIf(!workspaceEnabled)('asana types: tag writes, teams, users and user task lists', () => {
+	it('createTagForWorkspace, updateTag, getTagsForTask and deleteTag resolve to the augmented shapes', async () => {
+		const client = createClient()
+		const tags = new Asana.TagsApi(client)
+		const tasks = new Asana.TasksApi(client)
+		const created = await tags.createTagForWorkspace(
+			{ data: { name: 'cyber-asana learn probe: new tag', notes: 'probe' } },
+			workspaceGid!,
+			{ opt_fields: 'name,notes,resource_type' },
+		)
+		expectTypeOf(created).toEqualTypeOf<Asana.AsanaResponse<Asana.Tag>>()
+		const task = await tasks.createTask({
+			data: { name: 'cyber-asana learn probe: tagged', workspace: workspaceGid! },
+		})
+		try {
+			expect(created.data.resource_type).toBe('tag')
+			expect(created.data.notes).toBe('probe')
+
+			const updated = await tags.updateTag(
+				{ data: { name: 'cyber-asana learn probe: renamed tag' } },
+				created.data.gid,
+				{
+					opt_fields: 'name',
+				},
+			)
+			expectTypeOf(updated).toEqualTypeOf<Asana.AsanaResponse<Asana.Tag>>()
+			expect(updated.data.name).toBe('cyber-asana learn probe: renamed tag')
+
+			await tasks.addTagForTask({ data: { tag: created.data.gid } }, task.data.gid)
+			const forTask = await tags.getTagsForTask(task.data.gid, { opt_fields: 'name' })
+			expectTypeOf(forTask).toEqualTypeOf<Asana.AsanaCollection<Asana.Tag>>()
+			expect(forTask.data.map((t) => t.gid)).toEqual([created.data.gid])
+		} finally {
+			await tasks.deleteTask(task.data.gid)
+			const deleted = await tags.deleteTag(created.data.gid)
+			expectTypeOf(deleted).toEqualTypeOf<Asana.EmptyResponse>()
+			expect(deleted.data).toEqual({})
+		}
+	})
+
+	it('getUsers and getUserTaskListForUser resolve to the augmented shapes', async () => {
+		const client = createClient()
+		const users = await new Asana.UsersApi(client).getUsers({
+			workspace: workspaceGid!,
+			limit: 1,
+			opt_fields: 'name',
+		})
+		expectTypeOf(users).toEqualTypeOf<Asana.AsanaCollection<Asana.User>>()
+		expect(users.data.length).toBeGreaterThan(0)
+
+		const list = await new Asana.UserTaskListsApi(client).getUserTaskListForUser('me', workspaceGid!, {
+			opt_fields: 'name,resource_type,owner.gid,workspace.gid',
+		})
+		expectTypeOf(list).toEqualTypeOf<Asana.AsanaResponse<Asana.UserTaskList>>()
+		expect(list.data.resource_type).toBe('user_task_list')
+		expect(list.data.workspace?.gid).toBe(workspaceGid)
+	})
+
+	it('getTeamsForWorkspace and getTeam resolve to the augmented shapes in an organization', async (ctx) => {
+		const client = createClient()
+		const workspace = await new Asana.WorkspacesApi(client).getWorkspace(workspaceGid!, {
+			opt_fields: 'is_organization',
+		})
+		if (!workspace.data.is_organization) ctx.skip()
+		const api = new Asana.TeamsApi(client)
+		const teams = await api.getTeamsForWorkspace(workspaceGid!, { limit: 1, opt_fields: 'name' })
+		expectTypeOf(teams).toEqualTypeOf<Asana.AsanaCollection<Asana.Team>>()
+		const first = teams.data[0]
+		if (!first) ctx.skip()
+		const team = await api.getTeam(first.gid, { opt_fields: 'name,resource_type' })
+		expectTypeOf(team).toEqualTypeOf<Asana.AsanaResponse<Asana.Team>>()
+		expect(team.data.resource_type).toBe('team')
+		expect(team.data.gid).toBe(first.gid)
+	})
+})
