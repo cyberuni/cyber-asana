@@ -20,7 +20,6 @@ When reading any `SKILL.md` file, always check whether a `SKILL.local.md` exists
 
 ### References
 
-- **`commit-work` skill** — staging, splitting, and message writing when committing
 - `npx cyber-skills@<version> governance show skill-repo-structure` — discipline section format rules
 
 ## Development Workflow
@@ -60,6 +59,8 @@ The plugin declares **no MCP server** — no `mcp.json`, no `.mcp.json`, no `mcp
 When writing an MCP config entry (in `init-asana` or the docs), never put a `"${SOME_VAR}"` value in its `env` for a client that does not expand it — it arrives literally and shadows the real variable. Prefer letting the server inherit the client's environment. Claude Code's `.mcp.json` does expand `${VAR}`, but forwards the literal text when the variable is unset. `envValue` in `src/platform/env.ts` is the guard: a value that is exactly an unexpanded reference counts as absent, so the fallback alias still applies and a missing credential reports itself as missing. Keep that guard rather than working around it per config — it is the only thing covering configs this repo does not author.
 
 ## Commands
+
+Run these from `packages/cyber-asana`, or from the repo root as `pnpm ca <script>`. `verify`, `check` and `plugin:*` run at the root.
 
 ```
 pnpm test src/platform/client.test.ts  # run one test file
@@ -175,7 +176,7 @@ Reference (load on demand, not duplicated here):
 
 - Tool catalog by resource → `readme.md` MCP section
 - Per-tool params and Zod schemas → `src/<domain>/mcp.ts` for the domain you are editing
-- Asana work routing → [`packages/cyber-asana/skills/asana/SKILL.md`](packages/cyber-asana/skills/asana/SKILL.md); planning units of work before creating or reusing tasks → [`packages/cyber-asana/skills/asana/references/plan-work.md`](packages/cyber-asana/skills/asana/references/plan-work.md); task creation → [`packages/cyber-asana/skills/asana/references/create-task.md`](packages/cyber-asana/skills/asana/references/create-task.md) (also the `/cyber-asana:create-task` command in `packages/cyber-asana/commands/`); TODO/FIXME import → [`packages/cyber-asana/skills/asana/references/import-todos.md`](packages/cyber-asana/skills/asana/references/import-todos.md) (also `/cyber-asana:import-todos`); PR/MR linking on any git host → [`packages/cyber-asana/skills/asana/references/link-pr.md`](packages/cyber-asana/skills/asana/references/link-pr.md) (also `/cyber-asana:link-pr`); description tidying and Asana's HTML subset → [`packages/cyber-asana/skills/asana/references/tidy-description.md`](packages/cyber-asana/skills/asana/references/tidy-description.md) (also `/cyber-asana:tidy-description`); URL parsing → [`src/url/parse.ts`](src/url/parse.ts) when a URL is present; repo project registry → [`src/config/repo-config.ts`](src/config/repo-config.ts) / `.agents/cyber-asana.json`
+- Asana work routing → [`packages/cyber-asana/skills/asana/SKILL.md`](packages/cyber-asana/skills/asana/SKILL.md); planning units of work before creating or reusing tasks → [`packages/cyber-asana/skills/asana/references/plan-work.md`](packages/cyber-asana/skills/asana/references/plan-work.md); task creation → [`packages/cyber-asana/skills/asana/references/create-task.md`](packages/cyber-asana/skills/asana/references/create-task.md) (also the `/cyber-asana:create-task` command in `packages/cyber-asana/commands/`); TODO/FIXME import → [`packages/cyber-asana/skills/asana/references/import-todos.md`](packages/cyber-asana/skills/asana/references/import-todos.md) (also `/cyber-asana:import-todos`); PR/MR linking on any git host → [`packages/cyber-asana/skills/asana/references/link-pr.md`](packages/cyber-asana/skills/asana/references/link-pr.md) (also `/cyber-asana:link-pr`); description tidying and Asana's HTML subset → [`packages/cyber-asana/skills/asana/references/tidy-description.md`](packages/cyber-asana/skills/asana/references/tidy-description.md) (also `/cyber-asana:tidy-description`); URL parsing → [`src/url/parse.ts`](packages/cyber-asana/src/url/parse.ts) when a URL is present; repo project registry → [`src/config/repo-config.ts`](packages/cyber-asana/src/config/repo-config.ts) / `.agents/cyber-asana.json`
 - Adding or updating tools → `update-asana-sdk` skill
 
 #### Dual MCP (official + cyber-asana)
