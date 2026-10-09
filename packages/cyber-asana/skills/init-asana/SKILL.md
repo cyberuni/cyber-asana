@@ -73,7 +73,7 @@ Add to the user's shell profile:
 export ASANA_WORKSPACE_GID=<workspace-gid>
 ```
 
-This avoids passing `--workspace` on every command. Keep workspace GID in env — not in committed repo config (`.agents/cyber-asana.json` stores projects only).
+This avoids passing `--workspace` on every command. Keep workspace GID in env — not in committed repo config (`.agents/cyber-asana.json` stores projects, users, fields and defaults, not the workspace).
 
 ### 5. Confirm setup
 

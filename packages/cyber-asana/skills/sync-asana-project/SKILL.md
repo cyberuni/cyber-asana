@@ -15,7 +15,7 @@ When the user wants a local snapshot of an Asana project's tasks — for sprint 
 
 ### 1. Identify the project
 
-If the user hasn't specified a project GID, search for it (requires `ASANA_WORKSPACE` or `--workspace-gid`):
+If the user hasn't specified a project GID, search for it (requires `ASANA_WORKSPACE_GID` or `--workspace`):
 
 If they gave a project name or fragment:
 
