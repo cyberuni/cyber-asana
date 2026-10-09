@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { Command } from 'commander'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { HOOK_COMMAND, hasCyberAsanaHook, setupCommand, withSessionStartHook } from './setup-cli.js'
+import { HOOK_COMMAND, hasCyberAsanaHook, setupCommand, withSessionStartHook } from './setup.js'
 
 async function tempSettingsPath(contents?: unknown) {
 	const dir = await mkdtemp(join(tmpdir(), 'cyber-asana-setup-'))

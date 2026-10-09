@@ -9,8 +9,8 @@ import {
 	paginationOptionsFromCli,
 	printNextPageHint,
 	readOptionsFromCli,
-} from '../cli-options.js'
-import { output, printCountSummary, printFields, printNextSteps, printTable } from '../output.js'
+} from '../platform/cli/options.js'
+import { output, printCountSummary, printFields, printNextSteps, printTable } from '../platform/cli/output.js'
 import { deleteIdempotently, deleteMessage } from '../platform/idempotent-delete.js'
 import type { AttachmentApi } from './api.js'
 import { createAttachment, deleteAttachment, getAttachment, listAttachments } from './api.js'

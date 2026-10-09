@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { VERSION } from '../../version.js'
 import { BIN_DESCRIPTION, BIN_NAME, runDefaultCommand } from './default-command.js'
-import { VERSION } from './version.js'
 
 describe('runDefaultCommand', () => {
 	afterEach(() => vi.restoreAllMocks())

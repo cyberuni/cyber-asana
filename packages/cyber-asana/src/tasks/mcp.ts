@@ -2,7 +2,13 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import { loadConventions } from '../conventions.js'
 import { resolveEffectiveAssignee } from '../effective-config.js'
-import { customTypeParam, paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
+import {
+	customTypeParam,
+	paginationOptions,
+	paginationParams,
+	readOptions,
+	readParams,
+} from '../platform/mcp/options.js'
 import { loadDefaults, resolveProjectRef, resolveSectionPlacement } from '../repo-config.js'
 import { resolveTagRefs } from '../tags/resolve.js'
 import {

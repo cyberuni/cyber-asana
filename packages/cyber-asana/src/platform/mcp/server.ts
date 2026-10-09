@@ -1,9 +1,9 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
-import { createRuntimeContext, type RuntimeContext, registerMcpTools } from './composition.js'
-import { withMcpErrorHandling } from './mcp-error.js'
-import { withMcpOutputFormat } from './mcp-output.js'
-import { VERSION } from './version.js'
+import { createRuntimeContext, type RuntimeContext, registerMcpTools } from '../../composition.js'
+import { VERSION } from '../../version.js'
+import { withMcpErrorHandling } from './error.js'
+import { withMcpOutputFormat } from './output.js'
 
 export async function startMcpServer(getContext: () => RuntimeContext = createRuntimeContext) {
 	const server = withMcpOutputFormat(

@@ -3,11 +3,11 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 const startMcpServerMock = vi.fn()
 
-vi.mock('./mcp-server.js', () => ({
+vi.mock('./server.js', () => ({
 	startMcpServer: startMcpServerMock,
 }))
 
-const { mcpCommand } = await import('./mcp-cli.js')
+const { mcpCommand } = await import('./cli.js')
 
 describe('mcp-cli', () => {
 	afterEach(() => {

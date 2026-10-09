@@ -1,6 +1,5 @@
 import { dirname, join, resolve } from 'node:path'
 import { Command, InvalidArgumentError } from 'commander'
-import { addGidOption, requiredGid } from './cli-options.js'
 import type { CustomFieldApi } from './custom-fields/api.js'
 import {
 	loadEffectiveProjects,
@@ -27,7 +26,8 @@ import {
 	saveGlobalConfig,
 } from './global-config.js'
 import { migrateConventions } from './migrate-conventions.js'
-import { output, printFields, printNextSteps, printTable } from './output.js'
+import { addGidOption, requiredGid } from './platform/cli/options.js'
+import { output, printFields, printNextSteps, printTable } from './platform/cli/output.js'
 import { listItems } from './platform/pagination.js'
 import { applyFieldDiscovery, type ProjectCustomField } from './project-fields.js'
 import type { ProjectApi } from './projects/api.js'

@@ -1,7 +1,7 @@
-import { buildUsageErrorBody, isUsageError, renderUsageErrorText } from './cli-usage.js'
+import { buildErrorBody, PLAN_LIMITATION_STATUS } from '../error-body.js'
+import { encodeToon } from '../toon.js'
 import type { OutputFormat } from './output.js'
-import { buildErrorBody, PLAN_LIMITATION_STATUS } from './platform/error-body.js'
-import { encodeToon } from './platform/toon.js'
+import { buildUsageErrorBody, isUsageError, renderUsageErrorText } from './usage.js'
 
 // Meaningful, stable exit codes — principle 6 (structured errors & exit codes).
 // 0 success, 1 generic failure, then specific recoverable conditions agents can

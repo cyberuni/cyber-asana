@@ -1,5 +1,5 @@
+import { VERSION } from '../../version.js'
 import { output, printFields, printNextSteps } from './output.js'
-import { VERSION } from './version.js'
 
 // Content-first default — principle 8. Running the CLI with no arguments shows
 // live data (the authenticated user) instead of help text, prefixed by the

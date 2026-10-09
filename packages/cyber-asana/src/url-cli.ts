@@ -1,5 +1,5 @@
 import { Command } from 'commander'
-import { output, printFields } from './output.js'
+import { output, printFields } from './platform/cli/output.js'
 import { parseAsanaUrl } from './url.js'
 
 export function urlCommand() {

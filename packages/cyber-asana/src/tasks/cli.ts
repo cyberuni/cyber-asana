@@ -1,4 +1,6 @@
 import { Command } from 'commander'
+import { loadConventions } from '../conventions.js'
+import { resolveEffectiveAssignee } from '../effective-config.js'
 import {
 	addGidOption,
 	addPaginationOptions,
@@ -9,9 +11,7 @@ import {
 	printNextPageHint,
 	readOptionsFromCli,
 	requiredGid,
-} from '../cli-options.js'
-import { loadConventions } from '../conventions.js'
-import { resolveEffectiveAssignee } from '../effective-config.js'
+} from '../platform/cli/options.js'
 import {
 	output,
 	printCountSummary,
@@ -20,7 +20,7 @@ import {
 	printNextSteps,
 	printSummary,
 	printTable,
-} from '../output.js'
+} from '../platform/cli/output.js'
 import { deleteIdempotently, deleteMessage } from '../platform/idempotent-delete.js'
 import { isFull, truncate } from '../platform/truncate.js'
 import { loadDefaults, resolveProjectRef, resolveSectionPlacement } from '../repo-config.js'

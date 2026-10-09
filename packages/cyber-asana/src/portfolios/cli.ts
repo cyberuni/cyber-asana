@@ -9,8 +9,8 @@ import {
 	printNextPageHint,
 	readOptionsFromCli,
 	requiredGid,
-} from '../cli-options.js'
-import { output, printCountSummary, printFields, printNextSteps, printTable } from '../output.js'
+} from '../platform/cli/options.js'
+import { output, printCountSummary, printFields, printNextSteps, printTable } from '../platform/cli/output.js'
 import { deleteIdempotently, deleteMessage } from '../platform/idempotent-delete.js'
 import type { PortfolioApi } from './api.js'
 import {

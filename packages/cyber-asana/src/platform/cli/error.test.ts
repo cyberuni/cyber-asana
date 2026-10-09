@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { exitCodeFor, renderCliError } from './cli-error.js'
+import { exitCodeFor, renderCliError } from './error.js'
 
 function asanaError(status: number, message = 'boom') {
 	return { response: { status, body: { errors: [{ message }] } } }

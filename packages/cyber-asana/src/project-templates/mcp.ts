@@ -1,7 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import { paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
 import { DEFAULT_JOB_POLL_INTERVAL_MS } from '../platform/job-polling.js'
+import { paginationOptions, paginationParams, readOptions, readParams } from '../platform/mcp/options.js'
 import type { ProjectTemplateApi } from './api.js'
 import {
 	DEFAULT_INSTANTIATE_TIMEOUT_SECONDS,

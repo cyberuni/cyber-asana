@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { encodeToon } from '../toon.js'
 import {
 	output,
 	printCountSummary,
@@ -8,7 +9,6 @@ import {
 	printTable,
 	selectFormat,
 } from './output.js'
-import { encodeToon } from './platform/toon.js'
 
 describe('selectFormat', () => {
 	it('returns text by default', () => {

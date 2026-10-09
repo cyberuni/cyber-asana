@@ -1,6 +1,6 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import { paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
+import { paginationOptions, paginationParams, readOptions, readParams } from '../platform/mcp/options.js'
 import type { UserApi } from './api.js'
 import { getMe, getUser, listUsers } from './api.js'
 

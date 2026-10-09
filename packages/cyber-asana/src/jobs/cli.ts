@@ -1,6 +1,6 @@
 import { Command } from 'commander'
-import { addReadOptions, readOptionsFromCli } from '../cli-options.js'
-import { output, printFields, printNextSteps } from '../output.js'
+import { addReadOptions, readOptionsFromCli } from '../platform/cli/options.js'
+import { output, printFields, printNextSteps } from '../platform/cli/output.js'
 import type { Job } from '../platform/job-polling.js'
 import type { JobApi } from './api.js'
 import { getJob } from './api.js'

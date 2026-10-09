@@ -1,6 +1,6 @@
 import { Command } from 'commander'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { addPaginationOptions, printNextPageHint } from './cli-options.js'
+import { addPaginationOptions, printNextPageHint } from './options.js'
 
 describe('addPaginationOptions', () => {
 	it('offers --opt-fields by default', () => {

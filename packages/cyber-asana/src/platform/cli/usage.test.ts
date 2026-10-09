@@ -1,7 +1,7 @@
 import { Command } from 'commander'
 import { describe, expect, it } from 'vitest'
-import { exitCodeFor, renderCliError } from './cli-error.js'
-import { commandPath, installUsageErrors, isCleanCommanderExit, isUsageError, validFlags } from './cli-usage.js'
+import { exitCodeFor, renderCliError } from './error.js'
+import { commandPath, installUsageErrors, isCleanCommanderExit, isUsageError, validFlags } from './usage.js'
 
 function buildProgram() {
 	const program = new Command()

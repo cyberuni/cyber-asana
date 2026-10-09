@@ -9,8 +9,8 @@ import {
 	printNextPageHint,
 	readOptionsFromCli,
 	requiredGid,
-} from '../cli-options.js'
-import { output, printCountSummary, printFields, printNextSteps, printTable } from '../output.js'
+} from '../platform/cli/options.js'
+import { output, printCountSummary, printFields, printNextSteps, printTable } from '../platform/cli/output.js'
 import type { Job } from '../platform/job-polling.js'
 import { DEFAULT_JOB_POLL_INTERVAL_MS } from '../platform/job-polling.js'
 import { isFull, truncate } from '../platform/truncate.js'

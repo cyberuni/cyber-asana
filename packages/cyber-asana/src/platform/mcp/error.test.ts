@@ -1,7 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
 import { describe, expect, it, vi } from 'vitest'
-import { formatMcpToolError, withMcpErrorHandling } from './mcp-error.js'
+import { formatMcpToolError, withMcpErrorHandling } from './error.js'
 
 function textContent(result: CallToolResult): string {
 	const block = result.content[0]

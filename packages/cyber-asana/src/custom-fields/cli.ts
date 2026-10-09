@@ -8,8 +8,8 @@ import {
 	printNextPageHint,
 	readOptionsFromCli,
 	requiredGid,
-} from '../cli-options.js'
-import { output, printCountSummary, printFields, printNextSteps, printTable } from '../output.js'
+} from '../platform/cli/options.js'
+import { output, printCountSummary, printFields, printNextSteps, printTable } from '../platform/cli/output.js'
 import { isFull, truncate } from '../platform/truncate.js'
 import type { CustomFieldApi } from './api.js'
 import {

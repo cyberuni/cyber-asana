@@ -1,4 +1,4 @@
-import { encodeToon } from './platform/toon.js'
+import { encodeToon } from '../toon.js'
 
 export type OutputFormat = 'json' | 'toon' | 'text'
 

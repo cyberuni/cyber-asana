@@ -9,8 +9,15 @@ import {
 	printNextPageHint,
 	readOptionsFromCli,
 	requiredGid,
-} from '../cli-options.js'
-import { output, printCountSummary, printFields, printNextSteps, printTable, selectFormat } from '../output.js'
+} from '../platform/cli/options.js'
+import {
+	output,
+	printCountSummary,
+	printFields,
+	printNextSteps,
+	printTable,
+	selectFormat,
+} from '../platform/cli/output.js'
 import { deleteIdempotently, deleteMessage } from '../platform/idempotent-delete.js'
 import { encodeToon } from '../platform/toon.js'
 import { isFull, truncate } from '../platform/truncate.js'
