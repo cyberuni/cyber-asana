@@ -1,3 +1,68 @@
+import 'asana'
+
+/**
+ * Augments the `asana` SDK, whose generated declarations type every request and
+ * response as `any`. Each shape here is pinned by `asana.learn.test.ts`.
+ *
+ * The block below is migrated in slices: a type moves out of the commented
+ * legacy sketch at the bottom only together with the learning test that proves it.
+ */
+declare module 'asana' {
+	interface AsanaResource {
+		gid: string
+		name: string
+		resource_type: string
+	}
+
+	interface AsanaResponse<T> {
+		data: T
+	}
+
+	interface OptionalFields {
+		opt_fields?: string | undefined
+	}
+
+	interface Task extends AsanaResource {
+		resource_type: 'task'
+		completed?: boolean | undefined
+		completed_at?: string | undefined
+		created_at?: string | undefined
+		due_at?: string | undefined
+		due_on?: string | undefined
+		html_notes?: string | undefined
+		modified_at?: string | undefined
+		notes?: string | undefined
+		permalink_url?: string | undefined
+		resource_subtype?: string | undefined
+		start_on?: string | undefined
+		assignee?: User | undefined
+		projects?: Project[] | undefined
+		tags?: Tag[] | undefined
+		workspace?: Workspace | undefined
+	}
+
+	interface User extends AsanaResource {
+		email?: string | undefined
+	}
+
+	interface Project extends AsanaResource {
+		archived?: boolean | undefined
+		permalink_url?: string | undefined
+	}
+
+	interface Tag extends AsanaResource {
+		color?: string | undefined
+	}
+
+	interface Workspace extends AsanaResource {
+		is_organization?: boolean | undefined
+	}
+
+	interface TasksApi {
+		getTask(task_gid: string, opts?: OptionalFields): Promise<AsanaResponse<Task>>
+	}
+}
+
 // declare module 'asana' {
 // 	interface Authentication {
 // 		type: string
