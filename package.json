@@ -19,15 +19,15 @@
 		"web": "turbo run --filter=@cyberuni/web"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^2.5.14",
+		"@biomejs/biome": "^2.5.15",
 		"@changesets/cli": "^3.0.3",
 		"@commitlint/cli": "^21.2.3",
 		"@commitlint/config-conventional": "^21.2.3",
-		"@repobuddy/biome": "^2.5.0",
+		"@repobuddy/biome": "^2.5.1",
 		"husky": "^9.1.7",
-		"knip": "^6.38.0",
-		"turbo": "^2.11.5",
-		"universal-plugin": "^0.12.0"
+		"knip": "^6.40.0",
+		"turbo": "^2.11.7",
+		"universal-plugin": "^0.12.1"
 	},
 	"packageManager": "pnpm@12.10.1+sha512.ba40a37eb1a370d60fea8c4cf1d364c13bcccef518e98ad2bcee954f539d38da37458e58261a3fa55e06523450ea0ffff9f497b135be41f2c15c1642bacace6c",
 	"engines": {
