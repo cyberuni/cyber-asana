@@ -5,6 +5,7 @@
 		"url": "https://github.com/cyberuni"
 	},
 	"description": "Agent plugins from cyberuni",
+	"allowCrossMarketplaceDependenciesOn": ["cyberplace"],
 	"plugins": [
 		{
 			"name": "cyber-asana",

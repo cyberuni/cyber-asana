@@ -12,5 +12,10 @@
 	"skills": "./skills/",
 	"commands": "./commands/",
 	"displayName": "Cyber Asana",
-	"dependencies": ["cyber-agent-harness"]
+	"dependencies": [
+		{
+			"name": "cyber-agent-harness",
+			"marketplace": "cyberplace"
+		}
+	]
 }
