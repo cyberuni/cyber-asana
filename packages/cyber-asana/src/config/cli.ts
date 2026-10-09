@@ -1,6 +1,12 @@
 import { dirname, join, resolve } from 'node:path'
 import { Command, InvalidArgumentError } from 'commander'
-import type { CustomFieldApi } from './custom-fields/api.js'
+import type { CustomFieldApi } from '../custom-fields/api.js'
+import { addGidOption, requiredGid } from '../platform/cli/options.js'
+import { output, printFields, printNextSteps, printTable } from '../platform/cli/output.js'
+import { listItems } from '../platform/pagination.js'
+import type { ProjectApi } from '../projects/api.js'
+import type { SearchApi } from '../search/api.js'
+import type { UserApi } from '../users/api.js'
 import {
 	loadEffectiveProjects,
 	loadEffectiveUsers,
@@ -26,11 +32,7 @@ import {
 	saveGlobalConfig,
 } from './global-config.js'
 import { migrateConventions } from './migrate-conventions.js'
-import { addGidOption, requiredGid } from './platform/cli/options.js'
-import { output, printFields, printNextSteps, printTable } from './platform/cli/output.js'
-import { listItems } from './platform/pagination.js'
 import { applyFieldDiscovery, type ProjectCustomField } from './project-fields.js'
-import type { ProjectApi } from './projects/api.js'
 import {
 	addProject,
 	addUser,
@@ -61,8 +63,6 @@ import {
 	setProjectField,
 	type UserObservation,
 } from './repo-config.js'
-import type { SearchApi } from './search/api.js'
-import type { UserApi } from './users/api.js'
 
 type ConfigCliOptions = {
 	config?: string

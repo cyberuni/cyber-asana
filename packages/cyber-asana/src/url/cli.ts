@@ -1,6 +1,6 @@
 import { Command } from 'commander'
-import { output, printFields } from './platform/cli/output.js'
-import { parseAsanaUrl } from './url.js'
+import { output, printFields } from '../platform/cli/output.js'
+import { parseAsanaUrl } from './parse.js'
 
 export function urlCommand() {
 	const cmd = new Command('url').description('Parse Asana app URLs into GIDs (no API calls)')

@@ -1,6 +1,7 @@
 import { Command } from 'commander'
-import { loadConventions } from '../conventions.js'
-import { resolveEffectiveAssignee } from '../effective-config.js'
+import { loadConventions } from '../config/conventions.js'
+import { resolveEffectiveAssignee } from '../config/effective-config.js'
+import { loadDefaults, resolveProjectRef, resolveSectionPlacement } from '../config/repo-config.js'
 import {
 	addGidOption,
 	addPaginationOptions,
@@ -23,7 +24,6 @@ import {
 } from '../platform/cli/output.js'
 import { deleteIdempotently, deleteMessage } from '../platform/idempotent-delete.js'
 import { isFull, truncate } from '../platform/truncate.js'
-import { loadDefaults, resolveProjectRef, resolveSectionPlacement } from '../repo-config.js'
 import { resolveTagRefs } from '../tags/resolve.js'
 import {
 	addDependencies,

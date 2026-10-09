@@ -45,7 +45,9 @@ describe('parseConventions', () => {
 
 describe('packageRoot', () => {
 	it('finds this package from a source file', () => {
-		expect(packageRoot(fileURLToPath(import.meta.url))).toBe(resolve(dirname(fileURLToPath(import.meta.url)), '..'))
+		expect(packageRoot(fileURLToPath(import.meta.url))).toBe(
+			resolve(dirname(fileURLToPath(import.meta.url)), '..', '..'),
+		)
 	})
 
 	it('finds the package from a built file', async () => {

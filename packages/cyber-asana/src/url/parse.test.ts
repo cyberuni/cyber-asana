@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { parseAsanaUrl } from './url.js'
+import { parseAsanaUrl } from './parse.js'
 
 describe('parseAsanaUrl', () => {
 	it('parses project list view URLs', () => {

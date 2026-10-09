@@ -10,7 +10,7 @@ const searchObjectsMock = vi.fn()
 
 async function loadConfigCommand() {
 	vi.resetModules()
-	const mod = await import('./config-cli.js')
+	const mod = await import('./cli.js')
 	return mod.configCommand
 }
 

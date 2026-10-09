@@ -1,6 +1,6 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import { parseAsanaUrl } from './url.js'
+import { parseAsanaUrl } from './parse.js'
 
 export function registerUrlTools(server: McpServer) {
 	server.tool(

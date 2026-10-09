@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { registerUrlTools } from './url-mcp.js'
+import { registerUrlTools } from './mcp.js'
 
 type ToolHandler = (params: { url: string }) => Promise<{ content: { type: string; text: string }[] }>
 
