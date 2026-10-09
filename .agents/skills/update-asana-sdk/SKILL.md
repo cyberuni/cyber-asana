@@ -1,6 +1,6 @@
 ---
 name: update-asana-sdk
-description: Use this skill when updating the `asana` npm package to its latest version in the cyber-asana repo. After upgrading, reviews the SDK changelog and TypeScript types to identify new resources, new actions, changed parameters, and deprecated methods — then adds or updates the corresponding CLI commands and MCP tools.
+description: Use this skill when updating the `asana` npm package and adding the CLI commands and MCP tools its changes call for.
 metadata:
   internal: true
 ---
@@ -14,6 +14,8 @@ When the user asks to update the `asana` package, bump the SDK version, or check
 ## Instructions
 
 ### 1. Check current and latest versions
+
+Run this skill from `packages/cyber-asana`.
 
 ```bash
 node -e "console.log(require('./node_modules/asana/package.json').version)"
@@ -35,13 +37,9 @@ Fetch the asana SDK changelog and diff the TypeScript types between old and new 
 ```bash
 # View the changelog
 cat node_modules/asana/CHANGELOG.md | head -200
-
-# Diff the generated types (most reliable signal for new/changed API surface)
-git diff HEAD node_modules/asana/index.d.ts 2>/dev/null || \
-  npx diff-so-fancy <(git show HEAD:node_modules/asana/index.d.ts 2>/dev/null) node_modules/asana/index.d.ts
 ```
 
-If the types diff is unavailable, check the npm release page for the asana package.
+`node_modules/` is untracked, so git cannot diff it. Before Step 2, copy `node_modules/asana/index.d.ts` aside, then diff the copy against the new file after upgrading (the most reliable signal for new or changed API surface). If the copy was not taken, check the npm release page for the asana package.
 
 ### 4. Identify gaps
 
@@ -60,15 +58,16 @@ ls src/
 
 ### 5. Implement changes
 
-For each gap found, follow the repo's screaming architecture pattern — one domain folder per Asana resource, each with exactly three files:
+For each gap found, follow the repo's screaming architecture (AGENTS.md → Layout and dependency direction) — one domain folder per Asana resource:
 
-- `src/<resource>/api.ts` — Asana SDK wrappers (no inline SDK calls elsewhere)
-- `src/<resource>/cli.ts` — Commander command factory
-- `src/<resource>/mcp.ts` — MCP tool registrations
+- `src/<resource>/gateway.ts` — the port and its Asana SDK adapter, the only place that calls the SDK
+- `src/<resource>/api.ts` — use cases, `createXApi(gateway)`
+- `src/<resource>/default.ts` — standalone functions exported from the package root
+- `src/<resource>/cli.ts` and `mcp.ts` — delivery
 
-**New resource**: create all three files, wire into `src/cli.ts` and `src/mcp.ts`, export from `src/index.ts`.
+**New resource**: create the domain folder, wire it in `src/composition.ts`, re-export from `src/index.ts`.
 
-**New action on existing resource**: add to `api.ts`, add CLI subcommand in `cli.ts`, add MCP tool in `mcp.ts`.
+**New action on existing resource**: add it to `gateway.ts` and `api.ts`, then the CLI subcommand in `cli.ts` and the MCP tool in `mcp.ts`.
 
 **Changed parameters**: update the relevant `api.ts` wrapper and propagate to CLI options and MCP schema.
 
@@ -89,7 +88,7 @@ Fix any type errors or lint failures before finishing.
 
 ### 7. Add a changeset
 
-Invoke the `add-changeset` skill. Use `patch` for parameter additions or fixes, `minor` for new resources or new actions.
+Invoke the `buddy-changesets:changesets` skill. Use `patch` for parameter additions or fixes, `minor` for new resources or new actions.
 
 ### 8. Summarize
 
