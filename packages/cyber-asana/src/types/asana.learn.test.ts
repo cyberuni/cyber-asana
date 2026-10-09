@@ -770,6 +770,28 @@ describe.skipIf(!workspaceEnabled || !projectEnabled)('asana types: typeahead, b
 	})
 })
 
+describe.skipIf(!workspaceEnabled)('asana types: TimePeriodsApi', () => {
+	it('getTimePeriods returns a Collection of TimePeriods, and getTimePeriod resolves the same shape', async () => {
+		const client = createClient()
+		const api = new Asana.TimePeriodsApi(client)
+
+		const page = await api.getTimePeriods(workspaceGid!, {
+			limit: 1,
+			opt_fields: 'display_name,resource_type,period,start_on,end_on',
+		})
+
+		expectTypeOf(page).toEqualTypeOf<Asana.AsanaCollection<Asana.TimePeriod>>()
+		expect(Array.isArray(page.data)).toBe(true)
+		const first = page.data[0]
+		if (!first) return // a workspace with no time periods has nothing for getTimePeriod to read
+		for (const period of page.data) expect(period.resource_type).toBe('time_period')
+
+		const got = await api.getTimePeriod(first.gid, { opt_fields: 'display_name,resource_type' })
+		expectTypeOf(got).toEqualTypeOf<Asana.AsanaResponse<Asana.TimePeriod>>()
+		expect(got.data.gid).toBe(first.gid)
+	})
+})
+
 describe.skipIf(!workspaceEnabled || !isPaidPlan())(
 	'asana types: portfolios, goals and custom fields (paid plans only)',
 	() => {

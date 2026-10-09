@@ -355,4 +355,14 @@ describe('asana type augmentation', () => {
 		testType.equal<R<Asana.AIStudioUsageAPIApi, 'getAiStudioRuns'>, Asana.AsanaCollection<Asana.AiStudioRecord>>(true)
 		testType.equal<R<Asana.AIStudioUsageAPIApi, 'getAiStudioSeats'>, Asana.AsanaCollection<Asana.AiStudioRecord>>(true)
 	})
+
+	it('types TimePeriodsApi.getTimePeriod and getTimePeriods instead of leaving them any', () => {
+		type Got = Awaited<ReturnType<Asana.TimePeriodsApi['getTimePeriod']>>
+		type Listed = Awaited<ReturnType<Asana.TimePeriodsApi['getTimePeriods']>>
+
+		testType.false<IsAny<Got>>(true)
+		testType.equal<Got, Asana.AsanaResponse<Asana.TimePeriod>>(true)
+		testType.equal<Listed, Asana.AsanaCollection<Asana.TimePeriod>>(true)
+		testType.equal<Asana.TimePeriod['resource_type'], 'time_period'>(true)
+	})
 })
