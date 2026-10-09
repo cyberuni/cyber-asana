@@ -156,4 +156,24 @@ describe('asana type augmentation', () => {
 		testType.equal<Asana.Attachment['resource_type'], 'attachment'>(true)
 		testType.equal<Asana.AttachmentRequest['parent'], string>(true)
 	})
+
+	it('types updateSection, insertSectionForProject and addTaskForSection', () => {
+		type Updated = Awaited<ReturnType<Asana.SectionsApi['updateSection']>>
+		type Moved = Awaited<ReturnType<Asana.SectionsApi['insertSectionForProject']>>
+		type Added = Awaited<ReturnType<Asana.SectionsApi['addTaskForSection']>>
+
+		testType.false<IsAny<Updated>>(true)
+		testType.equal<Updated, Asana.AsanaResponse<Asana.Section>>(true)
+		testType.equal<Moved, Asana.EmptyResponse>(true)
+		testType.equal<Added, Asana.EmptyResponse>(true)
+		testType.equal<Asana.SectionMoveRequest['section'], string>(true)
+		testType.equal<Asana.SectionTaskRequest['task'], string>(true)
+	})
+
+	it('types Task.memberships as project and section pairs', () => {
+		type Membership = NonNullable<Asana.Task['memberships']>[number]
+
+		testType.equal<Membership['project'], Asana.Project | undefined>(true)
+		testType.equal<Membership['section'], Asana.Section | undefined>(true)
+	})
 })

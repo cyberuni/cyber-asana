@@ -58,6 +58,7 @@ declare module 'asana' {
 		resource_subtype?: string | undefined
 		start_on?: string | undefined
 		assignee?: User | undefined
+		memberships?: Array<{ project?: Project | undefined; section?: Section | undefined }> | undefined
 		projects?: Project[] | undefined
 		tags?: Tag[] | undefined
 		workspace?: Workspace | undefined
@@ -229,7 +230,25 @@ declare module 'asana' {
 		): Promise<AsanaCollection<Task>>
 	}
 
+	interface SectionMoveRequest {
+		section: string
+		before_section?: string | undefined
+		after_section?: string | undefined
+	}
+
+	interface SectionTaskRequest {
+		task: string
+		insert_before?: string | undefined
+		insert_after?: string | undefined
+	}
+
 	interface SectionsApi {
+		updateSection(
+			section_gid: string,
+			opts: { body: { data: { name: string } }; opt_fields?: string | undefined },
+		): Promise<AsanaResponse<Section>>
+		insertSectionForProject(project_gid: string, opts: { body: { data: SectionMoveRequest } }): Promise<EmptyResponse>
+		addTaskForSection(section_gid: string, opts: { body: { data: SectionTaskRequest } }): Promise<EmptyResponse>
 		createSectionForProject(
 			project_gid: string,
 			opts: { body: { data: SectionRequest }; opt_fields?: string | undefined },

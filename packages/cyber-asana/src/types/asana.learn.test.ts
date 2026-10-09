@@ -328,3 +328,49 @@ describe.skipIf(!enabled)('asana types: attachments', () => {
 		}
 	})
 })
+
+describe.skipIf(!projectEnabled || !workspaceEnabled)('asana types: section update, move and add task', () => {
+	it('updateSection, insertSectionForProject and addTaskForSection resolve to the augmented shapes', async () => {
+		const client = createClient()
+		const sections = new Asana.SectionsApi(client)
+		const tasks = new Asana.TasksApi(client)
+		const createSection = (name: string) =>
+			sections.createSectionForProject(projectGid!, { body: { data: { name } }, opt_fields: 'name' })
+		const first = await createSection('cyber-asana learn probe: section 1')
+		const second = await createSection('cyber-asana learn probe: section 2')
+		const task = await tasks.createTask({
+			data: { name: 'cyber-asana learn probe: section task', workspace: workspaceGid!, projects: [projectGid!] },
+		})
+		try {
+			const renamed = await sections.updateSection(first.data.gid, {
+				body: { data: { name: 'cyber-asana learn probe: renamed' } },
+				opt_fields: 'name,resource_type',
+			})
+			expectTypeOf(renamed).toEqualTypeOf<Asana.AsanaResponse<Asana.Section>>()
+			expect(renamed.data.gid).toBe(first.data.gid)
+			expect(renamed.data.name).toBe('cyber-asana learn probe: renamed')
+
+			const moved = await sections.insertSectionForProject(projectGid!, {
+				body: { data: { section: second.data.gid, before_section: first.data.gid } },
+			})
+			expectTypeOf(moved).toEqualTypeOf<Asana.EmptyResponse>()
+			expect(moved.data).toEqual({})
+			const listed = await sections.getSectionsForProject(projectGid!, { opt_fields: 'name' })
+			const order = listed.data.map((section) => section.gid)
+			expect(order.indexOf(second.data.gid)).toBeLessThan(order.indexOf(first.data.gid))
+
+			const added = await sections.addTaskForSection(second.data.gid, { body: { data: { task: task.data.gid } } })
+			expectTypeOf(added).toEqualTypeOf<Asana.EmptyResponse>()
+			expect(added.data).toEqual({})
+			const read = await tasks.getTask(task.data.gid, { opt_fields: 'memberships.section.gid,memberships.project.gid' })
+			expect(read.data.memberships?.map((m) => ({ project: m.project?.gid, section: m.section?.gid }))).toContainEqual({
+				project: projectGid,
+				section: second.data.gid,
+			})
+		} finally {
+			await tasks.deleteTask(task.data.gid)
+			await sections.deleteSection(first.data.gid)
+			await sections.deleteSection(second.data.gid)
+		}
+	}, 30_000)
+})
