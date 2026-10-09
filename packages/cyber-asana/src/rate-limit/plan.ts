@@ -1,4 +1,4 @@
-export type Plan = 'free' | 'paid'
+type Plan = 'free' | 'paid'
 
 export type RateLimits = {
 	plan: Plan
