@@ -19,7 +19,7 @@ import {
 } from '../platform/cli/output.js'
 import { DEFAULT_JOB_POLL_ATTEMPTS, DEFAULT_JOB_POLL_INTERVAL_MS, type Job } from '../platform/job-polling.js'
 import type { TaskTemplateApi } from './api.js'
-import { getTaskTemplate, instantiateTask, listTaskTemplates } from './api.js'
+import { getTaskTemplate, instantiateTask, listTaskTemplates } from './default.js'
 
 type TaskTemplate = {
 	gid: string

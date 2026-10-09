@@ -13,15 +13,8 @@ import { output, printCountSummary, printFields, printNextSteps, printTable } fr
 import { deleteIdempotently, deleteMessage } from '../platform/idempotent-delete.js'
 import { isFull, truncate } from '../platform/truncate.js'
 import type { StoryApi } from './api.js'
-import {
-	createStory,
-	deleteStory,
-	getStory,
-	getTaskTemplateData,
-	interpolateTemplate,
-	listStories,
-	updateStory,
-} from './api.js'
+import { interpolateTemplate } from './api.js'
+import { createStory, deleteStory, getStory, getTaskTemplateData, listStories, updateStory } from './default.js'
 import { STICKER_NAMES } from './write-options.js'
 
 const TEXT_COLUMN_LIMIT = 60

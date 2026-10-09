@@ -14,7 +14,7 @@ import {
 import { output, printCountSummary, printFields, printNextSteps, printTable } from '../platform/cli/output.js'
 import { deleteIdempotently, deleteMessage } from '../platform/idempotent-delete.js'
 import type { OooApi } from './api.js'
-import { createOooEntry, deleteOooEntry, getOooEntry, listOooEntries, updateOooEntry } from './api.js'
+import { createOooEntry, deleteOooEntry, getOooEntry, listOooEntries, updateOooEntry } from './default.js'
 
 type OooEntry = {
 	gid: string

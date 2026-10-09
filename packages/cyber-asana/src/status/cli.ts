@@ -21,7 +21,7 @@ import {
 import { deleteIdempotently, deleteMessage } from '../platform/idempotent-delete.js'
 import { isFull, truncate } from '../platform/truncate.js'
 import type { StatusApi, StatusOverview, StatusOverviewEntry, StatusOverviewParentType } from './api.js'
-import { createStatus, deleteStatus, getStatus, getStatusOverview, listStatuses } from './api.js'
+import { createStatus, deleteStatus, getStatus, getStatusOverview, listStatuses } from './default.js'
 
 type Status = { gid: string; status_type?: string; title?: string; text?: string; created_at?: string }
 

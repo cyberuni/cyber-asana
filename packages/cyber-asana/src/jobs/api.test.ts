@@ -1,6 +1,6 @@
 import Asana from 'asana'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { getJob } from './api.js'
+import { getJob } from './default.js'
 
 vi.mock('../platform/client.js', () => ({
 	createClient: () => ({}),

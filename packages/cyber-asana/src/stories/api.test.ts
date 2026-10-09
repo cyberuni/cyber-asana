@@ -1,15 +1,8 @@
 import Asana from 'asana'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { buildErrorBody } from '../platform/error-body.js'
-import {
-	createStory,
-	createStoryApi,
-	deleteStory,
-	getStory,
-	interpolateTemplate,
-	listStories,
-	updateStory,
-} from './api.js'
+import { createStoryApi, interpolateTemplate } from './api.js'
+import { createStory, deleteStory, getStory, listStories, updateStory } from './default.js'
 
 vi.mock('../platform/client.js', () => ({
 	createClient: () => ({}),

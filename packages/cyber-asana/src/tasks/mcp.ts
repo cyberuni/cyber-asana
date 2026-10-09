@@ -10,7 +10,9 @@ import {
 	readOptions,
 	readParams,
 } from '../platform/mcp/options.js'
+import { listTags } from '../tags/default.js'
 import { resolveTagRefs } from '../tags/resolve.js'
+import { scanTodos, type TaskApi } from './api.js'
 import {
 	addDependencies,
 	addDependents,
@@ -32,11 +34,9 @@ import {
 	removeDependents,
 	removeFollowersFromTask,
 	removeTaskFromProject,
-	scanTodos,
 	searchTasks,
-	type TaskApi,
 	updateTask,
-} from './api.js'
+} from './default.js'
 import {
 	applyConventions,
 	buildTaskCreateFields,
@@ -426,7 +426,7 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 					assignee: await assigneeForCreate(assignee_gid, assignee),
 					projectGids: await projectsForCreate(project_gids, project_gid, project),
 					followerGids: typeof follower_gids === 'string' ? parseGidList(follower_gids) : follower_gids,
-					tagGids: await resolveTagRefs(givenTags ?? conventions?.default_tags, workspace_gid),
+					tagGids: await resolveTagRefs(givenTags ?? conventions?.default_tags, workspace_gid, { listTags }),
 					dueOn: due_on,
 					dueAt: due_at,
 					startOn: start_on,

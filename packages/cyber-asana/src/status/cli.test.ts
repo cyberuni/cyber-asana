@@ -5,8 +5,8 @@ const listStatusesMock = vi.fn()
 const createStatusMock = vi.fn()
 const deleteStatusMock = vi.fn()
 
-vi.mock('./api.js', async () => {
-	const actual = await vi.importActual<typeof import('./api.js')>('./api.js')
+vi.mock('./default.js', async () => {
+	const actual = await vi.importActual<typeof import('./default.js')>('./default.js')
 	return {
 		...actual,
 		listStatuses: listStatusesMock,

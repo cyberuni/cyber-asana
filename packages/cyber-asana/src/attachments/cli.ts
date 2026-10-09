@@ -13,7 +13,7 @@ import {
 import { output, printCountSummary, printFields, printNextSteps, printTable } from '../platform/cli/output.js'
 import { deleteIdempotently, deleteMessage } from '../platform/idempotent-delete.js'
 import type { AttachmentApi } from './api.js'
-import { createAttachment, deleteAttachment, getAttachment, listAttachments } from './api.js'
+import { createAttachment, deleteAttachment, getAttachment, listAttachments } from './default.js'
 
 type Attachment = { gid: string; name: string; resource_type?: string; download_url?: string | null }
 

@@ -12,7 +12,7 @@ import {
 import { output, printCountSummary, printFields, printNextSteps, printTable } from '../platform/cli/output.js'
 import { deleteIdempotently, deleteMessage } from '../platform/idempotent-delete.js'
 import type { GoalApi } from './api.js'
-import { createGoal, deleteGoal, getGoal, listGoals, updateGoal } from './api.js'
+import { createGoal, deleteGoal, getGoal, listGoals, updateGoal } from './default.js'
 import { buildGoalCreateFields, buildGoalUpdateFields } from './write-options.js'
 
 type Goal = { gid: string; name: string; permalink_url?: string; due_on?: string | null; status?: string | null }

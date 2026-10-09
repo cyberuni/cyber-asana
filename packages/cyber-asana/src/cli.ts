@@ -8,7 +8,7 @@ import { selectFormat } from './platform/cli/output.js'
 import { installUsageErrors, isCleanCommanderExit } from './platform/cli/usage.js'
 import { setAmbientToken, setTokenOverride } from './platform/client.js'
 import { envValue } from './platform/env.js'
-import { getMe } from './users/api.js'
+import { getMe } from './users/default.js'
 import { VERSION } from './version.js'
 
 const program = new Command()

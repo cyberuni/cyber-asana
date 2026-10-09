@@ -1,14 +1,12 @@
 import { observeProjectIfConfigured, projectObservationFromApi } from '../config/repo-config.js'
-import { createClient } from '../platform/client.js'
 import { listItems } from '../platform/pagination.js'
 import type { ReadOptions } from '../platform/read-options.js'
-import {
-	type CreateProjectFields,
-	createAsanaProjectGateway,
-	type ProjectGateway,
-	type ProjectListOptions,
-	type SearchProjectsOptions,
-	type UpdateProjectFields,
+import type {
+	CreateProjectFields,
+	ProjectGateway,
+	ProjectListOptions,
+	SearchProjectsOptions,
+	UpdateProjectFields,
 } from './gateway.js'
 
 export type {
@@ -91,42 +89,6 @@ export function createProjectApi(gateway: ProjectGateway) {
 			}
 		},
 	}
-}
-
-function defaultProjectApi() {
-	return createProjectApi(createAsanaProjectGateway(createClient()))
-}
-
-export async function listProjects(workspaceGid: string, opts?: ProjectListOptions) {
-	return defaultProjectApi().listProjects(workspaceGid, opts)
-}
-
-export async function getProject(projectGid: string, opts?: ReadOptions) {
-	return defaultProjectApi().getProject(projectGid, opts)
-}
-
-export async function getProjectTaskCounts(projectGid: string, opts?: { optFields?: string }) {
-	return defaultProjectApi().getProjectTaskCounts(projectGid, opts)
-}
-
-export async function createProject(workspaceGid: string, name: string, opts?: CreateProjectFields) {
-	return defaultProjectApi().createProject(workspaceGid, name, opts)
-}
-
-export async function updateProject(projectGid: string, fields: UpdateProjectFields) {
-	return defaultProjectApi().updateProject(projectGid, fields)
-}
-
-export async function deleteProject(projectGid: string) {
-	return defaultProjectApi().deleteProject(projectGid)
-}
-
-export async function searchProjects(workspaceGid: string, opts?: SearchProjectsOptions) {
-	return defaultProjectApi().searchProjects(workspaceGid, opts)
-}
-
-export async function exportProject(projectGid: string): Promise<ProjectExport> {
-	return defaultProjectApi().exportProject(projectGid)
 }
 
 function checkbox(completed: boolean) {

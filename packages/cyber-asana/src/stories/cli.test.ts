@@ -5,8 +5,8 @@ import type { StoryApi } from './api.js'
 const createStoryMock = vi.fn()
 const getTaskTemplateDataMock = vi.fn()
 
-vi.mock('./api.js', async () => {
-	const actual = await vi.importActual<typeof import('./api.js')>('./api.js')
+vi.mock('./default.js', async () => {
+	const actual = await vi.importActual<typeof import('./default.js')>('./default.js')
 	return {
 		...actual,
 		createStory: createStoryMock,

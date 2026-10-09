@@ -20,7 +20,7 @@ import {
 	listSections,
 	moveSection,
 	updateSection,
-} from './api.js'
+} from './default.js'
 
 type Section = { gid: string; name: string }
 

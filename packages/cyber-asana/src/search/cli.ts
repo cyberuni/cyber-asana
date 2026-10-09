@@ -2,7 +2,8 @@ import { Argument, Command, InvalidArgumentError } from 'commander'
 import { addGidOption, requiredGid } from '../platform/cli/options.js'
 import { output, printCountSummary, printNextSteps, printSummary, printTable } from '../platform/cli/output.js'
 import type { SearchApi } from './api.js'
-import { searchObjects, TYPEAHEAD_RESOURCE_TYPES, type TypeaheadResourceType } from './api.js'
+import { TYPEAHEAD_RESOURCE_TYPES, type TypeaheadResourceType } from './api.js'
+import { searchObjects } from './default.js'
 
 type SearchHit = { gid: string; name?: string; resource_type?: string }
 

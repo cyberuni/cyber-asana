@@ -12,7 +12,7 @@ import {
 } from '../platform/cli/options.js'
 import { output, printCountSummary, printFields, printNextSteps, printTable } from '../platform/cli/output.js'
 import type { UserApi } from './api.js'
-import { getMe, getUser, listUsers } from './api.js'
+import { getMe, getUser, listUsers } from './default.js'
 
 type User = { gid: string; name: string; email?: string }
 

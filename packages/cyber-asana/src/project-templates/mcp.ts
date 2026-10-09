@@ -3,15 +3,14 @@ import { z } from 'zod'
 import { DEFAULT_JOB_POLL_INTERVAL_MS } from '../platform/job-polling.js'
 import { paginationOptions, paginationParams, readOptions, readParams } from '../platform/mcp/options.js'
 import type { ProjectTemplateApi } from './api.js'
+import { DEFAULT_INSTANTIATE_TIMEOUT_SECONDS, newProjectOf } from './api.js'
 import {
-	DEFAULT_INSTANTIATE_TIMEOUT_SECONDS,
 	getProjectTemplate,
 	instantiateProject,
 	instantiateProjectAndWait,
 	listProjectTemplates,
 	listProjectTemplatesForTeam,
-	newProjectOf,
-} from './api.js'
+} from './default.js'
 
 function resolveProjectTemplateApi(api?: ProjectTemplateApi | (() => ProjectTemplateApi)): ProjectTemplateApi {
 	if (typeof api === 'function') return api()

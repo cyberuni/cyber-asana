@@ -9,7 +9,7 @@ import {
 	listCustomFieldSettingsForProject,
 	listCustomFieldSettingsForTeam,
 	listCustomFields,
-} from './api.js'
+} from './default.js'
 
 function resolveCustomFieldApi(api?: CustomFieldApi | (() => CustomFieldApi)): CustomFieldApi {
 	if (typeof api === 'function') return api()

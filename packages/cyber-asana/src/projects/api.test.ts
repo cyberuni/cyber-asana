@@ -1,17 +1,16 @@
 import Asana from 'asana'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { createProjectApi, renderProjectMarkdown } from './api.js'
 import {
 	createProject,
-	createProjectApi,
 	deleteProject,
 	exportProject,
 	getProject,
 	getProjectTaskCounts,
 	listProjects,
-	renderProjectMarkdown,
 	searchProjects,
 	updateProject,
-} from './api.js'
+} from './default.js'
 
 vi.mock('../platform/client.js', () => ({
 	createClient: () => ({}),

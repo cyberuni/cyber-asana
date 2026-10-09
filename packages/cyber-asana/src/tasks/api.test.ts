@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os'
 import path from 'node:path'
 import Asana from 'asana'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { createTaskApi, scanTodos } from './api.js'
 import {
 	addDependencies,
 	addDependents,
@@ -10,7 +11,6 @@ import {
 	addTaskToProject,
 	createSubtask,
 	createTask,
-	createTaskApi,
 	deleteTask,
 	getDependencies,
 	getDependents,
@@ -25,10 +25,9 @@ import {
 	removeDependents,
 	removeFollowersFromTask,
 	removeTaskFromProject,
-	scanTodos,
 	searchTasks,
 	updateTask,
-} from './api.js'
+} from './default.js'
 
 vi.mock('../platform/client.js', () => ({
 	createClient: () => ({}),

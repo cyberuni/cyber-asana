@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { deleteIdempotently } from '../platform/idempotent-delete.js'
 import { paginationOptions, paginationParams } from '../platform/mcp/options.js'
 import type { MembershipApi } from './api.js'
-import { createMembership, deleteMembership, getMembership, listMemberships, updateMembership } from './api.js'
+import { createMembership, deleteMembership, getMembership, listMemberships, updateMembership } from './default.js'
 import type { MembershipFilters } from './gateway.js'
 
 function resolveMembershipApi(api?: MembershipApi | (() => MembershipApi)): MembershipApi {

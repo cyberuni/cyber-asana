@@ -16,7 +16,7 @@ import {
 	listPortfolioItems,
 	listPortfolios,
 	updatePortfolio,
-} from './api.js'
+} from './default.js'
 
 function resolvePortfolioApi(api?: PortfolioApi | (() => PortfolioApi)): PortfolioApi {
 	if (typeof api === 'function') return api()

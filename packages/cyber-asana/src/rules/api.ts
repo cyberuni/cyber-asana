@@ -1,5 +1,4 @@
-import { createClient } from '../platform/client.js'
-import { createAsanaRuleGateway, type RuleGateway, type RuleTriggerFields } from './gateway.js'
+import type { RuleGateway, RuleTriggerFields } from './gateway.js'
 
 export type { RuleTriggerFields } from './gateway.js'
 
@@ -28,12 +27,4 @@ export function createRuleApi(gateway: RuleGateway) {
 			}
 		},
 	}
-}
-
-function defaultRuleApi() {
-	return createRuleApi(createAsanaRuleGateway(createClient()))
-}
-
-export async function triggerRule(ruleTriggerGid: string, fields?: RuleTriggerFields) {
-	return defaultRuleApi().triggerRule(ruleTriggerGid, fields)
 }

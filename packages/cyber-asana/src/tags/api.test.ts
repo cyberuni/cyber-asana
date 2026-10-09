@@ -1,9 +1,9 @@
 import Asana from 'asana'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { createTagApi } from './api.js'
 import {
 	addTagToTask,
 	createTag,
-	createTagApi,
 	deleteTag,
 	getTag,
 	listTags,
@@ -11,7 +11,7 @@ import {
 	listTasksForTag,
 	removeTagFromTask,
 	updateTag,
-} from './api.js'
+} from './default.js'
 
 vi.mock('../platform/client.js', () => ({
 	createClient: () => ({}),

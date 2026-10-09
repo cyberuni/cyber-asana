@@ -19,7 +19,7 @@ import {
 	listCustomFieldSettingsForProject,
 	listCustomFieldSettingsForTeam,
 	listCustomFields,
-} from './api.js'
+} from './default.js'
 
 type EnumOption = { gid: string; name: string; enabled?: boolean }
 type CustomField = {

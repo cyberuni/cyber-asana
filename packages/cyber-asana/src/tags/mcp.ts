@@ -13,7 +13,7 @@ import {
 	listTasksForTag,
 	removeTagFromTask,
 	updateTag,
-} from './api.js'
+} from './default.js'
 import { buildTagUpdateFields, parseFollowerGids } from './write-options.js'
 
 function resolveTagApi(api?: TagApi | (() => TagApi)): TagApi {

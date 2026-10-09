@@ -2,7 +2,7 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import { readOptions, readParams } from '../platform/mcp/options.js'
 import type { JobApi } from './api.js'
-import { getJob } from './api.js'
+import { getJob } from './default.js'
 
 function resolveJobApi(api?: JobApi | (() => JobApi)): JobApi {
 	if (typeof api === 'function') return api()

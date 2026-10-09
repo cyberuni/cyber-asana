@@ -21,6 +21,7 @@ import {
 import { deleteIdempotently, deleteMessage } from '../platform/idempotent-delete.js'
 import { encodeToon } from '../platform/toon.js'
 import { isFull, truncate } from '../platform/truncate.js'
+import { type ProjectApi, renderProjectMarkdown } from './api.js'
 import {
 	createProject,
 	deleteProject,
@@ -28,11 +29,9 @@ import {
 	getProject,
 	getProjectTaskCounts,
 	listProjects,
-	type ProjectApi,
-	renderProjectMarkdown,
 	searchProjects,
 	updateProject,
-} from './api.js'
+} from './default.js'
 import { buildProjectCreateFields, buildProjectUpdateFields } from './write-options.js'
 
 function resolveProjectApi(api?: ProjectApi | (() => ProjectApi)): ProjectApi {

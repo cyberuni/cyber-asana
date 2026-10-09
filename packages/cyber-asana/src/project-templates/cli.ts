@@ -15,15 +15,14 @@ import type { Job } from '../platform/job-polling.js'
 import { DEFAULT_JOB_POLL_INTERVAL_MS } from '../platform/job-polling.js'
 import { isFull, truncate } from '../platform/truncate.js'
 import type { ProjectTemplateApi } from './api.js'
+import { DEFAULT_INSTANTIATE_TIMEOUT_SECONDS, newProjectOf } from './api.js'
 import {
-	DEFAULT_INSTANTIATE_TIMEOUT_SECONDS,
 	getProjectTemplate,
 	instantiateProject,
 	instantiateProjectAndWait,
 	listProjectTemplates,
 	listProjectTemplatesForTeam,
-	newProjectOf,
-} from './api.js'
+} from './default.js'
 import type { ProjectTemplatePrivacySetting, RequestedDate, RequestedRole } from './gateway.js'
 
 type ProjectTemplate = {

@@ -1,5 +1,4 @@
-import { createClient } from '../platform/client.js'
-import { createAsanaEventGateway, type EventFeedOptions, type EventGateway } from './gateway.js'
+import type { EventFeedOptions, EventGateway } from './gateway.js'
 
 export type { EventFeedOptions } from './gateway.js'
 
@@ -11,12 +10,4 @@ export function createEventApi(gateway: EventGateway) {
 			return gateway.getEvents(resourceGid, opts)
 		},
 	}
-}
-
-function defaultEventApi() {
-	return createEventApi(createAsanaEventGateway(createClient()))
-}
-
-export async function getEvents(resourceGid: string, opts?: EventFeedOptions) {
-	return defaultEventApi().getEvents(resourceGid, opts)
 }

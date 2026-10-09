@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { DEFAULT_JOB_POLL_ATTEMPTS, DEFAULT_JOB_POLL_INTERVAL_MS } from '../platform/job-polling.js'
 import { paginationOptions, paginationParams, readOptions, readParams } from '../platform/mcp/options.js'
 import type { TaskTemplateApi } from './api.js'
-import { getTaskTemplate, instantiateTask, listTaskTemplates } from './api.js'
+import { getTaskTemplate, instantiateTask, listTaskTemplates } from './default.js'
 
 function resolveTaskTemplateApi(api?: TaskTemplateApi | (() => TaskTemplateApi)): TaskTemplateApi {
 	if (typeof api === 'function') return api()

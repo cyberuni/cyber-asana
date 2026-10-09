@@ -20,7 +20,7 @@ import {
 	listPortfolioItems,
 	listPortfolios,
 	updatePortfolio,
-} from './api.js'
+} from './default.js'
 
 type Portfolio = { gid: string; name: string; permalink_url?: string }
 

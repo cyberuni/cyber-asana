@@ -9,7 +9,7 @@ import {
 } from '../platform/cli/options.js'
 import { output, printCountSummary, printFields, printNextSteps, printTable } from '../platform/cli/output.js'
 import type { WorkspaceApi } from './api.js'
-import { getWorkspace, listWorkspaces } from './api.js'
+import { getWorkspace, listWorkspaces } from './default.js'
 
 type Workspace = { gid: string; name: string }
 

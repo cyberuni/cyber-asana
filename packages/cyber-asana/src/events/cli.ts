@@ -1,7 +1,7 @@
 import { Command } from 'commander'
 import { output, printCountSummary, printNextSteps, printSummary, printTable } from '../platform/cli/output.js'
 import type { EventApi } from './api.js'
-import { getEvents } from './api.js'
+import { getEvents } from './default.js'
 import type { EventFeed } from './feed.js'
 
 type ChangeEvent = {

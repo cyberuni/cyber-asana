@@ -22,7 +22,7 @@ import {
 	listTasksForTag,
 	removeTagFromTask,
 	updateTag,
-} from './api.js'
+} from './default.js'
 import { buildTagUpdateFields, parseFollowerGids } from './write-options.js'
 
 type Tag = { gid: string; name: string; color?: string | null }

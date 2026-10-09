@@ -10,7 +10,7 @@ import {
 	listSections,
 	moveSection,
 	updateSection,
-} from './api.js'
+} from './default.js'
 
 function resolveSectionApi(api?: SectionApi | (() => SectionApi)): SectionApi {
 	if (typeof api === 'function') return api()

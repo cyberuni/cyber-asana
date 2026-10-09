@@ -1,7 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import type { EventApi } from './api.js'
-import { getEvents } from './api.js'
+import { getEvents } from './default.js'
 
 function resolveEventApi(api?: EventApi | (() => EventApi)): EventApi {
 	if (typeof api === 'function') return api()

@@ -2,7 +2,7 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import { paginationOptions, paginationParams } from '../platform/mcp/options.js'
 import type { AiStudioApi } from './api.js'
-import { listAiStudioRuns, listAiStudioSeats } from './api.js'
+import { listAiStudioRuns, listAiStudioSeats } from './default.js'
 import { AI_STUDIO_SEAT_FILTER_STATES } from './gateway.js'
 
 function resolveAiStudioApi(api?: AiStudioApi | (() => AiStudioApi)): AiStudioApi {

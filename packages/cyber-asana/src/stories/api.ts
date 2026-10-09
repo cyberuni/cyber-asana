@@ -1,8 +1,7 @@
-import { createClient } from '../platform/client.js'
 import { buildErrorBody } from '../platform/error-body.js'
 import type { PaginationOptions } from '../platform/pagination.js'
 import type { ReadOptions } from '../platform/read-options.js'
-import { createAsanaStoryGateway, type StoryGateway, type TaskTemplateData } from './gateway.js'
+import type { StoryGateway, TaskTemplateData } from './gateway.js'
 import {
 	buildStoryCreateFields,
 	buildStoryUpdateFields,
@@ -93,32 +92,4 @@ export function createStoryApi(gateway: StoryGateway) {
 			return gateway.getTaskTemplateData(taskGid)
 		},
 	}
-}
-
-function defaultStoryApi() {
-	return createStoryApi(createAsanaStoryGateway(createClient()))
-}
-
-export async function listStories(taskGid: string, opts?: PaginationOptions) {
-	return defaultStoryApi().listStories(taskGid, opts)
-}
-
-export async function createStory(taskGid: string, fields: StoryCreateFields) {
-	return defaultStoryApi().createStory(taskGid, fields)
-}
-
-export async function getStory(storyGid: string, opts?: ReadOptions) {
-	return defaultStoryApi().getStory(storyGid, opts)
-}
-
-export async function updateStory(storyGid: string, fields: StoryUpdateFields) {
-	return defaultStoryApi().updateStory(storyGid, fields)
-}
-
-export async function deleteStory(storyGid: string) {
-	return defaultStoryApi().deleteStory(storyGid)
-}
-
-export async function getTaskTemplateData(taskGid: string) {
-	return defaultStoryApi().getTaskTemplateData(taskGid)
 }

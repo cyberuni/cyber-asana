@@ -4,8 +4,8 @@ const createPortfolioMock = vi.fn()
 const updatePortfolioMock = vi.fn()
 const listPortfolioItemsMock = vi.fn()
 
-vi.mock('./api.js', async () => {
-	const actual = await vi.importActual<typeof import('./api.js')>('./api.js')
+vi.mock('./default.js', async () => {
+	const actual = await vi.importActual<typeof import('./default.js')>('./default.js')
 	return {
 		...actual,
 		createPortfolio: createPortfolioMock,

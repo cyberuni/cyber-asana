@@ -1,12 +1,12 @@
 import Asana from 'asana'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { createCustomFieldApi } from './api.js'
 import {
-	createCustomFieldApi,
 	listCustomFieldSettingsForGoal,
 	listCustomFieldSettingsForPortfolio,
 	listCustomFieldSettingsForProject,
 	listCustomFieldSettingsForTeam,
-} from './api.js'
+} from './default.js'
 
 vi.mock('../platform/client.js', () => ({
 	createClient: () => ({}),

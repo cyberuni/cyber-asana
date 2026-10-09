@@ -24,7 +24,9 @@ import {
 } from '../platform/cli/output.js'
 import { deleteIdempotently, deleteMessage } from '../platform/idempotent-delete.js'
 import { isFull, truncate } from '../platform/truncate.js'
+import { listTags } from '../tags/default.js'
 import { resolveTagRefs } from '../tags/resolve.js'
+import { type SearchTasksOptions, scanTodos, type TaskApi, type TodoMatch } from './api.js'
 import {
 	addDependencies,
 	addDependents,
@@ -46,13 +48,9 @@ import {
 	removeDependents,
 	removeFollowersFromTask,
 	removeTaskFromProject,
-	type SearchTasksOptions,
-	scanTodos,
 	searchTasks,
-	type TaskApi,
-	type TodoMatch,
 	updateTask,
-} from './api.js'
+} from './default.js'
 import {
 	applyConventions,
 	buildTaskCreateFields,
@@ -404,7 +402,9 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 						assignee: await assigneeForCreate(opts),
 						projectInput: opts.projectGid ?? (await resolveProjectRef(opts.project)),
 						followerInput: opts.follower,
-						tagGids: await resolveTagRefs(parseGidList(opts.tag) ?? conventions?.default_tags, workspaceGid),
+						tagGids: await resolveTagRefs(parseGidList(opts.tag) ?? conventions?.default_tags, workspaceGid, {
+							listTags,
+						}),
 						dueOn: opts.dueOn,
 						dueAt: opts.dueAt,
 						startOn: opts.startOn,

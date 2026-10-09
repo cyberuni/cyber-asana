@@ -1,10 +1,10 @@
-import { listItems } from '../platform/pagination.js'
-import { listTags as defaultListTags } from './api.js'
+import { type ListResult, listItems } from '../platform/pagination.js'
 
 type TagHit = { gid?: string; name?: string }
 
 export type ResolveTagDeps = {
-	listTags?: typeof defaultListTags
+	/** How the workspace's tags are listed; the delivery layer passes the real one in. */
+	listTags: (workspaceGid: string, opts: { fetchAll: true; optFields: string }) => Promise<ListResult<TagHit>>
 }
 
 function normalize(value: string) {
@@ -19,7 +19,7 @@ function normalize(value: string) {
 export async function resolveTagRefs(
 	values: string[] | undefined,
 	workspaceGid: string,
-	deps?: ResolveTagDeps,
+	deps: ResolveTagDeps,
 ): Promise<string[] | undefined> {
 	const wanted = (values ?? []).map((value) => value.trim()).filter((value) => value.length > 0)
 	if (wanted.length === 0) {
@@ -28,8 +28,7 @@ export async function resolveTagRefs(
 	if (wanted.every((value) => /^\d+$/.test(value))) {
 		return wanted
 	}
-	const listTags = deps?.listTags ?? defaultListTags
-	const tags = listItems(await listTags(workspaceGid, { fetchAll: true, optFields: 'gid,name' })) as TagHit[]
+	const tags = listItems(await deps.listTags(workspaceGid, { fetchAll: true, optFields: 'gid,name' }))
 	return wanted.map((value) => {
 		if (/^\d+$/.test(value)) return value
 		const matches = tags.filter((tag) => tag.name !== undefined && normalize(tag.name) === normalize(value))
