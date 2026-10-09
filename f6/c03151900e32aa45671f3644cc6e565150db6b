@@ -1,0 +1,19 @@
+packages/cyber-asana/src/types/asana.learn.test.ts
+  s_5f00c0a2c643d7::t_7a8117ffb8c5c8 133-135,138,418-422,548-552,753-755,757-761,764-769,814-816,818-825,841,843-846,861
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "f6c03151900e32aa45671f3644cc6e565150db6b",
+  "prompts": {},
+  "sessions": {
+    "s_5f00c0a2c643d7": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "87d6921a-fdb4-4e72-8e69-c6d6b7d88690",
+        "model": "unknown"
+      },
+      "human_author": "unional <homawong@gmail.com>"
+    }
+  }
+}
