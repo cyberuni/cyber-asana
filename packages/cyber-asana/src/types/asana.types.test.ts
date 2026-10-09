@@ -195,4 +195,37 @@ describe('asana type augmentation', () => {
 		testType.equal<Asana.TaskCounts['num_tasks'], number | undefined>(true)
 		testType.equal<Asana.ProjectRequest['name'], string | undefined>(true)
 	})
+
+	it('types the TasksApi relation calls: project, tag, follower, parent, subtask and dependency', () => {
+		type R<K extends Exclude<keyof Asana.TasksApi, 'apiClient'>> = Awaited<ReturnType<Asana.TasksApi[K]>>
+
+		testType.false<IsAny<R<'addProjectForTask'>>>(true)
+		testType.equal<R<'addProjectForTask'>, Asana.EmptyResponse>(true)
+		testType.equal<R<'removeProjectForTask'>, Asana.EmptyResponse>(true)
+		testType.equal<R<'addTagForTask'>, Asana.EmptyResponse>(true)
+		testType.equal<R<'removeTagForTask'>, Asana.EmptyResponse>(true)
+		testType.equal<R<'addFollowersForTask'>, Asana.AsanaResponse<Asana.Task>>(true)
+		testType.equal<R<'removeFollowerForTask'>, Asana.AsanaResponse<Asana.Task>>(true)
+		testType.equal<R<'setParentForTask'>, Asana.AsanaResponse<Asana.Task>>(true)
+		testType.equal<R<'createSubtaskForTask'>, Asana.AsanaResponse<Asana.Task>>(true)
+		testType.equal<R<'addDependenciesForTask'>, Asana.EmptyResponse>(true)
+		testType.equal<R<'addDependentsForTask'>, Asana.EmptyResponse>(true)
+		testType.equal<R<'removeDependenciesForTask'>, Asana.EmptyResponse>(true)
+		testType.equal<R<'removeDependentsForTask'>, Asana.EmptyResponse>(true)
+		testType.equal<R<'getDependenciesForTask'>, Asana.AsanaCollection<Asana.Task>>(true)
+		testType.equal<R<'getDependentsForTask'>, Asana.AsanaCollection<Asana.Task>>(true)
+	})
+
+	it('types the TasksApi list and search calls as collections of tasks', () => {
+		type R<K extends Exclude<keyof Asana.TasksApi, 'apiClient'>> = Awaited<ReturnType<Asana.TasksApi[K]>>
+
+		testType.equal<R<'getTasks'>, Asana.AsanaCollection<Asana.Task>>(true)
+		testType.equal<R<'getTasksForSection'>, Asana.AsanaCollection<Asana.Task>>(true)
+		testType.equal<R<'getTasksForTag'>, Asana.AsanaCollection<Asana.Task>>(true)
+		testType.equal<R<'getTasksForUserTaskList'>, Asana.AsanaCollection<Asana.Task>>(true)
+		testType.equal<R<'getSubtasksForTask'>, Asana.AsanaCollection<Asana.Task>>(true)
+		testType.equal<R<'searchTasksForWorkspace'>, Asana.AsanaCollection<Asana.Task>>(true)
+		testType.equal<Asana.Task['parent'], Asana.Task | null | undefined>(true)
+		testType.equal<Asana.Task['followers'], Asana.User[] | undefined>(true)
+	})
 })

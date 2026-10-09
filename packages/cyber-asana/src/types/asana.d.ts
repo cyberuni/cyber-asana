@@ -58,6 +58,8 @@ declare module 'asana' {
 		resource_subtype?: string | undefined
 		start_on?: string | undefined
 		assignee?: User | undefined
+		followers?: User[] | undefined
+		parent?: Task | null | undefined
 		memberships?: Array<{ project?: Project | undefined; section?: Section | undefined }> | undefined
 		projects?: Project[] | undefined
 		tags?: Tag[] | undefined
@@ -220,6 +222,66 @@ declare module 'asana' {
 	}
 
 	interface TasksApi {
+		addProjectForTask(
+			body: { data: { project: string; section?: string; insert_after?: string; insert_before?: string } },
+			task_gid: string,
+		): Promise<EmptyResponse>
+		removeProjectForTask(body: { data: { project: string } }, task_gid: string): Promise<EmptyResponse>
+		addTagForTask(body: { data: { tag: string } }, task_gid: string): Promise<EmptyResponse>
+		removeTagForTask(body: { data: { tag: string } }, task_gid: string): Promise<EmptyResponse>
+		addFollowersForTask(
+			body: { data: { followers: string[] } },
+			task_gid: string,
+			opts?: OptionalFields,
+		): Promise<AsanaResponse<Task>>
+		removeFollowerForTask(
+			body: { data: { followers: string[] } },
+			task_gid: string,
+			opts?: OptionalFields,
+		): Promise<AsanaResponse<Task>>
+		setParentForTask(
+			body: { data: { parent: string | null; insert_after?: string; insert_before?: string } },
+			task_gid: string,
+			opts?: OptionalFields,
+		): Promise<AsanaResponse<Task>>
+		createSubtaskForTask(
+			body: { data: TaskRequest },
+			task_gid: string,
+			opts?: OptionalFields,
+		): Promise<AsanaResponse<Task>>
+		addDependenciesForTask(body: { data: { dependencies: string[] } }, task_gid: string): Promise<EmptyResponse>
+		addDependentsForTask(body: { data: { dependents: string[] } }, task_gid: string): Promise<EmptyResponse>
+		removeDependenciesForTask(body: { data: { dependencies: string[] } }, task_gid: string): Promise<EmptyResponse>
+		removeDependentsForTask(body: { data: { dependents: string[] } }, task_gid: string): Promise<EmptyResponse>
+		getDependenciesForTask(task_gid: string, opts?: PaginationOptions): Promise<AsanaCollection<Task>>
+		getDependentsForTask(task_gid: string, opts?: PaginationOptions): Promise<AsanaCollection<Task>>
+		getSubtasksForTask(task_gid: string, opts?: PaginationOptions): Promise<AsanaCollection<Task>>
+		getTasks(
+			opts?: PaginationOptions & {
+				project?: string | undefined
+				section?: string | undefined
+				tag?: string | undefined
+				assignee?: string | undefined
+				workspace?: string | undefined
+				completed_since?: string | undefined
+				modified_since?: string | undefined
+				custom_type?: string | undefined
+			},
+		): Promise<AsanaCollection<Task>>
+		getTasksForSection(
+			section_gid: string,
+			opts?: PaginationOptions & { completed_since?: string | undefined },
+		): Promise<AsanaCollection<Task>>
+		getTasksForTag(tag_gid: string, opts?: PaginationOptions): Promise<AsanaCollection<Task>>
+		getTasksForUserTaskList(
+			user_task_list_gid: string,
+			opts?: PaginationOptions & { completed_since?: string | undefined },
+		): Promise<AsanaCollection<Task>>
+		/** Filters are dotted query keys such as `'assignee.any'` or `'due_on.before'`. */
+		searchTasksForWorkspace(
+			workspace_gid: string,
+			opts?: OptionalFields & { limit?: number | undefined } & Record<string, string | number | boolean | undefined>,
+		): Promise<AsanaCollection<Task>>
 		createTask(body: { data: TaskRequest }, opts?: OptionalFields): Promise<AsanaResponse<Task>>
 		updateTask(body: { data: TaskRequest }, task_gid: string, opts?: OptionalFields): Promise<AsanaResponse<Task>>
 		deleteTask(task_gid: string): Promise<EmptyResponse>

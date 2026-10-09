@@ -418,3 +418,129 @@ describe.skipIf(!workspaceEnabled)('asana types: ProjectsApi writes, lists, coun
 		expect(Array.isArray(found.data)).toBe(true)
 	})
 })
+
+describe.skipIf(!projectEnabled || !workspaceEnabled)('asana types: task relations, lists and search', () => {
+	it('project, tag, follower, parent, subtask and dependency calls resolve to the augmented shapes', async () => {
+		const client = createClient()
+		const tasks = new Asana.TasksApi(client)
+		const tags = new Asana.TagsApi(client)
+		const users = new Asana.UsersApi(client)
+		const make = (name: string, extra: object = {}) =>
+			tasks.createTask({ data: { name: `cyber-asana learn probe: ${name}`, workspace: workspaceGid!, ...extra } })
+		const parent = await make('parent', { projects: [projectGid!] })
+		const other = await make('other')
+		const tag: { data: { gid: string } } = await tags.createTagForWorkspace(
+			{ data: { name: 'cyber-asana learn probe: tag' } },
+			workspaceGid!,
+		)
+		try {
+			const me = await users.getUser('me')
+			const added = await tasks.addProjectForTask({ data: { project: projectGid! } }, other.data.gid)
+			expectTypeOf(added).toEqualTypeOf<Asana.EmptyResponse>()
+			expect(added.data).toEqual({})
+			const removed = await tasks.removeProjectForTask({ data: { project: projectGid! } }, other.data.gid)
+			expectTypeOf(removed).toEqualTypeOf<Asana.EmptyResponse>()
+			expect(removed.data).toEqual({})
+
+			const tagged = await tasks.addTagForTask({ data: { tag: tag.data.gid } }, parent.data.gid)
+			expectTypeOf(tagged).toEqualTypeOf<Asana.EmptyResponse>()
+			expect(tagged.data).toEqual({})
+			const byTag = await tasks.getTasksForTag(tag.data.gid, { opt_fields: 'name' })
+			expectTypeOf(byTag).toEqualTypeOf<Asana.AsanaCollection<Asana.Task>>()
+			expect(byTag.data.map((t) => t.gid)).toContain(parent.data.gid)
+			const untagged = await tasks.removeTagForTask({ data: { tag: tag.data.gid } }, parent.data.gid)
+			expectTypeOf(untagged).toEqualTypeOf<Asana.EmptyResponse>()
+			expect(untagged.data).toEqual({})
+
+			const followed = await tasks.addFollowersForTask({ data: { followers: [me.data.gid] } }, parent.data.gid, {
+				opt_fields: 'followers.gid',
+			})
+			expectTypeOf(followed).toEqualTypeOf<Asana.AsanaResponse<Asana.Task>>()
+			expect(followed.data.followers?.map((f) => f.gid)).toContain(me.data.gid)
+			const unfollowed = await tasks.removeFollowerForTask({ data: { followers: [me.data.gid] } }, parent.data.gid, {
+				opt_fields: 'followers.gid',
+			})
+			expectTypeOf(unfollowed).toEqualTypeOf<Asana.AsanaResponse<Asana.Task>>()
+			expect(unfollowed.data.followers?.map((f) => f.gid) ?? []).not.toContain(me.data.gid)
+
+			const child = await tasks.createSubtaskForTask(
+				{ data: { name: 'cyber-asana learn probe: child' } },
+				parent.data.gid,
+				{ opt_fields: 'name,parent.gid' },
+			)
+			expectTypeOf(child).toEqualTypeOf<Asana.AsanaResponse<Asana.Task>>()
+			expect(child.data.parent?.gid).toBe(parent.data.gid)
+			const subtasks = await tasks.getSubtasksForTask(parent.data.gid, { opt_fields: 'name' })
+			expectTypeOf(subtasks).toEqualTypeOf<Asana.AsanaCollection<Asana.Task>>()
+			expect(subtasks.data.map((t) => t.gid)).toContain(child.data.gid)
+			const reparented = await tasks.setParentForTask({ data: { parent: other.data.gid } }, child.data.gid, {
+				opt_fields: 'parent.gid',
+			})
+			expectTypeOf(reparented).toEqualTypeOf<Asana.AsanaResponse<Asana.Task>>()
+			expect(reparented.data.parent?.gid).toBe(other.data.gid)
+			await tasks.deleteTask(child.data.gid)
+		} finally {
+			await tasks.deleteTask(parent.data.gid)
+			await tasks.deleteTask(other.data.gid)
+			await tags.deleteTag(tag.data.gid)
+		}
+	})
+
+	it.skipIf(!isPaidPlan())('dependency calls resolve to the augmented shapes (paid plans only)', async () => {
+		const tasks = new Asana.TasksApi(createClient())
+		const make = (name: string) =>
+			tasks.createTask({ data: { name: `cyber-asana learn probe: ${name}`, workspace: workspaceGid! } })
+		const parent = await make('dependent')
+		const other = await make('dependency')
+		try {
+			const dep = await tasks.addDependenciesForTask({ data: { dependencies: [other.data.gid] } }, parent.data.gid)
+			expectTypeOf(dep).toEqualTypeOf<Asana.EmptyResponse>()
+			expect(dep.data).toEqual({})
+			const dependencies = await tasks.getDependenciesForTask(parent.data.gid, { opt_fields: 'name' })
+			expectTypeOf(dependencies).toEqualTypeOf<Asana.AsanaCollection<Asana.Task>>()
+			expect(dependencies.data.map((t) => t.gid)).toEqual([other.data.gid])
+			const dependents = await tasks.getDependentsForTask(other.data.gid, { opt_fields: 'name' })
+			expectTypeOf(dependents).toEqualTypeOf<Asana.AsanaCollection<Asana.Task>>()
+			expect(dependents.data.map((t) => t.gid)).toEqual([parent.data.gid])
+			const noDep = await tasks.removeDependenciesForTask({ data: { dependencies: [other.data.gid] } }, parent.data.gid)
+			expectTypeOf(noDep).toEqualTypeOf<Asana.EmptyResponse>()
+			const addDependent = await tasks.addDependentsForTask({ data: { dependents: [other.data.gid] } }, parent.data.gid)
+			expectTypeOf(addDependent).toEqualTypeOf<Asana.EmptyResponse>()
+			const noDependent = await tasks.removeDependentsForTask(
+				{ data: { dependents: [other.data.gid] } },
+				parent.data.gid,
+			)
+			expectTypeOf(noDependent).toEqualTypeOf<Asana.EmptyResponse>()
+			expect(noDependent.data).toEqual({})
+		} finally {
+			await tasks.deleteTask(parent.data.gid)
+			await tasks.deleteTask(other.data.gid)
+		}
+	})
+
+	it('getTasks, getTasksForSection and getTasksForUserTaskList return Collections of tasks', async () => {
+		const client = createClient()
+		const tasks = new Asana.TasksApi(client)
+		const byProject = await tasks.getTasks({ project: projectGid!, limit: 1, opt_fields: 'name' })
+		expectTypeOf(byProject).toEqualTypeOf<Asana.AsanaCollection<Asana.Task>>()
+		expect(Array.isArray(byProject.data)).toBe(true)
+
+		if (sectionGid) {
+			const bySection = await tasks.getTasksForSection(sectionGid, { limit: 1, opt_fields: 'name' })
+			expectTypeOf(bySection).toEqualTypeOf<Asana.AsanaCollection<Asana.Task>>()
+			expect(Array.isArray(bySection.data)).toBe(true)
+		}
+
+		const list = await new Asana.UserTaskListsApi(client).getUserTaskListForUser('me', workspaceGid!)
+		const mine = await tasks.getTasksForUserTaskList(list.data.gid, { limit: 1, opt_fields: 'name' })
+		expectTypeOf(mine).toEqualTypeOf<Asana.AsanaCollection<Asana.Task>>()
+		expect(Array.isArray(mine.data)).toBe(true)
+	})
+
+	it.skipIf(!isPaidPlan())('searchTasksForWorkspace returns a Collection of tasks (premium only)', async () => {
+		const tasks = new Asana.TasksApi(createClient())
+		const found = await tasks.searchTasksForWorkspace(workspaceGid!, { limit: 1, opt_fields: 'name' })
+		expectTypeOf(found).toEqualTypeOf<Asana.AsanaCollection<Asana.Task>>()
+		expect(Array.isArray(found.data)).toBe(true)
+	})
+})
