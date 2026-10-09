@@ -46,8 +46,20 @@ declare module 'asana' {
 	}
 
 	interface Project extends AsanaResource {
+		resource_type: 'project'
 		archived?: boolean | undefined
+		color?: string | undefined
+		completed?: boolean | undefined
+		created_at?: string | undefined
+		due_on?: string | undefined
+		html_notes?: string | undefined
+		modified_at?: string | undefined
+		notes?: string | undefined
+		owner?: User | undefined
 		permalink_url?: string | undefined
+		public?: boolean | undefined
+		start_on?: string | undefined
+		workspace?: Workspace | undefined
 	}
 
 	interface Tag extends AsanaResource {
@@ -60,6 +72,10 @@ declare module 'asana' {
 
 	interface TasksApi {
 		getTask(task_gid: string, opts?: OptionalFields): Promise<AsanaResponse<Task>>
+	}
+
+	interface ProjectsApi {
+		getProject(project_gid: string, opts?: OptionalFields): Promise<AsanaResponse<Project>>
 	}
 }
 

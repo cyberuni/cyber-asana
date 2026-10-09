@@ -20,4 +20,18 @@ describe('asana type augmentation', () => {
 		testType.equal<Asana.Task['completed'], boolean | undefined>(true)
 		testType.equal<Asana.Task['assignee'], Asana.User | undefined>(true)
 	})
+
+	it('types ProjectsApi.getProject instead of leaving it any', () => {
+		type Result = Awaited<ReturnType<Asana.ProjectsApi['getProject']>>
+
+		testType.false<IsAny<Result>>(true)
+		testType.equal<Result, Asana.AsanaResponse<Asana.Project>>(true)
+	})
+
+	it('pins Project.resource_type to the literal "project" and types its owner', () => {
+		testType.equal<Asana.Project['resource_type'], 'project'>(true)
+		testType.equal<Asana.Project['owner'], Asana.User | undefined>(true)
+		testType.equal<Asana.Project['workspace'], Asana.Workspace | undefined>(true)
+		testType.equal<Asana.Project['notes'], string | undefined>(true)
+	})
 })
