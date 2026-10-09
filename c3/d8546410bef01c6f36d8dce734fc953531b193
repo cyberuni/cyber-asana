@@ -1,0 +1,14 @@
+packages/cyber-asana/src/types/asana.d.ts
+  h_77abf33af1f9fb 1-772
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "c3d8546410bef01c6f36d8dce734fc953531b193",
+  "prompts": {},
+  "humans": {
+    "h_77abf33af1f9fb": {
+      "author": "unional <homawong@gmail.com>"
+    }
+  }
+}
