@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { createRuntimeContext, type RuntimeContext } from '../composition.js'
-import { buildMcpToolErrorBody } from '../mcp-error.js'
+import { buildErrorBody } from '../error-body.js'
 import { isSystemTestEnabled, systemEnv } from '../testing/system.js'
 import { parseDocumentedSubset } from './html-subset.js'
 
@@ -70,7 +70,7 @@ async function putHtmlNotes(html: string): Promise<{ ok: true } | { ok: false; m
 	} catch (error) {
 		// Surface Asana's own reason ("XML is invalid") rather than the bare "Bad Request",
 		// so a drift failure names what changed.
-		return { ok: false, message: buildMcpToolErrorBody(error).error.message }
+		return { ok: false, message: buildErrorBody(error).error.message }
 	}
 }
 

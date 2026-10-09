@@ -1,6 +1,6 @@
 import Asana from 'asana'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { buildMcpToolErrorBody } from '../mcp-error.js'
+import { buildErrorBody } from '../error-body.js'
 import {
 	createStory,
 	createStoryApi,
@@ -129,7 +129,7 @@ describe('stories/api single-story operations', () => {
 
 		const error = await updateStory('123', { text: 'Corrected' }).catch((thrown: unknown) => thrown)
 
-		expect(buildMcpToolErrorBody(error).error).toMatchObject({
+		expect(buildErrorBody(error).error).toMatchObject({
 			status: 403,
 			hint: expect.stringContaining('you authored'),
 		})
@@ -140,7 +140,7 @@ describe('stories/api single-story operations', () => {
 
 		const error = await deleteStory('123').catch((thrown: unknown) => thrown)
 
-		expect(buildMcpToolErrorBody(error).error).toMatchObject({
+		expect(buildErrorBody(error).error).toMatchObject({
 			status: 403,
 			hint: expect.stringContaining('you authored'),
 		})
@@ -153,7 +153,7 @@ describe('stories/api single-story operations', () => {
 
 		const error = await deleteStory('123').catch((thrown: unknown) => thrown)
 
-		expect(buildMcpToolErrorBody(error).error.hint).toBeUndefined()
+		expect(buildErrorBody(error).error.hint).toBeUndefined()
 	})
 })
 

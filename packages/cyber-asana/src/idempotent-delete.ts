@@ -1,4 +1,4 @@
-import { buildMcpToolErrorBody } from './mcp-error.js'
+import { buildErrorBody } from './error-body.js'
 
 // Idempotent deletes — principle 6. Deleting something that is already gone is
 // the state the caller asked for, so a repeated delete succeeds instead of
@@ -13,7 +13,7 @@ export type DeleteResult = {
 }
 
 function isNotFound(error: unknown): boolean {
-	return buildMcpToolErrorBody(error).error.status === 404
+	return buildErrorBody(error).error.status === 404
 }
 
 export async function deleteIdempotently(

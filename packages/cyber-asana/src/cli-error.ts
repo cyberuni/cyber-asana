@@ -1,5 +1,5 @@
 import { buildUsageErrorBody, isUsageError, renderUsageErrorText } from './cli-usage.js'
-import { buildMcpToolErrorBody, PLAN_LIMITATION_STATUS } from './mcp-error.js'
+import { buildErrorBody, PLAN_LIMITATION_STATUS } from './error-body.js'
 import type { OutputFormat } from './output.js'
 import { encodeToon } from './toon.js'
 
@@ -8,7 +8,7 @@ import { encodeToon } from './toon.js'
 // branch on without parsing the message.
 export function exitCodeFor(error: unknown): number {
 	if (isUsageError(error)) return 2 // the caller can fix the command line and retry
-	const body = buildMcpToolErrorBody(error)
+	const body = buildErrorBody(error)
 	if (body.error.kind === 'config') return 3
 	switch (body.error.status) {
 		case PLAN_LIMITATION_STATUS:
@@ -33,7 +33,7 @@ export function renderCliError(error: unknown, format: OutputFormat): string {
 		if (format === 'toon') return encodeToon(usage)
 		return renderUsageErrorText(error)
 	}
-	const body = buildMcpToolErrorBody(error)
+	const body = buildErrorBody(error)
 	if (format === 'json') return JSON.stringify(body, null, 2)
 	if (format === 'toon') return encodeToon(body)
 	const prefix = body.error.kind === 'asana_api' ? 'Asana API error' : 'Error'

@@ -1,5 +1,5 @@
 import { createClient } from '../client.js'
-import { buildMcpToolErrorBody } from '../mcp-error.js'
+import { buildErrorBody } from '../error-body.js'
 import type { PaginationOptions } from '../pagination.js'
 import type { ReadOptions } from '../read-options.js'
 import { createAsanaStoryGateway, type StoryGateway, type TaskTemplateData } from './gateway.js'
@@ -35,7 +35,7 @@ const STORY_PERMISSION_HINT =
 	'Asana only allows editing or deleting comment stories you authored. System stories (assignee changed, due date set) are immutable.'
 
 function annotateStoryPermissionError(error: unknown): never {
-	if (buildMcpToolErrorBody(error).error.status === 403 && error && typeof error === 'object') {
+	if (buildErrorBody(error).error.status === 403 && error && typeof error === 'object') {
 		const annotated = error as { hint?: string }
 		annotated.hint ??= STORY_PERMISSION_HINT
 	}
