@@ -76,7 +76,7 @@ Key conventions to follow:
 - Unwrap SDK responses: `res.data`, not `res`
 - Workspace GID as plain string: `workspace: workspaceGid`
 - MCP tool naming: `asana_<resource>_<action>`
-- CLI output: use `output()`, `printFields()`, `printTable()` from `src/output.ts`
+- CLI output: use `output()`, `printFields()`, `printTable()` from `src/platform/cli/output.ts`
 - Zod schemas for all MCP parameters
 
 ### 6. Verify

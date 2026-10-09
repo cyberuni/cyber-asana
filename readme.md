@@ -240,7 +240,7 @@ cyber-asana/                    # the package as installed
 
 `plugin.json` follows the [Agent Plugins specification](https://github.com/agentplugins/agent-plugins-spec) v1.0.0, whose manifest schema is closed: components are discovered from the fixed `skills/` location rather than declared inline. The plugin ships no `mcp.json`; it registers no MCP server. Clients that predate the spec read their own manifest from the vendor directory beside it.
 
-The `envValue` guard in `src/env.ts` still treats a value that is exactly an unexpanded reference, like `${ASANA_ACCESS_TOKEN}`, as unset rather than as a credential. It covers MCP configs this repo does not author, where a host that cannot expand a reference forwards its text verbatim — Claude Code [does so when the variable is unset and has no default](https://code.claude.com/docs/en/mcp#environment-variable-expansion-in-mcp-json). Without it the placeholder would outrank the `ASANA_TOKEN` fallback and turn a missing token into a `401`.
+The `envValue` guard in `src/platform/env.ts` still treats a value that is exactly an unexpanded reference, like `${ASANA_ACCESS_TOKEN}`, as unset rather than as a credential. It covers MCP configs this repo does not author, where a host that cannot expand a reference forwards its text verbatim — Claude Code [does so when the variable is unset and has no default](https://code.claude.com/docs/en/mcp#environment-variable-expansion-in-mcp-json). Without it the placeholder would outrank the `ASANA_TOKEN` fallback and turn a missing token into a `401`.
 
 Sources live under `packages/cyber-asana/`. Root `plugin.json` is the canonical manifest; the vendor manifests and `com.github.copilot/` are derived from it by `pnpm plugin:build`, and `pnpm version` carries the package version into all of them.
 
@@ -549,7 +549,7 @@ Notable parameters:
 - `asana_custom_field_list_for_project` — the fields actually attached to one project, with their enum options. Narrower than `asana_custom_field_list`, and the right lookup before writing `custom_fields`: Asana rejects a payload naming a field the project does not have. Same shape for `_for_portfolio`, `_for_goal`, `_for_team`
 - `asana_url_parse` — local URL parsing; use `workspace_gid` + `project_gid` for create; `list_view_gid` is not a section GID
 
-Per-tool parameter schemas live in `src/<domain>/mcp.ts` (e.g. `src/tasks/mcp.ts`) and [`src/url-mcp.ts`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/src/url-mcp.ts). MCP hosts also expose tool schemas at runtime when the server is connected.
+Per-tool parameter schemas live in `src/<domain>/mcp.ts` (e.g. `src/tasks/mcp.ts`) and [`src/url/mcp.ts`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/src/url/mcp.ts). MCP hosts also expose tool schemas at runtime when the server is connected.
 
 For task creation workflows, use the `/cyber-asana:create-task` command or the [`asana`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana/SKILL.md) skill ([Agent skills](#agent-skills)).
 
