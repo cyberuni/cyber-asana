@@ -1,5 +1,6 @@
 import Asana from 'asana'
 import { envValue } from './env.js'
+import { rateLimitClient } from './rate-limit/rate-limit-client.js'
 
 let tokenOverride: string | undefined
 let ambientToken: string | undefined
@@ -43,5 +44,10 @@ Or pass it inline with --token:
 		)
 	const client = new Asana.ApiClient()
 	client.authentications['token'].accessToken = token
-	return client
+	return rateLimitClient(client, {
+		token,
+		read: envValue,
+		onWait: (ms, plan) =>
+			console.error(`cyber-asana: waiting ${Math.ceil(ms / 1000)}s to stay within the Asana rate limit (${plan} plan)`),
+	})
 }

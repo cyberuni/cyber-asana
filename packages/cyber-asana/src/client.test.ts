@@ -1,4 +1,5 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import Asana from 'asana'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createClient, getTokenOverride, setAmbientToken, setTokenOverride } from './client.js'
 
 describe('createClient', () => {
@@ -80,5 +81,24 @@ describe('createClient', () => {
 		setTokenOverride('override-token')
 		const client = createClient()
 		expect(client.authentications['token'].accessToken).toBe('override-token')
+	})
+
+	it('puts every request behind the rate limiter, retrying a 429', async () => {
+		process.env.ASANA_TOKEN = 'limited-token'
+		const sdkCall = vi
+			.spyOn(Asana.ApiClient.prototype, 'callApi')
+			.mockRejectedValueOnce({ status: 429, response: { header: { 'retry-after': '0' } } })
+			.mockResolvedValue({ data: 'ok', response: {} })
+
+		try {
+			const client = createClient()
+
+			await expect(client.callApi('/tasks', 'GET', {}, {}, {}, {}, null, [], [], [], null)).resolves.toMatchObject({
+				data: 'ok',
+			})
+			expect(sdkCall).toHaveBeenCalledTimes(2)
+		} finally {
+			sdkCall.mockRestore()
+		}
 	})
 })
