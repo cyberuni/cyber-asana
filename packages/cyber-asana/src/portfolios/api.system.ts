@@ -19,6 +19,8 @@ describe.skipIf(!systemEnabled)(
 	definePortfolioListPaginationAcceptanceSpecs({
 		getApi: getPortfolioApi,
 		workspaceGid: workspaceGid!,
+		// Asana requires an owner to list portfolios; "me" always resolves to the calling token.
+		owner: 'me',
 		includeFetchAll: false,
 	}),
 )
