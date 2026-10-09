@@ -1,7 +1,7 @@
 import Asana from 'asana'
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import { createClient } from '../platform/client.js'
-import { isSystemTestEnabled, systemEnv } from '../testing/system.js'
+import { isPaidPlan, isSystemTestEnabled, systemEnv } from '../testing/system.js'
 
 const taskGid = systemEnv('ASANA_SYSTEM_TEST_TASK_GID')
 const enabled = isSystemTestEnabled() && Boolean(taskGid)
@@ -372,5 +372,49 @@ describe.skipIf(!projectEnabled || !workspaceEnabled)('asana types: section upda
 			await sections.deleteSection(first.data.gid)
 			await sections.deleteSection(second.data.gid)
 		}
+	})
+})
+
+describe.skipIf(!workspaceEnabled)('asana types: ProjectsApi writes, lists, counts and search', () => {
+	it('createProject, updateProject, getProjects, getTaskCountsForProject and deleteProject resolve to the augmented shapes', async () => {
+		const client = createClient()
+		const projects = new Asana.ProjectsApi(client)
+		const created = await projects.createProject(
+			{ data: { name: 'cyber-asana learn probe: project', workspace: workspaceGid!, notes: 'probe' } },
+			{ opt_fields: 'name,notes,resource_type' },
+		)
+		expectTypeOf(created).toEqualTypeOf<Asana.AsanaResponse<Asana.Project>>()
+		const gid = created.data.gid
+		try {
+			expect(created.data.resource_type).toBe('project')
+			expect(created.data.notes).toBe('probe')
+
+			const updated = await projects.updateProject({ data: { name: 'cyber-asana learn probe: renamed' } }, gid, {
+				opt_fields: 'name',
+			})
+			expectTypeOf(updated).toEqualTypeOf<Asana.AsanaResponse<Asana.Project>>()
+			expect(updated.data.name).toBe('cyber-asana learn probe: renamed')
+
+			const listed = await projects.getProjects({ workspace: workspaceGid!, limit: 1, opt_fields: 'name' })
+			expectTypeOf(listed).toEqualTypeOf<Asana.AsanaCollection<Asana.Project>>()
+			expect(Array.isArray(listed.data)).toBe(true)
+
+			const counts = await projects.getTaskCountsForProject(gid, {
+				opt_fields: 'num_tasks,num_incomplete_tasks,num_completed_tasks',
+			})
+			expectTypeOf(counts).toEqualTypeOf<Asana.AsanaResponse<Asana.TaskCounts>>()
+			expect(counts.data.num_tasks).toBe(0)
+		} finally {
+			const deleted = await projects.deleteProject(gid)
+			expectTypeOf(deleted).toEqualTypeOf<Asana.EmptyResponse>()
+			expect(deleted.data).toEqual({})
+		}
+	})
+
+	it.skipIf(!isPaidPlan())('searchProjectsForWorkspace returns a Collection of projects (premium only)', async () => {
+		const projects = new Asana.ProjectsApi(createClient())
+		const found = await projects.searchProjectsForWorkspace(workspaceGid!, { limit: 1, opt_fields: 'name' })
+		expectTypeOf(found).toEqualTypeOf<Asana.AsanaCollection<Asana.Project>>()
+		expect(Array.isArray(found.data)).toBe(true)
 	})
 })

@@ -277,7 +277,52 @@ declare module 'asana' {
 		getTagsForWorkspace(workspace_gid: string, opts?: PaginationOptions): Promise<AsanaCollection<Tag>>
 	}
 
+	interface ProjectRequest {
+		name?: string | undefined
+		workspace?: string | undefined
+		archived?: boolean | undefined
+		owner?: string | null | undefined
+		notes?: string | undefined
+		html_notes?: string | undefined
+		color?: string | undefined
+		privacy_setting?: 'public_to_workspace' | 'private' | 'private_to_team' | undefined
+		default_view?: 'list' | 'board' | 'calendar' | 'timeline' | undefined
+		default_access_level?: 'admin' | 'editor' | 'commenter' | 'viewer' | undefined
+		due_on?: string | null | undefined
+		start_on?: string | null | undefined
+	}
+
+	interface TaskCounts {
+		num_tasks?: number | undefined
+		num_incomplete_tasks?: number | undefined
+		num_completed_tasks?: number | undefined
+		num_milestones?: number | undefined
+		num_incomplete_milestones?: number | undefined
+		num_completed_milestones?: number | undefined
+	}
+
 	interface ProjectsApi {
+		createProject(body: { data: ProjectRequest }, opts?: OptionalFields): Promise<AsanaResponse<Project>>
+		updateProject(
+			body: { data: ProjectRequest },
+			project_gid: string,
+			opts?: OptionalFields,
+		): Promise<AsanaResponse<Project>>
+		deleteProject(project_gid: string): Promise<EmptyResponse>
+		getProjects(
+			opts?: PaginationOptions & {
+				workspace?: string | undefined
+				team?: string | undefined
+				archived?: boolean | undefined
+				custom_type?: string | undefined
+			},
+		): Promise<AsanaCollection<Project>>
+		getTaskCountsForProject(project_gid: string, opts?: OptionalFields): Promise<AsanaResponse<TaskCounts>>
+		/** Filters are dotted query keys such as `'teams.any'` or `'due_on.before'`. */
+		searchProjectsForWorkspace(
+			workspace_gid: string,
+			opts?: OptionalFields & { limit?: number | undefined } & Record<string, string | number | boolean | undefined>,
+		): Promise<AsanaCollection<Project>>
 		getProject(project_gid: string, opts?: OptionalFields): Promise<AsanaResponse<Project>>
 		getProjectsForWorkspace(
 			workspace_gid: string,

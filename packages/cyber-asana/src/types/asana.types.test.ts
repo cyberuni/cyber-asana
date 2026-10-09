@@ -176,4 +176,23 @@ describe('asana type augmentation', () => {
 		testType.equal<Membership['project'], Asana.Project | undefined>(true)
 		testType.equal<Membership['section'], Asana.Section | undefined>(true)
 	})
+
+	it('types the ProjectsApi create, update, delete, list, count and search calls', () => {
+		type Created = Awaited<ReturnType<Asana.ProjectsApi['createProject']>>
+		type Updated = Awaited<ReturnType<Asana.ProjectsApi['updateProject']>>
+		type Deleted = Awaited<ReturnType<Asana.ProjectsApi['deleteProject']>>
+		type Listed = Awaited<ReturnType<Asana.ProjectsApi['getProjects']>>
+		type Counts = Awaited<ReturnType<Asana.ProjectsApi['getTaskCountsForProject']>>
+		type Searched = Awaited<ReturnType<Asana.ProjectsApi['searchProjectsForWorkspace']>>
+
+		testType.false<IsAny<Created>>(true)
+		testType.equal<Created, Asana.AsanaResponse<Asana.Project>>(true)
+		testType.equal<Updated, Asana.AsanaResponse<Asana.Project>>(true)
+		testType.equal<Deleted, Asana.EmptyResponse>(true)
+		testType.equal<Listed, Asana.AsanaCollection<Asana.Project>>(true)
+		testType.equal<Searched, Asana.AsanaCollection<Asana.Project>>(true)
+		testType.equal<Counts, Asana.AsanaResponse<Asana.TaskCounts>>(true)
+		testType.equal<Asana.TaskCounts['num_tasks'], number | undefined>(true)
+		testType.equal<Asana.ProjectRequest['name'], string | undefined>(true)
+	})
 })
