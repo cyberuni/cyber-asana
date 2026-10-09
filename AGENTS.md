@@ -112,6 +112,10 @@ Shared acceptance helpers: `src/testing/list-pagination.acceptance.ts`, `src/tes
 - **Workspace GID in requests**: pass as a plain string (`workspace: workspaceGid`), not as an object (`workspace: { gid: ... }`)
 - **Task conventions**: `task_name_format`, `description_template`, and `default_tags` come only from the frontmatter of the `cyber-asana.task-conventions` reference (`packages/cyber-asana/references/`), resolved through `@cyberuni/agent-harness` layers by `loadConventions()` in `src/conventions.ts`. Never add them back to `.agents/cyber-asana.json`; that block is rejected and `config migrate-conventions` moves it
 
+### Rate limiting
+
+Every Asana request goes through `callApi` on the client `createClient()` builds, which `src/rate-limit/` wraps with a per-token limiter shared by the whole process (`ASANA_PLAN` = `free` | `paid`, optional `ASANA_RATE_LIMIT_PER_MINUTE`). Gateways and domains know nothing about it; do not add retry or throttling in a gateway. `src/rate-limit/` is pure (injected clock, no SDK or domain imports); only `rate-limit-client.ts` touches the client shape, and `src/client.ts` is the one place that wires it.
+
 ### Agent-friendly output
 
 The CLI and MCP follow the [10 agent-CLI principles](https://github.com/kunchenguid/axi#the-10-principles). Keep new commands consistent:

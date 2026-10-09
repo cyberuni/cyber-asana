@@ -125,6 +125,19 @@ curl -H "Authorization: Bearer $(cyber-asana auth token)" https://app.asana.com/
 
 `auth logout` revokes the grant with Asana and then deletes the local credentials. Revoking first matters: Asana revokes only refresh tokens, so once the file is gone there is nothing left to revoke with. If revocation fails the credentials are still deleted, and the output tells you the grant may still be live so you can remove it at [app.asana.com/0/my-apps](https://app.asana.com/0/my-apps). `--local` skips revocation, and logging out twice is not an error.
 
+## Rate limits
+
+Every request, from the CLI, the MCP server and the library alike, goes through one limiter per token that keeps you under Asana's [rate limits](https://developers.asana.com/docs/rate-limits). A call that would go over waits instead, and says so on stderr (`waiting 59s to stay within the Asana rate limit`). A `429` that still gets through is retried up to three times, after the wait in `Retry-After`.
+
+Asana allows 150 requests a minute on a free plan and 1,500 on a paid one, and 60 a minute for search. Tell cyber-asana which you have:
+
+```sh
+export ASANA_PLAN=paid                 # free (default) or paid
+export ASANA_RATE_LIMIT_PER_MINUTE=300 # optional: set the budget yourself
+```
+
+The default budget is 80% of the limit (120 free, 1,200 paid, 48 for search), so another tool on the same token has some room. An unset or unrecognised `ASANA_PLAN` counts as `free`. `ASANA_RATE_LIMIT_PER_MINUTE` must be a positive whole number and replaces the plan's budget; search keeps its own.
+
 ## Agent skills
 
 `cyber-asana` ships workflow skills under [`packages/cyber-asana/skills/`](https://github.com/cyberuni/cyber-asana/tree/main/packages/cyber-asana/skills) for Cursor, Claude Code, and other agents. **Start here** — skills drive the CLI (and MCP tools when you have opted into the server), encode how to resolve projects from repo config, and common workflows (standups, sprint reports, task creation).
