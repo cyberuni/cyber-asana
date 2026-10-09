@@ -1,6 +1,6 @@
-import { createClient } from '../client.js'
-import type { PaginationOptions } from '../pagination.js'
-import type { ReadOptions } from '../read-options.js'
+import { createClient } from '../platform/client.js'
+import type { PaginationOptions } from '../platform/pagination.js'
+import type { ReadOptions } from '../platform/read-options.js'
 import { createAsanaTagGateway, type TagGateway, type TagWriteFields } from './gateway.js'
 import type { TagCreateFields } from './write-options.js'
 

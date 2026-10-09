@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { createRuntimeContext, type RuntimeContext } from '../composition.js'
-import { buildErrorBody } from '../error-body.js'
+import { buildErrorBody } from '../platform/error-body.js'
 import { isSystemTestEnabled, systemEnv } from '../testing/system.js'
 import { parseDocumentedSubset } from './html-subset.js'
 

@@ -1,4 +1,4 @@
-import { envValue } from '../env.js'
+import { envValue } from '../platform/env.js'
 
 export function isSystemTestEnabled(): boolean {
 	return Boolean(process.env.ASANA_SYSTEM_TEST && envValue('ASANA_TOKEN'))

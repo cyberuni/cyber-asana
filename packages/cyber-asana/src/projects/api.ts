@@ -1,6 +1,6 @@
-import { createClient } from '../client.js'
-import { listItems } from '../pagination.js'
-import type { ReadOptions } from '../read-options.js'
+import { createClient } from '../platform/client.js'
+import { listItems } from '../platform/pagination.js'
+import type { ReadOptions } from '../platform/read-options.js'
 import { observeProjectIfConfigured, projectObservationFromApi } from '../repo-config.js'
 import {
 	type CreateProjectFields,

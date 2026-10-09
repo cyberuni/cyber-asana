@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createTaskTemplateApi, getTaskTemplate, instantiateTask, listTaskTemplates } from './api.js'
 import { createAsanaTaskTemplateGateway } from './gateway.js'
 
-vi.mock('../client.js', () => ({
+vi.mock('../platform/client.js', () => ({
 	createClient: () => ({}),
 }))
 

@@ -1,9 +1,9 @@
 import { type Command, InvalidArgumentError, Option } from 'commander'
-import { envValue } from './env.js'
 import { selectFormat } from './output.js'
-import type { ListResult, PaginationOptions } from './pagination.js'
-import { listItems, nextPageOffset } from './pagination.js'
-import type { ReadOptions } from './read-options.js'
+import { envValue } from './platform/env.js'
+import type { ListResult, PaginationOptions } from './platform/pagination.js'
+import { listItems, nextPageOffset } from './platform/pagination.js'
+import type { ReadOptions } from './platform/read-options.js'
 
 export type PaginationCliOptions = {
 	limit?: number

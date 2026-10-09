@@ -8,7 +8,7 @@ import {
 	printTable,
 	selectFormat,
 } from './output.js'
-import { encodeToon } from './toon.js'
+import { encodeToon } from './platform/toon.js'
 
 describe('selectFormat', () => {
 	it('returns text by default', () => {

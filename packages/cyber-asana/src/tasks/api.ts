@@ -1,8 +1,8 @@
 import { readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
-import { createClient } from '../client.js'
-import { listItems, type PaginationOptions } from '../pagination.js'
-import type { ReadOptions } from '../read-options.js'
+import { createClient } from '../platform/client.js'
+import { listItems, type PaginationOptions } from '../platform/pagination.js'
+import type { ReadOptions } from '../platform/read-options.js'
 import {
 	type CreateTaskFields,
 	createAsanaTaskGateway,

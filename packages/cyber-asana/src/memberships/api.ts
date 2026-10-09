@@ -1,5 +1,5 @@
-import { createClient } from '../client.js'
-import type { PaginationOptions } from '../pagination.js'
+import { createClient } from '../platform/client.js'
+import type { PaginationOptions } from '../platform/pagination.js'
 import {
 	createAsanaMembershipGateway,
 	type MembershipFields,

@@ -1,6 +1,6 @@
-import { createClient } from '../client.js'
-import type { PaginationOptions } from '../pagination.js'
-import type { ReadOptions } from '../read-options.js'
+import { createClient } from '../platform/client.js'
+import type { PaginationOptions } from '../platform/pagination.js'
+import type { ReadOptions } from '../platform/read-options.js'
 import { createAsanaTeamGateway, type TeamGateway } from './gateway.js'
 
 export type TeamApi = ReturnType<typeof createTeamApi>

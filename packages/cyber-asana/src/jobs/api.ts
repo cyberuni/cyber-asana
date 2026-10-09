@@ -1,6 +1,6 @@
-import { createClient } from '../client.js'
-import type { Job } from '../job-polling.js'
-import type { ReadOptions } from '../read-options.js'
+import { createClient } from '../platform/client.js'
+import type { Job } from '../platform/job-polling.js'
+import type { ReadOptions } from '../platform/read-options.js'
 import { createAsanaJobGateway, type JobGateway } from './gateway.js'
 
 export type { Job }

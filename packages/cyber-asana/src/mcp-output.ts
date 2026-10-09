@@ -1,6 +1,6 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
-import { encodeToon } from './toon.js'
+import { encodeToon } from './platform/toon.js'
 
 // Token-efficient MCP output — principle 1, applied at the registration layer so
 // every tool benefits without touching individual call sites. Opt-in via

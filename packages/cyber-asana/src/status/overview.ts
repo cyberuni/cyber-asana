@@ -1,4 +1,4 @@
-import { type ListResult, listItems } from '../pagination.js'
+import { type ListResult, listItems } from '../platform/pagination.js'
 import type { PortfolioGateway } from '../portfolios/gateway.js'
 import type { ProjectGateway } from '../projects/gateway.js'
 import type { StatusGateway } from './gateway.js'

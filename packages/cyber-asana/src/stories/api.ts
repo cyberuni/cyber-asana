@@ -1,7 +1,7 @@
-import { createClient } from '../client.js'
-import { buildErrorBody } from '../error-body.js'
-import type { PaginationOptions } from '../pagination.js'
-import type { ReadOptions } from '../read-options.js'
+import { createClient } from '../platform/client.js'
+import { buildErrorBody } from '../platform/error-body.js'
+import type { PaginationOptions } from '../platform/pagination.js'
+import type { ReadOptions } from '../platform/read-options.js'
 import { createAsanaStoryGateway, type StoryGateway, type TaskTemplateData } from './gateway.js'
 import {
 	buildStoryCreateFields,

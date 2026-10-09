@@ -10,10 +10,10 @@ import {
 	readOptionsFromCli,
 	requiredGid,
 } from '../cli-options.js'
-import { deleteIdempotently, deleteMessage } from '../idempotent-delete.js'
 import { output, printCountSummary, printFields, printNextSteps, printTable, selectFormat } from '../output.js'
-import { encodeToon } from '../toon.js'
-import { isFull, truncate } from '../truncate.js'
+import { deleteIdempotently, deleteMessage } from '../platform/idempotent-delete.js'
+import { encodeToon } from '../platform/toon.js'
+import { isFull, truncate } from '../platform/truncate.js'
 import {
 	createProject,
 	deleteProject,

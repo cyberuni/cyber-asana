@@ -10,10 +10,10 @@ import {
 	readOptionsFromCli,
 	requiredGid,
 } from '../cli-options.js'
-import type { Job } from '../job-polling.js'
-import { DEFAULT_JOB_POLL_INTERVAL_MS } from '../job-polling.js'
 import { output, printCountSummary, printFields, printNextSteps, printTable } from '../output.js'
-import { isFull, truncate } from '../truncate.js'
+import type { Job } from '../platform/job-polling.js'
+import { DEFAULT_JOB_POLL_INTERVAL_MS } from '../platform/job-polling.js'
+import { isFull, truncate } from '../platform/truncate.js'
 import type { ProjectTemplateApi } from './api.js'
 import {
 	DEFAULT_INSTANTIATE_TIMEOUT_SECONDS,

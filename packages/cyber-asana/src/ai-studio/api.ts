@@ -1,4 +1,4 @@
-import { createClient } from '../client.js'
+import { createClient } from '../platform/client.js'
 import {
 	type AiStudioGateway,
 	type AiStudioRunListOptions,

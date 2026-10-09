@@ -1,6 +1,6 @@
 import Asana from 'asana'
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { createClient } from '../client.js'
+import { createClient } from '../platform/client.js'
 import { isSystemTestEnabled, systemEnv } from '../testing/system.js'
 
 const taskGid = systemEnv('ASANA_SYSTEM_TEST_TASK_GID')

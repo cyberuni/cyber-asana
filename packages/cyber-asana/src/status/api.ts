@@ -1,4 +1,4 @@
-import { createClient } from '../client.js'
+import { createClient } from '../platform/client.js'
 import { createAsanaPortfolioGateway } from '../portfolios/gateway.js'
 import { createAsanaProjectGateway } from '../projects/gateway.js'
 import {
@@ -10,7 +10,7 @@ import {
 
 export type { StatusListOptions } from './gateway.js'
 
-import type { ReadOptions } from '../read-options.js'
+import type { ReadOptions } from '../platform/read-options.js'
 import { getStatusOverview as rollUpStatus, type StatusOverviewDeps, type StatusOverviewOptions } from './overview.js'
 
 export type {

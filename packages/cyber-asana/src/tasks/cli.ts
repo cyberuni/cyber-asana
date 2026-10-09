@@ -12,7 +12,6 @@ import {
 } from '../cli-options.js'
 import { loadConventions } from '../conventions.js'
 import { resolveEffectiveAssignee } from '../effective-config.js'
-import { deleteIdempotently, deleteMessage } from '../idempotent-delete.js'
 import {
 	output,
 	printCountSummary,
@@ -22,9 +21,10 @@ import {
 	printSummary,
 	printTable,
 } from '../output.js'
+import { deleteIdempotently, deleteMessage } from '../platform/idempotent-delete.js'
+import { isFull, truncate } from '../platform/truncate.js'
 import { loadDefaults, resolveProjectRef, resolveSectionPlacement } from '../repo-config.js'
 import { resolveTagRefs } from '../tags/resolve.js'
-import { isFull, truncate } from '../truncate.js'
 import {
 	addDependencies,
 	addDependents,

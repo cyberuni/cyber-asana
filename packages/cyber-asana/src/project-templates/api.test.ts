@@ -1,6 +1,6 @@
 import Asana from 'asana'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { JobFailedError } from '../job-polling.js'
+import { JobFailedError } from '../platform/job-polling.js'
 import {
 	createProjectTemplateApi,
 	getProjectTemplate,
@@ -9,7 +9,7 @@ import {
 	listProjectTemplatesForTeam,
 } from './api.js'
 
-vi.mock('../client.js', () => ({
+vi.mock('../platform/client.js', () => ({
 	createClient: () => ({}),
 }))
 

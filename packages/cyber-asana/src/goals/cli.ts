@@ -9,8 +9,8 @@ import {
 	readOptionsFromCli,
 	requiredGid,
 } from '../cli-options.js'
-import { deleteIdempotently, deleteMessage } from '../idempotent-delete.js'
 import { output, printCountSummary, printFields, printNextSteps, printTable } from '../output.js'
+import { deleteIdempotently, deleteMessage } from '../platform/idempotent-delete.js'
 import type { GoalApi } from './api.js'
 import { createGoal, deleteGoal, getGoal, listGoals, updateGoal } from './api.js'
 import { buildGoalCreateFields, buildGoalUpdateFields } from './write-options.js'

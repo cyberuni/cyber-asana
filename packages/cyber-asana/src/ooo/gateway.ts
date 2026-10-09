@@ -4,8 +4,8 @@ import {
 	type ListResult,
 	type PaginationOptions,
 	toAsanaPaginationOptions,
-} from '../pagination.js'
-import { type ReadOptions, toAsanaReadOptions } from '../read-options.js'
+} from '../platform/pagination.js'
+import { type ReadOptions, toAsanaReadOptions } from '../platform/read-options.js'
 
 /** The two mutable fields of an OOO entry — Asana models nothing else on it. */
 export type OooEntryWriteFields = {

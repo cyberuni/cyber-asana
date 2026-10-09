@@ -1,6 +1,6 @@
-import { createClient } from '../client.js'
-import type { PaginationOptions } from '../pagination.js'
-import type { ReadOptions } from '../read-options.js'
+import { createClient } from '../platform/client.js'
+import type { PaginationOptions } from '../platform/pagination.js'
+import type { ReadOptions } from '../platform/read-options.js'
 import { type CreateGoalFields, createAsanaGoalGateway, type GoalGateway, type UpdateGoalFields } from './gateway.js'
 
 export type { CreateGoalFields, UpdateGoalFields } from './gateway.js'

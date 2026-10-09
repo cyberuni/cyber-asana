@@ -1,4 +1,4 @@
-import { isUnexpandedPlaceholder } from '../env.js'
+import { isUnexpandedPlaceholder } from '../platform/env.js'
 
 // Which credential this process will actually use — and which ones it is
 // ignoring. The precedence chain is otherwise invisible: a stale env var

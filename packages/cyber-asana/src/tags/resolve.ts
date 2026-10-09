@@ -1,4 +1,4 @@
-import { listItems } from '../pagination.js'
+import { listItems } from '../platform/pagination.js'
 import { listTags as defaultListTags } from './api.js'
 
 type TagHit = { gid?: string; name?: string }

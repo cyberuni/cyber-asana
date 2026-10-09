@@ -1,12 +1,12 @@
 import Asana from 'asana'
-import type { Job } from '../job-polling.js'
+import type { Job } from '../platform/job-polling.js'
 import {
 	collectListResponse,
 	type ListResult,
 	type PaginationOptions,
 	toAsanaPaginationOptions,
-} from '../pagination.js'
-import { type ReadOptions, toAsanaReadOptions } from '../read-options.js'
+} from '../platform/pagination.js'
+import { type ReadOptions, toAsanaReadOptions } from '../platform/read-options.js'
 
 export type InstantiateTaskFields = {
 	/** Name for the created task; Asana falls back to the template's own name. */

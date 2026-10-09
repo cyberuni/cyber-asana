@@ -1,7 +1,7 @@
 import { createReadStream, statSync } from 'node:fs'
-import { createClient } from '../client.js'
-import type { PaginationOptions } from '../pagination.js'
-import type { ReadOptions } from '../read-options.js'
+import { createClient } from '../platform/client.js'
+import type { PaginationOptions } from '../platform/pagination.js'
+import type { ReadOptions } from '../platform/read-options.js'
 import { type AttachmentCreateFields, buildAttachmentCreateInput } from './create-options.js'
 import { type AttachmentGateway, createAsanaAttachmentGateway } from './gateway.js'
 

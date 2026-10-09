@@ -1,6 +1,6 @@
 import Asana from 'asana'
-import type { Job } from '../job-polling.js'
-import { type ReadOptions, toAsanaReadOptions } from '../read-options.js'
+import type { Job } from '../platform/job-polling.js'
+import { type ReadOptions, toAsanaReadOptions } from '../platform/read-options.js'
 
 export type JobGateway = {
 	getJob(jobGid: string, opts?: ReadOptions): Promise<Job>

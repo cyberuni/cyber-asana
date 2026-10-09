@@ -1,12 +1,12 @@
 import Asana from 'asana'
-import type { Job } from '../job-polling.js'
+import type { Job } from '../platform/job-polling.js'
 import {
 	collectListResponse,
 	type ListResult,
 	type PaginationOptions,
 	toAsanaPaginationOptions,
-} from '../pagination.js'
-import { type ReadOptions, toAsanaReadOptions } from '../read-options.js'
+} from '../platform/pagination.js'
+import { type ReadOptions, toAsanaReadOptions } from '../platform/read-options.js'
 
 /** A date variable the template asks the caller to fill in at instantiation time. */
 export type RequestedDate = {

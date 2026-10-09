@@ -1,4 +1,4 @@
-import { createClient } from '../client.js'
+import { createClient } from '../platform/client.js'
 import { createAsanaEventGateway, type EventFeedOptions, type EventGateway } from './gateway.js'
 
 export type { EventFeedOptions } from './gateway.js'

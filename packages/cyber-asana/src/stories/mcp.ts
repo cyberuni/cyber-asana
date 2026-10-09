@@ -1,7 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import { deleteIdempotently } from '../idempotent-delete.js'
 import { paginationOptions, paginationParams, readOptions, readParams } from '../mcp-options.js'
+import { deleteIdempotently } from '../platform/idempotent-delete.js'
 import type { StoryApi } from './api.js'
 import {
 	createStory,

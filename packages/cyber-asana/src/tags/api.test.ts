@@ -13,7 +13,7 @@ import {
 	updateTag,
 } from './api.js'
 
-vi.mock('../client.js', () => ({
+vi.mock('../platform/client.js', () => ({
 	createClient: () => ({}),
 }))
 

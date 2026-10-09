@@ -1,5 +1,5 @@
 import type { RuntimeContext } from '../composition.js'
-import { listItems } from '../pagination.js'
+import { listItems } from '../platform/pagination.js'
 
 export type FixtureContext = Pick<RuntimeContext, 'projects' | 'sections' | 'tasks' | 'stories' | 'attachments'>
 

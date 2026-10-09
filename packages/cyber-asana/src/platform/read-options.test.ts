@@ -1,7 +1,7 @@
 import { Command } from 'commander'
 import { describe, expect, it } from 'vitest'
-import { addReadOptions, readOptionsFromCli } from './cli-options.js'
-import { readOptions, readParams } from './mcp-options.js'
+import { addReadOptions, readOptionsFromCli } from '../cli-options.js'
+import { readOptions, readParams } from '../mcp-options.js'
 import { toAsanaReadOptions } from './read-options.js'
 
 describe('toAsanaReadOptions', () => {

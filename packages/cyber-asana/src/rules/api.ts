@@ -1,4 +1,4 @@
-import { createClient } from '../client.js'
+import { createClient } from '../platform/client.js'
 import { createAsanaRuleGateway, type RuleGateway, type RuleTriggerFields } from './gateway.js'
 
 export type { RuleTriggerFields } from './gateway.js'

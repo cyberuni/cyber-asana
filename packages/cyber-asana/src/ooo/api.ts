@@ -1,5 +1,5 @@
-import { createClient } from '../client.js'
-import type { ReadOptions } from '../read-options.js'
+import { createClient } from '../platform/client.js'
+import type { ReadOptions } from '../platform/read-options.js'
 import {
 	createAsanaOooGateway,
 	type OooEntryListOptions,

@@ -1,7 +1,7 @@
-import { createClient } from '../client.js'
-import { type Job, type WaitForJobOptions, waitForJob } from '../job-polling.js'
-import type { PaginationOptions } from '../pagination.js'
-import type { ReadOptions } from '../read-options.js'
+import { createClient } from '../platform/client.js'
+import { type Job, type WaitForJobOptions, waitForJob } from '../platform/job-polling.js'
+import type { PaginationOptions } from '../platform/pagination.js'
+import type { ReadOptions } from '../platform/read-options.js'
 import { createAsanaTaskTemplateGateway, type InstantiateTaskFields, type TaskTemplateGateway } from './gateway.js'
 
 export type TaskTemplateApi = ReturnType<typeof createTaskTemplateApi>
