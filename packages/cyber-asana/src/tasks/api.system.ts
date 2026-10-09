@@ -5,6 +5,7 @@ import { defineBatchLookupAcceptanceSpecs } from './batch-lookup.acceptance.js'
 import { defineCreateInSectionAcceptanceSpecs } from './create-in-section.acceptance.js'
 import { defineGetWithStoriesAcceptanceSpecs } from './get-with-stories.acceptance.js'
 import { defineTaskListPaginationAcceptanceSpecs } from './list-pagination.acceptance.js'
+import { defineTaskWriteAcceptanceSpecs } from './write-operations.acceptance.js'
 
 const primaryTaskGid = systemEnv('ASANA_SYSTEM_TEST_TASK_GID')
 const projectGid = systemEnv('ASANA_SYSTEM_TEST_PROJECT_GID')
@@ -13,6 +14,8 @@ const listPaginationEnabled = isSystemTestEnabled() && Boolean(projectGid)
 const workspaceGid = systemEnv('ASANA_WORKSPACE')
 const sectionGid = systemEnv('ASANA_SYSTEM_TEST_SECTION_GID')
 const createInSectionEnabled = isSystemTestEnabled() && Boolean(workspaceGid && projectGid && sectionGid)
+
+const writeEnabled = isSystemTestEnabled() && Boolean(workspaceGid && projectGid)
 
 let runtimeContext: RuntimeContext | undefined
 
@@ -52,4 +55,9 @@ describe.skipIf(!createInSectionEnabled)(
 		projectGid: projectGid!,
 		sectionGid: sectionGid!,
 	}),
+)
+
+describe.skipIf(!writeEnabled)(
+	'tasks/api write operations system',
+	defineTaskWriteAcceptanceSpecs({ getApi: getTaskApi, workspaceGid: workspaceGid!, projectGid: projectGid! }),
 )
