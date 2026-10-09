@@ -177,3 +177,58 @@ describe.skipIf(!workspaceEnabled)('asana types: workspace users, workspaces and
 		expect(res.data.workspace?.gid).toBe(workspaceGid)
 	})
 })
+
+describe.skipIf(!projectEnabled || !workspaceEnabled)('asana types: task write operations', () => {
+	it('createTask, updateTask and deleteTask resolve to the augmented shapes', async () => {
+		const api = new Asana.TasksApi(createClient())
+
+		const created = await api.createTask(
+			{ data: { name: 'cyber-asana learn probe: task', workspace: workspaceGid!, projects: [projectGid!] } },
+			{ opt_fields: 'name,resource_type,completed' },
+		)
+		try {
+			expectTypeOf(created).toEqualTypeOf<Asana.AsanaResponse<Asana.Task>>()
+			expect(created.data.resource_type).toBe('task')
+			expect(created.data.name).toBe('cyber-asana learn probe: task')
+			expect(created.data.completed).toBe(false)
+
+			const updated = await api.updateTask(
+				{ data: { name: 'cyber-asana learn probe: renamed', completed: true } },
+				created.data.gid,
+				{ opt_fields: 'name,completed' },
+			)
+
+			expectTypeOf(updated).toEqualTypeOf<Asana.AsanaResponse<Asana.Task>>()
+			expect(updated.data.gid).toBe(created.data.gid)
+			expect(updated.data.name).toBe('cyber-asana learn probe: renamed')
+			expect(updated.data.completed).toBe(true)
+		} finally {
+			const deleted = await api.deleteTask(created.data.gid)
+
+			expectTypeOf(deleted).toEqualTypeOf<Asana.EmptyResponse>()
+			expect(deleted.data).toEqual({})
+		}
+		await expect(api.getTask(created.data.gid)).rejects.toBeDefined()
+	})
+})
+
+describe.skipIf(!projectEnabled)('asana types: section write operations', () => {
+	it('createSectionForProject and deleteSection resolve to the augmented shapes', async () => {
+		const api = new Asana.SectionsApi(createClient())
+
+		const created = await api.createSectionForProject(projectGid!, {
+			body: { data: { name: 'cyber-asana learn probe: section' } },
+			opt_fields: 'name,resource_type',
+		})
+		try {
+			expectTypeOf(created).toEqualTypeOf<Asana.AsanaResponse<Asana.Section>>()
+			expect(created.data.resource_type).toBe('section')
+			expect(created.data.name).toBe('cyber-asana learn probe: section')
+		} finally {
+			const deleted = await api.deleteSection(created.data.gid)
+
+			expectTypeOf(deleted).toEqualTypeOf<Asana.EmptyResponse>()
+			expect(deleted.data).toEqual({})
+		}
+	})
+})

@@ -89,4 +89,34 @@ describe('asana type augmentation', () => {
 		testType.false<'limit' extends keyof Opts ? true : false>(true)
 		testType.true<'offset' extends keyof Opts ? true : false>(true)
 	})
+
+	it('types the task write operations instead of leaving them any', () => {
+		type Created = Awaited<ReturnType<Asana.TasksApi['createTask']>>
+		type Updated = Awaited<ReturnType<Asana.TasksApi['updateTask']>>
+		type Deleted = Awaited<ReturnType<Asana.TasksApi['deleteTask']>>
+
+		testType.false<IsAny<Created>>(true)
+		testType.equal<Created, Asana.AsanaResponse<Asana.Task>>(true)
+		testType.equal<Updated, Asana.AsanaResponse<Asana.Task>>(true)
+		testType.equal<Deleted, Asana.EmptyResponse>(true)
+	})
+
+	it('types the request body of createTask and updateTask as TaskRequest', () => {
+		type Body = Parameters<Asana.TasksApi['createTask']>[0]
+
+		testType.equal<Body, { data: Asana.TaskRequest }>(true)
+		testType.equal<Asana.TaskRequest['completed'], boolean | undefined>(true)
+		testType.equal<Asana.TaskRequest['assignee'], string | null | undefined>(true)
+		testType.equal<Asana.TaskRequest['projects'], string[] | undefined>(true)
+	})
+
+	it('types createSectionForProject and deleteSection', () => {
+		type Created = Awaited<ReturnType<Asana.SectionsApi['createSectionForProject']>>
+		type Deleted = Awaited<ReturnType<Asana.SectionsApi['deleteSection']>>
+
+		testType.false<IsAny<Created>>(true)
+		testType.equal<Created, Asana.AsanaResponse<Asana.Section>>(true)
+		testType.equal<Deleted, Asana.EmptyResponse>(true)
+		testType.equal<Asana.SectionRequest['name'], string>(true)
+	})
 })

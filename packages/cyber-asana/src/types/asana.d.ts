@@ -107,7 +107,37 @@ declare module 'asana' {
 		projects?: Project[] | undefined
 	}
 
+	/** What a delete resolves to: Asana answers `{ data: {} }`. */
+	type EmptyResponse = AsanaResponse<Record<string, never>>
+
+	interface TaskRequest {
+		name?: string | undefined
+		notes?: string | undefined
+		html_notes?: string | undefined
+		completed?: boolean | undefined
+		due_on?: string | null | undefined
+		due_at?: string | null | undefined
+		start_on?: string | null | undefined
+		start_at?: string | null | undefined
+		assignee?: string | null | undefined
+		resource_subtype?: 'default_task' | 'milestone' | 'approval' | undefined
+		custom_fields?: Record<string, string | number | string[] | null> | undefined
+		followers?: string[] | undefined
+		projects?: string[] | undefined
+		tags?: string[] | undefined
+		workspace?: string | undefined
+	}
+
+	interface SectionRequest {
+		name: string
+		insert_before?: string | undefined
+		insert_after?: string | undefined
+	}
+
 	interface TasksApi {
+		createTask(body: { data: TaskRequest }, opts?: OptionalFields): Promise<AsanaResponse<Task>>
+		updateTask(body: { data: TaskRequest }, task_gid: string, opts?: OptionalFields): Promise<AsanaResponse<Task>>
+		deleteTask(task_gid: string): Promise<EmptyResponse>
 		getTask(task_gid: string, opts?: OptionalFields): Promise<AsanaResponse<Task>>
 		getTasksForProject(
 			project_gid: string,
@@ -116,6 +146,11 @@ declare module 'asana' {
 	}
 
 	interface SectionsApi {
+		createSectionForProject(
+			project_gid: string,
+			opts: { body: { data: SectionRequest }; opt_fields?: string | undefined },
+		): Promise<AsanaResponse<Section>>
+		deleteSection(section_gid: string): Promise<EmptyResponse>
 		getSection(section_gid: string, opts?: OptionalFields): Promise<AsanaResponse<Section>>
 		getSectionsForProject(project_gid: string, opts?: PaginationOptions): Promise<AsanaCollection<Section>>
 	}
