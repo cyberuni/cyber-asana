@@ -18,12 +18,14 @@ export function createAsanaEventGateway(client: Asana.ApiClient): EventGateway {
 		async getEvents(resourceGid, opts) {
 			// Not `toAsanaPaginationOptions` — the change feed is cursored by sync token,
 			// not by limit/offset, and Asana caps a token at 100 events itself.
-			return await readEventFeed(() =>
-				eventsApi.getEvents(resourceGid, {
+			// The SDK resolves to a Collection; the sync token and has_more live on its raw `_response` body.
+			return await readEventFeed(async () => {
+				const res = await eventsApi.getEvents(resourceGid, {
 					...(opts?.sync !== undefined && { sync: opts.sync }),
 					...(opts?.optFields !== undefined && { opt_fields: opts.optFields }),
-				}),
-			)
+				})
+				return res._response
+			})
 		},
 	}
 }
