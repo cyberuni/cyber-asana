@@ -9,7 +9,16 @@ import { describe, expect, it } from 'vitest'
 
 const SRC = dirname(fileURLToPath(import.meta.url))
 
-type Layer = 'rate-limit' | 'platform' | 'cli-support' | 'mcp-support' | 'delivery' | 'domain' | 'root' | 'other'
+type Layer =
+	| 'rate-limit'
+	| 'platform'
+	| 'cli-support'
+	| 'mcp-support'
+	| 'delivery'
+	| 'default-wiring'
+	| 'domain'
+	| 'root'
+	| 'other'
 
 function walk(dir: string): string[] {
 	return readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
@@ -30,6 +39,7 @@ function layerOf(file: string): Layer {
 	if (file.startsWith('platform/')) return 'platform'
 	if (!file.includes('/')) return 'root'
 	if (file.startsWith('types/') || file.startsWith('testing/')) return 'other'
+	if (basename(file) === 'default.ts') return 'default-wiring'
 	return ['cli.ts', 'mcp.ts'].includes(basename(file)) ? 'delivery' : 'domain'
 }
 
@@ -68,10 +78,24 @@ describe('architecture', () => {
 		expect(violations('domain', (e) => ['cli-support', 'mcp-support', 'delivery'].includes(e.to))).toEqual([])
 	})
 
+	it('keeps a domain core from reaching for the default wiring', () => {
+		expect(violations('domain', (e) => e.to === 'default-wiring')).toEqual([])
+	})
+
+	it('lets only the composition root, the client module and a domain default.ts create a client', () => {
+		const creators = walk(SRC)
+			.map((absolute) => relative(SRC, absolute))
+			.filter(isProduction)
+			.filter((file) => /\bcreateClient\(/.test(readFileSync(join(SRC, file), 'utf8')))
+			.filter((file) => !['composition.ts', 'platform/client.ts'].includes(file) && basename(file) !== 'default.ts')
+
+		expect(creators).toEqual([])
+	})
+
 	it('finds production files to check', () => {
 		expect(edges.length).toBeGreaterThan(100)
 		expect(new Set(edges.map((e) => e.from))).toEqual(
-			new Set(['rate-limit', 'platform', 'cli-support', 'mcp-support', 'delivery', 'domain', 'root']),
+			new Set(['rate-limit', 'platform', 'cli-support', 'mcp-support', 'delivery', 'default-wiring', 'domain', 'root']),
 		)
 	})
 })
