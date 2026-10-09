@@ -44,6 +44,7 @@
 		"prepack": "node -e \"require('node:fs').copyFileSync('../../readme.md', 'readme.md')\"",
 		"test": "vitest run src",
 		"test:system": "vitest run --config vitest.system.config.ts",
+		"test:system:setup": "tsx src/testing/setup-system-fixtures.ts",
 		"test:watch": "vitest",
 		"typecheck": "tsc --noEmit"
 	},
