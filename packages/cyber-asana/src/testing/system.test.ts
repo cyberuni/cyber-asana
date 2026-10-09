@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { isSystemTestEnabled, requireSystemEnv, systemEnv } from './system.js'
+import { isPaidPlan, isSystemTestEnabled, requireSystemEnv, systemEnv } from './system.js'
 
 describe('testing/system', () => {
 	const originalEnv = { ...process.env }
@@ -64,5 +64,19 @@ describe('testing/system', () => {
 		expect(() => requireSystemEnv('ASANA_SYSTEM_TEST_TASK_GID')).toThrow(
 			'Missing ASANA_SYSTEM_TEST_TASK_GID for system test',
 		)
+	})
+
+	it('isPaidPlan is false without ASANA_PLAN, matching the free default', () => {
+		delete process.env.ASANA_PLAN
+
+		expect(isPaidPlan()).toBe(false)
+	})
+
+	it('isPaidPlan is true only when ASANA_PLAN is paid', () => {
+		process.env.ASANA_PLAN = 'paid'
+		expect(isPaidPlan()).toBe(true)
+
+		process.env.ASANA_PLAN = 'free'
+		expect(isPaidPlan()).toBe(false)
 	})
 })
