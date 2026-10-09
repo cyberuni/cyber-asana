@@ -240,6 +240,9 @@ importers:
       tsx:
         specifier: ^4.23.15
         version: 4.23.15
+      type-plus:
+        specifier: ^7.6.2
+        version: 7.6.2
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -2726,6 +2729,10 @@ packages:
     resolution: {integrity: sha512-ZMERYes6pDydyuGidse7OsHxtbI7WVeUEozgR/g7rd0xUimYNlvZRE/K2MgZTjWy725IfelLeVcEM97mmtRGXw==}
     engines: {node: '>=8'}
 
+  is-buffer@2.0.5:
+    resolution: {integrity: sha512-i2R6zNFDwgEHJyQUtJEk0XFi1i0dPFn/oqjK3/vPCcDeJvW5NQ83V8QbicfF1SupOaB0h8ntgBC2YiE7dfyctQ==}
+    engines: {node: '>=4'}
+
   is-decimal@2.0.1:
     resolution: {integrity: sha512-AAB9hiomQs5DXWcRB1rqsxGUstbRroFOPPVAomNk/3XHR5JyEZChOyTWe2oayKnsSsr/kcGqF+z6yuH6HHpN0A==}
 
@@ -3500,6 +3507,9 @@ packages:
     resolution: {integrity: sha512-yYrrsWnrXMcdsnu/7YMYAofM1ktpL5By7vZhf15CrXijWWrEYZks5AXBudalfSWJLlnen/QUJUB5aoB0kqZUGA==}
     engines: {node: '>=6.0.0'}
 
+  tersify@3.12.1:
+    resolution: {integrity: sha512-VwzXGHZSOB4T27s4uvh9v8FYrNXyfVz0nBQi28TDwrZoQwT8ZJUp1W2Ff73ekN07stJSb0D+pr6iXeNeFqTI6Q==}
+
   tersify@4.0.8:
     resolution: {integrity: sha512-8SP19qXCXiWztbyJLqmCwstqtZg7F5grbSov3yh8C+fyqHgKyfMaI/c5DCMKIGDkpoKX8cIz9ZqJxN7zZDtQcQ==}
 
@@ -3593,6 +3603,9 @@ packages:
   type-is@2.1.0:
     resolution: {integrity: sha512-faYHw0anBbc/kWF3zFTEnxSFOAGUX9GFbOBthvDdLsIlEoWOFOtS0zgCiQYwIskL9iGXZL3kAXD8OoZ4GmMATA==}
     engines: {node: '>= 18'}
+
+  type-plus@7.6.2:
+    resolution: {integrity: sha512-qUlXv9Y0/W56pg38m275IMD3WA03QbVoqNY16S3kmwtuA4gOT2iheyUdOp8NWrmXWpf7om98hzr7AZD/eW2jLA==}
 
   type-plus@8.0.0-beta.12:
     resolution: {integrity: sha512-isf19V90L8JOn9VBWWwUfH8DU6G3dfPptr3R+JtraYWHqLAsXYI2f9x1HZVTkajrkSffdEbetXUXf7FcIjSIRg==}
@@ -6229,6 +6242,8 @@ snapshots:
       binary-extensions: 2.3.0
     optional: true
 
+  is-buffer@2.0.5: {}
+
   is-decimal@2.0.1: {}
 
   is-docker@4.0.0: {}
@@ -7187,6 +7202,12 @@ snapshots:
       mkdirp: 0.5.6
       rimraf: 2.6.3
 
+  tersify@3.12.1:
+    dependencies:
+      acorn: 8.19.0
+      is-buffer: 2.0.5
+      unpartial: 1.0.8
+
   tersify@4.0.8:
     dependencies:
       acorn: 8.19.0
@@ -7268,6 +7289,11 @@ snapshots:
       content-type: 2.1.0
       media-typer: 1.1.1
       mime-types: 3.0.2
+
+  type-plus@7.6.2:
+    dependencies:
+      tersify: 3.12.1
+      unpartial: 1.0.8
 
   type-plus@8.0.0-beta.12(typescript@7.0.2):
     dependencies:
