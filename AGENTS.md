@@ -82,7 +82,7 @@ The top of `src/` names what the tool does, not how it is built:
 
 | Where | What lives there | May import |
 | --- | --- | --- |
-| `<domain>/` (`tasks/`, `projects/`, ...) and capability folders (`config/`, `url/`, `auth/`) | `api.ts` (use cases), `gateway.ts` (the port and its Asana SDK adapter), `cli.ts` and `mcp.ts` (delivery) | `platform/`, `rate-limit/`, other domains' `api`/`gateway` |
+| `<domain>/` (`tasks/`, `projects/`, ...) and capability folders (`config/`, `url/`, `auth/`) | `api.ts` (use cases), `gateway.ts` (the port and its Asana SDK adapter), `default.ts` (library wiring), `cli.ts` and `mcp.ts` (delivery) | `platform/`, `rate-limit/`, other domains' `api`/`gateway` |
 | `platform/` | Domain-free helpers: `client`, `env`, `error-body`, `pagination`, `read-options`, `truncate`, `idempotent-delete`, `job-polling`, `toon` | itself and `rate-limit/` only |
 | `platform/cli/`, `platform/mcp/` | Output and option support for one delivery channel | `platform/` only; not each other, not domains |
 | `rate-limit/` | Pure budget, limiter and retry code | nothing outside itself |
@@ -90,7 +90,7 @@ The top of `src/` names what the tool does, not how it is built:
 
 Dependencies point inward: delivery (`cli.ts`/`mcp.ts` and `platform/cli`, `platform/mcp`) may use a domain core, never the reverse. `src/architecture.test.ts` fails on a forbidden import. New shared code goes in `platform/` only if it knows nothing about a domain; if it names an Asana resource, it belongs in that domain's folder. A new cross-cutting capability gets its own folder shaped like a domain (`cli.ts`, `mcp.ts`, the logic) instead of a `*-cli.ts` file at the root.
 
-Known exception: each domain's `api.ts` builds its default gateway with `createClient()` for the library entry point (`defaultXApi()`). Moving that wiring into `composition.ts` is a separate change.
+Each domain's `api.ts` is wiring-free: `createXApi(gateway)` takes its gateway as an argument. The standalone functions the package root exports (`listTasks`, `getProject`, ...) live in a sibling `default.ts`, which builds the gateway from `createClient()` and is re-exported from `src/index.ts`. Only `composition.ts`, `platform/client.ts` and a `default.ts` may call `createClient()`, and a domain core never imports a `default.ts`; delivery code (`cli.ts`, `mcp.ts`) may, and passes what it takes from there into the core as a dependency (see `resolveTagRefs`). Tests that stub a standalone function mock `./default.js`, not `./api.js`.
 
 ### Testing
 
