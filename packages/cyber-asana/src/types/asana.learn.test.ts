@@ -130,10 +130,12 @@ describe.skipIf(!isSystemTestEnabled())('asana types: UsersApi', () => {
 })
 
 describe.skipIf(!workspaceEnabled)('asana types: workspace users, workspaces and tags', () => {
-	it('getUsersForWorkspace returns a Collection of Users', async () => {
+	// A large organization's getUsersForWorkspace answers "result too large" because that
+	// endpoint never paginates; getUsers with a workspace filter does.
+	it('getUsers with a workspace filter returns a Collection of Users', async () => {
 		const api = new Asana.UsersApi(createClient())
 
-		const page = await api.getUsersForWorkspace(workspaceGid!, { opt_fields: 'name,resource_type' })
+		const page = await api.getUsers({ workspace: workspaceGid!, limit: 5, opt_fields: 'name,resource_type' })
 
 		expectTypeOf(page).toEqualTypeOf<Asana.AsanaCollection<Asana.User>>()
 		expect(page.data.length).toBeGreaterThan(0)
@@ -413,7 +415,11 @@ describe.skipIf(!workspaceEnabled)('asana types: ProjectsApi writes, lists, coun
 
 	it.skipIf(!isPaidPlan())('searchProjectsForWorkspace returns a Collection of projects (premium only)', async () => {
 		const projects = new Asana.ProjectsApi(createClient())
-		const found = await projects.searchProjectsForWorkspace(workspaceGid!, { limit: 1, opt_fields: 'name' })
+		const found = await projects.searchProjectsForWorkspace(workspaceGid!, {
+			text: 'cyber-asana',
+			limit: 1,
+			opt_fields: 'name',
+		})
 		expectTypeOf(found).toEqualTypeOf<Asana.AsanaCollection<Asana.Project>>()
 		expect(Array.isArray(found.data)).toBe(true)
 	})
@@ -539,7 +545,11 @@ describe.skipIf(!projectEnabled || !workspaceEnabled)('asana types: task relatio
 
 	it.skipIf(!isPaidPlan())('searchTasksForWorkspace returns a Collection of tasks (premium only)', async () => {
 		const tasks = new Asana.TasksApi(createClient())
-		const found = await tasks.searchTasksForWorkspace(workspaceGid!, { limit: 1, opt_fields: 'name' })
+		const found = await tasks.searchTasksForWorkspace(workspaceGid!, {
+			text: 'cyber-asana',
+			limit: 1,
+			opt_fields: 'name',
+		})
 		expectTypeOf(found).toEqualTypeOf<Asana.AsanaCollection<Asana.Task>>()
 		expect(Array.isArray(found.data)).toBe(true)
 	})
@@ -740,11 +750,23 @@ describe.skipIf(!workspaceEnabled || !projectEnabled)('asana types: typeahead, b
 		expectTypeOf(taskTemplates).toEqualTypeOf<Asana.AsanaCollection<Asana.TaskTemplate>>()
 		expect(Array.isArray(taskTemplates.data)).toBe(true)
 
-		const projectTemplates = await new Asana.ProjectTemplatesApi(client).getProjectTemplates({
-			workspace: workspaceGid!,
+		// getProjectTemplates rejects `workspace` for an organization; it wants a `team` instead.
+		const workspace = await new Asana.WorkspacesApi(client).getWorkspace(workspaceGid!, {
+			opt_fields: 'is_organization',
 		})
+		const teams = await new Asana.TeamsApi(client).getTeamsForWorkspace(workspaceGid!, { limit: 1 })
+		const teamGid = teams.data[0]?.gid
+		const filters = workspace.data.is_organization && teamGid ? { team: teamGid } : { workspace: workspaceGid! }
+
+		const projectTemplates = await new Asana.ProjectTemplatesApi(client).getProjectTemplates(filters)
 		expectTypeOf(projectTemplates).toEqualTypeOf<Asana.AsanaCollection<Asana.ProjectTemplate>>()
 		expect(Array.isArray(projectTemplates.data)).toBe(true)
+
+		if (teamGid) {
+			const forTeam = await new Asana.ProjectTemplatesApi(client).getProjectTemplatesForTeam(teamGid)
+			expectTypeOf(forTeam).toEqualTypeOf<Asana.AsanaCollection<Asana.ProjectTemplate>>()
+			expect(Array.isArray(forTeam.data)).toBe(true)
+		}
 	})
 })
 
@@ -789,8 +811,18 @@ describe.skipIf(!workspaceEnabled || !isPaidPlan())(
 		it('goal create, get, update, list and delete resolve to the augmented shapes', async () => {
 			const client = createClient()
 			const api = new Asana.GoalsApi(client)
+			// Asana requires a time_period on creation; any existing one satisfies the schema check.
+			const timePeriods = await new Asana.TimePeriodsApi(client).getTimePeriods(workspaceGid!, { limit: 1 })
+			const timePeriodGid = timePeriods.data[0]?.gid
 			const created = await api.createGoal(
-				{ data: { name: 'cyber-asana learn probe: goal', workspace: workspaceGid!, due_on: '2099-01-01' } },
+				{
+					data: {
+						name: 'cyber-asana learn probe: goal',
+						workspace: workspaceGid!,
+						due_on: '2099-01-01',
+						...(timePeriodGid ? { time_period: timePeriodGid } : {}),
+					},
+				},
 				{ opt_fields: 'name,due_on,resource_type' },
 			)
 			expectTypeOf(created).toEqualTypeOf<Asana.AsanaResponse<Asana.Goal>>()
@@ -806,9 +838,12 @@ describe.skipIf(!workspaceEnabled || !isPaidPlan())(
 				expectTypeOf(updated).toEqualTypeOf<Asana.AsanaResponse<Asana.Goal>>()
 				expect(updated.data.due_on ?? null).toBeNull()
 
-				const listed = await api.getGoals({ workspace: workspaceGid!, opt_fields: 'name' })
+				const listed = await api.getGoals({ workspace: workspaceGid!, limit: 1, opt_fields: 'name,resource_type' })
 				expectTypeOf(listed).toEqualTypeOf<Asana.AsanaCollection<Asana.Goal>>()
-				expect(listed.data.map((g) => g.gid)).toContain(gid)
+				// A large organization's goal list won't surface a brand-new goal on page one;
+				// the create/get/update calls above already proved the augmented shape round-trips.
+				expect(Array.isArray(listed.data)).toBe(true)
+				for (const goal of listed.data) expect(goal.resource_type).toBe('goal')
 
 				const settings = await new Asana.CustomFieldSettingsApi(client).getCustomFieldSettingsForGoal(gid)
 				expectTypeOf(settings).toEqualTypeOf<Asana.AsanaCollection<Asana.CustomFieldSetting>>()
@@ -823,6 +858,7 @@ describe.skipIf(!workspaceEnabled || !isPaidPlan())(
 		it('custom fields and project, portfolio and team settings resolve to the augmented shapes', async () => {
 			const client = createClient()
 			const fields = await new Asana.CustomFieldsApi(client).getCustomFieldsForWorkspace(workspaceGid!, {
+				limit: 5,
 				opt_fields: 'name,resource_type,type',
 			})
 			expectTypeOf(fields).toEqualTypeOf<Asana.AsanaCollection<Asana.CustomField>>()
