@@ -134,6 +134,90 @@ declare module 'asana' {
 		insert_after?: string | undefined
 	}
 
+	type StickerName =
+		| 'green_checkmark'
+		| 'people_dancing'
+		| 'dancing_unicorn'
+		| 'heart'
+		| 'party_popper'
+		| 'people_waving_flags'
+		| 'splashing_narwhal'
+		| 'trophy'
+		| 'yeti_riding_unicorn'
+		| 'celebrating_people'
+		| 'determined_climbers'
+		| 'phoenix_spreading_love'
+
+	/** Unlike the other resources a story has no `name`, so it stands apart from AsanaResource. */
+	interface Story {
+		gid: string
+		resource_type: 'story'
+		created_at?: string | undefined
+		created_by?: User | undefined
+		html_text?: string | undefined
+		is_editable?: boolean | undefined
+		is_edited?: boolean | undefined
+		is_pinned?: boolean | undefined
+		resource_subtype?: string | undefined
+		sticker_name?: StickerName | undefined
+		text?: string | undefined
+		type?: 'comment' | 'system' | undefined
+	}
+
+	interface StoryRequest {
+		text?: string | undefined
+		html_text?: string | undefined
+		is_pinned?: boolean | undefined
+		sticker_name?: StickerName | undefined
+	}
+
+	interface Attachment extends AsanaResource {
+		resource_type: 'attachment'
+		created_at?: string | undefined
+		download_url?: string | undefined
+		host?: string | undefined
+		parent?: AsanaResource | undefined
+		permanent_url?: string | undefined
+		resource_subtype?: string | undefined
+		size?: number | undefined
+		view_url?: string | undefined
+	}
+
+	interface AttachmentRequest extends OptionalFields {
+		parent: string
+		name?: string | undefined
+		url?: string | undefined
+		file?: string | undefined
+		resource_subtype?: 'external' | 'asana' | undefined
+		connect_to_app?: boolean | undefined
+	}
+
+	interface StoriesApi {
+		createStoryForTask(
+			body: { data: StoryRequest },
+			task_gid: string,
+			opts?: OptionalFields,
+		): Promise<AsanaResponse<Story>>
+		getStory(story_gid: string, opts?: OptionalFields): Promise<AsanaResponse<Story>>
+		getStoriesForTask(
+			task_gid: string,
+			opts?: PaginationOptions & {
+				created_after?: string | undefined
+				resource_subtype?: string | undefined
+				sort_ascending?: boolean | undefined
+			},
+		): Promise<AsanaCollection<Story>>
+		updateStory(body: { data: StoryRequest }, story_gid: string, opts?: OptionalFields): Promise<AsanaResponse<Story>>
+		deleteStory(story_gid: string): Promise<EmptyResponse>
+	}
+
+	interface AttachmentsApi {
+		createAttachmentForObject(opts: AttachmentRequest): Promise<AsanaResponse<Attachment>>
+		getAttachment(attachment_gid: string, opts?: OptionalFields): Promise<AsanaResponse<Attachment>>
+		getAttachmentsForObject(parent: string, opts?: PaginationOptions): Promise<AsanaCollection<Attachment>>
+		deleteAttachment(attachment_gid: string): Promise<EmptyResponse>
+	}
+
 	interface TasksApi {
 		createTask(body: { data: TaskRequest }, opts?: OptionalFields): Promise<AsanaResponse<Task>>
 		updateTask(body: { data: TaskRequest }, task_gid: string, opts?: OptionalFields): Promise<AsanaResponse<Task>>

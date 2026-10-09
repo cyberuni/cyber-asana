@@ -119,4 +119,41 @@ describe('asana type augmentation', () => {
 		testType.equal<Deleted, Asana.EmptyResponse>(true)
 		testType.equal<Asana.SectionRequest['name'], string>(true)
 	})
+
+	it('types the story operations instead of leaving them any', () => {
+		type Created = Awaited<ReturnType<Asana.StoriesApi['createStoryForTask']>>
+		type Got = Awaited<ReturnType<Asana.StoriesApi['getStory']>>
+		type Updated = Awaited<ReturnType<Asana.StoriesApi['updateStory']>>
+		type Deleted = Awaited<ReturnType<Asana.StoriesApi['deleteStory']>>
+		type Listed = Awaited<ReturnType<Asana.StoriesApi['getStoriesForTask']>>
+
+		testType.false<IsAny<Created>>(true)
+		testType.equal<Created, Asana.AsanaResponse<Asana.Story>>(true)
+		testType.equal<Got, Asana.AsanaResponse<Asana.Story>>(true)
+		testType.equal<Updated, Asana.AsanaResponse<Asana.Story>>(true)
+		testType.equal<Deleted, Asana.EmptyResponse>(true)
+		testType.equal<Listed, Asana.AsanaCollection<Asana.Story>>(true)
+	})
+
+	it('pins Story.resource_type to "story" and types its comment fields', () => {
+		testType.equal<Asana.Story['resource_type'], 'story'>(true)
+		testType.equal<Asana.Story['type'], 'comment' | 'system' | undefined>(true)
+		testType.equal<Asana.Story['created_by'], Asana.User | undefined>(true)
+		testType.equal<Asana.StoryRequest['sticker_name'], Asana.StickerName | undefined>(true)
+	})
+
+	it('types the attachment operations instead of leaving them any', () => {
+		type Created = Awaited<ReturnType<Asana.AttachmentsApi['createAttachmentForObject']>>
+		type Got = Awaited<ReturnType<Asana.AttachmentsApi['getAttachment']>>
+		type Listed = Awaited<ReturnType<Asana.AttachmentsApi['getAttachmentsForObject']>>
+		type Deleted = Awaited<ReturnType<Asana.AttachmentsApi['deleteAttachment']>>
+
+		testType.false<IsAny<Created>>(true)
+		testType.equal<Created, Asana.AsanaResponse<Asana.Attachment>>(true)
+		testType.equal<Got, Asana.AsanaResponse<Asana.Attachment>>(true)
+		testType.equal<Listed, Asana.AsanaCollection<Asana.Attachment>>(true)
+		testType.equal<Deleted, Asana.EmptyResponse>(true)
+		testType.equal<Asana.Attachment['resource_type'], 'attachment'>(true)
+		testType.equal<Asana.AttachmentRequest['parent'], string>(true)
+	})
 })

@@ -232,3 +232,99 @@ describe.skipIf(!projectEnabled)('asana types: section write operations', () => 
 		}
 	})
 })
+
+describe.skipIf(!enabled)('asana types: stories', () => {
+	it('getStoriesForTask returns a Collection of Stories', async () => {
+		const api = new Asana.StoriesApi(createClient())
+
+		const page = await api.getStoriesForTask(taskGid!, {
+			limit: 5,
+			opt_fields: 'resource_type,type,text,created_at,created_by.name,is_pinned',
+		})
+
+		expectTypeOf(page).toEqualTypeOf<Asana.AsanaCollection<Asana.Story>>()
+		expect(page.data.length).toBeGreaterThan(0)
+		for (const story of page.data) {
+			expect(story.resource_type).toBe('story')
+			expect(['comment', 'system']).toContain(story.type)
+			expect(typeof story.created_at).toBe('string')
+		}
+	})
+
+	it('createStoryForTask, getStory, updateStory and deleteStory resolve to the augmented shapes', async () => {
+		const api = new Asana.StoriesApi(createClient())
+		const fields = 'resource_type,type,text,is_pinned,is_edited,is_editable,created_at,created_by.name'
+
+		const created = await api.createStoryForTask({ data: { text: 'cyber-asana learn probe: comment' } }, taskGid!, {
+			opt_fields: fields,
+		})
+		try {
+			expectTypeOf(created).toEqualTypeOf<Asana.AsanaResponse<Asana.Story>>()
+			expect(created.data.resource_type).toBe('story')
+			expect(created.data.type).toBe('comment')
+			expect(created.data.text).toBe('cyber-asana learn probe: comment')
+			expect(created.data.is_pinned).toBe(false)
+			expect(typeof created.data.created_by?.gid).toBe('string')
+
+			const got = await api.getStory(created.data.gid, { opt_fields: fields })
+			expectTypeOf(got).toEqualTypeOf<Asana.AsanaResponse<Asana.Story>>()
+			expect(got.data.gid).toBe(created.data.gid)
+
+			const updated = await api.updateStory({ data: { text: 'cyber-asana learn probe: edited' } }, created.data.gid, {
+				opt_fields: fields,
+			})
+			expectTypeOf(updated).toEqualTypeOf<Asana.AsanaResponse<Asana.Story>>()
+			expect(updated.data.text).toBe('cyber-asana learn probe: edited')
+			expect(updated.data.is_edited).toBe(true)
+		} finally {
+			const deleted = await api.deleteStory(created.data.gid)
+
+			expectTypeOf(deleted).toEqualTypeOf<Asana.EmptyResponse>()
+			expect(deleted.data).toEqual({})
+		}
+	})
+})
+
+describe.skipIf(!enabled)('asana types: attachments', () => {
+	it('getAttachmentsForObject returns a Collection of Attachments', async () => {
+		const api = new Asana.AttachmentsApi(createClient())
+
+		const page = await api.getAttachmentsForObject(taskGid!, { limit: 5, opt_fields: 'name,resource_type' })
+
+		expectTypeOf(page).toEqualTypeOf<Asana.AsanaCollection<Asana.Attachment>>()
+		expect(page.data.length).toBeGreaterThan(0)
+		for (const attachment of page.data) {
+			expect(attachment.resource_type).toBe('attachment')
+			expect(typeof attachment.name).toBe('string')
+		}
+	})
+
+	it('createAttachmentForObject, getAttachment and deleteAttachment resolve to the augmented shapes', async () => {
+		const api = new Asana.AttachmentsApi(createClient())
+		const fields = 'name,resource_type,resource_subtype,host,created_at,parent.name,permanent_url'
+
+		const created = await api.createAttachmentForObject({
+			parent: taskGid!,
+			name: 'cyber-asana learn probe: link',
+			url: 'https://example.com/learn-probe',
+			resource_subtype: 'external',
+			opt_fields: fields,
+		})
+		try {
+			expectTypeOf(created).toEqualTypeOf<Asana.AsanaResponse<Asana.Attachment>>()
+			expect(created.data.resource_type).toBe('attachment')
+			expect(created.data.name).toBe('cyber-asana learn probe: link')
+			expect(created.data.resource_subtype).toBe('external')
+			expect(created.data.parent?.gid).toBe(taskGid)
+
+			const got = await api.getAttachment(created.data.gid, { opt_fields: fields })
+			expectTypeOf(got).toEqualTypeOf<Asana.AsanaResponse<Asana.Attachment>>()
+			expect(got.data.gid).toBe(created.data.gid)
+		} finally {
+			const deleted = await api.deleteAttachment(created.data.gid)
+
+			expectTypeOf(deleted).toEqualTypeOf<Asana.EmptyResponse>()
+			expect(deleted.data).toEqual({})
+		}
+	})
+})
