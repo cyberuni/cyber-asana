@@ -34,4 +34,21 @@ describe('asana type augmentation', () => {
 		testType.equal<Asana.Project['workspace'], Asana.Workspace | undefined>(true)
 		testType.equal<Asana.Project['notes'], string | undefined>(true)
 	})
+
+	it('types list endpoints as an AsanaCollection of the resource', () => {
+		type Projects = Awaited<ReturnType<Asana.ProjectsApi['getProjectsForWorkspace']>>
+		type Tasks = Awaited<ReturnType<Asana.TasksApi['getTasksForProject']>>
+
+		testType.false<IsAny<Projects>>(true)
+		testType.equal<Projects, Asana.AsanaCollection<Asana.Project>>(true)
+		testType.equal<Tasks, Asana.AsanaCollection<Asana.Task>>(true)
+	})
+
+	it('shapes AsanaCollection like the SDK Collection', () => {
+		type C = Asana.AsanaCollection<Asana.Task>
+
+		testType.equal<C['data'], Asana.Task[]>(true)
+		testType.equal<C['_response']['next_page'], Asana.NextPage | null>(true)
+		testType.equal<Awaited<ReturnType<C['nextPage']>>, C | { data: null }>(true)
+	})
 })

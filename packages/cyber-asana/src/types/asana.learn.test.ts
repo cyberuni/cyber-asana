@@ -6,6 +6,8 @@ import { isSystemTestEnabled, systemEnv } from '../testing/system.js'
 const taskGid = systemEnv('ASANA_SYSTEM_TEST_TASK_GID')
 const enabled = isSystemTestEnabled() && Boolean(taskGid)
 const projectGid = systemEnv('ASANA_SYSTEM_TEST_PROJECT_GID')
+const workspaceGid = systemEnv('ASANA_WORKSPACE')
+const workspaceEnabled = isSystemTestEnabled() && Boolean(workspaceGid)
 const projectEnabled = isSystemTestEnabled() && Boolean(projectGid)
 
 describe.skipIf(!enabled)('asana types: TasksApi', () => {
@@ -47,5 +49,40 @@ describe.skipIf(!projectEnabled)('asana types: ProjectsApi', () => {
 		expect(typeof project.notes).toBe('string')
 		if (project.owner) expect(typeof project.owner.gid).toBe('string')
 		expect(typeof project.workspace?.gid).toBe('string')
+	})
+})
+
+describe.skipIf(!workspaceEnabled)('asana types: list collections', () => {
+	it('getProjectsForWorkspace returns a Collection whose shape matches AsanaCollection', async () => {
+		const api = new Asana.ProjectsApi(createClient())
+
+		const page = await api.getProjectsForWorkspace(workspaceGid!, { limit: 1, opt_fields: 'name,resource_type' })
+
+		expectTypeOf(page).toEqualTypeOf<Asana.AsanaCollection<Asana.Project>>()
+		expect(Array.isArray(page.data)).toBe(true)
+		for (const project of page.data) {
+			expect(typeof project.gid).toBe('string')
+			expect(project.resource_type).toBe('project')
+		}
+		expect(typeof page.nextPage).toBe('function')
+		const next = page._response.next_page
+		if (next) expect(typeof next.offset).toBe('string')
+		else expect(next).toBeNull()
+	})
+})
+
+describe.skipIf(!projectEnabled)('asana types: task list collections', () => {
+	it('getTasksForProject returns a Collection whose nextPage ends with data: null', async () => {
+		const api = new Asana.TasksApi(createClient())
+
+		const first = await api.getTasksForProject(projectGid!, { limit: 100, opt_fields: 'name,resource_type' })
+
+		expectTypeOf(first).toEqualTypeOf<Asana.AsanaCollection<Asana.Task>>()
+		let page: Asana.AsanaCollection<Asana.Task> | { data: null } = first
+		for (let pages = 0; page.data !== null && pages < 50; pages++) {
+			for (const task of page.data) expect(task.resource_type).toBe('task')
+			page = await page.nextPage()
+		}
+		expect(page.data).toBeNull()
 	})
 })

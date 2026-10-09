@@ -22,6 +22,28 @@ declare module 'asana' {
 		opt_fields?: string | undefined
 	}
 
+	interface PaginationOptions extends OptionalFields {
+		limit?: number | undefined
+		offset?: string | undefined
+	}
+
+	interface NextPage {
+		offset: string
+		path: string
+		uri: string
+	}
+
+	/**
+	 * What list endpoints resolve to: the SDK's `Collection` class, whose
+	 * declaration is `export =` and cannot be merged, so this mirrors its runtime shape.
+	 * `nextPage()` resolves to `{ data: null }` once the pages run out.
+	 */
+	interface AsanaCollection<T> {
+		data: T[]
+		_response: { data: T[]; next_page: NextPage | null }
+		nextPage(): Promise<AsanaCollection<T> | { data: null }>
+	}
+
 	interface Task extends AsanaResource {
 		resource_type: 'task'
 		completed?: boolean | undefined
@@ -72,10 +94,18 @@ declare module 'asana' {
 
 	interface TasksApi {
 		getTask(task_gid: string, opts?: OptionalFields): Promise<AsanaResponse<Task>>
+		getTasksForProject(
+			project_gid: string,
+			opts?: PaginationOptions & { completed_since?: string | undefined },
+		): Promise<AsanaCollection<Task>>
 	}
 
 	interface ProjectsApi {
 		getProject(project_gid: string, opts?: OptionalFields): Promise<AsanaResponse<Project>>
+		getProjectsForWorkspace(
+			workspace_gid: string,
+			opts?: PaginationOptions & { archived?: boolean | undefined },
+		): Promise<AsanaCollection<Project>>
 	}
 }
 
