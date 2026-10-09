@@ -28,8 +28,6 @@ Write the test first. Watch it fail. Write minimal code to pass.
 - Generated code
 - Configuration files
 
-Thinking "skip TDD just this once"? Stop. That's rationalization.
-
 ## The Iron Law
 
 ```
@@ -114,10 +112,10 @@ Vague name, tests mock not code
 
 ### Verify RED - Watch It Fail
 
-**MANDATORY. Never skip.**
+Run it: a test you have not seen fail may not test anything.
 
 ```bash
-npm test path/to/test.test.ts
+pnpm test path/to/test.test.ts
 ```
 
 Confirm:
@@ -169,10 +167,10 @@ Don't add features, refactor other code, or "improve" beyond the test.
 
 ### Verify GREEN - Watch It Pass
 
-**MANDATORY.**
+Run it before moving on.
 
 ```bash
-npm test path/to/test.test.ts
+pnpm test path/to/test.test.ts
 ```
 
 Confirm:
@@ -303,7 +301,7 @@ test('rejects empty email', async () => {
 
 **Verify RED**
 ```bash
-$ npm test
+$ pnpm test
 FAIL: expected 'Email required', got undefined
 ```
 
@@ -319,7 +317,7 @@ function submitForm(data: FormData) {
 
 **Verify GREEN**
 ```bash
-$ npm test
+$ pnpm test
 PASS
 ```
 
