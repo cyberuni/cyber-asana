@@ -620,3 +620,78 @@ describe.skipIf(!workspaceEnabled)('asana types: tag writes, teams, users and us
 		expect(team.data.gid).toBe(first.gid)
 	})
 })
+
+describe.skipIf(!projectEnabled)('asana types: memberships and status updates', () => {
+	it('getMemberships and getMembership resolve to the augmented shapes', async () => {
+		const api = new Asana.MembershipsApi(createClient())
+		const listed = await api.getMemberships({ parent: projectGid!, limit: 5, opt_fields: 'resource_type,member.gid' })
+		expectTypeOf(listed).toEqualTypeOf<Asana.AsanaCollection<Asana.Membership>>()
+		expect(listed.data.length).toBeGreaterThan(0)
+		expect(listed.data[0]?.resource_type).toBe('membership')
+
+		const one = await api.getMembership(listed.data[0]!.gid)
+		expectTypeOf(one).toEqualTypeOf<Asana.AsanaResponse<Asana.Membership>>()
+		expect(one.data.gid).toBe(listed.data[0]!.gid)
+	})
+
+	it('createStatusForObject, getStatus, getStatusesForObject and deleteStatus resolve to the augmented shapes', async () => {
+		const api = new Asana.StatusUpdatesApi(createClient())
+		const created = await api.createStatusForObject(
+			{ data: { parent: projectGid!, status_type: 'on_track', title: 'cyber-asana learn probe', text: 'probe' } },
+			{ opt_fields: 'title,text,status_type,resource_type,parent.gid' },
+		)
+		expectTypeOf(created).toEqualTypeOf<Asana.AsanaResponse<Asana.StatusUpdate>>()
+		try {
+			expect(created.data.resource_type).toBe('status_update')
+			expect(created.data.status_type).toBe('on_track')
+			expect(created.data.parent?.gid).toBe(projectGid)
+
+			const read = await api.getStatus(created.data.gid, { opt_fields: 'title' })
+			expectTypeOf(read).toEqualTypeOf<Asana.AsanaResponse<Asana.StatusUpdate>>()
+			expect(read.data.title).toBe('cyber-asana learn probe')
+
+			const listed = await api.getStatusesForObject(projectGid!, { limit: 10, opt_fields: 'title' })
+			expectTypeOf(listed).toEqualTypeOf<Asana.AsanaCollection<Asana.StatusUpdate>>()
+			expect(listed.data.map((s) => s.gid)).toContain(created.data.gid)
+		} finally {
+			const deleted = await api.deleteStatus(created.data.gid)
+			expectTypeOf(deleted).toEqualTypeOf<Asana.EmptyResponse>()
+			expect(deleted.data).toEqual({})
+		}
+	})
+})
+
+describe.skipIf(!workspaceEnabled || !isPaidPlan())('asana types: OooEntriesApi (paid plans only)', () => {
+	it('create, get, list, update and delete resolve to the augmented shapes', async () => {
+		const client = createClient()
+		const api = new Asana.OooEntriesApi(client)
+		const me = await new Asana.UsersApi(client).getUser('me')
+		const created = await api.createOooEntry(
+			{ data: { user: me.data.gid, workspace: workspaceGid!, start_date: '2099-01-01', end_date: '2099-01-02' } },
+			{ opt_fields: 'start_date,end_date,resource_type,user.gid' },
+		)
+		expectTypeOf(created).toEqualTypeOf<Asana.AsanaResponse<Asana.OooEntry>>()
+		try {
+			expect(created.data.resource_type).toBe('ooo_entry')
+			expect(created.data.end_date).toBe('2099-01-02')
+
+			const updated = await api.updateOooEntry({ data: { end_date: '2099-01-03' } }, created.data.gid, {
+				opt_fields: 'end_date',
+			})
+			expectTypeOf(updated).toEqualTypeOf<Asana.AsanaResponse<Asana.OooEntry>>()
+			expect(updated.data.end_date).toBe('2099-01-03')
+
+			const read = await api.getOooEntry(created.data.gid, { opt_fields: 'start_date' })
+			expectTypeOf(read).toEqualTypeOf<Asana.AsanaResponse<Asana.OooEntry>>()
+			expect(read.data.start_date).toBe('2099-01-01')
+
+			const listed = await api.getOooEntries(me.data.gid, workspaceGid!, { opt_fields: 'start_date' })
+			expectTypeOf(listed).toEqualTypeOf<Asana.AsanaCollection<Asana.OooEntry>>()
+			expect(listed.data.map((e) => e.gid)).toContain(created.data.gid)
+		} finally {
+			const deleted = await api.deleteOooEntry(created.data.gid)
+			expectTypeOf(deleted).toEqualTypeOf<Asana.EmptyResponse>()
+			expect(deleted.data).toEqual({})
+		}
+	})
+})

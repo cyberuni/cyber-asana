@@ -351,6 +351,95 @@ declare module 'asana' {
 		workspace?: Workspace | undefined
 	}
 
+	interface Membership {
+		gid: string
+		resource_type: 'membership'
+		access_level?: string | undefined
+		resource_subtype?: string | undefined
+		member?: AsanaResource | undefined
+		parent?: AsanaResource | undefined
+	}
+
+	interface OooEntry {
+		gid: string
+		resource_type: 'ooo_entry'
+		start_date?: string | undefined
+		end_date?: string | undefined
+		user?: User | undefined
+	}
+
+	interface StatusUpdate {
+		gid: string
+		resource_type: 'status_update'
+		resource_subtype?: string | undefined
+		status_type?: string | undefined
+		title?: string | undefined
+		text?: string | undefined
+		html_text?: string | undefined
+		created_at?: string | undefined
+		author?: User | undefined
+		parent?: AsanaResource | undefined
+	}
+
+	interface StatusUpdateRequest {
+		parent: string
+		status_type: string
+		text?: string | undefined
+		html_text?: string | undefined
+		title?: string | undefined
+	}
+
+	interface MembershipsApi {
+		getMembership(membership_gid: string): Promise<AsanaResponse<Membership>>
+		getMemberships(
+			opts?: PaginationOptions & {
+				parent?: string | undefined
+				member?: string | undefined
+				resource_subtype?: string | undefined
+			},
+		): Promise<AsanaCollection<Membership>>
+		createMembership(opts: {
+			body: { data: { parent: string; member: string; access_level?: string | undefined } }
+		}): Promise<AsanaResponse<Membership>>
+		updateMembership(
+			body: { data: { access_level?: string | undefined } },
+			membership_gid: string,
+		): Promise<AsanaResponse<Membership>>
+		deleteMembership(membership_gid: string): Promise<EmptyResponse>
+	}
+
+	interface OooEntriesApi {
+		getOooEntry(ooo_entry_gid: string, opts?: OptionalFields): Promise<AsanaResponse<OooEntry>>
+		getOooEntries(
+			user: string,
+			workspace: string,
+			opts?: PaginationOptions & { start_date?: string | undefined; end_date?: string | undefined },
+		): Promise<AsanaCollection<OooEntry>>
+		createOooEntry(
+			body: { data: { user: string; workspace: string; start_date: string; end_date: string } },
+			opts?: OptionalFields,
+		): Promise<AsanaResponse<OooEntry>>
+		updateOooEntry(
+			body: { data: { start_date?: string | undefined; end_date?: string | undefined } },
+			ooo_entry_gid: string,
+			opts?: OptionalFields,
+		): Promise<AsanaResponse<OooEntry>>
+		deleteOooEntry(ooo_entry_gid: string): Promise<EmptyResponse>
+	}
+
+	interface StatusUpdatesApi {
+		getStatus(status_update_gid: string, opts?: OptionalFields): Promise<AsanaResponse<StatusUpdate>>
+		getStatusesForObject(
+			parent: string,
+			opts?: PaginationOptions & { created_since?: string | undefined },
+		): Promise<AsanaCollection<StatusUpdate>>
+		createStatusForObject(
+			body: { data: StatusUpdateRequest },
+			opts?: OptionalFields,
+		): Promise<AsanaResponse<StatusUpdate>>
+		deleteStatus(status_update_gid: string): Promise<EmptyResponse>
+	}
+
 	interface TagRequest {
 		name?: string | undefined
 		color?: string | null | undefined

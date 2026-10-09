@@ -255,4 +255,29 @@ describe('asana type augmentation', () => {
 		testType.equal<List, Asana.AsanaResponse<Asana.UserTaskList>>(true)
 		testType.equal<Asana.Team['resource_type'], 'team'>(true)
 	})
+
+	it('types MembershipsApi, OooEntriesApi and StatusUpdatesApi', () => {
+		type R<A, K extends keyof A> = A[K] extends (...args: any) => infer Ret ? Awaited<Ret> : never
+
+		testType.false<IsAny<R<Asana.MembershipsApi, 'getMembership'>>>(true)
+		testType.equal<R<Asana.MembershipsApi, 'getMembership'>, Asana.AsanaResponse<Asana.Membership>>(true)
+		testType.equal<R<Asana.MembershipsApi, 'createMembership'>, Asana.AsanaResponse<Asana.Membership>>(true)
+		testType.equal<R<Asana.MembershipsApi, 'updateMembership'>, Asana.AsanaResponse<Asana.Membership>>(true)
+		testType.equal<R<Asana.MembershipsApi, 'deleteMembership'>, Asana.EmptyResponse>(true)
+		testType.equal<R<Asana.MembershipsApi, 'getMemberships'>, Asana.AsanaCollection<Asana.Membership>>(true)
+
+		testType.equal<R<Asana.OooEntriesApi, 'getOooEntry'>, Asana.AsanaResponse<Asana.OooEntry>>(true)
+		testType.equal<R<Asana.OooEntriesApi, 'createOooEntry'>, Asana.AsanaResponse<Asana.OooEntry>>(true)
+		testType.equal<R<Asana.OooEntriesApi, 'updateOooEntry'>, Asana.AsanaResponse<Asana.OooEntry>>(true)
+		testType.equal<R<Asana.OooEntriesApi, 'deleteOooEntry'>, Asana.EmptyResponse>(true)
+		testType.equal<R<Asana.OooEntriesApi, 'getOooEntries'>, Asana.AsanaCollection<Asana.OooEntry>>(true)
+
+		testType.equal<R<Asana.StatusUpdatesApi, 'getStatus'>, Asana.AsanaResponse<Asana.StatusUpdate>>(true)
+		testType.equal<R<Asana.StatusUpdatesApi, 'createStatusForObject'>, Asana.AsanaResponse<Asana.StatusUpdate>>(true)
+		testType.equal<R<Asana.StatusUpdatesApi, 'deleteStatus'>, Asana.EmptyResponse>(true)
+		testType.equal<R<Asana.StatusUpdatesApi, 'getStatusesForObject'>, Asana.AsanaCollection<Asana.StatusUpdate>>(true)
+		testType.equal<Asana.OooEntry['resource_type'], 'ooo_entry'>(true)
+		testType.equal<Asana.StatusUpdate['resource_type'], 'status_update'>(true)
+		testType.equal<Asana.Membership['resource_type'], 'membership'>(true)
+	})
 })
