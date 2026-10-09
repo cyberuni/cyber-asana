@@ -280,4 +280,37 @@ describe('asana type augmentation', () => {
 		testType.equal<Asana.StatusUpdate['resource_type'], 'status_update'>(true)
 		testType.equal<Asana.Membership['resource_type'], 'membership'>(true)
 	})
+
+	it('types TypeaheadApi, BatchAPIApi, EventsApi and RulesApi', () => {
+		type R<A, K extends keyof A> = A[K] extends (...args: any) => infer Ret ? Awaited<Ret> : never
+
+		testType.false<IsAny<R<Asana.TypeaheadApi, 'typeaheadForWorkspace'>>>(true)
+		testType.equal<R<Asana.TypeaheadApi, 'typeaheadForWorkspace'>, Asana.AsanaCollection<Asana.AsanaResource>>(true)
+		testType.equal<R<Asana.BatchAPIApi, 'createBatchRequest'>, Asana.AsanaCollection<Asana.BatchResult>>(true)
+		testType.equal<R<Asana.EventsApi, 'getEvents'>, Asana.EventCollection>(true)
+		testType.equal<Asana.EventCollection['data'], Asana.AsanaEvent[]>(true)
+		testType.equal<Asana.EventCollection['_response']['sync'], string | undefined>(true)
+		testType.equal<Asana.EventCollection['_response']['has_more'], boolean | undefined>(true)
+		testType.equal<R<Asana.RulesApi, 'triggerRule'>, Asana.EmptyResponse>(true)
+		testType.equal<Asana.BatchResult['status_code'], number>(true)
+	})
+
+	it('types ProjectTemplatesApi, TaskTemplatesApi and JobsApi, and keeps Job assignable to the polling Job', () => {
+		type R<A, K extends keyof A> = A[K] extends (...args: any) => infer Ret ? Awaited<Ret> : never
+
+		testType.equal<R<Asana.ProjectTemplatesApi, 'getProjectTemplate'>, Asana.AsanaResponse<Asana.ProjectTemplate>>(true)
+		testType.equal<R<Asana.ProjectTemplatesApi, 'getProjectTemplates'>, Asana.AsanaCollection<Asana.ProjectTemplate>>(
+			true,
+		)
+		testType.equal<
+			R<Asana.ProjectTemplatesApi, 'getProjectTemplatesForTeam'>,
+			Asana.AsanaCollection<Asana.ProjectTemplate>
+		>(true)
+		testType.equal<R<Asana.ProjectTemplatesApi, 'instantiateProject'>, Asana.AsanaResponse<Asana.Job>>(true)
+		testType.equal<R<Asana.TaskTemplatesApi, 'getTaskTemplate'>, Asana.AsanaResponse<Asana.TaskTemplate>>(true)
+		testType.equal<R<Asana.TaskTemplatesApi, 'getTaskTemplates'>, Asana.AsanaCollection<Asana.TaskTemplate>>(true)
+		testType.equal<R<Asana.TaskTemplatesApi, 'instantiateTask'>, Asana.AsanaResponse<Asana.Job>>(true)
+		testType.equal<R<Asana.JobsApi, 'getJob'>, Asana.AsanaResponse<Asana.Job>>(true)
+		testType.equal<Asana.Job['resource_type'], 'job'>(true)
+	})
 })

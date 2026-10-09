@@ -440,6 +440,119 @@ declare module 'asana' {
 		deleteStatus(status_update_gid: string): Promise<EmptyResponse>
 	}
 
+	interface BatchAction {
+		method: 'get' | 'post' | 'put' | 'delete' | 'patch' | 'head'
+		relative_path: string
+		data?: object | undefined
+		options?: { fields?: string[]; limit?: number; offset?: number; pretty?: boolean } | undefined
+	}
+
+	interface BatchResult {
+		status_code: number
+		headers?: Record<string, string> | undefined
+		body?: { data?: unknown; errors?: unknown[] } | undefined
+	}
+
+	interface AsanaEvent {
+		action: string
+		type?: string | undefined
+		created_at?: string | undefined
+		resource?: { gid: string; resource_type: string; resource_subtype?: string } | undefined
+		parent?: { gid: string; resource_type: string } | null | undefined
+		user?: { gid: string; resource_type: string } | null | undefined
+		change?: { field: string; action: string } | undefined
+	}
+
+	/** Events resolve to a Collection too, but the sync token rides on `_response`, not on the collection. */
+	interface EventCollection extends AsanaCollection<AsanaEvent> {
+		_response: AsanaCollection<AsanaEvent>['_response'] & {
+			sync?: string | undefined
+			has_more?: boolean | undefined
+		}
+	}
+
+	/** Intersection of a type alias, not an interface, so it stays assignable to `platform/job-polling`'s `Job`. */
+	type Job = {
+		gid: string
+		resource_type: 'job'
+		resource_subtype?: string | undefined
+		status?: 'not_started' | 'in_progress' | 'succeeded' | 'failed' | 'canceled' | undefined
+		new_project?: Project | undefined
+		new_task?: Task | undefined
+	}
+
+	interface ProjectTemplate extends AsanaResource {
+		resource_type: 'project_template'
+		description?: string | undefined
+		html_description?: string | undefined
+		public?: boolean | undefined
+		color?: string | null | undefined
+		owner?: User | undefined
+		team?: Team | undefined
+		requested_dates?: Array<{ gid: string; name?: string; description?: string }> | undefined
+		requested_roles?: Array<{ gid: string; name?: string }> | undefined
+	}
+
+	interface TaskTemplate extends AsanaResource {
+		resource_type: 'task_template'
+		template?: { name?: string; description?: string } | undefined
+		project?: Project | undefined
+		created_at?: string | undefined
+	}
+
+	interface TypeaheadApi {
+		typeaheadForWorkspace(
+			workspace_gid: string,
+			resource_type: string,
+			opts?: OptionalFields & { query?: string | undefined; count?: number | undefined },
+		): Promise<AsanaCollection<AsanaResource>>
+	}
+
+	interface BatchAPIApi {
+		createBatchRequest(
+			body: { data: { actions: BatchAction[] } },
+			opts?: OptionalFields,
+		): Promise<AsanaCollection<BatchResult>>
+	}
+
+	interface EventsApi {
+		getEvents(resource: string, opts?: OptionalFields & { sync?: string | undefined }): Promise<EventCollection>
+	}
+
+	interface RulesApi {
+		triggerRule(
+			body: { data: { resource?: string; action_data?: Record<string, unknown> } },
+			rule_trigger_gid: string,
+		): Promise<EmptyResponse>
+	}
+
+	interface JobsApi {
+		getJob(job_gid: string, opts?: OptionalFields): Promise<AsanaResponse<Job>>
+	}
+
+	interface ProjectTemplatesApi {
+		getProjectTemplate(project_template_gid: string, opts?: OptionalFields): Promise<AsanaResponse<ProjectTemplate>>
+		getProjectTemplates(
+			opts?: PaginationOptions & { workspace?: string | undefined; team?: string | undefined },
+		): Promise<AsanaCollection<ProjectTemplate>>
+		getProjectTemplatesForTeam(team_gid: string, opts?: PaginationOptions): Promise<AsanaCollection<ProjectTemplate>>
+		instantiateProject(
+			project_template_gid: string,
+			opts: { body: { data: Record<string, unknown> }; opt_fields?: string | undefined },
+		): Promise<AsanaResponse<Job>>
+	}
+
+	interface TaskTemplatesApi {
+		getTaskTemplate(task_template_gid: string, opts?: OptionalFields): Promise<AsanaResponse<TaskTemplate>>
+		getTaskTemplates(
+			opts?: PaginationOptions & { project?: string | undefined },
+		): Promise<AsanaCollection<TaskTemplate>>
+		instantiateTask(
+			task_template_gid: string,
+			opts: { body: { data: { name?: string | undefined } }; opt_fields?: string | undefined },
+		): Promise<AsanaResponse<Job>>
+	}
+
 	interface TagRequest {
 		name?: string | undefined
 		color?: string | null | undefined

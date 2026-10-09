@@ -695,3 +695,55 @@ describe.skipIf(!workspaceEnabled || !isPaidPlan())('asana types: OooEntriesApi 
 		}
 	})
 })
+
+describe.skipIf(!workspaceEnabled || !projectEnabled)('asana types: typeahead, batch, events and templates', () => {
+	it('typeaheadForWorkspace returns a Collection of resources', async () => {
+		const found = await new Asana.TypeaheadApi(createClient()).typeaheadForWorkspace(workspaceGid!, 'project', {
+			count: 1,
+			opt_fields: 'name',
+		})
+		expectTypeOf(found).toEqualTypeOf<Asana.AsanaCollection<Asana.AsanaResource>>()
+		expect(found.data[0]?.gid).toBeTypeOf('string')
+	})
+
+	it('createBatchRequest returns a Collection of results', async () => {
+		const results = await new Asana.BatchAPIApi(createClient()).createBatchRequest({
+			data: { actions: [{ method: 'get', relative_path: '/users/me' }] },
+		})
+		expectTypeOf(results).toEqualTypeOf<Asana.AsanaCollection<Asana.BatchResult>>()
+		expect(results.data[0]?.status_code).toBe(200)
+		expect(results.data[0]?.body?.data).toBeDefined()
+	})
+
+	it('getEvents answers 412 with a sync token, then resolves to a Collection carrying the token on _response', async () => {
+		const api = new Asana.EventsApi(createClient())
+		const sync = await api.getEvents(projectGid!).then(
+			() => undefined,
+			(error: { response?: { status?: number; body?: { sync?: string } } }) => {
+				expect(error.response?.status).toBe(412)
+				return error.response?.body?.sync
+			},
+		)
+		expect(sync).toBeTypeOf('string')
+
+		const feed = await api.getEvents(projectGid!, { sync: sync! })
+		expectTypeOf(feed).toEqualTypeOf<Asana.EventCollection>()
+		expect(Array.isArray(feed.data)).toBe(true)
+		expect(feed._response.sync).toBeTypeOf('string')
+		expect(feed._response.has_more).toBe(false)
+		expect((feed as unknown as { sync?: string }).sync).toBeUndefined()
+	})
+
+	it('getTaskTemplates, getProjectTemplates and getProjectTemplatesForTeam return Collections', async () => {
+		const client = createClient()
+		const taskTemplates = await new Asana.TaskTemplatesApi(client).getTaskTemplates({ project: projectGid! })
+		expectTypeOf(taskTemplates).toEqualTypeOf<Asana.AsanaCollection<Asana.TaskTemplate>>()
+		expect(Array.isArray(taskTemplates.data)).toBe(true)
+
+		const projectTemplates = await new Asana.ProjectTemplatesApi(client).getProjectTemplates({
+			workspace: workspaceGid!,
+		})
+		expectTypeOf(projectTemplates).toEqualTypeOf<Asana.AsanaCollection<Asana.ProjectTemplate>>()
+		expect(Array.isArray(projectTemplates.data)).toBe(true)
+	})
+})
