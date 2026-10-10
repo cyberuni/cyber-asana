@@ -1,3 +1,4 @@
+import type Asana from 'asana'
 import { type ListResult, listItems } from '../platform/pagination.js'
 import type { PortfolioGateway } from '../portfolios/gateway.js'
 import type { ProjectGateway } from '../projects/gateway.js'
@@ -30,9 +31,9 @@ export type StatusOverviewEntry = {
 	name: string
 	resource_type: string
 	/** The most recent status update, or null when there has never been one. */
-	status: Record<string, any> | null
+	status: Asana.StatusUpdate | null
 	/** Task counts, or null for anything that is not a project. */
-	counts: Record<string, any> | null
+	counts: Asana.TaskCounts | null
 }
 
 export type StatusOverview = {
@@ -95,7 +96,7 @@ async function resolveParent(deps: StatusOverviewDeps, parentGid: string, parent
 	}
 }
 
-function hasMorePages(result: ListResult<any>) {
+function hasMorePages<T>(result: ListResult<T>) {
 	return !Array.isArray(result) && result.next_page != null
 }
 
@@ -106,7 +107,7 @@ export async function getStatusOverview(
 ): Promise<StatusOverview> {
 	const limit = opts?.limit ?? DEFAULT_STATUS_OVERVIEW_LIMIT
 	const { resourceType, parent } = await resolveParent(deps, parentGid, opts?.parentType)
-	const parentEntry = await entryFor(deps, { gid: parentGid, ...parent }, resourceType)
+	const parentEntry = await entryFor(deps, { ...parent, gid: parentGid }, resourceType)
 
 	if (resourceType !== 'portfolio') {
 		return { parent: parentEntry, items: [], item_count: 0, item_limit: limit, truncated: false }

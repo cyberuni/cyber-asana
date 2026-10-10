@@ -11,7 +11,7 @@ import { output, printCountSummary, printFields, printNextSteps, printTable } fr
 import type { WorkspaceApi } from './api.js'
 import { getWorkspace, listWorkspaces } from './default.js'
 
-type Workspace = { gid: string; name: string }
+type Workspace = { gid: string; name?: string }
 
 function resolveWorkspaceApi(api?: WorkspaceApi | (() => WorkspaceApi)): WorkspaceApi {
 	if (typeof api === 'function') return api()
@@ -51,7 +51,7 @@ export function workspaceCommand(api?: WorkspaceApi | (() => WorkspaceApi)) {
 				printTable(
 					items,
 					[
-						{ label: 'Name', get: (w: Workspace) => w.name },
+						{ label: 'Name', get: (w: Workspace) => w.name ?? '' },
 						{ label: 'ID', get: (w: Workspace) => w.gid },
 					],
 					{ entity: 'workspaces' },

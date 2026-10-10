@@ -17,7 +17,7 @@ export function interpolateTemplate(text: string, task: TaskTemplateData): strin
 		.replace(/\{task\.notes\}/g, task.notes ?? '')
 }
 
-function normalizeStoryCreateError(error: unknown) {
+function normalizeStoryCreateError(error: unknown): never {
 	const message = error instanceof Error ? error.message : String(error)
 	if (message.includes('html_text')) {
 		throw new Error(

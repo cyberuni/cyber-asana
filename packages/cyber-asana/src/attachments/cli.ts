@@ -15,7 +15,7 @@ import { deleteIdempotently, deleteMessage } from '../platform/idempotent-delete
 import type { AttachmentApi } from './api.js'
 import { createAttachment, deleteAttachment, getAttachment, listAttachments } from './default.js'
 
-type Attachment = { gid: string; name: string; resource_type?: string; download_url?: string | null }
+type Attachment = { gid: string; name?: string; resource_type?: string; download_url?: string | null }
 
 function resolveAttachmentApi(api?: AttachmentApi | (() => AttachmentApi)): AttachmentApi {
 	if (typeof api === 'function') return api()
@@ -78,7 +78,7 @@ export function attachmentCommand(api?: AttachmentApi | (() => AttachmentApi)) {
 			printTable(
 				items,
 				[
-					{ label: 'Name', get: (a: Attachment) => a.name },
+					{ label: 'Name', get: (a: Attachment) => a.name ?? '' },
 					{ label: 'ID', get: (a: Attachment) => a.gid },
 				],
 				{ entity: 'attachments' },

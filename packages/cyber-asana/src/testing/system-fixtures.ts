@@ -40,7 +40,9 @@ async function resolveProject(
 ): Promise<{ projectGid: string; workspaceGid: string }> {
 	if ('projectGid' in target) {
 		const project = await context.projects.getProject(target.projectGid, { optFields: 'name,workspace.gid' })
-		return { projectGid: target.projectGid, workspaceGid: project.workspace.gid }
+		const workspaceGid = project.workspace?.gid
+		if (!workspaceGid) throw new Error(`project ${target.projectGid} has no workspace`)
+		return { projectGid: target.projectGid, workspaceGid }
 	}
 	const projects: Named[] = [...listItems<Named>(await context.projects.listProjects(target.workspaceGid, ALL))]
 	const project = await findOrCreate(projects, PROJECT_NAME, () =>

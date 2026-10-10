@@ -14,8 +14,8 @@ export type InstantiateTaskFields = {
 }
 
 export type TaskTemplateGateway = {
-	listTaskTemplates(projectGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
-	getTaskTemplate(taskTemplateGid: string, opts?: ReadOptions): Promise<any>
+	listTaskTemplates(projectGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.TaskTemplate>>
+	getTaskTemplate(taskTemplateGid: string, opts?: ReadOptions): Promise<Asana.TaskTemplate>
 	instantiateTask(taskTemplateGid: string, fields?: InstantiateTaskFields): Promise<Job>
 	getJob(jobGid: string): Promise<Job>
 }

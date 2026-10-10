@@ -20,10 +20,14 @@ export type OooEntryListOptions = PaginationOptions & {
 }
 
 export type OooGateway = {
-	listOooEntries(userGid: string, workspaceGid: string, opts?: OooEntryListOptions): Promise<ListResult<any>>
-	getOooEntry(oooEntryGid: string, opts?: ReadOptions): Promise<any>
-	createOooEntry(userGid: string, workspaceGid: string, fields: { start_date: string; end_date: string }): Promise<any>
-	updateOooEntry(oooEntryGid: string, fields: OooEntryWriteFields): Promise<any>
+	listOooEntries(userGid: string, workspaceGid: string, opts?: OooEntryListOptions): Promise<ListResult<Asana.OooEntry>>
+	getOooEntry(oooEntryGid: string, opts?: ReadOptions): Promise<Asana.OooEntry>
+	createOooEntry(
+		userGid: string,
+		workspaceGid: string,
+		fields: { start_date: string; end_date: string },
+	): Promise<Asana.OooEntry>
+	updateOooEntry(oooEntryGid: string, fields: OooEntryWriteFields): Promise<Asana.OooEntry>
 	deleteOooEntry(oooEntryGid: string): Promise<void>
 }
 

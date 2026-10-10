@@ -15,15 +15,15 @@ export type TagWriteFields = {
 }
 
 export type TagGateway = {
-	listTags(workspaceGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
-	getTag(tagGid: string, opts?: ReadOptions): Promise<any>
-	createTag(workspaceGid: string, name: string, fields?: TagCreateFields): Promise<any>
-	updateTag(tagGid: string, fields: TagWriteFields): Promise<any>
+	listTags(workspaceGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.Tag>>
+	getTag(tagGid: string, opts?: ReadOptions): Promise<Asana.Tag>
+	createTag(workspaceGid: string, name: string, fields?: TagCreateFields): Promise<Asana.Tag>
+	updateTag(tagGid: string, fields: TagWriteFields): Promise<Asana.Tag>
 	deleteTag(tagGid: string): Promise<void>
-	listTagsForTask(taskGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
-	listTasksForTag(tagGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
-	addTagToTask(taskGid: string, tagGid: string): Promise<any>
-	removeTagFromTask(taskGid: string, tagGid: string): Promise<any>
+	listTagsForTask(taskGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.Tag>>
+	listTasksForTag(tagGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.Task>>
+	addTagToTask(taskGid: string, tagGid: string): Promise<Record<string, never>>
+	removeTagFromTask(taskGid: string, tagGid: string): Promise<Record<string, never>>
 }
 
 export function createAsanaTagGateway(client: Asana.ApiClient): TagGateway {

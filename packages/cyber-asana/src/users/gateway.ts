@@ -8,9 +8,9 @@ import {
 import { type ReadOptions, toAsanaReadOptions } from '../platform/read-options.js'
 
 export type UserGateway = {
-	listUsers(workspaceGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
-	getUser(userGid: string, opts?: ReadOptions): Promise<any>
-	getMe(opts?: ReadOptions): Promise<any>
+	listUsers(workspaceGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.User>>
+	getUser(userGid: string, opts?: ReadOptions): Promise<Asana.User>
+	getMe(opts?: ReadOptions): Promise<Asana.User>
 }
 
 export function createAsanaUserGateway(client: Asana.ApiClient): UserGateway {

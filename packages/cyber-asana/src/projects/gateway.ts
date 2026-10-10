@@ -73,15 +73,15 @@ export type SearchProjectsOptions = {
 export type ProjectListOptions = PaginationOptions & { archived?: boolean; customType?: string }
 
 export type ProjectGateway = {
-	listProjects(workspaceGid: string, opts?: ProjectListOptions): Promise<ListResult<any>>
-	getProject(projectGid: string, opts?: ReadOptions): Promise<any>
-	getProjectTaskCounts(projectGid: string, opts?: { optFields?: string }): Promise<any>
-	createProject(workspaceGid: string, name: string, opts?: CreateProjectFields): Promise<any>
-	updateProject(projectGid: string, fields: UpdateProjectFields): Promise<any>
+	listProjects(workspaceGid: string, opts?: ProjectListOptions): Promise<ListResult<Asana.Project>>
+	getProject(projectGid: string, opts?: ReadOptions): Promise<Asana.Project>
+	getProjectTaskCounts(projectGid: string, opts?: { optFields?: string }): Promise<Asana.TaskCounts>
+	createProject(workspaceGid: string, name: string, opts?: CreateProjectFields): Promise<Asana.Project>
+	updateProject(projectGid: string, fields: UpdateProjectFields): Promise<Asana.Project>
 	deleteProject(projectGid: string): Promise<void>
-	searchProjects(workspaceGid: string, opts?: SearchProjectsOptions): Promise<any>
-	listSections(projectGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
-	listTasksForSection(sectionGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
+	searchProjects(workspaceGid: string, opts?: SearchProjectsOptions): Promise<Asana.Project[]>
+	listSections(projectGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.Section>>
+	listTasksForSection(sectionGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.Task>>
 }
 
 export function createAsanaProjectGateway(client: Asana.ApiClient): ProjectGateway {

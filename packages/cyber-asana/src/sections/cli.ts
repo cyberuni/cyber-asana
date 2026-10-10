@@ -22,10 +22,10 @@ import {
 	updateSection,
 } from './default.js'
 
-type Section = { gid: string; name: string }
+type Section = { gid: string; name?: string }
 
 function fmtSection(s: Section) {
-	printFields({ Name: s.name, ID: s.gid })
+	printFields({ Name: s.name ?? null, ID: s.gid })
 }
 
 function resolveSectionApi(api?: SectionApi | (() => SectionApi)): SectionApi {
@@ -91,7 +91,7 @@ export function sectionCommand(api?: SectionApi | (() => SectionApi)) {
 				printTable(
 					items,
 					[
-						{ label: 'Name', get: (s: Section) => s.name },
+						{ label: 'Name', get: (s: Section) => s.name ?? '' },
 						{ label: 'ID', get: (s: Section) => s.gid },
 					],
 					{ entity: 'sections' },

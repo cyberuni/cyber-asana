@@ -21,10 +21,10 @@ import {
 	listCustomFields,
 } from './default.js'
 
-type EnumOption = { gid: string; name: string; enabled?: boolean }
+type EnumOption = { gid: string; name?: string; enabled?: boolean }
 type CustomField = {
 	gid: string
-	name: string
+	name?: string
 	resource_subtype?: string
 	description?: string
 	enum_options?: EnumOption[]
@@ -146,7 +146,7 @@ export function customFieldCommand(api?: CustomFieldApi | (() => CustomFieldApi)
 				printTable(
 					items,
 					[
-						{ label: 'Name', get: (f: CustomField) => f.name },
+						{ label: 'Name', get: (f: CustomField) => f.name ?? '' },
 						{ label: 'Type', get: (f: CustomField) => f.resource_subtype ?? '' },
 						{ label: 'ID', get: (f: CustomField) => f.gid },
 					],
@@ -172,7 +172,7 @@ export function customFieldCommand(api?: CustomFieldApi | (() => CustomFieldApi)
 				printTable(
 					data.enum_options ?? [],
 					[
-						{ label: 'Option', get: (o: EnumOption) => o.name },
+						{ label: 'Option', get: (o: EnumOption) => o.name ?? '' },
 						{ label: 'ID', get: (o: EnumOption) => o.gid },
 						{ label: 'Enabled', get: (o: EnumOption) => (o.enabled === false ? 'no' : 'yes') },
 					],

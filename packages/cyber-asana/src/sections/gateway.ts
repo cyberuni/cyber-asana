@@ -8,10 +8,10 @@ import {
 import { type ReadOptions, toAsanaReadOptions } from '../platform/read-options.js'
 
 export type SectionGateway = {
-	listSections(projectGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
-	getSection(sectionGid: string, opts?: ReadOptions): Promise<any>
-	createSection(projectGid: string, name: string, opts?: SectionPlacement): Promise<any>
-	updateSection(sectionGid: string, name: string): Promise<any>
+	listSections(projectGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.Section>>
+	getSection(sectionGid: string, opts?: ReadOptions): Promise<Asana.Section>
+	createSection(projectGid: string, name: string, opts?: SectionPlacement): Promise<Asana.Section>
+	updateSection(sectionGid: string, name: string): Promise<Asana.Section>
 	deleteSection(sectionGid: string): Promise<void>
 	moveSection(projectGid: string, sectionGid: string, opts?: SectionPlacement): Promise<void>
 	addTaskToSection(sectionGid: string, taskGid: string, opts?: TaskPlacement): Promise<void>

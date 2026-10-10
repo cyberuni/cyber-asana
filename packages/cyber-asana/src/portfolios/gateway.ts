@@ -11,11 +11,11 @@ import { type ReadOptions, toAsanaReadOptions } from '../platform/read-options.j
 export type PortfolioListOptions = PaginationOptions & { owner?: string; customType?: string }
 
 export type PortfolioGateway = {
-	listPortfolios(workspaceGid: string, opts?: PortfolioListOptions): Promise<ListResult<any>>
-	listPortfolioItems(portfolioGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
-	getPortfolio(portfolioGid: string, opts?: ReadOptions): Promise<any>
-	createPortfolio(workspaceGid: string, name: string): Promise<any>
-	updatePortfolio(portfolioGid: string, fields: { name?: string }): Promise<any>
+	listPortfolios(workspaceGid: string, opts?: PortfolioListOptions): Promise<ListResult<Asana.Portfolio>>
+	listPortfolioItems(portfolioGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.AsanaResource>>
+	getPortfolio(portfolioGid: string, opts?: ReadOptions): Promise<Asana.Portfolio>
+	createPortfolio(workspaceGid: string, name: string): Promise<Asana.Portfolio>
+	updatePortfolio(portfolioGid: string, fields: { name?: string }): Promise<Asana.Portfolio>
 	deletePortfolio(portfolioGid: string): Promise<void>
 }
 

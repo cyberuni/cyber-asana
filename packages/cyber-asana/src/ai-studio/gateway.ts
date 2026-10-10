@@ -24,8 +24,8 @@ export type AiStudioSeatListOptions = PaginationOptions & {
 }
 
 export type AiStudioGateway = {
-	listAiStudioRuns(workspaceGid: string, opts?: AiStudioRunListOptions): Promise<ListResult<any>>
-	listAiStudioSeats(workspaceGid: string, opts?: AiStudioSeatListOptions): Promise<ListResult<any>>
+	listAiStudioRuns(workspaceGid: string, opts?: AiStudioRunListOptions): Promise<ListResult<Asana.AiStudioRecord>>
+	listAiStudioSeats(workspaceGid: string, opts?: AiStudioSeatListOptions): Promise<ListResult<Asana.AiStudioRecord>>
 }
 
 // The usage endpoints return a fixed row shape and do not list opt_fields among their parameters.

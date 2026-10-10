@@ -34,7 +34,11 @@ export type TypeaheadOptions = {
 }
 
 export type SearchGateway = {
-	searchObjects(workspaceGid: string, resourceType: TypeaheadResourceType, opts?: TypeaheadOptions): Promise<any[]>
+	searchObjects(
+		workspaceGid: string,
+		resourceType: TypeaheadResourceType,
+		opts?: TypeaheadOptions,
+	): Promise<Asana.AsanaResource[]>
 }
 
 export function createAsanaSearchGateway(client: Asana.ApiClient): SearchGateway {

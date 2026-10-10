@@ -16,10 +16,10 @@ export type TaskTemplateData = {
 }
 
 export type StoryGateway = {
-	listStories(taskGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
-	createStory(taskGid: string, fields: StoryCreateFields): Promise<any>
-	getStory(storyGid: string, opts?: ReadOptions): Promise<any>
-	updateStory(storyGid: string, fields: StoryUpdateFields): Promise<any>
+	listStories(taskGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.Story>>
+	createStory(taskGid: string, fields: StoryCreateFields): Promise<Asana.Story>
+	getStory(storyGid: string, opts?: ReadOptions): Promise<Asana.Story>
+	updateStory(storyGid: string, fields: StoryUpdateFields): Promise<Asana.Story>
 	deleteStory(storyGid: string): Promise<void>
 	getTaskTemplateData(taskGid: string): Promise<TaskTemplateData>
 }

@@ -75,15 +75,22 @@ export function createProjectApi(gateway: ProjectGateway) {
 			const project = await gateway.getProject(projectGid)
 			const sections = listItems(await gateway.listSections(projectGid))
 			const exportedSections: ExportedSection[] = await Promise.all(
-				sections.map(async (section: { gid: string; name: string }) => ({
+				sections.map(async (section) => ({
 					gid: section.gid,
-					name: section.name,
-					tasks: listItems(await gateway.listTasksForSection(section.gid)),
+					name: section.name ?? '',
+					tasks: listItems(await gateway.listTasksForSection(section.gid)).map((task) => ({
+						gid: task.gid,
+						name: task.name ?? '',
+						completed: task.completed ?? false,
+						due_on: task.due_on ?? null,
+						assignee: task.assignee ? { name: task.assignee.name ?? '' } : null,
+						notes: task.notes ?? '',
+					})),
 				})),
 			)
 			return {
 				gid: project.gid,
-				name: project.name,
+				name: project.name ?? '',
 				notes: project.notes ?? '',
 				sections: exportedSections,
 			}

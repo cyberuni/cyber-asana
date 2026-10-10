@@ -8,8 +8,8 @@ import {
 import { type ReadOptions, toAsanaReadOptions } from '../platform/read-options.js'
 
 export type WorkspaceGateway = {
-	listWorkspaces(opts?: PaginationOptions): Promise<ListResult<any>>
-	getWorkspace(workspaceGid: string, opts?: ReadOptions): Promise<any>
+	listWorkspaces(opts?: PaginationOptions): Promise<ListResult<Asana.Workspace>>
+	getWorkspace(workspaceGid: string, opts?: ReadOptions): Promise<Asana.Workspace>
 }
 
 export function createAsanaWorkspaceGateway(client: Asana.ApiClient): WorkspaceGateway {

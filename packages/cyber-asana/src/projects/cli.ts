@@ -50,11 +50,11 @@ function resolveProjectApi(api?: ProjectApi | (() => ProjectApi)): ProjectApi {
 	)
 }
 
-type Project = { gid: string; name: string; permalink_url?: string; color?: string; notes?: string }
+type Project = { gid: string; name?: string; permalink_url?: string; color?: string; notes?: string }
 
 function fmtProject(p: Project) {
 	printFields({
-		Name: p.name,
+		Name: p.name ?? null,
 		ID: p.gid,
 		URL: p.permalink_url,
 		Color: p.color || null,
@@ -66,7 +66,7 @@ function fmtProjectList(projects: Project[]) {
 	printTable(
 		projects,
 		[
-			{ label: 'Name', get: (p) => p.name },
+			{ label: 'Name', get: (p) => p.name ?? '' },
 			{ label: 'ID', get: (p) => p.gid },
 		],
 		{ entity: 'projects' },
@@ -170,7 +170,7 @@ export function projectCommand(api?: ProjectApi | (() => ProjectApi)) {
 				gid,
 				opts.optFields ? { optFields: opts.optFields } : undefined,
 			)
-			output(data, () => fmtProjectCounts(gid, data, !opts.optFields))
+			output(data, () => fmtProjectCounts(gid, data as unknown as Record<string, unknown>, !opts.optFields))
 		})
 
 	addGidOption(

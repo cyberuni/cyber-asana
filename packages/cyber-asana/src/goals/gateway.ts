@@ -29,10 +29,10 @@ export type UpdateGoalFields = {
 }
 
 export type GoalGateway = {
-	listGoals(workspaceGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
-	getGoal(goalGid: string, opts?: ReadOptions): Promise<any>
-	createGoal(workspaceGid: string, name: string, opts?: CreateGoalFields): Promise<any>
-	updateGoal(goalGid: string, fields: UpdateGoalFields): Promise<any>
+	listGoals(workspaceGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.Goal>>
+	getGoal(goalGid: string, opts?: ReadOptions): Promise<Asana.Goal>
+	createGoal(workspaceGid: string, name: string, opts?: CreateGoalFields): Promise<Asana.Goal>
+	updateGoal(goalGid: string, fields: UpdateGoalFields): Promise<Asana.Goal>
 	deleteGoal(goalGid: string): Promise<void>
 }
 

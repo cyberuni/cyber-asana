@@ -47,9 +47,12 @@ export type ProjectTemplateFilters = {
 }
 
 export type ProjectTemplateGateway = {
-	listProjectTemplates(filters?: ProjectTemplateFilters, opts?: PaginationOptions): Promise<ListResult<any>>
-	listProjectTemplatesForTeam(teamGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
-	getProjectTemplate(templateGid: string, opts?: ReadOptions): Promise<any>
+	listProjectTemplates(
+		filters?: ProjectTemplateFilters,
+		opts?: PaginationOptions,
+	): Promise<ListResult<Asana.ProjectTemplate>>
+	listProjectTemplatesForTeam(teamGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.ProjectTemplate>>
+	getProjectTemplate(templateGid: string, opts?: ReadOptions): Promise<Asana.ProjectTemplate>
 	instantiateProject(templateGid: string, fields: InstantiateProjectFields): Promise<Job>
 }
 

@@ -19,7 +19,7 @@ import { STICKER_NAMES } from './write-options.js'
 
 const TEXT_COLUMN_LIMIT = 60
 
-type Story = { gid: string; type?: string; text?: string; created_by?: { name: string } | null; created_at?: string }
+type Story = { gid: string; type?: string; text?: string; created_by?: { name?: string } | null; created_at?: string }
 
 function fmtStory(s: Story) {
 	printFields({

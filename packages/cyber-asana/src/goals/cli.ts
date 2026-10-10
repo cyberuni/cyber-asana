@@ -15,11 +15,11 @@ import type { GoalApi } from './api.js'
 import { createGoal, deleteGoal, getGoal, listGoals, updateGoal } from './default.js'
 import { buildGoalCreateFields, buildGoalUpdateFields } from './write-options.js'
 
-type Goal = { gid: string; name: string; permalink_url?: string; due_on?: string | null; status?: string | null }
+type Goal = { gid: string; name?: string; permalink_url?: string; due_on?: string | null; status?: string | null }
 
 function fmtGoal(g: Goal) {
 	printFields({
-		Name: g.name,
+		Name: g.name ?? null,
 		ID: g.gid,
 		URL: g.permalink_url ?? null,
 		Due: g.due_on ?? null,
@@ -86,7 +86,7 @@ export function goalCommand(api?: GoalApi | (() => GoalApi)) {
 				printTable(
 					items,
 					[
-						{ label: 'Name', get: (g: Goal) => g.name },
+						{ label: 'Name', get: (g: Goal) => g.name ?? '' },
 						{ label: 'ID', get: (g: Goal) => g.gid },
 						{ label: 'Due', get: (g: Goal) => g.due_on ?? '' },
 					],

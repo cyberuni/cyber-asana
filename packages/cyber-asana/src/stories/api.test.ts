@@ -68,10 +68,12 @@ describe('stories/api', () => {
 	it('createStory reports locally-rejected html_text without blaming Asana', async () => {
 		const createStoryForTask = vi.spyOn(Asana.StoriesApi.prototype, 'createStoryForTask')
 
-		const unbalanced = await createStory('task1', { html_text: '<body><strong>Rich</body>' }).catch(
-			(error: Error) => error,
-		)
-		const noBody = await createStory('task1', { html_text: '<div>Rich</div>' }).catch((error: Error) => error)
+		const unbalanced = (await createStory('task1', { html_text: '<body><strong>Rich</body>' }).catch(
+			(error: unknown) => error,
+		)) as Error
+		const noBody = (await createStory('task1', { html_text: '<div>Rich</div>' }).catch(
+			(error: unknown) => error,
+		)) as Error
 
 		expect(unbalanced?.message).toBe('html_text has unbalanced closing tags')
 		expect(noBody?.message).toBe('html_text must be wrapped in a single <body>...</body> root element')

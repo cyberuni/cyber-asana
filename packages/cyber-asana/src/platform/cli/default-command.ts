@@ -10,7 +10,7 @@ export const BIN_NAME = 'cyber-asana'
 export const BIN_DESCRIPTION = 'Asana CLI for AI agents'
 
 export type DefaultCommandDeps = {
-	getMe: () => Promise<{ gid: string; name: string; email?: string }>
+	getMe: () => Promise<{ gid: string; name?: string; email?: string }>
 }
 
 export async function runDefaultCommand(deps: DefaultCommandDeps, argv: string[] = process.argv) {
@@ -22,7 +22,7 @@ export async function runDefaultCommand(deps: DefaultCommandDeps, argv: string[]
 				bin: BIN_NAME,
 				description: BIN_DESCRIPTION,
 				version: VERSION,
-				Name: me.name,
+				Name: me.name ?? null,
 				ID: me.gid,
 				Email: me.email ?? null,
 			})

@@ -27,7 +27,7 @@ import type { ProjectTemplatePrivacySetting, RequestedDate, RequestedRole } from
 
 type ProjectTemplate = {
 	gid: string
-	name: string
+	name?: string
 	description?: string | null
 	public?: boolean
 	team?: { gid?: string; name?: string } | null
@@ -83,7 +83,7 @@ function collectRequestedRole(value: string, previous: RequestedRole[] = []): Re
 
 function fmtTemplate(template: ProjectTemplate) {
 	printFields({
-		Name: template.name,
+		Name: template.name ?? null,
 		ID: template.gid,
 		Team: template.team?.name ?? template.team?.gid ?? null,
 		Public: template.public === undefined ? null : template.public ? 'yes' : 'no',
@@ -162,7 +162,7 @@ export function projectTemplateCommand(api?: ProjectTemplateApi | (() => Project
 				printTable(
 					items,
 					[
-						{ label: 'Name', get: (t: ProjectTemplate) => t.name },
+						{ label: 'Name', get: (t: ProjectTemplate) => t.name ?? '' },
 						{ label: 'ID', get: (t: ProjectTemplate) => t.gid },
 						{ label: 'Team', get: (t: ProjectTemplate) => t.team?.name ?? '' },
 					],

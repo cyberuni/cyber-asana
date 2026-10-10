@@ -23,7 +23,7 @@ import { getTaskTemplate, instantiateTask, listTaskTemplates } from './default.j
 
 type TaskTemplate = {
 	gid: string
-	name: string
+	name?: string
 	project?: { gid?: string; name?: string } | null
 }
 
@@ -84,7 +84,7 @@ export function taskTemplateCommand(api?: TaskTemplateApi | (() => TaskTemplateA
 				printTable(
 					items,
 					[
-						{ label: 'Name', get: (t: TaskTemplate) => t.name },
+						{ label: 'Name', get: (t: TaskTemplate) => t.name ?? '' },
 						{ label: 'ID', get: (t: TaskTemplate) => t.gid },
 					],
 					{ entity: 'task templates' },

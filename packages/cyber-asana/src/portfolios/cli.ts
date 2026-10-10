@@ -22,10 +22,10 @@ import {
 	updatePortfolio,
 } from './default.js'
 
-type Portfolio = { gid: string; name: string; permalink_url?: string }
+type Portfolio = { gid: string; name?: string; permalink_url?: string }
 
 function fmtPortfolio(p: Portfolio) {
-	printFields({ Name: p.name, ID: p.gid, URL: p.permalink_url ?? null })
+	printFields({ Name: p.name ?? null, ID: p.gid, URL: p.permalink_url ?? null })
 }
 
 function resolvePortfolioApi(api?: PortfolioApi | (() => PortfolioApi)): PortfolioApi {
@@ -102,7 +102,7 @@ export function portfolioCommand(api?: PortfolioApi | (() => PortfolioApi)) {
 				printTable(
 					items,
 					[
-						{ label: 'Name', get: (p: Portfolio) => p.name },
+						{ label: 'Name', get: (p: Portfolio) => p.name ?? '' },
 						{ label: 'ID', get: (p: Portfolio) => p.gid },
 					],
 					{ entity: 'portfolios' },
@@ -124,7 +124,7 @@ export function portfolioCommand(api?: PortfolioApi | (() => PortfolioApi)) {
 				printTable(
 					items,
 					[
-						{ label: 'Name', get: (p: Portfolio) => p.name },
+						{ label: 'Name', get: (p: Portfolio) => p.name ?? '' },
 						{ label: 'ID', get: (p: Portfolio) => p.gid },
 					],
 					{ entity: 'portfolio items' },

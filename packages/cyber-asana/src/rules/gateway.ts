@@ -13,7 +13,7 @@ export type RuleTriggerFields = {
 }
 
 export type RuleGateway = {
-	triggerRule(ruleTriggerGid: string, fields?: RuleTriggerFields): Promise<any>
+	triggerRule(ruleTriggerGid: string, fields?: RuleTriggerFields): Promise<Record<string, never> | null>
 }
 
 export function createAsanaRuleGateway(client: Asana.ApiClient): RuleGateway {

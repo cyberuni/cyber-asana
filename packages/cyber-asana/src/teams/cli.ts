@@ -13,7 +13,7 @@ import { output, printCountSummary, printFields, printNextSteps, printTable } fr
 import type { TeamApi } from './api.js'
 import { getTeam, listTeams } from './default.js'
 
-type Team = { gid: string; name: string }
+type Team = { gid: string; name?: string }
 
 function resolveTeamApi(api?: TeamApi | (() => TeamApi)): TeamApi {
 	if (typeof api === 'function') return api()
@@ -63,7 +63,7 @@ export function teamCommand(api?: TeamApi | (() => TeamApi)) {
 				printTable(
 					items,
 					[
-						{ label: 'Name', get: (t: Team) => t.name },
+						{ label: 'Name', get: (t: Team) => t.name ?? '' },
 						{ label: 'ID', get: (t: Team) => t.gid },
 					],
 					{ entity: 'teams' },

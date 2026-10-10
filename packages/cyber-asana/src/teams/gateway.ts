@@ -8,8 +8,8 @@ import {
 import { type ReadOptions, toAsanaReadOptions } from '../platform/read-options.js'
 
 export type TeamGateway = {
-	listTeams(workspaceGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
-	getTeam(teamGid: string, opts?: ReadOptions): Promise<any>
+	listTeams(workspaceGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.Team>>
+	getTeam(teamGid: string, opts?: ReadOptions): Promise<Asana.Team>
 }
 
 export function createAsanaTeamGateway(client: Asana.ApiClient): TeamGateway {

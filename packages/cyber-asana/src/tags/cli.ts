@@ -25,18 +25,18 @@ import {
 } from './default.js'
 import { buildTagUpdateFields, parseFollowerGids } from './write-options.js'
 
-type Tag = { gid: string; name: string; color?: string | null }
-type Task = { gid: string; name: string; completed?: boolean; due_on?: string | null }
+type Tag = { gid: string; name?: string; color?: string | null }
+type Task = { gid: string; name?: string; completed?: boolean; due_on?: string | null }
 
 function fmtTag(t: Tag) {
-	printFields({ Name: t.name, ID: t.gid, Color: t.color ?? null })
+	printFields({ Name: t.name ?? null, ID: t.gid, Color: t.color ?? null })
 }
 
 function fmtTaskList(tasks: Task[]) {
 	printTable(
 		tasks,
 		[
-			{ label: 'Name', get: (t) => t.name },
+			{ label: 'Name', get: (t) => t.name ?? '' },
 			{ label: 'ID', get: (t) => t.gid },
 			{ label: 'Done', get: (t) => (t.completed ? 'yes' : 'no') },
 			{ label: 'Due', get: (t) => t.due_on ?? '' },
@@ -113,7 +113,7 @@ export function tagCommand(api?: TagApi | (() => TagApi)) {
 				printTable(
 					items,
 					[
-						{ label: 'Name', get: (t: Tag) => t.name },
+						{ label: 'Name', get: (t: Tag) => t.name ?? '' },
 						{ label: 'ID', get: (t: Tag) => t.gid },
 						{ label: 'Color', get: (t: Tag) => t.color ?? '' },
 					],
@@ -192,7 +192,7 @@ export function tagCommand(api?: TagApi | (() => TagApi)) {
 				printTable(
 					items,
 					[
-						{ label: 'Name', get: (t: Tag) => t.name },
+						{ label: 'Name', get: (t: Tag) => t.name ?? '' },
 						{ label: 'ID', get: (t: Tag) => t.gid },
 						{ label: 'Color', get: (t: Tag) => t.color ?? '' },
 					],

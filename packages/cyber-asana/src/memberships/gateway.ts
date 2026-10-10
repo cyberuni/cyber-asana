@@ -22,10 +22,10 @@ export type MembershipFields = {
 }
 
 export type MembershipGateway = {
-	listMemberships(filters: MembershipFilters, opts?: PaginationOptions): Promise<ListResult<any>>
-	getMembership(membershipGid: string): Promise<any>
-	createMembership(parentGid: string, memberGid: string, fields?: MembershipFields): Promise<any>
-	updateMembership(membershipGid: string, fields: MembershipFields): Promise<any>
+	listMemberships(filters: MembershipFilters, opts?: PaginationOptions): Promise<ListResult<Asana.Membership>>
+	getMembership(membershipGid: string): Promise<Asana.Membership>
+	createMembership(parentGid: string, memberGid: string, fields?: MembershipFields): Promise<Asana.Membership>
+	updateMembership(membershipGid: string, fields: MembershipFields): Promise<Asana.Membership>
 	deleteMembership(membershipGid: string): Promise<void>
 }
 

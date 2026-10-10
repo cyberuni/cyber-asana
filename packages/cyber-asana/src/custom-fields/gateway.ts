@@ -8,12 +8,24 @@ import {
 import { type ReadOptions, toAsanaReadOptions } from '../platform/read-options.js'
 
 export type CustomFieldGateway = {
-	listCustomFields(workspaceGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
-	getCustomField(customFieldGid: string, opts?: ReadOptions): Promise<any>
-	listCustomFieldSettingsForProject(projectGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
-	listCustomFieldSettingsForPortfolio(portfolioGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
-	listCustomFieldSettingsForGoal(goalGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
-	listCustomFieldSettingsForTeam(teamGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
+	listCustomFields(workspaceGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.CustomField>>
+	getCustomField(customFieldGid: string, opts?: ReadOptions): Promise<Asana.CustomField>
+	listCustomFieldSettingsForProject(
+		projectGid: string,
+		opts?: PaginationOptions,
+	): Promise<ListResult<Asana.CustomFieldSetting>>
+	listCustomFieldSettingsForPortfolio(
+		portfolioGid: string,
+		opts?: PaginationOptions,
+	): Promise<ListResult<Asana.CustomFieldSetting>>
+	listCustomFieldSettingsForGoal(
+		goalGid: string,
+		opts?: PaginationOptions,
+	): Promise<ListResult<Asana.CustomFieldSetting>>
+	listCustomFieldSettingsForTeam(
+		teamGid: string,
+		opts?: PaginationOptions,
+	): Promise<ListResult<Asana.CustomFieldSetting>>
 }
 
 export function createAsanaCustomFieldGateway(client: Asana.ApiClient): CustomFieldGateway {

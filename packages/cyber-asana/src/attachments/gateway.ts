@@ -19,9 +19,9 @@ export type CreateAttachmentRequest = {
 }
 
 export type AttachmentGateway = {
-	listAttachments(taskGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
-	getAttachment(attachmentGid: string, opts?: ReadOptions): Promise<any>
-	createAttachment(request: CreateAttachmentRequest): Promise<any>
+	listAttachments(taskGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.Attachment>>
+	getAttachment(attachmentGid: string, opts?: ReadOptions): Promise<Asana.Attachment>
+	createAttachment(request: CreateAttachmentRequest): Promise<Asana.Attachment>
 	deleteAttachment(attachmentGid: string): Promise<void>
 }
 

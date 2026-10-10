@@ -14,17 +14,17 @@ import { output, printCountSummary, printFields, printNextSteps, printTable } fr
 import type { UserApi } from './api.js'
 import { getMe, getUser, listUsers } from './default.js'
 
-type User = { gid: string; name: string; email?: string }
+type User = { gid: string; name?: string; email?: string }
 
 function fmtUser(u: User) {
-	printFields({ Name: u.name, ID: u.gid, Email: u.email ?? null })
+	printFields({ Name: u.name ?? null, ID: u.gid, Email: u.email ?? null })
 }
 
 function fmtUserList(users: User[]) {
 	printTable(
 		users,
 		[
-			{ label: 'Name', get: (u) => u.name },
+			{ label: 'Name', get: (u) => u.name ?? '' },
 			{ label: 'ID', get: (u) => u.gid },
 			{ label: 'Email', get: (u) => u.email ?? '' },
 		],

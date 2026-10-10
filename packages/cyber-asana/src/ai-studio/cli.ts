@@ -103,7 +103,7 @@ export function aiStudioCommand(api?: AiStudioApi | (() => AiStudioApi)) {
 				...divisionOption(opts),
 			})
 			output(data, () => {
-				const items = itemsForOutput<AiStudioRun>(data)
+				const items = itemsForOutput(data) as AiStudioRun[]
 				printTable(
 					items,
 					[
@@ -131,7 +131,7 @@ export function aiStudioCommand(api?: AiStudioApi | (() => AiStudioApi)) {
 				...divisionOption(opts),
 			})
 			output(data, () => {
-				const items = itemsForOutput<AiStudioSeat>(data)
+				const items = itemsForOutput(data) as AiStudioSeat[]
 				printTable(
 					items,
 					[
