@@ -1,0 +1,103 @@
+packages/cyber-asana/src/project-templates/gateway.ts
+  s_2c88031a0ebef7::t_545b655ad0f50f 50-55
+packages/cyber-asana/src/stories/api.ts
+  s_2c88031a0ebef7::t_7219f3fadeab5e 20
+packages/cyber-asana/src/ai-studio/cli.ts
+  s_52c1ffc7d64d9e::t_000ae77b8ec925 106,134
+packages/cyber-asana/src/ai-studio/gateway.ts
+  s_52c1ffc7d64d9e::t_93cb25273c4d1e 27-28
+packages/cyber-asana/src/attachments/cli.ts
+  s_52c1ffc7d64d9e::t_174ab22515c740 18,81
+packages/cyber-asana/src/attachments/gateway.ts
+  s_52c1ffc7d64d9e::t_46596098912f77 22-24
+packages/cyber-asana/src/custom-fields/cli.ts
+  s_52c1ffc7d64d9e::t_85c8e59200a6fb 24,27,149,175
+packages/cyber-asana/src/custom-fields/gateway.ts
+  s_52c1ffc7d64d9e::t_0c7b7b501d0f5f 11-28
+packages/cyber-asana/src/goals/cli.ts
+  s_52c1ffc7d64d9e::t_64274777f25317 18,22,89
+packages/cyber-asana/src/goals/gateway.ts
+  s_52c1ffc7d64d9e::t_cf3db4cbad4658 32-35
+packages/cyber-asana/src/memberships/gateway.ts
+  s_52c1ffc7d64d9e::t_9030b0a7476a2b 25-28
+packages/cyber-asana/src/ooo/gateway.ts
+  s_52c1ffc7d64d9e::t_5998be1a005a55 23-30
+packages/cyber-asana/src/platform/cli/default-command.ts
+  s_52c1ffc7d64d9e::t_65566d9df4cd66 13,25
+packages/cyber-asana/src/portfolios/cli.ts
+  s_52c1ffc7d64d9e::t_8382541a4e1930 25,28,105,127
+packages/cyber-asana/src/portfolios/gateway.ts
+  s_52c1ffc7d64d9e::t_39368bd7f38b76 14-18
+packages/cyber-asana/src/project-templates/cli.ts
+  s_52c1ffc7d64d9e::t_b19733a33ee4c5 30,86,165
+packages/cyber-asana/src/projects/api.ts
+  s_52c1ffc7d64d9e::t_6fb397559f129a 78,80-88,93
+packages/cyber-asana/src/projects/cli.ts
+  s_52c1ffc7d64d9e::t_f719409dff69b5 53,57,69,173
+packages/cyber-asana/src/projects/gateway.ts
+  s_52c1ffc7d64d9e::t_7f052970643a97 76-80,82-84
+packages/cyber-asana/src/rules/gateway.ts
+  s_52c1ffc7d64d9e::t_a0da05aa06d8e9 16
+packages/cyber-asana/src/search/gateway.ts
+  s_52c1ffc7d64d9e::t_5be6771081eb31 37-41
+packages/cyber-asana/src/sections/cli.ts
+  s_52c1ffc7d64d9e::t_7ca9d1aaae529d 25,28,94
+packages/cyber-asana/src/sections/gateway.ts
+  s_52c1ffc7d64d9e::t_1a1f9465ecc902 11-14
+packages/cyber-asana/src/status/gateway.ts
+  s_52c1ffc7d64d9e::t_ee7ab31bdf9d94 27-29
+packages/cyber-asana/src/status/overview.ts
+  s_52c1ffc7d64d9e::t_cbb6bef48cf677 1,34,36,99,110
+packages/cyber-asana/src/stories/api.test.ts
+  s_52c1ffc7d64d9e::t_34835477bd1370 71-76
+packages/cyber-asana/src/stories/cli.ts
+  s_52c1ffc7d64d9e::t_e5be8f60d41dfa 22
+packages/cyber-asana/src/stories/gateway.ts
+  s_52c1ffc7d64d9e::t_b30748b65049a3 19-22
+packages/cyber-asana/src/tags/cli.ts
+  s_52c1ffc7d64d9e::t_c8d37f8df0c0f5 28-29,32,39,116,195
+packages/cyber-asana/src/tags/gateway.ts
+  s_52c1ffc7d64d9e::t_a87073d915f932 18-21,23-26
+packages/cyber-asana/src/task-templates/cli.ts
+  s_52c1ffc7d64d9e::t_55366bd65deeb5 26,87
+packages/cyber-asana/src/task-templates/gateway.ts
+  s_52c1ffc7d64d9e::t_659949997ca878 17-18
+packages/cyber-asana/src/teams/cli.ts
+  s_52c1ffc7d64d9e::t_000942555a1cbe 16,66
+packages/cyber-asana/src/teams/gateway.ts
+  s_52c1ffc7d64d9e::t_298fe672006b1e 11-12
+packages/cyber-asana/src/testing/system-fixtures.ts
+  s_52c1ffc7d64d9e::t_59156c593f2514 43-45
+packages/cyber-asana/src/users/cli.ts
+  s_52c1ffc7d64d9e::t_82fdf3eb091eed 17,20,27
+packages/cyber-asana/src/users/gateway.ts
+  s_52c1ffc7d64d9e::t_01944042672d51 11-13
+packages/cyber-asana/src/workspaces/cli.ts
+  s_52c1ffc7d64d9e::t_a928155620fb4e 14,54
+packages/cyber-asana/src/workspaces/gateway.ts
+  s_52c1ffc7d64d9e::t_22029b540666b7 11-12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "0546fec7e892309a7fdd2535f914999f09cf4fbd",
+  "prompts": {},
+  "sessions": {
+    "s_2c88031a0ebef7": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "163552b5-485f-4d2c-aa8f-5657261d0825",
+        "model": "claude-sonnet-5-5"
+      },
+      "human_author": "unional <homawong@gmail.com>"
+    },
+    "s_52c1ffc7d64d9e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "fc01e9d7-0bc8-4365-87b5-99cba28dacb6",
+        "model": "unknown"
+      },
+      "human_author": "unional <homawong@gmail.com>"
+    }
+  }
+}
