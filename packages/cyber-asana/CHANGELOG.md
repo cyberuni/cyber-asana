@@ -1,5 +1,19 @@
 # cyber-asana
 
+## 0.21.0
+
+### Minor Changes
+
+- ddb5587: Rate-limit every Asana request. A per-token limiter keeps the CLI, the MCP server and the library under Asana's limits, waits instead of failing, and retries a 429 after `Retry-After`. Set `ASANA_PLAN` to `free` (default) or `paid`, or `ASANA_RATE_LIMIT_PER_MINUTE` to set the budget yourself.
+- 50304dd: Type the library's Asana-returning functions and gateway interfaces (`getTask`, `listProjects`, `TaskGateway`, `ProjectGateway`, and more) against the real `Asana.*` shapes instead of `any`. `Task` also gains `custom_fields`, `num_subtasks`, and `start_at`.
+  
+  Because Asana's `opt_fields` parameter can omit any field except `gid`, every resource's `name` and `resource_type` are now optional on the type, matching what the API actually returns rather than assuming a field is always present. TypeScript consumers accessing `.name` or `.resource_type` without a null check will need to add one.
+
+### Patch Changes
+
+- 3d867ba: Fix three contradictions in the plugin skills: sprint-report no longer says a task can carry both story and task points, sync-asana-project names `ASANA_WORKSPACE_GID` instead of the deprecated alias, and init-asana no longer says the config stores projects only.
+- 09adc77: Fix `events get` dropping the sync token and `has_more` after the first call. Asana returns them on the response body, not on the page object the SDK hands back, so every follow-up poll reported no token and an exhausted feed.
+
 ## 0.20.0
 
 ### Minor Changes

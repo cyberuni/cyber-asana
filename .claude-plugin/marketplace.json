@@ -23,7 +23,7 @@
 			"license": "MIT",
 			"category": "productivity",
 			"keywords": ["asana", "mcp", "cli", "agent", "productivity", "project-management"],
-			"version": "0.20.0"
+			"version": "0.21.0"
 		}
 	]
 }
