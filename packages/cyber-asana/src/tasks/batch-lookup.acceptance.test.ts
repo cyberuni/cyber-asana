@@ -1,9 +1,10 @@
+import type Asana from 'asana'
 import { describe, expect, it, vi } from 'vitest'
 import { createTaskApi } from './api.js'
 import { defineBatchLookupAcceptanceSpecs } from './batch-lookup.acceptance.js'
 import type { TaskGateway } from './gateway.js'
 
-const primaryTask = {
+const primaryTask: Asana.Task = {
 	gid: '456',
 	name: 'First Task',
 	completed: false,
@@ -13,7 +14,7 @@ const primaryTask = {
 	resource_subtype: 'default_task',
 }
 
-const secondaryTask = {
+const secondaryTask: Asana.Task = {
 	gid: '789',
 	name: 'Second Task',
 	completed: true,
@@ -24,7 +25,7 @@ const secondaryTask = {
 }
 
 function createBatchLookupGateway(): TaskGateway {
-	const tasks: Record<string, Record<string, unknown>> = {
+	const tasks: Record<string, Asana.Task> = {
 		'456': primaryTask,
 		'789': secondaryTask,
 	}
@@ -48,8 +49,10 @@ function createBatchLookupGateway(): TaskGateway {
 				}
 				if (opts?.optFields) {
 					const fields = opts.optFields.split(',')
-					const filtered = Object.fromEntries(fields.map((field: string) => [field, task[field]]))
-					return { gid, ok: true as const, task: filtered }
+					// The test's own field lists always include 'gid', matching the real batch API's
+					// behavior of always returning it regardless of what opt_fields asks for.
+					const filtered = Object.fromEntries(fields.map((field) => [field, task[field as keyof Asana.Task]]))
+					return { gid, ok: true as const, task: filtered as unknown as Asana.Task }
 				}
 				return { gid, ok: true as const, task }
 			}),

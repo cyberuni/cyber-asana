@@ -1,3 +1,4 @@
+import type Asana from 'asana'
 import { expect, it } from 'vitest'
 import type { TaskApi } from './api.js'
 
@@ -10,7 +11,7 @@ export type BatchLookupAcceptanceDeps = {
 
 const richOptFields = 'gid,name,completed,due_on,assignee,permalink_url,resource_subtype'
 
-function pickTaskFields(task: Record<string, unknown>) {
+function pickTaskFields(task: Asana.Task) {
 	return {
 		gid: task.gid,
 		name: task.name,
@@ -33,7 +34,7 @@ export function defineBatchLookupAcceptanceSpecs(deps: BatchLookupAcceptanceDeps
 			expect(batchResult[0]).toMatchObject({ gid: deps.primaryTaskGid, ok: true })
 			if (!batchResult[0].ok) throw new Error('expected successful batched task lookup')
 
-			expect(pickTaskFields(batchResult[0].task)).toEqual(pickTaskFields(singleTask as Record<string, unknown>))
+			expect(pickTaskFields(batchResult[0].task)).toEqual(pickTaskFields(singleTask))
 		})
 
 		it('preserves input order across multiple task GIDs', async () => {

@@ -119,18 +119,18 @@ function resolveTaskApi(api?: TaskApi | (() => TaskApi)): TaskApi {
 
 type Task = {
 	gid: string
-	name: string
+	name?: string
 	permalink_url?: string
 	completed?: boolean
 	due_on?: string | null
-	assignee?: { name: string } | null
+	assignee?: { name?: string } | null
 	notes?: string
 	html_notes?: string
 }
 
 function fmtTask(t: Task) {
 	printFields({
-		Name: t.name,
+		Name: t.name ?? null,
 		ID: t.gid,
 		URL: t.permalink_url,
 		Assignee: t.assignee?.name ?? null,
@@ -162,7 +162,7 @@ function fmtTaskList(tasks: Task[]) {
 	printTable(
 		tasks,
 		[
-			{ label: 'Name', get: (t) => t.name },
+			{ label: 'Name', get: (t) => t.name ?? '' },
 			{ label: 'ID', get: (t) => t.gid },
 			{ label: 'Done', get: (t) => (t.completed ? 'yes' : 'no') },
 			{ label: 'Due', get: (t) => t.due_on ?? '' },
@@ -505,7 +505,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 					customFieldEntries: opts.customField,
 				}),
 			)
-			output(data, () => fmtTask(data))
+			output(data, () => (data ? fmtTask(data) : console.log('No changes to apply')))
 		},
 	)
 

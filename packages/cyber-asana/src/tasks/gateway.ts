@@ -8,6 +8,13 @@ import {
 import { type ReadOptions, toAsanaReadOptions } from '../platform/read-options.js'
 import { createAsanaStoryGateway } from '../stories/gateway.js'
 
+/**
+ * Custom field values on write, keyed by field GID. Deliberately loose: the value shape depends
+ * on the field's type (a string for text, a number, an enum-option GID, an array of GIDs for
+ * multi_enum/people, or `{ date: ... }` for date) and the SDK's own `TaskRequest.custom_fields`
+ * type is narrower than what the API actually accepts (confirmed live: a date field rejects a
+ * plain string and requires the object form).
+ */
 export type TaskCustomFields = Record<string, unknown>
 
 export type CreateTaskFields = {
@@ -48,7 +55,7 @@ export type UpdateTaskFields = {
 export type TaskBatchLookupSuccess = {
 	gid: string
 	ok: true
-	task: Record<string, unknown>
+	task: Asana.Task
 }
 
 export type TaskBatchLookupFailure = {
@@ -121,35 +128,38 @@ export type SearchTasksOptions = {
 export type TaskListOptions = PaginationOptions & { completedSince?: string; customType?: string }
 
 export type TaskGateway = {
-	listTasks(projectGid: string, opts?: TaskListOptions): Promise<ListResult<any>>
+	listTasks(projectGid: string, opts?: TaskListOptions): Promise<ListResult<Asana.Task>>
 	listTasksForSection(
 		sectionGid: string,
 		opts?: PaginationOptions & { completedSince?: string },
-	): Promise<ListResult<any>>
-	getTask(taskGid: string, opts?: ReadOptions): Promise<any>
+	): Promise<ListResult<Asana.Task>>
+	getTask(taskGid: string, opts?: ReadOptions): Promise<Asana.Task>
 	getTasksByGid(taskGids: string[], opts?: { optFields?: string }): Promise<TaskBatchLookupResult[]>
-	createTask(workspaceGid: string, name: string, opts?: CreateTaskFields): Promise<any>
-	updateTask(taskGid: string, fields: UpdateTaskFields): Promise<any>
+	createTask(workspaceGid: string, name: string, opts?: CreateTaskFields): Promise<Asana.Task>
+	updateTask(taskGid: string, fields: UpdateTaskFields): Promise<Asana.Task | undefined>
 	deleteTask(taskGid: string): Promise<void>
-	getMyTasks(workspaceGid: string, opts?: PaginationOptions & { completedSince?: string }): Promise<ListResult<any>>
-	listSubtasks(taskGid: string, opts?: PaginationOptions & { completedSince?: string }): Promise<ListResult<any>>
-	createSubtask(parentTaskGid: string, name: string, opts?: CreateTaskFields): Promise<any>
+	getMyTasks(
+		workspaceGid: string,
+		opts?: PaginationOptions & { completedSince?: string },
+	): Promise<ListResult<Asana.Task>>
+	listSubtasks(taskGid: string, opts?: PaginationOptions & { completedSince?: string }): Promise<ListResult<Asana.Task>>
+	createSubtask(parentTaskGid: string, name: string, opts?: CreateTaskFields): Promise<Asana.Task>
 	addTaskToProject(
 		taskGid: string,
 		projectGid: string,
 		opts?: { sectionGid?: string; insertAfter?: string; insertBefore?: string },
-	): Promise<any>
-	removeTaskFromProject(taskGid: string, projectGid: string): Promise<any>
-	addFollowersToTask(taskGid: string, followerGids: string[]): Promise<any>
-	removeFollowersFromTask(taskGid: string, followerGids: string[]): Promise<any>
-	getDependencies(taskGid: string, opts?: { optFields?: string }): Promise<any>
-	getDependents(taskGid: string, opts?: { optFields?: string }): Promise<any>
-	addDependencies(taskGid: string, dependencyGids: string[]): Promise<any>
-	addDependents(taskGid: string, dependentGids: string[]): Promise<any>
+	): Promise<Asana.EmptyResponse>
+	removeTaskFromProject(taskGid: string, projectGid: string): Promise<Asana.EmptyResponse>
+	addFollowersToTask(taskGid: string, followerGids: string[]): Promise<Asana.Task>
+	removeFollowersFromTask(taskGid: string, followerGids: string[]): Promise<Asana.Task>
+	getDependencies(taskGid: string, opts?: { optFields?: string }): Promise<Asana.Task[]>
+	getDependents(taskGid: string, opts?: { optFields?: string }): Promise<Asana.Task[]>
+	addDependencies(taskGid: string, dependencyGids: string[]): Promise<Asana.EmptyResponse>
+	addDependents(taskGid: string, dependentGids: string[]): Promise<Asana.EmptyResponse>
 	removeDependencies(taskGid: string, dependencyGids: string[]): Promise<void>
 	removeDependents(taskGid: string, dependentGids: string[]): Promise<void>
-	searchTasks(workspaceGid: string, opts?: SearchTasksOptions): Promise<any>
-	listStories(taskGid: string, opts?: PaginationOptions): Promise<ListResult<any>>
+	searchTasks(workspaceGid: string, opts?: SearchTasksOptions): Promise<Asana.Task[]>
+	listStories(taskGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.Story>>
 }
 
 const TASK_BATCH_ACTION_LIMIT = 10
@@ -222,7 +232,7 @@ export function createAsanaTaskGateway(client: Asana.ApiClient): TaskGateway {
 					},
 				})
 				for (const [index, item] of (
-					res.data as { status_code: number; body?: { data?: Record<string, unknown>; errors?: unknown[] } }[]
+					res.data as { status_code: number; body?: { data?: Asana.Task; errors?: unknown[] } }[]
 				).entries()) {
 					const gid = chunk[index]
 					if (item.status_code >= 200 && item.status_code < 300 && item.body?.data) {
@@ -241,7 +251,7 @@ export function createAsanaTaskGateway(client: Asana.ApiClient): TaskGateway {
 		},
 		async updateTask(taskGid, fields) {
 			const { parent, clear_parent, ...taskFields } = fields
-			let updatedTask: any | undefined
+			let updatedTask: Asana.Task | undefined
 			if (Object.keys(taskFields).length > 0) {
 				const res = await tasksApi.updateTask({ data: taskFields }, taskGid, {})
 				updatedTask = res.data

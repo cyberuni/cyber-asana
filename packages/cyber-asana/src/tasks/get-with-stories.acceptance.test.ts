@@ -1,3 +1,4 @@
+import type Asana from 'asana'
 import { describe, expect, it, vi } from 'vitest'
 import { createPaginatingScopedListMock } from '../testing/paginating-gateway.js'
 import { createTaskApi } from './api.js'
@@ -5,12 +6,12 @@ import type { TaskGateway } from './gateway.js'
 import { defineGetWithStoriesAcceptanceSpecs } from './get-with-stories.acceptance.js'
 
 const taskGid = '456'
-const task = { gid: taskGid, name: 'Task with history' }
+const task: Asana.Task = { gid: taskGid, name: 'Task with history' }
 // Twelve pages of one story each: more than the default page cap, so a capped fetch would lose stories.
-const storyPages = Array.from({ length: 12 }, (_, i) => [
+const storyPages: Asana.Story[][] = Array.from({ length: 12 }, (_, i) => [
 	{
 		gid: `story${i + 1}`,
-		type: 'comment',
+		type: 'comment' as const,
 		text: `Comment ${i + 1}`,
 		created_at: `2026-01-${String(i + 1).padStart(2, '0')}T00:00:00.000Z`,
 	},
