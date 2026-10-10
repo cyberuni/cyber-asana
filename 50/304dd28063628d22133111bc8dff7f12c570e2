@@ -1,0 +1,19 @@
+.changeset/type-asana-resource-returns.md
+  s_805e87db7bc9ac::t_bda6d2e362d4ad 1-7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "50304dd28063628d22133111bc8dff7f12c570e2",
+  "prompts": {},
+  "sessions": {
+    "s_805e87db7bc9ac": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "d896b5cf-1671-4197-9e96-175fa208f8ba",
+        "model": "unknown"
+      },
+      "human_author": "unional <homawong@gmail.com>"
+    }
+  }
+}
