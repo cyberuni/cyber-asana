@@ -10,15 +10,15 @@ describe('asana type augmentation', () => {
 		testType.equal<Result, Asana.AsanaResponse<Asana.Task>>(true)
 	})
 
-	it('pins Task.resource_type to the literal "task"', () => {
-		testType.equal<Asana.Task['resource_type'], 'task'>(true)
+	it('types Task.resource_type as the literal "task", optional since opt_fields can omit it', () => {
+		testType.equal<Asana.Task['resource_type'], 'task' | undefined>(true)
 	})
 
-	it('keeps Task read fields optional except the resource identity', () => {
+	it('keeps Task read fields optional except the gid: opt_fields can omit name and resource_type too', () => {
 		testType.equal<Asana.Task['gid'], string>(true)
-		testType.equal<Asana.Task['name'], string>(true)
+		testType.equal<Asana.Task['name'], string | undefined>(true)
 		testType.equal<Asana.Task['completed'], boolean | undefined>(true)
-		testType.equal<Asana.Task['assignee'], Asana.User | undefined>(true)
+		testType.equal<Asana.Task['assignee'], Asana.User | null | undefined>(true)
 	})
 
 	it('types ProjectsApi.getProject instead of leaving it any', () => {
@@ -28,8 +28,8 @@ describe('asana type augmentation', () => {
 		testType.equal<Result, Asana.AsanaResponse<Asana.Project>>(true)
 	})
 
-	it('pins Project.resource_type to the literal "project" and types its owner', () => {
-		testType.equal<Asana.Project['resource_type'], 'project'>(true)
+	it('types Project.resource_type as the optional literal "project" and types its owner', () => {
+		testType.equal<Asana.Project['resource_type'], 'project' | undefined>(true)
 		testType.equal<Asana.Project['owner'], Asana.User | undefined>(true)
 		testType.equal<Asana.Project['workspace'], Asana.Workspace | undefined>(true)
 		testType.equal<Asana.Project['notes'], string | undefined>(true)
@@ -64,11 +64,11 @@ describe('asana type augmentation', () => {
 		testType.equal<Tag, Asana.AsanaResponse<Asana.Tag>>(true)
 	})
 
-	it('pins the resource_type literal of each resource', () => {
-		testType.equal<Asana.Section['resource_type'], 'section'>(true)
-		testType.equal<Asana.User['resource_type'], 'user'>(true)
-		testType.equal<Asana.Workspace['resource_type'], 'workspace'>(true)
-		testType.equal<Asana.Tag['resource_type'], 'tag'>(true)
+	it('types the resource_type literal of each resource as optional', () => {
+		testType.equal<Asana.Section['resource_type'], 'section' | undefined>(true)
+		testType.equal<Asana.User['resource_type'], 'user' | undefined>(true)
+		testType.equal<Asana.Workspace['resource_type'], 'workspace' | undefined>(true)
+		testType.equal<Asana.Tag['resource_type'], 'tag' | undefined>(true)
 	})
 
 	it('types the list endpoints of each resource as an AsanaCollection', () => {
@@ -135,8 +135,8 @@ describe('asana type augmentation', () => {
 		testType.equal<Listed, Asana.AsanaCollection<Asana.Story>>(true)
 	})
 
-	it('pins Story.resource_type to "story" and types its comment fields', () => {
-		testType.equal<Asana.Story['resource_type'], 'story'>(true)
+	it('types Story.resource_type as the optional literal "story" and types its comment fields', () => {
+		testType.equal<Asana.Story['resource_type'], 'story' | undefined>(true)
 		testType.equal<Asana.Story['type'], 'comment' | 'system' | undefined>(true)
 		testType.equal<Asana.Story['created_by'], Asana.User | undefined>(true)
 		testType.equal<Asana.StoryRequest['sticker_name'], Asana.StickerName | undefined>(true)
@@ -153,7 +153,7 @@ describe('asana type augmentation', () => {
 		testType.equal<Got, Asana.AsanaResponse<Asana.Attachment>>(true)
 		testType.equal<Listed, Asana.AsanaCollection<Asana.Attachment>>(true)
 		testType.equal<Deleted, Asana.EmptyResponse>(true)
-		testType.equal<Asana.Attachment['resource_type'], 'attachment'>(true)
+		testType.equal<Asana.Attachment['resource_type'], 'attachment' | undefined>(true)
 		testType.equal<Asana.AttachmentRequest['parent'], string>(true)
 	})
 
@@ -253,7 +253,7 @@ describe('asana type augmentation', () => {
 		testType.equal<Teams, Asana.AsanaCollection<Asana.Team>>(true)
 		testType.equal<Users, Asana.AsanaCollection<Asana.User>>(true)
 		testType.equal<List, Asana.AsanaResponse<Asana.UserTaskList>>(true)
-		testType.equal<Asana.Team['resource_type'], 'team'>(true)
+		testType.equal<Asana.Team['resource_type'], 'team' | undefined>(true)
 	})
 
 	it('types MembershipsApi, OooEntriesApi and StatusUpdatesApi', () => {
@@ -276,9 +276,9 @@ describe('asana type augmentation', () => {
 		testType.equal<R<Asana.StatusUpdatesApi, 'createStatusForObject'>, Asana.AsanaResponse<Asana.StatusUpdate>>(true)
 		testType.equal<R<Asana.StatusUpdatesApi, 'deleteStatus'>, Asana.EmptyResponse>(true)
 		testType.equal<R<Asana.StatusUpdatesApi, 'getStatusesForObject'>, Asana.AsanaCollection<Asana.StatusUpdate>>(true)
-		testType.equal<Asana.OooEntry['resource_type'], 'ooo_entry'>(true)
-		testType.equal<Asana.StatusUpdate['resource_type'], 'status_update'>(true)
-		testType.equal<Asana.Membership['resource_type'], 'membership'>(true)
+		testType.equal<Asana.OooEntry['resource_type'], 'ooo_entry' | undefined>(true)
+		testType.equal<Asana.StatusUpdate['resource_type'], 'status_update' | undefined>(true)
+		testType.equal<Asana.Membership['resource_type'], 'membership' | undefined>(true)
 	})
 
 	it('types TypeaheadApi, BatchAPIApi, EventsApi and RulesApi', () => {
@@ -311,7 +311,7 @@ describe('asana type augmentation', () => {
 		testType.equal<R<Asana.TaskTemplatesApi, 'getTaskTemplates'>, Asana.AsanaCollection<Asana.TaskTemplate>>(true)
 		testType.equal<R<Asana.TaskTemplatesApi, 'instantiateTask'>, Asana.AsanaResponse<Asana.Job>>(true)
 		testType.equal<R<Asana.JobsApi, 'getJob'>, Asana.AsanaResponse<Asana.Job>>(true)
-		testType.equal<Asana.Job['resource_type'], 'job'>(true)
+		testType.equal<Asana.Job['resource_type'], 'job' | undefined>(true)
 	})
 
 	it('types PortfoliosApi and GoalsApi', () => {
@@ -330,8 +330,8 @@ describe('asana type augmentation', () => {
 		testType.equal<R<Asana.GoalsApi, 'updateGoal'>, Asana.AsanaResponse<Asana.Goal>>(true)
 		testType.equal<R<Asana.GoalsApi, 'deleteGoal'>, Asana.EmptyResponse>(true)
 		testType.equal<R<Asana.GoalsApi, 'getGoals'>, Asana.AsanaCollection<Asana.Goal>>(true)
-		testType.equal<Asana.Goal['resource_type'], 'goal'>(true)
-		testType.equal<Asana.Portfolio['resource_type'], 'portfolio'>(true)
+		testType.equal<Asana.Goal['resource_type'], 'goal' | undefined>(true)
+		testType.equal<Asana.Portfolio['resource_type'], 'portfolio' | undefined>(true)
 	})
 
 	it('types CustomFieldsApi, CustomFieldSettingsApi and AIStudioUsageAPIApi', () => {
@@ -363,6 +363,6 @@ describe('asana type augmentation', () => {
 		testType.false<IsAny<Got>>(true)
 		testType.equal<Got, Asana.AsanaResponse<Asana.TimePeriod>>(true)
 		testType.equal<Listed, Asana.AsanaCollection<Asana.TimePeriod>>(true)
-		testType.equal<Asana.TimePeriod['resource_type'], 'time_period'>(true)
+		testType.equal<Asana.TimePeriod['resource_type'], 'time_period' | undefined>(true)
 	})
 })

@@ -214,6 +214,90 @@ describe.skipIf(!projectEnabled || !workspaceEnabled)('asana types: task write o
 	})
 })
 
+describe.skipIf(!projectEnabled || !workspaceEnabled)(
+	'asana types: task custom fields, subtask count and start_at',
+	() => {
+		it('getTask resolves custom_fields, num_subtasks and start_at matching the augmented type', async () => {
+			const tasksApi = new Asana.TasksApi(createClient())
+			const projectsApi = new Asana.ProjectsApi(createClient())
+			const customFieldsApi = new Asana.CustomFieldsApi(createClient())
+
+			// Self-created, disposable fields: a workspace's real custom fields are not portable
+			// across contributors, so the probe creates its own number and enum fields.
+			const numberField = await customFieldsApi.createCustomField({
+				data: {
+					name: 'cyber-asana learn probe: number field',
+					resource_subtype: 'number',
+					precision: 0,
+					workspace: workspaceGid!,
+				},
+			})
+			const enumField = await customFieldsApi.createCustomField({
+				data: {
+					name: 'cyber-asana learn probe: enum field',
+					resource_subtype: 'enum',
+					workspace: workspaceGid!,
+					enum_options: [{ name: 'cyber-asana learn probe: option' }],
+				},
+			})
+			try {
+				await projectsApi.addCustomFieldSettingForProject({ data: { custom_field: numberField.data.gid } }, projectGid!)
+				await projectsApi.addCustomFieldSettingForProject({ data: { custom_field: enumField.data.gid } }, projectGid!)
+				const enumOptionGid = enumField.data.enum_options?.[0]?.gid
+				const task = await tasksApi.createTask({
+					data: { name: 'cyber-asana learn probe: custom fields', workspace: workspaceGid!, projects: [projectGid!] },
+				})
+				try {
+					await tasksApi.updateTask(
+						{ data: { custom_fields: { [numberField.data.gid]: 42, [enumField.data.gid]: enumOptionGid } } },
+						task.data.gid,
+						{},
+					)
+					const subtask = await tasksApi.createSubtaskForTask(
+						{ data: { name: 'cyber-asana learn probe: subtask' } },
+						task.data.gid,
+						{},
+					)
+					try {
+						const res = await tasksApi.getTask(task.data.gid, {
+							opt_fields:
+								'custom_fields,custom_fields.name,custom_fields.enabled,custom_fields.resource_subtype,custom_fields.type,custom_fields.is_formula_field,custom_fields.number_value,custom_fields.display_value,custom_fields.enum_value,custom_fields.enum_value.name,num_subtasks,start_at,start_on',
+						})
+
+						expectTypeOf(res).toEqualTypeOf<Asana.AsanaResponse<Asana.Task>>()
+						expect(res.data.num_subtasks).toBe(1)
+						expect(res.data.start_at === null || typeof res.data.start_at === 'string').toBe(true)
+						const fields = res.data.custom_fields ?? []
+						const number = fields.find((field) => field.gid === numberField.data.gid)
+						expect(number?.resource_subtype).toBe('number')
+						expect(number?.number_value).toBe(42)
+						expect(typeof number?.display_value).toBe('string')
+						const enumValue = fields.find((field) => field.gid === enumField.data.gid)
+						expect(enumValue?.resource_subtype).toBe('enum')
+						expect(enumValue?.enum_value?.gid).toBe(enumOptionGid)
+						expect(typeof enumValue?.enum_value?.name).toBe('string')
+					} finally {
+						await tasksApi.deleteTask(subtask.data.gid)
+					}
+				} finally {
+					await tasksApi.deleteTask(task.data.gid)
+				}
+			} finally {
+				await projectsApi.removeCustomFieldSettingForProject(
+					{ data: { custom_field: numberField.data.gid } },
+					projectGid!,
+				)
+				await projectsApi.removeCustomFieldSettingForProject(
+					{ data: { custom_field: enumField.data.gid } },
+					projectGid!,
+				)
+				await customFieldsApi.deleteCustomField(numberField.data.gid)
+				await customFieldsApi.deleteCustomField(enumField.data.gid)
+			}
+		})
+	},
+)
+
 describe.skipIf(!projectEnabled)('asana types: section write operations', () => {
 	it('createSectionForProject and deleteSection resolve to the augmented shapes', async () => {
 		const api = new Asana.SectionsApi(createClient())

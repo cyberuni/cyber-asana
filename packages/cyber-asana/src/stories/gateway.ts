@@ -10,7 +10,7 @@ import type { StoryCreateFields, StoryUpdateFields } from './write-options.js'
 
 export type TaskTemplateData = {
 	name?: string
-	assignee?: { name: string } | null
+	assignee?: { name?: string } | null
 	due_on?: string | null
 	notes?: string
 }

@@ -6,10 +6,17 @@ import 'asana'
  * added only together with the learning test that proves it against the live API.
  */
 declare module 'asana' {
+	/**
+	 * Every resource shares these three keys, but none is actually guaranteed on a given
+	 * response: Asana's compact default includes all three, but every gateway in this repo
+	 * calls `opt_fields` with its own default field list (confirmed live: `tasks/gateway.ts`'s
+	 * `TASK_GET_FIELDS` omits `resource_type`), and a caller's own `opt_fields` can narrow
+	 * further still. Only `gid` is unconditional — Asana always returns it.
+	 */
 	interface AsanaResource {
 		gid: string
-		name: string
-		resource_type: string
+		name?: string | undefined
+		resource_type?: string | undefined
 	}
 
 	interface AsanaResponse<T> {
@@ -42,20 +49,55 @@ declare module 'asana' {
 		nextPage(): Promise<AsanaCollection<T> | { data: null }>
 	}
 
+	/** A compact enum option, as returned on `CustomField.enum_options` and on a task's enum-typed custom field values. */
+	interface CustomFieldEnumOption {
+		gid: string
+		name: string
+		enabled?: boolean | undefined
+		color?: string | undefined
+	}
+
+	/**
+	 * A custom field *value* embedded on a task (or other parent), distinct from the custom
+	 * field *definition* (`CustomField`). Only the value-side keys proven live are typed here;
+	 * `date_value`/`people_value` cover the `date`/`people` subtypes, each confirmed against a
+	 * disposable probe field rather than this workspace's real custom fields.
+	 */
+	interface TaskCustomFieldValue {
+		gid: string
+		resource_type?: 'custom_field' | undefined
+		resource_subtype?: string | undefined
+		/** Mirrors `resource_subtype`; both ride on every custom field value Asana returns. */
+		type?: string | undefined
+		name?: string | undefined
+		enabled?: boolean | undefined
+		is_formula_field?: boolean | undefined
+		display_value?: string | null | undefined
+		text_value?: string | null | undefined
+		number_value?: number | null | undefined
+		enum_value?: CustomFieldEnumOption | null | undefined
+		multi_enum_values?: CustomFieldEnumOption[] | undefined
+		date_value?: { date?: string | undefined; date_time?: string | undefined } | null | undefined
+		people_value?: User[] | undefined
+	}
+
 	interface Task extends AsanaResource {
-		resource_type: 'task'
+		resource_type?: 'task' | undefined
 		completed?: boolean | undefined
-		completed_at?: string | undefined
+		completed_at?: string | null | undefined
 		created_at?: string | undefined
-		due_at?: string | undefined
-		due_on?: string | undefined
+		custom_fields?: TaskCustomFieldValue[] | undefined
+		due_at?: string | null | undefined
+		due_on?: string | null | undefined
 		html_notes?: string | undefined
 		modified_at?: string | undefined
 		notes?: string | undefined
+		num_subtasks?: number | undefined
 		permalink_url?: string | undefined
 		resource_subtype?: string | undefined
-		start_on?: string | undefined
-		assignee?: User | undefined
+		start_at?: string | null | undefined
+		start_on?: string | null | undefined
+		assignee?: User | null | undefined
 		followers?: User[] | undefined
 		parent?: Task | null | undefined
 		memberships?: Array<{ project?: Project | undefined; section?: Section | undefined }> | undefined
@@ -65,13 +107,13 @@ declare module 'asana' {
 	}
 
 	interface User extends AsanaResource {
-		resource_type: 'user'
+		resource_type?: 'user' | undefined
 		email?: string | undefined
 		workspaces?: Workspace[] | undefined
 	}
 
 	interface Project extends AsanaResource {
-		resource_type: 'project'
+		resource_type?: 'project' | undefined
 		archived?: boolean | undefined
 		color?: string | undefined
 		completed?: boolean | undefined
@@ -88,7 +130,7 @@ declare module 'asana' {
 	}
 
 	interface Tag extends AsanaResource {
-		resource_type: 'tag'
+		resource_type?: 'tag' | undefined
 		color?: string | undefined
 		notes?: string | undefined
 		permalink_url?: string | undefined
@@ -96,13 +138,13 @@ declare module 'asana' {
 	}
 
 	interface Workspace extends AsanaResource {
-		resource_type: 'workspace'
+		resource_type?: 'workspace' | undefined
 		email_domains?: string[] | undefined
 		is_organization?: boolean | undefined
 	}
 
 	interface Section extends AsanaResource {
-		resource_type: 'section'
+		resource_type?: 'section' | undefined
 		created_at?: string | undefined
 		project?: Project | undefined
 		projects?: Project[] | undefined
@@ -152,7 +194,7 @@ declare module 'asana' {
 	/** Unlike the other resources a story has no `name`, so it stands apart from AsanaResource. */
 	interface Story {
 		gid: string
-		resource_type: 'story'
+		resource_type?: 'story' | undefined
 		created_at?: string | undefined
 		created_by?: User | undefined
 		html_text?: string | undefined
@@ -173,7 +215,7 @@ declare module 'asana' {
 	}
 
 	interface Attachment extends AsanaResource {
-		resource_type: 'attachment'
+		resource_type?: 'attachment' | undefined
 		created_at?: string | undefined
 		download_url?: string | undefined
 		host?: string | undefined
@@ -336,7 +378,7 @@ declare module 'asana' {
 	}
 
 	interface Team extends AsanaResource {
-		resource_type: 'team'
+		resource_type?: 'team' | undefined
 		description?: string | undefined
 		html_description?: string | undefined
 		organization?: Workspace | undefined
@@ -344,14 +386,14 @@ declare module 'asana' {
 	}
 
 	interface UserTaskList extends AsanaResource {
-		resource_type: 'user_task_list'
+		resource_type?: 'user_task_list' | undefined
 		owner?: User | undefined
 		workspace?: Workspace | undefined
 	}
 
 	interface Membership {
 		gid: string
-		resource_type: 'membership'
+		resource_type?: 'membership' | undefined
 		access_level?: string | undefined
 		resource_subtype?: string | undefined
 		member?: AsanaResource | undefined
@@ -360,7 +402,7 @@ declare module 'asana' {
 
 	interface OooEntry {
 		gid: string
-		resource_type: 'ooo_entry'
+		resource_type?: 'ooo_entry' | undefined
 		start_date?: string | undefined
 		end_date?: string | undefined
 		user?: User | undefined
@@ -368,7 +410,7 @@ declare module 'asana' {
 
 	interface StatusUpdate {
 		gid: string
-		resource_type: 'status_update'
+		resource_type?: 'status_update' | undefined
 		resource_subtype?: string | undefined
 		status_type?: string | undefined
 		title?: string | undefined
@@ -472,7 +514,7 @@ declare module 'asana' {
 	/** Intersection of a type alias, not an interface, so it stays assignable to `platform/job-polling`'s `Job`. */
 	type Job = {
 		gid: string
-		resource_type: 'job'
+		resource_type?: 'job' | undefined
 		resource_subtype?: string | undefined
 		status?: 'not_started' | 'in_progress' | 'succeeded' | 'failed' | 'canceled' | undefined
 		new_project?: Project | undefined
@@ -480,7 +522,7 @@ declare module 'asana' {
 	}
 
 	interface ProjectTemplate extends AsanaResource {
-		resource_type: 'project_template'
+		resource_type?: 'project_template' | undefined
 		description?: string | undefined
 		html_description?: string | undefined
 		public?: boolean | undefined
@@ -492,7 +534,7 @@ declare module 'asana' {
 	}
 
 	interface TaskTemplate extends AsanaResource {
-		resource_type: 'task_template'
+		resource_type?: 'task_template' | undefined
 		template?: { name?: string; description?: string } | undefined
 		project?: Project | undefined
 		created_at?: string | undefined
@@ -552,7 +594,7 @@ declare module 'asana' {
 	}
 
 	interface Portfolio extends AsanaResource {
-		resource_type: 'portfolio'
+		resource_type?: 'portfolio' | undefined
 		color?: string | undefined
 		created_at?: string | undefined
 		owner?: User | undefined
@@ -562,7 +604,7 @@ declare module 'asana' {
 	}
 
 	interface TimePeriod extends AsanaResource {
-		resource_type: 'time_period'
+		resource_type?: 'time_period' | undefined
 		display_name?: string | undefined
 		period?: string | undefined
 		start_on?: string | undefined
@@ -578,7 +620,7 @@ declare module 'asana' {
 	}
 
 	interface Goal extends AsanaResource {
-		resource_type: 'goal'
+		resource_type?: 'goal' | undefined
 		notes?: string | undefined
 		html_notes?: string | undefined
 		due_on?: string | null | undefined
@@ -590,17 +632,17 @@ declare module 'asana' {
 	}
 
 	interface CustomField extends AsanaResource {
-		resource_type: 'custom_field'
+		resource_type?: 'custom_field' | undefined
 		type?: string | undefined
 		description?: string | undefined
 		enabled?: boolean | undefined
 		precision?: number | undefined
-		enum_options?: Array<{ gid: string; name: string; enabled?: boolean; color?: string }> | undefined
+		enum_options?: CustomFieldEnumOption[] | undefined
 	}
 
 	interface CustomFieldSetting {
 		gid: string
-		resource_type: 'custom_field_setting'
+		resource_type?: 'custom_field_setting' | undefined
 		is_important?: boolean | undefined
 		custom_field?: CustomField | undefined
 		parent?: AsanaResource | undefined
