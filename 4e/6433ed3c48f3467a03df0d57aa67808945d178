@@ -1,0 +1,27 @@
+packages/cyber-asana/src/tasks/batch-lookup.acceptance.test.ts
+  s_52c1ffc7d64d9e::t_913b2bfedb89dd 1,7,17,28,52-55
+packages/cyber-asana/src/tasks/batch-lookup.acceptance.ts
+  s_52c1ffc7d64d9e::t_0d974943095228 1,14,37
+packages/cyber-asana/src/tasks/cli.ts
+  s_52c1ffc7d64d9e::t_5959afba70c937 122,126,133,165,508
+packages/cyber-asana/src/tasks/gateway.ts
+  s_52c1ffc7d64d9e::t_15df33b4efaa8b 11-17,58,131,135-136,138-139,141-146,151-158,161-162,235,254
+packages/cyber-asana/src/tasks/get-with-stories.acceptance.test.ts
+  s_52c1ffc7d64d9e::t_49621677f06930 1,9,11,14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "4e6433ed3c48f3467a03df0d57aa67808945d178",
+  "prompts": {},
+  "sessions": {
+    "s_52c1ffc7d64d9e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "fc01e9d7-0bc8-4365-87b5-99cba28dacb6",
+        "model": "unknown"
+      },
+      "human_author": "unional <homawong@gmail.com>"
+    }
+  }
+}
