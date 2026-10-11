@@ -65,7 +65,7 @@ never requested rather than cut.
 walks, where `--max-pages` stops — is the shared list contract in [axi](../axi/README.md), adopted
 here rather than re-decided. Likewise the `--json` / `--toon` formats, empty-state rendering,
 truncation, exit-code conventions, and the normalized-GID flag mechanism (`--workspace-gid` with its
-legacy `--workspace` alias). This node decides only which entry points exist, where each one's GIDs
+short `--workspace` alias). This node decides only which entry points exist, where each one's GIDs
 come from, what its request body carries, and what its text rendering shows.
 
 ## Use Cases

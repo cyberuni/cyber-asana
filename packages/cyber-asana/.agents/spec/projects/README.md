@@ -65,7 +65,7 @@ to a GID; the repo registry that does that is [config](../config/README.md).
 walks, where `--max-pages` stops — is the shared list contract in [axi](../axi/README.md), adopted
 here rather than re-decided. Likewise the `--json` / `--toon` formats, empty-state rendering,
 long-field truncation, exit-code conventions, and the normalized-GID flag mechanism
-(`--workspace-gid` with its legacy `--workspace` alias, and its `ASANA_WORKSPACE_GID` fallback, whose
+(`--workspace-gid` with its short `--workspace` alias, and its `ASANA_WORKSPACE_GID` fallback, whose
 read case is frozen by [teams](../teams/README.md)). This node decides which of its verbs are
 paginated, what each write puts in the body, and what `export` renders.
 

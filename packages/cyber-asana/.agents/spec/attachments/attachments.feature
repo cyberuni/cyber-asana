@@ -13,9 +13,9 @@ Feature: attachments
     Then the request reaching Asana names "8801" as the parent object
     And the output names both "levee-survey.pdf" and "tidegate-diagram.png"
 
-  Scenario: list accepts the legacy task flag as the parent GID
+  Scenario: list accepts the short task flag as the parent GID
     Given a task with GID "8801" carrying an attachment named "levee-survey.pdf"
-    When the attachment list CLI verb runs with the legacy task flag set to "8801"
+    When the attachment list CLI verb runs with the short task flag set to "8801"
     Then the request reaching Asana names "8801" as the parent object
     And the process exits with status zero
 

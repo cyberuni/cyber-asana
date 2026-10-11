@@ -50,7 +50,7 @@ then — the five record operations plus the two placement ones.
 `--all` walks, where `--max-pages` stops — is the shared list contract in [axi](../axi/README.md),
 adopted here rather than re-decided. Likewise the `--json` / `--toon` formats, empty-state
 rendering, truncation, exit-code conventions, and the normalized-GID flag mechanism
-(`--project-gid` with its legacy `--project` alias). This node decides only which seven operations
+(`--project-gid` with its short `--project` alias). This node decides only which seven operations
 exist, where each one's GIDs come from, what the text rendering shows, and what a delete reports.
 
 ## Use Cases
@@ -60,7 +60,7 @@ the two surfaces (CLI and MCP) that share one `api.ts`.
 
 | Entry point | Trigger | Inputs | Outcome |
 |---|---|---|---|
-| `section list` (CLI) | caller wants the buckets a project is divided into | the project GID as the flag `--project-gid` (legacy alias `--project`), plus pagination options | the project's sections, rendered as a Name/ID table in text mode |
+| `section list` (CLI) | caller wants the buckets a project is divided into | the project GID as the flag `--project-gid` (short alias `--project`), plus pagination options | the project's sections, rendered as a Name/ID table in text mode |
 | `asana_section_list` (MCP) | agent wants the same over MCP | `project_gid`, plus the shared pagination params | the same result, JSON-serialized |
 | `section get <gid>` (CLI) | caller holds a section GID and wants its record | the section GID, positionally | the unwrapped section record, rendered as Name/ID fields in text mode |
 | `asana_section_get` (MCP) | same, over MCP | `section_gid` only | the same record, JSON-serialized |
@@ -82,7 +82,7 @@ graph TD
   subgraph list["section list / asana_section_list"]
     L[invoked] --> LS{project GID supplied?}
     LS -->|--project-gid / project_gid| LN[take it as the scope]
-    LS -->|legacy --project| LN
+    LS -->|short --project| LN
     LS -->|no| LE[usage error — Project GID is required;<br/>the environment is never consulted]
     LN --> LQ[fetch the project's sections,<br/>pagination options passed separately]
     LQ --> LR[render Name / ID table]
@@ -129,7 +129,7 @@ The groups share no decision, so they are drawn separately. The load-bearing edg
   both refuse to run without it. Only a *workspace* GID gets an environment default in this package
   (`normalizedGid` falls back to `ASANA_WORKSPACE_GID` for the workspace base name and for no other); a
   wrongly-defaulted project would return, or worse create, a plausible-looking section in the wrong
-  place. The legacy `--project` spelling reaches the same scope as `--project-gid`.
+  place. The short `--project` spelling reaches the same scope as `--project-gid`.
 - **Scope stops once the section exists.** `get`, `update`, and `delete` take the section GID alone.
   Accepting a project alongside it would advertise a scoping that is never sent.
 - **`update` carries exactly one change.** The new name is a *required* flag, not an optional one,
@@ -154,7 +154,7 @@ The groups share no decision, so they are drawn separately. The load-bearing edg
 | Edge | Path (Given) | Scenario |
 |---|---|---|
 | project GID supplied → list that project's sections | a project holding two sections | `list returns the sections of the project GID it was given` |
-| legacy alias normalizes to the same scope | the legacy project flag spelled instead of the current one | `list accepts the legacy project flag as the project scope` |
+| short alias normalizes to the same scope | the short project flag spelled instead of the current one | `list accepts the short project flag as the project scope` |
 | project GID absent → usage error | no project GID on the invocation | `list without a project GID is a usage error` |
 | no environment default for the project GID (barred) | the workspace environment variable set, no project GID given | `list does not default its project GID from the environment` |
 | pagination options travel beside the scope | a request carrying a page size and an offset token | `list sends its pagination options without disturbing the project GID` |

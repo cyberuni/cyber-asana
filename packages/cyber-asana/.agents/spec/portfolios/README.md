@@ -53,7 +53,7 @@ known gap, not a considered cut.
 The `owner` parameter entered in commit `2f073b2` ("feat: add pagination options"), which widened the
 `listPortfolios` signature and forwarded `owner` to Asana while wiring only the pagination flags into
 the CLI; for a long while it was reachable from the API layer alone. It now has a surface on both
-CLI (`--owner-gid`, legacy alias `--owner`) and MCP (`owner_gid`), because a parameter the gateway
+CLI (`--owner-gid`, short alias `--owner`) and MCP (`owner_gid`), because a parameter the gateway
 already sends and neither caller can set is a drop between surfaces, not a decision. Asana documents
 `owner` as optional and honors it for **service-account** tokens: with one, an unfiltered listing
 returns every portfolio in the workspace and `owner` narrows it to one person's. A regular PAT or
@@ -64,7 +64,7 @@ than an error. The option is omitted from the request entirely when the caller d
 walks, where `--max-pages` stops — is the shared list contract in [axi](../axi/README.md), adopted
 here rather than re-decided. Likewise the `--json` / `--toon` formats, empty-state rendering,
 truncation, exit-code conventions, and the normalized-GID flag mechanism (`--workspace-gid` with its
-legacy `--workspace` alias). This node decides only which entry points exist, where each one's GIDs
+short `--workspace` alias). This node decides only which entry points exist, where each one's GIDs
 come from, what its text rendering shows, and which portfolio operations stay unwrapped.
 
 ## Use Cases

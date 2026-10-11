@@ -16,9 +16,9 @@ Feature: status
     And the run for "8802" returns a status update titled "Quarter close"
     And the run for "8803" returns a status update titled "Halfway there"
 
-  Scenario: list accepts the parent GID under the legacy parent flag
+  Scenario: list accepts the parent GID under the short parent flag
     Given a project with GID "8801" carrying a status update with GID "9101"
-    When the status list entry point runs with the legacy --parent flag set to "8801"
+    When the status list entry point runs with the short --parent flag set to "8801"
     Then the returned list contains a status update with the GID "9101"
 
   Scenario: list renders each status update's GID, type, and title in text mode

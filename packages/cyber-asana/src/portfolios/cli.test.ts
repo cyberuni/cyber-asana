@@ -206,7 +206,7 @@ describe('portfolios/cli', () => {
 		vi.restoreAllMocks()
 	})
 
-	it('portfolio list accepts the legacy --owner alias', async () => {
+	it('portfolio list accepts the short --owner alias', async () => {
 		vi.spyOn(console, 'log').mockImplementation(() => {})
 		const listPortfolios = vi.fn().mockResolvedValue([])
 		const program = new Command().addCommand(

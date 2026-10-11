@@ -660,11 +660,11 @@ Installing twice is a no-op, and unrelated settings are preserved.
 
 ### GID options
 
-Commands that accept a resource GID support both a canonical `--foo-gid` flag and a shorter legacy alias `--foo`:
+Commands that accept a resource GID support both a canonical `--foo-gid` flag and a shorter alias `--foo`:
 
 ```sh
 cyber-asana task list --project-gid <gid>
-cyber-asana task list --project <gid>      # legacy alias
+cyber-asana task list --project <gid>      # short alias
 ```
 
 ### Incomplete tasks

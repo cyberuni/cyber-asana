@@ -63,7 +63,7 @@ const ASSIGNEE_FLAG = '--assignee <user>'
 const ASSIGNEE_DESCRIPTION = 'Assignee: user GID, "me", or an alias, email, or name registered with config add-user'
 
 function addAssigneeOptions<T extends Command>(cmd: T) {
-	return addGidOption(cmd, 'assignee', 'Assignee user GID', { legacyAlias: false }).option(
+	return addGidOption(cmd, 'assignee', 'Assignee user GID', { shortAlias: false }).option(
 		ASSIGNEE_FLAG,
 		ASSIGNEE_DESCRIPTION,
 	)

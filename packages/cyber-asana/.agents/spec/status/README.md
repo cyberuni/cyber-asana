@@ -53,7 +53,7 @@ the two surfaces (CLI and MCP) that share one `api.ts`.
 
 | Entry point | Trigger | Inputs | Outcome |
 |---|---|---|---|
-| `status list` (CLI) | caller wants the update history of one project, portfolio, or goal | `--parent-gid` (or the legacy `--parent`), optional `--created-since`, plus pagination options | that parent's status updates, rendered as an ID/Type/Title table in text mode |
+| `status list` (CLI) | caller wants the update history of one project, portfolio, or goal | `--parent-gid` (or the short `--parent`), optional `--created-since`, plus pagination options | that parent's status updates, rendered as an ID/Type/Title table in text mode |
 | `asana_status_list` (MCP) | agent wants the same history over MCP | `parent_gid`, optional `created_since`, plus the shared pagination params | the same result, JSON-serialized |
 | `status get <gid>` (CLI) | caller holds an update's GID and wants the full post | the update GID, positionally | the unwrapped update record, rendered as ID/Type/Title/At/Text fields in text mode |
 | `asana_status_get` (MCP) | same, over MCP | `status_gid` | the same record, JSON-serialized |
@@ -72,7 +72,7 @@ graph TD
   subgraph list["status list / asana_status_list"]
     L[invoked] --> LP{parent GID supplied?}
     LP -->|no| LE[usage error — parent GID required<br/>no environment default is consulted]
-    LP -->|yes, under --parent-gid or legacy --parent| LT{parent kind named separately?}
+    LP -->|yes, under --parent-gid or short --parent| LT{parent kind named separately?}
     LT -->|impossible — no such option is offered| LC{created-since given?}
     LC -->|yes| LF[forward the one GID as the object to list,<br/>plus pagination options and the timestamp]
     LC -->|no| LF
@@ -112,8 +112,8 @@ The load-bearing edges:
 - **`LP`'s "no" branch consults nothing.** The parent GID is required and never defaulted from the
   environment. `ASANA_WORKSPACE_GID` defaults a *scoping* workspace elsewhere in the CLI; here the parent
   is the **subject** of the read, and quietly listing some other object's updates would be worse than
-  an error. The legacy `--parent` spelling is accepted alongside `--parent-gid` so older invocations
-  keep working.
+  an error. The short `--parent` spelling is accepted alongside `--parent-gid`, the same alias
+  every GID flag has.
 - **`CB` builds by omission, not by blanking.** A title, plain-text body, or rich-text body that was
   not supplied is absent from the request, not present-and-empty — an empty string is a *value*, and
   sending one reads as a deliberate blank. When both body forms *are* supplied, both are carried:
@@ -128,7 +128,7 @@ The load-bearing edges:
 | Edge | Path (Given) | Scenario |
 |---|---|---|
 | parent GID forwarded whatever the parent kind | a project, a portfolio, and a goal each carrying an update | `list returns the status updates of whichever parent GID it is given` |
-| legacy parent flag accepted | the parent GID given under the legacy spelling | `list accepts the parent GID under the legacy parent flag` |
+| short parent flag accepted | the parent GID given under the short spelling | `list accepts the parent GID under the short parent flag` |
 | render ID / Type / Title table | text mode, two updates on one parent | `list renders each status update's GID, type, and title in text mode` |
 | no parent-kind option offered (barred) | the list subcommand's help text | `list offers no parent-type option` |
 | parent GID absent → usage error | no parent GID supplied | `list without a parent GID is a usage error` |

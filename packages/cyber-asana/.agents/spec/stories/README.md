@@ -53,7 +53,7 @@ why rather than pretended away. Nor does this node filter the thread down to com
 
 **What this node does not own.** How a paginated list behaves, the `--json` / `--toon` output
 formats, empty-state rendering, and exit-code conventions are the shared contract in
-[axi](../axi/README.md), adopted here rather than re-decided. The `--task-gid` / legacy `--task`
+[axi](../axi/README.md), adopted here rather than re-decided. The `--task-gid` / short `--task`
 flag pairing is likewise the shared GID-option convention; this node's decision is only that the
 task GID is **required** and is never defaulted from the environment.
 

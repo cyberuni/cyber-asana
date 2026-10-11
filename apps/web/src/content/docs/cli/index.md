@@ -63,11 +63,11 @@ that drops repeated keys for roughly 40% fewer tokens than pretty JSON.
 ## GID options
 
 Commands that take a resource GID accept both a canonical `--<resource>-gid` flag and a
-shorter legacy alias:
+shorter alias:
 
 ```sh
 cyber-asana task list --project-gid <gid>
-cyber-asana task list --project <gid>      # legacy alias
+cyber-asana task list --project <gid>      # short alias
 ```
 
 Workspace-scoped commands read `ASANA_WORKSPACE_GID` when `--workspace-gid` is omitted, so

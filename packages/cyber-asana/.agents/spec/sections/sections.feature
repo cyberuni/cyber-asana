@@ -15,9 +15,9 @@ Feature: sections
     Then the request reaching Asana asks for the sections of project "4402"
     And the output names both "Dry Dock" and "Sea Trials"
 
-  Scenario: list accepts the legacy project flag as the project scope
+  Scenario: list accepts the short project flag as the project scope
     Given a project with GID "4402" containing a section named "Dry Dock"
-    When the section list CLI verb runs with the legacy project flag set to "4402"
+    When the section list CLI verb runs with the short project flag set to "4402"
     Then the request reaching Asana asks for the sections of project "4402"
     And the process exits with status zero
 

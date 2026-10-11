@@ -20,10 +20,10 @@ Feature: users
     When the user list entry point runs with no workspace flag
     Then the request reaching the Asana users endpoint is scoped to workspace "9902"
 
-  Scenario: list accepts the legacy workspace flag
+  Scenario: list accepts the short workspace flag
     Given a workspace with GID "9902"
     And the ASANA_WORKSPACE_GID environment variable is unset
-    When the user list entry point runs with the legacy workspace flag set to "9902"
+    When the user list entry point runs with the short workspace flag set to "9902"
     Then the request reaching the Asana users endpoint is scoped to workspace "9902"
 
   Scenario: list without any workspace GID is a usage error

@@ -735,7 +735,7 @@ export function configCommand(
 			),
 		'workspace',
 		'Workspace GID for --search',
-		{ legacyAlias: false },
+		{ shortAlias: false },
 	).action(
 		async (
 			gidArg: string | undefined,

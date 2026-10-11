@@ -64,7 +64,7 @@ there.
 
 **What this node does not own.** The paginated list envelope, `--json` / `--toon`, empty-state
 rendering, truncation mechanics and `--full`, exit codes, and the normalized `--x-gid` flag with its
-legacy alias are the shared contract in [axi](../axi/README.md), adopted here rather than
+short alias are the shared contract in [axi](../axi/README.md), adopted here rather than
 re-decided. Everything *attached* to a task belongs to its own node: comments are
 [stories](../stories/README.md), files are [attachments](../attachments/README.md), the project a
 task lives in is [projects](../projects/README.md), the section it sits in is

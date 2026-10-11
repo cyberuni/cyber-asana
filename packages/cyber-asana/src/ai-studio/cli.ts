@@ -57,7 +57,7 @@ function addListOptions(cmd: Command) {
 			addGidOption(cmd, 'workspace', 'Workspace or organization GID'),
 			'division',
 			"Scope to one division (default: the org's first licensed division)",
-			{ legacyAlias: false },
+			{ shortAlias: false },
 		),
 		{ optFields: false },
 	)

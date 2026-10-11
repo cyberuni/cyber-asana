@@ -63,7 +63,7 @@ names are a namespace rather than a menu, and agents do not browse them.
 walks, where `--max-pages` stops, how `next_page` and `truncated` are reported — is the shared list
 contract in [axi](../axi/README.md), adopted here rather than re-decided. Likewise the `--json` /
 `--toon` formats, empty-state rendering, truncation, exit-code conventions, and the normalized-GID
-flag mechanism (`--workspace-gid` with its legacy `--workspace` alias). This node decides which
+flag mechanism (`--workspace-gid` with its short `--workspace` alias). This node decides which
 entry points exist, where each one's GIDs come from, what its text rendering shows, and — for
 `delete` alone — one deliberate departure from the shared output contract, recorded below.
 

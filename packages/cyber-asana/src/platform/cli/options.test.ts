@@ -89,3 +89,25 @@ describe('workspace GID option', () => {
 		expect(parse([])).toBeUndefined()
 	})
 })
+
+describe('short GID alias', () => {
+	it('documents the short flag as an alias of the -gid flag', () => {
+		const help = addGidOption(new Command('list'), 'project', 'Project GID').helpInformation()
+		expect(help).toContain('--project <gid>')
+		expect(help).toContain('alias of --project-gid')
+		expect(help).not.toContain('legacy')
+	})
+
+	it('resolves the short flag like the -gid flag', () => {
+		const cmd = addGidOption(new Command('list').exitOverride(), 'project', 'Project GID')
+		cmd.parse(['--project', '42'], { from: 'user' })
+		expect(normalizedGid(cmd.opts(), 'project')).toBe('42')
+	})
+
+	it('omits the short flag when the command defines its own', () => {
+		const help = addGidOption(new Command('list'), 'assignee', 'Assignee user GID', {
+			shortAlias: false,
+		}).helpInformation()
+		expect(help).not.toContain('--assignee <gid>')
+	})
+})

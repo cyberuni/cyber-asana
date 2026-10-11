@@ -123,7 +123,7 @@ The two read groups share no decision, so they are drawn separately. The load-be
 | Edge | Path (Given) | Scenario |
 |---|---|---|
 | parent GID supplied → fetch that object's attachments | a task carrying two attachments | `list returns the attachments of the task GID it was given` |
-| legacy alias normalizes to the parent GID | the legacy task flag spelled instead of the current one | `list accepts the legacy task flag as the parent GID` |
+| short alias normalizes to the parent GID | the short task flag spelled instead of the current one | `list accepts the short task flag as the parent GID` |
 | parent GID absent → usage error | no task GID on the invocation | `list without a task GID is a usage error` |
 | no environment default for the parent GID (barred) | the workspace environment variable set, no task GID given | `list does not default its parent task GID from the environment` |
 | pagination options travel beside the parent GID | a request carrying a page size and an offset token | `list sends its pagination options without disturbing the parent task GID` |

@@ -56,7 +56,7 @@ authenticated user, over the two surfaces (CLI and MCP) that share one `api.ts`.
 
 | Entry point | Trigger | Inputs | Outcome |
 |---|---|---|---|
-| `user list` (CLI) | caller needs the people in a workspace | workspace GID via `--workspace-gid` (legacy alias `--workspace`, defaulted from `ASANA_WORKSPACE_GID`), plus `--offset` and `--opt-fields` | the workspace's users, rendered as a Name/ID/Email table in text mode |
+| `user list` (CLI) | caller needs the people in a workspace | workspace GID via `--workspace-gid` (short alias `--workspace`, defaulted from `ASANA_WORKSPACE_GID`), plus `--offset` and `--opt-fields` | the workspace's users, rendered as a Name/ID/Email table in text mode |
 | `asana_user_list` (MCP) | agent needs the same listing over MCP | required `workspace_gid`, plus `offset` and `opt_fields` | the same result, JSON-serialized |
 | `user get <gid>` (CLI) | caller holds a user GID and wants that person's record | the user GID, positionally | the unwrapped user record, rendered as Name/ID/Email fields in text mode |
 | `asana_user_get` (MCP) | same, over MCP | `user_gid` | the same record, JSON-serialized |
@@ -72,7 +72,7 @@ so a change to what a user read means lands in one place.
 graph TD
   subgraph list["user list / asana_user_list"]
     L[invoked] --> LW{workspace GID resolvable?}
-    LW -->|CLI: --workspace-gid, else legacy --workspace, else ASANA_WORKSPACE_GID| LP
+    LW -->|CLI: --workspace-gid, else short --workspace, else ASANA_WORKSPACE_GID| LP
     LW -->|MCP: required parameter, no environment fallback| LP
     LW -->|none| LE[usage error — Workspace GID is required]
     LP{page size supplied?} -->|impossible — no page-size input is offered| LQ[send offset and optional fields only]
@@ -135,7 +135,7 @@ collection is therefore unverified — a known gap, not a decision.
 |---|---|---|
 | workspace GID resolved from the command line | the workspace flag supplied, the environment variable unset | `list scopes to the workspace GID given on the command line` |
 | workspace GID resolved from the environment | no workspace flag, the environment variable set | `list falls back to the workspace environment variable` |
-| workspace GID resolved from the legacy alias | the legacy workspace flag supplied, the environment variable unset | `list accepts the legacy workspace flag` |
+| workspace GID resolved from the short alias | the short workspace flag supplied, the environment variable unset | `list accepts the short workspace flag` |
 | no workspace GID → usage error | no workspace flag, the environment variable unset | `list without any workspace GID is a usage error` |
 | MCP workspace GID is a required parameter | an MCP call carrying a workspace GID | `the MCP list tool scopes to its workspace GID parameter` |
 | MCP workspace GID is a required parameter | an MCP call omitting the workspace GID while the environment names a workspace | `the MCP list tool does not fall back to the workspace environment variable` |
