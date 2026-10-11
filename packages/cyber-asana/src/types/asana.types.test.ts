@@ -1,5 +1,6 @@
 import type Asana from 'asana'
-import { type IsAny, testType } from 'type-plus'
+import type { IsAny } from 'type-plus'
+import { testType } from 'type-plus/testing'
 import { describe, it } from 'vitest'
 
 describe('asana type augmentation', () => {

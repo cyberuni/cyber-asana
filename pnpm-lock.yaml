@@ -194,8 +194,8 @@ importers:
         specifier: ^2.11.7
         version: 2.11.7
       universal-plugin:
-        specifier: ^0.12.1
-        version: 0.12.1(typescript@7.0.2)
+        specifier: ^0.12.2
+        version: 0.12.2(typescript@7.0.2)
 
   apps/web:
     dependencies:
@@ -241,8 +241,8 @@ importers:
         specifier: ^4.23.15
         version: 4.23.15
       type-plus:
-        specifier: ^8.0.0-beta.12
-        version: 8.0.0-beta.12(typescript@7.0.2)
+        specifier: ^8.0.0
+        version: 8.0.0(typescript@7.0.2)
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -722,11 +722,6 @@ packages:
   '@ctrl/tinycolor@4.2.1':
     resolution: {integrity: sha512-Vh5uy9Y1JBMId6J1f68TMXnZrTCvNdo9Fu2k0d1YnJngR+sM5kWTKl441c/3TFs+cG0NWOjRWgQ/iaWhbYx+7A==}
     engines: {node: '>=14'}
-
-  '@cyberuni/agent-harness@0.5.0':
-    resolution: {integrity: sha512-TyfqEHYfHiU9Uw8CE1J393+H/CyBv9Vv7+w3YrAKHmTgMqoH+cFPujFpgkU3uT5sr7xUg1RiEHICXuVao14Wbg==}
-    engines: {node: '>=22'}
-    hasBin: true
 
   '@cyberuni/agent-harness@0.6.0':
     resolution: {integrity: sha512-ELy0pcHiRb9vjaVymBIvCQTDaQTOyliVKEx3MdpiDLeaGAYkhBwgCfoIa/ov/hPFxed4gQdYLBv6O3UTNgr78A==}
@@ -3597,6 +3592,15 @@ packages:
     resolution: {integrity: sha512-faYHw0anBbc/kWF3zFTEnxSFOAGUX9GFbOBthvDdLsIlEoWOFOtS0zgCiQYwIskL9iGXZL3kAXD8OoZ4GmMATA==}
     engines: {node: '>= 18'}
 
+  type-plus@8.0.0:
+    resolution: {integrity: sha512-wYKemYpT2XPgZyqZUvo6pT0ZiwWHcLJMyR68ZjY4IB96ozUpxrb6M7pj9xYzNcBHWG4r17WqXnkGRQZrHAWs7A==}
+    engines: {node: ^20.19.0 || >=22.12.0}
+    peerDependencies:
+      typescript: '>= 5.4.0'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
   type-plus@8.0.0-beta.12:
     resolution: {integrity: sha512-isf19V90L8JOn9VBWWwUfH8DU6G3dfPptr3R+JtraYWHqLAsXYI2f9x1HZVTkajrkSffdEbetXUXf7FcIjSIRg==}
     peerDependencies:
@@ -3654,8 +3658,8 @@ packages:
   unist-util-visit@5.1.0:
     resolution: {integrity: sha512-m+vIdyeCOpdr/QeQCu2EzxX/ohgS8KbnPDgFni4dQsfSCtpz8UqDyY5GjRru8PDKuYn7Fq19j1CQ+nJSsGKOzg==}
 
-  universal-plugin@0.12.1:
-    resolution: {integrity: sha512-QdocchceCQ+/SuX8x09JhJv6XMXoJGZIt/QY53Joe3ZL31HywcuQllsIQEpuLl6v1UGh5qSy+rnHMJWJGBMxlA==}
+  universal-plugin@0.12.2:
+    resolution: {integrity: sha512-uHuvABUr5tBR3B2jQBKt6COH5q+FFAhs8kwTje7dUmMJ2RFzudqHf8/AJtrbkeXNJVNU6AwLcNODcXSXpP6Hwg==}
     engines: {node: '>=22'}
     hasBin: true
 
@@ -4480,14 +4484,6 @@ snapshots:
   '@conventional-changelog/template@1.4.0': {}
 
   '@ctrl/tinycolor@4.2.1': {}
-
-  '@cyberuni/agent-harness@0.5.0(typescript@7.0.2)':
-    dependencies:
-      '@toon-format/toon': 4.1.1
-      clibuilder: 11.3.3(typescript@7.0.2)
-      yaml: 2.9.1
-    transitivePeerDependencies:
-      - typescript
 
   '@cyberuni/agent-harness@0.6.0(typescript@7.0.2)':
     dependencies:
@@ -7272,6 +7268,12 @@ snapshots:
       media-typer: 1.1.1
       mime-types: 3.0.2
 
+  type-plus@8.0.0(typescript@7.0.2):
+    dependencies:
+      unpartial: 1.0.8
+    optionalDependencies:
+      typescript: 7.0.2
+
   type-plus@8.0.0-beta.12(typescript@7.0.2):
     dependencies:
       tersify: 4.0.8
@@ -7362,9 +7364,9 @@ snapshots:
       unist-util-is: 6.0.1
       unist-util-visit-parents: 6.0.2
 
-  universal-plugin@0.12.1(typescript@7.0.2):
+  universal-plugin@0.12.2(typescript@7.0.2):
     dependencies:
-      '@cyberuni/agent-harness': 0.5.0(typescript@7.0.2)
+      '@cyberuni/agent-harness': 0.6.0(typescript@7.0.2)
       '@repobuddy/upx': 0.2.0
       '@toon-format/toon': 4.1.1
       commander: 15.0.0
