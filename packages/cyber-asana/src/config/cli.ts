@@ -1,4 +1,3 @@
-import { dirname, join, resolve } from 'node:path'
 import { Command, InvalidArgumentError } from 'commander'
 import type { CustomFieldApi } from '../custom-fields/api.js'
 import { addGidOption, requiredGid } from '../platform/cli/options.js'
@@ -31,7 +30,6 @@ import {
 	resolveRepoKey,
 	saveGlobalConfig,
 } from './global-config.js'
-import { migrateConventions } from './migrate-conventions.js'
 import { applyFieldDiscovery, type ProjectCustomField } from './project-fields.js'
 import {
 	addProject,
@@ -184,15 +182,6 @@ async function loadConfigOrEmpty(path: string): Promise<{ path: string; config: 
 async function resolveWritableConfig(opts: ConfigCliOptions): Promise<{ path: string; config: RepoConfig }> {
 	const path = await defaultConfigPath(process.cwd(), configPathFromOpts(opts))
 	return loadConfigOrEmpty(path)
-}
-
-/** The nearest folder above the working directory holding `.git`, or the working directory itself. */
-async function repoRoot(): Promise<string> {
-	const start = resolve(process.cwd())
-	for (let dir = start; ; dir = dirname(dir)) {
-		if (await pathExists(join(dir, '.git'))) return dir
-		if (dirname(dir) === dir) return start
-	}
 }
 
 function projectNameFromApi(data: { name?: string }): string {
@@ -365,7 +354,6 @@ export function configCommand(
 			'  cyber-asana config sync',
 			'  cyber-asana config discover-fields <gid-name-or-alias>',
 			'  cyber-asana config set-field story_points <field-gid> --project <gid-name-or-alias>',
-			'  cyber-asana config migrate-conventions --dry-run',
 			'  cyber-asana config add <project-gid> --global   # personal registry, this repo',
 			'  cyber-asana config show --merged                # repo config + global, unioned',
 			'',
@@ -1027,38 +1015,6 @@ export function configCommand(
 			await saveRepoConfig(path, setProjectField(config, project.gid, role, null))
 			output({ path, project: { gid: project.gid, name: project.name }, role, field: null }, () => {
 				console.log(`Cleared ${role} on ${project.name} in ${path}`)
-			})
-		})
-
-	cmd
-		.command('migrate-conventions')
-		.description(
-			'Move a legacy conventions block into the frontmatter of .agents/references/cyber-asana.task-conventions.md',
-		)
-		.option('--config <path>', 'Config file path (overrides CYBER_ASANA_CONFIG)')
-		.option('--dry-run', 'Show what would change without writing')
-		.action(async (opts: ConfigCliOptions & { dryRun?: boolean }) => {
-			const path = await resolveConfigPath(process.cwd(), configPathFromOpts(opts))
-			if (!path) {
-				throw new Error('Repo config not found')
-			}
-			const result = await migrateConventions({ configPath: path, root: await repoRoot(), dryRun: opts.dryRun })
-			output(result, () => {
-				if (result.keys.length === 0) {
-					console.log(`No conventions block in ${path}; nothing to migrate`)
-					return
-				}
-				printFields({
-					Config: path,
-					Reference: `${result.reference} (${result.created ? 'created' : 'updated'})`,
-					Keys: result.keys.join(', '),
-					Written: result.written ? 'yes' : 'no (--dry-run)',
-				})
-				printNextSteps(
-					result.written
-						? [`Review and commit ${result.reference} and ${path}`]
-						: ['cyber-asana config migrate-conventions — apply the change'],
-				)
 			})
 		})
 

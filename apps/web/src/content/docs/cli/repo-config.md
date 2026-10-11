@@ -66,8 +66,6 @@ cyber-asana config unset defaults.assignee            # clear it
 cyber-asana config discover-fields api               # find a project's points fields, save them
 cyber-asana config set-field story_points <field-gid> --project api   # pick a field by hand
 cyber-asana config unset-field story_points --project api
-
-cyber-asana config migrate-conventions --dry-run      # move a legacy conventions block (preview)
 ```
 
 | Command | Arguments | Description |
@@ -91,7 +89,6 @@ cyber-asana config migrate-conventions --dry-run      # move a legacy convention
 | `discover-fields` | `[project]` | Find the project's custom fields by role and save their GIDs under the entry's `fields`. Without a project, uses the default project. Several matches for one role are listed, not saved |
 | `set-field` | `<role> <field-gid>`, `[--project <project>]` | Register a custom field for a role, fetching its name from Asana |
 | `unset-field` | `<role>`, `[--project <project>]` | Clear the field registered for a role |
-| `migrate-conventions` | `[--dry-run]` | Move a legacy `conventions` block into the frontmatter of `.agents/references/cyber-asana.task-conventions.md` and drop it from the config. Creates the reference with `merge: merge-sections` when absent; refuses a key an existing reference already sets |
 
 Every subcommand accepts `--config <path>`, which overrides the `CYBER_ASANA_CONFIG`
 environment variable.
@@ -148,8 +145,8 @@ default_tags: [agent-created]
 ---
 ```
 
-A config file that still has a `conventions` block fails to load and names
-`config migrate-conventions` as the fix. If two plugins ship the reference, the name is
+A config file that still has a `conventions` block fails to load; move its keys into the
+frontmatter of `.agents/references/cyber-asana.task-conventions.md` and delete the block. If two plugins ship the reference, the name is
 ambiguous: a warning goes to stderr and no conventions apply.
 
 Task creation applies two of the three keys on its own:

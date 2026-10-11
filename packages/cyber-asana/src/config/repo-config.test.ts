@@ -341,10 +341,10 @@ describe('defaults block', () => {
 })
 
 describe('conventions block', () => {
-	it('rejects a conventions block and names the migrate command', () => {
-		expect(() => parseRepoConfig({ schema_version: 2, projects: [], conventions: { default_tags: ['eng'] } })).toThrow(
-			/conventions.*cyber-asana\.task-conventions.*cyber-asana config migrate-conventions/s,
-		)
+	it('rejects a conventions block and says where to move it', () => {
+		const parse = () => parseRepoConfig({ schema_version: 2, projects: [], conventions: { default_tags: ['eng'] } })
+		expect(parse).toThrow(/conventions.*\.agents\/references\/cyber-asana\.task-conventions\.md/s)
+		expect(parse).not.toThrow(/migrate-conventions/)
 	})
 })
 

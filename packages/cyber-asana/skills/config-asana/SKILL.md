@@ -175,14 +175,10 @@ load it with the `reference` skill in the `cyber-agent-harness` plugin. To set o
 add the key to the frontmatter of `.agents/references/cyber-asana.task-conventions.md` (create it
 with `merge: merge-sections` so the shipped guidance still applies), and commit that file.
 
-A repo config that still has a `conventions` block fails to load. Move it:
-
-```bash
-cyber-asana config migrate-conventions --dry-run   # preview
-cyber-asana config migrate-conventions             # write the reference, drop the block
-```
-
-It refuses a key the repo reference already sets; settle that one by hand.
+A repo config that still has a `conventions` block fails to load. Move each of its keys into the
+frontmatter of `.agents/references/cyber-asana.task-conventions.md` (create the file with
+`merge: merge-sections` if it does not exist), then delete the block from the config. If the reference
+already sets a key, ask the user which value to keep.
 
 ## Assigning by name
 

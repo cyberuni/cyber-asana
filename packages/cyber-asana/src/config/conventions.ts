@@ -9,7 +9,7 @@ import { parseReferenceName, type ReferenceLayer, referenceLayers, resolveRefere
  * them: resolved through the @cyberuni/agent-harness layers (managed, repo, user, installed plugins,
  * then the copy this package ships) and merged key by key.
  */
-export const CONVENTIONS_REFERENCE = 'cyber-asana.task-conventions'
+const CONVENTIONS_REFERENCE = 'cyber-asana.task-conventions'
 
 const PLUGIN_NAME = 'cyber-asana'
 
@@ -23,7 +23,7 @@ export type RepoConventions = {
 	default_tags?: string[]
 }
 
-export const CONVENTIONS_KEYS = ['task_name_format', 'description_template', 'default_tags'] as const
+const CONVENTIONS_KEYS = ['task_name_format', 'description_template', 'default_tags'] as const
 
 /**
  * Pick the convention keys out of a reference's frontmatter. Other keys (`description`, `tags`,

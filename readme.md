@@ -221,7 +221,7 @@ default_tags: [agent-created]
 
 The reference's body also sets the rules for story points and task points: what each measures, how to estimate, and how to record actuals. `cyber-asana config discover-fields <project>` finds the two fields by name and saves their GIDs under the project's `fields` in `.agents/cyber-asana.json`.
 
-Agents read it with the `reference` skill in the `cyber-agent-harness` plugin. A config that still has a `conventions` block fails to load; move it with `cyber-asana config migrate-conventions` (`--dry-run` to preview).
+Agents read it with the `reference` skill in the `cyber-agent-harness` plugin. A config that still has a `conventions` block fails to load; move its keys into the frontmatter of `.agents/references/cyber-asana.task-conventions.md` and delete the block.
 
 ## Plugin distribution
 

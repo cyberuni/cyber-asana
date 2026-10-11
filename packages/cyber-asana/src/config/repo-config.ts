@@ -89,7 +89,7 @@ export function parseRepoConfig(raw: unknown): RepoConfig {
 	}
 	if (record.conventions !== undefined) {
 		throw new Error(
-			'Repo config has a conventions block, which is no longer read: task conventions now live in the frontmatter of the cyber-asana.task-conventions reference. Move them with: cyber-asana config migrate-conventions',
+			'Repo config has a conventions block, which is no longer read: task conventions now live in the frontmatter of the cyber-asana.task-conventions reference. Move its keys into the YAML frontmatter of .agents/references/cyber-asana.task-conventions.md, then delete the block.',
 		)
 	}
 	const extras = {

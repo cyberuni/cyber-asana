@@ -27,7 +27,7 @@ rounds the file out. `defaults.section` is a section GID in the default project,
 applies it only to a task created in that project, and never to one created elsewhere. Task conventions (`task_name_format`, `description_template`, `default_tags`)
 are deliberately not here: their one source is the frontmatter of the `cyber-asana.task-conventions`
 reference, resolved through the @cyberuni/agent-harness layers and merged key by key, and a file that
-still carries a `conventions` block is rejected with `config migrate-conventions` named as the fix.
+still carries a `conventions` block is rejected with an error naming the reference file its keys move to.
 This is `schema_version: 2`;
 a `schema_version: 1` file (project entries with only `gid` and `name`) still parses and is upgraded
 in place the next time the CLI writes the file.
@@ -148,7 +148,6 @@ authority without adding reach.
 | `config discover-fields [project]` (CLI) | a convention needs a project's field for a role and the entry has none | a GID, name, or alias, else the default project | the project's custom fields fetched from Asana and matched by name; a role one field matches saved under `fields`, several matches listed and none saved, a saved field still on the project kept, one no longer on it dropped |
 | `config set-field <role> <field-gid>` (CLI) | discovery found several candidates, or the field's name does not match | a role, a field GID, optional `--project` | the field's name fetched from Asana and saved for that role |
 | `config unset-field <role>` (CLI) | a field no longer plays that role | a role, optional `--project` | the role cleared, and `fields` dropped once it holds nothing |
-| `config migrate-conventions` (CLI) | a repo config still carries a legacy `conventions` block | optional `--config <path>`, `--dry-run` | the block's keys added to the frontmatter of `.agents/references/cyber-asana.task-conventions.md` (created with `merge: merge-sections` when absent; a key it already sets is refused), then the block dropped from the file |
 | `config path --global` (CLI) | operator wants to know where the global registry lives | none | the resolved global file path (default location or `CYBER_ASANA_GLOBAL_CONFIG`) |
 | `config show --global` / `config list --global` (CLI) | operator or agent wants the projects paired with a repo in the personal registry | optional `--repo <key>` (else auto-detected) | the global path, the resolved repo key, and a GID/Name row per entry for that repo |
 | `config resolve-project <name> --global` (CLI) | a caller wants a name resolved from the personal registry only | the name; optional `--repo <key>` | the matching global entry, with no Asana request |

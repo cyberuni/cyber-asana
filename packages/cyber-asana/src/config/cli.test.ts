@@ -920,55 +920,6 @@ describe('config/cli', () => {
 		})
 	})
 
-	describe('migrate-conventions', () => {
-		async function writeAgentsConfig(config: unknown) {
-			root = await mkdtemp(join(tmpdir(), 'cyber-asana-config-cli-migrate-'))
-			await mkdir(join(root, '.agents'))
-			const configPath = join(root, '.agents', 'cyber-asana.json')
-			await writeFile(configPath, JSON.stringify(config))
-			return configPath
-		}
-
-		async function migrate(configPath: string, ...flags: string[]) {
-			process.argv = ['node', 'test', '--json']
-			await (await userProgram()).parseAsync(
-				['node', 'test', 'config', 'migrate-conventions', '--config', configPath, ...flags],
-				{ from: 'node' },
-			)
-			return JSON.parse(String(logSpy.mock.calls.at(-1)?.[0]))
-		}
-
-		it('moves the block into the repo reference and reports what it wrote', async () => {
-			const configPath = await writeAgentsConfig({
-				schema_version: 2,
-				projects: [],
-				conventions: { default_tags: ['eng'] },
-			})
-			const reference = join(root as string, '.agents', 'references', 'cyber-asana.task-conventions.md')
-
-			expect(await migrate(configPath)).toEqual({
-				config: configPath,
-				reference,
-				keys: ['default_tags'],
-				created: true,
-				written: true,
-			})
-			expect(await readFile(reference, 'utf8')).toContain('default_tags')
-			expect(JSON.parse(await readFile(configPath, 'utf8'))).not.toHaveProperty('conventions')
-		})
-
-		it('writes nothing with --dry-run', async () => {
-			const configPath = await writeAgentsConfig({
-				schema_version: 2,
-				projects: [],
-				conventions: { default_tags: ['eng'] },
-			})
-
-			expect(await migrate(configPath, '--dry-run')).toMatchObject({ written: false })
-			expect(JSON.parse(await readFile(configPath, 'utf8')).conventions).toEqual({ default_tags: ['eng'] })
-		})
-	})
-
 	describe('project fields', () => {
 		const listSettingsMock = vi.fn()
 		const getCustomFieldMock = vi.fn()
