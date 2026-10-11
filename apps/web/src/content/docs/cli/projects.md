@@ -11,7 +11,7 @@ cyber-asana project get <gid>
 cyber-asana project create "Launch" --workspace-gid <gid>
 ```
 
-`list`, `create`, and `search` are workspace-scoped and fall back to `ASANA_WORKSPACE` when
+`list`, `create`, and `search` are workspace-scoped and fall back to `ASANA_WORKSPACE_GID` when
 `--workspace-gid` is omitted.
 
 ## List
@@ -45,7 +45,7 @@ cyber-asana project delete <gid>
 
 | Option | Commands | Description |
 | --- | --- | --- |
-| `--workspace-gid <gid>` / `--workspace <gid>` | `create` | Workspace (defaults to `ASANA_WORKSPACE`) |
+| `--workspace-gid <gid>` / `--workspace <gid>` | `create` | Workspace (defaults to `ASANA_WORKSPACE_GID`) |
 | `--name <name>` | `update` | New name |
 | `--archived` | `create`, `update` | Archive the project (on `create`, create it archived) |
 | `--no-archived` | `update` | Unarchive the project |

@@ -138,7 +138,7 @@ coverage of the V1 grammar, not a decision.
 | Edge | Path (Given) | Scenario |
 |---|---|---|
 | render labelled fields | text mode, a task URL | `parse prints the kind and the populated GID fields in text mode` |
-| no network, no token | ASANA_TOKEN unset, a project URL | `parse succeeds with no Asana token set and reaches no network` |
+| no network, no token | ASANA_ACCESS_TOKEN unset, a project URL | `parse succeeds with no Asana token set and reaches no network` |
 
 ### `asana_url_parse` (MCP)
 

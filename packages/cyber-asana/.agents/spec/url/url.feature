@@ -138,7 +138,7 @@ Feature: url
     And stdout contains no line labelled "List view GID"
 
   Scenario: parse succeeds with no Asana token set and reaches no network
-    Given the ASANA_TOKEN environment variable is unset
+    Given the ASANA_ACCESS_TOKEN environment variable is unset
     And the URL argument "https://app.asana.com/1/8801234500011/project/8801234500022"
     When the url parse entry point runs
     Then the process exits with status 0

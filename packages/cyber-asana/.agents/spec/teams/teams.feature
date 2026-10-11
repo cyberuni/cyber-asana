@@ -14,12 +14,12 @@ Feature: teams
     And the output names both "Lantern Guild" and "Saltmarsh Crew"
 
   Scenario: list falls back to the workspace environment variable
-    Given the ASANA_WORKSPACE environment variable is set to "5312"
+    Given the ASANA_WORKSPACE_GID environment variable is set to "5312"
     When the team list command runs with no workspace flag
     Then the request reaching Asana asks for the teams of workspace "5312"
 
   Scenario: list without a workspace GID anywhere is a usage error
-    Given the ASANA_WORKSPACE environment variable is unset
+    Given the ASANA_WORKSPACE_GID environment variable is unset
     When the team list command runs with no workspace flag
     Then the process exits with a non-zero status
     And stderr states that a Workspace GID is required
@@ -52,7 +52,7 @@ Feature: teams
     And stderr names the missing required argument
 
   Scenario: get takes no workspace scope
-    Given the ASANA_WORKSPACE environment variable is set to "5312"
+    Given the ASANA_WORKSPACE_GID environment variable is set to "5312"
     And a team named "Saltmarsh Crew" with GID "77202"
     When the team get command runs with the team GID "77202"
     Then the request reaching Asana addresses team "77202"

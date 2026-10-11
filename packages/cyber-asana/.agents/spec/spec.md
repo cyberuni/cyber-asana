@@ -19,7 +19,7 @@ Strategy: **capability-first**, following the existing Screaming Architecture (`
 - New Asana-resource CRUD/list surface → its domain folder (or a new one if the SDK adds a resource — see `update-asana-sdk` skill).
 - CLI/MCP output, error, pagination, or truncation contract → `axi/`.
 - Asana URL parsing → `url/`.
-- Repo-local project registry, env-var config resolution (`ASANA_TOKEN`/`ASANA_WORKSPACE`) → `config/`.
+- Repo-local project registry, env-var config resolution (`ASANA_ACCESS_TOKEN`/`ASANA_WORKSPACE_GID`) → `config/`.
 - A rule, wiring pattern, or composition-root concern → `design/` (descriptive prose, not a node).
 - A decision + rationale → `design/decisions/`.
 - A flow spanning ≥2 domains (e.g. attach a file then post a status update) → `workflows/`, never a capability folder.

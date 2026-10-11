@@ -21,29 +21,21 @@ describe('createClient', () => {
 		setAmbientToken(undefined)
 	})
 
-	it('throws with setup instructions when ASANA_TOKEN is not set', () => {
-		expect(() => createClient()).toThrowError(/ASANA_TOKEN environment variable is not set/)
+	it('throws with setup instructions when ASANA_ACCESS_TOKEN is not set', () => {
+		expect(() => createClient()).toThrowError(/ASANA_ACCESS_TOKEN environment variable is not set/)
 		expect(() => createClient()).toThrowError(/app\.asana\.com\/0\/my-apps/)
 		expect(() => createClient()).toThrowError(/--token/)
 	})
 
-	it('returns a configured client when ASANA_TOKEN is set', () => {
-		process.env.ASANA_TOKEN = 'env-token'
+	it('returns a configured client when ASANA_ACCESS_TOKEN is set', () => {
+		process.env.ASANA_ACCESS_TOKEN = 'env-token'
 		const client = createClient()
 		expect(client.authentications['token'].accessToken).toBe('env-token')
 	})
 
-	it('falls back to ASANA_ACCESS_TOKEN when ASANA_TOKEN is not set', () => {
-		process.env.ASANA_ACCESS_TOKEN = 'alias-token'
-		const client = createClient()
-		expect(client.authentications['token'].accessToken).toBe('alias-token')
-	})
-
-	it('prefers ASANA_ACCESS_TOKEN over deprecated ASANA_TOKEN when both are set', () => {
-		process.env.ASANA_TOKEN = 'deprecated-token'
-		process.env.ASANA_ACCESS_TOKEN = 'preferred-token'
-		const client = createClient()
-		expect(client.authentications['token'].accessToken).toBe('preferred-token')
+	it('ignores the removed ASANA_TOKEN alias', () => {
+		process.env.ASANA_TOKEN = 'legacy-token'
+		expect(() => createClient()).toThrowError(/ASANA_ACCESS_TOKEN environment variable is not set/)
 	})
 
 	it('reports no token override until one is set', () => {
@@ -75,16 +67,15 @@ describe('createClient', () => {
 		expect(client.authentications['token'].accessToken).toBe('flag-token')
 	})
 
-	it('prefers setTokenOverride over ASANA_TOKEN env var', () => {
-		process.env.ASANA_TOKEN = 'env-token'
-		process.env.ASANA_ACCESS_TOKEN = 'alias-token'
+	it('prefers setTokenOverride over ASANA_ACCESS_TOKEN env var', () => {
+		process.env.ASANA_ACCESS_TOKEN = 'env-token'
 		setTokenOverride('override-token')
 		const client = createClient()
 		expect(client.authentications['token'].accessToken).toBe('override-token')
 	})
 
 	it('puts every request behind the rate limiter, retrying a 429', async () => {
-		process.env.ASANA_TOKEN = 'limited-token'
+		process.env.ASANA_ACCESS_TOKEN = 'limited-token'
 		const sdkCall = vi
 			.spyOn(Asana.ApiClient.prototype, 'callApi')
 			.mockRejectedValueOnce({ status: 429, response: { header: { 'retry-after': '0' } } })

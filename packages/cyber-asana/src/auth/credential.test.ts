@@ -16,10 +16,10 @@ describe('resolveCredential', () => {
 		expect(result.source).toBe('ASANA_ACCESS_TOKEN')
 	})
 
-	it('falls back to the deprecated ASANA_TOKEN and names it as the source', () => {
+	it('ignores the removed ASANA_TOKEN alias', () => {
 		const result = resolveCredential({ env: { ASANA_TOKEN: 'legacy-token' } })
-		expect(result.token).toBe('legacy-token')
-		expect(result.source).toBe('ASANA_TOKEN')
+		expect(result.authenticated).toBe(false)
+		expect(result.shadowed).toEqual([])
 	})
 
 	it('prefers the --token flag over every environment variable', () => {
@@ -34,17 +34,9 @@ describe('resolveCredential', () => {
 	it('lists environment variables shadowed by the --token flag', () => {
 		const result = resolveCredential({
 			tokenOverride: 'flag-token',
-			env: { ASANA_ACCESS_TOKEN: 'access-token', ASANA_TOKEN: 'legacy-token' },
+			env: { ASANA_ACCESS_TOKEN: 'access-token' },
 		})
-		expect(result.shadowed).toEqual(['ASANA_ACCESS_TOKEN', 'ASANA_TOKEN'])
-	})
-
-	it('lists ASANA_TOKEN as shadowed when ASANA_ACCESS_TOKEN wins', () => {
-		const result = resolveCredential({
-			env: { ASANA_ACCESS_TOKEN: 'access-token', ASANA_TOKEN: 'legacy-token' },
-		})
-		expect(result.source).toBe('ASANA_ACCESS_TOKEN')
-		expect(result.shadowed).toEqual(['ASANA_TOKEN'])
+		expect(result.shadowed).toEqual(['ASANA_ACCESS_TOKEN'])
 	})
 
 	it('reports nothing shadowed when only one source is present', () => {
@@ -53,16 +45,15 @@ describe('resolveCredential', () => {
 	})
 
 	it('ignores environment variables set to an empty string', () => {
-		const result = resolveCredential({ env: { ASANA_ACCESS_TOKEN: '', ASANA_TOKEN: 'legacy-token' } })
-		expect(result.token).toBe('legacy-token')
-		expect(result.source).toBe('ASANA_TOKEN')
+		const result = resolveCredential({ env: { ASANA_ACCESS_TOKEN: '' } })
+		expect(result.authenticated).toBe(false)
 		expect(result.shadowed).toEqual([])
 	})
 
 	it('ignores a --token flag set to an empty string', () => {
-		const result = resolveCredential({ tokenOverride: '', env: { ASANA_TOKEN: 'legacy-token' } })
-		expect(result.token).toBe('legacy-token')
-		expect(result.source).toBe('ASANA_TOKEN')
+		const result = resolveCredential({ tokenOverride: '', env: { ASANA_ACCESS_TOKEN: 'access-token' } })
+		expect(result.token).toBe('access-token')
+		expect(result.source).toBe('ASANA_ACCESS_TOKEN')
 	})
 
 	it('falls back to stored OAuth credentials when nothing else is set', () => {
@@ -117,16 +108,6 @@ describe('resolveCredential', () => {
 
 		it('names the variable so the cause is visible rather than inferred', () => {
 			const result = resolveCredential({ env: { ASANA_ACCESS_TOKEN: placeholder } })
-			expect(result.unexpanded).toEqual(['ASANA_ACCESS_TOKEN'])
-		})
-
-		it('lets a real credential further down the chain win', () => {
-			const result = resolveCredential({
-				env: { ASANA_ACCESS_TOKEN: placeholder, ASANA_TOKEN: 'legacy-token' },
-			})
-			expect(result.token).toBe('legacy-token')
-			expect(result.source).toBe('ASANA_TOKEN')
-			expect(result.shadowed).toEqual([])
 			expect(result.unexpanded).toEqual(['ASANA_ACCESS_TOKEN'])
 		})
 

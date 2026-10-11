@@ -82,7 +82,7 @@ MCP) that share one `api.ts`. Neither `cli.ts` nor `mcp.ts` calls the Asana SDK 
 |---|---|---|---|
 | `task list` (CLI) | caller wants a project's tasks | `--project-gid`, `--completed-since` or `--incomplete`, pagination options | the project's tasks as a Name/ID/Done/Due table, with a done-versus-incomplete count |
 | `asana_task_list` (MCP) | agent wants the same | `project_gid`, `completed_since`, `incomplete`, pagination params | the same result, JSON-serialized, with no default field set applied |
-| `task my-tasks list` (CLI) | caller wants their own task list in a workspace | `--workspace-gid` (defaults from `ASANA_WORKSPACE`), `--incomplete`, pagination | the authenticated user's tasks, same table |
+| `task my-tasks list` (CLI) | caller wants their own task list in a workspace | `--workspace-gid` (defaults from `ASANA_WORKSPACE_GID`), `--incomplete`, pagination | the authenticated user's tasks, same table |
 | `asana_task_my_tasks` (MCP) | agent wants the same | `workspace_gid`, `completed_since`, `incomplete`, pagination params | the same result, JSON-serialized |
 | `task subtask list <task-gid>` (CLI) | caller wants a task's children | the parent GID, `--incomplete`, the include flags `--assignee-email` / `--follower-emails` / `--num-subtasks` / `--custom-fields`, pagination | the subtasks, same table |
 | `asana_task_subtask_list` (MCP) | agent wants the same | `task_gid`, `incomplete`, the same four include booleans, pagination params | the same result, JSON-serialized |
@@ -167,7 +167,7 @@ call `api.ts`) and the shared axi contract, which is not redrawn here.
 graph TD
   L[list entry point invoked] --> LC{which container?}
   LC -->|project| LCP[project GID required — never defaulted]
-  LC -->|my tasks| LCM[workspace GID, defaulting from ASANA_WORKSPACE]
+  LC -->|my tasks| LCM[workspace GID, defaulting from ASANA_WORKSPACE_GID]
   LC -->|subtasks| LCS[parent task GID, positional]
   LCM --> LCM2[resolve the user's task list GID for 'me'<br/>then read that list's tasks]
   LCP --> LI{completion filter}
@@ -356,7 +356,7 @@ The load-bearing edges:
 
 ```mermaid
 graph TD
-  S[search invoked] --> SW[workspace GID, defaulting from ASANA_WORKSPACE]
+  S[search invoked] --> SW[workspace GID, defaulting from ASANA_WORKSPACE_GID]
   SW --> SF[map every filter onto Asana's dotted parameter names<br/>assignee.any, projects.not, due_on.before, …]
   SF --> SC{completion flag}
   SC -->|--completed| SCT[completed = true]
@@ -403,8 +403,8 @@ The load-bearing edges:
 | completion filter → completed_since now | the incomplete flag given alongside an explicit completed-since date | `the incomplete flag lists only tasks completed since now` |
 | container GID required → usage error | a project list with no project GID | `a task list without a project GID is a usage error` |
 | parent GID required → usage error | a subtask list with no task GID argument | `a subtask list without a task GID is a usage error` |
-| container GID defaulted from the environment | a my-tasks list with ASANA_WORKSPACE set and no flag | `my-tasks takes the workspace GID from the environment` |
-| container GID required → usage error | a my-tasks list with ASANA_WORKSPACE unset and no flag | `a my-tasks list with no workspace GID anywhere is a usage error` |
+| container GID defaulted from the environment | a my-tasks list with ASANA_WORKSPACE_GID set and no flag | `my-tasks takes the workspace GID from the environment` |
+| container GID required → usage error | a my-tasks list with ASANA_WORKSPACE_GID unset and no flag | `a my-tasks list with no workspace GID anywhere is a usage error` |
 | my-tasks resolves its list GID first | a workspace whose personal task list has its own GID | `my-tasks resolves the authenticated user's task list before reading tasks` |
 | tasks returned → print the aggregate | text mode, three tasks of which one is done | `a task list reports how many of the listed tasks are done` |
 | tasks returned → print the aggregate | text mode, a project holding no tasks | `an empty task list reports no done-versus-incomplete count` |
@@ -444,7 +444,7 @@ The load-bearing edges:
 | subtask create → posted under the parent | a parent task GID and a subtask name | `subtask create posts the name under the parent task` |
 | subtask create → the same build step as create | a subtask create naming rich notes, a start date, a subtype, a custom field, and a follower | `subtask create carries the same write fields as task create` |
 | name required → usage error | a create with no name argument | `create without a task name is a usage error` |
-| workspace GID required → usage error | a create with ASANA_WORKSPACE unset and no workspace flag | `create with no workspace GID anywhere is a usage error` |
+| workspace GID required → usage error | a create with ASANA_WORKSPACE_GID unset and no workspace flag | `create with no workspace GID anywhere is a usage error` |
 | GID required → usage error | an update with no GID argument | `update without a task GID is a usage error` |
 | GID required → usage error | a delete with no GID argument | `delete without a task GID is a usage error` |
 | positional arguments required → usage error | a subtask create with no arguments | `subtask create without its parent GID and name is a usage error` |
@@ -493,7 +493,7 @@ The load-bearing edges:
 | completion flag → an explicit completion filter | a search given the no-completed flag | `search asks only for incomplete tasks under the no-completed flag` |
 | no fields named → the default task field set | a search naming no fields | `search asks for the default task field set when no fields are named` |
 | no pagination offered (barred) | the search subcommand's help text | `search offers no pagination options` |
-| workspace GID required → usage error | a search with ASANA_WORKSPACE unset and no workspace flag | `search with no workspace GID anywhere is a usage error` |
+| workspace GID required → usage error | a search with ASANA_WORKSPACE_GID unset and no workspace flag | `search with no workspace GID anywhere is a usage error` |
 
 ### Scanning source for TODO markers
 

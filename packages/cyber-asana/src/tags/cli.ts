@@ -94,9 +94,7 @@ export function tagCommand(api?: TagApi | (() => TagApi)) {
 	)
 
 	addPaginationOptions(
-		addGidOption(cmd.command('list').description('List tags in a workspace'), 'workspace', 'Workspace GID', {
-			env: 'ASANA_WORKSPACE',
-		}),
+		addGidOption(cmd.command('list').description('List tags in a workspace'), 'workspace', 'Workspace GID'),
 	).action(
 		async (opts: {
 			workspace?: string
@@ -133,14 +131,7 @@ export function tagCommand(api?: TagApi | (() => TagApi)) {
 		},
 	)
 
-	const createCmd = addGidOption(
-		cmd.command('create <name>').description('Create a tag'),
-		'workspace',
-		'Workspace GID',
-		{
-			env: 'ASANA_WORKSPACE',
-		},
-	)
+	const createCmd = addGidOption(cmd.command('create <name>').description('Create a tag'), 'workspace', 'Workspace GID')
 	createCmd
 		.option('--color <color>', 'Tag color')
 		.option('--notes <text>', 'Tag notes')

@@ -34,7 +34,7 @@ in place the next time the CLI writes the file.
 
 The second half is **resolution precedence** — the order in which a value is looked for. An explicit
 input always wins; the environment is consulted only when nothing was passed; and each environment
-name has an older alias behind it, tried in a fixed order. The order is the whole contract: get it
+name is the only one read for its value. The order is the whole contract: get it
 wrong and a caller who typed a flag silently gets the machine's ambient setting instead.
 
 A third piece extends the first half rather than replacing it: the **global registry**, one file
@@ -69,7 +69,7 @@ history, forever. A project GID is already shared casually — it sits in every 
 paste into chat. A workspace GID is different: it names the whole organization, so publishing it
 widens the blast radius if a token ever leaks, handing an attacker the one identifier they need to
 enumerate and abuse the org. Workspace binding therefore stays in private environment configuration
-(`ASANA_WORKSPACE`) or in the individual request — a parsed URL, an explicit flag.
+(`ASANA_WORKSPACE_GID`) or in the individual request — a parsed URL, an explicit flag.
 
 **Key terms**
 
@@ -79,7 +79,6 @@ enumerate and abuse the org. Workspace binding therefore stays in private enviro
   `projects`, an optional `users`, and the optional `defaults` block.
 - **Registry entry** — one project inside `projects`: `gid`, `name`, `aliases`, an optional
   `purpose`, and an optional `default: true`.
-- **Alias** — an older environment variable name still honored behind the current one.
 - **Precedence** — the fixed order in which candidate sources for one value are tried; the first
   non-empty one wins and the rest are never consulted.
 - **Git root** — the nearest directory at or above the working directory that contains `.git`. It
@@ -166,7 +165,7 @@ authority without adding reach.
 | `resolveConfigPath` / `findConfigFile` (exported) | any caller needs the config file's location | a starting directory and an optional explicit path | the path, or nothing |
 | `resolveProject(config, query)` (exported) | a caller has the parsed config and a name or GID | the config and the query | the matching entry, or nothing |
 | `observeProjectIfConfigured(observation)` (exported) | another domain just fetched a project and saw its current name | the GID and name observed | the registered name refreshed in place if that GID is registered |
-| `envValue(name)` (exported) | any caller needs a configured value from the environment | the current variable name | the first non-empty value among that name's aliases |
+| `envValue(name)` (exported) | any caller needs a configured value from the environment | the current variable name | the name's value when non-empty, else nothing |
 | `resolveRepoKey(startDir)` (exported) | a caller needs the current repo's global-registry key | a starting directory | the normalized remote URL, the git-root path fallback, or nothing |
 | `loadEffectiveProjects(opts)` (exported) | a skill script needs "every project that applies here" without shelling out to the CLI | an optional explicit repo config path, global config path, repo key, and starting directory | `{ localPath, globalPath, repo, projects }` — the same union `config show --merged` prints |
 | `loadEffectiveUsers(opts)` (exported) | a skill script needs every registered user, repo config and personal registry combined | an optional explicit repo config path and starting directory | `{ localPath, globalPath, users }` — the same union `config list-users --merged` prints |
@@ -217,11 +216,9 @@ graph TD
   subgraph env["resolving a configured value"]
     E0[a value is needed] --> E1{given explicitly —<br/>--token, --workspace-gid?}
     E1 -->|yes| EWIN[use it]
-    E1 -->|no| E2{newer alias set and non-empty?<br/>ASANA_ACCESS_TOKEN / ASANA_WORKSPACE_GID}
+    E1 -->|no| E2{set and non-empty?<br/>ASANA_ACCESS_TOKEN / ASANA_WORKSPACE_GID}
     E2 -->|yes| EWIN
-    E2 -->|no| E3{older name set and non-empty?<br/>ASANA_TOKEN / ASANA_WORKSPACE}
-    E3 -->|yes| EWIN
-    E3 -->|no| ENONE[nothing — the caller raises its own error]
+    E2 -->|no| ENONE[nothing — the caller raises its own error]
   end
 
   subgraph repokey["deriving the global-registry repo key"]
@@ -306,15 +303,11 @@ The load-bearing edges:
   all — a `defaults.workspace` in the file is rejected by name rather than silently dropped, so a
   config that tries to smuggle one in fails loudly instead of writing an empty file back. The rule is enforced by construction rather than by
   a check someone could forget to run.
-- **The newer environment alias is tried first.** `envValue` consults `ASANA_ACCESS_TOKEN` before
-  `ASANA_TOKEN`, and `ASANA_WORKSPACE_GID` before `ASANA_WORKSPACE`. An empty string counts as
-  unset, so an emptied variable falls through to the next name instead of resolving to nothing —
-  which is what makes blanking a variable behave the way an operator expects.
-- **`ASANA_ACCESS_TOKEN` is the primary name; `ASANA_TOKEN` is a retained alias.** Source, the CLI's
-  help text, the MCP error hint, the readme, the docs site, and all four plugin manifests agree, and
-  the help text calls `ASANA_TOKEN` deprecated in so many words. `AGENTS.md` and `CONTRIBUTING.md`
-  are the only files still leading with the old name; they lag the rename rather than contradict it.
-  Both names continue to resolve, so no existing setup breaks.
+- **Each value has one environment name.** `envValue` reads `ASANA_ACCESS_TOKEN` and
+  `ASANA_WORKSPACE_GID` and nothing else; the former `ASANA_TOKEN` and `ASANA_WORKSPACE` are no
+  longer read, and a shell that still sets only those behaves as if nothing were set. An empty
+  string counts as unset, which is what makes blanking a variable behave the way an operator
+  expects.
 
 - **A missing token is an error; a missing workspace is the caller's problem.** `envValue` itself
   never raises — it returns nothing, and the command that wanted the value decides what that means.
@@ -417,13 +410,13 @@ The load-bearing edges:
 
 | Edge | Path (Given) | Scenario |
 |---|---|---|
-| the explicit token beats the environment | a `--token` value and a different `ASANA_ACCESS_TOKEN` | `the token flag wins over the token environment variables` |
-| the newer token alias beats the older name | both token variables set to different values | `ASANA_ACCESS_TOKEN wins over ASANA_TOKEN` |
-| empty counts as unset | an emptied `ASANA_ACCESS_TOKEN` and a filled `ASANA_TOKEN` | `an empty ASANA_ACCESS_TOKEN falls through to ASANA_TOKEN` |
-| no candidate → the caller errors | a shell where both token variables are absent | `no token anywhere is an error naming the environment variable` |
-| the newer workspace alias beats the older name | both workspace variables set to different values | `ASANA_WORKSPACE_GID wins over ASANA_WORKSPACE` |
-| the explicit workspace beats the environment | a `--workspace-gid` value and a different `ASANA_WORKSPACE_GID` | `an explicit workspace flag wins over the workspace environment variables` |
-| the registry supplies no workspace (barred) | a populated registry in a shell where both workspace variables are absent | `the repo config supplies no workspace GID to a workspace-scoped command` |
+| the explicit token beats the environment | a `--token` value and a different `ASANA_ACCESS_TOKEN` | `the token flag wins over the token environment variable` |
+| the removed token name is ignored | an absent `ASANA_ACCESS_TOKEN` and a filled `ASANA_TOKEN` | `a removed ASANA_TOKEN is ignored` |
+| empty counts as unset | an emptied `ASANA_ACCESS_TOKEN` | `an empty ASANA_ACCESS_TOKEN counts as unset` |
+| no candidate → the caller errors | a shell where the token variable is absent | `no token anywhere is an error naming the environment variable` |
+| the removed workspace name is ignored | an absent `ASANA_WORKSPACE_GID` and a filled `ASANA_WORKSPACE` | `a removed ASANA_WORKSPACE is ignored` |
+| the explicit workspace beats the environment | a `--workspace-gid` value and a different `ASANA_WORKSPACE_GID` | `an explicit workspace flag wins over the workspace environment variable` |
+| the registry supplies no workspace (barred) | a populated registry in a shell where the workspace variable is absent | `the repo config supplies no workspace GID to a workspace-scoped command` |
 | no MCP surface for config (barred) | the registered MCP tool set | `no MCP tool is registered for the repo config` |
 
 ### deriving the global-registry repo key

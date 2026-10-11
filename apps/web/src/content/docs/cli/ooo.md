@@ -24,7 +24,7 @@ cyber-asana ooo get <gid>
 | `get` | `<gid>` | — |
 
 `--user-gid` defaults to the authenticated user, so an unscoped `ooo list` reads your own
-calendar. `--workspace-gid` falls back to `ASANA_WORKSPACE`.
+calendar. `--workspace-gid` falls back to `ASANA_WORKSPACE_GID`.
 
 `--start-date` and `--end-date` are Asana's overlap window: the list keeps entries that
 overlap with, end after, or start before the dates you give. Both are ISO 8601 days

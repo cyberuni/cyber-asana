@@ -28,7 +28,7 @@ Feature: sections
     And stderr states that a Project GID is required
 
   Scenario: list does not default its project GID from the environment
-    Given the ASANA_WORKSPACE environment variable is set to "3300"
+    Given the ASANA_WORKSPACE_GID environment variable is set to "3300"
     And the section list CLI verb receives no project GID
     When the section list CLI verb runs
     Then the process exits with a non-zero status

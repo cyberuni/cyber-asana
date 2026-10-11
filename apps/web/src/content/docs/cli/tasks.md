@@ -22,7 +22,7 @@ cyber-asana task my-tasks list --workspace-gid <gid>
 | Option | Commands | Description |
 | --- | --- | --- |
 | `--project-gid <gid>` / `--project <gid>` | `list` | Project to list tasks from |
-| `--workspace-gid <gid>` / `--workspace <gid>` | `my-tasks list` | Workspace (defaults to `ASANA_WORKSPACE`) |
+| `--workspace-gid <gid>` / `--workspace <gid>` | `my-tasks list` | Workspace (defaults to `ASANA_WORKSPACE_GID`) |
 | `--completed-since <date>` | `list`, `my-tasks list` | Only tasks completed on or after this date (ISO 8601 or `now`) |
 | `--incomplete` | `list`, `my-tasks list`, `subtask list` | Shorthand for `--completed-since now` |
 | `--custom-type <gid>` | `list` | Only tasks of this custom type; an empty value selects tasks with no custom type |
@@ -72,7 +72,7 @@ cyber-asana task delete <task-gid>
 
 | Option | Commands | Description |
 | --- | --- | --- |
-| `--workspace-gid <gid>` | `create` | Workspace (defaults to `ASANA_WORKSPACE`) |
+| `--workspace-gid <gid>` | `create` | Workspace (defaults to `ASANA_WORKSPACE_GID`) |
 | `--project-gid <gid[,gid...]>` / `--project <gid-name-or-alias[,...]>` | `create` | Initial project placement, comma-separated. `--project-gid` is sent to Asana untouched; a non-numeric `--project` value is resolved against the [repo config](/cyber-asana/cli/repo-config/) project registry. With neither given, it falls back to the project marked `default: true` |
 | `--no-default-section` | `create` | Skip `defaults.section`. Without it, a task created in the default project is created directly in the [repo config](/cyber-asana/cli/repo-config/#defaults)'s `defaults.section`; a task created only in other projects is never placed |
 | `--assignee-gid <gid>` | `create`, `update` | Assignee user GID |

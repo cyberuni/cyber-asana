@@ -26,7 +26,7 @@ Feature: attachments
     And stderr states that the task GID is required
 
   Scenario: list does not default its parent task GID from the environment
-    Given the ASANA_WORKSPACE environment variable is set to "7710"
+    Given the ASANA_WORKSPACE_GID environment variable is set to "7710"
     And the attachment list entry point receives no task GID
     When the attachment list CLI verb runs
     Then the process exits with a non-zero status

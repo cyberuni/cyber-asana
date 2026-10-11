@@ -3,7 +3,7 @@ import { createRuntimeContext, type RuntimeContext } from '../composition.js'
 import { isPaidPlan, isSystemTestEnabled, systemEnv } from '../testing/system.js'
 import { defineGoalListPaginationAcceptanceSpecs } from './list-pagination.acceptance.js'
 
-const workspaceGid = systemEnv('ASANA_WORKSPACE')
+const workspaceGid = systemEnv('ASANA_WORKSPACE_GID')
 // Asana answers Payment Required to this resource on a free plan.
 const systemEnabled = isSystemTestEnabled() && isPaidPlan() && Boolean(workspaceGid)
 

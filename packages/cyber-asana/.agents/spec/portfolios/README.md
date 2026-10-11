@@ -18,7 +18,7 @@ both the CLI and MCP, and both surfaces call one `api.ts`, so the two cannot dri
 
 Two facts about Asana shape the design. First, a portfolio always lives **inside a workspace** —
 there is no global "list all portfolios" call — so listing and creating both need a workspace
-identifier, and both take it from the `ASANA_WORKSPACE` environment variable on the CLI when no flag
+identifier, and both take it from the `ASANA_WORKSPACE_GID` environment variable on the CLI when no flag
 is given. Second, once a portfolio exists its own **GID** is enough to address it, so reading,
 renaming, deleting, and listing its contents take that GID and nothing else — no workspace is
 accepted, because none is sent.
@@ -74,13 +74,13 @@ and MCP) that share one `api.ts`.
 
 | Entry point | Trigger | Inputs | Outcome |
 |---|---|---|---|
-| `portfolio list` (CLI) | operator or agent needs the portfolios of a workspace | a workspace GID by flag or from `ASANA_WORKSPACE`, an optional owner GID, plus pagination options | the workspace's portfolios, rendered as a Name/ID table in text mode |
+| `portfolio list` (CLI) | operator or agent needs the portfolios of a workspace | a workspace GID by flag or from `ASANA_WORKSPACE_GID`, an optional owner GID, plus pagination options | the workspace's portfolios, rendered as a Name/ID table in text mode |
 | `asana_portfolio_list` (MCP) | agent needs the same listing over MCP | `workspace_gid` (required), optional `owner_gid`, plus the shared pagination params | the same result, JSON-serialized |
 | `portfolio items <gid>` (CLI) | caller wants the projects inside a known portfolio | the portfolio GID, positionally, plus pagination options | the portfolio's items, rendered as a Name/ID table in text mode |
 | `asana_portfolio_item_list` (MCP) | same, over MCP | `portfolio_gid` plus the shared pagination params | the same result, JSON-serialized |
 | `portfolio get <gid>` (CLI) | caller holds a portfolio GID and wants that portfolio's record | the portfolio GID, positionally | the unwrapped record, rendered as Name/ID/URL fields in text mode |
 | `asana_portfolio_get` (MCP) | same, over MCP | `portfolio_gid` | the same record, JSON-serialized |
-| `portfolio create <name>` (CLI) | caller wants a new portfolio in a workspace | the new name positionally, plus a workspace GID by flag or from `ASANA_WORKSPACE` | the created portfolio's record |
+| `portfolio create <name>` (CLI) | caller wants a new portfolio in a workspace | the new name positionally, plus a workspace GID by flag or from `ASANA_WORKSPACE_GID` | the created portfolio's record |
 | `asana_portfolio_create` (MCP) | same, over MCP | `workspace_gid` and `name`, both required | the created record, JSON-serialized |
 | `portfolio update <gid>` (CLI) | caller wants to rename an existing portfolio | the portfolio GID positionally and `--name` | the updated record |
 | `asana_portfolio_update` (MCP) | same, over MCP | `portfolio_gid`, and an optional `name` | the updated record, JSON-serialized |
@@ -94,7 +94,7 @@ graph TD
   subgraph list["portfolio list / asana_portfolio_list"]
     L[invoked] --> LF{workspace GID given as a flag or param?}
     LF -->|yes| LQ[list portfolios of that workspace]
-    LF -->|no, CLI| LE{ASANA_WORKSPACE set?}
+    LF -->|no, CLI| LE{ASANA_WORKSPACE_GID set?}
     LF -->|no, MCP| LX[schema rejects the call —<br/>workspace_gid is required]
     LE -->|yes| LQ
     LE -->|no| LU[usage error — Workspace GID is required]
@@ -122,7 +122,7 @@ graph TD
   end
 
   subgraph write["portfolio create / update / delete"]
-    C[create invoked] --> CW{workspace GID from flag or ASANA_WORKSPACE?}
+    C[create invoked] --> CW{workspace GID from flag or ASANA_WORKSPACE_GID?}
     CW -->|no| CU[usage error — Workspace GID is required]
     CW -->|yes| CS[create with the name,<br/>workspace sent as a plain string]
     U[update invoked] --> UG{portfolio GID given?}
@@ -146,7 +146,7 @@ graph TD
 The groups run genuinely different logic, so they are drawn separately. The load-bearing edges:
 
 - **Only a workspace GID is ever defaulted from the environment.** `list` and `create` fall back to
-  `ASANA_WORKSPACE`; `items`, `get`, `update`, and `delete` never fall back to anything, because a
+  `ASANA_WORKSPACE_GID`; `items`, `get`, `update`, and `delete` never fall back to anything, because a
   wrongly-defaulted portfolio GID would silently address the wrong portfolio — and for `delete` it
   would destroy it. The fallback is deliberately **absent** over MCP for both `list` and `create`: an
   MCP client has no shell of its own to configure, so an environment default there would bind every
@@ -184,7 +184,7 @@ The groups run genuinely different logic, so they are drawn separately. The load
 | Edge | Path (Given) | Scenario |
 |---|---|---|
 | workspace GID given → list that workspace | a workspace holding two portfolios | `list returns the portfolios of the workspace it was given` |
-| no flag → environment fallback | `ASANA_WORKSPACE` set, no flag passed | `list falls back to the workspace environment variable` |
+| no flag → environment fallback | `ASANA_WORKSPACE_GID` set, no flag passed | `list falls back to the workspace environment variable` |
 | no flag, no environment → usage error | neither flag nor environment supplies a workspace | `list without a workspace GID anywhere is a usage error` |
 | no environment fallback over MCP (barred) | the registered portfolio list tool | `asana_portfolio_list requires an explicit workspace GID` |
 | owner filter given → narrow the listing | an owner GID supplied on either surface | `list narrows to one owner when an owner GID is given` |
@@ -215,7 +215,7 @@ The groups run genuinely different logic, so they are drawn separately. The load
 | Edge | Path (Given) | Scenario |
 |---|---|---|
 | name and workspace given → create | a workspace GID and a new portfolio name | `create sends the new name and the workspace it was given` |
-| no workspace flag → environment fallback on a write | `ASANA_WORKSPACE` set, a name typed, no workspace flag | `create falls back to the workspace environment variable` |
+| no workspace flag → environment fallback on a write | `ASANA_WORKSPACE_GID` set, a name typed, no workspace flag | `create falls back to the workspace environment variable` |
 | no workspace anywhere → usage error, nothing created | neither flag nor environment supplies a workspace, a name typed | `create without a workspace GID anywhere is a usage error` |
 | name absent → usage error, nothing created | a workspace supplied, no name typed on the invocation | `create without a name is a usage error` |
 | both inputs required over MCP (barred fallback) | the registered portfolio create tool | `asana_portfolio_create requires both a workspace GID and a name` |

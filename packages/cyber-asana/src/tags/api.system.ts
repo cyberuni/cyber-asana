@@ -3,7 +3,7 @@ import { createRuntimeContext, type RuntimeContext } from '../composition.js'
 import { isSystemTestEnabled, systemEnv } from '../testing/system.js'
 import { defineTagListPaginationAcceptanceSpecs } from './list-pagination.acceptance.js'
 
-const workspaceGid = systemEnv('ASANA_WORKSPACE')
+const workspaceGid = systemEnv('ASANA_WORKSPACE_GID')
 const systemEnabled = isSystemTestEnabled() && Boolean(workspaceGid)
 
 let runtimeContext: RuntimeContext | undefined

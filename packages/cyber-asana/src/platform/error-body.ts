@@ -81,13 +81,13 @@ export function buildErrorBody(error: unknown): ErrorBody {
 	}
 
 	const message = error instanceof Error ? error.message : String(error)
-	if (message.includes('ASANA_TOKEN')) {
+	if (message.includes('ASANA_ACCESS_TOKEN')) {
 		return {
 			ok: false,
 			error: {
 				kind: 'config',
 				message,
-				hint: 'Set ASANA_ACCESS_TOKEN in the MCP server environment (preferred; ASANA_TOKEN is deprecated) or pass a token when starting the server.',
+				hint: 'Set ASANA_ACCESS_TOKEN in the MCP server environment or pass a token when starting the server.',
 			},
 		}
 	}

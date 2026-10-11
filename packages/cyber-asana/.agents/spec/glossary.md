@@ -39,13 +39,12 @@ Terms this spec leans on. Asana's own vocabulary first, then the vocabulary this
 ## This package's vocabulary
 
 - **PAT** — Personal Access Token, the credential used to authenticate. Resolved from the
-  environment, where `ASANA_ACCESS_TOKEN` is checked **before** `ASANA_TOKEN` (see the note in
-  [axi](axi/README.md) — the documentation and the code disagree about which is primary).
+  environment variable `ASANA_ACCESS_TOKEN` (see [config](config/README.md)).
 - **Gateway** — a domain's thin wrapper over the Asana SDK. It unwraps `res.data` so nothing above
   it deals in SDK response envelopes.
 - **Scope vs subject** — the distinction that decides whether a GID may be defaulted from the
   environment. A **scope** GID says *where to look* (the workspace a list is taken against) and may
-  fall back to `ASANA_WORKSPACE`. A **subject** GID names *the thing being acted on* (the task being
+  fall back to `ASANA_WORKSPACE_GID`. A **subject** GID names *the thing being acted on* (the task being
   commented on, the section being renamed) and never falls back — silently acting on a different
   object is worse than an error.
 - **Envelope** — the paginated result shape `{ data, next_page, limit, … }`, as opposed to a bare

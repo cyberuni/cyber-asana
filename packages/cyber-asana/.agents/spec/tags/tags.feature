@@ -14,7 +14,7 @@ Feature: tags
     And the output names both "Kelp Watch" and "Rope Ladder"
 
   Scenario: list falls back to the workspace environment variable
-    Given the ASANA_WORKSPACE environment variable is set to "88431"
+    Given the ASANA_WORKSPACE_GID environment variable is set to "88431"
     When the tag list command runs with no workspace flag
     Then the request reaching Asana asks for the tags of workspace "88431"
 
@@ -33,7 +33,7 @@ Feature: tags
     And the row naming "Rope Ladder" carries an empty colour cell
 
   Scenario: get requests the tag by GID and sends no workspace scope
-    Given the ASANA_WORKSPACE environment variable is set to "88431"
+    Given the ASANA_WORKSPACE_GID environment variable is set to "88431"
     And a tag named "Tide Chart" with GID "990213"
     When the tag get command runs with the tag GID "990213"
     Then the request reaching Asana addresses tag "990213"
@@ -93,7 +93,7 @@ Feature: tags
     Then those options do not include a follower option
 
   Scenario: create falls back to the workspace environment variable
-    Given the ASANA_WORKSPACE environment variable is set to "88431"
+    Given the ASANA_WORKSPACE_GID environment variable is set to "88431"
     When the tag create command runs with the name "Tide Chart" and no workspace flag
     Then the request reaching Asana creates a tag in workspace "88431"
 

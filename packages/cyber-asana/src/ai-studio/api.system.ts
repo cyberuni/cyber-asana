@@ -6,7 +6,7 @@ import {
 	defineAiStudioSeatListPaginationAcceptanceSpecs,
 } from './list-pagination.acceptance.js'
 
-const workspaceGid = systemEnv('ASANA_WORKSPACE')
+const workspaceGid = systemEnv('ASANA_WORKSPACE_GID')
 // The usage endpoints answer only service accounts in AI Studio–licensed orgs, so they
 // get their own opt-in rather than riding on every workspace-scoped run.
 const systemEnabled =

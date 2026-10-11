@@ -2,7 +2,7 @@ import { envValue } from '../platform/env.js'
 import { resolveRateLimits } from '../rate-limit/plan.js'
 
 export function isSystemTestEnabled(): boolean {
-	return Boolean(process.env.ASANA_SYSTEM_TEST && envValue('ASANA_TOKEN'))
+	return Boolean(process.env.ASANA_SYSTEM_TEST && envValue('ASANA_ACCESS_TOKEN'))
 }
 
 export function systemEnv(name: string): string | undefined {

@@ -58,15 +58,15 @@ describe('formatMcpToolError', () => {
 	})
 
 	it('returns structured JSON for missing token config errors', () => {
-		const result = formatMcpToolError(new Error('ASANA_TOKEN environment variable is not set'))
+		const result = formatMcpToolError(new Error('ASANA_ACCESS_TOKEN environment variable is not set'))
 
 		expect(result.isError).toBe(true)
 		expect(JSON.parse(textContent(result))).toMatchObject({
 			ok: false,
 			error: {
 				kind: 'config',
-				message: 'ASANA_TOKEN environment variable is not set',
-				hint: expect.stringContaining('ASANA_TOKEN'),
+				message: 'ASANA_ACCESS_TOKEN environment variable is not set',
+				hint: expect.stringContaining('ASANA_ACCESS_TOKEN'),
 			},
 		})
 	})

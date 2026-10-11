@@ -14,12 +14,12 @@ Feature: portfolios
     And the output names both "Foundry Program" and "Beacon Rollout"
 
   Scenario: list falls back to the workspace environment variable
-    Given the ASANA_WORKSPACE environment variable is set to "4410"
+    Given the ASANA_WORKSPACE_GID environment variable is set to "4410"
     When the portfolio list command runs with no workspace flag
     Then the request reaching Asana asks for the portfolios of workspace "4410"
 
   Scenario: list without a workspace GID anywhere is a usage error
-    Given the ASANA_WORKSPACE environment variable is unset
+    Given the ASANA_WORKSPACE_GID environment variable is unset
     When the portfolio list command runs with no workspace flag
     Then the process exits with a non-zero status
     And stderr states that a Workspace GID is required
@@ -75,7 +75,7 @@ Feature: portfolios
     And stderr names the missing required argument
 
   Scenario: items does not default its portfolio GID from the environment
-    Given the ASANA_WORKSPACE environment variable is set to "4410"
+    Given the ASANA_WORKSPACE_GID environment variable is set to "4410"
     When the portfolio items command runs with no GID argument
     Then the process exits with a non-zero status
     And no request reaches the Asana portfolio items endpoint
@@ -128,13 +128,13 @@ Feature: portfolios
     And the returned record has the name "Harbour Programme"
 
   Scenario: create falls back to the workspace environment variable
-    Given the ASANA_WORKSPACE environment variable is set to "4410"
+    Given the ASANA_WORKSPACE_GID environment variable is set to "4410"
     And the portfolio name "Harbour Programme" typed on the invocation
     When the portfolio create command runs with no workspace flag
     Then the request reaching Asana carries the workspace as the plain string "4410"
 
   Scenario: create without a workspace GID anywhere is a usage error
-    Given the ASANA_WORKSPACE environment variable is unset
+    Given the ASANA_WORKSPACE_GID environment variable is unset
     And the portfolio name "Harbour Programme" typed on the invocation
     When the portfolio create command runs with no workspace flag
     Then the process exits with a non-zero status
@@ -142,7 +142,7 @@ Feature: portfolios
     And no request reaches Asana
 
   Scenario: create without a name is a usage error
-    Given the ASANA_WORKSPACE environment variable is set to "4410"
+    Given the ASANA_WORKSPACE_GID environment variable is set to "4410"
     And no portfolio name typed on the invocation
     When the portfolio create command runs
     Then the process exits with a non-zero status

@@ -120,9 +120,7 @@ export function projectCommand(api?: ProjectApi | (() => ProjectApi)) {
 	)
 
 	addPaginationOptions(
-		addGidOption(cmd.command('list').description('List projects in a workspace'), 'workspace', 'Workspace GID', {
-			env: 'ASANA_WORKSPACE',
-		}),
+		addGidOption(cmd.command('list').description('List projects in a workspace'), 'workspace', 'Workspace GID'),
 	)
 		.option('--archived', 'Only archived projects')
 		.option('--no-archived', 'Only projects that are not archived')
@@ -173,14 +171,7 @@ export function projectCommand(api?: ProjectApi | (() => ProjectApi)) {
 			output(data, () => fmtProjectCounts(gid, data as unknown as Record<string, unknown>, !opts.optFields))
 		})
 
-	addGidOption(
-		cmd.command('search [text]').description('Search projects in a workspace'),
-		'workspace',
-		'Workspace GID',
-		{
-			env: 'ASANA_WORKSPACE',
-		},
-	)
+	addGidOption(cmd.command('search [text]').description('Search projects in a workspace'), 'workspace', 'Workspace GID')
 		.option('--completed', 'Only completed projects')
 		.option('--no-completed', 'Only incomplete projects')
 		.option('--team <gid[,gid...]>', 'Team GIDs (any match)')
@@ -282,9 +273,6 @@ export function projectCommand(api?: ProjectApi | (() => ProjectApi)) {
 		cmd.command('create <name>').description('Create a new project'),
 		'workspace',
 		'Workspace GID',
-		{
-			env: 'ASANA_WORKSPACE',
-		},
 	)
 	createCmd
 		.option('--archived', 'Create the project already archived')

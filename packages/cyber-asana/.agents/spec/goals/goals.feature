@@ -14,12 +14,12 @@ Feature: goals
     And the output names both "Halve Kiln Downtime" and "Double Reef Yield"
 
   Scenario: list falls back to the workspace environment variable
-    Given the ASANA_WORKSPACE environment variable is set to "6104"
+    Given the ASANA_WORKSPACE_GID environment variable is set to "6104"
     When the goal list command runs with no workspace flag
     Then the request reaching Asana asks for the goals of workspace "6104"
 
   Scenario: list without a workspace GID anywhere is a usage error
-    Given the ASANA_WORKSPACE environment variable is unset
+    Given the ASANA_WORKSPACE_GID environment variable is unset
     When the goal list command runs with no workspace flag
     Then the process exits with a non-zero status
     And stderr states that a Workspace GID is required
@@ -66,7 +66,7 @@ Feature: goals
     And stderr names the missing required argument
 
   Scenario: get takes no workspace scope
-    Given the ASANA_WORKSPACE environment variable is set to "6104"
+    Given the ASANA_WORKSPACE_GID environment variable is set to "6104"
     And a goal named "Double Reef Yield" with GID "88411"
     When the goal get command runs with the goal GID "88411"
     Then the request reaching Asana addresses goal "88411"
@@ -102,12 +102,12 @@ Feature: goals
     And the create request body carries the workspace "6104" as a plain string
 
   Scenario: create falls back to the workspace environment variable
-    Given the ASANA_WORKSPACE environment variable is set to "6104"
+    Given the ASANA_WORKSPACE_GID environment variable is set to "6104"
     When the goal create command runs with the name "Double Reef Yield" and no workspace flag
     Then the create request body carries the workspace "6104"
 
   Scenario: create without a workspace GID anywhere is a usage error
-    Given the ASANA_WORKSPACE environment variable is unset
+    Given the ASANA_WORKSPACE_GID environment variable is unset
     When the goal create command runs with the name "Double Reef Yield" and no workspace flag
     Then the process exits with a non-zero status
     And stderr states that a Workspace GID is required

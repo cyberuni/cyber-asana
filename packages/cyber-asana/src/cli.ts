@@ -31,7 +31,7 @@ program
 		'after',
 		[
 			'',
-			'Authentication: set ASANA_ACCESS_TOKEN env var (preferred; ASANA_TOKEN is deprecated) or pass --token <pat>.',
+			'Authentication: set ASANA_ACCESS_TOKEN env var or pass --token <pat>.',
 			'Output: default is human-readable text; use --toon for token-efficient agent output or --json for raw JSON.',
 			'',
 			'Examples:',
@@ -48,7 +48,7 @@ program
 		}
 		// An explicit env var wins over whatever `auth login` stored, so there is
 		// nothing to load — and no reason to touch the disk or refresh a token.
-		if (envValue('ASANA_TOKEN')) return
+		if (envValue('ASANA_ACCESS_TOKEN')) return
 
 		const { tokens, refreshError } = await ensureStoredCredential(defaultAmbientDeps())
 		if (refreshError) console.error(`cyber-asana: ${refreshError}`)

@@ -40,7 +40,7 @@ Feature: status
     And stderr states that a Parent GID is required
 
   Scenario: list does not fall back to an environment variable for the parent GID
-    Given the ASANA_WORKSPACE environment variable is set to "8801"
+    Given the ASANA_WORKSPACE_GID environment variable is set to "8801"
     When the status list entry point runs with no parent GID supplied
     Then the process exits with a non-zero status
     And no request reaches the Asana status-updates endpoint

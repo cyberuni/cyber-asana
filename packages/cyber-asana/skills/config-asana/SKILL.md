@@ -22,8 +22,8 @@ Good triggers: "pin our Asana projects", "register ali as an alias for Alice", "
 project from the registry", "this repo's config is stale", "what does `--assignee ali` actually
 resolve to", "I want this pinned personally, don't commit it", "set up cyber-asana.json".
 
-Requires `ASANA_ACCESS_TOKEN` and `ASANA_WORKSPACE_GID` (see **init-asana**; the same skill covers
-the deprecated `ASANA_TOKEN`/`ASANA_WORKSPACE` aliases). When using npx, pin `<exact>` with
+Requires `ASANA_ACCESS_TOKEN` and `ASANA_WORKSPACE_GID` (see **init-asana**).
+When using npx, pin `<exact>` with
 `npm view cyber-asana version` (same rule as **init-asana**).
 
 ## Repo config vs. global registry

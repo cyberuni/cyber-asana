@@ -39,7 +39,7 @@ the project commands fall back to when none is given — at most one project can
 valid. A `schema_version: 1` file (project entries with only `gid` and `name`) still parses and
 is upgraded to `schema_version: 2` in place the next time the CLI writes the file.
 
-Workspace GID deliberately stays out of this file — keep it in `ASANA_WORKSPACE`. There is no
+Workspace GID deliberately stays out of this file — keep it in `ASANA_WORKSPACE_GID`. There is no
 `defaults.workspace` key; one in a config file is rejected by name.
 
 ## Commands
@@ -81,7 +81,7 @@ cyber-asana config migrate-conventions --dry-run      # move a legacy convention
 | `remove-project-alias` | `<alias...>` | Remove aliases from whichever registered projects own them; pass several or a comma-separated list |
 | `remove` | `<gid-or-name>` | Remove an entry by GID or name |
 | `sync` | — | Refresh all cached project names, and user names and emails, from Asana |
-| `add-user` | `<user-gid>` or `--search <query>`, `[--alias <alias>...]` | Add or update a user, fetching name and email from Asana; aliases accumulate. Repeat `--alias` or pass a comma-separated list (`--alias ali,al`). `--search` needs a workspace (`--workspace-gid` or `ASANA_WORKSPACE`) |
+| `add-user` | `<user-gid>` or `--search <query>`, `[--alias <alias>...]` | Add or update a user, fetching name and email from Asana; aliases accumulate. Repeat `--alias` or pass a comma-separated list (`--alias ali,al`). `--search` needs a workspace (`--workspace-gid` or `ASANA_WORKSPACE_GID`) |
 | `remove-alias` | `<alias...>` | Remove aliases from whichever users own them; pass several or a comma-separated list. Fails without changing anything if an alias is not registered |
 | `resolve-user` | `<query>` | Resolve a GID, alias, email, or name to a user, no API call |
 | `list-users` | — | Print registered users |

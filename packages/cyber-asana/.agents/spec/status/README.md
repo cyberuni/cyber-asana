@@ -110,7 +110,7 @@ The load-bearing edges:
   request, the same rendering. That non-variance is the design decision, so the suite freezes it as
   a single scenario spanning all three parent kinds rather than three near-identical ones.
 - **`LP`'s "no" branch consults nothing.** The parent GID is required and never defaulted from the
-  environment. `ASANA_WORKSPACE` defaults a *scoping* workspace elsewhere in the CLI; here the parent
+  environment. `ASANA_WORKSPACE_GID` defaults a *scoping* workspace elsewhere in the CLI; here the parent
   is the **subject** of the read, and quietly listing some other object's updates would be worse than
   an error. The legacy `--parent` spelling is accepted alongside `--parent-gid` so older invocations
   keep working.
@@ -132,7 +132,7 @@ The load-bearing edges:
 | render ID / Type / Title table | text mode, two updates on one parent | `list renders each status update's GID, type, and title in text mode` |
 | no parent-kind option offered (barred) | the list subcommand's help text | `list offers no parent-type option` |
 | parent GID absent → usage error | no parent GID supplied | `list without a parent GID is a usage error` |
-| no environment default for the parent GID (barred) | `ASANA_WORKSPACE` set, no parent GID supplied | `list does not fall back to an environment variable for the parent GID` |
+| no environment default for the parent GID (barred) | `ASANA_WORKSPACE_GID` set, no parent GID supplied | `list does not fall back to an environment variable for the parent GID` |
 | created-since given → carried to Asana as a filter | a parent GID and an ISO 8601 timestamp | `list forwards the created-since timestamp to Asana` |
 | created-since absent → no filter sent | a parent GID and no timestamp | `list sends no created-since filter when none was given` |
 

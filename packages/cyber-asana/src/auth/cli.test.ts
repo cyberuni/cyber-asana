@@ -98,10 +98,10 @@ describe('auth/cli', () => {
 			authenticated: true,
 			source: '--token',
 			token: 'flag-token',
-			shadowed: ['ASANA_ACCESS_TOKEN', 'ASANA_TOKEN'],
+			shadowed: ['ASANA_ACCESS_TOKEN', 'credentials.json'],
 		})
 		expect(out).toContain('ASANA_ACCESS_TOKEN')
-		expect(out).toContain('ASANA_TOKEN')
+		expect(out).toContain('credentials.json')
 	})
 
 	it('reports an unauthenticated state as data rather than an error', async () => {

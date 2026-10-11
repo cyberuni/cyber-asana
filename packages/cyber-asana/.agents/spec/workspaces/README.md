@@ -77,7 +77,7 @@ graph TD
 The two entry-point groups share no decision, so they are drawn as separate sub-graphs. `list`'s
 single interesting edge is the one that **is not there**: there is no scoping decision to make,
 because no scoping input is accepted. `get`'s is that the GID is positional and required — it is
-never defaulted from the `ASANA_WORKSPACE` environment variable the way a *scoping* workspace GID is
+never defaulted from the `ASANA_WORKSPACE_GID` environment variable the way a *scoping* workspace GID is
 elsewhere in the CLI, because here the GID is the **subject** of the read rather than the scope of
 it, and silently reading a different workspace than the one named would be worse than an error.
 
@@ -98,7 +98,7 @@ it, and silently reading a different workspace than the one named would be worse
 |---|---|---|
 | GID supplied → fetch | a GID naming an existing workspace | `get returns the workspace record for the GID it was given` |
 | GID absent → usage error | no positional argument | `get without a GID is a usage error` |
-| no environment fallback (barred) | `ASANA_WORKSPACE` set, no GID given | `get does not fall back to the workspace environment variable` |
+| no environment fallback (barred) | `ASANA_WORKSPACE_GID` set, no GID given | `get does not fall back to the workspace environment variable` |
 | render Name / ID fields | text mode, one workspace | `get renders the workspace's name and GID in text mode` |
 
 ## References

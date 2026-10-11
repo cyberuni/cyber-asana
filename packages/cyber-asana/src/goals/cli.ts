@@ -67,9 +67,7 @@ export function goalCommand(api?: GoalApi | (() => GoalApi)) {
 	)
 
 	addPaginationOptions(
-		addGidOption(cmd.command('list').description('List goals in a workspace'), 'workspace', 'Workspace GID', {
-			env: 'ASANA_WORKSPACE',
-		}),
+		addGidOption(cmd.command('list').description('List goals in a workspace'), 'workspace', 'Workspace GID'),
 	).action(
 		async (opts: {
 			workspace?: string
@@ -110,9 +108,6 @@ export function goalCommand(api?: GoalApi | (() => GoalApi)) {
 		cmd.command('create <name>').description('Create a goal'),
 		'workspace',
 		'Workspace GID',
-		{
-			env: 'ASANA_WORKSPACE',
-		},
 	)
 	createCmd
 		.option('--notes <text>', 'Goal notes')

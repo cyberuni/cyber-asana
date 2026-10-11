@@ -56,7 +56,7 @@ After editing `plugin.json`, `skills/`, or `commands/`, run `pnpm plugin:build` 
 
 The plugin declares **no MCP server** — no `mcp.json`, no `.mcp.json`, no `mcpServers` in any manifest; `src/plugin-manifests.test.ts` guards this. The skills drive the CLI. The MCP server is opt-in: the `init-asana` skill writes it into the client's own MCP config when the user asks (see [Why CLI + skills](apps/web/src/content/docs/reference/cli-vs-mcp.md)).
 
-When writing an MCP config entry (in `init-asana` or the docs), never put a `"${SOME_VAR}"` value in its `env` for a client that does not expand it — it arrives literally and shadows the real variable. Prefer letting the server inherit the client's environment. Claude Code's `.mcp.json` does expand `${VAR}`, but forwards the literal text when the variable is unset. `envValue` in `src/platform/env.ts` is the guard: a value that is exactly an unexpanded reference counts as absent, so the fallback alias still applies and a missing credential reports itself as missing. Keep that guard rather than working around it per config — it is the only thing covering configs this repo does not author.
+When writing an MCP config entry (in `init-asana` or the docs), never put a `"${SOME_VAR}"` value in its `env` for a client that does not expand it — it arrives literally and shadows the real variable. Prefer letting the server inherit the client's environment. Claude Code's `.mcp.json` does expand `${VAR}`, but forwards the literal text when the variable is unset. `envValue` in `src/platform/env.ts` is the guard: a value that is exactly an unexpanded reference counts as absent, so a missing credential reports itself as missing. Keep that guard rather than working around it per config — it is the only thing covering configs this repo does not author.
 
 ## Commands
 
@@ -105,7 +105,7 @@ Run system tests:
 ASANA_SYSTEM_TEST=1 ASANA_ACCESS_TOKEN=<pat> pnpm test:system
 ```
 
-To fill a project with what those suites page over (two sections, two tasks, and on the first task two comments and two link attachments), run `pnpm test:system:setup [project-gid]` in `packages/cyber-asana`. Without a project it finds or creates `cyber-asana system test` in `ASANA_WORKSPACE_GID`. It is idempotent, looks fixtures up by name, and prints the `ASANA_WORKSPACE_GID` and `ASANA_SYSTEM_TEST_*` lines to export. Paste those lines into a gitignored `.env` (in the package or the repo root): `pnpm test:system` loads it, and a variable already exported in the shell wins over the file. `ASANA_SYSTEM_TEST=1` and the token still come from the shell. Use the workspace it prints: it is the project's own, which can differ from your ambient `ASANA_WORKSPACE`.
+To fill a project with what those suites page over (two sections, two tasks, and on the first task two comments and two link attachments), run `pnpm test:system:setup [project-gid]` in `packages/cyber-asana`. Without a project it finds or creates `cyber-asana system test` in `ASANA_WORKSPACE_GID`. It is idempotent, looks fixtures up by name, and prints the `ASANA_WORKSPACE_GID` and `ASANA_SYSTEM_TEST_*` lines to export. Paste those lines into a gitignored `.env` (in the package or the repo root): `pnpm test:system` loads it, and a variable already exported in the shell wins over the file. `ASANA_SYSTEM_TEST=1` and the token still come from the shell. Use the workspace it prints: it is the project's own, which can differ from your ambient `ASANA_WORKSPACE_GID`.
 
 Optional env vars for specific suites:
 
@@ -189,9 +189,6 @@ Both servers can run together with separate config keys and credentials. Tool na
 ASANA_ACCESS_TOKEN=<personal access token>
 ASANA_WORKSPACE_GID=<workspace GID>   # optional; avoids --workspace on every command
 ```
-
-`ASANA_TOKEN` and `ASANA_WORKSPACE` still resolve as deprecated fallbacks (see
-`src/platform/env.ts`), but new code and docs should use the names above.
 
 System tests (see **Testing** above):
 

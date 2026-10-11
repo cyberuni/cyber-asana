@@ -54,7 +54,7 @@ type ListCliOptions = CliGidOptions & {
 function addListOptions(cmd: Command) {
 	return addPaginationOptions(
 		addGidOption(
-			addGidOption(cmd, 'workspace', 'Workspace or organization GID', { env: 'ASANA_WORKSPACE' }),
+			addGidOption(cmd, 'workspace', 'Workspace or organization GID'),
 			'division',
 			"Scope to one division (default: the org's first licensed division)",
 			{ legacyAlias: false },

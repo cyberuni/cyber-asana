@@ -6,7 +6,7 @@ sidebar:
 ---
 
 Portfolios group projects for roll-up reporting. `list` and `create` fall back to
-`ASANA_WORKSPACE` when `--workspace-gid` is omitted.
+`ASANA_WORKSPACE_GID` when `--workspace-gid` is omitted.
 
 ```sh
 cyber-asana portfolio list

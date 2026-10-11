@@ -130,9 +130,7 @@ export function projectTemplateCommand(api?: ProjectTemplateApi | (() => Project
 
 	const listCmd = addPaginationOptions(
 		addGidOption(
-			addGidOption(cmd.command('list').description('List project templates'), 'workspace', 'Workspace GID', {
-				env: 'ASANA_WORKSPACE',
-			}),
+			addGidOption(cmd.command('list').description('List project templates'), 'workspace', 'Workspace GID'),
 			'team',
 			'Team GID — lists that team’s templates',
 		),

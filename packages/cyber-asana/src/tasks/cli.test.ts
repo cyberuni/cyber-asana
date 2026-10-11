@@ -903,13 +903,11 @@ describe('tasks/cli', () => {
 		let dir: string
 		const previousConfig = process.env.CYBER_ASANA_CONFIG
 
-		const previousWorkspace = process.env.ASANA_WORKSPACE
 		const previousWorkspaceGid = process.env.ASANA_WORKSPACE_GID
 
 		const previousHome = process.env.HOME
 
 		async function useConfig(config: unknown) {
-			delete process.env.ASANA_WORKSPACE
 			delete process.env.ASANA_WORKSPACE_GID
 			dir = await mkdtemp(join(tmpdir(), 'cyber-asana-task-defaults-'))
 			await mkdir(join(dir, '.git'))
@@ -933,8 +931,6 @@ describe('tasks/cli', () => {
 			else process.env.HOME = previousHome
 			if (previousConfig === undefined) delete process.env.CYBER_ASANA_CONFIG
 			else process.env.CYBER_ASANA_CONFIG = previousConfig
-			if (previousWorkspace === undefined) delete process.env.ASANA_WORKSPACE
-			else process.env.ASANA_WORKSPACE = previousWorkspace
 			if (previousWorkspaceGid === undefined) delete process.env.ASANA_WORKSPACE_GID
 			else process.env.ASANA_WORKSPACE_GID = previousWorkspaceGid
 			if (dir) await rm(dir, { recursive: true, force: true })

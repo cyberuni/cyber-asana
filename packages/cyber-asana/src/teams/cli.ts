@@ -44,9 +44,7 @@ export function teamCommand(api?: TeamApi | (() => TeamApi)) {
 	)
 
 	addPaginationOptions(
-		addGidOption(cmd.command('list').description('List teams in a workspace'), 'workspace', 'Workspace GID', {
-			env: 'ASANA_WORKSPACE',
-		}),
+		addGidOption(cmd.command('list').description('List teams in a workspace'), 'workspace', 'Workspace GID'),
 	).action(
 		async (opts: {
 			workspace?: string

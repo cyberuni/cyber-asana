@@ -18,7 +18,7 @@ cyber-asana search objects task --workspace-gid <gid> --toon
 | --- | --- | --- |
 | `objects` | `<resource-type>` `[query]` | `--workspace-gid <gid>` / `--workspace <gid>`, `--count <number>`, `--opt-fields <fields>` |
 
-`objects` falls back to `ASANA_WORKSPACE` when `--workspace-gid` is omitted.
+`objects` falls back to `ASANA_WORKSPACE_GID` when `--workspace-gid` is omitted.
 
 ## Resource types
 

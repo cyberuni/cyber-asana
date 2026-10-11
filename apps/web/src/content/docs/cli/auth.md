@@ -14,15 +14,14 @@ Resolved in this order — the first one found wins:
 
 1. `--token <token>` on the command
 2. `ASANA_ACCESS_TOKEN` environment variable
-3. `ASANA_TOKEN` environment variable
-4. The stored OAuth credential from `cyber-asana auth login`
+3. The stored OAuth credential from `cyber-asana auth login`
 
 A personal access token is the simplest start — create one at
 [app.asana.com → My Apps](https://app.asana.com/0/my-apps):
 
 ```sh
 export ASANA_ACCESS_TOKEN="<pat>"
-export ASANA_WORKSPACE="<workspace-gid>"   # optional, saves --workspace-gid everywhere
+export ASANA_WORKSPACE_GID="<workspace-gid>"   # optional, saves --workspace-gid everywhere
 ```
 
 ## Checking what is in use
@@ -41,7 +40,7 @@ whether the registration is the right one:
 
 ```
 Status       authenticated
-Source       ASANA_TOKEN
+Source       ASANA_ACCESS_TOKEN
 Token        …bbbb
 App          …cdef (ASANA_API_CLIENT_ID)
 App ignored  ASANA_CLIENT_ID

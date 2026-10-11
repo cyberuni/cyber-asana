@@ -5,7 +5,7 @@ sidebar:
   order: 7
 ---
 
-Goals are workspace-scoped objectives. `list` and `create` fall back to `ASANA_WORKSPACE`
+Goals are workspace-scoped objectives. `list` and `create` fall back to `ASANA_WORKSPACE_GID`
 when `--workspace-gid` is omitted.
 
 ```sh

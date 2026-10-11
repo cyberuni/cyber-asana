@@ -10,7 +10,7 @@ const primaryTaskGid = systemEnv('ASANA_SYSTEM_TEST_TASK_GID')
 const projectGid = systemEnv('ASANA_SYSTEM_TEST_PROJECT_GID')
 const systemEnabled = isSystemTestEnabled() && Boolean(primaryTaskGid)
 const listPaginationEnabled = isSystemTestEnabled() && Boolean(projectGid)
-const workspaceGid = systemEnv('ASANA_WORKSPACE')
+const workspaceGid = systemEnv('ASANA_WORKSPACE_GID')
 const sectionGid = systemEnv('ASANA_SYSTEM_TEST_SECTION_GID')
 const createInSectionEnabled = isSystemTestEnabled() && Boolean(workspaceGid && projectGid && sectionGid)
 

@@ -27,7 +27,7 @@ cyber-asana tag delete <gid>
 | `update` | `<gid>` | `--name <name>`, `--color <color>`, `--clear-color`, `--notes <text>` |
 | `delete` | `<gid>` | — |
 
-`list` and `create` fall back to `ASANA_WORKSPACE` when `--workspace-gid` is omitted.
+`list` and `create` fall back to `ASANA_WORKSPACE_GID` when `--workspace-gid` is omitted.
 
 `delete` is idempotent on both surfaces: removing a tag that is already gone still succeeds, and
 the result says which of the two happened.

@@ -5,7 +5,7 @@ import { isUnexpandedPlaceholder } from '../platform/env.js'
 // silently shadowing a newer one looks identical to a bad token.
 
 /** Token-bearing environment variables, most preferred first. */
-const TOKEN_ENV_VARS = ['ASANA_ACCESS_TOKEN', 'ASANA_TOKEN'] as const
+const TOKEN_ENV_VARS = ['ASANA_ACCESS_TOKEN'] as const
 
 const FLAG_SOURCE = '--token'
 const STORED_SOURCE = 'credentials.json'

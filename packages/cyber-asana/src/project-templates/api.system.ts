@@ -4,7 +4,7 @@ import { listItems } from '../platform/pagination.js'
 import { isSystemTestEnabled, systemEnv } from '../testing/system.js'
 import { defineProjectTemplateListPaginationAcceptanceSpecs } from './list-pagination.acceptance.js'
 
-const workspaceGid = systemEnv('ASANA_WORKSPACE')
+const workspaceGid = systemEnv('ASANA_WORKSPACE_GID')
 const systemEnabled = isSystemTestEnabled() && Boolean(workspaceGid)
 
 let runtimeContext: RuntimeContext | undefined

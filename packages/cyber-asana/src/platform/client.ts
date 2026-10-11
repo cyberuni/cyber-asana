@@ -23,10 +23,10 @@ export function getTokenOverride(): string | undefined {
 }
 
 export function createClient(): Asana.ApiClient {
-	const token = tokenOverride ?? envValue('ASANA_TOKEN') ?? ambientToken
+	const token = tokenOverride ?? envValue('ASANA_ACCESS_TOKEN') ?? ambientToken
 	if (!token)
 		throw new Error(
-			`ASANA_TOKEN environment variable is not set.
+			`ASANA_ACCESS_TOKEN environment variable is not set.
 
 To create a Personal Access Token (PAT):
   1. Go to https://app.asana.com/0/my-apps
@@ -36,8 +36,6 @@ To create a Personal Access Token (PAT):
 
 Then set it in your shell:
   export ASANA_ACCESS_TOKEN=<your-token>
-  # deprecated fallback:
-  export ASANA_TOKEN=<your-token>
 
 Or pass it inline with --token:
   cyber-asana --token <your-token> <command>`,

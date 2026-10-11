@@ -9,25 +9,25 @@ Feature: users
   Scenario: list scopes to the workspace GID given on the command line
     Given a workspace with GID "9902"
     And that workspace contains a user named "Marisol Quint"
-    And the ASANA_WORKSPACE environment variable is unset
+    And the ASANA_WORKSPACE_GID environment variable is unset
     When the user list entry point runs with the workspace GID flag set to "9902"
     Then the request reaching the Asana users endpoint is scoped to workspace "9902"
     And the output names "Marisol Quint"
 
   Scenario: list falls back to the workspace environment variable
     Given a workspace with GID "9902"
-    And the ASANA_WORKSPACE environment variable is set to "9902"
+    And the ASANA_WORKSPACE_GID environment variable is set to "9902"
     When the user list entry point runs with no workspace flag
     Then the request reaching the Asana users endpoint is scoped to workspace "9902"
 
   Scenario: list accepts the legacy workspace flag
     Given a workspace with GID "9902"
-    And the ASANA_WORKSPACE environment variable is unset
+    And the ASANA_WORKSPACE_GID environment variable is unset
     When the user list entry point runs with the legacy workspace flag set to "9902"
     Then the request reaching the Asana users endpoint is scoped to workspace "9902"
 
   Scenario: list without any workspace GID is a usage error
-    Given the ASANA_WORKSPACE environment variable is unset
+    Given the ASANA_WORKSPACE_GID environment variable is unset
     When the user list entry point runs with no workspace flag
     Then the process exits with a non-zero status
     And stderr states that a Workspace GID is required
@@ -41,7 +41,7 @@ Feature: users
     And the tool result names "Marisol Quint"
 
   Scenario: the MCP list tool does not fall back to the workspace environment variable
-    Given the ASANA_WORKSPACE environment variable is set to "9902"
+    Given the ASANA_WORKSPACE_GID environment variable is set to "9902"
     When the MCP user list tool is called with no workspace GID parameter
     Then the call is rejected as missing a required parameter
     And no request reaches the Asana users endpoint

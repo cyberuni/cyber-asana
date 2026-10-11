@@ -167,7 +167,7 @@ Feature: config
 
   Scenario: add writes no workspace GID even when the workspace variable is set
     Given a file "/work/harbour/registry.json" holding schema_version 1 and an empty projects list
-    And ASANA_WORKSPACE is set to "5500330011122"
+    And ASANA_WORKSPACE_GID is set to "5500330011122"
     And an Asana API that answers a fetch of project "7702219900101" with the name "Lanternfish Rollout"
     When config add runs with the argument "7702219900101" and --config "/work/harbour/registry.json"
     Then the file "/work/harbour/registry.json" contains no text "5500330011122"
@@ -242,40 +242,38 @@ Feature: config
 
   # ── resolving a configured value ──
 
-  Scenario: the token flag wins over the token environment variables
+  Scenario: the token flag wins over the token environment variable
     Given ASANA_ACCESS_TOKEN is set to "pat-tidewater-4402"
     And a workspace-scoped command invoked with --token "pat-halyard-9001"
     When that command reaches Asana
     Then the outgoing request carries the bearer token "pat-halyard-9001"
 
-  Scenario: ASANA_ACCESS_TOKEN wins over ASANA_TOKEN
-    Given ASANA_ACCESS_TOKEN is set to "pat-tidewater-4402"
+  Scenario: a removed ASANA_TOKEN is ignored
+    Given ASANA_ACCESS_TOKEN is absent from the environment
     And ASANA_TOKEN is set to "pat-driftwood-7715"
     And a workspace-scoped command invoked with no --token option
-    When that command reaches Asana
-    Then the outgoing request carries the bearer token "pat-tidewater-4402"
+    When that command tries to reach Asana
+    Then the command fails with a message containing "ASANA_ACCESS_TOKEN environment variable is not set"
 
-  Scenario: an empty ASANA_ACCESS_TOKEN falls through to ASANA_TOKEN
+  Scenario: an empty ASANA_ACCESS_TOKEN counts as unset
     Given ASANA_ACCESS_TOKEN is set to the empty string
-    And ASANA_TOKEN is set to "pat-driftwood-7715"
     And a workspace-scoped command invoked with no --token option
-    When that command reaches Asana
-    Then the outgoing request carries the bearer token "pat-driftwood-7715"
+    When that command tries to reach Asana
+    Then the command fails with a message containing "ASANA_ACCESS_TOKEN environment variable is not set"
 
   Scenario: no token anywhere is an error naming the environment variable
     Given ASANA_ACCESS_TOKEN is absent from the environment
-    And ASANA_TOKEN is absent from the environment
     And a workspace-scoped command invoked with no --token option
     When that command tries to reach Asana
-    Then the command fails with a message containing "ASANA_TOKEN environment variable is not set"
+    Then the command fails with a message containing "ASANA_ACCESS_TOKEN environment variable is not set"
 
-  Scenario: ASANA_WORKSPACE_GID wins over ASANA_WORKSPACE
-    Given ASANA_WORKSPACE_GID is set to "5500330011122"
+  Scenario: a removed ASANA_WORKSPACE is ignored
+    Given ASANA_WORKSPACE_GID is absent from the environment
     And ASANA_WORKSPACE is set to "5500330099988"
     When project list runs with no workspace option
-    Then the outgoing request is scoped to workspace "5500330011122"
+    Then the command fails with a message containing "Workspace GID is required"
 
-  Scenario: an explicit workspace flag wins over the workspace environment variables
+  Scenario: an explicit workspace flag wins over the workspace environment variable
     Given ASANA_WORKSPACE_GID is set to "5500330099988"
     When project list runs with --workspace-gid "5500330011122"
     Then the outgoing request is scoped to workspace "5500330011122"
@@ -284,7 +282,6 @@ Feature: config
     Given a git repository at "/work/harbour" whose .agents/cyber-asana.json holds the project "7702219900101" named "Lanternfish Rollout"
     And the working directory is "/work/harbour"
     And ASANA_WORKSPACE_GID is absent from the environment
-    And ASANA_WORKSPACE is absent from the environment
     When project list runs with no workspace option
     Then the command fails with a message containing "Workspace GID is required"
     And no request reaches any Asana API endpoint
@@ -427,7 +424,7 @@ Feature: config
     Given a git repository at "/work/harbour" whose origin remote is "git@github.com:cyberuni/cyber-asana.git"
     And no global registry file exists at the resolved global location
     And the working directory is "/work/harbour"
-    And ASANA_WORKSPACE is set to "5500330011122"
+    And ASANA_WORKSPACE_GID is set to "5500330011122"
     And an Asana API that answers a fetch of project "7702219900101" with the name "Lanternfish Rollout"
     When config add runs with the argument "7702219900101" and --global
     Then the global registry file contains no text "5500330011122"
@@ -563,7 +560,7 @@ Feature: config
 
   Scenario: add-user --global writes no workspace GID even when the workspace variable is set
     Given no global registry file exists at the resolved global location
-    And ASANA_WORKSPACE is set to "5500330011122"
+    And ASANA_WORKSPACE_GID is set to "5500330011122"
     And an Asana API that answers a fetch of user "100" with the name "Alice Anderson" and the email "alice@example.com"
     When config add-user runs with the argument "100" and --global and --alias "ali"
     Then the global registry file contains no text "5500330011122"

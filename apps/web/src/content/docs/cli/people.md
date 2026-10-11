@@ -55,11 +55,11 @@ cyber-asana workspace get <gid>
 | `get` | `<gid>` | — |
 
 `workspace list` is the one command that needs no workspace context — start here, then set
-`ASANA_WORKSPACE` to the GID you want so you can drop `--workspace-gid` from every other
+`ASANA_WORKSPACE_GID` to the GID you want so you can drop `--workspace-gid` from every other
 command.
 
 ```sh
-export ASANA_WORKSPACE="$(cyber-asana workspace list --json | jq -r '.data[0].gid')"
+export ASANA_WORKSPACE_GID="$(cyber-asana workspace list --json | jq -r '.data[0].gid')"
 ```
 
 Membership edits (adding or removing users from teams and workspaces) are not wrapped — see

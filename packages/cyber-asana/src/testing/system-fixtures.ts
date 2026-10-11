@@ -98,7 +98,7 @@ export async function ensureSystemFixtures(context: FixtureContext, target: Fixt
 
 /**
  * The environment the fixtures answer to. `ASANA_WORKSPACE_GID` is the project's own
- * workspace, which may differ from the ambient `ASANA_WORKSPACE` of the person running.
+ * workspace, which may differ from the ambient `ASANA_WORKSPACE_GID` of the person running.
  */
 export function formatFixtureEnv(fixtures: SystemFixtures): string {
 	return [

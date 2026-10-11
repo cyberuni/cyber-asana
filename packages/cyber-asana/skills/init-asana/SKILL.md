@@ -36,8 +36,8 @@ If only the npx path is left and it fails (install prompt, `command not found`, 
 ### 1. Check for existing credentials
 
 ```bash
-echo "Token set: ${ASANA_ACCESS_TOKEN:+yes}${ASANA_TOKEN:+ (deprecated ASANA_TOKEN set)}"
-echo "Workspace set: ${ASANA_WORKSPACE_GID:+yes}${ASANA_WORKSPACE:+ (deprecated ASANA_WORKSPACE set)}"
+echo "Token set: ${ASANA_ACCESS_TOKEN:+yes}${ASANA_TOKEN:+ (ASANA_TOKEN set, no longer read)}"
+echo "Workspace set: ${ASANA_WORKSPACE_GID:+yes}${ASANA_WORKSPACE:+ (ASANA_WORKSPACE set, no longer read)}"
 ```
 
 ### 2. Set ASANA_ACCESS_TOKEN
@@ -47,7 +47,7 @@ If not set, guide the user:
 1. Go to Asana → Profile Settings → Apps → Personal access tokens
 2. Create a new token and copy it
 3. Add to the user's shell profile (e.g. `export ASANA_ACCESS_TOKEN=...` in the file their shell loads on login)
-4. If the user already has `ASANA_TOKEN`, tell them it still works as a deprecated fallback but new setup should use `ASANA_ACCESS_TOKEN`
+4. If the user has only `ASANA_TOKEN` (or only `ASANA_WORKSPACE`) set, tell them those names are no longer read and to rename them to `ASANA_ACCESS_TOKEN` (or `ASANA_WORKSPACE_GID`)
 
 Or pass per-command with `--token <pat>`.
 

@@ -110,7 +110,6 @@ export function oooCommand(api?: OooApi | (() => OooApi)) {
 			),
 			'workspace',
 			'Workspace GID',
-			{ env: 'ASANA_WORKSPACE' },
 		),
 	)
 	listCmd
@@ -164,7 +163,6 @@ export function oooCommand(api?: OooApi | (() => OooApi)) {
 		),
 		'workspace',
 		'Workspace GID',
-		{ env: 'ASANA_WORKSPACE' },
 	)
 	createCmd
 		.option('--start-date <date>', 'First day out of office (YYYY-MM-DD)')

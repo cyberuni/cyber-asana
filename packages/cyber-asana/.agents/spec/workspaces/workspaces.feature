@@ -9,7 +9,7 @@ Feature: workspaces
   Scenario: list returns every reachable workspace without a workspace GID
     Given a token whose account reaches a workspace named "Riverbend Cartography"
     And that same token reaches a workspace named "Tidewater Survey"
-    And the ASANA_WORKSPACE environment variable is unset
+    And the ASANA_WORKSPACE_GID environment variable is unset
     When the workspace list entry point runs with no workspace GID argument
     Then the output names both "Riverbend Cartography" and "Tidewater Survey"
 
@@ -41,13 +41,13 @@ Feature: workspaces
     And the returned record has the name "Riverbend Cartography"
 
   Scenario: get without a GID is a usage error
-    Given the ASANA_WORKSPACE environment variable is unset
+    Given the ASANA_WORKSPACE_GID environment variable is unset
     When the workspace get entry point runs with no GID argument
     Then the process exits with a non-zero status
     And stderr names the missing required argument
 
   Scenario: get does not fall back to the workspace environment variable
-    Given the ASANA_WORKSPACE environment variable is set to "4417"
+    Given the ASANA_WORKSPACE_GID environment variable is set to "4417"
     When the workspace get entry point runs with no GID argument
     Then the process exits with a non-zero status
     And no request reaches the Asana workspaces endpoint

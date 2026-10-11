@@ -126,11 +126,8 @@ from-the-start walk are contradictory instructions. MCP spells them via `paginat
 - **There is no distinct usage-error exit code.** A malformed invocation falls through to the
   generic `1` rather than the `2` AXI's #6 case suggests, because Commander's own argument errors
   exit before the mapping is reached.
-- **The agent-facing docs lead with the primary token name; two contributor files lag.** `env.ts`
-  resolves `ASANA_ACCESS_TOKEN` *before* `ASANA_TOKEN`, and both the CLI help and the MCP
-  config-error hint call `ASANA_TOKEN` deprecated. The readme, the docs site, and the plugin
-  manifests agree; `AGENTS.md` and `CONTRIBUTING.md` still lead with the old name. Both names
-  resolve. See [config](../config/README.md).
+- **The token is read from `ASANA_ACCESS_TOKEN` only.** The former `ASANA_TOKEN` name is no longer
+  read. See [config](../config/README.md).
 
 ## References
 

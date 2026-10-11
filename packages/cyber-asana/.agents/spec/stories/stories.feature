@@ -28,7 +28,7 @@ Feature: stories
     And no request reaches the Asana stories endpoint
 
   Scenario: an entry point does not default the task GID from the environment
-    Given the ASANA_WORKSPACE environment variable is set to "8801"
+    Given the ASANA_WORKSPACE_GID environment variable is set to "8801"
     When the story list entry point runs with no task GID argument
     Then the process exits with a non-zero status
     And no request reaches the Asana stories endpoint

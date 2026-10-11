@@ -54,7 +54,7 @@ export function searchCommand(api?: SearchApi | (() => SearchApi)) {
 		)
 		.argument('[query]', 'Text to match; omit to list the top results for the ordering')
 
-	addGidOption(objects, 'workspace', 'Workspace GID', { env: 'ASANA_WORKSPACE' })
+	addGidOption(objects, 'workspace', 'Workspace GID')
 		.option('--count <number>', 'Results to return, from 1 to 100 (default: 20)', parseCount)
 		.option('--opt-fields <fields>', 'Comma-separated optional Asana fields to include')
 		.addHelpText(

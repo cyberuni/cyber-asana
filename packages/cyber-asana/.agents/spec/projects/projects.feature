@@ -15,7 +15,7 @@ Feature: projects
     And the output names both "Tidewater Atlas" and "Kiln Ledger"
 
   Scenario: list without a workspace GID anywhere is a usage error
-    Given the ASANA_WORKSPACE environment variable is unset
+    Given the ASANA_WORKSPACE_GID environment variable is unset
     When the project list command runs with no workspace flag
     Then the process exits with a non-zero status
     And stderr states that a Workspace GID is required
@@ -49,7 +49,7 @@ Feature: projects
     Then the options it lists contain no limit, offset, or fetch-all option
 
   Scenario: search without a workspace GID anywhere is a usage error
-    Given the ASANA_WORKSPACE environment variable is unset
+    Given the ASANA_WORKSPACE_GID environment variable is unset
     When the project search command runs with no workspace flag
     Then the process exits with a non-zero status
     And stderr states that a Workspace GID is required
@@ -97,7 +97,7 @@ Feature: projects
     And the request body reaching Asana has no color field
 
   Scenario: create takes its workspace from the environment when no workspace flag is given
-    Given the ASANA_WORKSPACE environment variable is set to "6120"
+    Given the ASANA_WORKSPACE_GID environment variable is set to "6120"
     When the project create command runs with the name "Kiln Ledger" and no workspace flag
     Then the request body reaching Asana carries the workspace "6120"
 
@@ -145,7 +145,7 @@ Feature: projects
     And stderr names the missing required argument
 
   Scenario: create without a workspace GID anywhere is a usage error
-    Given the ASANA_WORKSPACE environment variable is unset
+    Given the ASANA_WORKSPACE_GID environment variable is unset
     When the project create command runs with the name "Tidewater Atlas" and no workspace flag
     Then the process exits with a non-zero status
     And stderr states that a Workspace GID is required

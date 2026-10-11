@@ -63,9 +63,7 @@ export function userCommand(api?: UserApi | (() => UserApi)) {
 	)
 
 	addPaginationOptions(
-		addGidOption(cmd.command('list').description('List users in a workspace'), 'workspace', 'Workspace GID', {
-			env: 'ASANA_WORKSPACE',
-		}),
+		addGidOption(cmd.command('list').description('List users in a workspace'), 'workspace', 'Workspace GID'),
 	).action(async (opts: { workspace?: string; workspaceGid?: string } & PaginationCliOptions) => {
 		const pagination = paginationOptionsFromCli(opts)
 		pagination.optFields ??= USER_LIST_FIELDS

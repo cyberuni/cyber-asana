@@ -143,7 +143,7 @@ The load-bearing edges:
 | task GID supplied → proceed | a GID naming a task that carries stories | `list reads the stories of the task GID it was given` |
 | task GID absent → usage error | an invocation carrying no task GID | `an entry point without a task GID is a usage error` |
 | task GID absent on `create` → usage error | a create invocation carrying comment text but no task GID | `the create entry point without a task GID is a usage error` |
-| environment never supplies the task GID (barred) | `ASANA_WORKSPACE` set, no task GID given | `an entry point does not default the task GID from the environment` |
+| environment never supplies the task GID (barred) | `ASANA_WORKSPACE_GID` set, no task GID given | `an entry point does not default the task GID from the environment` |
 
 ### `story list` / `asana_story_list`
 

@@ -56,12 +56,12 @@ Feature: tasks
     And no request reaches the subtasks endpoint
 
   Scenario: my-tasks takes the workspace GID from the environment
-    Given the ASANA_WORKSPACE environment variable is set to "7100"
+    Given the ASANA_WORKSPACE_GID environment variable is set to "7100"
     When the my-tasks list entry point runs with no workspace GID flag
     Then the user-task-list lookup reaching Asana names the workspace GID "7100"
 
   Scenario: a my-tasks list with no workspace GID anywhere is a usage error
-    Given the ASANA_WORKSPACE environment variable is unset
+    Given the ASANA_WORKSPACE_GID environment variable is unset
     When the my-tasks list entry point runs with no workspace GID flag
     Then the process exits with a non-zero status
     And stderr states that a Workspace GID is required
@@ -179,7 +179,7 @@ Feature: tasks
     And no request reaches the task-creation endpoint
 
   Scenario: create with no workspace GID anywhere is a usage error
-    Given the ASANA_WORKSPACE environment variable is unset
+    Given the ASANA_WORKSPACE_GID environment variable is unset
     When the task create entry point runs with the name "Regrind the theodolite lens" and no workspace GID flag
     Then the process exits with a non-zero status
     And stderr states that a Workspace GID is required
@@ -512,7 +512,7 @@ Feature: tasks
     Then the options it lists contain no limit option, no offset option, and no all option
 
   Scenario: search with no workspace GID anywhere is a usage error
-    Given the ASANA_WORKSPACE environment variable is unset
+    Given the ASANA_WORKSPACE_GID environment variable is unset
     When the task search entry point runs with the text "theodolite" and no workspace GID flag
     Then the process exits with a non-zero status
     And stderr states that a Workspace GID is required
@@ -536,7 +536,7 @@ Feature: tasks
     Then the returned matches carry exactly one file, "survey/theodolite.ts"
 
   Scenario: scan-todos runs without contacting Asana
-    Given the ASANA_TOKEN environment variable is set to the string "not-a-real-token"
+    Given the ASANA_ACCESS_TOKEN environment variable is set to the string "not-a-real-token"
     And a directory holding a file "survey/theodolite.ts" whose line 3 reads "// TODO: regrind the lens"
     When the scan-todos entry point runs against that directory
     Then the process exits with status 0

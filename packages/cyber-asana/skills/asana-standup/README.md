@@ -28,4 +28,4 @@ The skill guides:
 npx skills add cyberuni/cyber-asana --skill asana-standup
 ```
 
-Requires `ASANA_TOKEN` and a target project (or project selection). See [`init-asana`](../init-asana/README.md) for setup.
+Requires `ASANA_ACCESS_TOKEN` and a target project (or project selection). See [`init-asana`](../init-asana/README.md) for setup.

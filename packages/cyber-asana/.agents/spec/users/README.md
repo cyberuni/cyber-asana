@@ -56,7 +56,7 @@ authenticated user, over the two surfaces (CLI and MCP) that share one `api.ts`.
 
 | Entry point | Trigger | Inputs | Outcome |
 |---|---|---|---|
-| `user list` (CLI) | caller needs the people in a workspace | workspace GID via `--workspace-gid` (legacy alias `--workspace`, defaulted from `ASANA_WORKSPACE`), plus `--offset` and `--opt-fields` | the workspace's users, rendered as a Name/ID/Email table in text mode |
+| `user list` (CLI) | caller needs the people in a workspace | workspace GID via `--workspace-gid` (legacy alias `--workspace`, defaulted from `ASANA_WORKSPACE_GID`), plus `--offset` and `--opt-fields` | the workspace's users, rendered as a Name/ID/Email table in text mode |
 | `asana_user_list` (MCP) | agent needs the same listing over MCP | required `workspace_gid`, plus `offset` and `opt_fields` | the same result, JSON-serialized |
 | `user get <gid>` (CLI) | caller holds a user GID and wants that person's record | the user GID, positionally | the unwrapped user record, rendered as Name/ID/Email fields in text mode |
 | `asana_user_get` (MCP) | same, over MCP | `user_gid` | the same record, JSON-serialized |
@@ -72,7 +72,7 @@ so a change to what a user read means lands in one place.
 graph TD
   subgraph list["user list / asana_user_list"]
     L[invoked] --> LW{workspace GID resolvable?}
-    LW -->|CLI: --workspace-gid, else legacy --workspace, else ASANA_WORKSPACE| LP
+    LW -->|CLI: --workspace-gid, else legacy --workspace, else ASANA_WORKSPACE_GID| LP
     LW -->|MCP: required parameter, no environment fallback| LP
     LW -->|none| LE[usage error — Workspace GID is required]
     LP{page size supplied?} -->|impossible — no page-size input is offered| LQ[send offset and optional fields only]
@@ -101,7 +101,7 @@ The three entry-point groups share no decision, so they are drawn separately.
 
 `list`'s load-bearing edges are the workspace-GID resolution chain and the page-size edge that
 **is not there**. The chain differs by surface on purpose: on the CLI the workspace GID is scope,
-not subject, so defaulting it from `ASANA_WORKSPACE` saves a flag on every invocation and a wrong
+not subject, so defaulting it from `ASANA_WORKSPACE_GID` saves a flag on every invocation and a wrong
 default is visible in the output; on MCP the parameter is required, because an MCP server's
 environment belongs to the server operator, not to the calling agent, and silently scoping to it
 would make the same tool call mean different things in different deployments. The page-size edge is

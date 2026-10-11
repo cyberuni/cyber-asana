@@ -11,7 +11,7 @@ describe('exitCodeFor', () => {
 	})
 
 	it('maps missing-token config errors to 3', () => {
-		expect(exitCodeFor(new Error('ASANA_TOKEN is required'))).toBe(3)
+		expect(exitCodeFor(new Error('ASANA_ACCESS_TOKEN is required'))).toBe(3)
 	})
 
 	it('maps 401 to 3 (auth)', () => {
@@ -45,8 +45,8 @@ describe('renderCliError', () => {
 	})
 
 	it('includes a hint line when present in text mode', () => {
-		const text = renderCliError(new Error('ASANA_TOKEN missing'), 'text')
-		expect(text).toContain('Error: ASANA_TOKEN missing')
+		const text = renderCliError(new Error('ASANA_ACCESS_TOKEN missing'), 'text')
+		expect(text).toContain('Error: ASANA_ACCESS_TOKEN missing')
 		expect(text).toContain('Hint:')
 	})
 

@@ -31,4 +31,4 @@ The skill guides:
 npx skills add cyberuni/cyber-asana --skill asana-sprint-report
 ```
 
-Requires `ASANA_TOKEN`, `ASANA_WORKSPACE`, and a target project. See [`init-asana`](../init-asana/README.md) for setup.
+Requires `ASANA_ACCESS_TOKEN`, `ASANA_WORKSPACE_GID`, and a target project. See [`init-asana`](../init-asana/README.md) for setup.

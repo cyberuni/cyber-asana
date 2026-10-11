@@ -6,7 +6,7 @@ import {
 	defineCustomFieldSettingsListPaginationAcceptanceSpecs,
 } from './list-pagination.acceptance.js'
 
-const workspaceGid = systemEnv('ASANA_WORKSPACE')
+const workspaceGid = systemEnv('ASANA_WORKSPACE_GID')
 // Asana answers Payment Required to this resource on a free plan.
 const systemEnabled = isSystemTestEnabled() && isPaidPlan() && Boolean(workspaceGid)
 const projectGid = systemEnv('ASANA_SYSTEM_TEST_PROJECT_GID')

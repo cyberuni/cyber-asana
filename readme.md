@@ -21,7 +21,7 @@ export ASANA_ACCESS_TOKEN=<your-pat>
 export ASANA_WORKSPACE_GID=<workspace-gid>   # optional default workspace
 ```
 
-`ASANA_TOKEN` and `ASANA_WORKSPACE` still work as deprecated fallbacks. Or pass `--token <pat>` and `--workspace <gid>` per command.
+Or pass `--token <pat>` and `--workspace <gid>` per command.
 
 ### Where to keep the token
 
@@ -51,7 +51,7 @@ To see which credential is actually in effect — including any source being sha
 cyber-asana auth status
 ```
 
-It reads local state only, never calls the API, and exits `0` even when no credential is set — so it still answers when every other command is failing with `401`. The token is shown masked. Precedence is `--token` > `ASANA_ACCESS_TOKEN` > `ASANA_TOKEN`.
+It reads local state only, never calls the API, and exits `0` even when no credential is set — so it still answers when every other command is failing with `401`. The token is shown masked. Precedence is `--token` > `ASANA_ACCESS_TOKEN`.
 
 It also names any variable that is set but holds an unexpanded `${VAR}` reference, which happens when an agent host passes the reference text through instead of substituting a value:
 
@@ -97,7 +97,7 @@ A secret passed as an argument lands in your shell history and is visible in the
 
 `auth login` opens the browser, captures the redirect on a loopback server bound to `127.0.0.1`, and stores the tokens. It is a one-time human step — agents inherit the stored credentials the same way they inherit a PAT.
 
-After that, every command uses the stored credentials automatically, refreshing the access token when it is within a minute of expiring. Precedence is `--token` > `ASANA_ACCESS_TOKEN` > `ASANA_TOKEN` > stored credentials, so an env var still wins — and `auth status` names which one is in effect and lists the rest as ignored.
+After that, every command uses the stored credentials automatically, refreshing the access token when it is within a minute of expiring. Precedence is `--token` > `ASANA_ACCESS_TOKEN` > stored credentials, so an env var still wins — and `auth status` names which one is in effect and lists the rest as ignored.
 
 Credentials live under `$XDG_CONFIG_HOME/cyber-asana` (or `~/.config/cyber-asana`), split by who owns them:
 
@@ -240,7 +240,7 @@ cyber-asana/                    # the package as installed
 
 `plugin.json` follows the [Agent Plugins specification](https://github.com/agentplugins/agent-plugins-spec) v1.0.0, whose manifest schema is closed: components are discovered from the fixed `skills/` location rather than declared inline. The plugin ships no `mcp.json`; it registers no MCP server. Clients that predate the spec read their own manifest from the vendor directory beside it.
 
-The `envValue` guard in `src/platform/env.ts` still treats a value that is exactly an unexpanded reference, like `${ASANA_ACCESS_TOKEN}`, as unset rather than as a credential. It covers MCP configs this repo does not author, where a host that cannot expand a reference forwards its text verbatim — Claude Code [does so when the variable is unset and has no default](https://code.claude.com/docs/en/mcp#environment-variable-expansion-in-mcp-json). Without it the placeholder would outrank the `ASANA_TOKEN` fallback and turn a missing token into a `401`.
+The `envValue` guard in `src/platform/env.ts` still treats a value that is exactly an unexpanded reference, like `${ASANA_ACCESS_TOKEN}`, as unset rather than as a credential. It covers MCP configs this repo does not author, where a host that cannot expand a reference forwards its text verbatim — Claude Code [does so when the variable is unset and has no default](https://code.claude.com/docs/en/mcp#environment-variable-expansion-in-mcp-json). Without it the placeholder would be sent as the token and turn a missing token into a `401`.
 
 Sources live under `packages/cyber-asana/`. Root `plugin.json` is the canonical manifest; the vendor manifests and `com.github.copilot/` are derived from it by `pnpm plugin:build`, and `pnpm version` carries the package version into all of them.
 

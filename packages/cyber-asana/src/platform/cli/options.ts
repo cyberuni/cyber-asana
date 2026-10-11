@@ -77,11 +77,13 @@ export function addGidOption<T extends Command>(
 	cmd: T,
 	baseName: string,
 	description: string,
-	opts?: { env?: string; legacyAlias?: boolean },
+	opts?: { legacyAlias?: boolean },
 ) {
-	const normalizedOption = new Option(`--${baseName}-gid <gid>`, description)
-	if (opts?.env) normalizedOption.env(opts.env)
-	cmd.addOption(normalizedOption)
+	// The workspace falls back to ASANA_WORKSPACE_GID in `normalizedGid`, through
+	// `envValue`, rather than Commander's `.env()`: Commander would take an
+	// unexpanded `${ASANA_WORKSPACE_GID}` placeholder as the GID.
+	const help = baseName === 'workspace' ? `${description} (env: ASANA_WORKSPACE_GID)` : description
+	cmd.addOption(new Option(`--${baseName}-gid <gid>`, help))
 	if (opts?.legacyAlias !== false) cmd.addOption(new Option(`--${baseName} <gid>`, `${description} (legacy alias)`))
 
 	return cmd
@@ -93,7 +95,7 @@ export function normalizedGid(opts: CliGidOptions, baseName: string) {
 	if (typeof normalized === 'string' && normalized.length > 0) return normalized
 	const legacy = opts[baseName]
 	if (typeof legacy === 'string' && legacy.length > 0) return legacy
-	if (baseName === 'workspace') return envValue('ASANA_WORKSPACE')
+	if (baseName === 'workspace') return envValue('ASANA_WORKSPACE_GID')
 	return undefined
 }
 

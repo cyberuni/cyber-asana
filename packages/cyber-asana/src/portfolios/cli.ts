@@ -72,9 +72,7 @@ export function portfolioCommand(api?: PortfolioApi | (() => PortfolioApi)) {
 
 	addPaginationOptions(
 		addGidOption(
-			addGidOption(cmd.command('list').description('List portfolios in a workspace'), 'workspace', 'Workspace GID', {
-				env: 'ASANA_WORKSPACE',
-			}),
+			addGidOption(cmd.command('list').description('List portfolios in a workspace'), 'workspace', 'Workspace GID'),
 			'owner',
 			'Only list portfolios owned by this user GID (service accounts only)',
 		).option('--custom-type <gid>', 'Only portfolios of this custom type GID ("" for portfolios with no custom type)'),
@@ -147,9 +145,6 @@ export function portfolioCommand(api?: PortfolioApi | (() => PortfolioApi)) {
 		cmd.command('create <name>').description('Create a portfolio'),
 		'workspace',
 		'Workspace GID',
-		{
-			env: 'ASANA_WORKSPACE',
-		},
 	)
 	createCmd.action(async (name: string, opts: { workspace?: string; workspaceGid?: string }) => {
 		const data = await resolvePortfolioApi(api).createPortfolio(requiredGid(opts, 'workspace', 'Workspace GID'), name)

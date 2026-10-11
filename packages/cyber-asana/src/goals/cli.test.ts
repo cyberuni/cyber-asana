@@ -145,7 +145,6 @@ describe('goals/cli', () => {
 	})
 
 	it('goal create falls back to ASANA_WORKSPACE_GID when workspace flag is omitted', async () => {
-		delete process.env.ASANA_WORKSPACE
 		process.env.ASANA_WORKSPACE_GID = 'ws-alias'
 		createGoalMock.mockResolvedValue({ gid: 'goal1', name: 'Ship v1' })
 		const program = new Command().addCommand(goalCommand())

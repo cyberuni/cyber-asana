@@ -70,7 +70,7 @@ cyber-asana task list --project-gid <gid>
 cyber-asana task list --project <gid>      # legacy alias
 ```
 
-Workspace-scoped commands read `ASANA_WORKSPACE` when `--workspace-gid` is omitted, so
+Workspace-scoped commands read `ASANA_WORKSPACE_GID` when `--workspace-gid` is omitted, so
 setting it once in your shell removes it from every call.
 
 ## Pagination

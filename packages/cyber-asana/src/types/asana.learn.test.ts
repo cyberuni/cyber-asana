@@ -6,7 +6,7 @@ import { isPaidPlan, isSystemTestEnabled, systemEnv } from '../testing/system.js
 const taskGid = systemEnv('ASANA_SYSTEM_TEST_TASK_GID')
 const enabled = isSystemTestEnabled() && Boolean(taskGid)
 const projectGid = systemEnv('ASANA_SYSTEM_TEST_PROJECT_GID')
-const workspaceGid = systemEnv('ASANA_WORKSPACE')
+const workspaceGid = systemEnv('ASANA_WORKSPACE_GID')
 const workspaceEnabled = isSystemTestEnabled() && Boolean(workspaceGid)
 const sectionGid = systemEnv('ASANA_SYSTEM_TEST_SECTION_GID')
 const sectionEnabled = isSystemTestEnabled() && Boolean(sectionGid) && Boolean(projectGid)

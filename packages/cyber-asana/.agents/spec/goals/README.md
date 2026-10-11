@@ -19,7 +19,7 @@ MCP, and both surfaces call one `api.ts`, so the two cannot drift apart.
 
 Two shapes drive the decisions worth naming. First, a goal **belongs to a workspace**: Asana has no
 global goal listing and a goal cannot be created without saying where. So `list` and `create` both
-need a workspace GID, and both take it from the `ASANA_WORKSPACE` environment variable when no flag
+need a workspace GID, and both take it from the `ASANA_WORKSPACE_GID` environment variable when no flag
 is given — set it once and listing goals costs two words. Second, an **existing** goal is addressed
 by its own GID and nothing else: `get`, `update` and `delete` take that GID positionally and accept
 no workspace, because Asana's goal lookup is not workspace-scoped and advertising a scope that is
@@ -75,7 +75,7 @@ come from, what its request body carries, and what its text rendering shows.
 
 | Entry point | Trigger | Inputs | Outcome |
 |---|---|---|---|
-| `goal list` (CLI) | operator or agent wants the workspace's objectives | a workspace GID by flag or from `ASANA_WORKSPACE`, plus pagination options | the workspace's goals, rendered as a Name/ID/Due table in text mode |
+| `goal list` (CLI) | operator or agent wants the workspace's objectives | a workspace GID by flag or from `ASANA_WORKSPACE_GID`, plus pagination options | the workspace's goals, rendered as a Name/ID/Due table in text mode |
 | `asana_goal_list` (MCP) | agent wants the same listing over MCP | `workspace_gid` (required) plus the shared pagination params | the same result, JSON-serialized |
 | `goal get <gid>` (CLI) | caller holds a goal GID and wants that goal | the goal GID, positionally | the unwrapped goal record, rendered as Name/ID/URL/Due/Status fields in text mode |
 | `asana_goal_get` (MCP) | same, over MCP | `goal_gid` | the same record, JSON-serialized |
@@ -95,7 +95,7 @@ graph TD
   subgraph list["goal list / asana_goal_list"]
     L[invoked] --> LF{workspace GID given as a flag or param?}
     LF -->|yes| LQ[list the workspace's goals]
-    LF -->|no, CLI| LE{ASANA_WORKSPACE set?}
+    LF -->|no, CLI| LE{ASANA_WORKSPACE_GID set?}
     LF -->|no, MCP| LX[schema rejects the call —<br/>workspace_gid is required]
     LE -->|yes| LQ
     LE -->|no| LU[usage error — Workspace GID is required]
@@ -104,7 +104,7 @@ graph TD
 
   subgraph create["goal create / asana_goal_create"]
     C[invoked] --> CF{workspace GID given as a flag or param?}
-    CF -->|no, CLI| CE{ASANA_WORKSPACE set?}
+    CF -->|no, CLI| CE{ASANA_WORKSPACE_GID set?}
     CF -->|no, MCP| CX[schema rejects the call —<br/>workspace_gid and name are required]
     CE -->|no| CU[usage error — Workspace GID is required]
     CF -->|yes| CO{notes or due date given?}
@@ -170,7 +170,7 @@ Asana returns no record to render: the only thing worth showing is which GID wen
 | Edge | Path (Given) | Scenario |
 |---|---|---|
 | workspace GID given → list that workspace | a workspace holding two goals | `list returns the goals of the workspace it was given` |
-| list: no flag → environment fallback | `ASANA_WORKSPACE` set, no flag passed | `list falls back to the workspace environment variable` |
+| list: no flag → environment fallback | `ASANA_WORKSPACE_GID` set, no flag passed | `list falls back to the workspace environment variable` |
 | list: no flag, no environment → usage error | neither flag nor environment supplies a workspace | `list without a workspace GID anywhere is a usage error` |
 | no environment fallback over MCP (barred) | the registered MCP tool set | `asana_goal_list requires an explicit workspace GID` |
 | render Name / ID / Due table | text mode, two goals that both carry a due date | `list renders each goal's name, GID and due date in text mode` |
@@ -183,7 +183,7 @@ Asana returns no record to render: the only thing worth showing is which GID wen
 |---|---|---|
 | goal GID given → fetch | a GID naming an existing goal | `get returns the goal record for the GID it was given` |
 | get: goal GID absent → usage error | no positional argument | `get without a GID is a usage error` |
-| no workspace scoping (barred) | `ASANA_WORKSPACE` set and a goal GID given | `get takes no workspace scope` |
+| no workspace scoping (barred) | `ASANA_WORKSPACE_GID` set and a goal GID given | `get takes no workspace scope` |
 | render Name / ID / URL / Due / Status fields | text mode, a goal carrying every field | `get renders the goal's name, GID, URL, due date and status in text mode` |
 | render Name / ID / URL / Due / Status fields | text mode, a goal whose due date and status are unset | `get prints no due or status line for a goal that carries neither` |
 
@@ -192,7 +192,7 @@ Asana returns no record to render: the only thing worth showing is which GID wen
 | Edge | Path (Given) | Scenario |
 |---|---|---|
 | workspace GID given → create in that workspace | a workspace GID passed as a flag | `create files the new goal in the workspace it was given` |
-| create: no flag → environment fallback | `ASANA_WORKSPACE` set, no flag passed | `create falls back to the workspace environment variable` |
+| create: no flag → environment fallback | `ASANA_WORKSPACE_GID` set, no flag passed | `create falls back to the workspace environment variable` |
 | create: no flag, no environment → usage error | neither flag nor environment supplies a workspace | `create without a workspace GID anywhere is a usage error` |
 | create: name absent → usage error | a workspace GID given, no positional name argument | `create without a name is a usage error` |
 | optional fields given → carried in the body | notes and a due date supplied alongside the name | `create carries the notes and due date it was given` |

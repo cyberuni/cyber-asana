@@ -74,11 +74,11 @@ tasks in both directions, over the two surfaces (CLI and MCP) that share one `ap
 
 | Entry point | Trigger | Inputs | Outcome |
 |---|---|---|---|
-| `tag list` (CLI) | caller needs the tags available in a workspace | a workspace GID by flag or from `ASANA_WORKSPACE`, plus pagination options | the workspace's tags, rendered as a Name/ID/Color table in text mode |
+| `tag list` (CLI) | caller needs the tags available in a workspace | a workspace GID by flag or from `ASANA_WORKSPACE_GID`, plus pagination options | the workspace's tags, rendered as a Name/ID/Color table in text mode |
 | `asana_tag_list` (MCP) | agent needs the same listing over MCP | `workspace_gid` (required) plus the shared pagination params | the same result, JSON-serialized |
 | `tag get <gid>` (CLI) | caller holds a tag GID and wants that tag's record | the tag GID, positionally | the unwrapped tag record, rendered as Name/ID/Color fields in text mode |
 | `asana_tag_get` (MCP) | same, over MCP | `tag_gid` | the same record, JSON-serialized |
-| `tag create <name>` (CLI) | caller wants a new label in a workspace | the tag name positionally, a workspace GID by flag or from `ASANA_WORKSPACE`, optional `--color`, `--notes` and `--follower <gid[,gid...]>` | the created tag record, rendered as Name/ID/Color fields |
+| `tag create <name>` (CLI) | caller wants a new label in a workspace | the tag name positionally, a workspace GID by flag or from `ASANA_WORKSPACE_GID`, optional `--color`, `--notes` and `--follower <gid[,gid...]>` | the created tag record, rendered as Name/ID/Color fields |
 | `asana_tag_create` (MCP) | same, over MCP | `workspace_gid` and `name` required, `color`, `notes` and `follower_gids` optional | the created tag record, JSON-serialized |
 | `tag update <gid>` (CLI) | caller wants to rename, recolour or re-note an existing tag | the tag GID positionally, plus any of `--name`, `--color`, `--clear-color`, `--notes` | the updated tag record, rendered as Name/ID/Color fields |
 | `asana_tag_update` (MCP) | same, over MCP | `tag_gid` required, `name` / `color` / `clear_color` / `notes` optional | the updated tag record, JSON-serialized |
@@ -105,7 +105,7 @@ graph TD
   subgraph discovery["tag list / tag get and their MCP tools"]
     L[list invoked] --> LF{workspace GID given as a flag or param?}
     LF -->|yes| LQ[list tags of that workspace]
-    LF -->|no, CLI| LE{ASANA_WORKSPACE set?}
+    LF -->|no, CLI| LE{ASANA_WORKSPACE_GID set?}
     LE -->|yes| LQ
     LE -->|no| LU[usage error — Workspace GID is required]
     LQ --> LT[render Name / ID / Color table —<br/>a colourless tag gets an empty Color cell]
@@ -118,7 +118,7 @@ graph TD
 
   subgraph lifecycle["tag create / update / delete and their MCP tools"]
     C[create invoked with a name] --> CF{workspace GID given as a flag or param?}
-    CF -->|no, CLI| CE{ASANA_WORKSPACE set?}
+    CF -->|no, CLI| CE{ASANA_WORKSPACE_GID set?}
     CE -->|no| CU[usage error — Workspace GID is required]
     CE -->|yes| CB
     CF -->|yes| CB[build the request body]
@@ -159,7 +159,7 @@ graph TD
 The load-bearing edges:
 
 - **Only the workspace-scoped entry points read the environment.** `list` and `create` fall back to
-  `ASANA_WORKSPACE` when no flag is given; `get`, `update` and `delete` never do, because a tag GID
+  `ASANA_WORKSPACE_GID` when no flag is given; `get`, `update` and `delete` never do, because a tag GID
   already identifies the tag and accepting a scope that is never sent would be a lie. This is the
   same split [teams](../teams/README.md) makes, and for the same reason.
 - **Absent optional fields are absent from the request.** `create` and `update` build their bodies
@@ -206,10 +206,10 @@ The load-bearing edges:
 | Edge | Path (Given) | Scenario |
 |---|---|---|
 | workspace GID given → list that workspace | a workspace holding two tags | `list returns the tags of the workspace it was given` |
-| no flag → environment fallback | `ASANA_WORKSPACE` set, no flag passed | `list falls back to the workspace environment variable` |
+| no flag → environment fallback | `ASANA_WORKSPACE_GID` set, no flag passed | `list falls back to the workspace environment variable` |
 | no flag, no environment → usage error | a shell whose only Asana variable is the token | `list without a workspace GID anywhere is a usage error` |
 | colour column rendering | text mode, one coloured tag and one colourless tag | `list leaves the colour cell empty for a tag that has no colour` |
-| tag GID alone identifies the tag | `ASANA_WORKSPACE` set and a tag GID given | `get requests the tag by GID and sends no workspace scope` |
+| tag GID alone identifies the tag | `ASANA_WORKSPACE_GID` set and a tag GID given | `get requests the tag by GID and sends no workspace scope` |
 | record carries a colour → render it | text mode, a tag whose record carries a colour | `get renders the tag's name, GID and colour in text mode` |
 | record omits the colour → drop the line | text mode, a tag whose record omits the colour | `get omits the colour line when the tag record carries no colour` |
 | tag GID absent → usage error | no positional argument on the get command | `get without a tag GID is a usage error` |
@@ -223,7 +223,7 @@ The load-bearing edges:
 | followers absent → no followers key | a workspace and a name, with no follower flag typed | `create sends no followers key when no follower is named` |
 | followers are create-only (barred) | the update entry point's option set | `update has no followers option, because Asana takes followers only at creation` |
 | optional fields absent → body carries the name only | a workspace and a name, with neither optional flag typed | `create sends only the name when no colour or notes flag is typed` |
-| no flag → environment fallback | `ASANA_WORKSPACE` set, no workspace flag passed | `create falls back to the workspace environment variable` |
+| no flag → environment fallback | `ASANA_WORKSPACE_GID` set, no workspace flag passed | `create falls back to the workspace environment variable` |
 | no flag, no environment → the write never leaves | a shell whose only Asana variable is the token, with a tag name already typed | `create without a workspace GID anywhere is a usage error` |
 | create with no name argument → usage error | the create command invoked with no positional name | `create without a tag name is a usage error` |
 | colour cleared → explicit null in the body | a tag GID and the clear-colour flag | `update sends a null colour when the colour is cleared` |

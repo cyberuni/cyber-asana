@@ -65,7 +65,7 @@ to a GID; the repo registry that does that is [config](../config/README.md).
 walks, where `--max-pages` stops — is the shared list contract in [axi](../axi/README.md), adopted
 here rather than re-decided. Likewise the `--json` / `--toon` formats, empty-state rendering,
 long-field truncation, exit-code conventions, and the normalized-GID flag mechanism
-(`--workspace-gid` with its legacy `--workspace` alias, and its `ASANA_WORKSPACE` fallback, whose
+(`--workspace-gid` with its legacy `--workspace` alias, and its `ASANA_WORKSPACE_GID` fallback, whose
 read case is frozen by [teams](../teams/README.md)). This node decides which of its verbs are
 paginated, what each write puts in the body, and what `export` renders.
 
@@ -76,7 +76,7 @@ over the two surfaces (CLI and MCP) that share one `api.ts`.
 
 | Entry point | Trigger | Inputs | Outcome |
 |---|---|---|---|
-| `project list` (CLI) | caller wants every project in a workspace | a workspace GID by flag or from `ASANA_WORKSPACE`, pagination options, and an optional `--archived` / `--no-archived` filter | the workspace's projects, rendered as a Name/ID table in text mode |
+| `project list` (CLI) | caller wants every project in a workspace | a workspace GID by flag or from `ASANA_WORKSPACE_GID`, pagination options, and an optional `--archived` / `--no-archived` filter | the workspace's projects, rendered as a Name/ID table in text mode |
 | `asana_project_list` (MCP) | agent wants the same enumeration | `workspace_gid`, the shared pagination params, and an optional `archived` filter | the same result, JSON-serialized |
 | `project search [text]` (CLI) | caller wants the projects of a workspace matching filters | a workspace GID, an optional text term, and any of the team / owner / member / portfolio / date-window / sort filters | the matching projects, rendered as a Name/ID table in text mode |
 | `asana_project_search` (MCP) | same, over MCP | `workspace_gid` plus the same filters under snake_case names | the same result, JSON-serialized |
@@ -98,7 +98,7 @@ over the two surfaces (CLI and MCP) that share one `api.ts`.
 ```mermaid
 graph TD
   subgraph discovery["discovery — project list / search"]
-    D[invoked] --> DW{workspace GID from flag or ASANA_WORKSPACE?}
+    D[invoked] --> DW{workspace GID from flag or ASANA_WORKSPACE_GID?}
     DW -->|no| DE[usage error — Workspace GID is required]
     DW -->|yes| DK{which read?}
     DK -->|list| DL[enumerate the workspace's projects<br/>with the shared pagination options]
@@ -186,12 +186,12 @@ The load-bearing edges:
 | Edge | Path (Given) | Scenario |
 |---|---|---|
 | workspace GID → enumerate that workspace | a workspace holding two projects | `list returns the projects of the workspace it was given` |
-| no workspace GID from flag or environment → usage error | neither a workspace flag nor `ASANA_WORKSPACE` | `list without a workspace GID anywhere is a usage error` |
+| no workspace GID from flag or environment → usage error | neither a workspace flag nor `ASANA_WORKSPACE_GID` | `list without a workspace GID anywhere is a usage error` |
 | named filters mapped to Asana's search parameters | a text term plus team, member-exclusion, and due-window filters | `search maps each named filter onto its Asana search parameter` |
 | archived filter passed through to Asana | `--archived` or `--no-archived` on list | `list passes the archived filter through to Asana` |
 | archived filter left to Asana's default when unasked | neither archived flag on list | `list omits the archived filter when neither flag is given` |
 | no pagination options on search (barred) | the search subcommand's help text | `search offers no pagination options` |
-| no workspace GID from flag or environment on search → usage error | neither a workspace flag nor `ASANA_WORKSPACE` | `search without a workspace GID anywhere is a usage error` |
+| no workspace GID from flag or environment on search → usage error | neither a workspace flag nor `ASANA_WORKSPACE_GID` | `search without a workspace GID anywhere is a usage error` |
 | render Name / ID table | text mode, two projects, reached by either read | `list and search render each project's name and GID in text mode` |
 
 ### `project create` / `project update` / `project delete`
@@ -203,14 +203,14 @@ The load-bearing edges:
 | owner and its clear flag together → usage error | both flags on one update | `update rejects an owner and a clear-owner flag together` |
 | archived set on a write in either direction | an archive flag on update | `update archives and unarchives a project` |
 | create body carries name, workspace, and only supplied fields | a name and a workspace GID and nothing else | `create sends the project name and workspace without the fields that were not supplied` |
-| workspace taken from the environment on a write | `ASANA_WORKSPACE` set, no workspace flag passed | `create takes its workspace from the environment when no workspace flag is given` |
+| workspace taken from the environment on a write | `ASANA_WORKSPACE_GID` set, no workspace flag passed | `create takes its workspace from the environment when no workspace flag is given` |
 | plain notes and HTML notes together → refused | both note forms supplied to create | `create refuses plain notes and HTML notes together` |
 | one note form alone → carried | HTML notes supplied to create, plain notes not | `create carries HTML notes when they are the only note form given` |
 | start date without a due date → refused | a start date supplied to create, no due date | `create refuses a start date with no due date` |
 | start date with a later due date → carried | a start date and a different due date supplied to create | `create carries a start date when a due date accompanies it` |
 | start date equal to the due date → refused | the same date supplied as both start and due | `create refuses a start date equal to the due date` |
 | create with no name argument → usage error | the create command invoked with no positional name | `create without a project name is a usage error` |
-| create with no workspace GID from flag or environment → usage error | a name supplied, neither a workspace flag nor `ASANA_WORKSPACE` | `create without a workspace GID anywhere is a usage error` |
+| create with no workspace GID from flag or environment → usage error | a name supplied, neither a workspace flag nor `ASANA_WORKSPACE_GID` | `create without a workspace GID anywhere is a usage error` |
 | update body carries only supplied fields | only a colour supplied to update | `update sends only the fields that were supplied` |
 | clear flag → explicit null | the clear-due-date flag supplied to update, no due date | `update clears the due date with an explicit null` |
 | due date and clear-due flag together → refused | both supplied to update | `update refuses a due date and the clear-due-date flag together` |

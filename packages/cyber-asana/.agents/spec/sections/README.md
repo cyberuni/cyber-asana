@@ -127,7 +127,7 @@ The groups share no decision, so they are drawn separately. The load-bearing edg
 
 - **The project GID is required and is never defaulted from the environment.** `list` and `create`
   both refuse to run without it. Only a *workspace* GID gets an environment default in this package
-  (`normalizedGid` falls back to `ASANA_WORKSPACE` for the workspace base name and for no other); a
+  (`normalizedGid` falls back to `ASANA_WORKSPACE_GID` for the workspace base name and for no other); a
   wrongly-defaulted project would return, or worse create, a plausible-looking section in the wrong
   place. The legacy `--project` spelling reaches the same scope as `--project-gid`.
 - **Scope stops once the section exists.** `get`, `update`, and `delete` take the section GID alone.

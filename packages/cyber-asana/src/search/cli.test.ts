@@ -115,10 +115,8 @@ describe('search/cli', () => {
 
 	it('search objects requires a workspace gid', async () => {
 		const previous = {
-			ASANA_WORKSPACE: process.env.ASANA_WORKSPACE,
 			ASANA_WORKSPACE_GID: process.env.ASANA_WORKSPACE_GID,
 		}
-		delete process.env.ASANA_WORKSPACE
 		delete process.env.ASANA_WORKSPACE_GID
 		const program = new Command().addCommand(searchCommand())
 

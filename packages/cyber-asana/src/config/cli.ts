@@ -735,7 +735,7 @@ export function configCommand(
 			),
 		'workspace',
 		'Workspace GID for --search',
-		{ env: 'ASANA_WORKSPACE', legacyAlias: false },
+		{ legacyAlias: false },
 	).action(
 		async (
 			gidArg: string | undefined,
