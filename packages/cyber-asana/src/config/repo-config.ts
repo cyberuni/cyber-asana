@@ -1,7 +1,7 @@
 import { access, mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname, isAbsolute, join, resolve } from 'node:path'
 
-export const DEFAULT_CONFIG_RELATIVE_PATH = join('.agents', 'cyber-asana.json')
+const DEFAULT_CONFIG_RELATIVE_PATH = join('.agents', 'cyber-asana.json')
 
 export type RepoProjectEntry = {
 	gid: string
