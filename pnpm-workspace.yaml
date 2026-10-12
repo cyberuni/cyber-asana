@@ -43,3 +43,6 @@ minimumReleaseAgeExclude:
   # First-party (unional). type-plus 8.0.0 is the fleet-wide sweep target;
   # published 2026-10-11T03:41Z, removable 2026-10-12T03:41Z.
   - 'type-plus@8.0.0'
+  # First-party (cyberuni). universal-plugin 0.14.0 is the first release that compiles skill
+  # script entries (universal-plugin#177/#181); published 2026-10-12T01:25Z, removable 2026-10-13T01:25Z.
+  - 'universal-plugin@0.14.0'
