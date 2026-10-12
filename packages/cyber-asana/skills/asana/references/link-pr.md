@@ -32,7 +32,7 @@ git branch --show-current
 
 Recognize the host from the remote's hostname. The host kinds match those of repobuddy's
 `init-buddy` skill, so the two agree. When repobuddy is installed, `repobuddy env --json` (or
-`npx -y repobuddy@^1.8.0 env --json`) reports the same kind as `hosts[].kind`; add `--probe` for a
+`npx -y repobuddy@2.2.0 env --json`) reports the same kind as `hosts[].kind`; add `--probe` for a
 self-hosted host it reports as `unknown`. Without repobuddy, a self-hosted hostname that does not
 name its product is unknown: ask the user which host it is.
 

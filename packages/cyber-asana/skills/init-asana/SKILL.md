@@ -13,15 +13,17 @@ When the user is setting up `cyber-asana` for the first time, or when commands f
 
 Before running any `cyber-asana` command, settle how to invoke it — once, in this order. Whichever form resolves is what every `cyber-asana <subcommand>` in this skill and all other cyber-asana skills means.
 
-1. **Shipped CLI (preferred).** When these skills came from an installed `cyber-asana` plugin or npm package, the CLI ships beside them and is bundled with its dependencies inlined, so it needs no install and no network:
+1. **Direct dependency.** When the consumer's `package.json` lists `cyber-asana` in `dependencies` or `devDependencies`, run it through the package manager:
 
    ```bash
-   node <cyber-asana-root>/skills/init-asana/scripts/cyber-asana.mjs --version
+   pnpm exec cyber-asana --version
    ```
 
-   `<cyber-asana-root>` is the package root, four levels up from that script; from another cyber-asana skill's own directory the same launcher is `../init-asana/scripts/cyber-asana.mjs`. If it prints a version, use it for every later command and skip the rest of this section.
+   If that prints a version, use `pnpm exec cyber-asana` for every later command and skip the rest of this section.
 2. **Global install** — `cyber-asana --version`. If that succeeds, use the bare `cyber-asana` spelling.
 3. **npx fallback** — resolve the latest published semver with `npm view cyber-asana version` and use it as `<exact>` for every `npx cyber-asana@<exact>` (never `@latest`, never a literal placeholder). Check with `npx cyber-asana@<exact> --version`.
+
+The CLI bundles the Asana SDK, which does not tree-shake (about 777 KB for the task path), so no skill ships it as a script; the skill folder stays self-contained and the CLI comes from npm.
 
 If only the npx path is left and it fails (install prompt, `command not found`, or other non-zero exit):
 

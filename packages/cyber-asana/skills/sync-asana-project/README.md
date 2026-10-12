@@ -28,4 +28,4 @@ The skill guides:
 npx skills add cyberuni/cyber-asana --skill sync-asana-project
 ```
 
-Set `ASANA_ACCESS_TOKEN` and `ASANA_WORKSPACE_GID` before running workflows. See [`init-asana`](../init-asana/README.md) for setup.
+Set `ASANA_ACCESS_TOKEN` and `ASANA_WORKSPACE_GID` before running workflows. See [`init-asana`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/init-asana/README.md) for setup.

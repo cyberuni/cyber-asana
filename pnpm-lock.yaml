@@ -194,8 +194,8 @@ importers:
         specifier: ^2.11.7
         version: 2.11.7
       universal-plugin:
-        specifier: ^0.12.2
-        version: 0.12.2(typescript@7.0.2)
+        specifier: ^0.14.0
+        version: 0.14.0(typescript@7.0.2)
 
   apps/web:
     dependencies:
@@ -631,6 +631,7 @@ packages:
   '@clibuilder/axi@0.1.0':
     resolution: {integrity: sha512-axduLxgCRP33iEPv8AGeFY9xDo0z6LH5JwhqpF/JqNmKo99UNI5rmSLduEjCfgIBc7TRwM1jiV0mBFNPKuLabA==}
     engines: {node: '>= 20.19'}
+    deprecated: Folded into clibuilder 12. Import the value helpers from "clibuilder/axi" and use the output, error and format support built into clibuilder. See https://clibuilder.github.io/clibuilder/guides/upgrade-to-12/
     peerDependencies:
       clibuilder: ^11.0.0
 
@@ -3658,8 +3659,8 @@ packages:
   unist-util-visit@5.1.0:
     resolution: {integrity: sha512-m+vIdyeCOpdr/QeQCu2EzxX/ohgS8KbnPDgFni4dQsfSCtpz8UqDyY5GjRru8PDKuYn7Fq19j1CQ+nJSsGKOzg==}
 
-  universal-plugin@0.12.2:
-    resolution: {integrity: sha512-uHuvABUr5tBR3B2jQBKt6COH5q+FFAhs8kwTje7dUmMJ2RFzudqHf8/AJtrbkeXNJVNU6AwLcNODcXSXpP6Hwg==}
+  universal-plugin@0.14.0:
+    resolution: {integrity: sha512-+2kSU4mpWFyiFdNTz7TYX1Nj+Y9mOZzxpwSxPNX0QFblRKw6VmAUCx3RNSzfxe+tj8t9o74rc8RDLWx4nDS2+g==}
     engines: {node: '>=22'}
     hasBin: true
 
@@ -7364,12 +7365,13 @@ snapshots:
       unist-util-is: 6.0.1
       unist-util-visit-parents: 6.0.2
 
-  universal-plugin@0.12.2(typescript@7.0.2):
+  universal-plugin@0.14.0(typescript@7.0.2):
     dependencies:
       '@cyberuni/agent-harness': 0.6.0(typescript@7.0.2)
       '@repobuddy/upx': 0.2.0
       '@toon-format/toon': 4.1.1
       commander: 15.0.0
+      rolldown: 1.2.13
       semver: 7.8.5
     transitivePeerDependencies:
       - typescript
