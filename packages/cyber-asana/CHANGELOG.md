@@ -1,5 +1,11 @@
 # cyber-asana
 
+## 0.21.1
+
+### Patch Changes
+
+- d1929a4: Declare the `cyber-agent-harness` plugin dependency by name only, so the plugin installs from any marketplace instead of only `cyberplace`.
+
 ## 0.21.0
 
 ### Minor Changes
