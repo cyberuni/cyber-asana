@@ -17,8 +17,7 @@
 			"vendors": ["claude-code", "cursor", "codex", "copilot-cli"],
 			"harnesses": {
 				"claude-code": {
-					"displayName": "Cyber Asana",
-					"dependencies": [{ "name": "cyber-agent-harness", "marketplace": "cyberplace" }]
+					"dependencies": ["cyber-agent-harness"]
 				},
 				"cursor": {
 					"category": "productivity",
