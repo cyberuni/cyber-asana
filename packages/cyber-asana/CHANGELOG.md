@@ -1,5 +1,29 @@
 # cyber-asana
 
+## 0.21.0
+
+### Minor Changes
+
+- 98c7797: Narrow the library entry to its intended public surface. Each domain now exports its use cases, its standalone functions, and its gateway types; `events`, `memberships`, `rules`, `status`, and `task-templates` join the other domains (`getEvents`, `listMemberships`, `triggerRule`, `listStatuses`, `listTaskTemplates`, and the rest).
+  
+  Breaking for library consumers: the Asana SDK gateway adapters (`createAsana*Gateway`), the CLI/MCP wiring (`createRuntimeContext`, `registerCliCommands`, `registerMcpTools`), the repo and global config helpers, and `setAmbientToken`/`getTokenOverride` are no longer exported. Use the standalone functions, or pass your own gateway to `create*Api`.
+- b6b48aa: Ship `project-tracker.capabilities.asana`, a reference that tells repobuddy's `issue` and `epic` skills how to search, create, link, retype and close work in Asana: an issue is a task, an epic is a parent task with subtasks, and retyping happens in place. Initiative is not covered yet and is marked unsupported. Asana is a private tracker, so nothing from it is copied into a public one.
+- ddb5587: Rate-limit every Asana request. A per-token limiter keeps the CLI, the MCP server and the library under Asana's limits, waits instead of failing, and retries a 429 after `Retry-After`. Set `ASANA_PLAN` to `free` (default) or `paid`, or `ASANA_RATE_LIMIT_PER_MINUTE` to set the budget yourself.
+- 954bffa: Remove the deprecated `ASANA_TOKEN` and `ASANA_WORKSPACE` environment variables. Only `ASANA_ACCESS_TOKEN` and `ASANA_WORKSPACE_GID` are read; rename the old variables if you still set them. `auth status` no longer lists `ASANA_TOKEN` as a credential source.
+  
+  The workspace fallback on `--workspace-gid` now goes through the same guard as the token, so an unexpanded `${ASANA_WORKSPACE_GID}` placeholder counts as unset instead of being sent as the GID.
+- aa73944: Remove `config migrate-conventions`. A repo config that still has a `conventions` block is still rejected; the error now says to move its keys into the frontmatter of `.agents/references/cyber-asana.task-conventions.md` and delete the block.
+- 6b9fbbc: Make the skills self-contained. `init-asana` no longer ships `scripts/cyber-asana.mjs`, which reached out of the skill folder to `dist/cli.js`. It resolves the CLI as `pnpm exec cyber-asana` where `cyber-asana` is a direct dependency, then a global install, then a pinned `npx cyber-asana@<exact>`. Skill README links to sibling skills are now GitHub URLs, and the `repobuddy` call in `link-pr` is pinned to an exact version.
+- 50304dd: Type the library's Asana-returning functions and gateway interfaces (`getTask`, `listProjects`, `TaskGateway`, `ProjectGateway`, and more) against the real `Asana.*` shapes instead of `any`. `Task` also gains `custom_fields`, `num_subtasks`, and `start_at`.
+  
+  Because Asana's `opt_fields` parameter can omit any field except `gid`, every resource's `name` and `resource_type` are now optional on the type, matching what the API actually returns rather than assuming a field is always present. TypeScript consumers accessing `.name` or `.resource_type` without a null check will need to add one.
+
+### Patch Changes
+
+- 3d867ba: Fix three contradictions in the plugin skills: sprint-report no longer says a task can carry both story and task points, sync-asana-project names `ASANA_WORKSPACE_GID` instead of the deprecated alias, and init-asana no longer says the config stores projects only.
+- 09adc77: Fix `events get` dropping the sync token and `has_more` after the first call. Asana returns them on the response body, not on the page object the SDK hands back, so every follow-up poll reported no token and an exhausted feed.
+- ad8d764: The short GID flags (`--project`, `--task`, `--parent`, `--workspace`, and the rest) are now documented as supported aliases of their `--<resource>-gid` forms instead of "legacy" ones. Help reads `(alias of --project-gid)`. Both spellings stay in 1.x.
+
 ## 0.20.0
 
 ### Minor Changes
