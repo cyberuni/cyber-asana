@@ -1,0 +1,19 @@
+.changeset/fix-harness-dependency-marketplaces.md
+  s_ebf6e2a772e461::t_8b77d9231b1827 1-5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "d1929a495f83200056656c54a09f3536c6b6045d",
+  "prompts": {},
+  "sessions": {
+    "s_ebf6e2a772e461": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1534eece-495a-417c-abbc-846d870d8c4f",
+        "model": "claude-sonnet-5-5"
+      },
+      "human_author": "unional <homawong@gmail.com>"
+    }
+  }
+}
