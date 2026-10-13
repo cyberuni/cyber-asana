@@ -1,0 +1,19 @@
+packages/cyber-asana/skills/asana/SKILL.md
+  s_50dda24ec542b6::t_cf85bd6d2efed2 1-2,4-7,11,13,16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "3a1edb50e469ff5fa24fc2bfb4e6b53a1bfc5bf7",
+  "prompts": {},
+  "sessions": {
+    "s_50dda24ec542b6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "46e40a2e-6fca-47c9-a99f-55825722a920",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "unional <homawong@gmail.com>"
+    }
+  }
+}
