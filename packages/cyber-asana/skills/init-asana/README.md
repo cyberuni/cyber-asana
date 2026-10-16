@@ -18,7 +18,7 @@ Good triggers include:
 
 The skill guides:
 
-- Ensuring the `cyber-asana` CLI is available (`npx` or global install); pinning `npx cyber-asana@0.21.1` to the latest npm version (`npm view cyber-asana version`) for this and all other cyber-asana skills
+- Ensuring the `cyber-asana` CLI is available (`npx` or global install); pinning `npx cyber-asana@0.22.0` to the latest npm version (`npm view cyber-asana version`) for this and all other cyber-asana skills
 - Setting `ASANA_ACCESS_TOKEN` and verifying the connection
 - Listing workspaces and setting `ASANA_WORKSPACE_GID`
 - Optional pinned projects and users in `.agents/cyber-asana.json` (via [`config-asana`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/config-asana/README.md))

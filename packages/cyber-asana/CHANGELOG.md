@@ -1,5 +1,11 @@
 # cyber-asana
 
+## 0.22.0
+
+### Minor Changes
+
+- 9c9416b: Update runtime dependencies.
+
 ## 0.21.1
 
 ### Patch Changes
