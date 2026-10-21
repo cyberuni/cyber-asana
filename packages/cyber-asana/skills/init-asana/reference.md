@@ -13,7 +13,7 @@ Claude Code's environment, so pass no credentials.
 
 ```bash
 claude mcp get cyber-asana        # existing entry?
-claude mcp add --scope user cyber-asana -- npx -y cyber-asana@0.21.1 mcp
+claude mcp add --scope user cyber-asana -- npx -y cyber-asana@0.22.0 mcp
 ```
 
 Add `--env CYBER_ASANA_MCP_FORMAT=toon` before the name for TOON output.
@@ -49,7 +49,7 @@ the variables Codex forwards from its own environment, so no value is written to
 
 ```bash
 codex mcp list                    # existing entry?
-codex mcp add cyber-asana -- npx -y cyber-asana@0.21.1 mcp
+codex mcp add cyber-asana -- npx -y cyber-asana@0.22.0 mcp
 ```
 
 Then make sure the table forwards the credentials:
