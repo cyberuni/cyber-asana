@@ -11,5 +11,5 @@
 	"keywords": ["asana", "mcp", "cli", "agent", "productivity", "project-management"],
 	"skills": "./skills/",
 	"commands": "./commands/",
-	"dependencies": ["cyber-agent-harness"]
+	"dependencies": ["cyber-agentkit"]
 }

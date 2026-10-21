@@ -2,11 +2,11 @@ import { existsSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { parseReferenceName, type ReferenceLayer, referenceLayers, resolveReference } from '@cyberuni/agent-harness'
+import { parseReferenceName, referenceLayers, resolveReference } from 'cyber-agentkit'
 
 /**
  * The reference whose frontmatter holds the repo's task conventions. It is the only source of
- * them: resolved through the @cyberuni/agent-harness layers (managed, repo, user, installed plugins,
+ * them: resolved through the cyber-agentkit layers (managed, repo, user, installed plugins,
  * then the copy this package ships) and merged key by key.
  */
 const CONVENTIONS_REFERENCE = 'cyber-asana.task-conventions'
@@ -73,38 +73,23 @@ export type LoadConventionsOptions = {
 }
 
 /**
- * Every layer @cyberuni/agent-harness reads, with this package standing in as the one `cyber-asana`
- * plugin. Another copy of cyber-asana — an enabled harness plugin or a declared dependency — is
- * the same plugin, so it is dropped rather than read as a second holder of the name.
- */
-async function conventionLayers(opts: Required<Omit<LoadConventionsOptions, 'warn'>>): Promise<ReferenceLayer[]> {
-	const layers = await referenceLayers(opts)
-	const own = join(opts.packageRoot, 'references')
-	const others = layers.filter(
-		(layer) =>
-			layer.tier !== 'plugin' || !(dirname(layer.dir) === opts.packageRoot || layer.plugins.includes(PLUGIN_NAME)),
-	)
-	return [...others, { tier: 'plugin', dir: own, plugins: [PLUGIN_NAME], status: '' }]
-}
-
-/**
  * The task conventions from the resolved `cyber-asana.task-conventions` frontmatter, or undefined
  * when nothing sets them. An ambiguous name warns rather than throws, so a normal task create
  * still goes through.
  */
 export async function loadConventions(opts: LoadConventionsOptions = {}): Promise<RepoConventions | undefined> {
 	const warn = opts.warn ?? ((message: string) => console.error(`warning: ${message}`))
-	const layers = await conventionLayers({
+	const layers = await referenceLayers({
 		root: opts.root ?? process.cwd(),
 		home: opts.home ?? homedir(),
 		platform: opts.platform ?? process.platform,
 		env: opts.env ?? process.env,
-		packageRoot: opts.packageRoot ?? packageRoot(),
+		plugin: { name: PLUGIN_NAME, root: opts.packageRoot ?? packageRoot() },
 	})
 	const resolved = resolveReference(parseReferenceName(CONVENTIONS_REFERENCE), layers)
 	if (resolved.status === 'ambiguous') {
 		warn(
-			`${CONVENTIONS_REFERENCE} is ambiguous: ${resolved.plugins.join(', ')} all ship it, so no task conventions apply. Set them in .agents/references/${CONVENTIONS_REFERENCE}.md instead.`,
+			`${CONVENTIONS_REFERENCE} is ambiguous: ${(resolved.options ?? []).join(', ')} all ship it, so no task conventions apply. Set them in .agents/references/${CONVENTIONS_REFERENCE}.md instead.`,
 		)
 		return undefined
 	}

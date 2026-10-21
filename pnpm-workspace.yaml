@@ -37,9 +37,9 @@ overrides:
 minimumReleaseAge: 1440 # 1 day
 minimumReleaseAgeStrict: true
 minimumReleaseAgeExclude:
-  # First-party (cyberuni). 0.5.0 is the first release carrying the reference engine that
-  # buddy-agent-harness@0.20.0 moved out; published 2026-10-05T01:11Z, removable 2026-10-06T01:11Z.
-  - '@cyberuni/agent-harness@0.5.0'
+  # First-party (cyberuni). cyber-agentkit 1.0.0 replaces @cyberuni/agent-harness;
+  # published 2026-10-21T07:31Z, removable 2026-10-22T07:31Z.
+  - 'cyber-agentkit@1.0.0'
   # First-party (unional). type-plus 8.0.0 is the fleet-wide sweep target;
   # published 2026-10-11T03:41Z, removable 2026-10-12T03:41Z.
   - 'type-plus@8.0.0'
