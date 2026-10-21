@@ -21,7 +21,7 @@ Before running any `cyber-asana` command, settle how to invoke it — once, in t
 
    If that prints a version, use `pnpm exec cyber-asana` for every later command and skip the rest of this section.
 2. **Global install** — `cyber-asana --version`. If that succeeds, use the bare `cyber-asana` spelling.
-3. **npx fallback** — resolve the latest published semver with `npm view cyber-asana version` and use it as `<exact>` for every `npx cyber-asana@0.21.1` (never `@latest`, never a literal placeholder). Check with `npx cyber-asana@0.21.1 --version`.
+3. **npx fallback** — resolve the latest published semver with `npm view cyber-asana version` and use it as `<exact>` for every `npx cyber-asana@0.22.0` (never `@latest`, never a literal placeholder). Check with `npx cyber-asana@0.22.0 --version`.
 
 The CLI bundles the Asana SDK, which does not tree-shake (about 777 KB for the task path), so no skill ships it as a script; the skill folder stays self-contained and the CLI comes from npm.
 
@@ -29,8 +29,8 @@ If only the npx path is left and it fails (install prompt, `command not found`, 
 
 1. Tell the user the workflow needs to download `cyber-asana` from npm (no `package.json` change).
 2. **Ask** whether to install.
-3. After yes, run the one-time install only: `npx --yes cyber-asana@0.21.1 --version`
-4. For all later commands, use `npx cyber-asana@0.21.1 <subcommand>` (no `--yes`) or `cyber-asana` if globally installed.
+3. After yes, run the one-time install only: `npx --yes cyber-asana@0.22.0 --version`
+4. For all later commands, use `npx cyber-asana@0.22.0 <subcommand>` (no `--yes`) or `cyber-asana` if globally installed.
 5. If the user declines npx, ask whether to add `cyber-asana` as a devDependency instead. Note drawbacks: it modifies `package.json` and may need ignoring in unused-dependency tools (e.g. `knip`). If they decline both, skip CLI steps.
 
 ## Instructions
@@ -60,7 +60,7 @@ Ensure the CLI is available first (see **Ensure cyber-asana CLI**), then run:
 ```bash
 cyber-asana workspace list --toon
 # or, if using npx without global install:
-npx cyber-asana@0.21.1 workspace list --toon
+npx cyber-asana@0.22.0 workspace list --toon
 ```
 
 If it fails, the token is invalid or not set. Fix credentials and retry.
@@ -82,7 +82,7 @@ This avoids passing `--workspace` on every command. Keep workspace GID in env �
 ```bash
 cyber-asana --version
 # or, if using npx without global install:
-npx cyber-asana@0.21.1 --version
+npx cyber-asana@0.22.0 --version
 ```
 
 A successful version print confirms the CLI runs with credentials loaded. If workspace-scoped commands still fail, recheck `ASANA_WORKSPACE_GID` from step 4.
@@ -113,7 +113,7 @@ do not set it up as part of this step. On yes:
 3. **Check for an existing `cyber-asana` entry** in that client and scope. If one exists, show it and
    ask before changing it; if it already runs `cyber-asana@<exact>`, report it and stop.
 4. **Write the entry the client's own way**, from [reference.md — Enable the MCP server](./reference.md#enable-the-mcp-server).
-   The command is always `npx -y cyber-asana@0.21.1 mcp`, with `<exact>` resolved as in
+   The command is always `npx -y cyber-asana@0.22.0 mcp`, with `<exact>` resolved as in
    **Ensure cyber-asana CLI**. Let the server inherit `ASANA_ACCESS_TOKEN` and `ASANA_WORKSPACE_GID`
    from the environment where the client allows it. Never write a literal `"${VAR}"` value for a client
    that does not expand it. Never write a token into a project-scoped file.

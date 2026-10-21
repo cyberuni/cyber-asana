@@ -1,5 +1,12 @@
 # cyber-asana
 
+## 0.22.0
+
+### Minor Changes
+
+- 018f24e: Move from `@cyberuni/agent-harness` to `cyber-agentkit` 1.0.0. The plugin now depends on the `cyber-agentkit` plugin instead of `cyber-agent-harness`, and task conventions resolve through its reference layers.
+- 9c9416b: Update runtime dependencies.
+
 ## 0.21.1
 
 ### Patch Changes
