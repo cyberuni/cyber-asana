@@ -212,9 +212,6 @@ importers:
 
   packages/cyber-asana:
     dependencies:
-      '@cyberuni/agent-harness':
-        specifier: ^0.7.0
-        version: 0.7.0
       '@modelcontextprotocol/sdk':
         specifier: ^1.32.1
         version: 1.32.1(supports-color@8.1.1)(zod@4.6.5)
@@ -224,6 +221,9 @@ importers:
       commander:
         specifier: ^15.0.0
         version: 15.0.0
+      cyber-agentkit:
+        specifier: ^1.0.0
+        version: 1.0.0
       yaml:
         specifier: ^2.9.1
         version: 2.9.1
@@ -2246,6 +2246,16 @@ packages:
   csso@5.0.5:
     resolution: {integrity: sha512-0LrrStPOdJj+SPCCrGhzryycLjwcgUSHBtxNA8aIDxf0GLsRh1cKYhB00Gd1lDOS4yGH69+SNn13+TWbVHETFQ==}
     engines: {node: ^10 || ^12.20.0 || ^14.13.0 || >=15.0.0, npm: '>=7.0.0'}
+
+  cyber-agentkit@1.0.0:
+    resolution: {integrity: sha512-95fpujPJiR4hvt6klML0tEUwrlmHZ4s4XDaSZHnmyyGsZgWiHARpfr+RSWX2oiVwQtJRbELRsuIL0k/z51kWjw==}
+    engines: {node: '>=22'}
+    hasBin: true
+    peerDependencies:
+      clibuilder: ^12.0.0
+    peerDependenciesMeta:
+      clibuilder:
+        optional: true
 
   debug@4.4.3:
     resolution: {integrity: sha512-RGwwWnwQvkVfavKVt22FGLw+xYSdzARwm0ru6DhTVA3umU5hZc28V3kO4stgYryrTlLpuvgI9GiijltAjNbcqA==}
@@ -5611,6 +5621,8 @@ snapshots:
   csso@5.0.5:
     dependencies:
       css-tree: 2.2.1
+
+  cyber-agentkit@1.0.0: {}
 
   debug@4.4.3(supports-color@8.1.1):
     dependencies:

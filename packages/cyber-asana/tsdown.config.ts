@@ -45,7 +45,7 @@ export default defineConfig([
 			alwaysBundle: [
 				/^@modelcontextprotocol\/sdk(\/|$)/,
 				/^asana(\/|$)/,
-				/^@cyberuni\/agent-harness(\/|$)/,
+				/^cyber-agentkit(\/|$)/,
 				/^commander(\/|$)/,
 				/^yaml(\/|$)/,
 				/^zod(\/|$)/,

@@ -127,6 +127,7 @@ describe('loadConventions', () => {
 		await writeText(join(root, 'package.json'), '{"dependencies":{"other-plugin":"1.0.0"}}')
 		const other = join(root, 'node_modules', 'other-plugin')
 		await writeText(join(other, 'package.json'), '{"name":"other-plugin","version":"1.0.0"}')
+		await writeText(join(other, 'plugin.json'), '{"name":"other-plugin"}')
 		await writeText(join(other, 'references', REFERENCE), '---\ndefault_tags: [other]\n---\n')
 
 		expect(await load()).toBeUndefined()
@@ -137,6 +138,7 @@ describe('loadConventions', () => {
 		await writeText(join(root, 'package.json'), '{"dependencies":{"cyber-asana":"1.0.0"}}')
 		const copy = join(root, 'node_modules', 'cyber-asana')
 		await writeText(join(copy, 'package.json'), '{"name":"cyber-asana","version":"1.0.0"}')
+		await writeText(join(copy, 'plugin.json'), '{"name":"cyber-asana"}')
 		await writeText(join(copy, 'references', REFERENCE), '---\ndefault_tags: [stale]\n---\n')
 
 		expect(await load()).toBeUndefined()

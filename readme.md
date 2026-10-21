@@ -205,7 +205,7 @@ cyber-asana config show
 
 ### Task conventions
 
-Repo house style for new tasks (`task_name_format`, `description_template`, `default_tags`) lives in the frontmatter of the `cyber-asana.task-conventions` reference, not in `.agents/cyber-asana.json`. The CLI and MCP resolve that reference the [@cyberuni/agent-harness](https://github.com/cyberuni/agent-harness) way: the repo copy (`.agents/references/`), the user copy (`~/.agents/references/`), installed plugins, then the copy this package ships, merged key by key. To set a convention, write a repo copy:
+Repo house style for new tasks (`task_name_format`, `description_template`, `default_tags`) lives in the frontmatter of the `cyber-asana.task-conventions` reference, not in `.agents/cyber-asana.json`. The CLI and MCP resolve that reference the [cyber-agentkit](https://github.com/cyber-uni/cyber-agentkit) way: the repo copy (`.agents/references/`), the user copy (`~/.agents/references/`), installed plugins, then the copy this package ships, merged key by key. To set a convention, write a repo copy:
 
 ```md
 ---
@@ -221,7 +221,7 @@ default_tags: [agent-created]
 
 The reference's body also sets the rules for story points and task points: what each measures, how to estimate, and how to record actuals. `cyber-asana config discover-fields <project>` finds the two fields by name and saves their GIDs under the project's `fields` in `.agents/cyber-asana.json`.
 
-Agents read it with the `reference` skill in the `cyber-agent-harness` plugin. A config that still has a `conventions` block fails to load; move its keys into the frontmatter of `.agents/references/cyber-asana.task-conventions.md` and delete the block.
+Agents read it with the `reference` skill in the `cyber-agentkit` plugin. A config that still has a `conventions` block fails to load; move its keys into the frontmatter of `.agents/references/cyber-asana.task-conventions.md` and delete the block.
 
 ## Plugin distribution
 

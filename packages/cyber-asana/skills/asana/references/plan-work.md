@@ -19,7 +19,7 @@ when it is enabled.
 ## 1. Load the task conventions
 
 Load the `cyber-asana.task-conventions` reference with the `reference` skill in the
-`cyber-agent-harness` plugin, as [`create-task.md` § 1](create-task.md#1-load-the-task-conventions)
+`cyber-agentkit` plugin, as [`create-task.md` § 1](create-task.md#1-load-the-task-conventions)
 does. Its **Grouping** section decides steps 4 and 5.
 
 ## 2. Identify the units of work
