@@ -1,5 +1,11 @@
 # cyber-asana
 
+## 0.22.1
+
+### Patch Changes
+
+- 5729f09: Include `CHANGELOG.md` in the published package.
+
 ## 0.22.0
 
 ### Minor Changes
