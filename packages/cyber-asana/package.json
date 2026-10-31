@@ -20,7 +20,8 @@
 		".claude-plugin",
 		".cursor-plugin",
 		".codex-plugin",
-		"com.github.copilot"
+		"com.github.copilot",
+		"CHANGELOG.md"
 	],
 	"type": "module",
 	"exports": {
