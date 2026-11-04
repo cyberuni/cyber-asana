@@ -135,7 +135,7 @@ convention in a repo copy:
 
 ```md
 ---
-merge: merge-sections
+merge: patch
 task_name_format: "<area>: <summary>"
 description_template: |
   ## Problem
