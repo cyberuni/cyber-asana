@@ -13,6 +13,19 @@ export const overlapMap: OverlapEntry[] = [
 	{ official: 'get_project', cyber: 'asana_project_get', confidence: 'high' },
 	{ official: 'get_projects', cyber: 'asana_project_list', confidence: 'high' },
 	{ official: 'create_project', cyber: 'asana_project_create', confidence: 'high' },
+	{ official: 'update_project', cyber: 'asana_project_update', confidence: 'high' },
+	{
+		official: 'create_project_from_template',
+		cyber: 'asana_project_template_instantiate',
+		confidence: 'high',
+	},
+	{
+		official: 'create_task_from_template',
+		cyber: 'asana_task_template_instantiate',
+		confidence: 'high',
+	},
+	// `partial`: the official tool reads one task's stories; `asana_story_list` takes any parent.
+	{ official: 'get_task_stories', cyber: 'asana_story_list', confidence: 'partial' },
 	{ official: 'get_portfolio', cyber: 'asana_portfolio_get', confidence: 'high' },
 	{ official: 'get_portfolios', cyber: 'asana_portfolio_list', confidence: 'high' },
 	{ official: 'get_items_for_portfolio', cyber: 'asana_portfolio_item_list', confidence: 'high' },
