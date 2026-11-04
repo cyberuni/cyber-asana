@@ -18,7 +18,7 @@ describe('parseConventions', () => {
 			parseConventions({
 				description: 'How to shape Asana work',
 				tags: ['asana'],
-				merge: 'merge-sections',
+				merge: 'patch',
 				task_name_format: '<area>: <summary>',
 				description_template: '## Context',
 				default_tags: ['agent-created'],
@@ -101,19 +101,16 @@ describe('loadConventions', () => {
 	it('reads the settings from a repo reference', async () => {
 		await writeText(
 			join(root, '.agents', 'references', REFERENCE),
-			'---\nmerge: merge-sections\ntask_name_format: "<area>: <summary>"\ndefault_tags: [agent-created]\n---\n',
+			'---\nmerge: patch\ntask_name_format: "<area>: <summary>"\ndefault_tags: [agent-created]\n---\n',
 		)
 		expect(await load()).toEqual({ task_name_format: '<area>: <summary>', default_tags: ['agent-created'] })
 	})
 
 	it('merges the layers key by key, the higher layer winning', async () => {
-		await writeText(
-			join(root, '.agents', 'references', REFERENCE),
-			'---\nmerge: merge-sections\ndefault_tags: [repo]\n---\n',
-		)
+		await writeText(join(root, '.agents', 'references', REFERENCE), '---\nmerge: patch\ndefault_tags: [repo]\n---\n')
 		await writeText(
 			join(home, '.agents', 'references', REFERENCE),
-			'---\nmerge: merge-sections\ndefault_tags: [user]\ndescription_template: "## Why"\n---\n',
+			'---\nmerge: patch\ndefault_tags: [user]\ndescription_template: "## Why"\n---\n',
 		)
 		expect(await load()).toEqual({ default_tags: ['repo'], description_template: '## Why' })
 	})

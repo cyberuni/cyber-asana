@@ -209,7 +209,7 @@ Repo house style for new tasks (`task_name_format`, `description_template`, `def
 
 ```md
 ---
-merge: merge-sections
+merge: patch
 task_name_format: "<area>: <summary>"
 description_template: |
   ## Context

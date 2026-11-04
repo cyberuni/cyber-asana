@@ -464,7 +464,7 @@ describe('tasks/mcp', () => {
 		async function useConventions(conventions: Record<string, unknown>) {
 			const path = join(dir as string, '.agents', 'references', 'cyber-asana.task-conventions.md')
 			await mkdir(dirname(path), { recursive: true })
-			await writeFile(path, `---\n${stringify({ merge: 'merge-sections', ...conventions })}---\n`)
+			await writeFile(path, `---\n${stringify({ merge: 'patch', ...conventions })}---\n`)
 		}
 
 		afterEach(async () => {
