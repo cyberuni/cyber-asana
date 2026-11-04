@@ -1,12 +1,14 @@
 {
 	"source": "https://developers.asana.com/docs/mcp-tools-reference",
-	"fetched_at": "2026-06-25",
-	"tool_count": 27,
+	"fetched_at": "2026-11-04",
+	"tool_count": 33,
 	"tools": [
 		"add_comment",
 		"create_project",
+		"create_project_from_template",
 		"create_project_preview",
 		"create_project_status_update",
+		"create_task_from_template",
 		"create_task_preview",
 		"create_tasks",
 		"delete_task",
@@ -15,12 +17,14 @@
 		"get_items_for_portfolio",
 		"get_me",
 		"get_my_tasks",
+		"get_notifications",
 		"get_portfolio",
 		"get_portfolios",
 		"get_project",
 		"get_projects",
 		"get_status_overview",
 		"get_task",
+		"get_task_stories",
 		"get_tasks",
 		"get_teams",
 		"get_user",
@@ -29,6 +33,8 @@
 		"search_objects",
 		"search_tasks",
 		"search_tasks_preview",
+		"update_notifications",
+		"update_project",
 		"update_tasks"
 	]
 }
