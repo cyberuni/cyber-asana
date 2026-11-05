@@ -131,11 +131,11 @@ this file. The CLI and MCP resolve that reference through the
 [cyber-agentkit](https://github.com/cyber-uni/cyber-agentkit) layers — the repo copy
 (`.agents/references/`), the user copy (`~/.agents/references/`), installed plugins, then the copy
 cyber-asana ships — and merge the frontmatter key by key, the higher layer winning. Set a
-convention in a repo copy:
+convention in a repo copy. It needs no `merge` key: the default, `patch`, keeps the shipped
+guidance and replaces only the keys you set.
 
 ```md
 ---
-merge: patch
 task_name_format: "<area>: <summary>"
 description_template: |
   ## Problem

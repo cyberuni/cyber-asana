@@ -205,11 +205,10 @@ cyber-asana config show
 
 ### Task conventions
 
-Repo house style for new tasks (`task_name_format`, `description_template`, `default_tags`) lives in the frontmatter of the `cyber-asana.task-conventions` reference, not in `.agents/cyber-asana.json`. The CLI and MCP resolve that reference the [cyber-agentkit](https://github.com/cyber-uni/cyber-agentkit) way: the repo copy (`.agents/references/`), the user copy (`~/.agents/references/`), installed plugins, then the copy this package ships, merged key by key. To set a convention, write a repo copy:
+Repo house style for new tasks (`task_name_format`, `description_template`, `default_tags`) lives in the frontmatter of the `cyber-asana.task-conventions` reference, not in `.agents/cyber-asana.json`. The CLI and MCP resolve that reference the [cyber-agentkit](https://github.com/cyber-uni/cyber-agentkit) way: the repo copy (`.agents/references/`), the user copy (`~/.agents/references/`), installed plugins, then the copy this package ships, merged key by key. To set a convention, write a repo copy. It needs no `merge` key: the default, `patch`, keeps the shipped guidance and replaces only the keys you set.
 
 ```md
 ---
-merge: patch
 task_name_format: "<area>: <summary>"
 description_template: |
   ## Context

@@ -173,11 +173,12 @@ Task conventions (`task_name_format`, `description_template`, `default_tags`) ar
 either registry. They live in the frontmatter of the `cyber-asana.task-conventions` reference —
 load it with the `reference` skill in the `cyber-agentkit` plugin. To set one for this repo,
 add the key to the frontmatter of `.agents/references/cyber-asana.task-conventions.md` (create it
-with `merge: patch` so the shipped guidance still applies), and commit that file.
+if needed; it needs no `merge` key, since the default `patch` keeps the shipped guidance), and
+commit that file.
 
 A repo config that still has a `conventions` block fails to load. Move each of its keys into the
-frontmatter of `.agents/references/cyber-asana.task-conventions.md` (create the file with
-`merge: patch` if it does not exist), then delete the block from the config. If the reference
+frontmatter of `.agents/references/cyber-asana.task-conventions.md` (create the file, with no
+`merge` key, if it does not exist), then delete the block from the config. If the reference
 already sets a key, ask the user which value to keep.
 
 ## Assigning by name
