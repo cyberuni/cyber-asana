@@ -1,13 +1,17 @@
 ---
 title: cyber-asana
-description: Agent skills, MCP tools, and a CLI for Asana — built for AI-assisted workflows
+description: Agent skills, an opt-in MCP server, and a CLI for Asana — built for AI-assisted workflows
 template: splash
 hero:
-  tagline: Agent skills, MCP tools, and a CLI for Asana — built for AI-assisted workflows
+  tagline: Agent skills first, an opt-in MCP server second, and a CLI underneath — Asana for AI-assisted workflows
   actions:
+    - text: Install the skills
+      link: /cyber-asana/skills/
+      icon: right-arrow
     - text: Getting Started
       link: /cyber-asana/getting-started/
       icon: right-arrow
+      variant: secondary
     - text: GitHub
       link: https://github.com/cyberuni/cyber-asana
       icon: external
@@ -20,16 +24,16 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
 
 <CardGrid>
   <Card title="Skills and commands" icon="pencil">
-    A plugin for Claude Code, Cursor, Codex, and Copilot CLI. The `asana` skill plans work into tasks, and the plugin adds `/cyber-asana:create-task`, `import-todos`, `link-pr`, and `tidy-description`, plus standup, sprint-report, and project-sync skills.
+    Start here. A plugin for Claude Code, Cursor, Codex, and Copilot CLI. The `asana` skill plans work into tasks, and the plugin adds `/cyber-asana:create-task`, `import-todos`, `link-pr`, and `tidy-description`, plus standup, sprint-report, and project-sync skills.
     [View skills →](/cyber-asana/skills/)
-  </Card>
-  <Card title="CLI" icon="seti:shell">
-    `cyber-asana <resource> <action>` covers tasks, projects, sections, comments, tags, goals, portfolios, status updates, attachments, templates, rules, events, and more.
-    [View CLI reference →](/cyber-asana/cli/)
   </Card>
   <Card title="MCP server" icon="laptop">
     About 100 `asana_*` tools over stdio. Opt-in: the plugin does not start it, so agents pay no context cost until you ask.
     [View MCP tools →](/cyber-asana/mcp/)
+  </Card>
+  <Card title="CLI" icon="seti:shell">
+    The layer the skills drive. `cyber-asana <resource> <action>` covers tasks, projects, sections, comments, tags, goals, portfolios, status updates, attachments, templates, rules, events, and more.
+    [View CLI reference →](/cyber-asana/cli/)
   </Card>
   <Card title="Agent-friendly output" icon="rocket">
     Token-efficient `--toon` output, `--json` for raw data, minimal default fields, structured errors with distinct exit codes, and definitive empty states.
