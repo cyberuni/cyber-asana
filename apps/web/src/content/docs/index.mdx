@@ -19,19 +19,36 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
 ## Features
 
 <CardGrid>
-  <Card title="Skills" icon="pencil">
-    Guided workflows for task creation, standups, sprint reports, and repo project lookup.
+  <Card title="Skills and commands" icon="pencil">
+    A plugin for Claude Code, Cursor, Codex, and Copilot CLI. The `asana` skill plans work into tasks, and the plugin adds `/cyber-asana:create-task`, `import-todos`, `link-pr`, and `tidy-description`, plus standup, sprint-report, and project-sync skills.
     [View skills →](/cyber-asana/skills/)
   </Card>
-  <Card title="MCP Server" icon="laptop">
-    Optional `asana_*` tools for AI agents via Model Context Protocol. Opt-in; the plugin does not start it.
-    [View MCP tools →](/cyber-asana/mcp/)
-  </Card>
   <Card title="CLI" icon="seti:shell">
-    `cyber-asana` commands for terminals and scripts.
+    `cyber-asana <resource> <action>` covers tasks, projects, sections, comments, tags, goals, portfolios, status updates, attachments, templates, rules, events, and more.
     [View CLI reference →](/cyber-asana/cli/)
   </Card>
+  <Card title="MCP server" icon="laptop">
+    About 100 `asana_*` tools over stdio. Opt-in: the plugin does not start it, so agents pay no context cost until you ask.
+    [View MCP tools →](/cyber-asana/mcp/)
+  </Card>
   <Card title="Agent-friendly output" icon="rocket">
-    Token-efficient TOON format, minimal default schemas, structured errors, and definitive empty states.
+    Token-efficient `--toon` output, `--json` for raw data, minimal default fields, structured errors with distinct exit codes, and definitive empty states.
+    [Output conventions →](/cyber-asana/cli/#output-conventions)
+  </Card>
+  <Card title="Pagination" icon="list-format">
+    Every list takes `--limit`, `--offset`, and `--all --max-pages`, and returns a `next_page` cursor.
+    [Pagination →](/cyber-asana/cli/#pagination)
+  </Card>
+  <Card title="Rate limiting" icon="seti:clock">
+    One limiter per token waits instead of failing and retries a `429`. Set `ASANA_PLAN` to match your plan.
+    [Rate limits →](/cyber-asana/reference/rate-limits/)
+  </Card>
+  <Card title="Repo config and conventions" icon="setting">
+    Commit project and user aliases to `.agents/cyber-asana.json`, and set task name format, description template, and default tags in a task-conventions reference.
+    [Repo config →](/cyber-asana/cli/repo-config/)
+  </Card>
+  <Card title="Authentication" icon="approve-check">
+    A personal access token, or OAuth with a self-refreshing token kept in a `0600` file.
+    [Getting started →](/cyber-asana/getting-started/#authentication)
   </Card>
 </CardGrid>
