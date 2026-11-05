@@ -1,5 +1,12 @@
 # cyber-asana
 
+## 0.22.2
+
+### Patch Changes
+
+- 14cd9f0: Update `cyber-agentkit` to 2.0. Task conventions now resolve references from the repository root (the nearest folder holding `.git`) instead of the working folder's chain of `.agents/references/` folders.
+- ce8161f: Drop the retired `merge: merge-sections` from the `config-asana` skill, the task-conventions reference, and the docs. A repo copy of the task-conventions reference needs no `merge` key: cyber-agentkit 2 patches by default.
+
 ## 0.22.1
 
 ### Patch Changes
