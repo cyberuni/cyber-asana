@@ -25,7 +25,9 @@ It is also where the **version-pinning rule** the catalog contract enforces is *
 than merely obeyed — it tells the agent to resolve the exact published version once with
 `npm view cyber-asana version` and reuse it everywhere, and says in so many words never to use
 `@latest` and never to leave a literal placeholder. Several sibling skills point back here for that
-rule instead of restating it.
+rule instead of restating it. Its front block sets `metadata.pin-exempt: true` so the release step
+(`universal-plugin plugin version`) leaves `cyber-asana@<exact>` alone; without it, every release
+stamps the package version over the placeholder and the skill contradicts itself.
 
 **What it adopts.** The catalog contract in [skills](../README.md) — front block, description
 budget, pinned invocations, listing in both published tables. It re-specifies none of them.
