@@ -2,7 +2,7 @@
 description: How to write Asana tasks — when to use a task, a subtask, or a dependency; how to group several units of work under a parent task; what to fill in for a task and its subtasks, custom fields, and comments; and how to track session work.
 tags: [asana, tasks, conventions, tracking]
 # Task conventions the cyber-asana CLI and MCP read from this frontmatter. Set them in a repo
-# copy at .agents/references/cyber-asana.task-conventions.md with `merge: patch`, not here.
+# copy at .agents/references/cyber-asana.task-conventions.md (no `merge` key needed), not here.
 # task_name_format: "<area>: <summary>"
 # description_template: |
 #   ## Context
