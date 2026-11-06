@@ -24,8 +24,11 @@ The skill guides:
 
 ## Install
 
-```bash
-npx skills add cyberuni/cyber-asana --skill asana-standup
+In Claude Code, add the marketplace, then install the plugin (it ships every skill):
+
+```text
+/plugin marketplace add cyberuni/cyber-asana
+/plugin install cyber-asana@cyberuni
 ```
 
 Requires `ASANA_ACCESS_TOKEN` and a target project (or project selection). See [`init-asana`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/init-asana/README.md) for setup.
