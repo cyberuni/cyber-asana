@@ -26,6 +26,9 @@ The skill guides:
 
 ## Install
 
-```bash
-npx skills add cyberuni/cyber-asana --skill init-asana
+In Claude Code, add the marketplace, then install the plugin (it ships every skill):
+
+```text
+/plugin marketplace add cyberuni/cyber-asana
+/plugin install cyber-asana@cyberuni
 ```

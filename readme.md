@@ -153,14 +153,6 @@ The skills and the CLI ship together as a plugin inside the `cyber-asana` npm pa
 
 Claude Code installs the plugin with `npm install cyber-asana` and updates it when you bump the package, so there is no clone to keep in sync. See [Plugin distribution](#plugin-distribution) for what the package contains.
 
-To take the skills on their own:
-
-```sh
-npx skills add cyberuni/cyber-asana
-```
-
-Or link individual skills into your agent's skills directory (e.g. `~/.cursor/skills/`, `~/.claude/skills/`).
-
 Set [authentication](#authentication) before running any workflow.
 
 ### Included skills

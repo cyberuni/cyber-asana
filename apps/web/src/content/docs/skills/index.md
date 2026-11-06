@@ -9,13 +9,14 @@ sidebar:
 
 ## Installation
 
-From the repo or after cloning:
+In Claude Code, add the repo's marketplace, then install the plugin:
 
-```bash
-npx skills add cyberuni/cyber-asana
+```text
+/plugin marketplace add cyberuni/cyber-asana
+/plugin install cyber-asana@cyberuni
 ```
 
-Or link individual skills into your agent's skills directory (e.g. `~/.cursor/skills/`, `~/.claude/skills/`).
+Claude Code installs the plugin from the `cyber-asana` npm package and updates it when the package version changes.
 
 Set [authentication](/cyber-asana/getting-started/#authentication) before running any workflow.
 
