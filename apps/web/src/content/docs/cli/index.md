@@ -5,7 +5,7 @@ sidebar:
   order: 1
 ---
 
-The `cyber-asana` CLI exposes the same operations as the MCP server, without needing an
+The `cyber-asana` CLI is the layer the [agent skills](/cyber-asana/skills/) drive. It exposes the same operations as the [MCP server](/cyber-asana/mcp/), without needing an
 agent host. Every command follows the same shape:
 
 ```sh
