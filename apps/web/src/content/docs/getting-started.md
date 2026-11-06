@@ -3,7 +3,20 @@ title: Getting Started
 description: Install and configure cyber-asana
 ---
 
-## Installation
+## Install the skills
+
+Start with the agent skills. The plugin ships them for Claude Code, Cursor, Codex, and Copilot CLI, and it declares no MCP server. In Claude Code, add the marketplace, then install the plugin:
+
+```text
+/plugin marketplace add cyberuni/cyber-asana
+/plugin install cyber-asana@cyberuni
+```
+
+Then ask your agent to run the `init-asana` skill. It checks your credentials, finds your workspace, and offers the optional MCP step. See [Agent skills](/cyber-asana/skills/) for every skill and command.
+
+## Install the CLI
+
+The skills drive the `cyber-asana` CLI, and you can also run it yourself. The `init-asana` skill finds or fetches it for you; to install it globally:
 
 ```bash
 npm install -g cyber-asana
@@ -68,6 +81,20 @@ See the [full OAuth documentation](https://github.com/cyberuni/cyber-asana#oauth
 
 ## Quick Start
 
+Ask your agent, with the skills installed:
+
+- "Create an Asana task for this bug" (the `asana` skill)
+- "Write my standup from Asana" (the `asana-standup` skill)
+- "Link this PR to its Asana task" (`/cyber-asana:link-pr`)
+
+MCP is opt-in. To use the tools instead of the CLI, accept the MCP step in `init-asana` or start the server yourself:
+
+```bash
+cyber-asana mcp
+```
+
+The same operations from the CLI, which the skills run for you:
+
 ```bash
 # Check your connection
 cyber-asana auth status
@@ -80,9 +107,6 @@ cyber-asana task list --project <gid>
 
 # Create a task
 cyber-asana task create "Fix the bug" --workspace-gid <gid> --project-gid <gid>
-
-# Start the MCP server (optional; MCP is opt-in)
-cyber-asana mcp
 ```
 
 ## Next Steps

@@ -5,7 +5,7 @@ sidebar:
   order: 1
 ---
 
-The `cyber-asana` CLI exposes the same operations as the MCP server, without needing an
+The `cyber-asana` CLI is the layer the [agent skills](/cyber-asana/skills/) drive. It exposes the same operations as the [MCP server](/cyber-asana/mcp/), without needing an
 agent host. Every command follows the same shape:
 
 ```sh
@@ -40,6 +40,10 @@ help text. Every resource group's `--help` ends with worked examples.
 | [Authentication](/cyber-asana/cli/auth/) | `auth status`, `auth login`, `auth token`, `auth logout` |
 | [Repo config](/cyber-asana/cli/repo-config/) | `config show/list/path/resolve-project/add/set-default/remove-project-alias/remove/sync/add-user/resolve-user/list-users/remove-user/set/unset/discover-fields/set-field/unset-field` |
 | [Memberships](/cyber-asana/cli/memberships/) | `list`, `get`, `create`, `update`, `delete` |
+| [Task templates](/cyber-asana/cli/task-templates/) | `list`, `get`, `instantiate` |
+| [Project templates](/cyber-asana/cli/project-templates/) | `list`, `get`, `instantiate` |
+| [Jobs](/cyber-asana/cli/jobs/) | `get` (read an async job) |
+| [Rules](/cyber-asana/cli/rules/) | `rule` (fire an automation rule) |
 | [Out of office](/cyber-asana/cli/ooo/) | `list`, `get`, `create`, `update`, `delete` |
 | [AI Studio](/cyber-asana/cli/ai-studio/) | `runs`, `seats` (credit usage and seats; service accounts only) |
 | [Search](/cyber-asana/cli/search/) | `objects` (typeahead; turn a name into a GID) |
@@ -129,6 +133,8 @@ cyber-asana section get <gid> --opt-fields name,project.name,created_at
 | `4` | Forbidden |
 | `5` | Not found |
 | `6` | Rate limited |
+
+A call that hits Asana's request limit waits and retries before it fails; see [Rate limits](/cyber-asana/reference/rate-limits/).
 
 Under `--json`/`--toon`, errors are structured objects. An unknown flag reports the flags
 that command actually accepts, plus a `--help` pointer, and exits `2`.

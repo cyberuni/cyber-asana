@@ -3,7 +3,7 @@ title: MCP Server
 description: cyber-asana Model Context Protocol server reference
 ---
 
-`cyber-asana` includes a stdio MCP server. Set [authentication](/cyber-asana/getting-started/#authentication) env vars (`ASANA_ACCESS_TOKEN`, optional `ASANA_WORKSPACE_GID`) before connecting.
+`cyber-asana` includes a stdio MCP server, opt-in and second to the [agent skills](/cyber-asana/skills/), which work without it and drive the [CLI](/cyber-asana/cli/). Set [authentication](/cyber-asana/getting-started/#authentication) env vars (`ASANA_ACCESS_TOKEN`, optional `ASANA_WORKSPACE_GID`) before connecting.
 
 ## Server Configuration
 

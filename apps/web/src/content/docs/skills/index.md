@@ -1,19 +1,22 @@
 ---
 title: Agent Skills
 description: AI agent skills powered by cyber-asana
+sidebar:
+  order: 1
 ---
 
 `cyber-asana` ships workflow skills for Cursor, Claude Code, and other agents. **Start here** — skills drive the CLI (and MCP tools if you have opted into the server), how to resolve projects from repo config, and common workflows.
 
 ## Installation
 
-From the repo or after cloning:
+In Claude Code, add the repo's marketplace, then install the plugin:
 
-```bash
-npx skills add cyberuni/cyber-asana
+```text
+/plugin marketplace add cyberuni/cyber-asana
+/plugin install cyber-asana@cyberuni
 ```
 
-Or link individual skills into your agent's skills directory (e.g. `~/.cursor/skills/`, `~/.claude/skills/`).
+Claude Code installs the plugin from the `cyber-asana` npm package and updates it when the package version changes.
 
 Set [authentication](/cyber-asana/getting-started/#authentication) before running any workflow.
 
@@ -21,12 +24,12 @@ Set [authentication](/cyber-asana/getting-started/#authentication) before runnin
 
 | Skill | Use when |
 | --- | --- |
-| [`asana`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana/SKILL.md) | Entry point for Asana work — routes to the skill that owns the request; plans the work into tasks (reusing existing ones, grouping several under a parent task), imports TODO/FIXME comments as tasks, links a pull or merge request to its task, tidies descriptions, and tracks session work |
-| [`init-asana`](https://github.com/cyberuni/cyber-asana/blob/main/skills/init-asana/SKILL.md) | First-time setup; `ASANA_ACCESS_TOKEN`, workspace GID, verify connection |
-| [`config-asana`](https://github.com/cyberuni/cyber-asana/blob/main/skills/config-asana/SKILL.md) | Add, remove, refresh, and show Asana projects and users in the repo config or the personal global registry |
-| [`asana-standup`](https://github.com/cyberuni/cyber-asana/blob/main/skills/asana-standup/SKILL.md) | Standup update — recent completions and due-soon tasks |
-| [`asana-sprint-report`](https://github.com/cyberuni/cyber-asana/blob/main/skills/asana-sprint-report/SKILL.md) (alpha) | Sprint retro — completed vs incomplete in a project/section |
-| [`sync-asana-project`](https://github.com/cyberuni/cyber-asana/blob/main/skills/sync-asana-project/SKILL.md) (alpha) | Pull project tasks into local markdown for planning |
+| [`asana`](/cyber-asana/skills/asana/) | Entry point for Asana work — routes to the skill that owns the request; plans the work into tasks (reusing existing ones, grouping several under a parent task), imports TODO/FIXME comments as tasks, links a pull or merge request to its task, tidies descriptions, and tracks session work |
+| [`init-asana`](/cyber-asana/skills/init-asana/) | First-time setup; `ASANA_ACCESS_TOKEN`, workspace GID, verify connection |
+| [`config-asana`](/cyber-asana/skills/config-asana/) | Add, remove, refresh, and show Asana projects and users in the repo config or the personal global registry |
+| [`asana-standup`](/cyber-asana/skills/asana-standup/) | Standup update — recent completions and due-soon tasks |
+| [`asana-sprint-report`](/cyber-asana/skills/asana-sprint-report/) (alpha) | Sprint retro — completed vs incomplete in a project/section |
+| [`sync-asana-project`](/cyber-asana/skills/sync-asana-project/) (alpha) | Pull project tasks into local markdown for planning |
 
 To create a task explicitly, run the **`/cyber-asana:create-task`** command (plugin installs). It and the `asana` skill share one procedure, [`skills/asana/references/create-task.md`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana/references/create-task.md), so prefer either over ad-hoc task creation: agents then resolve workspace, project, and URL fields consistently.
 

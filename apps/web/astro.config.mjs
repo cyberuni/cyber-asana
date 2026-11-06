@@ -23,16 +23,16 @@ export default defineConfig({
 					],
 				},
 				{
-					label: 'CLI',
-					items: [{ autogenerate: { directory: 'cli' } }],
+					label: 'Skills',
+					items: [{ autogenerate: { directory: 'skills' } }],
 				},
 				{
 					label: 'MCP',
 					items: [{ autogenerate: { directory: 'mcp' } }],
 				},
 				{
-					label: 'Skills',
-					items: [{ autogenerate: { directory: 'skills' } }],
+					label: 'CLI',
+					items: [{ autogenerate: { directory: 'cli' } }],
 				},
 				{
 					label: 'Reference',
