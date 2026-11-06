@@ -5,10 +5,11 @@ description: Install and configure cyber-asana
 
 ## Install the skills
 
-Start with the agent skills. The plugin ships them for Claude Code, Cursor, Codex, and Copilot CLI, and it declares no MCP server:
+Start with the agent skills. The plugin ships them for Claude Code, Cursor, Codex, and Copilot CLI, and it declares no MCP server. In Claude Code, add the marketplace, then install the plugin:
 
-```bash
-npx skills add cyberuni/cyber-asana
+```text
+/plugin marketplace add cyberuni/cyber-asana
+/plugin install cyber-asana@cyberuni
 ```
 
 Then ask your agent to run the `init-asana` skill. It checks your credentials, finds your workspace, and offers the optional MCP step. See [Agent skills](/cyber-asana/skills/) for every skill and command.
