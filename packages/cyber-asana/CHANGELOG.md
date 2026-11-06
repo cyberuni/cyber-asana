@@ -1,5 +1,11 @@
 # cyber-asana
 
+## 0.22.4
+
+### Patch Changes
+
+- 26026e8: Point skill installation at the Claude Code marketplace instead of `npx skills`.
+
 ## 0.22.3
 
 ### Patch Changes
