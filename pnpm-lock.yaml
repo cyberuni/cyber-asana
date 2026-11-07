@@ -194,8 +194,8 @@ importers:
         specifier: ^2.11.7
         version: 2.11.7
       universal-plugin:
-        specifier: ^0.16.0
-        version: 0.16.0
+        specifier: ^0.17.0
+        version: 0.17.1
 
   apps/web:
     dependencies:
@@ -719,17 +719,6 @@ packages:
   '@ctrl/tinycolor@4.2.1':
     resolution: {integrity: sha512-Vh5uy9Y1JBMId6J1f68TMXnZrTCvNdo9Fu2k0d1YnJngR+sM5kWTKl441c/3TFs+cG0NWOjRWgQ/iaWhbYx+7A==}
     engines: {node: '>=14'}
-
-  '@cyberuni/agent-harness@0.7.0':
-    resolution: {integrity: sha512-d3I2Z2sg3JeRcOM6LGO2oPA7dGGxAeRzjEihx8SDkAWzXjOLtMf3umApsu7iej5FxsHkXJpiag7+UubbJdDHsA==}
-    engines: {node: '>=22'}
-    deprecated: Renamed to cyber-agentkit
-    hasBin: true
-    peerDependencies:
-      clibuilder: ^12.0.0
-    peerDependenciesMeta:
-      clibuilder:
-        optional: true
 
   '@emnapi/core@1.11.1':
     resolution: {integrity: sha512-RSvbQmHzdKzNsLYa/wHrbc3KN4sYLKAdPZxqiM2HATqv/SBk2/ENSHpvXGaLOMcsAyz0poEGqkmmKYG3OWiJEQ==}
@@ -1664,9 +1653,6 @@ packages:
   '@simple-libs/stream-utils@2.0.0':
     resolution: {integrity: sha512-fCTuZK4QBa+39Oz9l4OGfJfz+GpwCp3AqO7Zch3to99xHPgstVsRFpeQ8LNd2o1Gv8raL2mCFwiaHh7bFSp5DQ==}
     engines: {node: '>=22'}
-
-  '@toon-format/toon@4.1.1':
-    resolution: {integrity: sha512-SGCkS7IjVpwRmGPgnY8ENKpAf0EdAnZDOQkvFW0d2cgOpdn9FEFl7sTgryESyypXrWr0YajHGpwsAUX4zw9ZvA==}
 
   '@turbo/darwin-64@2.11.7':
     resolution: {integrity: sha512-Z2LFOxwbiJueD1miByXJS/BrW21vv6YaQXZustty5jEX4vQYw6zyh101Sz1QO7WG0mqBzKagZ/DoAeeujI0/Sw==}
@@ -3718,8 +3704,8 @@ packages:
   unist-util-visit@5.1.0:
     resolution: {integrity: sha512-m+vIdyeCOpdr/QeQCu2EzxX/ohgS8KbnPDgFni4dQsfSCtpz8UqDyY5GjRru8PDKuYn7Fq19j1CQ+nJSsGKOzg==}
 
-  universal-plugin@0.16.0:
-    resolution: {integrity: sha512-57m57Y3DfwBu2D2XmRdyMgwqEQveD05KEVZ9OKJ0znesXod8xM37vwwHJrgY7rJX5L40y4Ridy/q5ts2PxbpuQ==}
+  universal-plugin@0.17.1:
+    resolution: {integrity: sha512-pLKkNaS9CWMdz1B8XYPHZDbrXTt3QQr6Y4lfEyezeYsmcaeWd+GLcWtc4Z0zuWfkWkexTUKoqDPxB68d4/CEQw==}
     engines: {node: '>=22'}
     hasBin: true
 
@@ -4548,8 +4534,6 @@ snapshots:
 
   '@ctrl/tinycolor@4.2.1': {}
 
-  '@cyberuni/agent-harness@0.7.0': {}
-
   '@emnapi/core@1.11.1':
     dependencies:
       '@emnapi/wasi-threads': 1.2.2
@@ -5187,8 +5171,6 @@ snapshots:
       '@simple-libs/stream-utils': 2.0.0
 
   '@simple-libs/stream-utils@2.0.0': {}
-
-  '@toon-format/toon@4.1.1': {}
 
   '@turbo/darwin-64@2.11.7':
     optional: true
@@ -7413,16 +7395,10 @@ snapshots:
       unist-util-is: 6.0.1
       unist-util-visit-parents: 6.0.2
 
-  universal-plugin@0.16.0:
+  universal-plugin@0.17.1:
     dependencies:
-      '@cyberuni/agent-harness': 0.7.0
       '@repobuddy/upx': 0.2.0
-      '@toon-format/toon': 4.1.1
-      commander: 15.0.0
-      rolldown: 1.2.13
-      semver: 7.8.5
-    transitivePeerDependencies:
-      - clibuilder
+      rolldown: 1.2.15
 
   unpartial@1.0.8: {}
 
