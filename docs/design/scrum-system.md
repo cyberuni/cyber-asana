@@ -1,7 +1,7 @@
 # Scrum System on Asana: Design
 
 **Date:** 2026-11-05
-**Status:** Draft for Council review. This document is the deliverable of a design-only session; it builds nothing. Each unit in § 9 is built later in its own session, starting from this document.
+**Status:** Council decisions recorded (D1–D9). This document is the deliverable of a design-only session; it builds nothing. Each unit in § 9 is built later in its own session, starting from this document.
 
 ## 1. Goal
 
@@ -15,7 +15,7 @@ Turn the two reporting skills `asana-standup` and `asana-sprint-report` into a c
 
 ### 1.1 Council decisions
 
-The Council settled these on 2026-11-05. The rest of this document follows them.
+The Council settled D1–D4 on 2026-11-05, and D5–D9 on 2026-11-08 by agreeing to the recommendations for O1–O5 (§ 10). The rest of this document follows them.
 
 | ID | Question | Decision |
 | --- | --- | --- |
@@ -23,8 +23,13 @@ The Council settled these on 2026-11-05. The rest of this document follows them.
 | D2 | Dashboard form | **All three, phased.** First CLI output, then an Asana status update, then a generated HTML page. |
 | D3 | Skill packaging | **One `asana-scrum` routing skill that also covers standup.** `asana-standup` and `asana-sprint-report` fold into it. |
 | D4 | Where team capacity comes from | **Asana Allocations only.** There is no capacity in config. When a workspace has no allocations, workload shows load without capacity. |
+| D5 (O1) | Setup: its own skill or a route of `asana-scrum` | **Its own skill, `init-asana-scrum`.** |
+| D6 (O2) | Where the sprint commitment snapshot lives | **A status update posted when the sprint starts.** When no snapshot exists, rebuild the commitment from task history. |
+| D7 (O3) | How `asana-standup` and `asana-sprint-report` retire | **Each stays as a stub that routes to `asana-scrum` for one minor release, then is deleted.** |
+| D8 (O4) | Where the generated dashboard page goes | **Decided when U14 is built.** Until then the CLI writes a local file. |
+| D9 (O5) | Out-of-office entries on workload | **A note beside a person's capacity, never subtracted from it**, so D4 holds. |
 
-Items still open are in § 10.
+No items are open.
 
 ### 1.2 Principles
 
@@ -121,7 +126,7 @@ What follows for the design:
 | **Backlog** | Incomplete tasks in the scope that belong to no sprint | the sprint model's "backlog" query |
 | **Workflow state** | backlog → ready → in progress → review → done | a `status` enum field role, or sections when the sprint model leaves them free (§ 4.3) |
 | **Story points / task points** | Exactly as `cyber-asana.task-conventions` § Story points and task points defines them | the `story_points` / `task_points` field roles |
-| **Commitment** | The tasks and points in a sprint when it starts | a snapshot taken at sprint start (§ 10, O2) |
+| **Commitment** | The tasks and points in a sprint when it starts | a status update posted at sprint start (D6) |
 | **Velocity** | Points completed per sprint, each kind on its own | computed from closed sprints |
 | **Capacity** | Effort hours each person is allocated for the sprint's dates | Asana Allocations only (D4) |
 | **Blocked** | A task that cannot move | any signal in the policy's `blocked_signals`: an incomplete dependency (`is_blocked`), a tag, or a status option |
@@ -322,7 +327,7 @@ Every report is a `cyber-asana report <key>` command:
 | R5 health (check report) | One finding per enabled check: H1 a task in the sprint with no estimate; H2 a parent task carrying points; H3 an unassigned task in the sprint; H4 an overdue task; H5 in progress with no change for `stale_days`; H6 a person over `wip_limit`; H7 a blocked task; H8 the sprint over capacity; H9 no current sprint section or option exists; H10 a closed sprint still holding incomplete tasks; H11 a task in two sprints. Each finding carries a level (error or warning), the task, and a fix command. | used by H1, H2, H8 |
 | R6 workload (`--from --to`, default: the current sprint) | Per person: incomplete assigned tasks in scope, story points, task points, effort hours (both kinds × `hours_per_point`, with the two parts shown), capacity hours from Allocations for the dates (hours as given; percent × `working_hours_per_day` × working days), utilization %, and over or under flags. Also a team total. | both kinds summed only as labelled effort hours, each part shown |
 
-**Capacity (D4).** Capacity comes only from `AllocationsApi.getAllocations`, filtered by `assignee` and by `parent` for each project in the scope, clipped to the report's dates. When the call returns 402, or no allocation exists for a person, that person's capacity is "unknown". The report then names the reason (plan or no allocation) and still shows the load. H8 is skipped and says why.
+**Capacity (D4).** Capacity comes only from `AllocationsApi.getAllocations`, filtered by `assignee` and by `parent` for each project in the scope, clipped to the report's dates. When the call returns 402, or no allocation exists for a person, that person's capacity is "unknown". The report then names the reason (plan or no allocation) and still shows the load. H8 is skipped and says why. Out-of-office entries (`ooo list`) for the dates appear as a note beside the person's capacity and are never subtracted from it (D9).
 
 ### 7.2 Dashboard (D2, phased)
 
@@ -330,7 +335,7 @@ Every report is a `cyber-asana report <key>` command:
 | --- | --- | --- | --- |
 | D2.1 | CLI | `cyber-asana report dashboard`: the reports listed in `cyber-asana.dashboard` `reports`, in one text, JSON, or TOON output | the reports above |
 | D2.2 | Asana status update | `report dashboard --post-status`: posts a status update on the scope's project, or its portfolio for a `portfolio` scope. `status_type` comes from `status_rules`; the body is the `## Status update` template in Asana's HTML subset. The skill shows the post and asks before sending. | `createStatusForObject` (A3). There is no edit, so each post is a new update and the history builds up. |
-| D2.3 | Generated page | `report dashboard --page <path>`: writes a self-contained HTML file from the dashboard JSON, with burndown, velocity, and workload charts and the health findings. Where it is published is outside the CLI (§ 10, O4). | none; built from the CLI JSON |
+| D2.3 | Generated page | `report dashboard --page <path>`: writes a self-contained HTML file from the dashboard JSON, with burndown, velocity, and workload charts and the health findings. Until U14 decides where it is published, the CLI writes a local file (D8). | none; built from the CLI JSON |
 
 An Asana-native dashboard (charts inside Asana) is not reachable through the API (A2). The docs page for the dashboard tells teams which fields to chart by hand in Asana.
 
@@ -341,7 +346,7 @@ An Asana-native dashboard (charts inside Asana) is not reachable through the API
 | ID | Skill | Change | Role |
 | --- | --- | --- | --- |
 | K1 | `asana-scrum` | **new** | The routing skill for all scrum work: standup, refinement, planning, review, retro, health check, workload, velocity, dashboard, and sprint housekeeping (start, close, add). Each route is a procedure file in `skills/asana-scrum/references/` (as the `asana` skill does it), with `/cyber-asana:standup`, `/cyber-asana:sprint-plan`, `/cyber-asana:sprint-review`, and `/cyber-asana:retro` commands. Each procedure loads `cyber-asana.scrum`, the scope's `cyber-asana.sprint-model.<key>`, and its `cyber-asana.report.<key>` with the `reference` skill of `cyber-agentkit`. |
-| K2 | `init-asana-scrum` | **new** | The setup skill (§ 8.2). Whether it stays separate or becomes a route of K1 is open (§ 10, O1). |
+| K2 | `init-asana-scrum` | **new** | The setup skill (§ 8.2), separate from K1 (D5). |
 | K3 | `asana-standup` | **retired** into K1's standup route | — |
 | K4 | `asana-sprint-report` | **retired** into K1's review and retro routes | — |
 | K5 | `asana` | changed | Its routing table sends standup and sprint requests to `asana-scrum`, and scrum setup to `init-asana-scrum`. |
@@ -349,7 +354,7 @@ An Asana-native dashboard (charts inside Asana) is not reachable through the API
 | K7 | `init-asana` | changed | Its last step offers `init-asana-scrum`. |
 | K8 | `sync-asana-project` | unchanged | — |
 
-Retiring K3 and K4 removes two skill names users may call directly. The retire path is open (§ 10, O3).
+Retiring K3 and K4 removes two skill names users may call directly. Each stays as a stub that routes to `asana-scrum` for one minor release, with a changeset that says so, and is then deleted (D7).
 
 Every skill change also needs:
 
@@ -411,20 +416,22 @@ Each unit can ship alone and passes `pnpm verify`; units that need it also pass 
 | U3 | `scrum.scopes` (schema 3), `config scope add \| remove \| list`, `scrum scope resolve` for `project`, `projects`, `portfolio`; the `sprint` and `status` field roles | G9, G10, G8 (recursion) | U2 |
 | U4 | `cyber-asana.sprint-model.interface` + `.sections`; `sprint current \| list \| tasks \| add \| start \| close`, `backlog list`; MCP tools | G12 (sprints) | U1, U3 |
 | U5 | `init-asana-scrum` v1: project and projects scopes, the `sections` model, writing the policy and fields | K2 | U4 |
-| U6 | `cyber-asana.report.interface` + `.standup`; `report standup`; `asana-scrum` v1 with the standup route; retire `asana-standup` (per O3); update K5 | G12 (standup), K1, K3 | U4 |
-| U7 | `.sprint`, `.retro`, `.velocity` reports, the burndown, and the commitment snapshot (per O2); review and retro routes; retire `asana-sprint-report` | K4, G14 | U6 |
+| U6 | `cyber-asana.report.interface` + `.standup`; `report standup`; `asana-scrum` v1 with the standup route; turn `asana-standup` into a routing stub (D7); update K5 | G12 (standup), K1, K3 | U4 |
+| U7 | `.sprint`, `.retro`, `.velocity` reports, the burndown, and the commitment snapshot (D6); review and retro routes; turn `asana-sprint-report` into a routing stub (D7) | K4, G14 | U6 |
 | U8 | `.health` report and the health route | — | U6 |
 | U9 | `team members \| projects`, the `team` scope, team standup | G4 | U3, U6 |
 | U10 | The `allocations` domain, `.workload` report, workload route, H8, and the capacity probe in setup | G5 | U8 |
 | U11 | `.custom-field` model, search custom-field filters and paging, custom-field create and enum options, project field attach; setup support | G3, G6, G7 | U4, U5 |
 | U12 | `cyber-asana.dashboard` and `report dashboard` (CLI, D2.1); the planning route (needs velocity and capacity) | — | U7, U8, U10 |
 | U13 | `--post-status` (D2.2) and `status_type` validation | G13 | U12 |
-| U14 | `--page` generated HTML (D2.3) | — | U12, O4 |
+| U14 | `--page` generated HTML (D2.3), and where the page is published (D8) | — | U12 |
 | U15 | `.project` model (one project per sprint, in a portfolio) | G8 (add/remove) | U11 |
 
 U1 can ship before anything else and fixes wrong numbers users see today.
 
-## 10. Open items for the Council
+## 10. Items settled after the first review
+
+The Council agreed to each recommendation below on 2026-11-08. Each is recorded as D5–D9 in § 1.1.
 
 | ID | Question | Recommendation |
 | --- | --- | --- |
