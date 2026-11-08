@@ -1,7 +1,7 @@
 # Scrum System on Asana: Design
 
 **Date:** 2026-11-05
-**Status:** Council decisions recorded (D1–D9). This document is the deliverable of a design-only session; it builds nothing. Each unit in § 9 is built later in its own session, starting from this document.
+**Status:** Council decisions recorded (D1–D10); four questions from the spec dry run stay open (§ 11). This document is the deliverable of a design-only session; it builds nothing. Each unit in § 9 is built later in its own session, starting from this document.
 
 ## 1. Goal
 
@@ -15,7 +15,7 @@ Turn the two reporting skills `asana-standup` and `asana-sprint-report` into a c
 
 ### 1.1 Council decisions
 
-The Council settled D1–D4 on 2026-11-05, and D5–D9 on 2026-11-08 by agreeing to the recommendations for O1–O5 (§ 10). The rest of this document follows them.
+The Council settled D1–D4 on 2026-11-05, and D5–D9 on 2026-11-08 by agreeing to the recommendations for O1–O5 (§ 10), and D10 on 2026-11-08 from the spec dry run (§ 11). The rest of this document follows them.
 
 | ID | Question | Decision |
 | --- | --- | --- |
@@ -28,8 +28,9 @@ The Council settled D1–D4 on 2026-11-05, and D5–D9 on 2026-11-08 by agreeing
 | D7 (O3) | How `asana-standup` and `asana-sprint-report` retire | **Each stays as a stub that routes to `asana-scrum` for one minor release, then is deleted.** |
 | D8 (O4) | Where the generated dashboard page goes | **Decided when U14 is built.** Until then the CLI writes a local file. |
 | D9 (O5) | Out-of-office entries on workload | **A note beside a person's capacity, never subtracted from it**, so D4 holds. |
+| D10 (Q10) | Where the scrum system's design spec lives | **In the repo's existing spec tree, `packages/cyber-asana/.agents/spec/`.** |
 
-No items are open.
+§ 11 lists what is still open: Q7, Q8, Q9, and Q11 for the design spec, and Q6 for the functional spec.
 
 ### 1.2 Principles
 
@@ -440,3 +441,16 @@ The Council agreed to each recommendation below on 2026-11-08. Each is recorded 
 | O3 | How should `asana-standup` and `asana-sprint-report` be retired? | Keep each as a stub that routes to `asana-scrum` for one minor release, with a changeset that says so, then delete them |
 | O4 | Where does the generated dashboard page (D2.3) go: a local file only, a file committed to the repo, or a published page? | Decide at U14. Until then the CLI writes a local file. |
 | O5 | Should out-of-office entries (`ooo`, already wrapped) annotate workload? D4 rules them out as a capacity source. | Show them as a note beside a person's capacity and never subtract them, so D4 holds |
+
+## 11. Questions from the spec dry run
+
+A dry run of the `spec` skill (sdd2) on this document raised these questions. This document had left them unanswered. Each keeps the label the dry run gave it.
+
+| ID | Question | Scope | Status | Recommendation |
+| --- | --- | --- | --- | --- |
+| Q6 | What CLI exit code does each failure status get (`scope-missing`, `scope-unknown`, `policy-invalid`, `policy-incomplete`, `model-unsupported`, `premium-required`, `sprint-none`)? | **Functional spec**, not design spec. An exit code is an encoding of an outcome. The design spec states only that each outcome is told apart and stable; the build unit that adds the command pins the code with its tests. | Open, for the functional spec | `2` for the configuration statuses (`scope-*`, `policy-*`, `model-unsupported`), and the CLI's existing API-error code for `premium-required` |
+| Q7 | Which timezone sets "today" and the standup window: the user's Asana timezone or the machine's? | Design spec | Open | The user's Asana timezone, read through `user me` |
+| Q8 | When there is no current sprint (before `sprint_anchor_date`, or its section or option is missing), do reports fail with `sprint-none` or carry on without sprint filters? | Design spec | Open | Standup carries on and says so; review, health, and workload fail with `sprint-none` |
+| Q9 | When two plugins ship `cyber-asana.scrum`, so the name is ambiguous, does a run warn and use the package default, or fail? | Design spec | Open | Warn and use the package default, as `loadConventions()` does for task conventions |
+| Q10 | Where does the design spec live, given the repo already has an SDD spec tree with `.feature` suites? | Design spec | **Decided: D10** | `packages/cyber-asana/.agents/spec/` |
+| Q11 | Does Blocked in the standup also list the member's blocked tasks outside the current sprint? | Design spec | Open | No; the current sprint only, matching Today |
