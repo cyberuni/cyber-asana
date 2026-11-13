@@ -11,6 +11,15 @@ import {
 } from '../platform/cli/options.js'
 import { output, printCountSummary, printFields, printNextSteps, printTable } from '../platform/cli/output.js'
 import { deleteIdempotently, deleteMessage } from '../platform/idempotent-delete.js'
+import type { TaskApi } from '../tasks/api.js'
+import {
+	addCompletionOptions,
+	type CompletionCliOptions,
+	completionFilterFromCli,
+	printTaskListResult,
+	TASK_LIST_FIELDS,
+} from '../tasks/cli.js'
+import { listTasksForSection } from '../tasks/default.js'
 import type { SectionApi } from './api.js'
 import {
 	addTaskToSection,
@@ -43,6 +52,14 @@ function resolveSectionApi(api?: SectionApi | (() => SectionApi)): SectionApi {
 	)
 }
 
+/** `section tasks` reads through the task api; Asana files a section's tasks under the tasks endpoints. */
+export type SectionTaskApi = Pick<TaskApi, 'listTasksForSection'>
+
+function resolveSectionTaskApi(api?: SectionTaskApi | (() => SectionTaskApi)): SectionTaskApi {
+	if (typeof api === 'function') return api()
+	return api ?? { listTasksForSection }
+}
+
 // Mirrors `task project add`: the two placements name a position, so only one can win.
 function assertSinglePlacement(opts: { insertBefore?: string; insertAfter?: string }) {
 	if (opts.insertAfter && opts.insertBefore) {
@@ -58,7 +75,10 @@ const SECTION_LIST_NEXT_STEPS = [
 	'cyber-asana task list --project-gid <gid> — list the project’s tasks',
 ]
 
-export function sectionCommand(api?: SectionApi | (() => SectionApi)) {
+export function sectionCommand(
+	api?: SectionApi | (() => SectionApi),
+	taskApi?: SectionTaskApi | (() => SectionTaskApi),
+) {
 	const cmd = new Command('section').description('Manage Asana sections')
 
 	cmd.addHelpText(
@@ -68,6 +88,7 @@ export function sectionCommand(api?: SectionApi | (() => SectionApi)) {
 			'Examples:',
 			'  cyber-asana section list --project-gid <gid>',
 			'  cyber-asana section get <gid> --toon',
+			'  cyber-asana section tasks <gid> --completed-since 2026-11-09',
 			'  cyber-asana section create "In Progress" --project-gid <gid>',
 			'  cyber-asana section create "Review" --project-gid <gid> --insert-after <section-gid>',
 			'  cyber-asana section update <gid> --name "Done"',
@@ -166,6 +187,23 @@ export function sectionCommand(api?: SectionApi | (() => SectionApi)) {
 			output({ section: gid, project: projectGid, status: 'moved' }, () =>
 				console.log(`Moved section ${gid} in project ${projectGid}`),
 			)
+		},
+	)
+
+	addPaginationOptions(
+		addCompletionOptions(cmd.command('tasks <section-gid>').description('List the tasks in a section')),
+	).action(
+		async (
+			sectionGid: string,
+			opts: CompletionCliOptions & { limit?: number; offset?: string; optFields?: string },
+		) => {
+			const pagination = paginationOptionsFromCli(opts)
+			pagination.optFields ??= TASK_LIST_FIELDS
+			const data = await resolveSectionTaskApi(taskApi).listTasksForSection(sectionGid, {
+				...completionFilterFromCli(opts),
+				...pagination,
+			})
+			output(data, () => printTaskListResult(data))
 		},
 	)
 

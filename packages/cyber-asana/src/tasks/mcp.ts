@@ -105,7 +105,7 @@ function resolveTaskApi(api?: TaskApi | (() => TaskApi)): TaskApi {
 }
 
 /** The completion filters every task list tool takes; see `CompletionFilter` for what each one means. */
-const completionParams = {
+export const completionParams = {
 	completed_since: z
 		.string()
 		.optional()
@@ -122,7 +122,7 @@ const completionParams = {
 		),
 }
 
-function completionFilter(params: {
+export function completionFilter(params: {
 	completed_since?: string
 	incomplete?: boolean
 	incomplete_or_completed_since?: string

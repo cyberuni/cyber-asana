@@ -1,6 +1,9 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import { paginationOptions, paginationParams, readOptions, readParams } from '../platform/mcp/options.js'
+import type { TaskApi } from '../tasks/api.js'
+import { listTasksForSection } from '../tasks/default.js'
+import { completionFilter, completionParams } from '../tasks/mcp.js'
 import type { SectionApi } from './api.js'
 import {
 	addTaskToSection,
@@ -27,7 +30,38 @@ function resolveSectionApi(api?: SectionApi | (() => SectionApi)): SectionApi {
 	)
 }
 
-export function registerSectionTools(server: McpServer, api?: SectionApi | (() => SectionApi)) {
+/** `asana_section_task_list` reads through the task api; Asana files a section's tasks under the tasks endpoints. */
+export type SectionTaskApi = Pick<TaskApi, 'listTasksForSection'>
+
+function resolveSectionTaskApi(api?: SectionTaskApi | (() => SectionTaskApi)): SectionTaskApi {
+	if (typeof api === 'function') return api()
+	return api ?? { listTasksForSection }
+}
+
+export function registerSectionTools(
+	server: McpServer,
+	api?: SectionApi | (() => SectionApi),
+	taskApi?: SectionTaskApi | (() => SectionTaskApi),
+) {
+	server.tool(
+		'asana_section_task_list',
+		'List the tasks in an Asana section',
+		{ section_gid: z.string().describe('Section GID'), ...completionParams, ...paginationParams },
+		async ({ section_gid, completed_since, incomplete, incomplete_or_completed_since, ...params }) => ({
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(
+						await resolveSectionTaskApi(taskApi).listTasksForSection(section_gid, {
+							...completionFilter({ completed_since, incomplete, incomplete_or_completed_since }),
+							...paginationOptions(params),
+						}),
+					),
+				},
+			],
+		}),
+	)
+
 	server.tool(
 		'asana_section_list',
 		'List Asana sections in a project',

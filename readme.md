@@ -479,7 +479,7 @@ Tools are named `asana_<resource>_<action>` (e.g. `asana_task_create`).
 | `project` | `asana_project_list`, `asana_project_get`, `asana_project_counts`, `asana_project_search`, `asana_project_create`, `asana_project_update`, `asana_project_delete`, `asana_project_export` |
 | `task` | `asana_task_list`, `asana_task_my_tasks`, `asana_task_subtask_list`, `asana_task_subtask_create`, `asana_task_get`, `asana_task_get_many`, `asana_task_create`, `asana_task_update`, `asana_task_delete`, `asana_task_search`, `asana_task_follower_add`, `asana_task_follower_remove`, `asana_task_project_add`, `asana_task_project_remove`, `asana_task_dependency_list`, `asana_task_dependency_add`, `asana_task_dependency_remove`, `asana_task_dependent_list`, `asana_task_dependent_add`, `asana_task_dependent_remove`, `asana_task_scan_todos` |
 | `task-template` | `asana_task_template_list`, `asana_task_template_get`, `asana_task_template_instantiate` |
-| `section` | `asana_section_list`, `asana_section_get`, `asana_section_create`, `asana_section_update`, `asana_section_move`, `asana_section_task_add`, `asana_section_delete` |
+| `section` | `asana_section_list`, `asana_section_get`, `asana_section_create`, `asana_section_update`, `asana_section_move`, `asana_section_task_add`, `asana_section_task_list`, `asana_section_delete` |
 | `user` | `asana_user_list`, `asana_user_get`, `asana_user_me` |
 | `team` | `asana_team_list`, `asana_team_get` |
 | `portfolio` | `asana_portfolio_list`, `asana_portfolio_item_list`, `asana_portfolio_get`, `asana_portfolio_create`, `asana_portfolio_update`, `asana_portfolio_delete` |
@@ -630,7 +630,7 @@ Installing twice is a no-op, and unrelated settings are preserved.
 | `project` | `list`, `get`, `counts`, `search`, `create`, `update`, `delete` |
 | `task` | `list`, `my-tasks list`, `get`, `create`, `update`, `delete`, `subtask list`, `subtask create`, `search`, `project add/remove`, `follower add/remove`, `dependency list/add/remove`, `dependent list/add/remove` |
 | `task-template` | `list`, `get`, `instantiate` |
-| `section` | `list`, `get`, `create`, `update`, `move`, `delete`, `task add` |
+| `section` | `list`, `get`, `create`, `update`, `move`, `delete`, `tasks`, `task add` |
 | `user` | `list`, `get`, `me` |
 | `team` | `list`, `get` |
 | `portfolio` | `list`, `items`, `get`, `create`, `update`, `delete` |

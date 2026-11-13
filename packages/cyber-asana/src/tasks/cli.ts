@@ -23,6 +23,7 @@ import {
 	printTable,
 } from '../platform/cli/output.js'
 import { deleteIdempotently, deleteMessage } from '../platform/idempotent-delete.js'
+import type { ListResult } from '../platform/pagination.js'
 import { isFull, truncate } from '../platform/truncate.js'
 import { listTags } from '../tags/default.js'
 import { resolveTagRefs } from '../tags/resolve.js'
@@ -180,7 +181,7 @@ function printTaskSummary(tasks: Task[]) {
 
 // Minimal default schema for task lists — principle 2. Just the fields the
 // table renders, instead of Asana's larger default payload.
-const TASK_LIST_FIELDS = 'gid,name,completed,due_on'
+export const TASK_LIST_FIELDS = 'gid,name,completed,due_on'
 
 function mergeFields(...fieldSets: string[]) {
 	const fields = fieldSets.flatMap((set) => set.split(',')).filter(Boolean)
@@ -191,6 +192,15 @@ const TASK_LIST_NEXT_STEPS = [
 	'cyber-asana task get <gid> — view a task',
 	'cyber-asana task update <gid> --completed — complete a task',
 ]
+
+/** Text-mode rendering shared by every task list: the table, the done count, the page hint, next steps. */
+export function printTaskListResult(data: ListResult<Task>) {
+	const items = itemsForOutput(data)
+	fmtTaskList(items)
+	printTaskSummary(items)
+	printNextPageHint(data)
+	printNextSteps(TASK_LIST_NEXT_STEPS)
+}
 
 function collectOption(value: string, previous: string[] = []) {
 	return [...previous, value]
@@ -205,7 +215,7 @@ function parseCompletedSince(value: string) {
 	return value
 }
 
-type CompletionCliOptions = {
+export type CompletionCliOptions = {
 	completedSince?: string
 	incomplete?: boolean
 	incompleteOrCompletedSince?: string
@@ -215,7 +225,7 @@ type CompletionCliOptions = {
  * The completion filters every task list command takes. `--completed-since` is a true filter, applied
  * client-side by the task api; `--incomplete-or-completed-since` is Asana's own `completed_since`.
  */
-function addCompletionOptions<T extends Command>(cmd: T) {
+export function addCompletionOptions<T extends Command>(cmd: T) {
 	return cmd
 		.addOption(
 			new Option(
@@ -234,7 +244,7 @@ function addCompletionOptions<T extends Command>(cmd: T) {
 		)
 }
 
-function completionFilterFromCli(opts: CompletionCliOptions): CompletionFilter {
+export function completionFilterFromCli(opts: CompletionCliOptions): CompletionFilter {
 	if (opts.incomplete) return { incompleteOrCompletedSince: 'now' }
 	if (opts.completedSince !== undefined) return { completedSince: opts.completedSince }
 	if (opts.incompleteOrCompletedSince !== undefined)
@@ -283,13 +293,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 				...(opts.customType !== undefined && { customType: opts.customType }),
 				...pagination,
 			})
-			output(data, () => {
-				const items = itemsForOutput(data)
-				fmtTaskList(items)
-				printTaskSummary(items)
-				printNextPageHint(data)
-				printNextSteps(TASK_LIST_NEXT_STEPS)
-			})
+			output(data, () => printTaskListResult(data))
 		},
 	)
 
@@ -315,13 +319,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 				...completionFilterFromCli(opts),
 				...pagination,
 			})
-			output(data, () => {
-				const items = itemsForOutput(data)
-				fmtTaskList(items)
-				printTaskSummary(items)
-				printNextPageHint(data)
-				printNextSteps(TASK_LIST_NEXT_STEPS)
-			})
+			output(data, () => printTaskListResult(data))
 		},
 	)
 
