@@ -7,6 +7,7 @@ import {
 } from '../platform/pagination.js'
 import { type ReadOptions, toAsanaReadOptions } from '../platform/read-options.js'
 import { createAsanaStoryGateway } from '../stories/gateway.js'
+import type { RawCompletionFilter } from './completion-filter.js'
 
 /**
  * Custom field values on write, keyed by field GID. Deliberately loose: the value shape depends
@@ -124,25 +125,25 @@ export type SearchTasksOptions = {
 	optFields?: string
 }
 
+/**
+ * What a gateway task list takes. `incompleteOrCompletedSince` is Asana's `completed_since`, passed as-is:
+ * tasks that are incomplete or completed since that time (`"now"` for incomplete only).
+ */
+export type TaskGatewayListOptions = PaginationOptions & RawCompletionFilter
+
 /** `customType` filters by custom type GID; an empty string selects tasks with no custom type. */
-export type TaskListOptions = PaginationOptions & { completedSince?: string; customType?: string }
+export type TaskGatewayProjectListOptions = TaskGatewayListOptions & { customType?: string }
 
 export type TaskGateway = {
-	listTasks(projectGid: string, opts?: TaskListOptions): Promise<ListResult<Asana.Task>>
-	listTasksForSection(
-		sectionGid: string,
-		opts?: PaginationOptions & { completedSince?: string },
-	): Promise<ListResult<Asana.Task>>
+	listTasks(projectGid: string, opts?: TaskGatewayProjectListOptions): Promise<ListResult<Asana.Task>>
+	listTasksForSection(sectionGid: string, opts?: TaskGatewayListOptions): Promise<ListResult<Asana.Task>>
 	getTask(taskGid: string, opts?: ReadOptions): Promise<Asana.Task>
 	getTasksByGid(taskGids: string[], opts?: { optFields?: string }): Promise<TaskBatchLookupResult[]>
 	createTask(workspaceGid: string, name: string, opts?: CreateTaskFields): Promise<Asana.Task>
 	updateTask(taskGid: string, fields: UpdateTaskFields): Promise<Asana.Task | undefined>
 	deleteTask(taskGid: string): Promise<void>
-	getMyTasks(
-		workspaceGid: string,
-		opts?: PaginationOptions & { completedSince?: string },
-	): Promise<ListResult<Asana.Task>>
-	listSubtasks(taskGid: string, opts?: PaginationOptions & { completedSince?: string }): Promise<ListResult<Asana.Task>>
+	getMyTasks(workspaceGid: string, opts?: TaskGatewayListOptions): Promise<ListResult<Asana.Task>>
+	listSubtasks(taskGid: string, opts?: TaskGatewayListOptions): Promise<ListResult<Asana.Task>>
 	createSubtask(parentTaskGid: string, name: string, opts?: CreateTaskFields): Promise<Asana.Task>
 	addTaskToProject(
 		taskGid: string,
@@ -200,20 +201,20 @@ export function createAsanaTaskGateway(client: Asana.ApiClient): TaskGateway {
 				const res = await tasksApi.getTasks({
 					project: projectGid,
 					custom_type: opts.customType,
-					completed_since: opts.completedSince,
+					completed_since: opts.incompleteOrCompletedSince,
 					...toAsanaPaginationOptions(opts),
 				})
 				return await collectListResponse(res, opts)
 			}
 			const res = await tasksApi.getTasksForProject(projectGid, {
-				completed_since: opts?.completedSince,
+				completed_since: opts?.incompleteOrCompletedSince,
 				...toAsanaPaginationOptions(opts),
 			})
 			return await collectListResponse(res, opts)
 		},
 		async listTasksForSection(sectionGid, opts) {
 			const res = await tasksApi.getTasksForSection(sectionGid, {
-				completed_since: opts?.completedSince,
+				completed_since: opts?.incompleteOrCompletedSince,
 				...toAsanaPaginationOptions(opts),
 			})
 			return await collectListResponse(res, opts)
@@ -269,14 +270,14 @@ export function createAsanaTaskGateway(client: Asana.ApiClient): TaskGateway {
 			const utlRes = await utlApi.getUserTaskListForUser('me', workspaceGid, {})
 			const userTaskListGid = utlRes.data.gid
 			const res = await tasksApi.getTasksForUserTaskList(userTaskListGid, {
-				completed_since: opts?.completedSince,
+				completed_since: opts?.incompleteOrCompletedSince,
 				...toAsanaPaginationOptions(opts),
 			})
 			return await collectListResponse(res, opts)
 		},
 		async listSubtasks(taskGid, opts) {
 			const res = await tasksApi.getSubtasksForTask(taskGid, {
-				...(opts?.completedSince && { completed_since: opts.completedSince }),
+				...(opts?.incompleteOrCompletedSince && { completed_since: opts.incompleteOrCompletedSince }),
 				...toAsanaPaginationOptions(opts),
 			} as Parameters<typeof tasksApi.getSubtasksForTask>[1])
 			return await collectListResponse(res, opts)

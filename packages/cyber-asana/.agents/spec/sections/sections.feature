@@ -181,14 +181,39 @@ Feature: sections
     Then the process exits with a non-zero status
     And no request reaches the Asana sections endpoint
 
+  # ── section tasks ──
+
+  Scenario: tasks lists the section's tasks with the default task field set
+    Given a section with GID "8301" holding the open task "Chart the inlet" and the completed task "Sound the channel"
+    When the section tasks CLI verb runs for the section GID "8301"
+    Then the request reaching the tasks-for-section endpoint carries the opt_fields value "gid,name,completed,due_on"
+    And the output lists both tasks in a Name / ID / Done / Due table
+    And the output reports "2 task(s): 1 incomplete, 1 done"
+
+  Scenario: tasks on an empty section reports that no tasks were found
+    Given a section with GID "8301" holding no tasks
+    When the section tasks CLI verb runs for the section GID "8301"
+    Then the output reports "0 tasks found"
+
+  Scenario: tasks keeps only tasks completed on or after the completed-since date
+    Given a section with GID "8301" holding an open task, a task completed at "2026-01-03T23:00:00Z", and the task "Sound the channel" completed at "2026-01-04T09:00:00Z"
+    When the section tasks CLI verb runs for the section GID "8301" with the completed-since date "2026-01-04"
+    Then the listed tasks are exactly "Sound the channel"
+
+  Scenario: tasks without a section GID is a usage error
+    Given the section CLI command group
+    When the section tasks CLI verb runs with no arguments
+    Then the process exits with status 2
+    And no request reaches the tasks-for-section endpoint
+
   # ── surface boundary ──
 
-  Scenario: the section command group offers exactly seven verbs
+  Scenario: the section command group offers exactly eight verbs
     Given the section CLI command group
     When the help text for the group is rendered
-    Then the subcommands it lists are exactly "list", "get", "create", "update", "move", "task" and "delete"
+    Then the subcommands it lists are exactly "list", "get", "create", "update", "move", "tasks", "task" and "delete"
 
-  Scenario: the MCP surface registers exactly the seven section tools
+  Scenario: the MCP surface registers exactly the eight section tools
     Given an MCP server with the section tools registered
     When the registered tool names beginning with "asana_section_" are listed
-    Then those names are exactly "asana_section_list", "asana_section_get", "asana_section_create", "asana_section_update", "asana_section_move", "asana_section_task_add" and "asana_section_delete"
+    Then those names are exactly "asana_section_list", "asana_section_get", "asana_section_create", "asana_section_update", "asana_section_move", "asana_section_task_add", "asana_section_task_list" and "asana_section_delete"

@@ -288,7 +288,7 @@ describe('tasks/api', () => {
 		vi.spyOn(Asana.TasksApi.prototype, 'getSubtasksForTask').mockResolvedValue({
 			data: [mockTask],
 		} as never)
-		await listSubtasks('456', { completedSince: 'now' })
+		await listSubtasks('456', { incompleteOrCompletedSince: 'now' })
 		expect(Asana.TasksApi.prototype.getSubtasksForTask).toHaveBeenCalledWith('456', {
 			completed_since: 'now',
 			limit: 100,
@@ -465,7 +465,7 @@ describe('tasks/api', () => {
 		vi.spyOn(Asana.TasksApi.prototype, 'getTasksForUserTaskList').mockResolvedValue({
 			data: [mockTask],
 		} as never)
-		await getMyTasks('ws1', { completedSince: '2026-01-01', limit: 25, optFields: 'gid,name' })
+		await getMyTasks('ws1', { incompleteOrCompletedSince: '2026-01-01', limit: 25, optFields: 'gid,name' })
 		expect(Asana.TasksApi.prototype.getTasksForUserTaskList).toHaveBeenCalledWith('utl1', {
 			completed_since: '2026-01-01',
 			limit: 25,
@@ -594,7 +594,7 @@ describe('tasks/api', () => {
 		vi.spyOn(Asana.TasksApi.prototype, 'getTasks').mockResolvedValue({ data: [mockTask] } as never)
 		const getTasksForProject = vi.spyOn(Asana.TasksApi.prototype, 'getTasksForProject')
 
-		await listTasks('proj1', { customType: 'ct1', completedSince: 'now' })
+		await listTasks('proj1', { customType: 'ct1', incompleteOrCompletedSince: 'now' })
 
 		expect(getTasksForProject).not.toHaveBeenCalled()
 		expect(Asana.TasksApi.prototype.getTasks).toHaveBeenCalledWith({
@@ -617,7 +617,7 @@ describe('tasks/api', () => {
 		vi.spyOn(Asana.TasksApi.prototype, 'getTasksForProject').mockResolvedValue({
 			data: [mockTask],
 		} as never)
-		await listTasks('proj1', { completedSince: '2024-01-01' })
+		await listTasks('proj1', { incompleteOrCompletedSince: '2024-01-01' })
 		expect(Asana.TasksApi.prototype.getTasksForProject).toHaveBeenCalledWith('proj1', {
 			completed_since: '2024-01-01',
 			limit: 100,
@@ -631,7 +631,7 @@ describe('tasks/api', () => {
 		} as never)
 
 		const result = await listTasks('proj1', {
-			completedSince: 'now',
+			incompleteOrCompletedSince: 'now',
 			limit: 25,
 			offset: 'current-offset',
 			optFields: 'gid,name',
@@ -889,5 +889,116 @@ describe('createTaskApi', () => {
 
 		expect(result).toEqual({ data: [mockTask], next_page: null, limit: 100 })
 		expect(mockListTasks).toHaveBeenCalledWith('proj1', undefined)
+	})
+})
+
+describe('createTaskApi completed-since filter', () => {
+	const open = { gid: 'open', name: 'Open', completed: false, completed_at: null }
+	const before = { gid: 'before', name: 'Before', completed: true, completed_at: '2026-11-09T23:59:59.000Z' }
+	const atCutoff = { gid: 'at', name: 'At', completed: true, completed_at: '2026-11-10T00:00:00.000Z' }
+	const after = { gid: 'after', name: 'After', completed: true, completed_at: '2026-11-12T08:00:00.000Z' }
+
+	function gatewayReturning(result: unknown) {
+		const list = vi.fn().mockResolvedValue(result)
+		const api = createTaskApi({
+			listTasks: list,
+			listTasksForSection: list,
+			getMyTasks: list,
+		} as never)
+		return { api, list }
+	}
+
+	it('listTasks keeps only tasks completed at or after completedSince, dropping open tasks', async () => {
+		const { api } = gatewayReturning({ data: [open, before, atCutoff, after], next_page: null, limit: 100 })
+
+		const result = await api.listTasks('p1', { completedSince: '2026-11-10' })
+
+		expect(result).toEqual({ data: [atCutoff, after], next_page: null, limit: 100 })
+	})
+
+	it('listTasks narrows the request with Asana completed_since so older completed tasks stay server-side', async () => {
+		const { api, list } = gatewayReturning([])
+
+		await api.listTasks('p1', { completedSince: '2026-11-10', optFields: 'gid,name', limit: 20 })
+
+		expect(list).toHaveBeenCalledWith('p1', {
+			incompleteOrCompletedSince: '2026-11-10',
+			optFields: 'gid,name,completed,completed_at',
+			limit: 20,
+		})
+	})
+
+	it('listTasks asks for the completion fields when the caller names no fields', async () => {
+		const { api, list } = gatewayReturning([])
+
+		await api.listTasks('p1', { completedSince: '2026-11-10' })
+
+		expect(list).toHaveBeenCalledWith('p1', expect.objectContaining({ optFields: 'gid,name,completed,completed_at' }))
+	})
+
+	it('listTasks does not repeat completion fields the caller already named', async () => {
+		const { api, list } = gatewayReturning([])
+
+		await api.listTasks('p1', { completedSince: '2026-11-10', optFields: 'name,completed_at,completed' })
+
+		expect(list).toHaveBeenCalledWith('p1', expect.objectContaining({ optFields: 'name,completed_at,completed' }))
+	})
+
+	it('listTasks keeps the page cursor and paging metadata of the underlying page', async () => {
+		const { api } = gatewayReturning({
+			data: [open, after],
+			next_page: { offset: 'o2' },
+			limit: 2,
+			page_count: 3,
+			truncated: true,
+		})
+
+		const result = await api.listTasks('p1', { completedSince: '2026-11-10', fetchAll: true, maxPages: 3, limit: 2 })
+
+		expect(result).toEqual({ data: [after], next_page: { offset: 'o2' }, limit: 2, page_count: 3, truncated: true })
+	})
+
+	it('listTasks filters a plain array result and returns an array', async () => {
+		const { api } = gatewayReturning([open, after])
+
+		expect(await api.listTasks('p1', { completedSince: '2026-11-10T00:00:00Z', optFields: 'name' })).toEqual([after])
+	})
+
+	it('listTasks passes incompleteOrCompletedSince through unfiltered, as Asana defines it', async () => {
+		const { api, list } = gatewayReturning([open, before])
+
+		const result = await api.listTasks('p1', { incompleteOrCompletedSince: 'now' })
+
+		expect(result).toEqual([open, before])
+		expect(list).toHaveBeenCalledWith('p1', { incompleteOrCompletedSince: 'now' })
+	})
+
+	it('listTasks rejects a completedSince that is not an ISO 8601 date or time, pointing "now" at the incomplete filter', async () => {
+		const { api, list } = gatewayReturning([])
+
+		await expect(api.listTasks('p1', { completedSince: 'now' })).rejects.toThrow(/ISO 8601.*incompleteOrCompletedSince/)
+		expect(list).not.toHaveBeenCalled()
+	})
+
+	it('listTasks rejects completedSince together with incompleteOrCompletedSince', async () => {
+		const { api } = gatewayReturning([])
+
+		await expect(
+			api.listTasks('p1', { completedSince: '2026-11-10', incompleteOrCompletedSince: 'now' }),
+		).rejects.toThrow(/mutually exclusive/)
+	})
+
+	it('getMyTasks applies the same completed-since filter', async () => {
+		const { api, list } = gatewayReturning([open, before, after])
+
+		expect(await api.getMyTasks('ws1', { completedSince: '2026-11-10', optFields: 'name' })).toEqual([after])
+		expect(list).toHaveBeenCalledWith('ws1', expect.objectContaining({ incompleteOrCompletedSince: '2026-11-10' }))
+	})
+
+	it('listTasksForSection applies the same completed-since filter', async () => {
+		const { api, list } = gatewayReturning([open, before, after])
+
+		expect(await api.listTasksForSection('s1', { completedSince: '2026-11-10', optFields: 'name' })).toEqual([after])
+		expect(list).toHaveBeenCalledWith('s1', expect.objectContaining({ incompleteOrCompletedSince: '2026-11-10' }))
 	})
 })

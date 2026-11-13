@@ -23,8 +23,9 @@ cyber-asana task my-tasks list --workspace-gid <gid>
 | --- | --- | --- |
 | `--project-gid <gid>` / `--project <gid>` | `list` | Project to list tasks from |
 | `--workspace-gid <gid>` / `--workspace <gid>` | `my-tasks list` | Workspace (defaults to `ASANA_WORKSPACE_GID`) |
-| `--completed-since <date>` | `list`, `my-tasks list` | Only tasks completed on or after this date (ISO 8601 or `now`) |
-| `--incomplete` | `list`, `my-tasks list`, `subtask list` | Shorthand for `--completed-since now` |
+| `--completed-since <date>` | `list`, `my-tasks list` | Only tasks completed on or after this ISO 8601 date or time; open tasks are left out. Filtered on the client, so a page can hold fewer tasks than `--limit` |
+| `--incomplete` | `list`, `my-tasks list`, `subtask list` | Only incomplete tasks |
+| `--incomplete-or-completed-since <date>` | `list`, `my-tasks list` | Asana's own `completed_since`: incomplete tasks plus tasks completed since the date (`now` for incomplete only) |
 | `--custom-type <gid>` | `list` | Only tasks of this custom type; an empty value selects tasks with no custom type |
 
 ## Reading tasks

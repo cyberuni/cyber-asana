@@ -19,6 +19,15 @@ Use two days ago as the cutoff (adjust if the user specifies a different window)
 cyber-asana task list --project-gid <project-gid> --completed-since <two-days-ago-date> --toon
 ```
 
+`--completed-since` returns only tasks completed on or after the date, so every task in this list is done.
+
+When the user keeps the current sprint as a section, run both fetches against that section instead, with the same flags:
+
+```bash
+cyber-asana section tasks <section-gid> --completed-since <two-days-ago-date> --toon
+cyber-asana section tasks <section-gid> --incomplete --toon
+```
+
 ### 2. Fetch incomplete tasks
 
 ```bash

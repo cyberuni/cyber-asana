@@ -26,21 +26,32 @@ Read the output for project and section GIDs. (`--toon` is the token-efficient f
 
 ### 2. Fetch completed tasks
 
+For a sprint section, list that section's tasks completed since the sprint started:
+
+```bash
+cyber-asana section tasks <section-gid> --completed-since <sprint-start-date> --toon
+```
+
+For a whole project:
+
 ```bash
 cyber-asana task list --project-gid <project-gid> --completed-since <sprint-start-date> --toon
 ```
 
+`--completed-since` returns only tasks completed on or after the date. Open tasks are not in this list.
+
 ### 3. Fetch incomplete tasks
 
 ```bash
-cyber-asana task list --project-gid <project-gid> --incomplete --toon
+cyber-asana section tasks <section-gid> --incomplete --toon
+cyber-asana task list --project-gid <project-gid> --incomplete --toon   # whole project
 ```
 
-Filter both lists by section GID if reporting on a specific sprint section.
+Do not filter a project's lists by section by hand; `section tasks` already returns only that section's tasks.
 
 ### 3b. Points (when the project has points fields)
 
-Read `fields.story_points` and `fields.task_points` on the project's entry in `.agents/cyber-asana.json`. Skip this step when it has neither. Otherwise add the field values to both fetches:
+Read `fields.story_points` and `fields.task_points` on the project's entry in `.agents/cyber-asana.json`. Skip this step when it has neither. Otherwise add the field values to both fetches (`--completed-since` adds the completion fields it needs on its own):
 
 ```bash
 --opt-fields name,assignee.name,due_on,completed,custom_fields.gid,custom_fields.display_value

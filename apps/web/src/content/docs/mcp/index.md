@@ -128,7 +128,7 @@ Default: if both can do the job, prefer **official for discovery and previews** 
 | `project` | `asana_project_list`, `asana_project_get`, `asana_project_counts`, `asana_project_search`, `asana_project_create`, `asana_project_update`, `asana_project_delete`, `asana_project_export` |
 | `task` | `asana_task_list`, `asana_task_my_tasks`, `asana_task_subtask_list`, `asana_task_subtask_create`, `asana_task_get`, `asana_task_get_many`, `asana_task_create`, `asana_task_update`, `asana_task_delete`, `asana_task_search`, `asana_task_follower_add`, `asana_task_follower_remove`, `asana_task_project_add`, `asana_task_project_remove`, `asana_task_dependency_list`, `asana_task_dependency_add`, `asana_task_dependency_remove`, `asana_task_dependent_list`, `asana_task_dependent_add`, `asana_task_dependent_remove`, `asana_task_scan_todos` |
 | `task-template` | `asana_task_template_list`, `asana_task_template_get`, `asana_task_template_instantiate` |
-| `section` | `asana_section_list`, `asana_section_get`, `asana_section_create`, `asana_section_update`, `asana_section_move`, `asana_section_task_add`, `asana_section_delete` |
+| `section` | `asana_section_list`, `asana_section_get`, `asana_section_create`, `asana_section_update`, `asana_section_move`, `asana_section_task_add`, `asana_section_task_list`, `asana_section_delete` |
 | `user` | `asana_user_list`, `asana_user_get`, `asana_user_me` |
 | `team` | `asana_team_list`, `asana_team_get` |
 | `portfolio` | `asana_portfolio_list`, `asana_portfolio_item_list`, `asana_portfolio_get`, `asana_portfolio_create`, `asana_portfolio_update`, `asana_portfolio_delete` |
@@ -154,6 +154,7 @@ Single-resource reads (`asana_<resource>_get` and `asana_user_me`) accept `opt_f
 - `asana_status_list` — `created_since` trims the history to updates posted after an ISO 8601 timestamp, which is the cheap way to ask what changed since the last check-in
 - `asana_task_template_instantiate` — `name` names the created task; instantiation is a job, so the tool polls it for `timeout_seconds` (default 10) and returns the job with `new_task` once it succeeds. `wait: false` returns the pending job immediately
 - `asana_task_list`, `asana_task_my_tasks`, `asana_task_subtask_list` — `incomplete: true` filters to incomplete tasks
+- `asana_task_list`, `asana_task_my_tasks` — `completed_since` keeps only tasks completed on or after an ISO 8601 date or time (filtered on the client, so a page can hold fewer than `limit`); `incomplete_or_completed_since` is Asana's own `completed_since`, which also returns open tasks
 - `asana_task_list`, `asana_project_list`, `asana_portfolio_list` — `custom_type` is a custom type GID that narrows the listing to objects of that type; an empty string selects objects with no custom type
 - `asana_ai_studio_run_list` — `workspace_gid`, `start_at` (inclusive) / `end_at` (exclusive) as ISO 8601 date-times, `division_gid`; lists runs oldest first with the model and credits used, so poll forward by passing the last recorded time as `start_at`. Takes no `opt_fields`, and Asana restricts it to service accounts in AI Studio-licensed organizations
 - `asana_ai_studio_seat_list` — `workspace_gid`, `state` (`active` or `revoked`), `division_gid`; same access restriction and no `opt_fields`

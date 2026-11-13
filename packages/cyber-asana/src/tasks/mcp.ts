@@ -12,7 +12,7 @@ import {
 } from '../platform/mcp/options.js'
 import { listTags } from '../tags/default.js'
 import { resolveTagRefs } from '../tags/resolve.js'
-import { scanTodos, type TaskApi } from './api.js'
+import { type CompletionFilter, scanTodos, type TaskApi } from './api.js'
 import {
 	addDependencies,
 	addDependents,
@@ -104,27 +104,53 @@ function resolveTaskApi(api?: TaskApi | (() => TaskApi)): TaskApi {
 	)
 }
 
+/** The completion filters every task list tool takes; see `CompletionFilter` for what each one means. */
+export const completionParams = {
+	completed_since: z
+		.string()
+		.optional()
+		.describe('Only tasks completed on or after this ISO 8601 date or time; open tasks are left out'),
+	incomplete: z
+		.boolean()
+		.optional()
+		.describe('Only incomplete tasks (shorthand for incomplete_or_completed_since=now)'),
+	incomplete_or_completed_since: z
+		.string()
+		.optional()
+		.describe(
+			'Asana\'s own completed_since: incomplete tasks plus tasks completed since this ISO 8601 time ("now" for incomplete only)',
+		),
+}
+
+export function completionFilter(params: {
+	completed_since?: string
+	incomplete?: boolean
+	incomplete_or_completed_since?: string
+}): CompletionFilter {
+	const raw = params.incomplete ? 'now' : params.incomplete_or_completed_since
+	return {
+		...(params.completed_since !== undefined && { completedSince: params.completed_since }),
+		...(raw !== undefined && { incompleteOrCompletedSince: raw }),
+	}
+}
+
 export function registerTaskTools(server: McpServer, api?: TaskApi | (() => TaskApi)) {
 	server.tool(
 		'asana_task_list',
 		'List Asana tasks in a project',
 		{
 			project_gid: z.string().describe('Project GID'),
-			completed_since: z
-				.string()
-				.optional()
-				.describe('Only include tasks completed on or after this date (ISO 8601, or "now" for incomplete only)'),
-			incomplete: z.boolean().optional().describe('Only show incomplete tasks (shorthand for completed_since=now)'),
+			...completionParams,
 			custom_type: customTypeParam('tasks'),
 			...paginationParams,
 		},
-		async ({ project_gid, completed_since, incomplete, custom_type, ...params }) => ({
+		async ({ project_gid, completed_since, incomplete, incomplete_or_completed_since, custom_type, ...params }) => ({
 			content: [
 				{
 					type: 'text',
 					text: JSON.stringify(
 						await resolveTaskApi(api).listTasks(project_gid, {
-							completedSince: incomplete ? 'now' : completed_since,
+							...completionFilter({ completed_since, incomplete, incomplete_or_completed_since }),
 							...(custom_type !== undefined && { customType: custom_type }),
 							...paginationOptions(params),
 						}),
@@ -139,20 +165,16 @@ export function registerTaskTools(server: McpServer, api?: TaskApi | (() => Task
 		'List My Tasks for the authenticated user',
 		{
 			workspace_gid: z.string().describe('Workspace GID'),
-			completed_since: z
-				.string()
-				.optional()
-				.describe('Only include tasks completed on or after this date (ISO 8601, or "now" for incomplete only)'),
-			incomplete: z.boolean().optional().describe('Only show incomplete tasks (shorthand for completed_since=now)'),
+			...completionParams,
 			...paginationParams,
 		},
-		async ({ workspace_gid, completed_since, incomplete, ...params }) => ({
+		async ({ workspace_gid, completed_since, incomplete, incomplete_or_completed_since, ...params }) => ({
 			content: [
 				{
 					type: 'text',
 					text: JSON.stringify(
 						await resolveTaskApi(api).getMyTasks(workspace_gid, {
-							completedSince: incomplete ? 'now' : completed_since,
+							...completionFilter({ completed_since, incomplete, incomplete_or_completed_since }),
 							...paginationOptions(params),
 						}),
 					),
@@ -198,7 +220,7 @@ export function registerTaskTools(server: McpServer, api?: TaskApi | (() => Task
 						type: 'text',
 						text: JSON.stringify(
 							await resolveTaskApi(api).listSubtasks(task_gid, {
-								completedSince: incomplete ? 'now' : undefined,
+								incompleteOrCompletedSince: incomplete ? 'now' : undefined,
 								...pagination,
 							}),
 						),

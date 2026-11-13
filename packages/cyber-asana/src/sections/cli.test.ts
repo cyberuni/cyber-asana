@@ -15,6 +15,8 @@ vi.mock('./default.js', async () => {
 })
 
 const { sectionCommand } = await import('./cli.js')
+const { installUsageErrors } = await import('../platform/cli/usage.js')
+const { exitCodeFor } = await import('../platform/cli/error.js')
 
 function apiDouble(overrides: Partial<SectionApi> = {}): SectionApi {
 	return {
@@ -311,5 +313,84 @@ describe('sections/cli', () => {
 			),
 		).rejects.toThrow('--insert-after and --insert-before are mutually exclusive')
 		expect(addTaskToSection).not.toHaveBeenCalled()
+	})
+})
+
+describe('sections/cli section tasks', () => {
+	afterEach(() => vi.restoreAllMocks())
+
+	async function run(argv: string[], listTasksForSection = vi.fn().mockResolvedValue([])) {
+		const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+		const program = new Command().addCommand(sectionCommand(apiDouble(), { listTasksForSection }))
+		installUsageErrors(program)
+		await program.parseAsync(['node', 'test', 'section', ...argv], { from: 'node' })
+		return { listTasksForSection, lines: logSpy.mock.calls.map((c) => String(c[0])) }
+	}
+
+	it('lists a section’s tasks with a minimal default field set, a table, a count, and next steps', async () => {
+		const { listTasksForSection, lines } = await run(
+			['tasks', 'sec1'],
+			vi.fn().mockResolvedValue({
+				data: [
+					{ gid: 't1', name: 'Chart the inlet', completed: false, due_on: '2026-11-14' },
+					{ gid: 't2', name: 'Sound the channel', completed: true, due_on: null },
+				],
+				next_page: null,
+			}),
+		)
+
+		expect(listTasksForSection).toHaveBeenCalledWith(
+			'sec1',
+			expect.objectContaining({ optFields: 'gid,name,completed,due_on' }),
+		)
+		expect(lines.some((l) => l.includes('Chart the inlet') && l.includes('t1'))).toBe(true)
+		expect(lines).toContain('\n2 task(s): 1 incomplete, 1 done')
+		expect(lines.some((l) => l.includes('cyber-asana task get <gid>'))).toBe(true)
+	})
+
+	it('names what was empty when the section holds no tasks', async () => {
+		const { lines } = await run(['tasks', 'sec1'])
+
+		expect(lines.some((l) => l.includes('0 tasks found'))).toBe(true)
+	})
+
+	it('forwards pagination options and an explicit --opt-fields', async () => {
+		const { listTasksForSection } = await run([
+			'tasks',
+			'sec1',
+			'--limit',
+			'5',
+			'--all',
+			'--max-pages',
+			'3',
+			'--opt-fields',
+			'name,assignee.name',
+		])
+
+		expect(listTasksForSection).toHaveBeenCalledWith(
+			'sec1',
+			expect.objectContaining({ limit: 5, fetchAll: true, maxPages: 3, optFields: 'name,assignee.name' }),
+		)
+	})
+
+	it('--completed-since asks for tasks completed on or after the date only', async () => {
+		const { listTasksForSection } = await run(['tasks', 'sec1', '--completed-since', '2026-11-10'])
+
+		expect(listTasksForSection).toHaveBeenCalledWith('sec1', expect.objectContaining({ completedSince: '2026-11-10' }))
+	})
+
+	it('--incomplete asks for incomplete tasks only', async () => {
+		const { listTasksForSection } = await run(['tasks', 'sec1', '--incomplete'])
+
+		expect(listTasksForSection).toHaveBeenCalledWith(
+			'sec1',
+			expect.objectContaining({ incompleteOrCompletedSince: 'now' }),
+		)
+	})
+
+	it('a missing section GID is a usage error (exit 2)', async () => {
+		const error = await run(['tasks']).catch((e: unknown) => e)
+
+		expect(exitCodeFor(error)).toBe(2)
 	})
 })

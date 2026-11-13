@@ -160,7 +160,12 @@ export function registerCliCommands(program: Command, getContext: () => RuntimeC
 	program.addCommand(projectCommand(() => getContext().projects))
 	program.addCommand(taskCommand(() => getContext().tasks))
 	program.addCommand(taskTemplateCommand(() => getContext().taskTemplates))
-	program.addCommand(sectionCommand(() => getContext().sections))
+	program.addCommand(
+		sectionCommand(
+			() => getContext().sections,
+			() => getContext().tasks,
+		),
+	)
 	program.addCommand(searchCommand(() => getContext().search))
 	program.addCommand(userCommand(() => getContext().users))
 	program.addCommand(teamCommand(() => getContext().teams))
@@ -198,7 +203,11 @@ export function registerMcpTools(server: McpServer, getContext: () => RuntimeCon
 	registerProjectTools(server, () => getContext().projects)
 	registerTaskTools(server, () => getContext().tasks)
 	registerTaskTemplateTools(server, () => getContext().taskTemplates)
-	registerSectionTools(server, () => getContext().sections)
+	registerSectionTools(
+		server,
+		() => getContext().sections,
+		() => getContext().tasks,
+	)
 	registerSearchTools(server, () => getContext().search)
 	registerUserTools(server, () => getContext().users)
 	registerTeamTools(server, () => getContext().teams)

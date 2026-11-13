@@ -34,8 +34,7 @@ else.
 **Non-goals.** This node owns the section *itself* and not what is inside it. **Membership is not
 here**: putting a task into a section, moving it between sections, and choosing where in the order
 it lands are all part of moving a task, so they live with [tasks](../tasks/README.md) — a caller
-reaching for them is thinking about a task, not about a heading. **Listing the tasks of a section is
-not here** either, for the same reason. **Reordering the sections themselves is not wrapped at
+reaching for them is thinking about a task, not about a heading. **Reordering the sections themselves is not wrapped at
 all**: Asana can move a section to a different position within its project, and neither surface
 offers it. The one attribute a section exposes for change is its **name** — `update` renames and
 does nothing else, because a name is the only thing about a section that a caller can meaningfully
@@ -43,19 +42,24 @@ edit.
 
 Reordering was that gap, and it is closed. `move` places a section relative to a sibling via
 `insertSectionForProject`, `task add` puts a task straight into a section, and `create` takes the
-same placement so a new column can land in position without a follow-up move. Seven operations,
-then — the five record operations plus the two placement ones.
+same placement so a new column can land in position without a follow-up move.
+
+Listing a section's tasks was the other gap. A sprint kept as a section needs it, and filtering a
+whole project's tasks by hand was the workaround. `tasks` lists one section's tasks. The read goes
+through the [tasks](../tasks/README.md) api (`listTasksForSection`), not a section gateway, so it
+shares that node's table, default field set, and completion filters; this node owns only the verb.
+Eight operations, then — the five record operations, the two placement ones, and the task listing.
 
 **What this node does not own.** How a paginated list behaves — bare array versus envelope, what
 `--all` walks, where `--max-pages` stops — is the shared list contract in [axi](../axi/README.md),
 adopted here rather than re-decided. Likewise the `--json` / `--toon` formats, empty-state
 rendering, truncation, exit-code conventions, and the normalized-GID flag mechanism
-(`--project-gid` with its short `--project` alias). This node decides only which seven operations
+(`--project-gid` with its short `--project` alias). This node decides only which eight operations
 exist, where each one's GIDs come from, what the text rendering shows, and what a delete reports.
 
 ## Use Cases
 
-**Subject** — the seven section operations (list, get, create, update, delete, move, task add) over
+**Subject** — the eight section operations (list, get, create, update, delete, move, tasks, task add) over
 the two surfaces (CLI and MCP) that share one `api.ts`.
 
 | Entry point | Trigger | Inputs | Outcome |
@@ -70,6 +74,8 @@ the two surfaces (CLI and MCP) that share one `api.ts`.
 | `asana_section_update` (MCP) | same, over MCP | `section_gid` and `name` | the same record, JSON-serialized |
 | `section move <gid>` (CLI) | caller wants a column reordered within its project | the section GID positionally, the project GID as `--project-gid`, and exactly one of `--insert-before` / `--insert-after` | a one-line acknowledgement naming the moved section and project; Asana returns no record |
 | `asana_section_move` (MCP) | same, over MCP | `project_gid`, `section_gid`, and one of `insert_before` / `insert_after` | the same acknowledgement text |
+| `section tasks <section-gid>` (CLI) | caller wants what sits in one bucket, such as a sprint section | the section GID positionally, one completion filter (`--completed-since`, `--incomplete`, or `--incomplete-or-completed-since`), pagination options | the section's tasks as a Name/ID/Done/Due table with a done-versus-incomplete count; `0 tasks found` when empty |
+| `asana_section_task_list` (MCP) | agent wants the same | `section_gid`, `completed_since`, `incomplete`, `incomplete_or_completed_since`, pagination params | the same result, JSON-serialized, with no default field set applied |
 | `section task add <section-gid> <task-gid>` (CLI) | caller is thinking in board columns and wants a task in one | both GIDs positionally, optionally one of `--insert-before` / `--insert-after` naming a sibling task | a one-line acknowledgement naming the task and section; Asana returns no record |
 | `asana_section_task_add` (MCP) | same, over MCP | `section_gid`, `task_gid`, and optionally one of `insert_before` / `insert_after` | the same acknowledgement text |
 | `section delete <gid>` (CLI) | caller wants a bucket gone | the section GID, positionally | a one-line confirmation naming the deleted GID; no record |
@@ -199,12 +205,21 @@ The groups share no decision, so they are drawn separately. The load-bearing edg
 | confirmation line does not vary by output format | a successful delete run under each output format | `delete emits the same confirmation line in every output format` |
 | section GID absent → usage error before anything is destroyed | a delete invocation carrying no arguments at all | `delete without a GID is a usage error` |
 
+### `section tasks` / `asana_section_task_list`
+
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| section GID supplied → list its tasks with the four-field default | a section holding two tasks, one done | `tasks lists the section's tasks with the default task field set` |
+| no tasks → the empty state names tasks | an empty section | `tasks on an empty section reports that no tasks were found` |
+| completion filter travels to the task api | a completed-since date | `tasks keeps only tasks completed on or after the completed-since date` |
+| section GID absent → usage error | no positional argument | `tasks without a section GID is a usage error` |
+
 ### surface boundary
 
 | Edge | Path (Given) | Scenario |
 |---|---|---|
-| the CLI offers these seven verbs and no others (barred) | the section command group | `the section command group offers exactly seven verbs` |
-| the MCP surface registers these seven tools and no others (barred) | the registered section tool set | `the MCP surface registers exactly the seven section tools` |
+| the CLI offers these eight verbs and no others (barred) | the section command group | `the section command group offers exactly eight verbs` |
+| the MCP surface registers these eight tools and no others (barred) | the registered section tool set | `the MCP surface registers exactly the eight section tools` |
 
 ## References
 

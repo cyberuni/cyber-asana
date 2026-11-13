@@ -15,6 +15,7 @@ cyber-asana section create "In Review" --project <project-gid>
 cyber-asana section create "In Review" --project <project-gid> --insert-after <section-gid>
 cyber-asana section update <gid> --name "In QA"
 cyber-asana section move <gid> --project <project-gid> --insert-after <section-gid>
+cyber-asana section tasks <gid> --completed-since 2026-11-09
 cyber-asana section task add <section-gid> <task-gid>
 cyber-asana section delete <gid>
 ```
@@ -26,6 +27,7 @@ cyber-asana section delete <gid>
 | `create` | `<name>` | `--project-gid <gid>` / `--project <gid>`, `--insert-before <gid>`, `--insert-after <gid>` |
 | `update` | `<gid>` | `--name <name>` (required) |
 | `move` | `<gid>` | `--project-gid <gid>` / `--project <gid>`, `--insert-before <gid>`, `--insert-after <gid>` |
+| `tasks` | `<section-gid>` | `--completed-since <date>`, `--incomplete`, `--incomplete-or-completed-since <date>` (see [completion filters](/cyber-asana/cli/tasks/)), [pagination](/cyber-asana/cli/#pagination) |
 | `task add` | `<section-gid> <task-gid>` | `--insert-before <gid>`, `--insert-after <gid>` |
 | `delete` | `<gid>` | — |
 
@@ -49,6 +51,18 @@ Sections cannot move between projects.
 
 ```sh
 cyber-asana section move <gid> --project <project-gid> --insert-after <other-section-gid>
+```
+
+## Listing a section's tasks
+
+`section tasks` lists the tasks in one section, with the same Name/ID/Done/Due table and
+done count as `task list`. It takes the same completion filters, so a sprint section's
+finished work is one call:
+
+```sh
+cyber-asana section tasks <section-gid>
+cyber-asana section tasks <section-gid> --completed-since 2026-11-09
+cyber-asana section tasks <section-gid> --incomplete --opt-fields name,assignee.name,due_on,completed
 ```
 
 ## Putting a task in a section

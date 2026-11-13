@@ -1,4 +1,4 @@
-import { Command } from 'commander'
+import { Command, InvalidArgumentError, Option } from 'commander'
 import { loadConventions } from '../config/conventions.js'
 import { resolveEffectiveAssignee } from '../config/effective-config.js'
 import { loadDefaults, resolveProjectRef, resolveSectionPlacement } from '../config/repo-config.js'
@@ -23,10 +23,11 @@ import {
 	printTable,
 } from '../platform/cli/output.js'
 import { deleteIdempotently, deleteMessage } from '../platform/idempotent-delete.js'
+import type { ListResult } from '../platform/pagination.js'
 import { isFull, truncate } from '../platform/truncate.js'
 import { listTags } from '../tags/default.js'
 import { resolveTagRefs } from '../tags/resolve.js'
-import { type SearchTasksOptions, scanTodos, type TaskApi, type TodoMatch } from './api.js'
+import { type CompletionFilter, type SearchTasksOptions, scanTodos, type TaskApi, type TodoMatch } from './api.js'
 import {
 	addDependencies,
 	addDependents,
@@ -180,7 +181,7 @@ function printTaskSummary(tasks: Task[]) {
 
 // Minimal default schema for task lists — principle 2. Just the fields the
 // table renders, instead of Asana's larger default payload.
-const TASK_LIST_FIELDS = 'gid,name,completed,due_on'
+export const TASK_LIST_FIELDS = 'gid,name,completed,due_on'
 
 function mergeFields(...fieldSets: string[]) {
 	const fields = fieldSets.flatMap((set) => set.split(',')).filter(Boolean)
@@ -192,8 +193,63 @@ const TASK_LIST_NEXT_STEPS = [
 	'cyber-asana task update <gid> --completed — complete a task',
 ]
 
+/** Text-mode rendering shared by every task list: the table, the done count, the page hint, next steps. */
+export function printTaskListResult(data: ListResult<Task>) {
+	const items = itemsForOutput(data)
+	fmtTaskList(items)
+	printTaskSummary(items)
+	printNextPageHint(data)
+	printNextSteps(TASK_LIST_NEXT_STEPS)
+}
+
 function collectOption(value: string, previous: string[] = []) {
 	return [...previous, value]
+}
+
+function parseCompletedSince(value: string) {
+	if (Number.isNaN(Date.parse(value))) {
+		throw new InvalidArgumentError(
+			`expected an ISO 8601 date or time, got "${value}". For incomplete tasks use --incomplete.`,
+		)
+	}
+	return value
+}
+
+export type CompletionCliOptions = {
+	completedSince?: string
+	incomplete?: boolean
+	incompleteOrCompletedSince?: string
+}
+
+/**
+ * The completion filters every task list command takes. `--completed-since` is a true filter, applied
+ * client-side by the task api; `--incomplete-or-completed-since` is Asana's own `completed_since`.
+ */
+export function addCompletionOptions<T extends Command>(cmd: T) {
+	return cmd
+		.addOption(
+			new Option(
+				'--completed-since <date>',
+				'Only tasks completed on or after this ISO 8601 date or time (open tasks are left out)',
+			)
+				.argParser(parseCompletedSince)
+				.conflicts(['incomplete', 'incompleteOrCompletedSince']),
+		)
+		.addOption(new Option('--incomplete', 'Only incomplete tasks (shorthand for --incomplete-or-completed-since now)'))
+		.addOption(
+			new Option(
+				'--incomplete-or-completed-since <date>',
+				'Asana\'s own completed_since: incomplete tasks plus tasks completed since this ISO 8601 time ("now" for incomplete only)',
+			),
+		)
+}
+
+export function completionFilterFromCli(opts: CompletionCliOptions): CompletionFilter {
+	if (opts.incomplete) return { incompleteOrCompletedSince: 'now' }
+	if (opts.completedSince !== undefined) return { completedSince: opts.completedSince }
+	if (opts.incompleteOrCompletedSince !== undefined)
+		return { incompleteOrCompletedSince: opts.incompleteOrCompletedSince }
+	return {}
 }
 
 export function taskCommand(api?: TaskApi | (() => TaskApi)) {
@@ -216,67 +272,54 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 	)
 
 	addPaginationOptions(
-		addGidOption(cmd.command('list').description('List tasks in a project'), 'project', 'Project GID')
-			.option('--completed-since <date>', 'Only include tasks completed on or after this date (ISO 8601 or "now")')
-			.option('--incomplete', 'Only show incomplete tasks (shorthand for --completed-since now)')
-			.option('--custom-type <gid>', 'Only tasks of this custom type GID ("" for tasks with no custom type)'),
+		addCompletionOptions(
+			addGidOption(cmd.command('list').description('List tasks in a project'), 'project', 'Project GID'),
+		).option('--custom-type <gid>', 'Only tasks of this custom type GID ("" for tasks with no custom type)'),
 	).action(
-		async (opts: {
-			project?: string
-			projectGid?: string
-			completedSince?: string
-			incomplete?: boolean
-			customType?: string
-			limit?: number
-			offset?: string
-			optFields?: string
-		}) => {
+		async (
+			opts: CompletionCliOptions & {
+				project?: string
+				projectGid?: string
+				customType?: string
+				limit?: number
+				offset?: string
+				optFields?: string
+			},
+		) => {
 			const pagination = paginationOptionsFromCli(opts)
 			pagination.optFields ??= TASK_LIST_FIELDS
 			const data = await resolveTaskApi(api).listTasks(requiredGid(opts, 'project', 'Project GID'), {
-				completedSince: opts.incomplete ? 'now' : opts.completedSince,
+				...completionFilterFromCli(opts),
 				...(opts.customType !== undefined && { customType: opts.customType }),
 				...pagination,
 			})
-			output(data, () => {
-				const items = itemsForOutput(data)
-				fmtTaskList(items)
-				printTaskSummary(items)
-				printNextPageHint(data)
-				printNextSteps(TASK_LIST_NEXT_STEPS)
-			})
+			output(data, () => printTaskListResult(data))
 		},
 	)
 
 	const myTasksCmd = cmd.command('my-tasks').description('Manage My Tasks for the authenticated user')
 
 	addPaginationOptions(
-		addGidOption(myTasksCmd.command('list').description('List My Tasks'), 'workspace', 'Workspace GID')
-			.option('--completed-since <date>', 'Only include tasks completed on or after this date (ISO 8601 or "now")')
-			.option('--incomplete', 'Only show incomplete tasks (shorthand for --completed-since now)'),
+		addCompletionOptions(
+			addGidOption(myTasksCmd.command('list').description('List My Tasks'), 'workspace', 'Workspace GID'),
+		),
 	).action(
-		async (opts: {
-			workspace?: string
-			workspaceGid?: string
-			completedSince?: string
-			incomplete?: boolean
-			limit?: number
-			offset?: string
-			optFields?: string
-		}) => {
+		async (
+			opts: CompletionCliOptions & {
+				workspace?: string
+				workspaceGid?: string
+				limit?: number
+				offset?: string
+				optFields?: string
+			},
+		) => {
 			const pagination = paginationOptionsFromCli(opts)
 			pagination.optFields ??= TASK_LIST_FIELDS
 			const data = await resolveTaskApi(api).getMyTasks(requiredGid(opts, 'workspace', 'Workspace GID'), {
-				completedSince: opts.incomplete ? 'now' : opts.completedSince,
+				...completionFilterFromCli(opts),
 				...pagination,
 			})
-			output(data, () => {
-				const items = itemsForOutput(data)
-				fmtTaskList(items)
-				printTaskSummary(items)
-				printNextPageHint(data)
-				printNextSteps(TASK_LIST_NEXT_STEPS)
-			})
+			output(data, () => printTaskListResult(data))
 		},
 	)
 
@@ -551,7 +594,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 			// default when the caller named none. Never a replacement (see issue #97).
 			pagination.optFields = mergeFields(pagination.optFields ?? TASK_LIST_FIELDS, extraFields)
 			const data = await resolveTaskApi(api).listSubtasks(taskGid, {
-				completedSince: opts.incomplete ? 'now' : undefined,
+				incompleteOrCompletedSince: opts.incomplete ? 'now' : undefined,
 				...pagination,
 			})
 			output(data, () => {

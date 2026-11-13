@@ -137,3 +137,36 @@ describe('sections/mcp', () => {
 		expect(result.content[0].text).toContain('task1')
 	})
 })
+
+describe('sections/mcp asana_section_task_list', () => {
+	it('lists a section’s tasks with pagination and completion filters', async () => {
+		const listTasksForSection = vi.fn().mockResolvedValue({ data: [{ gid: 't1' }], next_page: null })
+		const server = createServer()
+		registerSectionTools(server as any, apiDouble(), { listTasksForSection })
+
+		const result = await server.handlers.get('asana_section_task_list')?.({
+			section_gid: 'sec1',
+			completed_since: '2026-11-10',
+			limit: 5,
+		})
+
+		expect(listTasksForSection).toHaveBeenCalledWith(
+			'sec1',
+			expect.objectContaining({ completedSince: '2026-11-10', limit: 5 }),
+		)
+		expect(JSON.parse(result.content[0].text)).toEqual({ data: [{ gid: 't1' }], next_page: null })
+	})
+
+	it('incomplete asks for incomplete tasks only', async () => {
+		const listTasksForSection = vi.fn().mockResolvedValue([])
+		const server = createServer()
+		registerSectionTools(server as any, apiDouble(), { listTasksForSection })
+
+		await server.handlers.get('asana_section_task_list')?.({ section_gid: 'sec1', incomplete: true })
+
+		expect(listTasksForSection).toHaveBeenCalledWith(
+			'sec1',
+			expect.objectContaining({ incompleteOrCompletedSince: 'now' }),
+		)
+	})
+})
