@@ -1,9 +1,9 @@
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { dirname, join, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { loadConventions, packageRoot, parseConventions } from './conventions.js'
+import { dirname, join } from 'node:path'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { ReferenceAmbiguousError } from '../platform/reference-metadata.js'
+import { loadConventions, parseConventions } from './conventions.js'
 
 const REFERENCE = 'cyber-asana.task-conventions.md'
 
@@ -43,33 +43,14 @@ describe('parseConventions', () => {
 	})
 })
 
-describe('packageRoot', () => {
-	it('finds this package from a source file', () => {
-		expect(packageRoot(fileURLToPath(import.meta.url))).toBe(
-			resolve(dirname(fileURLToPath(import.meta.url)), '..', '..'),
-		)
-	})
-
-	it('finds the package from a built file', async () => {
-		const dir = await mkdtemp(join(tmpdir(), 'cyber-asana-pkg-'))
-		try {
-			await writeText(join(dir, 'package.json'), '{}')
-			expect(packageRoot(join(dir, 'dist', 'cli.js'))).toBe(dir)
-		} finally {
-			await rm(dir, { recursive: true, force: true })
-		}
-	})
-})
-
 describe('loadConventions', () => {
 	let base: string
 	let root: string
 	let home: string
 	let plugin: string
-	const warn = vi.fn()
 
 	function load() {
-		return loadConventions({ root, home, platform: 'linux', env: {}, packageRoot: plugin, warn })
+		return loadConventions({ root, home, platform: 'linux', env: {}, packageRoot: plugin })
 	}
 
 	beforeEach(async () => {
@@ -84,18 +65,15 @@ describe('loadConventions', () => {
 	})
 
 	afterEach(async () => {
-		warn.mockReset()
 		await rm(base, { recursive: true, force: true })
 	})
 
 	it('returns undefined when the shipped copy sets no convention keys', async () => {
 		expect(await load()).toBeUndefined()
-		expect(warn).not.toHaveBeenCalled()
 	})
 
 	it('reads the shipped copy of this package by default', async () => {
-		expect(await loadConventions({ root, home, platform: 'linux', env: {}, warn })).toBeUndefined()
-		expect(warn).not.toHaveBeenCalled()
+		expect(await loadConventions({ root, home, platform: 'linux', env: {} })).toBeUndefined()
 	})
 
 	it('reads the settings from a repo reference', async () => {
@@ -120,15 +98,18 @@ describe('loadConventions', () => {
 		await expect(load()).rejects.toThrow('default_tags')
 	})
 
-	it('warns and returns undefined when another plugin also ships the reference', async () => {
+	it('stops with reference-ambiguous, listing the options, when another plugin also ships the reference', async () => {
 		await writeText(join(root, 'package.json'), '{"dependencies":{"other-plugin":"1.0.0"}}')
 		const other = join(root, 'node_modules', 'other-plugin')
 		await writeText(join(other, 'package.json'), '{"name":"other-plugin","version":"1.0.0"}')
 		await writeText(join(other, 'plugin.json'), '{"name":"other-plugin"}')
 		await writeText(join(other, 'references', REFERENCE), '---\ndefault_tags: [other]\n---\n')
 
-		expect(await load()).toBeUndefined()
-		expect(warn).toHaveBeenCalledWith(expect.stringContaining('ambiguous'))
+		const error = await load().catch((e: unknown) => e)
+		expect(error).toBeInstanceOf(ReferenceAmbiguousError)
+		expect((error as ReferenceAmbiguousError).options).toEqual(
+			expect.arrayContaining(['cyber-asana/cyber-asana.task-conventions', 'other-plugin/cyber-asana.task-conventions']),
+		)
 	})
 
 	it('treats another installed copy of cyber-asana as itself, not as a second plugin', async () => {
@@ -139,6 +120,5 @@ describe('loadConventions', () => {
 		await writeText(join(copy, 'references', REFERENCE), '---\ndefault_tags: [stale]\n---\n')
 
 		expect(await load()).toBeUndefined()
-		expect(warn).not.toHaveBeenCalled()
 	})
 })

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { ReferenceAmbiguousError } from '../reference-metadata.js'
 import { exitCodeFor, renderCliError } from './error.js'
 
 function asanaError(status: number, message = 'boom') {
@@ -6,6 +7,10 @@ function asanaError(status: number, message = 'boom') {
 }
 
 describe('exitCodeFor', () => {
+	it('maps an ambiguous reference to 8, apart from other config errors', () => {
+		expect(exitCodeFor(new ReferenceAmbiguousError('cyber-asana.scrum', ['a/cyber-asana.scrum']))).toBe(8)
+	})
+
 	it('maps generic errors to 1', () => {
 		expect(exitCodeFor(new Error('nope'))).toBe(1)
 	})
@@ -36,6 +41,22 @@ describe('exitCodeFor', () => {
 })
 
 describe('renderCliError', () => {
+	const ambiguous = new ReferenceAmbiguousError('cyber-asana.scrum', ['a/cyber-asana.scrum', 'b/cyber-asana.scrum'])
+
+	it('lists the options of an ambiguous reference in text mode', () => {
+		const text = renderCliError(ambiguous, 'text')
+		expect(text).toContain('Error: cyber-asana.scrum is ambiguous')
+		expect(text).toContain('Options: a/cyber-asana.scrum, b/cyber-asana.scrum')
+		expect(text).toContain('reference customize cyber-asana.scrum --extends')
+	})
+
+	it('renders an ambiguous reference as a structured body under --json', () => {
+		expect(JSON.parse(renderCliError(ambiguous, 'json'))).toMatchObject({
+			ok: false,
+			error: { kind: 'config', code: 'reference-ambiguous', options: ['a/cyber-asana.scrum', 'b/cyber-asana.scrum'] },
+		})
+	})
+
 	it('renders Asana API errors as a single human line in text mode', () => {
 		expect(renderCliError(asanaError(404, 'Not Found'), 'text')).toBe('Asana API error: Not Found')
 	})

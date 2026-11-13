@@ -1,8 +1,4 @@
-import { existsSync } from 'node:fs'
-import { homedir } from 'node:os'
-import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { parseReferenceName, referenceLayers, resolveReference } from 'cyber-agentkit'
+import { type LoadReferenceMetadataOptions, loadReferenceMetadata } from '../platform/reference-metadata.js'
 
 /**
  * The reference whose frontmatter holds the repo's task conventions. It is the only source of
@@ -10,8 +6,6 @@ import { parseReferenceName, referenceLayers, resolveReference } from 'cyber-age
  * then the copy this package ships) and merged key by key.
  */
 const CONVENTIONS_REFERENCE = 'cyber-asana.task-conventions'
-
-const PLUGIN_NAME = 'cyber-asana'
 
 /** Repo house style, so an agent writes tasks the way this repo writes them. */
 export type RepoConventions = {
@@ -50,49 +44,13 @@ export function parseConventions(metadata: Record<string, unknown>): RepoConvent
 	return Object.keys(conventions).length === 0 ? undefined : conventions
 }
 
-/** The nearest folder holding a `package.json`, which is this package's root from `src/` and `dist/` alike. */
-export function packageRoot(from: string = fileURLToPath(import.meta.url)): string {
-	let dir = dirname(from)
-	for (;;) {
-		if (existsSync(join(dir, 'package.json'))) return dir
-		const parent = dirname(dir)
-		if (parent === dir) return dirname(from)
-		dir = parent
-	}
-}
-
-export type LoadConventionsOptions = {
-	/** Where the repo lookup starts. Defaults to the working directory. */
-	root?: string
-	home?: string
-	platform?: NodeJS.Platform
-	env?: Readonly<Record<string, string | undefined>>
-	/** This package's root, whose `references/` holds the shipped copy. */
-	packageRoot?: string
-	warn?: (message: string) => void
-}
+export type LoadConventionsOptions = LoadReferenceMetadataOptions
 
 /**
  * The task conventions from the resolved `cyber-asana.task-conventions` frontmatter, or undefined
- * when nothing sets them. An ambiguous name warns rather than throws, so a normal task create
- * still goes through.
+ * when nothing sets them. An ambiguous name throws `ReferenceAmbiguousError` (D13): a task created
+ * without the conventions the team chose would be wrong in a way nobody sees.
  */
 export async function loadConventions(opts: LoadConventionsOptions = {}): Promise<RepoConventions | undefined> {
-	const warn = opts.warn ?? ((message: string) => console.error(`warning: ${message}`))
-	const layers = await referenceLayers({
-		root: opts.root ?? process.cwd(),
-		home: opts.home ?? homedir(),
-		platform: opts.platform ?? process.platform,
-		env: opts.env ?? process.env,
-		plugin: { name: PLUGIN_NAME, root: opts.packageRoot ?? packageRoot() },
-	})
-	const resolved = resolveReference(parseReferenceName(CONVENTIONS_REFERENCE), layers)
-	if (resolved.status === 'ambiguous') {
-		warn(
-			`${CONVENTIONS_REFERENCE} is ambiguous: ${(resolved.options ?? []).join(', ')} all ship it, so no task conventions apply. Set them in .agents/references/${CONVENTIONS_REFERENCE}.md instead.`,
-		)
-		return undefined
-	}
-	if (resolved.status !== 'found' || !resolved.metadata) return undefined
-	return parseConventions(resolved.metadata)
+	return loadReferenceMetadata(CONVENTIONS_REFERENCE, parseConventions, opts)
 }

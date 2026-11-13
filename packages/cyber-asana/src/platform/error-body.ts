@@ -1,3 +1,5 @@
+import { isReferenceAmbiguousError } from './reference-metadata.js'
+
 type AsanaApiErrorDetail = {
 	message: string
 	help?: string
@@ -8,10 +10,14 @@ export type ErrorBody = {
 	ok: false
 	error: {
 		kind: 'asana_api' | 'config' | 'internal'
+		/** A stable, machine-readable cause beside `kind`, e.g. `reference-ambiguous`. */
+		code?: string
 		message: string
 		status?: number
 		errors?: AsanaApiErrorDetail[]
 		hint?: string
+		/** The choices that settle the error, e.g. each plugin that ships an ambiguous reference. */
+		options?: string[]
 	}
 }
 
@@ -76,6 +82,19 @@ export function buildErrorBody(error: unknown): ErrorBody {
 				...(status !== undefined && { status }),
 				errors: asanaErrors,
 				...(asanaHint !== undefined && { hint: asanaHint }),
+			},
+		}
+	}
+
+	if (isReferenceAmbiguousError(error)) {
+		return {
+			ok: false,
+			error: {
+				kind: 'config',
+				code: error.code,
+				message: error.message,
+				options: [...error.options],
+				hint: error.hint,
 			},
 		}
 	}

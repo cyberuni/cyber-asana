@@ -1,6 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
 import { describe, expect, it, vi } from 'vitest'
+import { ReferenceAmbiguousError } from '../reference-metadata.js'
 import { formatMcpToolError, withMcpErrorHandling } from './error.js'
 
 function textContent(result: CallToolResult): string {
@@ -85,6 +86,16 @@ describe('formatMcpToolError', () => {
 				status: 402,
 				hint: expect.stringContaining('plan level'),
 			},
+		})
+	})
+
+	it('returns reference-ambiguous with its options for an ambiguous reference', () => {
+		const result = formatMcpToolError(new ReferenceAmbiguousError('cyber-asana.scrum', ['a/cyber-asana.scrum']))
+
+		expect(result.isError).toBe(true)
+		expect(JSON.parse(textContent(result))).toMatchObject({
+			ok: false,
+			error: { kind: 'config', code: 'reference-ambiguous', options: ['a/cyber-asana.scrum'] },
 		})
 	})
 

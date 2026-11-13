@@ -146,8 +146,17 @@ default_tags: [agent-created]
 ```
 
 A config file that still has a `conventions` block fails to load; move its keys into the
-frontmatter of `.agents/references/cyber-asana.task-conventions.md` and delete the block. If two plugins ship the reference, the name is
-ambiguous: a warning goes to stderr and no conventions apply.
+frontmatter of `.agents/references/cyber-asana.task-conventions.md` and delete the block.
+
+If two plugins ship the reference, the name is ambiguous. The CLI and MCP do not guess: `task create`
+stops with a `reference-ambiguous` error that lists the options and exits `8`. Pick one with the
+`reference` skill of cyber-agentkit, or save the pick yourself:
+
+```sh
+npx cyber-agentkit reference customize cyber-asana.task-conventions --extends cyber-asana
+```
+
+Add `--scope user` to make the pick for yourself only.
 
 Task creation applies two of the three keys on its own:
 

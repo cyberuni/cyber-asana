@@ -133,6 +133,8 @@ cyber-asana section get <gid> --opt-fields name,project.name,created_at
 | `4` | Forbidden |
 | `5` | Not found |
 | `6` | Rate limited |
+| `7` | Above the workspace's plan level (Asana `402`) |
+| `8` | Ambiguous reference: two plugins ship it; the error lists the options to pick from |
 
 A call that hits Asana's request limit waits and retries before it fails; see [Rate limits](/cyber-asana/reference/rate-limits/).
 
