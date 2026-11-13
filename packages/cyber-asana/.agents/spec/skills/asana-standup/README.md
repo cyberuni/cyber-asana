@@ -15,7 +15,8 @@ assembles a standup update out of a project's recent task activity.
   Its front block reads: *"Use this skill when the user wants a standup update from Asana — done,
   today, and blockers."*
 - **What it covers** — two list calls (tasks completed since a cutoff, defaulting to two days ago;
-  tasks still incomplete), then a **selection** step: pick what is worth mentioning under *Done*,
+  tasks still incomplete), over the project or, when the current sprint is a section, over that
+  section with `section tasks`, then a **selection** step: pick what is worth mentioning under *Done*,
   *Today*, and *Up next*, and drop the rest. Points, when asked for, show story points and task
   points apart, deferring their definition to the `cyber-asana.task-conventions` reference.
 

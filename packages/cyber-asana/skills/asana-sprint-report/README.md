@@ -21,7 +21,7 @@ The skill guides:
 
 - Identifying project and section scope (and sprint start date)
 - Fetching completed tasks since the sprint start
-- Fetching incomplete tasks (optionally filtered by section)
+- Fetching incomplete tasks, from the sprint section with `section tasks` or from the whole project
 - Computing completion rate and writing a narrative summary
 - Offering to move incomplete tasks to the next sprint section
 
