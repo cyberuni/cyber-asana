@@ -42,6 +42,8 @@ vi.mock('./default.js', async () => {
 })
 
 const { taskCommand } = await import('./cli.js')
+const { installUsageErrors } = await import('../platform/cli/usage.js')
+const { exitCodeFor } = await import('../platform/cli/error.js')
 
 describe('tasks/cli', () => {
 	const originalArgv = [...process.argv]
@@ -1117,6 +1119,90 @@ describe('tasks/cli', () => {
 			await program.parseAsync(['node', 'test', 'task', 'update', 't1', '--name', 'Renamed'], { from: 'node' })
 
 			expect(updateTaskMock).toHaveBeenCalledWith('t1', expect.not.objectContaining({ assignee: expect.anything() }))
+		})
+	})
+})
+
+describe('tasks/cli completion filters', () => {
+	afterEach(() => vi.clearAllMocks())
+
+	async function run(argv: string[]) {
+		vi.spyOn(console, 'log').mockImplementation(() => {})
+		const program = new Command().addCommand(taskCommand())
+		installUsageErrors(program)
+		await program.parseAsync(['node', 'test', ...argv], { from: 'node' })
+	}
+
+	async function usageErrorFrom(argv: string[]) {
+		try {
+			await run(argv)
+		} catch (error) {
+			return error
+		}
+		throw new Error('expected a usage error')
+	}
+
+	describe.each([
+		{ name: 'task list', argv: ['task', 'list', '--project-gid', 'p1'], mock: listTasksMock, gid: 'p1' },
+		{
+			name: 'task my-tasks list',
+			argv: ['task', 'my-tasks', 'list', '--workspace-gid', 'ws1'],
+			mock: getMyTasksMock,
+			gid: 'ws1',
+		},
+	])('$name', ({ argv, mock, gid }) => {
+		it('--completed-since asks for tasks completed on or after the date, not Asana’s open-or-completed set', async () => {
+			mock.mockResolvedValue([])
+
+			await run([...argv, '--completed-since', '2026-11-10'])
+
+			expect(mock).toHaveBeenCalledWith(gid, expect.objectContaining({ completedSince: '2026-11-10' }))
+			expect(mock.mock.calls[0][1]).not.toHaveProperty('incompleteOrCompletedSince')
+		})
+
+		it('--incomplete asks for incomplete tasks only', async () => {
+			mock.mockResolvedValue([])
+
+			await run([...argv, '--incomplete'])
+
+			expect(mock).toHaveBeenCalledWith(gid, expect.objectContaining({ incompleteOrCompletedSince: 'now' }))
+			expect(mock.mock.calls[0][1]).not.toHaveProperty('completedSince')
+		})
+
+		it('--incomplete-or-completed-since passes Asana’s own completed_since through', async () => {
+			mock.mockResolvedValue([])
+
+			await run([...argv, '--incomplete-or-completed-since', '2026-11-10'])
+
+			expect(mock).toHaveBeenCalledWith(gid, expect.objectContaining({ incompleteOrCompletedSince: '2026-11-10' }))
+		})
+
+		it('rejects --completed-since now as a usage error (exit 2) that points at --incomplete', async () => {
+			const error = await usageErrorFrom([...argv, '--completed-since', 'now'])
+
+			expect(exitCodeFor(error)).toBe(2)
+			expect(String((error as Error).message)).toMatch(/--incomplete/)
+			expect(mock).not.toHaveBeenCalled()
+		})
+
+		it('rejects --completed-since with --incomplete as conflicting options (exit 2)', async () => {
+			const error = await usageErrorFrom([...argv, '--completed-since', '2026-11-10', '--incomplete'])
+
+			expect(exitCodeFor(error)).toBe(2)
+			expect(mock).not.toHaveBeenCalled()
+		})
+
+		it('rejects --completed-since with --incomplete-or-completed-since as conflicting options (exit 2)', async () => {
+			const error = await usageErrorFrom([
+				...argv,
+				'--completed-since',
+				'2026-11-10',
+				'--incomplete-or-completed-since',
+				'2026-11-10',
+			])
+
+			expect(exitCodeFor(error)).toBe(2)
+			expect(mock).not.toHaveBeenCalled()
 		})
 	})
 })

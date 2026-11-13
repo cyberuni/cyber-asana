@@ -2,17 +2,24 @@ import { readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { listItems, type PaginationOptions } from '../platform/pagination.js'
 import type { ReadOptions } from '../platform/read-options.js'
+import { type CompletionFilter, listWithCompletionFilter } from './completion-filter.js'
 import type {
 	CreateTaskFields,
 	SearchTasksOptions,
 	TaskBatchLookupResult,
 	TaskGateway,
-	TaskListOptions,
 	UpdateTaskFields,
 } from './gateway.js'
 
+export type { CompletionFilter } from './completion-filter.js'
 export type { TaskBatchLookupFailure, TaskBatchLookupSuccess, TaskCustomFields } from './gateway.js'
-export type { CreateTaskFields, SearchTasksOptions, TaskBatchLookupResult, TaskListOptions, UpdateTaskFields }
+export type { CreateTaskFields, SearchTasksOptions, TaskBatchLookupResult, UpdateTaskFields }
+
+/** A section's or My Tasks' list options: pagination plus the two completion filters. */
+export type TaskCollectionOptions = PaginationOptions & CompletionFilter
+
+/** A project's task list options; `customType` filters by custom type GID ("" for tasks with none). */
+export type TaskListOptions = TaskCollectionOptions & { customType?: string }
 
 /** `since` keeps stories created at or after that ISO 8601 time; Asana has no such filter, so it applies here. */
 export type TaskWithStoriesOptions = ReadOptions & { since?: string }
@@ -88,10 +95,10 @@ export type TaskApi = ReturnType<typeof createTaskApi>
 export function createTaskApi(gateway: TaskGateway) {
 	return {
 		listTasks(projectGid: string, opts?: TaskListOptions) {
-			return gateway.listTasks(projectGid, opts)
+			return listWithCompletionFilter(opts, (o) => gateway.listTasks(projectGid, o))
 		},
-		listTasksForSection(sectionGid: string, opts?: PaginationOptions & { completedSince?: string }) {
-			return gateway.listTasksForSection(sectionGid, opts)
+		listTasksForSection(sectionGid: string, opts?: TaskCollectionOptions) {
+			return listWithCompletionFilter(opts, (o) => gateway.listTasksForSection(sectionGid, o))
 		},
 		getTask(taskGid: string, opts?: ReadOptions) {
 			return gateway.getTask(taskGid, opts)
@@ -129,11 +136,11 @@ export function createTaskApi(gateway: TaskGateway) {
 		deleteTask(taskGid: string) {
 			return gateway.deleteTask(taskGid)
 		},
-		getMyTasks(workspaceGid: string, opts?: PaginationOptions & { completedSince?: string }) {
-			return gateway.getMyTasks(workspaceGid, opts)
+		getMyTasks(workspaceGid: string, opts?: TaskCollectionOptions) {
+			return listWithCompletionFilter(opts, (o) => gateway.getMyTasks(workspaceGid, o))
 		},
-		listSubtasks(taskGid: string, opts?: PaginationOptions & { completedSince?: string }) {
-			return gateway.listSubtasks(taskGid, opts)
+		listSubtasks(taskGid: string, opts?: TaskCollectionOptions) {
+			return listWithCompletionFilter(opts, (o) => gateway.listSubtasks(taskGid, o))
 		},
 		createSubtask(parentTaskGid: string, name: string, opts?: CreateTaskFields) {
 			return gateway.createSubtask(parentTaskGid, name, opts)

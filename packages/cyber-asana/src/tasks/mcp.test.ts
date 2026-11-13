@@ -660,3 +660,36 @@ describe('tasks/mcp asana_task_list', () => {
 		expect(listTasks).toHaveBeenCalledWith('p1', expect.objectContaining({ customType: 'ct1' }))
 	})
 })
+
+describe.each([
+	{ tool: 'asana_task_list', method: 'listTasks', params: { project_gid: 'p1' }, gid: 'p1' },
+	{ tool: 'asana_task_my_tasks', method: 'getMyTasks', params: { workspace_gid: 'ws1' }, gid: 'ws1' },
+])('tasks/mcp $tool completion filters', ({ tool, method, params, gid }) => {
+	async function call(extra: Record<string, unknown>) {
+		const list = vi.fn().mockResolvedValue({ data: [] })
+		const server = createServer()
+		registerTaskTools(server as any, { [method]: list } as never)
+		await server.handlers.get(tool)?.({ ...params, ...extra })
+		return list
+	}
+
+	it('completed_since asks for tasks completed on or after the date only', async () => {
+		const list = await call({ completed_since: '2026-11-10' })
+
+		expect(list).toHaveBeenCalledWith(gid, expect.objectContaining({ completedSince: '2026-11-10' }))
+		expect(list.mock.calls[0][1]).not.toHaveProperty('incompleteOrCompletedSince')
+	})
+
+	it('incomplete asks for incomplete tasks only', async () => {
+		const list = await call({ incomplete: true })
+
+		expect(list).toHaveBeenCalledWith(gid, expect.objectContaining({ incompleteOrCompletedSince: 'now' }))
+	})
+
+	it('incomplete_or_completed_since passes Asana’s own completed_since through', async () => {
+		const list = await call({ incomplete_or_completed_since: '2026-11-10' })
+
+		expect(list).toHaveBeenCalledWith(gid, expect.objectContaining({ incompleteOrCompletedSince: '2026-11-10' }))
+		expect(list.mock.calls[0][1]).not.toHaveProperty('completedSince')
+	})
+})

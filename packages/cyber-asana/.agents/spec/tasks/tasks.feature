@@ -37,10 +37,40 @@ Feature: tasks
     When the asana_task_list tool runs with the project GID "7201" and no opt_fields parameter
     Then the request reaching the tasks-for-project endpoint carries no opt_fields value
 
-  Scenario: the incomplete flag lists only tasks completed since now
+  Scenario: the incomplete flag lists only incomplete tasks
     Given a project named "Coastal Survey 1908" with GID "7201"
-    When the task list entry point runs for the project GID "7201" with the incomplete flag and the completed-since date "2026-01-04"
+    When the task list entry point runs for the project GID "7201" with the incomplete flag
     Then the request reaching the tasks-for-project endpoint carries the completed_since value "now"
+
+  Scenario: completed-since lists only tasks completed on or after the date
+    Given a project with GID "7201" holding the open task "Chart the inlet", the task "Survey the reef" completed at "2026-01-03T23:00:00Z", and the task "Sound the channel" completed at "2026-01-04T09:00:00Z"
+    When the task list entry point runs for the project GID "7201" with the completed-since date "2026-01-04"
+    Then the request reaching the tasks-for-project endpoint carries the completed_since value "2026-01-04"
+    And the listed tasks are exactly "Sound the channel"
+
+  Scenario: completed-since adds the completion fields it filters on
+    Given a project with GID "7201"
+    When the task list entry point runs for the project GID "7201" with the completed-since date "2026-01-04" and the field list "gid,name"
+    Then the request reaching the tasks-for-project endpoint carries the opt_fields value "gid,name,completed,completed_at"
+
+  Scenario: incomplete-or-completed-since passes Asana's completed_since through
+    Given a project with GID "7201" holding an open task and a task completed at "2026-01-05T09:00:00Z"
+    When the task list entry point runs for the project GID "7201" with the incomplete-or-completed-since date "2026-01-04"
+    Then the request reaching the tasks-for-project endpoint carries the completed_since value "2026-01-04"
+    And both tasks are listed
+
+  Scenario: completed-since with the incomplete flag is a usage error
+    Given the task command group
+    When the task list entry point runs for the project GID "7201" with the completed-since date "2026-01-04" and the incomplete flag
+    Then the process exits with status 2
+    And no request reaches the tasks-for-project endpoint
+
+  Scenario: completed-since now is a usage error that points at the incomplete flag
+    Given the task command group
+    When the task list entry point runs for the project GID "7201" with the completed-since value "now"
+    Then the process exits with status 2
+    And the error message names the incomplete flag
+    And no request reaches the tasks-for-project endpoint
 
   Scenario: a task list without a project GID is a usage error
     Given the task command group

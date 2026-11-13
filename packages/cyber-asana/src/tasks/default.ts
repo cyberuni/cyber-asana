@@ -1,13 +1,11 @@
 import { createClient } from '../platform/client.js'
-import type { PaginationOptions } from '../platform/pagination.js'
 import type { ReadOptions } from '../platform/read-options.js'
-import { createTaskApi, type TaskWithStoriesOptions } from './api.js'
+import { createTaskApi, type TaskCollectionOptions, type TaskListOptions, type TaskWithStoriesOptions } from './api.js'
 import {
 	type CreateTaskFields,
 	createAsanaTaskGateway,
 	type SearchTasksOptions,
 	type TaskBatchLookupResult,
-	type TaskListOptions,
 	type UpdateTaskFields,
 } from './gateway.js'
 
@@ -19,7 +17,7 @@ export async function listTasks(projectGid: string, opts?: TaskListOptions) {
 	return defaultTaskApi().listTasks(projectGid, opts)
 }
 
-export async function listTasksForSection(sectionGid: string, opts?: PaginationOptions & { completedSince?: string }) {
+export async function listTasksForSection(sectionGid: string, opts?: TaskCollectionOptions) {
 	return defaultTaskApi().listTasksForSection(sectionGid, opts)
 }
 
@@ -50,11 +48,11 @@ export async function deleteTask(taskGid: string) {
 	return defaultTaskApi().deleteTask(taskGid)
 }
 
-export async function getMyTasks(workspaceGid: string, opts?: PaginationOptions & { completedSince?: string }) {
+export async function getMyTasks(workspaceGid: string, opts?: TaskCollectionOptions) {
 	return defaultTaskApi().getMyTasks(workspaceGid, opts)
 }
 
-export async function listSubtasks(taskGid: string, opts?: PaginationOptions & { completedSince?: string }) {
+export async function listSubtasks(taskGid: string, opts?: TaskCollectionOptions) {
 	return defaultTaskApi().listSubtasks(taskGid, opts)
 }
 

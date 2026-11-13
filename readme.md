@@ -658,9 +658,20 @@ cyber-asana task list --project-gid <gid>
 cyber-asana task list --project <gid>      # short alias
 ```
 
-### Incomplete tasks
+### Completion filters
 
-All task list commands accept `--incomplete` as a shorthand for `--completed-since now`:
+`task list` and `task my-tasks list` take one of three completion filters:
+
+- `--completed-since <date>` lists only tasks completed on or after that ISO 8601 date or time. Open tasks are left out. Asana has no such filter, so the CLI asks Asana for tasks that are open or completed since the date and drops the open ones; a page can therefore hold fewer tasks than `--limit`.
+- `--incomplete` lists only incomplete tasks.
+- `--incomplete-or-completed-since <date>` is Asana's own `completed_since`: incomplete tasks plus tasks completed since the date.
+
+```sh
+# Tasks completed since Monday
+cyber-asana task list --project <gid> --completed-since 2026-11-09
+```
+
+`task subtask list` takes `--incomplete`.
 
 ```sh
 # Only incomplete tasks in a project

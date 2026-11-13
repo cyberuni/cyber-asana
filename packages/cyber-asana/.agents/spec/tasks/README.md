@@ -80,10 +80,10 @@ MCP) that share one `api.ts`. Neither `cli.ts` nor `mcp.ts` calls the Asana SDK 
 
 | Entry point | Trigger | Inputs | Outcome |
 |---|---|---|---|
-| `task list` (CLI) | caller wants a project's tasks | `--project-gid`, `--completed-since` or `--incomplete`, pagination options | the project's tasks as a Name/ID/Done/Due table, with a done-versus-incomplete count |
-| `asana_task_list` (MCP) | agent wants the same | `project_gid`, `completed_since`, `incomplete`, pagination params | the same result, JSON-serialized, with no default field set applied |
-| `task my-tasks list` (CLI) | caller wants their own task list in a workspace | `--workspace-gid` (defaults from `ASANA_WORKSPACE_GID`), `--incomplete`, pagination | the authenticated user's tasks, same table |
-| `asana_task_my_tasks` (MCP) | agent wants the same | `workspace_gid`, `completed_since`, `incomplete`, pagination params | the same result, JSON-serialized |
+| `task list` (CLI) | caller wants a project's tasks | `--project-gid`, one completion filter (`--completed-since`, `--incomplete`, or `--incomplete-or-completed-since`), pagination options | the project's tasks as a Name/ID/Done/Due table, with a done-versus-incomplete count |
+| `asana_task_list` (MCP) | agent wants the same | `project_gid`, `completed_since`, `incomplete`, `incomplete_or_completed_since`, pagination params | the same result, JSON-serialized, with no default field set applied |
+| `task my-tasks list` (CLI) | caller wants their own task list in a workspace | `--workspace-gid` (defaults from `ASANA_WORKSPACE_GID`), the same completion filters, pagination | the authenticated user's tasks, same table |
+| `asana_task_my_tasks` (MCP) | agent wants the same | `workspace_gid`, `completed_since`, `incomplete`, `incomplete_or_completed_since`, pagination params | the same result, JSON-serialized |
 | `task subtask list <task-gid>` (CLI) | caller wants a task's children | the parent GID, `--incomplete`, the include flags `--assignee-email` / `--follower-emails` / `--num-subtasks` / `--custom-fields`, pagination | the subtasks, same table |
 | `asana_task_subtask_list` (MCP) | agent wants the same | `task_gid`, `incomplete`, the same four include booleans, pagination params | the same result, JSON-serialized |
 
@@ -176,10 +176,14 @@ graph TD
   LF -->|yes| LFA[the named field groups are added to the field set<br/>the caller's fields, or the default when none were named]
   LF -->|no| LI
   LFA --> LI
-  LI -->|--incomplete| LIN[completed_since = now<br/>wins over any explicit date]
-  LI -->|--completed-since date| LID[completed_since = that date]
-  LI -->|neither| LIO[no completion filter sent]
+  LI -->|--incomplete| LIN[completed_since = now<br/>wins over --incomplete-or-completed-since]
+  LI -->|--incomplete-or-completed-since date| LIR[completed_since = that date<br/>Asana returns open tasks too]
+  LI -->|--completed-since date| LID[completed_since = that date,<br/>completed and completed_at added to the field set;<br/>only tasks with completed_at on or after the date are kept]
+  LI -->|--completed-since with another filter| LIX[usage error, exit 2]
+  LI -->|--completed-since not a date| LIX
+  LI -->|none| LIO[no completion filter sent]
   LIN --> LD{field set already chosen?}
+  LIR --> LD
   LID --> LD
   LIO --> LD
   LD -->|no — CLI| LDD[apply the default gid,name,completed,due_on]
@@ -400,7 +404,12 @@ The load-bearing edges:
 | include flag adds to the default | a subtask list with an assignee-email include flag and no named fields | `a subtask include flag adds to the default field set` |
 | include flag adds to named fields | a subtask list with a num-subtasks include flag and named fields | `a subtask include flag adds to an explicitly named field set` |
 | no field set named → send none | the MCP task-list tool called with no field parameter | `the MCP task list tool sends no default field set` |
-| completion filter → completed_since now | the incomplete flag given alongside an explicit completed-since date | `the incomplete flag lists only tasks completed since now` |
+| completion filter → completed_since now | the incomplete flag alone | `the incomplete flag lists only incomplete tasks` |
+| completion filter → true completed-since | a completed-since date over a project holding open, earlier-completed, and later-completed tasks | `completed-since lists only tasks completed on or after the date` |
+| completion filter → completion fields added | a completed-since date with a narrowed field set | `completed-since adds the completion fields it filters on` |
+| completion filter → raw Asana semantics | the incomplete-or-completed-since date | `incomplete-or-completed-since passes Asana's completed_since through` |
+| completion filter conflict → usage error | the completed-since date given alongside the incomplete flag | `completed-since with the incomplete flag is a usage error` |
+| completion filter not a date → usage error | the completed-since value "now" | `completed-since now is a usage error that points at the incomplete flag` |
 | container GID required → usage error | a project list with no project GID | `a task list without a project GID is a usage error` |
 | parent GID required → usage error | a subtask list with no task GID argument | `a subtask list without a task GID is a usage error` |
 | container GID defaulted from the environment | a my-tasks list with ASANA_WORKSPACE_GID set and no flag | `my-tasks takes the workspace GID from the environment` |
