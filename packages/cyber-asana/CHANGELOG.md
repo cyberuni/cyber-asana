@@ -1,5 +1,19 @@
 # cyber-asana
 
+## 0.23.0
+
+### Minor Changes
+
+- e5baec2: Add `section tasks <section-gid>` and the MCP tool `asana_section_task_list`: list the tasks in one section, with pagination, a small default field set, and the same completion filters as `task list` (`--completed-since`, `--incomplete`, `--incomplete-or-completed-since`).
+- 0735431: `--completed-since` now lists only tasks completed on or after the date. It used to pass Asana's `completed_since` through, which also returns every open task, while its help text claimed otherwise. The filter is applied on the client, so a page can hold fewer tasks than `--limit`. Asana's own behavior stays reachable as `--incomplete-or-completed-since`. `--completed-since now` is now a usage error (exit 2) that points at `--incomplete`, and `--completed-since` with `--incomplete` is a conflict (exit 2).
+  
+  The MCP tools `asana_task_list` and `asana_task_my_tasks` gain `incomplete_or_completed_since`, and their `completed_since` keeps only completed tasks. In the library, `completedSince` on `listTasks`, `listTasksForSection`, `getMyTasks`, and `listSubtasks` is the true filter; pass `incompleteOrCompletedSince` (for example `"now"`) for Asana's own semantics.
+
+### Patch Changes
+
+- 26026e8: Point skill installation at the Claude Code marketplace instead of `npx skills`.
+- b63877e: `asana-standup` and `asana-sprint-report` use the fixed `--completed-since` and the new `section tasks` for a sprint section, instead of filtering a project's tasks by section by hand.
+
 ## 0.22.3
 
 ### Patch Changes
