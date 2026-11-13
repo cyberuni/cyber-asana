@@ -156,7 +156,8 @@ stops with a `reference-ambiguous` error that lists the options and exits `8`. P
 npx cyber-agentkit reference customize cyber-asana.task-conventions --extends cyber-asana
 ```
 
-Add `--scope user` to make the pick for yourself only.
+Add `--scope user` to make the pick for yourself only. See
+[Overriding references](/cyber-asana/reference/overriding-references/) for every tier.
 
 Task creation applies two of the three keys on its own:
 
