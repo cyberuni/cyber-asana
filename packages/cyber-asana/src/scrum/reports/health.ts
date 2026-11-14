@@ -2,10 +2,10 @@ import { type LoadReferenceMetadataOptions, loadReferenceMetadata } from '../../
 import type { ScrumPolicy } from '../policy.js'
 
 /** The reference whose frontmatter holds the health report's thresholds (§ 5.4 of the design). */
-export const HEALTH_REFERENCE = 'cyber-asana.report.health'
+const HEALTH_REFERENCE = 'cyber-asana.report.health'
 
 export const HEALTH_CHECKS = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'H7', 'H8', 'H9', 'H10', 'H11'] as const
-export type HealthCheckId = (typeof HEALTH_CHECKS)[number]
+type HealthCheckId = (typeof HEALTH_CHECKS)[number]
 
 const CHECK_NAMES: Record<HealthCheckId, string> = {
 	H1: 'a sprint task has no estimate',
@@ -96,7 +96,7 @@ export type HealthTask = {
 type TaskRef = { gid: string; name: string; url?: string }
 type Dependency = { gid: string; name?: string; completed?: boolean }
 
-export type HealthFinding = {
+type HealthFinding = {
 	check: HealthCheckId
 	level: 'error' | 'warning'
 	message: string
@@ -108,7 +108,7 @@ export type HealthFinding = {
 	fix: string
 }
 
-export type HealthCheckResult = {
+type HealthCheckResult = {
 	id: HealthCheckId
 	name: string
 	status: 'passed' | 'failed' | 'skipped'
