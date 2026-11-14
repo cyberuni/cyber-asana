@@ -9,7 +9,7 @@ description: Use this skill when setting up scrum on Asana — scope, sprint mod
 
 When the user wants to set up scrum for a repo or team on Asana: choose the projects a team works in, the way a sprint is stored, the fields it reads, the backlog and current sprint, and the sprint policy. Also when they re-run it to review or change that setup.
 
-It covers the `project`, `projects`, and `portfolio` scopes and the `sections` and `custom-field` sprint models, and it can create the Sprint and Status fields. The `team` scope, the `project` model come in later units; say so when the user asks for one.
+It covers the `project`, `projects`, `portfolio`, and `team` scopes and the `sections`, `custom-field`, and `project` sprint models, and it can create the Sprint and Status fields and the sprint portfolio.
 
 ## Rules
 
@@ -28,7 +28,7 @@ Run `cyber-asana workspace list --toon`. If it fails because of the token or wor
 
 Show `cyber-asana config scope list`. If a scope exists, ask whether to keep it or add another.
 
-To add one, ask the kind: `project` (one project), `projects` (several; a task in two of them counts once), `portfolio` (every project in a portfolio, nested portfolios included), or `team` (every unarchived project and every member of one Asana team; find it with `cyber-asana team list`). A `team` scope needs the `custom-field` sprint model: the `sections` model stops with `model-unsupported` for it, so recommend `custom-field` in step 3.
+To add one, ask the kind: `project` (one project), `projects` (several; a task in two of them counts once), `portfolio` (every project in a portfolio, nested portfolios included), or `team` (every unarchived project and every member of one Asana team; find it with `cyber-asana team list`). A `team` scope needs the `custom-field` or `project` sprint model: the `sections` model stops with `model-unsupported` for it, so recommend `custom-field` in step 3.
 
 Find the projects with `cyber-asana project search <keyword>` (or the registry through `cyber-asana config list`) and portfolios with `cyber-asana portfolio list`, confirm the picks, then, on approval:
 
@@ -46,20 +46,29 @@ Show what `scrum scope resolve` reports (for a team, its projects and its people
 
 ### 3. Sprint model
 
-Load the implementations of the `cyber-asana.sprint-model` interface with the `reference` skill of `cyber-agentkit`, and list them. The CLI builds two:
+Load the implementations of the `cyber-asana.sprint-model` interface with the `reference` skill of `cyber-agentkit`, and list them. The CLI builds three:
 
 - `sections`: a sprint is a section named by `sprint_name_format` in each project. It works on a free workspace and supports `project` and `projects` scopes.
 - `custom-field`: a sprint is an option of a `Sprint` enum field the projects share. It supports every scope kind and needs a premium workspace to list tasks (a free one stops with `premium-required`).
+- `project`: a sprint is a project, grouped in a portfolio; tasks are multi-homed from one backlog project, and the backlog is that project's incomplete tasks no sprint holds. It needs a backlog project and a portfolio (a paid Asana feature) and supports every scope kind. Pick it when the team wants a board and reports of its own per sprint.
 
-**Recommend `sections` for a single-project scope and `custom-field` for any other scope** (`projects` with more than one project, `portfolio`). A `portfolio` scope can use only `custom-field`; on a free workspace, tell the user it cannot work and offer a `projects` scope with `sections` instead. The `project` model is a later unit; a custom model a repo wrote itself is read by agents but not computed by the CLI (`model-unsupported`).
+**Recommend `sections` for a single-project scope and `custom-field` for any other scope** (`projects` with more than one project, `portfolio`). A `portfolio` scope can use only `custom-field`; on a free workspace, tell the user it cannot work and offer a `projects` scope with `sections` instead. Offer `project` only when the user asks for one project per sprint. A custom model a repo wrote itself is read by agents but not computed by the CLI (`model-unsupported`).
 
-Load the chosen model's reference (`cyber-asana.sprint-model.sections` or `cyber-asana.sprint-model.custom-field`) and show its `## Requirements`. `sections` cannot also use sections as workflow states, so the policy's `state_carrier` must stay `none` or `field`. Save the choice on approval: for one scope, `--sprint-model <key>` on `config scope add`; for every scope, `sprint_model` in the policy (step 6).
+Load the chosen model's reference (`cyber-asana.sprint-model.sections`, `.custom-field`, or `.project`) and show its `## Requirements`. `sections` cannot also use sections as workflow states, so the policy's `state_carrier` must stay `none` or `field` with it; `custom-field` and `project` also allow `sections`, though reports do not read sections as states and say so. Save the choice on approval: for one scope, `--sprint-model <key>` on `config scope add`; for every scope, `sprint_model` in the policy (step 6).
+
+For `project`, also ask for the **backlog project** (a `project` scope's own project, else pick one), the **sprint portfolio** (find it with `cyber-asana portfolio list`, or on approval make one with `cyber-asana portfolio create "<team> sprints" --workspace-gid <gid>`), and optionally a **template project** the CLI duplicates for each sprint (a project with the sections and fields every sprint should start with). Save them on the scope on approval:
+
+```bash
+cyber-asana config scope add <name> --kind project --project <backlog-gid> --sprint-model project --sprint-portfolio <portfolio-gid> [--sprint-template <template-gid>] --default
+```
+
+A `scope-incomplete` status (exit 2) means one of the two is missing from the scope.
 
 ### 4. Fields
 
 For each project in the scope run `cyber-asana config discover-fields <project>` and show the roles it found: `story_points`, `task_points`, `sprint`, `status`. Then offer to create what is missing, each only on the user's approval and after showing the command:
 
-- **Sprint field.** Needed only by the `custom-field` model (the `sections` model needs none). If no project has one, create it once for the workspace and attach it to every project of the scope:
+- **Sprint field.** Needed only by the `custom-field` model (the `sections` and `project` models need none). If no project has one, create it once for the workspace and attach it to every project of the scope:
 
   ```bash
   cyber-asana custom-field create Sprint --type enum --workspace-gid <gid>
@@ -82,8 +91,8 @@ After creating or attaching anything, run `cyber-asana config discover-fields <p
 
 Check each project: `cyber-asana section list --project-gid <gid>`.
 
-- **Backlog.** Only for `sections`: if the policy's `backlog_section` (default `Backlog`) is missing, offer `cyber-asana section create "Backlog" --project-gid <gid>`. The `custom-field` model has no backlog section: its backlog is the tasks with no Sprint value.
-- **Current sprint.** Needs the policy's `sprint_anchor_date` (step 6), so do step 6 first if it is unset. Then show `cyber-asana sprint current --scope <name>`. If it stops with `sprint-none`, offer `cyber-asana sprint start --scope <name>`, which creates the sprint's section (or its Sprint option) where missing and changes nothing when it exists. `sprint-field-missing` means step 4 is unfinished.
+- **Backlog.** Only for `sections`: if the policy's `backlog_section` (default `Backlog`) is missing, offer `cyber-asana section create "Backlog" --project-gid <gid>`. The `custom-field` model has no backlog section: its backlog is the tasks with no Sprint value. The `project` model has none either: its backlog is the backlog project's tasks that no sprint project holds.
+- **Current sprint.** Needs the policy's `sprint_anchor_date` (step 6), so do step 6 first if it is unset. Then show `cyber-asana sprint current --scope <name>`. If it stops with `sprint-none`, offer `cyber-asana sprint start --scope <name>`, which creates the sprint's section (or its Sprint option, or its project, added to the portfolio) where missing and changes nothing when it exists. `sprint-field-missing` means step 4 is unfinished, and `scope-incomplete` means step 3 is.
 
 ### 6. Policy
 
@@ -119,4 +128,4 @@ Show the findings and the next steps it prints. This one command covers the stru
 
 Finish with a summary of each step (`done`, `missing`, `changed`) and the next steps: `cyber-asana sprint add <task-gid>... --sprint current` to commit work, `cyber-asana sprint tasks`, `cyber-asana report health` as the sprint runs, and `cyber-asana sprint close` at the end of the sprint.
 
-A `premium-required` status (exit 7) means the `custom-field` model needs a premium workspace; offer the `sections` model for a `project` or `projects` scope.
+A `premium-required` status (exit 7) means the `custom-field` model needs a premium workspace; offer the `sections` model for a `project` or `projects` scope. A paid-plan error from a portfolio call (the `project` model) is the same limit: offer `sections` there too.

@@ -141,6 +141,8 @@ describe('projects/mcp', () => {
 			deleteProject: vi.fn(),
 			searchProjects: vi.fn(),
 			exportProject: vi.fn(),
+			duplicateProject: vi.fn(),
+			duplicateProjectAndWait: vi.fn(),
 		})
 
 		await server.handlers.get('asana_project_create')?.({
@@ -163,6 +165,8 @@ describe('projects/mcp', () => {
 			deleteProject: vi.fn(),
 			searchProjects: vi.fn(),
 			exportProject: vi.fn(),
+			duplicateProject: vi.fn(),
+			duplicateProjectAndWait: vi.fn(),
 		})
 
 		await server.handlers.get('asana_project_list')?.({ workspace_gid: 'ws1', archived: true })
@@ -183,6 +187,8 @@ describe('projects/mcp', () => {
 			deleteProject: vi.fn(),
 			searchProjects: vi.fn(),
 			exportProject: vi.fn(),
+			duplicateProject: vi.fn(),
+			duplicateProjectAndWait: vi.fn(),
 		})
 
 		await server.handlers.get('asana_project_list')?.({ workspace_gid: 'ws1', custom_type: 'ct1' })
@@ -202,6 +208,8 @@ describe('projects/mcp', () => {
 			deleteProject: vi.fn(),
 			searchProjects: vi.fn(),
 			exportProject: vi.fn(),
+			duplicateProject: vi.fn(),
+			duplicateProjectAndWait: vi.fn(),
 		})
 
 		await server.handlers.get('asana_project_list')?.({ workspace_gid: 'ws1' })

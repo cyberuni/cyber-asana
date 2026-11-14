@@ -161,6 +161,14 @@ describe('buildHealth', () => {
 		expect(h.notes.join(' ')).toMatch(/incomplete and assigned/)
 	})
 
+	it('accepts state_carrier sections and says reports do not read sections as states', async () => {
+		const h = await buildHealth(
+			only('H5', { sprintTasks: [task('a', { modified_at: ago(5) })], policy: policy({ state_carrier: 'sections' }) }),
+		)
+		expect(h.in_progress_basis).toBe('incomplete-and-assigned')
+		expect(h.notes.join(' ')).toContain('state_carrier is sections: workflow states live in sections')
+	})
+
 	it('H6 flags a person over wip_limit, once, with their tasks', async () => {
 		const tasks = ['a', 'b', 'c', 'd'].map((g) => task(g))
 		const h = await buildHealth(

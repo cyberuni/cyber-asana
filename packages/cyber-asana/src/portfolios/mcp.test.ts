@@ -85,6 +85,8 @@ describe('portfolios/mcp', () => {
 			createPortfolio: injectedCreatePortfolio,
 			updatePortfolio: vi.fn(),
 			deletePortfolio: vi.fn(),
+			addPortfolioItem: vi.fn(),
+			removePortfolioItem: vi.fn(),
 		})
 
 		await server.handlers.get('asana_portfolio_create')?.({
@@ -105,6 +107,8 @@ describe('portfolios/mcp', () => {
 			createPortfolio: vi.fn(),
 			updatePortfolio: vi.fn(),
 			deletePortfolio: vi.fn(),
+			addPortfolioItem: vi.fn(),
+			removePortfolioItem: vi.fn(),
 		})
 
 		await server.handlers.get('asana_portfolio_list')?.({ workspace_gid: 'ws1', owner_gid: 'u1' })
@@ -122,6 +126,8 @@ describe('portfolios/mcp', () => {
 			createPortfolio: vi.fn(),
 			updatePortfolio: vi.fn(),
 			deletePortfolio: vi.fn(),
+			addPortfolioItem: vi.fn(),
+			removePortfolioItem: vi.fn(),
 		})
 
 		await server.handlers.get('asana_portfolio_list')?.({ workspace_gid: 'ws1', custom_type: 'ct1' })
@@ -139,6 +145,8 @@ describe('portfolios/mcp', () => {
 			createPortfolio: vi.fn(),
 			updatePortfolio: vi.fn(),
 			deletePortfolio: vi.fn(),
+			addPortfolioItem: vi.fn(),
+			removePortfolioItem: vi.fn(),
 		})
 
 		await server.handlers.get('asana_portfolio_list')?.({ workspace_gid: 'ws1' })
@@ -162,6 +170,8 @@ describe('portfolios/mcp', () => {
 			createPortfolio: vi.fn(),
 			updatePortfolio: vi.fn(),
 			deletePortfolio: vi.fn().mockResolvedValue(undefined),
+			addPortfolioItem: vi.fn(),
+			removePortfolioItem: vi.fn(),
 		})
 
 		const result = await server.handlers.get('asana_portfolio_delete')?.({ portfolio_gid: 'pf1' })
@@ -183,6 +193,8 @@ describe('portfolios/mcp', () => {
 			createPortfolio: vi.fn(),
 			updatePortfolio: vi.fn(),
 			deletePortfolio: vi.fn().mockRejectedValue({ response: { status: 404, body: { errors: [{ message: 'x' }] } } }),
+			addPortfolioItem: vi.fn(),
+			removePortfolioItem: vi.fn(),
 		})
 
 		const result = await server.handlers.get('asana_portfolio_delete')?.({ portfolio_gid: 'pf1' })

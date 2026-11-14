@@ -152,7 +152,7 @@ Each sprint model is one implementation of the `cyber-asana.sprint-model` interf
 | --- | --- | --- | --- | --- | --- |
 | `sections` | a section named by `sprint_name_format` in each project of the scope | the `Backlog` section (named in the policy), plus tasks in no sprint section | `project`, `projects` | yes | first (U4) |
 | `custom-field` | an option of a `Sprint` enum field (the `sprint` field role) | tasks whose Sprint field is unset | any | no (needs search for multi-project queries) | second (U11) |
-| `project` | a project per sprint, grouped in a portfolio; tasks multi-homed from a backlog project | the backlog project | any | partly | later (U15) |
+| `project` | a project per sprint, grouped in a portfolio; tasks multi-homed from a backlog project | the backlog project's incomplete tasks that no sprint project holds | any | reading yes; portfolios are paid | U15 |
 
 Each model answers the same operations: find the current sprint, list a sprint's tasks, list the backlog, add a task to a sprint, start a sprint (create its section or option), close a sprint (carry over), and list closed sprints for velocity.
 
@@ -430,7 +430,7 @@ Each unit can ship alone and passes `pnpm verify`; units that need it also pass 
 | U12 | `cyber-asana.dashboard` and `report dashboard` (CLI, D2.1); the planning route (needs velocity and capacity) | — | U7, U8, U10 |  |
 | U13 | `--post-status` (D2.2) and `status_type` validation | G13 | U12 |  |
 | U14 | `--page` generated HTML (D2.3), and where the page is published (D8) | — | U12 |  |
-| U15 | `.project` model (one project per sprint, in a portfolio) | G8 (add/remove) | U11 |  |
+| U15 | `.project` model (one project per sprint, in a portfolio) | G8 (add/remove) | U11 | Built; in review |
 
 U1 can ship before anything else and fixes wrong numbers users see today.
 
@@ -519,6 +519,18 @@ U1 can ship before anything else and fixes wrong numbers users see today.
 - **The window and the sprint are read once.** The team standup makes the same Asana calls as a member's: one `completed_since` list per project plus the sprint's task GIDs. Only the dependency lookups for Blocked scale with the number of people.
 - **K2.** `init-asana-scrum` step 2 offers `team` and recommends the `custom-field` model for it, since `sections` stops with `model-unsupported`.
 - **G4 reads.** `team members` and `team projects` follow AGENTS.md pagination (`--limit`, `--offset`, `--all`, `--max-pages`) with a minimal default field set. The system tests read `ASANA_SYSTEM_TEST_TEAM_GID`.
+
+### 9.9 Decisions made while building U15
+
+- **Where the model's Asana objects live.** Three optional scope keys, `backlog_project`, `sprint_portfolio`, and `sprint_template`, are GIDs and so config (P1), not policy. A `project` scope's own project is the backlog project and a `portfolio` scope's own portfolio is the sprint portfolio, so the common setup needs no extra key; any other scope names them. A scope that cannot supply both stops with `scope-incomplete`, exit `2`. Under this model the scope's projects for every command are just the backlog project.
+- **Starting a sprint: duplicate or plain create.** With `sprint_template` the CLI wraps `duplicateProject` (new `project duplicate` and `asana_project_duplicate`, polled with `src/platform/job-polling.ts`, 60 s by default, a failed or expired job is an error). Without it, it creates a plain project in the backlog project's workspace and team. A project template (`instantiateProject`) is not used: it needs a template object most teams do not have, and a duplicated template project does the same job. The new project then joins the portfolio; `sprint_project` in the output names it.
+- **A sprint is found by name.** The portfolio's projects whose names match `sprint_name_format` are the sprints; the backlog project and non-matching projects are ignored. This is the same rule as the other models, so renaming a sprint project hides it.
+- **Add multi-homes; close moves.** `sprint add` keeps the task in the backlog project and adds the sprint project. `sprint close` with `carry_over: move` adds each incomplete task to the next sprint's project and then removes it from the closed one, in that order so a failure never leaves a task in no sprint. Completed tasks stay in their sprint, so the closed project still shows what it delivered. This keeps a task in one sprint at a time, which H11 expects.
+- **The closed project is not archived.** Reports and velocity read it, and an archived project drops out of most Asana views. A team that wants it gone archives it by hand.
+- **No search.** Tasks come from `getTasksForProject`, so reading works on a free plan. The backlog excludes any task a sprint project holds. Portfolios are paid, so `portfolio` calls give the plan limitation (exit `7`) on a free workspace.
+- **`state_carrier: sections`.** It already parsed, and setup now offers it with this model and `custom-field`. Standup and health treat it like `none` and say, in `notes`, that reports do not read sections as workflow states.
+- **G8.** `portfolio item add | remove` (and `asana_portfolio_item_add | remove`) read the portfolio's items first, so adding an item already there is `already_added` and removing an absent one is `already_removed`, both exit `0`.
+- **Not run live.** The request bodies of `addItemForPortfolio`, `removeItemForPortfolio`, and `duplicateProject` are *(docs)* fields, confirmed by `portfolios/api.system.ts` and `scrum/sprint-project.system.ts`. They need a paid workspace and a token, which the build session did not have, so run `ASANA_SYSTEM_TEST=1 ASANA_PLAN=paid pnpm test:system` before relying on them.
 
 ## 10. Items settled after the first review
 

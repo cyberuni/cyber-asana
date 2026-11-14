@@ -15,6 +15,8 @@ function mockRuntimeContext(): RuntimeContext {
 			deleteProject: vi.fn(),
 			searchProjects: vi.fn(),
 			exportProject: vi.fn(),
+			duplicateProject: vi.fn(),
+			duplicateProjectAndWait: vi.fn(),
 		},
 		tasks: {
 			listTasks: vi.fn(),
@@ -73,6 +75,8 @@ function mockRuntimeContext(): RuntimeContext {
 			createPortfolio: vi.fn(),
 			updatePortfolio: vi.fn(),
 			deletePortfolio: vi.fn(),
+			addPortfolioItem: vi.fn(),
+			removePortfolioItem: vi.fn(),
 		},
 		goals: {
 			listGoals: vi.fn(),

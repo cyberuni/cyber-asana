@@ -478,7 +478,7 @@ Tools are named `asana_<resource>_<action>` (e.g. `asana_task_create`).
 | Resource | Tools |
 | --- | --- |
 | `workspace` | `asana_workspace_list`, `asana_workspace_get` |
-| `project` | `asana_project_list`, `asana_project_get`, `asana_project_counts`, `asana_project_search`, `asana_project_create`, `asana_project_update`, `asana_project_delete`, `asana_project_export` |
+| `project` | `asana_project_list`, `asana_project_get`, `asana_project_counts`, `asana_project_search`, `asana_project_create`, `asana_project_update`, `asana_project_delete`, `asana_project_duplicate`, `asana_project_export` |
 | `task` | `asana_task_list`, `asana_task_my_tasks`, `asana_task_subtask_list`, `asana_task_subtask_create`, `asana_task_get`, `asana_task_get_many`, `asana_task_create`, `asana_task_update`, `asana_task_delete`, `asana_task_search`, `asana_task_follower_add`, `asana_task_follower_remove`, `asana_task_project_add`, `asana_task_project_remove`, `asana_task_dependency_list`, `asana_task_dependency_add`, `asana_task_dependency_remove`, `asana_task_dependent_list`, `asana_task_dependent_add`, `asana_task_dependent_remove`, `asana_task_scan_todos` |
 | `task-template` | `asana_task_template_list`, `asana_task_template_get`, `asana_task_template_instantiate` |
 | `section` | `asana_section_list`, `asana_section_get`, `asana_section_create`, `asana_section_update`, `asana_section_move`, `asana_section_task_add`, `asana_section_task_list`, `asana_section_delete` |
@@ -487,8 +487,7 @@ Tools are named `asana_<resource>_<action>` (e.g. `asana_task_create`).
 | `scope` | `asana_scope_list`, `asana_scope_add`, `asana_scope_remove`, `asana_scope_resolve` (scrum scopes: the projects a scrum team works in) |
 | `sprint` | `asana_sprint_current`, `asana_sprint_list`, `asana_sprint_tasks`, `asana_sprint_add`, `asana_sprint_start`, `asana_sprint_close`, `asana_backlog_list` (computed sprints and the backlog; the `sections` model) |
 | `report` | `asana_report_standup` (a member's standup: done, today, blocked; story and task points apart), `asana_report_health` (sprint health checks H1–H11, each finding with a fix command), `asana_report_workload` (per person load vs Allocations capacity, over/under flags, team total), `asana_report_sprint` (the sprint review: committed vs completed vs added vs removed, burndown, demo list), `asana_report_retro` (carry-over, scope change, blocked time, cycle time, estimate vs actual), `asana_report_velocity` (points per closed sprint and the mean) |
-
-| `portfolio` | `asana_portfolio_list`, `asana_portfolio_item_list`, `asana_portfolio_get`, `asana_portfolio_create`, `asana_portfolio_update`, `asana_portfolio_delete` |
+| `portfolio` | `asana_portfolio_list`, `asana_portfolio_item_list`, `asana_portfolio_item_add`, `asana_portfolio_item_remove`, `asana_portfolio_get`, `asana_portfolio_create`, `asana_portfolio_update`, `asana_portfolio_delete` |
 | `goal` | `asana_goal_list`, `asana_goal_get`, `asana_goal_create`, `asana_goal_update`, `asana_goal_delete` |
 | `tag` | `asana_tag_list`, `asana_tag_get`, `asana_tag_create`, `asana_tag_update`, `asana_tag_delete`, `asana_tag_list_for_task`, `asana_tag_list_tasks`, `asana_tag_add_to_task`, `asana_tag_remove_from_task` |
 | `ooo` | `asana_ooo_list`, `asana_ooo_get`, `asana_ooo_create`, `asana_ooo_update`, `asana_ooo_delete` |

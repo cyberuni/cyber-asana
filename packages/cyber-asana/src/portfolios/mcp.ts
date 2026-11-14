@@ -10,11 +10,13 @@ import {
 } from '../platform/mcp/options.js'
 import type { PortfolioApi } from './api.js'
 import {
+	addPortfolioItem,
 	createPortfolio,
 	deletePortfolio,
 	getPortfolio,
 	listPortfolioItems,
 	listPortfolios,
+	removePortfolioItem,
 	updatePortfolio,
 } from './default.js'
 
@@ -28,6 +30,8 @@ function resolvePortfolioApi(api?: PortfolioApi | (() => PortfolioApi)): Portfol
 			createPortfolio,
 			updatePortfolio,
 			deletePortfolio,
+			addPortfolioItem,
+			removePortfolioItem,
 		}
 	)
 }
@@ -135,5 +139,46 @@ export function registerPortfolioTools(server: McpServer, api?: PortfolioApi | (
 			)
 			return { content: [{ type: 'text', text: JSON.stringify(result) }] }
 		},
+	)
+
+	server.tool(
+		'asana_portfolio_item_add',
+		'Add a project or portfolio to an Asana portfolio. Adding an item already there changes nothing (status already_added).',
+		{
+			portfolio_gid: z.string().describe('Portfolio GID'),
+			item_gid: z.string().describe('GID of the project or portfolio to add'),
+			insert_before: z.string().optional().describe('Place the item before this existing item GID'),
+			insert_after: z.string().optional().describe('Place the item after this existing item GID'),
+		},
+		async ({ portfolio_gid, item_gid, insert_before, insert_after }) => ({
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(
+						await resolvePortfolioApi(api).addPortfolioItem(portfolio_gid, item_gid, {
+							...(insert_before !== undefined && { insertBefore: insert_before }),
+							...(insert_after !== undefined && { insertAfter: insert_after }),
+						}),
+					),
+				},
+			],
+		}),
+	)
+
+	server.tool(
+		'asana_portfolio_item_remove',
+		'Remove an item from an Asana portfolio. Removing one that is not there changes nothing (status already_removed).',
+		{
+			portfolio_gid: z.string().describe('Portfolio GID'),
+			item_gid: z.string().describe('GID of the project or portfolio to remove'),
+		},
+		async ({ portfolio_gid, item_gid }) => ({
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(await resolvePortfolioApi(api).removePortfolioItem(portfolio_gid, item_gid)),
+				},
+			],
+		}),
 	)
 }

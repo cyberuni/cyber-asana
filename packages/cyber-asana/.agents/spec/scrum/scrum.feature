@@ -567,3 +567,45 @@ Feature: scrum scopes
     When report sprint runs with --sprint 9
     Then it fails with code "sprint-none"
 
+
+  # ── the project model ──
+
+  Scenario: the current sprint is a project in the sprint portfolio
+    Given the portfolio holds a project "Sprint 2" and today is in sprint 2
+    When sprint current runs
+    Then the sprint is "Sprint 2" and section_gid is that project's GID
+
+  Scenario: the backlog excludes tasks a sprint project holds
+    Given incomplete backlog-project tasks "t1" and "t2", and "t1" is also in "Sprint 2"
+    When backlog list runs
+    Then only "t2" is listed
+
+  Scenario: sprint start creates the project in the portfolio and is idempotent
+    Given the portfolio holds no project "Sprint 3"
+    When sprint start runs twice for sprint 3
+    Then one project is created and added to the portfolio, and the second run reports already_started
+
+  Scenario: sprint start duplicates the scope's template when it names one
+    Given the scope names sprint_template "tpl"
+    When sprint start runs for a new sprint
+    Then the new project is a duplicate of "tpl"
+
+  Scenario: sprint add multi-homes a backlog task
+    Given task "t2" in the backlog project only
+    When sprint add runs for "t2" in sprint 2
+    Then "t2" is in both the backlog project and "Sprint 2"
+
+  Scenario: sprint close with carry_over move moves incomplete tasks to the next project
+    Given sprint 2 with incomplete tasks "t1" and "t4" and no project "Sprint 3"
+    When sprint close runs with carry_over move
+    Then "Sprint 3" is created, "t1" and "t4" are in it and no longer in "Sprint 2", and "Sprint 2" is not archived
+
+  Scenario: a scope without a backlog project or portfolio fails with scope-incomplete
+    Given a projects scope under the project model with no backlog_project
+    When any sprint command runs
+    Then it fails with code "scope-incomplete", exit 2, naming the backlog project
+
+  Scenario: state_carrier sections is accepted and reports say they do not read it
+    Given state_carrier "sections" under the project model
+    When report health runs
+    Then it runs and notes that in progress means incomplete and assigned

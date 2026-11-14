@@ -9,6 +9,8 @@ export type SprintTarget = {
 	backlogSection: string
 	/** The Sprint field GID each project registered in config, by project GID; discovery fills any gap. */
 	sprintFields?: Record<string, string>
+	/** The `project` model's Asana objects, resolved from the scope; `projects` is then just the backlog. */
+	sprintProject?: { backlog: ScopeProject; portfolio: string; template?: string }
 }
 
 export type SprintSection = { project: ScopeProject; section: { gid: string; name: string } }
@@ -19,8 +21,8 @@ export type CarryOver = 'move' | 'leave'
 
 /** One implementation of `cyber-asana.sprint-model`, for the models the CLI builds in. */
 export type SprintModel = {
-	/** What stands for a sprint in Asana, for messages: a section, or an option of the Sprint field. */
-	kind: 'section' | 'option'
+	/** What stands for a sprint in Asana, for messages: a section, an option of the Sprint field, or a project. */
+	kind: 'section' | 'option' | 'project'
 	/** The sprint's Asana object in each project, and the projects that lack it. */
 	sections(
 		target: SprintTarget,
@@ -33,7 +35,15 @@ export type SprintModel = {
 		target: SprintTarget,
 		opts: { optFields?: string },
 	): Promise<Array<SprintTask & { section: string; project: string }>>
-	start(target: SprintTarget, sprint: Sprint): Promise<{ created: ScopeProject[]; existing: ScopeProject[] }>
+	start(
+		target: SprintTarget,
+		sprint: Sprint,
+	): Promise<{
+		created: ScopeProject[]
+		existing: ScopeProject[]
+		/** The project a `project` model made, so a caller can name it. */
+		sprintProject?: { gid: string; name: string }
+	}>
 	add(
 		target: SprintTarget,
 		sprint: Sprint,

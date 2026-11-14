@@ -57,7 +57,8 @@ sprint model that supports it: the built-in `sections` model stops with `model-u
   member's timezone) or `<n>d` (midnight, `n` days back). Everything completed since then is done.
 - **Today's timezone.** The date comes from the timezone `user me` reports, else the machine's. The
   output says which in `timezone_source`.
-- **Today without a state.** With `state_carrier: none`, or `field` with no registered `status` field,
+- **Today without a state.** With `state_carrier: none` or `sections` (reports do not read sections as
+  states), or `field` with no registered `status` field,
   completion is the only state, so Today lists every incomplete assigned task. `notes` says so.
 - **Blocked.** `dependency` lists the task's incomplete dependencies as the blocker. `tag:<name>`
   matches a tag, and `state:<state>` matches the status option. Only the current sprint is listed.
@@ -98,7 +99,7 @@ frontmatter: `checks` (default: all eleven), `stale_days` (3), `wip_limit` (3), 
   overlapping the sprint) the check shows as `skipped` with the reason, for example
   `capacity unknown: no allocation overlaps the sprint dates`; it never shows as passed. People
   whose capacity is unknown while others' is known are named in `notes`.
-- **In progress without a state.** With `state_carrier: none`, or `field` with no registered `status`
+- **In progress without a state.** With `state_carrier: none` or `sections`, or `field` with no registered `status`
   field, H5 and H6 count every incomplete assigned sprint task, and `notes` says so.
 - **No current sprint.** Today before `sprint_anchor_date` fails with `sprint-none`, and no anchor
   date fails with `policy-incomplete`. When today's sprint has no section, H9 reports it and the

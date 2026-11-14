@@ -112,6 +112,32 @@ describe('parseScopeEntries', () => {
 	})
 })
 
+describe('project-model keys', () => {
+	it('reads backlog_project, sprint_portfolio, and sprint_template on any kind', () => {
+		const [scope] = parseScopeEntries(
+			[
+				{
+					name: 'a',
+					kind: 'portfolio',
+					portfolio: '9',
+					backlog_project: '1',
+					sprint_portfolio: '2',
+					sprint_template: '3',
+					sprint_model: 'project',
+				},
+			],
+			'scrum.scopes',
+		)
+		expect(scope).toMatchObject({ backlog_project: '1', sprint_portfolio: '2', sprint_template: '3' })
+	})
+
+	it.each(['backlog_project', 'sprint_portfolio', 'sprint_template'])('rejects an empty %s', (key) => {
+		expect(() =>
+			parseScopeEntries([{ name: 'a', kind: 'project', projects: ['1'], [key]: '' }], 'scrum.scopes'),
+		).toThrow(`scrum.scopes[0].${key} must be a non-empty string`)
+	})
+})
+
 describe('repo config schema 3', () => {
 	it('still reads schema 2, which carries no scope', () => {
 		const config = parseRepoConfig({ schema_version: 2, projects: [] })

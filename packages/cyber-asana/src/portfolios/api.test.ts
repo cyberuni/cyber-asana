@@ -13,6 +13,8 @@ describe('createPortfolioApi', () => {
 			createPortfolio: vi.fn(),
 			updatePortfolio: vi.fn(),
 			deletePortfolio: vi.fn(),
+			addPortfolioItem: vi.fn(),
+			removePortfolioItem: vi.fn(),
 		})
 
 		const result = await api.listPortfolios('ws1')
@@ -31,6 +33,8 @@ describe('createPortfolioApi', () => {
 			createPortfolio: vi.fn(),
 			updatePortfolio: vi.fn(),
 			deletePortfolio: vi.fn(),
+			addPortfolioItem: vi.fn(),
+			removePortfolioItem: vi.fn(),
 		})
 
 		const result = await api.listPortfolioItems('pf1', { limit: 25 })

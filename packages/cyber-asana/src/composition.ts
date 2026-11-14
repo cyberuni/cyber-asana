@@ -46,7 +46,7 @@ import { createPortfolioApi, type PortfolioApi } from './portfolios/api.js'
 import { portfolioCommand } from './portfolios/cli.js'
 import { createAsanaPortfolioGateway } from './portfolios/gateway.js'
 import { registerPortfolioTools } from './portfolios/mcp.js'
-import { createProjectTemplateApi, type ProjectTemplateApi } from './project-templates/api.js'
+import { createProjectTemplateApi, newProjectOf, type ProjectTemplateApi } from './project-templates/api.js'
 import { projectTemplateCommand } from './project-templates/cli.js'
 import { createAsanaProjectTemplateGateway } from './project-templates/gateway.js'
 import { registerProjectTemplateTools } from './project-templates/mcp.js'
@@ -147,6 +147,7 @@ export function createRuntimeContext(): RuntimeContext {
 	const allocationGateway = createAsanaAllocationGateway(client)
 	const oooGateway = createAsanaOooGateway(client)
 	const customFieldGateway = createAsanaCustomFieldGateway(client)
+	const projectApi = createProjectApi(projectGateway, { jobs: jobGateway })
 	return {
 		allocations: createAllocationApi(allocationGateway),
 		aiStudio: createAiStudioApi(createAsanaAiStudioGateway(client)),
@@ -158,7 +159,7 @@ export function createRuntimeContext(): RuntimeContext {
 		ooo: createOooApi(oooGateway),
 		jobs: createJobApi(jobGateway),
 		portfolios: createPortfolioApi(portfolioGateway),
-		projects: createProjectApi(projectGateway),
+		projects: projectApi,
 		projectTemplates: createProjectTemplateApi(createAsanaProjectTemplateGateway(client), { jobs: jobGateway }),
 		rules: createRuleApi(createAsanaRuleGateway(client)),
 		scrum: createScrumApi({
@@ -169,6 +170,17 @@ export function createRuntimeContext(): RuntimeContext {
 				tasks: taskGateway,
 				users: userGateway,
 				fieldModel: { customFields: customFieldGateway, tasks: taskGateway, projects: projectGateway },
+				projectModel: {
+					portfolios: portfolioGateway,
+					projects: projectGateway,
+					tasks: taskGateway,
+					duplicateProject: async (templateGid, fields) => {
+						const job = await projectApi.duplicateProjectAndWait(templateGid, fields)
+						const created = newProjectOf(job)
+						if (!created?.gid) throw new Error(`Asana job ${job.gid} succeeded but named no new project`)
+						return { gid: created.gid }
+					},
+				},
 			},
 			dependencies: taskGateway,
 			loadPolicy: () => loadScrumPolicy(),

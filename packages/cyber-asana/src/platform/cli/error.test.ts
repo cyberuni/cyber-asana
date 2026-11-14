@@ -12,6 +12,10 @@ describe('exitCodeFor', () => {
 		expect(exitCodeFor(new ReferenceAmbiguousError('cyber-asana.scrum', ['a/cyber-asana.scrum']))).toBe(8)
 	})
 
+	it('maps scope-incomplete (a project-model scope without its backlog or portfolio) to 2', () => {
+		expect(exitCodeFor(new CodedConfigError('scope-incomplete', 'No backlog project'))).toBe(2)
+	})
+
 	it('maps scope-missing and scope-unknown to 2, as a fixable command line, apart from each other by code', () => {
 		expect(exitCodeFor(new CodedConfigError('scope-missing', 'No scope'))).toBe(2)
 		expect(exitCodeFor(new CodedConfigError('scope-unknown', 'No such scope', { options: ['web'] }))).toBe(2)

@@ -49,8 +49,8 @@ operations such as project export and TODO scanning are described separately bel
 | Jobs | ✅ | 1 / 1 | `job` | Complete; reads the async jobs other operations return |
 | Project templates | 🟡 | 4 / 5 | `project-template` | List, get, and instantiate; no template deletion |
 | Sections | ✅ | 7 / 7 | `section` | Complete, including section reordering, section-scoped task placement, and listing a section's tasks |
-| Portfolios | 🟡 | 6 / 13 | `portfolio` | CRUD + item listing; members are managed under `membership` |
-| Projects | 🟡 | 7 / 20 | `project` | CRUD, counts, search. Templates have their own row; members are managed under `membership` |
+| Portfolios | 🟡 | 8 / 13 | `portfolio` | CRUD, item listing, item add and remove; members are managed under `membership` |
+| Projects | 🟡 | 8 / 20 | `project` | CRUD, counts, search, duplicate. Templates have their own row; members are managed under `membership` |
 | Goals | 🟡 | 5 / 12 | `goal` | CRUD only; no metrics or followers |
 | Users | 🟡 | 3 / 8 | `user` | Read-only |
 | Teams | 🟡 | 2 / 7 | `team` | Read-only; also a team's projects, which `team projects` lists |
@@ -127,7 +127,7 @@ managing them.
 | Search projects | `project search [text]` | `asana_project_search` |
 | Create / update / delete | `project create\|update\|delete` | `asana_project_create` / `_update` / `_delete` |
 
-Not covered: members, followers, attaching or detaching a custom field, duplicate,
+Not covered: members, followers, attaching or detaching a custom field,
 save-as-template, and the team-scoped create/list variants. Reading a project's attached
 custom fields is covered — see `custom-field project` below.
 
@@ -156,7 +156,7 @@ using one.
 | Sections | `section list\|get\|create\|update\|move\|delete`, `section tasks`, `section task add` | `asana_section_*` |
 | Tags | `tag list\|get\|create\|update\|delete`, `tag task list\|add\|remove`, `tag tasks` | `asana_tag_*` |
 | Goals | `goal list\|get\|create\|update\|delete` | `asana_goal_*` |
-| Portfolios | `portfolio list\|items\|get\|create\|update\|delete` | `asana_portfolio_*` |
+| Portfolios | `portfolio list\|items\|get\|create\|update\|delete`, `portfolio item add\|remove` | `asana_portfolio_*` |
 | Status updates | `status list\|get\|create\|delete` | `asana_status_*` |
 | Stories / comments | `story list\|get\|create\|update\|delete`, same under `comment` | `asana_story_*`, `asana_comment_*` |
 | Memberships | `membership list\|get\|create\|update\|delete` | `asana_membership_*` |

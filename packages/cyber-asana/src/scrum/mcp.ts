@@ -21,7 +21,7 @@ export function registerScrumTools(server: McpServer, api?: ScrumApi | (() => Sc
 
 	server.tool(
 		'asana_scope_add',
-		'Add a scrum scope, or replace the one with the same name. Saves to the repo config (which becomes schema_version 3), or to the global registry with global=true. A scope may override only sprint_model, sprint_length_days, and sprint_anchor_date.',
+		'Add a scrum scope, or replace the one with the same name. Saves to the repo config (which becomes schema_version 3), or to the global registry with global=true. A scope may override only sprint_model, sprint_length_days, and sprint_anchor_date; backlog_project, sprint_portfolio, and sprint_template name the Asana objects of the project sprint model.',
 		{
 			name: z.string().describe('Scope name'),
 			kind: z.enum(SCOPE_KINDS).describe('project (exactly one project), projects (several), portfolio, or team'),
@@ -29,6 +29,9 @@ export function registerScrumTools(server: McpServer, api?: ScrumApi | (() => Sc
 			portfolio_gid: z.string().optional().describe('Portfolio GID, for kind portfolio'),
 			team_gid: z.string().optional().describe('Team GID, for kind team'),
 			default: z.boolean().optional().describe('Use this scope when none is named'),
+			backlog_project: z.string().optional().describe('Backlog project GID of the project sprint model'),
+			sprint_portfolio: z.string().optional().describe('Portfolio GID that groups the sprint projects (project model)'),
+			sprint_template: z.string().optional().describe('Project GID the project model duplicates to start a sprint'),
 			sprint_model: z.string().optional().describe('Override the policy sprint_model'),
 			sprint_length_days: z.number().int().positive().optional().describe('Override the policy sprint_length_days'),
 			sprint_anchor_date: z.string().optional().describe('Override the policy sprint_anchor_date, YYYY-MM-DD'),
@@ -42,6 +45,9 @@ export function registerScrumTools(server: McpServer, api?: ScrumApi | (() => Sc
 				...(params.portfolio_gid !== undefined && { portfolio: params.portfolio_gid }),
 				...(params.team_gid !== undefined && { team: params.team_gid }),
 				...(params.default && { default: true as const }),
+				...(params.backlog_project !== undefined && { backlog_project: params.backlog_project }),
+				...(params.sprint_portfolio !== undefined && { sprint_portfolio: params.sprint_portfolio }),
+				...(params.sprint_template !== undefined && { sprint_template: params.sprint_template }),
 				...(params.sprint_model !== undefined && { sprint_model: params.sprint_model }),
 				...(params.sprint_length_days !== undefined && { sprint_length_days: params.sprint_length_days }),
 				...(params.sprint_anchor_date !== undefined && { sprint_anchor_date: params.sprint_anchor_date }),

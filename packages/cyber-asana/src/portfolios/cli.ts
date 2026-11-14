@@ -14,11 +14,13 @@ import { output, printCountSummary, printFields, printNextSteps, printTable } fr
 import { deleteIdempotently, deleteMessage } from '../platform/idempotent-delete.js'
 import type { PortfolioApi } from './api.js'
 import {
+	addPortfolioItem,
 	createPortfolio,
 	deletePortfolio,
 	getPortfolio,
 	listPortfolioItems,
 	listPortfolios,
+	removePortfolioItem,
 	updatePortfolio,
 } from './default.js'
 
@@ -38,6 +40,8 @@ function resolvePortfolioApi(api?: PortfolioApi | (() => PortfolioApi)): Portfol
 			createPortfolio,
 			updatePortfolio,
 			deletePortfolio,
+			addPortfolioItem,
+			removePortfolioItem,
 		}
 	)
 }
@@ -65,6 +69,8 @@ export function portfolioCommand(api?: PortfolioApi | (() => PortfolioApi)) {
 			'  cyber-asana portfolio create "Roadmap" --workspace-gid <gid>',
 			'  cyber-asana portfolio update <gid> --name "Renamed"',
 			'  cyber-asana portfolio delete <gid>',
+			'  cyber-asana portfolio item add <portfolio-gid> <project-gid>',
+			'  cyber-asana portfolio item remove <portfolio-gid> <project-gid>',
 			'',
 			'Every subcommand supports --help for its own options.',
 		].join('\n'),
@@ -166,6 +172,44 @@ export function portfolioCommand(api?: PortfolioApi | (() => PortfolioApi)) {
 		.action(async (gid: string) => {
 			const result = await deleteIdempotently('portfolio', gid, () => resolvePortfolioApi(api).deletePortfolio(gid))
 			output(result, () => console.log(deleteMessage(result, 'Portfolio')))
+		})
+
+	const item = cmd.command('item').description('Add or remove a portfolio item (a project or a nested portfolio)')
+
+	item
+		.command('add <portfolio-gid> <item-gid>')
+		.description('Add a project or portfolio to a portfolio; adding an item already there changes nothing')
+		.option('--insert-before <gid>', 'Place the item before this existing item')
+		.option('--insert-after <gid>', 'Place the item after this existing item')
+		.action(async (portfolioGid: string, itemGid: string, opts: { insertBefore?: string; insertAfter?: string }) => {
+			const placement = {
+				...(opts.insertBefore !== undefined && { insertBefore: opts.insertBefore }),
+				...(opts.insertAfter !== undefined && { insertAfter: opts.insertAfter }),
+			}
+			const result = await resolvePortfolioApi(api).addPortfolioItem(portfolioGid, itemGid, placement)
+			output(result, () => {
+				console.log(
+					result.status === 'added'
+						? `Added ${itemGid} to portfolio ${portfolioGid}`
+						: `${itemGid} was already in portfolio ${portfolioGid}`,
+				)
+				printNextSteps([`cyber-asana portfolio items ${portfolioGid} — list the portfolio's items`])
+			})
+		})
+
+	item
+		.command('remove <portfolio-gid> <item-gid>')
+		.description('Remove an item from a portfolio; removing one that is not there changes nothing')
+		.action(async (portfolioGid: string, itemGid: string) => {
+			const result = await resolvePortfolioApi(api).removePortfolioItem(portfolioGid, itemGid)
+			output(result, () => {
+				console.log(
+					result.status === 'removed'
+						? `Removed ${itemGid} from portfolio ${portfolioGid}`
+						: `${itemGid} was not in portfolio ${portfolioGid}`,
+				)
+				printNextSteps([`cyber-asana portfolio items ${portfolioGid} — list the portfolio's items`])
+			})
 		})
 
 	return cmd

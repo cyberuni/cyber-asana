@@ -2,7 +2,7 @@ import { createClient } from '../platform/client.js'
 import type { PaginationOptions } from '../platform/pagination.js'
 import type { ReadOptions } from '../platform/read-options.js'
 import { createPortfolioApi } from './api.js'
-import { createAsanaPortfolioGateway, type PortfolioListOptions } from './gateway.js'
+import { createAsanaPortfolioGateway, type PortfolioItemPlacement, type PortfolioListOptions } from './gateway.js'
 
 function defaultPortfolioApi() {
 	return createPortfolioApi(createAsanaPortfolioGateway(createClient()))
@@ -30,4 +30,12 @@ export async function updatePortfolio(portfolioGid: string, fields: { name?: str
 
 export async function deletePortfolio(portfolioGid: string) {
 	return defaultPortfolioApi().deletePortfolio(portfolioGid)
+}
+
+export async function addPortfolioItem(portfolioGid: string, itemGid: string, opts?: PortfolioItemPlacement) {
+	return defaultPortfolioApi().addPortfolioItem(portfolioGid, itemGid, opts)
+}
+
+export async function removePortfolioItem(portfolioGid: string, itemGid: string) {
+	return defaultPortfolioApi().removePortfolioItem(portfolioGid, itemGid)
 }

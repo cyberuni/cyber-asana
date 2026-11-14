@@ -1,4 +1,5 @@
 import Asana from 'asana'
+import type { Job } from '../platform/job-polling.js'
 import {
 	collectListResponse,
 	type ListResult,
@@ -14,6 +15,8 @@ export type ProjectAccessLevel = 'admin' | 'editor' | 'commenter' | 'viewer'
 export type CreateProjectFields = {
 	archived?: boolean
 	owner?: string
+	/** The team the project belongs to; required by Asana in an organization. */
+	team?: string
 	notes?: string
 	html_notes?: string
 	color?: string
@@ -37,6 +40,9 @@ export type UpdateProjectFields = {
 	due_on?: string | null
 	start_on?: string | null
 }
+
+/** What `duplicateProject` copies and where the copy goes. `include` names the elements to copy (Asana's list, *(docs)*). */
+export type DuplicateProjectFields = { name: string; team?: string; include?: string[] }
 
 export type SearchProjectsOptions = {
 	text?: string
@@ -79,6 +85,8 @@ export type ProjectGateway = {
 	createProject(workspaceGid: string, name: string, opts?: CreateProjectFields): Promise<Asana.Project>
 	updateProject(projectGid: string, fields: UpdateProjectFields): Promise<Asana.Project>
 	deleteProject(projectGid: string): Promise<void>
+	/** Asana answers with a job that builds the copy; poll it for the new project. */
+	duplicateProject(projectGid: string, fields: DuplicateProjectFields): Promise<Job>
 	searchProjects(workspaceGid: string, opts?: SearchProjectsOptions): Promise<Asana.Project[]>
 	listSections(projectGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.Section>>
 	listTasksForSection(sectionGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.Task>>
@@ -127,6 +135,18 @@ export function createAsanaProjectGateway(client: Asana.ApiClient): ProjectGatew
 		},
 		async deleteProject(projectGid) {
 			await projectsApi.deleteProject(projectGid)
+		},
+		async duplicateProject(projectGid, fields) {
+			const res = await projectsApi.duplicateProject(projectGid, {
+				body: {
+					data: {
+						name: fields.name,
+						...(fields.team !== undefined && { team: fields.team }),
+						...(fields.include !== undefined && { include: fields.include.join(',') }),
+					},
+				},
+			})
+			return res.data
 		},
 		async searchProjects(workspaceGid, opts) {
 			const res = await projectsApi.searchProjectsForWorkspace(workspaceGid, {

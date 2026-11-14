@@ -24,6 +24,8 @@ const CODED_EXIT_CODES: Readonly<Record<string, number>> = {
 	// The custom-field model: create and attach the Sprint field, then retry.
 	'sprint-field-missing': 2,
 	'sprint-field-ambiguous': 2,
+	// The project model: set backlog_project and sprint_portfolio on the scope, then retry.
+	'scope-incomplete': 2,
 	// Task search is premium: the same code a raw 402 from Asana gets.
 	'premium-required': 7,
 }

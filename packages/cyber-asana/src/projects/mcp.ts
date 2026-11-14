@@ -1,5 +1,6 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
+import { DEFAULT_JOB_POLL_INTERVAL_MS } from '../platform/job-polling.js'
 import {
 	customTypeParam,
 	paginationOptions,
@@ -7,10 +8,13 @@ import {
 	readOptions,
 	readParams,
 } from '../platform/mcp/options.js'
-import { type ProjectApi, renderProjectMarkdown } from './api.js'
+import { newProjectOf } from '../project-templates/api.js'
+import { DEFAULT_DUPLICATE_TIMEOUT_SECONDS, type ProjectApi, renderProjectMarkdown } from './api.js'
 import {
 	createProject,
 	deleteProject,
+	duplicateProject,
+	duplicateProjectAndWait,
 	exportProject,
 	getProject,
 	getProjectTaskCounts,
@@ -32,6 +36,8 @@ function resolveProjectApi(api?: ProjectApi | (() => ProjectApi)): ProjectApi {
 			deleteProject,
 			searchProjects,
 			exportProject,
+			duplicateProject,
+			duplicateProjectAndWait,
 		}
 	)
 }
@@ -355,6 +361,45 @@ export function registerProjectTools(server: McpServer, api?: ProjectApi | (() =
 			const data = await resolveProjectApi(api).exportProject(project_gid)
 			const text = format === 'json' ? JSON.stringify(data) : renderProjectMarkdown(data)
 			return { content: [{ type: 'text', text }] }
+		},
+	)
+
+	server.tool(
+		'asana_project_duplicate',
+		'Duplicate an Asana project. Asana builds the copy asynchronously; by default this waits for the job and returns the new project GID, failing if the job failed or the bounded wait expired',
+		{
+			project_gid: z.string().describe('GID of the project to copy'),
+			name: z.string().describe('Name for the new project'),
+			team_gid: z.string().optional().describe('Team GID for the new project'),
+			include: z
+				.array(z.string())
+				.optional()
+				.describe('Elements to copy, such as members, task_notes, task_assignee, task_dates'),
+			wait: z.boolean().optional().describe('Wait for the copy to finish (default true); false returns the job'),
+			timeout_seconds: z
+				.number()
+				.int()
+				.positive()
+				.optional()
+				.describe(`Seconds to wait (default ${DEFAULT_DUPLICATE_TIMEOUT_SECONDS})`),
+		},
+		async ({ project_gid, name, team_gid, include, wait, timeout_seconds }) => {
+			const fields = {
+				name,
+				...(team_gid !== undefined && { team: team_gid }),
+				...(include !== undefined && { include }),
+			}
+			const projectApi = resolveProjectApi(api)
+			const job =
+				wait === false
+					? await projectApi.duplicateProject(project_gid, fields)
+					: await projectApi.duplicateProjectAndWait(project_gid, fields, {
+							maxAttempts: timeout_seconds ?? DEFAULT_DUPLICATE_TIMEOUT_SECONDS,
+							intervalMs: DEFAULT_JOB_POLL_INTERVAL_MS,
+						})
+			return {
+				content: [{ type: 'text', text: JSON.stringify({ job, project_gid: newProjectOf(job)?.gid ?? null }) }],
+			}
 		},
 	)
 }

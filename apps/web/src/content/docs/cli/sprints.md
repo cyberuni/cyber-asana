@@ -75,6 +75,35 @@ with `premium-required`. The model's other commands behave as follows:
 Search is eventually consistent: a task whose Sprint value just changed can take a moment to move
 between `sprint tasks` and `backlog list`.
 
+## The `project` model
+
+The third model, `project`, makes a sprint a project of its own, named by `sprint_name_format` and
+grouped in a portfolio. Tasks live in one backlog project and are multi-homed into the sprint's
+project, so each sprint gets its own board, sections, and reports. It works for every scope kind once the
+scope names both pieces: `backlog_project` (a `project` scope's own project when unset) and
+`sprint_portfolio` (a `portfolio` scope's own portfolio when unset). Without one the commands stop with
+`scope-incomplete`. Its reference is `cyber-asana.sprint-model.project`.
+
+```sh
+cyber-asana config scope add squad --kind project --project <backlog-gid> \
+  --sprint-model project --sprint-portfolio <portfolio-gid> --sprint-template <template-gid> --default
+```
+
+Nothing here uses task search, so it works wherever you can read and write tasks; portfolios are the
+one paid piece.
+
+| Command | What it does |
+| --- | --- |
+| `sprint start` | Creates the sprint's project, by duplicating `sprint_template` when the scope has one (else a plain project in the backlog project's workspace and team), and adds it to the portfolio. `sprint_project` names it. When it exists it changes nothing and exits 0. |
+| `sprint add <task-gid>...` | Multi-homes each backlog task into the sprint's project; the task stays in the backlog project. A task already there is left alone; one not in the backlog project is `outside_scope`. |
+| `sprint close` | `move` starts the next sprint's project when missing, adds each incomplete task to it, then removes the task from the closed project; `leave` changes nothing. The closed project is not archived: it keeps what it delivered for reports and velocity. Archive it with `project update <gid> --archived` when you want it out of sight. |
+| `sprint tasks` | The sprint project's tasks. |
+| `backlog list` | The backlog project's incomplete tasks that no sprint project holds. |
+
+`section_gid` in `sprint current` is the sprint project's GID. `state_carrier: sections` is allowed with
+this model, since each project's sections are free for workflow states; the reports do not read sections
+as states and say so in `notes`.
+
 ## Failure statuses
 
 Each status is told apart by `error.code`.
@@ -87,6 +116,7 @@ Each status is told apart by `error.code`.
 | `policy-incomplete` | `sprint_anchor_date` is not set. |
 | `sprint-field-missing` | The `custom-field` model finds no Sprint field on the scope's projects. The error names `custom-field create` and `attach`. |
 | `sprint-field-ambiguous` | The scope's projects use more than one Sprint field. The error lists them. |
+| `scope-incomplete` | The `project` model's scope names no backlog project or no sprint portfolio. |
 | `premium-required` | The `custom-field` model needs task search and Asana answered `402`. Exits `7`, like any plan limitation. |
 
 All but `premium-required` exit `2`.
