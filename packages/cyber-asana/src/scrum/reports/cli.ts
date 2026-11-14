@@ -68,7 +68,53 @@ function printHealth(result: Health) {
 	for (const note of result.notes) console.log(`\nNote: ${note}`)
 }
 
-/** `report standup` and `report health`; later units add the other reports under `report`. */
+type Workload = Awaited<ReturnType<ScrumApi['reportWorkload']>>
+
+const hoursText = (h: { story: number; task: number; total: number }, tracked: Workload['points_tracked']) => {
+	const parts = [...(tracked.story ? [`${h.story} h story`] : []), ...(tracked.task ? [`${h.task} h task`] : [])]
+	return `${h.total} h${parts.length ? ` (${parts.join(', ')})` : ''}`
+}
+
+const pointsText = (story: number, task: number, tracked: Workload['points_tracked']) =>
+	[...(tracked.story ? [`${story} story`] : []), ...(tracked.task ? [`${task} task`] : [])].join(', ') ||
+	'no points fields'
+
+function capacityText(p: Workload['people'][number]) {
+	if (p.capacity.status === 'known') {
+		return `capacity ${p.capacity.hours} h, ${p.utilization_pct === null ? 'no utilization' : `${p.utilization_pct}%`}, ${p.flag}`
+	}
+	return `capacity unknown: ${p.capacity.reason === 'plan' ? 'the plan does not include allocations (402)' : 'no allocation in the window'}`
+}
+
+function printWorkload(result: Workload) {
+	const title = result.sprint
+		? `${result.sprint.name} (${dates({ start: result.window.from, end: result.window.to })})`
+		: dates({ start: result.window.from, end: result.window.to })
+	console.log(`Workload for ${title} — ${result.today_date} (${result.timezone})`)
+	printFields({
+		Scope: result.scope,
+		Effort: `${result.hours_per_point} h per point; ${result.working_hours_per_day} working h per day`,
+		Flags: `over above ${result.settings.over_allocation_pct}%, under below ${result.settings.under_allocation_pct}%`,
+	})
+	console.log('\nPeople')
+	if (result.people.length === 0) printEmpty('people')
+	for (const p of result.people) {
+		console.log(
+			`  ${p.person.name ?? p.person.gid}: ${p.tasks} task(s), ${pointsText(p.story_points, p.task_points, result.points_tracked)} points, ${hoursText(p.effort_hours, result.points_tracked)}; ${capacityText(p)}`,
+		)
+		for (const o of p.ooo ?? [])
+			console.log(`    out of office ${o.start_date} to ${o.end_date} (a note; capacity is not reduced)`)
+	}
+	const t = result.team
+	printSummary(
+		`\nTeam: ${t.people} people, ${hoursText(t.effort_hours, result.points_tracked)} of load; capacity ${t.capacity_hours === null ? 'unknown' : `${t.capacity_hours} h`}${t.utilization_pct === null ? '' : `, ${t.utilization_pct}% used`}${t.capacity_unknown ? ` (${t.capacity_unknown} without known capacity)` : ''}`,
+	)
+	if (result.unassigned_tasks > 0)
+		console.log(`${result.unassigned_tasks} unassigned task(s) are not counted for anyone`)
+	for (const note of result.notes) console.log(`\nNote: ${note}`)
+}
+
+/** `report standup`, `report health`, and `report workload`; later units add the other reports under `report`. */
 export function reportCommand(api?: ResolveApi) {
 	const cmd = new Command('report').description('Scrum reports computed from Asana: the CLI counts, the skill narrates')
 	cmd.addHelpText(
@@ -80,6 +126,8 @@ export function reportCommand(api?: ResolveApi) {
 			'  cyber-asana report standup --member someone@example.com --scope web',
 			'  cyber-asana report standup --json',
 			'  cyber-asana report health --scope web',
+			'  cyber-asana report workload',
+			'  cyber-asana report workload --from 2026-01-19 --to 2026-01-30 --scope web',
 		].join('\n'),
 	)
 
@@ -137,5 +185,36 @@ export function reportCommand(api?: ResolveApi) {
 			)
 		})
 	})
+
+	addSprintOptions(
+		cmd
+			.command('workload')
+			.description('Per person: load of incomplete assigned tasks against Allocations capacity, with over/under flags'),
+	)
+		.addOption(
+			new Option('--from <date>', 'First day of the window (YYYY-MM-DD); default: the sprint').conflicts('sprint'),
+		)
+		.addOption(
+			new Option('--to <date>', 'Last day of the window (YYYY-MM-DD); default: the sprint').conflicts('sprint'),
+		)
+		.option('--workspace <gid>', 'Workspace GID for out-of-office (default: ASANA_WORKSPACE_GID)')
+		.action(async (opts: SprintFlags & { from?: string; to?: string; workspace?: string }) => {
+			const result = await resolveApi(api).reportWorkload(
+				{
+					...sprintInput(opts),
+					...(opts.from !== undefined && { from: opts.from }),
+					...(opts.to !== undefined && { to: opts.to }),
+					...(opts.workspace !== undefined && { workspace: opts.workspace }),
+				},
+				storeOptions(opts),
+			)
+			output(result, () => {
+				printWorkload(result)
+				printNextSteps([
+					'cyber-asana report health — H8 checks the sprint against capacity',
+					'cyber-asana allocation list --assignee <gid> — see what capacity is based on',
+				])
+			})
+		})
 	return cmd
 }

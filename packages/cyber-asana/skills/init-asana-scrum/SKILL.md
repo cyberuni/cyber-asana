@@ -9,7 +9,7 @@ description: Use this skill when setting up scrum on Asana — scope, sprint mod
 
 When the user wants to set up scrum for a repo or team on Asana: choose the projects a team works in, the way a sprint is stored, the fields it reads, the backlog and current sprint, and the sprint policy. Also when they re-run it to review or change that setup.
 
-This is v1. It covers the `project` and `projects` scopes and the `sections` sprint model. Portfolio and team scopes, the `custom-field` and `project` models, creating fields, and the capacity probe come in later units; say so when the user asks for one.
+This is v1. It covers the `project` and `projects` scopes and the `sections` sprint model. Portfolio and team scopes, the `custom-field` and `project` models, and creating fields come in later units; say so when the user asks for one.
 
 ## Rules
 
@@ -67,7 +67,19 @@ If the anchor date is the only difference, that is the only key written.
 
 ### 7. Capacity
 
-Skip it and say so: the capacity probe (Asana Allocations) arrives with the workload report. Until then, nothing reads capacity.
+Capacity comes only from Asana Allocations (there is none in config). Probe it:
+
+```bash
+cyber-asana allocation list --assignee me --workspace <gid>
+```
+
+Report one of three results, and change nothing:
+
+- **Available**: the list returns allocations. `report workload` and health check H8 will use them.
+- **Plan does not include it**: the command fails with a 402 (exit 7). Say the workspace plan has no resource management, so `report workload` shows each person's load without capacity, and H8 is skipped with that reason.
+- **No allocations yet**: the list is empty (`0 allocations found`). Say workload shows load without capacity until allocations exist, and that `cyber-asana allocation create` records one on the user's yes.
+
+Explain that capacity is never taken from config or from out-of-office entries, which workload only notes beside it.
 
 ### 8. Verify
 
@@ -75,6 +87,6 @@ Skip it and say so: the capacity probe (Asana Allocations) arrives with the work
 cyber-asana report health --scope <name>
 ```
 
-Show the findings and the next steps it prints. This one command covers the structure: a missing current-sprint section is finding H9, with `sprint start` as its fix. Exit 2 means a step above is unfinished; read `error.code`: `policy-incomplete` (no `sprint_anchor_date`: step 6) or `sprint-none` (today is before the anchor date, so no sprint has begun; wait or move the anchor). Warnings on a brand-new sprint (no estimates yet, unassigned tasks) are not setup failures, and H8 is skipped until the capacity probe exists; say so.
+Show the findings and the next steps it prints. This one command covers the structure: a missing current-sprint section is finding H9, with `sprint start` as its fix. Exit 2 means a step above is unfinished; read `error.code`: `policy-incomplete` (no `sprint_anchor_date`: step 6) or `sprint-none` (today is before the anchor date, so no sprint has begun; wait or move the anchor). Warnings on a brand-new sprint (no estimates yet, unassigned tasks) are not setup failures, and H8 is skipped, with its reason, when step 7 found no usable capacity; say so.
 
 Finish with a summary of each step (`done`, `missing`, `changed`) and the next steps: `cyber-asana sprint add <task-gid>... --sprint current` to commit work, `cyber-asana sprint tasks`, `cyber-asana report health` as the sprint runs, and `cyber-asana sprint close` at the end of the sprint.

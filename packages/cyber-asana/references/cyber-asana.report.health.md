@@ -22,7 +22,7 @@ The team during the sprint, and the person who runs the board. They decide what 
 | H5 | an in-progress task with no change for `stale_days` | warning |
 | H6 | a person with more than `wip_limit` tasks in progress | warning |
 | H7 | a sprint task that a `blocked_signals` entry marks | warning |
-| H8 | the sprint over capacity; skipped until allocations are wired, with the reason | error |
+| H8 | a person whose sprint load exceeds their Allocations capacity for its dates; skipped, with the reason, when capacity is unknown | error |
 | H9 | the sprint has no section or option in a project of the scope | error |
 | H10 | an incomplete task left in a closed sprint | warning |
 | H11 | an incomplete task in two sprints | error |

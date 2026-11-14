@@ -486,11 +486,12 @@ Tools are named `asana_<resource>_<action>` (e.g. `asana_task_create`).
 | `team` | `asana_team_list`, `asana_team_get` |
 | `scope` | `asana_scope_list`, `asana_scope_add`, `asana_scope_remove`, `asana_scope_resolve` (scrum scopes: the projects a scrum team works in) |
 | `sprint` | `asana_sprint_current`, `asana_sprint_list`, `asana_sprint_tasks`, `asana_sprint_add`, `asana_sprint_start`, `asana_sprint_close`, `asana_backlog_list` (computed sprints and the backlog; the `sections` model) |
-| `report` | `asana_report_standup` (a member's standup: done, today, blocked; story and task points apart), `asana_report_health` (sprint health checks H1–H11, each finding with a fix command) |
+| `report` | `asana_report_standup` (a member's standup: done, today, blocked; story and task points apart), `asana_report_health` (sprint health checks H1–H11, each finding with a fix command), `asana_report_workload` (per person load vs Allocations capacity, over/under flags, team total) |
 | `portfolio` | `asana_portfolio_list`, `asana_portfolio_item_list`, `asana_portfolio_get`, `asana_portfolio_create`, `asana_portfolio_update`, `asana_portfolio_delete` |
 | `goal` | `asana_goal_list`, `asana_goal_get`, `asana_goal_create`, `asana_goal_update`, `asana_goal_delete` |
 | `tag` | `asana_tag_list`, `asana_tag_get`, `asana_tag_create`, `asana_tag_update`, `asana_tag_delete`, `asana_tag_list_for_task`, `asana_tag_list_tasks`, `asana_tag_add_to_task`, `asana_tag_remove_from_task` |
 | `ooo` | `asana_ooo_list`, `asana_ooo_get`, `asana_ooo_create`, `asana_ooo_update`, `asana_ooo_delete` |
+| `allocation` | `asana_allocation_list`, `asana_allocation_get`, `asana_allocation_create`, `asana_allocation_update`, `asana_allocation_delete` (resource-management allocations; plan-limited, 402 without it) |
 | `ai-studio` | `asana_ai_studio_run_list`, `asana_ai_studio_seat_list` (AI Studio usage; service accounts in AI Studio-licensed organizations only) |
 | `attachment` | `asana_attachment_list`, `asana_attachment_get`, `asana_attachment_create`, `asana_attachment_delete` |
 | `project-template` | `asana_project_template_list`, `asana_project_template_get`, `asana_project_template_instantiate` |
@@ -643,6 +644,7 @@ Installing twice is a no-op, and unrelated settings are preserved.
 | `goal` | `list`, `get`, `create`, `update`, `delete` |
 | `tag` | `list`, `get`, `create`, `update`, `delete`, `tasks`, `task list/add/remove` |
 | `ooo` | `list`, `get`, `create`, `update`, `delete` |
+| `allocation` | `list`, `get`, `create`, `update`, `delete` (resource management; see [Allocations](https://cyberuni.github.io/cyber-asana/cli/allocations/)) |
 | `sprint` | `current`, `list`, `tasks`, `add`, `start`, `close` (see [Sprints and backlog](https://cyberuni.github.io/cyber-asana/cli/sprints/)) |
 | `backlog` | `list` |
 | `ai-studio` | `runs`, `seats` |

@@ -44,7 +44,7 @@ const health = {
 			name: 'the sprint is over capacity',
 			status: 'skipped',
 			findings: 0,
-			reason: 'capacity unknown: allocations not wired yet',
+			reason: 'capacity unknown: no allocation overlaps the sprint dates',
 		},
 	],
 	findings: [
@@ -61,10 +61,59 @@ const health = {
 	notes: ['state_carrier is none: completion is the only state, so in progress means incomplete and assigned.'],
 }
 
+const workload = {
+	scope: 'web',
+	today_date: '2026-01-21',
+	timezone: 'UTC',
+	timezone_source: 'asana',
+	sprint: { n: 2, name: 'Sprint 2', start: '2026-01-19', end: '2026-02-01', working_days: 10 },
+	window: { from: '2026-01-19', to: '2026-02-01' },
+	settings: { over_allocation_pct: 100, under_allocation_pct: 60 },
+	hours_per_point: 1,
+	working_hours_per_day: 8,
+	people: [
+		{
+			person: { gid: 'u1', name: 'Ann' },
+			tasks: 2,
+			story_points: 5,
+			task_points: 1,
+			effort_hours: { story: 5, task: 1, total: 6 },
+			capacity: { status: 'known', hours: 40, allocations: [] },
+			utilization_pct: 15,
+			flag: 'under',
+			ooo: [{ start_date: '2026-01-26', end_date: '2026-01-27' }],
+		},
+		{
+			person: { gid: 'u2', name: 'Bob' },
+			tasks: 1,
+			story_points: 0,
+			task_points: 4,
+			effort_hours: { story: 0, task: 4, total: 4 },
+			capacity: { status: 'unknown', reason: 'no-allocation' },
+			utilization_pct: null,
+			flag: 'unknown',
+		},
+	],
+	team: {
+		people: 2,
+		tasks: 3,
+		story_points: 5,
+		task_points: 5,
+		effort_hours: { story: 5, task: 5, total: 10 },
+		capacity_hours: 40,
+		capacity_unknown: 1,
+		utilization_pct: 15,
+	},
+	unassigned_tasks: 0,
+	points_tracked: { story: true, task: true },
+	notes: ['One note.'],
+}
+
 function fakeApi(overrides: Record<string, unknown> = {}) {
 	return {
 		reportStandup: vi.fn(async () => standup),
 		reportHealth: vi.fn(async () => health),
+		reportWorkload: vi.fn(async () => workload),
 		...overrides,
 	} as unknown as ScrumApi
 }
@@ -168,7 +217,7 @@ describe('report health command', () => {
 		expect(out).toContain('H3')
 		expect(out).toContain('failed')
 		expect(out).toContain('H8')
-		expect(out).toContain('capacity unknown: allocations not wired yet')
+		expect(out).toContain('capacity unknown: no allocation overlaps the sprint dates')
 		expect(out).toContain('Nobody task is unassigned')
 		expect(out).toContain('cyber-asana task update t9 --assignee me')
 		expect(out).toContain('0 errors, 1 warning')
@@ -195,5 +244,86 @@ describe('report health command', () => {
 	it('--json prints the api result', async () => {
 		const out = await run(fakeApi(), '--json', 'report', 'health')
 		expect(JSON.parse(out).counts.warning).toBe(1)
+	})
+})
+
+describe('report workload command', () => {
+	const originalArgv = [...process.argv]
+	afterEach(() => {
+		vi.restoreAllMocks()
+		process.argv = [...originalArgv]
+	})
+
+	async function run(api: ScrumApi, ...args: string[]) {
+		const lines: string[] = []
+		vi.spyOn(console, 'log').mockImplementation((...a) => {
+			lines.push(a.join(' '))
+		})
+		process.argv = ['node', 'test', ...args]
+		await program(api).parseAsync(['node', 'test', ...args], { from: 'node' })
+		return lines.join('\n')
+	}
+
+	it('prints each person with load, capacity, utilization and flag, the unknown reason, the ooo note, and the team total', async () => {
+		const out = await run(fakeApi(), 'report', 'workload')
+		expect(out).toContain('Workload for Sprint 2')
+		expect(out).toMatch(/Ann.*5 story.*1 task.*6 h.*40 h.*15%.*under/)
+		expect(out).toMatch(/Bob.*4 h.*capacity unknown.*no allocation/)
+		expect(out).toContain('out of office 2026-01-26 to 2026-01-27')
+		expect(out).toMatch(/Team.*10 h.*40 h/)
+		expect(out).toContain('Note: One note.')
+		expect(out).toMatch(/Next steps/)
+	})
+
+	it('names a plan limit as the reason', async () => {
+		const plan = {
+			...workload,
+			people: [{ ...workload.people[1], capacity: { status: 'unknown', reason: 'plan' } }],
+		}
+		const out = await run(fakeApi({ reportWorkload: vi.fn(async () => plan) }), 'report', 'workload')
+		expect(out).toMatch(/capacity unknown.*plan/)
+	})
+
+	it('says so when nobody has load or capacity', async () => {
+		const empty = { ...workload, people: [], team: { ...workload.team, people: 0, capacity_hours: null } }
+		const out = await run(fakeApi({ reportWorkload: vi.fn(async () => empty) }), 'report', 'workload')
+		expect(out).toContain('0 people found')
+	})
+
+	it('passes --scope, --sprint, --from, --to and --workspace through', async () => {
+		const api = fakeApi()
+		await run(
+			api,
+			'report',
+			'workload',
+			'--scope',
+			'web',
+			'--from',
+			'2026-01-19',
+			'--to',
+			'2026-01-23',
+			'--workspace',
+			'w1',
+		)
+		expect(api.reportWorkload).toHaveBeenCalledWith(
+			{ scope: 'web', from: '2026-01-19', to: '2026-01-23', workspace: 'w1' },
+			{ configPath: undefined, repo: undefined },
+		)
+		await run(api, 'report', 'workload', '--sprint', 'previous')
+		expect(api.reportWorkload).toHaveBeenLastCalledWith(
+			{ sprint: 'previous' },
+			{ configPath: undefined, repo: undefined },
+		)
+	})
+
+	it('--sprint conflicts with --from and --to as a usage error', async () => {
+		await expect(
+			run(fakeApi(), 'report', 'workload', '--sprint', 'previous', '--from', '2026-01-19', '--to', '2026-01-23'),
+		).rejects.toThrow()
+	})
+
+	it('--json prints the api result', async () => {
+		const out = await run(fakeApi(), '--json', 'report', 'workload')
+		expect(JSON.parse(out).team.capacity_hours).toBe(40)
 	})
 })

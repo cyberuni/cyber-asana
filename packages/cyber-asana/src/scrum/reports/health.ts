@@ -1,5 +1,6 @@
 import { type LoadReferenceMetadataOptions, loadReferenceMetadata } from '../../platform/reference-metadata.js'
 import type { ScrumPolicy } from '../policy.js'
+import type { Workload } from './workload.js'
 
 /** The reference whose frontmatter holds the health report's thresholds (§ 5.4 of the design). */
 const HEALTH_REFERENCE = 'cyber-asana.report.health'
@@ -144,6 +145,11 @@ export type HealthInput = {
 	allSprints?: Array<{ n: number; name: string; tasks: HealthTask[] }>
 	/** The index of today's sprint, for H10. */
 	currentN: number
+	/**
+	 * What H8 reads: the sprint's workload against Allocations capacity, or why capacity could not be
+	 * read (a 402). Unset when H8 is not enabled or no capacity read was made.
+	 */
+	capacity?: { workload: Workload } | { skipped: string }
 	fields: { story: Set<string>; task: Set<string>; status: Set<string> }
 	dependenciesOf: (taskGid: string) => Promise<Dependency[]>
 }
@@ -313,7 +319,32 @@ export async function buildHealth(input: HealthInput): Promise<Health> {
 		}
 		return found
 	})
-	await run('H8', async () => 'capacity unknown: allocations not wired yet')
+	await needSprint('H8', () => {
+		const capacity = input.capacity
+		if (capacity === undefined) return 'capacity unknown: allocations were not read'
+		if ('skipped' in capacity) return `capacity unknown: ${capacity.skipped}`
+		const people = capacity.workload.people
+		const known = people.filter((p) => p.capacity.status === 'known')
+		if (known.length === 0) return 'capacity unknown: no allocation overlaps the sprint dates'
+		const unknown = people.filter((p) => p.capacity.status === 'unknown')
+		if (unknown.length > 0) {
+			notes.push(
+				`H8 could not check ${unknown.map((p) => p.person.name ?? p.person.gid).join(', ')}: capacity is unknown, so they are neither flagged nor counted as fine.`,
+			)
+		}
+		return known
+			.filter((p) => p.flag === 'over')
+			.map((p) => {
+				const hours = p.capacity.status === 'known' ? p.capacity.hours : 0
+				return {
+					check: 'H8' as const,
+					level: 'error' as const,
+					message: `${p.person.name ?? p.person.gid} has ${p.effort_hours.total} h of work for ${hours} h of capacity${p.utilization_pct === null ? '' : ` (${p.utilization_pct}%)`}`,
+					person: { gid: p.person.gid, ...(p.person.name !== undefined && { name: p.person.name }) },
+					fix: `cyber-asana report workload --scope ${scope} --sprint ${sprint.n}`,
+				}
+			})
+	})
 	await run('H9', async () =>
 		input.missingProjects.map((project) => ({
 			check: 'H9' as const,

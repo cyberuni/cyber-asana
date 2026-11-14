@@ -42,6 +42,7 @@ function fakeApi(): ScrumApi {
 		listBacklog: vi.fn(async () => ({ tasks: [] })),
 		reportStandup: vi.fn(async () => ({ done: { count: 0 } })),
 		reportHealth: vi.fn(async () => ({ counts: { error: 0, warning: 0 } })),
+		reportWorkload: vi.fn(async () => ({ team: { people: 0 } })),
 	} as unknown as ScrumApi
 }
 
@@ -64,6 +65,7 @@ describe('scrum/mcp', () => {
 				'asana_backlog_list',
 				'asana_report_standup',
 				'asana_report_health',
+				'asana_report_workload',
 			].sort(),
 		)
 	})
@@ -180,5 +182,15 @@ describe('scrum/mcp', () => {
 		const result = await server.handlers.get('asana_report_health')?.({ scope: 'web', sprint: 'previous' })
 		expect(api.reportHealth).toHaveBeenCalledWith({ scope: 'web', sprint: 'previous' })
 		expect(JSON.parse(result.content[0].text).counts.error).toBe(0)
+	})
+
+	it('asana_report_workload passes scope, sprint, and the from/to window to the api', async () => {
+		const server = createServer()
+		const api = fakeApi()
+		registerScrumTools(server as any, api)
+		await server.handlers.get('asana_report_workload')?.({ scope: 'web', from: '2026-01-19', to: '2026-01-23' })
+		expect(api.reportWorkload).toHaveBeenCalledWith({ scope: 'web', from: '2026-01-19', to: '2026-01-23' })
+		await server.handlers.get('asana_report_workload')?.({ sprint: 'previous' })
+		expect(api.reportWorkload).toHaveBeenLastCalledWith({ sprint: 'previous' })
 	})
 })

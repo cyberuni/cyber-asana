@@ -92,6 +92,13 @@ function mockRuntimeContext(): RuntimeContext {
 			createAttachment: vi.fn(),
 			deleteAttachment: vi.fn(),
 		},
+		allocations: {
+			listAllocations: vi.fn(),
+			getAllocation: vi.fn(),
+			createAllocation: vi.fn(),
+			updateAllocation: vi.fn(),
+			deleteAllocation: vi.fn(),
+		},
 		ooo: {
 			listOooEntries: vi.fn(),
 			getOooEntry: vi.fn(),
@@ -149,6 +156,7 @@ function mockRuntimeContext(): RuntimeContext {
 			listBacklog: vi.fn(),
 			reportStandup: vi.fn(),
 			reportHealth: vi.fn(),
+			reportWorkload: vi.fn(),
 		},
 		events: { getEvents: vi.fn() },
 	}

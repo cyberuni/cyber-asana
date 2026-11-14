@@ -4,6 +4,10 @@ import { type AiStudioApi, createAiStudioApi } from './ai-studio/api.js'
 import { aiStudioCommand } from './ai-studio/cli.js'
 import { createAsanaAiStudioGateway } from './ai-studio/gateway.js'
 import { registerAiStudioTools } from './ai-studio/mcp.js'
+import { type AllocationApi, createAllocationApi } from './allocations/api.js'
+import { allocationCommand } from './allocations/cli.js'
+import { createAsanaAllocationGateway } from './allocations/gateway.js'
+import { registerAllocationTools } from './allocations/mcp.js'
 import { type AttachmentApi, createAttachmentApi } from './attachments/api.js'
 import { attachmentCommand } from './attachments/cli.js'
 import { createAsanaAttachmentGateway } from './attachments/gateway.js'
@@ -60,6 +64,7 @@ import { registerScrumTools } from './scrum/mcp.js'
 import { loadScrumPolicy } from './scrum/policy.js'
 import { reportCommand } from './scrum/reports/cli.js'
 import { loadHealthSettings } from './scrum/reports/health.js'
+import { loadWorkloadSettings } from './scrum/reports/workload.js'
 import { createSearchApi, type SearchApi } from './search/api.js'
 import { searchCommand } from './search/cli.js'
 import { createAsanaSearchGateway } from './search/gateway.js'
@@ -104,6 +109,7 @@ import { createAsanaWorkspaceGateway } from './workspaces/gateway.js'
 import { registerWorkspaceTools } from './workspaces/mcp.js'
 
 export type RuntimeContext = {
+	allocations: AllocationApi
 	aiStudio: AiStudioApi
 	attachments: AttachmentApi
 	customFields: CustomFieldApi
@@ -137,14 +143,17 @@ export function createRuntimeContext(): RuntimeContext {
 	const taskGateway = createAsanaTaskGateway(client)
 	const sectionGateway = createAsanaSectionGateway(client)
 	const userGateway = createAsanaUserGateway(client)
+	const allocationGateway = createAsanaAllocationGateway(client)
+	const oooGateway = createAsanaOooGateway(client)
 	return {
+		allocations: createAllocationApi(allocationGateway),
 		aiStudio: createAiStudioApi(createAsanaAiStudioGateway(client)),
 		attachments: createAttachmentApi(createAsanaAttachmentGateway(client)),
 		customFields: createCustomFieldApi(createAsanaCustomFieldGateway(client)),
 		events: createEventApi(createAsanaEventGateway(client)),
 		goals: createGoalApi(createAsanaGoalGateway(client)),
 		memberships: createMembershipApi(createAsanaMembershipGateway(client)),
-		ooo: createOooApi(createAsanaOooGateway(client)),
+		ooo: createOooApi(oooGateway),
 		jobs: createJobApi(jobGateway),
 		portfolios: createPortfolioApi(portfolioGateway),
 		projects: createProjectApi(projectGateway),
@@ -161,6 +170,9 @@ export function createRuntimeContext(): RuntimeContext {
 			dependencies: taskGateway,
 			loadPolicy: () => loadScrumPolicy(),
 			loadHealthSettings: () => loadHealthSettings(),
+			allocations: allocationGateway,
+			ooo: oooGateway,
+			loadWorkloadSettings: () => loadWorkloadSettings(),
 		}),
 		search: createSearchApi(createAsanaSearchGateway(client)),
 		sections: createSectionApi(sectionGateway),
@@ -198,6 +210,7 @@ export function registerCliCommands(program: Command, getContext: () => RuntimeC
 	program.addCommand(tagCommand(() => getContext().tags))
 	program.addCommand(customFieldCommand(() => getContext().customFields))
 	program.addCommand(oooCommand(() => getContext().ooo))
+	program.addCommand(allocationCommand(() => getContext().allocations))
 	program.addCommand(attachmentCommand(() => getContext().attachments))
 	program.addCommand(projectTemplateCommand(() => getContext().projectTemplates))
 	program.addCommand(jobCommand(() => getContext().jobs))
@@ -244,6 +257,7 @@ export function registerMcpTools(server: McpServer, getContext: () => RuntimeCon
 	registerTagTools(server, () => getContext().tags)
 	registerCustomFieldTools(server, () => getContext().customFields)
 	registerOooTools(server, () => getContext().ooo)
+	registerAllocationTools(server, () => getContext().allocations)
 	registerAttachmentTools(server, () => getContext().attachments)
 	registerProjectTemplateTools(server, () => getContext().projectTemplates)
 	registerJobTools(server, () => getContext().jobs)

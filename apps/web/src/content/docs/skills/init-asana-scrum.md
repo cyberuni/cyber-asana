@@ -11,7 +11,7 @@ Use it when setting up scrum on Asana, or when re-running that setup to review o
 
 ## What it covers
 
-This is the first version. It covers the `project` and `projects` scopes and the `sections` sprint model. For a portfolio or team scope, the `custom-field` or `project` model, creating fields, or the capacity probe, it names the later release that adds it.
+This is the first version. It covers the `project` and `projects` scopes and the `sections` sprint model. For a portfolio or team scope, the `custom-field` or `project` model, or creating fields, it names the later release that adds it.
 
 ## How to use it
 
@@ -23,7 +23,7 @@ Ask your agent to set up scrum. The skill asks before it creates anything in Asa
 4. **Fields.** It runs `config discover-fields` and reports the `story_points`, `task_points`, `sprint`, and `status` fields it found. It does not create fields: for a missing one it says how to add it in Asana by hand.
 5. **Structure.** It offers to create the backlog section and, with `sprint start`, the current sprint's section.
 6. **Policy.** It walks through the sprint length, anchor date, name format, workflow states, carry-over, and definition of done, then writes only the keys that differ from the default into `.agents/references/cyber-asana.scrum.md`.
-7. **Capacity.** Skipped for now; capacity probing arrives with the workload report.
+7. **Capacity.** Probes Allocations with `allocation list --assignee me` and reports one of three results: available, plan does not include it (a 402), or no allocations yet. It explains that workload shows load without capacity until allocations exist.
 8. **Verify.** It runs [`report health`](/cyber-asana/cli/reports/#report-health), which also catches a missing current-sprint section, then points to the next steps.
 
 `init-asana` ends by offering this skill. The policy keys are described in [overriding the scrum policy](/cyber-asana/reference/overriding-references/).

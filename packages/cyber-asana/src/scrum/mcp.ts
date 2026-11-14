@@ -181,8 +181,28 @@ export function registerScrumTools(server: McpServer, api?: ScrumApi | (() => Sc
 
 	server.tool(
 		'asana_report_health',
-		"The health check report (R5): one result per check enabled in the cyber-asana.report.health reference, over the sprint's tasks. H1 no estimate, H2 a parent carrying points, H3 unassigned, H4 overdue, H5 in progress with no change for stale_days, H6 a person over wip_limit, H7 blocked, H8 over capacity (skipped until allocations are wired), H9 the sprint has no section, H10 a closed sprint holding incomplete tasks, H11 a task in two sprints. Each finding has a level (error or warning), the task, and a fix command. With state_carrier none, in progress means incomplete and assigned, and notes says so. When the sprint has no section, H9 reports it (the task checks are skipped); with H9 disabled that is sprint-none. Fails with code sprint-none (today is before the anchor date, or H9 disabled), sprint-unknown, model-unsupported, or policy-incomplete.",
+		"The health check report (R5): one result per check enabled in the cyber-asana.report.health reference, over the sprint's tasks. H1 no estimate, H2 a parent carrying points, H3 unassigned, H4 overdue, H5 in progress with no change for stale_days, H6 a person over wip_limit, H7 blocked, H8 a person over their Allocations capacity for the sprint's dates (skipped, with the reason, when capacity is unknown), H9 the sprint has no section, H10 a closed sprint holding incomplete tasks, H11 a task in two sprints. Each finding has a level (error or warning), the task, and a fix command. With state_carrier none, in progress means incomplete and assigned, and notes says so. When the sprint has no section, H9 reports it (the task checks are skipped); with H9 disabled that is sprint-none. Fails with code sprint-none (today is before the anchor date, or H9 disabled), sprint-unknown, model-unsupported, or policy-incomplete.",
 		sprintParams,
 		async (params) => json(await resolveApi(api).reportHealth(pick(params))),
+	)
+
+	server.tool(
+		'asana_report_workload',
+		"The workload report (R6): per person, the story points, task points, and effort hours (both kinds × hours_per_point, parts shown) of their incomplete assigned tasks, against capacity hours from Asana Allocations clipped to the window (hours as given; percent × working_hours_per_day × working days), with utilization % and over/under flags (thresholds in cyber-asana.report.workload), and a team total. The window is the sprint's dates by default, or from/to, which count the scope's incomplete assigned tasks due inside it. Capacity that is unknown (402 plan limit, or no allocation) is named per person with its reason and the load still shows. Out-of-office entries appear as a note beside capacity and are never subtracted. Fails with code sprint-none (the sprint has no section), sprint-unknown, model-unsupported, policy-incomplete, or window-invalid.",
+		{
+			...sprintParams,
+			from: z.string().optional().describe('First day of the window, YYYY-MM-DD; with to, replaces the sprint'),
+			to: z.string().optional().describe('Last day of the window, YYYY-MM-DD'),
+			workspace_gid: z.string().optional().describe('Workspace GID for out-of-office (default: ASANA_WORKSPACE_GID)'),
+		},
+		async ({ from, to, workspace_gid, ...rest }) =>
+			json(
+				await resolveApi(api).reportWorkload({
+					...pick(rest),
+					...(from !== undefined && { from }),
+					...(to !== undefined && { to }),
+					...(workspace_gid !== undefined && { workspace: workspace_gid }),
+				}),
+			),
 	)
 }

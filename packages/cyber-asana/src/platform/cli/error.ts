@@ -21,6 +21,8 @@ const CODED_EXIT_CODES: Readonly<Record<string, number>> = {
 	'policy-incomplete': 2,
 	// Reports: the form asked for is not built yet; use another.
 	'team-unsupported': 2,
+	// Workload: the window flags are wrong; pass both dates, in order, or neither.
+	'window-invalid': 2,
 }
 
 export function exitCodeFor(error: unknown): number {
