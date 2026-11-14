@@ -12,7 +12,7 @@ import {
 } from '../platform/mcp/options.js'
 import { listTags } from '../tags/default.js'
 import { resolveTagRefs } from '../tags/resolve.js'
-import { type CompletionFilter, scanTodos, type TaskApi } from './api.js'
+import { type CompletionFilter, type SearchTasksOptions, scanTodos, type TaskApi } from './api.js'
 import {
 	addDependencies,
 	addDependents,
@@ -37,6 +37,8 @@ import {
 	searchTasks,
 	updateTask,
 } from './default.js'
+import { parseCustomFieldFilter } from './search-custom-fields.js'
+import { searchAllPages } from './search-paging.js'
 import {
 	applyConventions,
 	buildTaskCreateFields,
@@ -639,9 +641,25 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 			sort_by: z.string().optional().describe('Sort field: due_date, created_at, completed_at, likes, modified_at'),
 			sort_ascending: z.boolean().optional().describe('Sort ascending (default: descending)'),
 			opt_fields: z.string().optional().describe('Comma-separated optional Asana fields to include'),
+			custom_field_filters: z
+				.array(z.string())
+				.optional()
+				.describe(
+					'Custom field filters, each "<field-gid>.<operator>=<value>"; operator is value, is_set, less_than, greater_than, before, or after. Premium workspaces only',
+				),
+			fetch_all: z
+				.boolean()
+				.optional()
+				.describe(
+					'Page past the 100-result search cap (sorted by created_at ascending); returns {data, page_count, truncated}',
+				),
+			max_pages: z.number().int().min(1).optional().describe('Maximum pages with fetch_all (default: 10)'),
 		},
 		async ({
 			workspace_gid,
+			custom_field_filters,
+			fetch_all,
+			max_pages,
 			text,
 			assignee_any,
 			assignee_not,
@@ -688,71 +706,75 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 			modified_at_before,
 			modified_at_after,
 			...rest
-		}) => ({
-			content: [
-				{
-					type: 'text',
-					text: JSON.stringify(
-						await resolveTaskApi(api).searchTasks(workspace_gid, {
-							text,
-							completed: rest.completed,
-							isSubtask: rest.is_subtask,
-							hasAttachment: rest.has_attachment,
-							isBlocking: rest.is_blocking,
-							isBlocked: rest.is_blocked,
-							assigneeAny: assignee_any,
-							assigneeNot: assignee_not,
-							projectsAny: projects_any,
-							projectsNot: projects_not,
-							projectsAll: projects_all,
-							sectionsAny: sections_any,
-							sectionsNot: sections_not,
-							sectionsAll: sections_all,
-							tagsAny: tags_any,
-							tagsNot: tags_not,
-							tagsAll: tags_all,
-							teamsAny: teams_any,
-							portfoliosAny: portfolios_any,
-							followersAny: followers_any,
-							followersNot: followers_not,
-							createdByAny: created_by_any,
-							createdByNot: created_by_not,
-							assignedByAny: assigned_by_any,
-							assignedByNot: assigned_by_not,
-							likedByNot: liked_by_not,
-							commentedOnByNot: commented_on_by_not,
-							dueOn: due_on,
-							dueOnBefore: due_on_before,
-							dueOnAfter: due_on_after,
-							dueAtBefore: due_at_before,
-							dueAtAfter: due_at_after,
-							startOn: start_on,
-							startOnBefore: start_on_before,
-							startOnAfter: start_on_after,
-							createdOn: created_on,
-							createdOnBefore: created_on_before,
-							createdOnAfter: created_on_after,
-							createdAtBefore: created_at_before,
-							createdAtAfter: created_at_after,
-							completedOn: completed_on,
-							completedOnBefore: completed_on_before,
-							completedOnAfter: completed_on_after,
-							completedAtBefore: completed_at_before,
-							completedAtAfter: completed_at_after,
-							modifiedOn: modified_on,
-							modifiedOnBefore: modified_on_before,
-							modifiedOnAfter: modified_on_after,
-							modifiedAtBefore: modified_at_before,
-							modifiedAtAfter: modified_at_after,
-							resourceSubtype: rest.resource_subtype,
-							sortBy: rest.sort_by,
-							sortAscending: rest.sort_ascending,
-							optFields: rest.opt_fields,
-						}),
-					),
-				},
-			],
-		}),
+		}) => {
+			const taskApi = resolveTaskApi(api)
+			const searchOpts: SearchTasksOptions = {
+				text,
+				...(custom_field_filters && { customFields: custom_field_filters.map(parseCustomFieldFilter) }),
+				completed: rest.completed,
+				isSubtask: rest.is_subtask,
+				hasAttachment: rest.has_attachment,
+				isBlocking: rest.is_blocking,
+				isBlocked: rest.is_blocked,
+				assigneeAny: assignee_any,
+				assigneeNot: assignee_not,
+				projectsAny: projects_any,
+				projectsNot: projects_not,
+				projectsAll: projects_all,
+				sectionsAny: sections_any,
+				sectionsNot: sections_not,
+				sectionsAll: sections_all,
+				tagsAny: tags_any,
+				tagsNot: tags_not,
+				tagsAll: tags_all,
+				teamsAny: teams_any,
+				portfoliosAny: portfolios_any,
+				followersAny: followers_any,
+				followersNot: followers_not,
+				createdByAny: created_by_any,
+				createdByNot: created_by_not,
+				assignedByAny: assigned_by_any,
+				assignedByNot: assigned_by_not,
+				likedByNot: liked_by_not,
+				commentedOnByNot: commented_on_by_not,
+				dueOn: due_on,
+				dueOnBefore: due_on_before,
+				dueOnAfter: due_on_after,
+				dueAtBefore: due_at_before,
+				dueAtAfter: due_at_after,
+				startOn: start_on,
+				startOnBefore: start_on_before,
+				startOnAfter: start_on_after,
+				createdOn: created_on,
+				createdOnBefore: created_on_before,
+				createdOnAfter: created_on_after,
+				createdAtBefore: created_at_before,
+				createdAtAfter: created_at_after,
+				completedOn: completed_on,
+				completedOnBefore: completed_on_before,
+				completedOnAfter: completed_on_after,
+				completedAtBefore: completed_at_before,
+				completedAtAfter: completed_at_after,
+				modifiedOn: modified_on,
+				modifiedOnBefore: modified_on_before,
+				modifiedOnAfter: modified_on_after,
+				modifiedAtBefore: modified_at_before,
+				modifiedAtAfter: modified_at_after,
+				resourceSubtype: rest.resource_subtype,
+				sortBy: rest.sort_by,
+				sortAscending: rest.sort_ascending,
+				optFields: rest.opt_fields,
+			}
+			const result = fetch_all
+				? await searchAllPages(
+						(ws, o) => taskApi.searchTasks(ws, o) as Promise<Array<{ gid: string; created_at?: string }>>,
+						workspace_gid,
+						searchOpts,
+						max_pages !== undefined ? { maxPages: max_pages } : {},
+					)
+				: await taskApi.searchTasks(workspace_gid, searchOpts)
+			return { content: [{ type: 'text' as const, text: JSON.stringify(result) }] }
+		},
 	)
 
 	server.tool(

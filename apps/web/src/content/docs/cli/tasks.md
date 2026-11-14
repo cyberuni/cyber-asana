@@ -207,5 +207,22 @@ cyber-asana task search --modified-on-after 2026-05-17 --project-not <gid>
 - `--completed-on`, `--completed-on-before`, `--completed-on-after`, `--completed-at-before`, `--completed-at-after`
 - `--modified-on`, `--modified-on-before`, `--modified-on-after`, `--modified-at-before`, `--modified-at-after`
 
+**Custom field filters:** `--custom-field-filter <gid>.<operator>=<value>`, repeatable.
+The operator is `value`, `is_set`, `less_than`, `greater_than`, `before`, or `after`; an enum
+field's `value` is an option GID.
+
+```sh
+cyber-asana task search --project <gid> --custom-field-filter 1201.value=1209876543
+cyber-asana task search --project <gid> --custom-field-filter 1201.is_set=false --no-completed
+```
+
+**Past 100 results:** search returns at most 100 tasks and has no offset. `--all` sorts by
+`created_at` ascending and bounds each next call to tasks created after the last one seen,
+up to `--max-pages` (default 10). It prints `{data, page_count, truncated}` in `--json`
+and `--toon`. Two tasks created in the same instant across a page boundary can be missed.
+
+Search needs a premium workspace. On a free one Asana answers `402`, which exits `7` with
+a hint that the operation is above the workspace's plan.
+
 **Other:** `--subtype <subtype>`, `--sort-by <field>` (`due_date`, `created_at`,
 `completed_at`, `likes`, `modified_at`), `--sort-asc`, `--opt-fields <fields>`

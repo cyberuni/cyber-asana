@@ -68,7 +68,11 @@ export type TaskBatchLookupFailure = {
 
 export type TaskBatchLookupResult = TaskBatchLookupSuccess | TaskBatchLookupFailure
 
+import type { CustomFieldFilter } from './search-custom-fields.js'
+
 export type SearchTasksOptions = {
+	/** `custom_fields.{gid}.{operator}` filters; a premium search feature. */
+	customFields?: CustomFieldFilter[]
 	text?: string
 	completed?: boolean
 	isSubtask?: boolean
@@ -384,6 +388,7 @@ export function createAsanaTaskGateway(client: Asana.ApiClient): TaskGateway {
 				'modified_on.after': opts?.modifiedOnAfter,
 				'modified_at.before': opts?.modifiedAtBefore,
 				'modified_at.after': opts?.modifiedAtAfter,
+				...Object.fromEntries((opts?.customFields ?? []).map((f) => [`custom_fields.${f.gid}.${f.operator}`, f.value])),
 				resource_subtype: opts?.resourceSubtype,
 				sort_by: opts?.sortBy,
 				sort_ascending: opts?.sortAscending,

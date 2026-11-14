@@ -735,6 +735,70 @@ describe('tasks/cli', () => {
 		},
 	)
 
+	it('task search forwards repeated --custom-field-filter values as custom field filters', async () => {
+		const searchTasks = vi.fn().mockResolvedValue([])
+		const program = new Command().addCommand(taskCommand({ searchTasks } as never))
+
+		await program.parseAsync(
+			[
+				'node',
+				'test',
+				'task',
+				'search',
+				'--workspace-gid',
+				'ws1',
+				'--custom-field-filter',
+				'123.value=5',
+				'--custom-field-filter',
+				'456.is_set=false',
+			],
+			{ from: 'node' },
+		)
+
+		expect(searchTasks.mock.calls[0]?.[1]?.customFields).toEqual([
+			{ gid: '123', operator: 'value', value: '5' },
+			{ gid: '456', operator: 'is_set', value: 'false' },
+		])
+	})
+
+	it('task search rejects a malformed --custom-field-filter as a usage error', async () => {
+		const searchTasks = vi.fn()
+		const program = new Command().addCommand(taskCommand({ searchTasks } as never)).exitOverride()
+		program.configureOutput({ writeErr: () => {} })
+		for (const c of program.commands) c.exitOverride().configureOutput({ writeErr: () => {} })
+
+		await expect(
+			program.parseAsync(
+				['node', 'test', 'task', 'search', '--workspace-gid', 'ws1', '--custom-field-filter', '123.eq=1'],
+				{ from: 'node' },
+			),
+		).rejects.toThrow()
+		expect(searchTasks).not.toHaveBeenCalled()
+	})
+
+	it('task search --all pages past 100 results and reports truncation', async () => {
+		const full = Array.from({ length: 100 }, (_, i) => ({
+			gid: String(i),
+			created_at: `2026-01-${String(i + 1).padStart(3, '0')}`,
+		}))
+		const searchTasks = vi
+			.fn()
+			.mockResolvedValueOnce(full)
+			.mockResolvedValueOnce([{ gid: 'x', created_at: '2026-02' }])
+		const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+		const program = new Command().addCommand(taskCommand({ searchTasks } as never))
+
+		await program.parseAsync(['node', 'test', 'task', 'search', '--workspace-gid', 'ws1', '--all'], {
+			from: 'node',
+		})
+
+		expect(searchTasks).toHaveBeenCalledTimes(2)
+		const printed = log.mock.calls.map((c) => String(c[0])).join('\n')
+		expect(printed).toContain('x')
+		expect(printed).not.toContain('Stopped after')
+		log.mockRestore()
+	})
+
 	describe('task create applies defaults.section', () => {
 		let dir: string
 		const previousConfig = process.env.CYBER_ASANA_CONFIG
