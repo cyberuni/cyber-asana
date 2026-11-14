@@ -87,6 +87,8 @@ pnpm report           # print the gap report
 
 Regenerate and update the comparison page whenever MCP tools are added or removed, or when Asana publishes new ones. `pnpm check` fails if the checked-in catalog has drifted from the source.
 
+The same package watches the Asana REST API. `rest-api-watch.yml` runs weekly, diffs the operations in Asana's [OpenAPI file](https://github.com/Asana/openapi/blob/master/defs/asana_oas.yaml) against `data/asana-rest-baseline.json`, and opens a `rest-api-drift` issue on change. Refresh the baseline with `pnpm fetch-rest --write`.
+
 ### MCP Inspector
 
 Debug tools and schemas without an agent host. UI defaults to [http://localhost:6274](http://localhost:6274).
