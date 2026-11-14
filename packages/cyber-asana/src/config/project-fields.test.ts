@@ -24,6 +24,40 @@ describe('matchFieldRole', () => {
 	})
 })
 
+describe('matchFieldRole for sprint and status', () => {
+	it.each(['Sprint', 'sprint', 'Iteration'])('matches %s as sprint', (name) => {
+		expect(matchFieldRole({ name, resource_subtype: 'enum' })).toBe('sprint')
+	})
+
+	it.each(['Status', 'status', 'Stage'])('matches %s as status', (name) => {
+		expect(matchFieldRole({ name, resource_subtype: 'enum' })).toBe('status')
+	})
+
+	it.each(['sprint', 'status'])('requires an enum field for %s', (name) => {
+		expect(matchFieldRole({ name, resource_subtype: 'text' })).toBeUndefined()
+		expect(matchFieldRole({ name, resource_subtype: 'number' })).toBeUndefined()
+	})
+
+	it.each(['Sprint goal', 'Status page', 'Stages of grief'])('does not match %s', (name) => {
+		expect(matchFieldRole({ name, resource_subtype: 'enum' })).toBeUndefined()
+	})
+
+	it('saves a sprint and a status field found on a project', () => {
+		const { config } = applyFieldDiscovery(
+			{ schema_version: 2, projects: [{ gid: '1', name: 'A', aliases: [] }] },
+			'1',
+			[
+				{ gid: '20', name: 'Sprint', resource_subtype: 'enum' },
+				{ gid: '21', name: 'Status', resource_subtype: 'enum' },
+			],
+		)
+		expect(config.projects[0]?.fields).toEqual({
+			sprint: { gid: '20', name: 'Sprint' },
+			status: { gid: '21', name: 'Status' },
+		})
+	})
+})
+
 describe('applyFieldDiscovery', () => {
 	const base = (fields?: RepoConfig['projects'][number]['fields']): RepoConfig => ({
 		schema_version: 2,

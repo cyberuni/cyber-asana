@@ -20,8 +20,10 @@ export type RepoProjectEntry = {
  * The roles a project custom field can be registered for. Field GIDs differ per workspace and
  * project, so a role is how a convention names a field without hard-coding its GID.
  * The `cyber-asana.task-conventions` reference says what `story_points` and `task_points` measure.
+ * `sprint` and `status` are enum fields the scrum system reads: which sprint a task is in (the
+ * `custom-field` sprint model) and its workflow state (`state_carrier: field`).
  */
-export const FIELD_ROLES = ['story_points', 'task_points'] as const
+export const FIELD_ROLES = ['story_points', 'task_points', 'sprint', 'status'] as const
 
 export type FieldRole = (typeof FIELD_ROLES)[number]
 
