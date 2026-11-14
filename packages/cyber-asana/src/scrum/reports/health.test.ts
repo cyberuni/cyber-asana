@@ -184,14 +184,111 @@ describe('buildHealth', () => {
 		expect(h.findings[0]?.message).toContain('x')
 	})
 
-	it('H8 is skipped, saying allocations are not wired yet', async () => {
+	const person = (
+		gid: string,
+		name: string,
+		flag: 'over' | 'under' | 'ok' | 'unknown',
+		used: number | null,
+		cap: number | null,
+	) => ({
+		person: { gid, name },
+		tasks: 1,
+		story_points: 1,
+		task_points: 0,
+		effort_hours: { story: 1, task: 0, total: used ?? 0 },
+		capacity:
+			cap === null
+				? { status: 'unknown' as const, reason: 'no-allocation' as const }
+				: { status: 'known' as const, hours: cap, allocations: [] },
+		utilization_pct: cap ? Math.round(((used ?? 0) * 1000) / cap) / 10 : null,
+		flag,
+	})
+	const workload = (people: ReturnType<typeof person>[]) => ({
+		people,
+		team: {} as never,
+		unassigned_tasks: 0,
+		points_tracked: { story: true, task: false },
+		notes: [],
+	})
+
+	it('H8 is skipped, with the reason, when capacity was not read', async () => {
 		const h = await buildHealth(only('H8', { sprintTasks: [task('a')] }))
 		expect(h.checks[0]).toMatchObject({
 			id: 'H8',
 			status: 'skipped',
-			reason: 'capacity unknown: allocations not wired yet',
+			reason: 'capacity unknown: allocations were not read',
 		})
 		expect(h.findings).toEqual([])
+	})
+
+	it('H8 is skipped with the plan reason when Asana answered 402', async () => {
+		const h = await buildHealth(
+			only('H8', {
+				sprintTasks: [task('a')],
+				capacity: { skipped: 'the workspace plan does not include allocations (402)' },
+			}),
+		)
+		expect(h.checks[0]).toMatchObject({
+			status: 'skipped',
+			reason: 'capacity unknown: the workspace plan does not include allocations (402)',
+		})
+	})
+
+	it('H8 is skipped when no one in the sprint has a known capacity', async () => {
+		const h = await buildHealth(
+			only('H8', {
+				sprintTasks: [task('a')],
+				capacity: { workload: workload([person('u1', 'Ann', 'unknown', 8, null)]) },
+			}),
+		)
+		expect(h.checks[0]).toMatchObject({
+			status: 'skipped',
+			reason: 'capacity unknown: no allocation overlaps the sprint dates',
+		})
+	})
+
+	it('H8 flags each person over capacity as an error, and passes when none is', async () => {
+		const over = await buildHealth(
+			only('H8', {
+				sprintTasks: [task('a')],
+				capacity: {
+					workload: workload([person('u1', 'Ann', 'over', 50, 40), person('u2', 'Bob', 'ok', 30, 40)]),
+				},
+			}),
+		)
+		expect(over.checks[0]).toMatchObject({ id: 'H8', status: 'failed', findings: 1 })
+		expect(over.findings[0]).toMatchObject({
+			check: 'H8',
+			level: 'error',
+			person: { gid: 'u1', name: 'Ann' },
+			fix: 'cyber-asana report workload --scope web --sprint 2',
+		})
+		expect(over.findings[0]?.message).toContain('Ann')
+		expect(over.findings[0]?.message).toContain('50 h')
+		expect(over.findings[0]?.message).toContain('40 h')
+
+		const ok = await buildHealth(
+			only('H8', {
+				sprintTasks: [task('a')],
+				capacity: { workload: workload([person('u2', 'Bob', 'under', 10, 40)]) },
+			}),
+		)
+		expect(ok.checks[0]).toMatchObject({ status: 'passed', findings: 0 })
+	})
+
+	it('H8 notes the people whose capacity is unknown instead of passing them silently', async () => {
+		const h = await buildHealth(
+			only('H8', {
+				sprintTasks: [task('a')],
+				capacity: { workload: workload([person('u1', 'Ann', 'ok', 30, 40), person('u2', 'Bob', 'unknown', 5, null)]) },
+			}),
+		)
+		expect(h.notes.join(' ')).toMatch(/H8.*Bob/)
+	})
+
+	it('H8 is skipped, naming the sprint, when it has no section', async () => {
+		const h = await buildHealth(only('H8', { sprintTasks: undefined, capacity: { workload: workload([]) } }))
+		expect(h.checks[0]).toMatchObject({ status: 'skipped', reason: expect.stringContaining('has no section') })
 	})
 
 	it('H9 flags each project that lacks the sprint section, as an error', async () => {

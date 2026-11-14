@@ -35,7 +35,7 @@ Fill `cyber-asana.report.health`'s `## Layout` from the JSON. Use `counts` and `
 
 - When `sprint_started` is false, H9 reports it and the task checks are skipped: say the sprint has no section and lead with its fix (`sprint start`).
 - When `in_progress_basis` is `incomplete-and-assigned`, say H5 and H6 count every open assigned task because no workflow state is tracked.
-- List each skipped check with its `reason` under Not checked. H8 is skipped until allocations are wired: never call it passed.
+- List each skipped check with its `reason` under Not checked. H8 is skipped when capacity is unknown (a plan without allocations, or none overlapping the sprint): never call it passed, and say what its reason is.
 - Mention a `notes` entry that changes how to read the findings.
 
 ## 4. Follow up

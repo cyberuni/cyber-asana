@@ -186,10 +186,13 @@ a level, the task, and a fix command. Thresholds are that reference's frontmatte
 - **In progress** is the policy's `in_progress` state read from the `status` field when
   `state_carrier` is `field` and the scope registers one; otherwise every incomplete assigned sprint
   task, and `notes` says so (§ 4.3).
-- **H8 is skipped, never passed.** Capacity comes from Allocations only (D4), which are not wired
-  yet, so the check reports `skipped` with the reason `capacity unknown: allocations not wired
-  yet`. A check that needs the sprint's tasks, or a points field, is skipped with its reason when
-  they are missing.
+- **H8 reads the workload.** Capacity comes from Allocations only (D4). The sprint's open tasks are
+  loaded against the capacity for the sprint's dates exactly as `report workload` does, and each
+  person over `over_allocation_pct` is one error finding (fix: `report workload`). Allocations are
+  read only when H8 is enabled. When Asana answers 402, or no allocation overlaps the sprint, H8 is
+  `skipped` with a reason beginning `capacity unknown`, never passed; people with unknown capacity
+  beside known ones are named in `notes`. A check that needs the sprint's tasks, or a points field,
+  is skipped with its reason when they are missing.
 - **H9 wins over `sprint-none`.** When today's sprint has no section in any project and H9 is
   enabled, the report runs: H9 reports it and the checks that read the sprint's tasks are skipped
   (D12 holds for every other cause). With H9 not enabled it fails with `sprint-none`. A sprint

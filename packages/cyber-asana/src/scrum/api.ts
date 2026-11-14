@@ -527,6 +527,25 @@ export function createScrumApi(deps: ScrumApiDeps) {
 						return field ? [field.gid] : []
 					}),
 				)
+			// H8: the sprint's open tasks against Allocations capacity for its dates. Read only when enabled.
+			let capacity: { workload: ReturnType<typeof buildWorkload> } | { skipped: string } | undefined
+			if (settings.checks.includes('H8') && sprintTasks) {
+				const allocations = await readAllocations(ctx.target.projects.map((p) => p.gid))
+				capacity =
+					allocations.status === 'unavailable'
+						? { skipped: 'the workspace plan does not include allocations (402)' }
+						: {
+								workload: buildWorkload({
+									scope: ctx.scope.name,
+									window: { from: sprint.start, to: sprint.end },
+									policy: ctx.policy,
+									settings: parseWorkloadSettings({}),
+									tasks: sprintTasks as WorkloadTask[],
+									fields: { story: gids('story_points'), task: gids('task_points') },
+									capacity: allocations,
+								}),
+							}
+			}
 			const health = await buildHealth({
 				scope: ctx.scope.name,
 				settings,
@@ -537,6 +556,7 @@ export function createScrumApi(deps: ScrumApiDeps) {
 				...(sprintTasks && { sprintTasks }),
 				missingProjects: missing.map(projectRef),
 				...(allSprints && { allSprints }),
+				...(capacity && { capacity }),
 				currentN: ctx.current ?? 0,
 				fields: { story: gids('story_points'), task: gids('task_points'), status: gids('status') },
 				dependenciesOf: async (taskGid) =>

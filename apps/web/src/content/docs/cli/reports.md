@@ -79,9 +79,12 @@ frontmatter: `checks` (default: all eleven), `stale_days` (3), `wip_limit` (3), 
 `overdue_grace_days` (0). Override them one key at a time, as in
 [Overriding references](/cyber-asana/reference/overriding-references/).
 
-- **H8 is skipped for now.** It needs Asana Allocations, which arrive with the workload report. The
-  check shows as `skipped` with the reason `capacity unknown: allocations not wired yet`; it never
-  shows as passed.
+- **H8 reads capacity from Allocations**, as [`report workload`](#report-workload) does: one error
+  per person whose sprint load in effort hours exceeds their capacity for the sprint's dates, with
+  `report workload` as its fix command. When capacity is unknown (a 402 plan limit, or no allocation
+  overlapping the sprint) the check shows as `skipped` with the reason, for example
+  `capacity unknown: no allocation overlaps the sprint dates`; it never shows as passed. People
+  whose capacity is unknown while others' is known are named in `notes`.
 - **In progress without a state.** With `state_carrier: none`, or `field` with no registered `status`
   field, H5 and H6 count every incomplete assigned sprint task, and `notes` says so.
 - **No current sprint.** Today before `sprint_anchor_date` fails with `sprint-none`, and no anchor

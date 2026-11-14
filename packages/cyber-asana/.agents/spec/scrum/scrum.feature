@@ -294,9 +294,20 @@ Feature: scrum scopes
     When report health runs
     Then only H3 and H4 appear in checks
 
-  Scenario: H8 is skipped, not passed
+  Scenario: H8 flags a person whose sprint load exceeds their capacity
+    Given Ann has 30 hours of open sprint work and an Allocation of 20 hours for the sprint's dates
     When report health runs
-    Then H8 is "skipped" with the reason "capacity unknown: allocations not wired yet"
+    Then H8 is "failed" with an error finding for Ann and the fix "cyber-asana report workload"
+
+  Scenario: H8 is skipped, not passed, when capacity is unknown
+    Given Asana answers 402 to the allocation read, or no allocation overlaps the sprint
+    When report health runs
+    Then H8 is "skipped" with a reason starting "capacity unknown"
+
+  Scenario: allocations are read only when H8 is enabled
+    Given the health reference omits H8
+    When report health runs
+    Then no allocation is read
 
   Scenario: without a state carrier in progress means incomplete and assigned
     Given state_carrier none and an assigned task unchanged for four days

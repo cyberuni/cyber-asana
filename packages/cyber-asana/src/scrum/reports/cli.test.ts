@@ -44,7 +44,7 @@ const health = {
 			name: 'the sprint is over capacity',
 			status: 'skipped',
 			findings: 0,
-			reason: 'capacity unknown: allocations not wired yet',
+			reason: 'capacity unknown: no allocation overlaps the sprint dates',
 		},
 	],
 	findings: [
@@ -217,7 +217,7 @@ describe('report health command', () => {
 		expect(out).toContain('H3')
 		expect(out).toContain('failed')
 		expect(out).toContain('H8')
-		expect(out).toContain('capacity unknown: allocations not wired yet')
+		expect(out).toContain('capacity unknown: no allocation overlaps the sprint dates')
 		expect(out).toContain('Nobody task is unassigned')
 		expect(out).toContain('cyber-asana task update t9 --assignee me')
 		expect(out).toContain('0 errors, 1 warning')
