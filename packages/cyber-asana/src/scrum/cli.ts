@@ -5,16 +5,16 @@ import { output, printCountSummary, printFields, printNextSteps, printTable } fr
 import type { ScrumApi } from './api.js'
 import { createDefaultScrumApi } from './default.js'
 
-type ResolveApi = ScrumApi | (() => ScrumApi)
+export type ResolveApi = ScrumApi | (() => ScrumApi)
 
-function resolveApi(api?: ResolveApi): ScrumApi {
+export function resolveApi(api?: ResolveApi): ScrumApi {
 	if (typeof api === 'function') return api()
 	return api ?? createDefaultScrumApi()
 }
 
 type StoreFlags = { config?: string; repo?: string; global?: boolean }
 
-function storeOptions(opts: StoreFlags) {
+export function storeOptions(opts: StoreFlags) {
 	return { configPath: opts.config, repo: opts.repo }
 }
 
@@ -211,9 +211,9 @@ export function scrumCommand(api?: ResolveApi) {
 	return cmd
 }
 
-type SprintFlags = StoreFlags & { scope?: string; sprint?: string }
+export type SprintFlags = StoreFlags & { scope?: string; sprint?: string }
 
-function addSprintOptions(cmd: Command, opts: { sprint?: boolean } = { sprint: true }) {
+export function addSprintOptions(cmd: Command, opts: { sprint?: boolean } = { sprint: true }) {
 	cmd.option('--scope <name>', 'Scope name (default: the scope marked default, else the repo default project)')
 	if (opts.sprint) {
 		cmd.option('--sprint <ref>', 'Sprint: current (default), next, previous, a number, or a name', 'current')
@@ -223,14 +223,14 @@ function addSprintOptions(cmd: Command, opts: { sprint?: boolean } = { sprint: t
 		.option('--config <path>', 'Config file path (overrides CYBER_ASANA_CONFIG)')
 }
 
-function sprintInput(opts: SprintFlags) {
+export function sprintInput(opts: SprintFlags) {
 	return {
 		...(opts.scope !== undefined && { scope: opts.scope }),
 		...(opts.sprint !== undefined && opts.sprint !== 'current' && { sprint: opts.sprint }),
 	}
 }
 
-function dates(sprint: { start: string; end: string }) {
+export function dates(sprint: { start: string; end: string }) {
 	return `${sprint.start} to ${sprint.end}`
 }
 

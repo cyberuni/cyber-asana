@@ -19,6 +19,8 @@ const CODED_EXIT_CODES: Readonly<Record<string, number>> = {
 	'sprint-unknown': 2,
 	'model-unsupported': 2,
 	'policy-incomplete': 2,
+	// Reports: the form asked for is not built yet; use another.
+	'team-unsupported': 2,
 }
 
 export function exitCodeFor(error: unknown): number {

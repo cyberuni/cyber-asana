@@ -58,6 +58,7 @@ import { createScrumApi, type ScrumApi } from './scrum/api.js'
 import { backlogCommand, scopeConfigCommand, scrumCommand, sprintCommand } from './scrum/cli.js'
 import { registerScrumTools } from './scrum/mcp.js'
 import { loadScrumPolicy } from './scrum/policy.js'
+import { reportCommand } from './scrum/reports/cli.js'
 import { createSearchApi, type SearchApi } from './search/api.js'
 import { searchCommand } from './search/cli.js'
 import { createAsanaSearchGateway } from './search/gateway.js'
@@ -216,6 +217,7 @@ export function registerCliCommands(program: Command, getContext: () => RuntimeC
 	program.addCommand(scrumCommand(() => getContext().scrum))
 	program.addCommand(sprintCommand(() => getContext().scrum))
 	program.addCommand(backlogCommand(() => getContext().scrum))
+	program.addCommand(reportCommand(() => getContext().scrum))
 	program.addCommand(setupCommand())
 	program.addCommand(urlCommand())
 	program.addCommand(mcpCommand(getContext))
