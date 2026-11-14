@@ -3,7 +3,7 @@ import { ensureSystemFixtures, type FixtureContext, formatFixtureEnv } from './s
 
 type Counts = { projects: number; sections: number; tasks: number; stories: number; attachments: number }
 
-function createFakeContext(seed?: { sections?: string[]; projects?: string[] }) {
+function createFakeContext(seed?: { sections?: string[]; projects?: string[]; team?: string }) {
 	let nextGid = 1000
 	const gid = () => String(nextGid++)
 	const created: Counts = { projects: 0, sections: 0, tasks: 0, stories: 0, attachments: 0 }
@@ -27,6 +27,7 @@ function createFakeContext(seed?: { sections?: string[]; projects?: string[] }) 
 				gid: projectGid,
 				name: 'fixture project',
 				workspace: { gid: 'ws-1', name: 'workspace' },
+				...(seed?.team ? { team: { gid: seed.team, name: 'team' } } : {}),
 			}),
 		},
 		sections: {
@@ -139,7 +140,36 @@ describe('ensureSystemFixtures given a workspace', () => {
 	})
 })
 
+describe('ensureSystemFixtures team', () => {
+	it("takes the project's team as the team GID", async () => {
+		const fake = createFakeContext({ team: 'team-7' })
+
+		const fixtures = await ensureSystemFixtures(fake.context, { projectGid: 'project-1' })
+
+		expect(fixtures.teamGid).toBe('team-7')
+	})
+
+	it('leaves the team GID unset for a project in a workspace without teams', async () => {
+		const fixtures = await ensureSystemFixtures(createFakeContext().context, { projectGid: 'project-1' })
+
+		expect(fixtures.teamGid).toBeUndefined()
+	})
+})
+
 describe('formatFixtureEnv', () => {
+	it('adds the team line when there is a team', () => {
+		const lines = formatFixtureEnv({
+			workspaceGid: 'ws-1',
+			projectGid: 'p-1',
+			sectionGid: 's-1',
+			taskGid: 't-1',
+			secondTaskGid: 't-2',
+			teamGid: 'team-7',
+		}).split('\n')
+
+		expect(lines.at(-1)).toBe('ASANA_SYSTEM_TEST_TEAM_GID=team-7')
+	})
+
 	it('names the workspace the project lives in, not the ambient one', () => {
 		const lines = formatFixtureEnv({
 			workspaceGid: 'ws-1',
