@@ -15,6 +15,8 @@ export type ProjectAccessLevel = 'admin' | 'editor' | 'commenter' | 'viewer'
 export type CreateProjectFields = {
 	archived?: boolean
 	owner?: string
+	/** The team the project belongs to; required by Asana in an organization. */
+	team?: string
 	notes?: string
 	html_notes?: string
 	color?: string

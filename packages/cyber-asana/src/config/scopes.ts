@@ -27,11 +27,29 @@ export type ScopeEntry = {
 	sprint_length_days?: number
 	/** The first day of sprint 1, `YYYY-MM-DD`. */
 	sprint_anchor_date?: string
+	/** The `project` model's backlog project GID; a `project` scope's own project when unset. */
+	backlog_project?: string
+	/** The `project` model's portfolio of sprint projects; a `portfolio` scope's own portfolio when unset. */
+	sprint_portfolio?: string
+	/** A project GID the `project` model duplicates to start a sprint; a plain project is created when unset. */
+	sprint_template?: string
 }
 
 export type ScrumBlock = { scopes: ScopeEntry[] }
 
-const SCOPE_KEYS = ['name', 'kind', 'projects', 'portfolio', 'team', 'default', ...SCOPE_OVERRIDE_KEYS]
+/** Asana objects the `project` sprint model works on; GIDs, so they live in config (P1). */
+export const SCOPE_PROJECT_MODEL_KEYS = ['backlog_project', 'sprint_portfolio', 'sprint_template'] as const
+
+const SCOPE_KEYS = [
+	'name',
+	'kind',
+	'projects',
+	'portfolio',
+	'team',
+	'default',
+	...SCOPE_OVERRIDE_KEYS,
+	...SCOPE_PROJECT_MODEL_KEYS,
+]
 
 export function normalizeScopeName(name: string): string {
 	return name.trim().toLowerCase()
@@ -58,7 +76,7 @@ function parseScopeEntry(entry: unknown, label: string): ScopeEntry {
 	for (const key of Object.keys(scope)) {
 		if (!SCOPE_KEYS.includes(key)) {
 			throw new Error(
-				`Unknown scope key ${label}.${key}; a scope may set only ${SCOPE_OVERRIDE_KEYS.join(', ')} beyond its name, kind, and members`,
+				`Unknown scope key ${label}.${key}; a scope may set only ${SCOPE_OVERRIDE_KEYS.join(', ')} beyond its name, kind, and members (and ${SCOPE_PROJECT_MODEL_KEYS.join(', ')} for the project sprint model)`,
 			)
 		}
 	}
@@ -113,6 +131,12 @@ function parseScopeEntry(entry: unknown, label: string): ScopeEntry {
 			throw new Error(`${label}.sprint_anchor_date must be a YYYY-MM-DD date`)
 		}
 		entryOut.sprint_anchor_date = scope.sprint_anchor_date
+	}
+	for (const key of SCOPE_PROJECT_MODEL_KEYS) {
+		const value = scope[key]
+		if (value === undefined) continue
+		if (typeof value !== 'string' || value.length === 0) throw new Error(`${label}.${key} must be a non-empty string`)
+		entryOut[key] = value
 	}
 	return entryOut
 }

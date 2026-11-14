@@ -71,6 +71,41 @@ describe('config scope', () => {
 		)
 	})
 
+	it('add saves the project model objects: backlog project, sprint portfolio, and sprint template', async () => {
+		const api = fakeApi()
+		await run(
+			configProgram(api),
+			'config',
+			'scope',
+			'add',
+			'web',
+			'--kind',
+			'project',
+			'--project',
+			'1201',
+			'--sprint-model',
+			'project',
+			'--backlog-project',
+			'1201',
+			'--sprint-portfolio',
+			'1300',
+			'--sprint-template',
+			'1400',
+		)
+		expect(api.addScope).toHaveBeenCalledWith(
+			{
+				name: 'web',
+				kind: 'project',
+				projects: ['1201'],
+				sprint_model: 'project',
+				backlog_project: '1201',
+				sprint_portfolio: '1300',
+				sprint_template: '1400',
+			},
+			expect.anything(),
+		)
+	})
+
 	it('add accepts a comma list and repeated --project for a projects scope, with the three overrides', async () => {
 		const api = fakeApi()
 		await run(

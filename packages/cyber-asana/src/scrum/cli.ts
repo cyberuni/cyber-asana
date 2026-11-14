@@ -57,6 +57,9 @@ type AddFlags = StoreFlags & {
 	project: string[]
 	portfolio?: string
 	team?: string
+	backlogProject?: string
+	sprintPortfolio?: string
+	sprintTemplate?: string
 	default?: boolean
 	sprintModel?: string
 	sprintLengthDays?: number
@@ -90,6 +93,12 @@ export function scopeConfigCommand(api?: ResolveApi) {
 		.option('--project <gid-or-alias>', 'Project GID or registered alias, comma-separated or repeated', collect, [])
 		.option('--portfolio <gid>', 'Portfolio GID, for kind portfolio')
 		.option('--team <gid>', 'Team GID, for kind team')
+		.option(
+			'--backlog-project <gid-or-alias>',
+			'Backlog project of the project sprint model (default: the scope project)',
+		)
+		.option('--sprint-portfolio <gid>', 'Portfolio that groups the sprint projects, for the project sprint model')
+		.option('--sprint-template <gid-or-alias>', 'Project the project sprint model duplicates to start a sprint')
 		.option('--default', 'Use this scope when a command is given no --scope')
 		.option('--sprint-model <model>', 'Override the policy sprint_model for this scope')
 		.option('--sprint-length-days <n>', 'Override the policy sprint_length_days for this scope', positiveInt)
@@ -113,6 +122,13 @@ export function scopeConfigCommand(api?: ResolveApi) {
 				...(opts.portfolio !== undefined && { portfolio: opts.portfolio }),
 				...(opts.team !== undefined && { team: opts.team }),
 				...(opts.default && { default: true as const }),
+				...(opts.backlogProject !== undefined && {
+					backlog_project: (await resolveProjectRef(opts.backlogProject, { configPath: opts.config })) as string,
+				}),
+				...(opts.sprintPortfolio !== undefined && { sprint_portfolio: opts.sprintPortfolio }),
+				...(opts.sprintTemplate !== undefined && {
+					sprint_template: (await resolveProjectRef(opts.sprintTemplate, { configPath: opts.config })) as string,
+				}),
 				...(opts.sprintModel !== undefined && { sprint_model: opts.sprintModel }),
 				...(opts.sprintLengthDays !== undefined && { sprint_length_days: opts.sprintLengthDays }),
 				...(opts.sprintAnchorDate !== undefined && { sprint_anchor_date: opts.sprintAnchorDate }),
