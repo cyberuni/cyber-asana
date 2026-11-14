@@ -1,0 +1,19 @@
+tools/gap-analysis/src/parse-official-tools.ts
+  s_e4ae3088575a5b::t_dae786cb2d2ad5 11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "c7405f86302deeca4bbc4e3b041c42a1cd712038",
+  "prompts": {},
+  "sessions": {
+    "s_e4ae3088575a5b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "74a44111-6306-4d04-8111-ad9846ce5393",
+        "model": "claude-sonnet-5-5"
+      },
+      "human_author": "unional <homawong@gmail.com>"
+    }
+  }
+}
