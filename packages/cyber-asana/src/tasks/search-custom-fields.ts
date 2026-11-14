@@ -1,9 +1,9 @@
 import { InvalidArgumentError } from 'commander'
 
 /** The operators Asana's task search takes on a custom field: `custom_fields.{gid}.<operator>`. */
-export const CUSTOM_FIELD_OPERATORS = ['value', 'is_set', 'less_than', 'greater_than', 'before', 'after'] as const
+const CUSTOM_FIELD_OPERATORS = ['value', 'is_set', 'less_than', 'greater_than', 'before', 'after'] as const
 
-export type CustomFieldOperator = (typeof CUSTOM_FIELD_OPERATORS)[number]
+type CustomFieldOperator = (typeof CUSTOM_FIELD_OPERATORS)[number]
 
 export type CustomFieldFilter = { gid: string; operator: CustomFieldOperator; value: string }
 
