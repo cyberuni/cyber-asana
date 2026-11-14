@@ -28,6 +28,17 @@ describe('exitCodeFor', () => {
 		expect(exitCodeFor(new CodedConfigError(code, 'x'))).toBe(2)
 	})
 
+	it.each(['sprint-field-missing', 'sprint-field-ambiguous'])(
+		'maps %s to 2: the caller can create or attach the Sprint field and retry',
+		(code) => {
+			expect(exitCodeFor(new CodedConfigError(code, 'x'))).toBe(2)
+		},
+	)
+
+	it('maps premium-required to 7, the plan-limitation code a raw 402 gets', () => {
+		expect(exitCodeFor(new CodedConfigError('premium-required', 'x'))).toBe(7)
+	})
+
 	it('maps a coded config error with no pinned exit code to 3, like other config errors', () => {
 		expect(exitCodeFor(new CodedConfigError('something-else', 'x'))).toBe(3)
 	})

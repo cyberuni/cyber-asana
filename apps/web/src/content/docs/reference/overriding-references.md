@@ -87,8 +87,8 @@ out keeps the shipped text. Only `## Definition of done` is replaced.
 
 ## Sprint models
 
-The plugin also ships `cyber-asana.sprint-model.interface` and its first implementation,
-`cyber-asana.sprint-model.sections`. The interface lists what each sprint model must say (how to find
+The plugin also ships `cyber-asana.sprint-model.interface` and two implementations,
+`cyber-asana.sprint-model.sections` and `cyber-asana.sprint-model.custom-field`. The interface lists what each sprint model must say (how to find
 the current sprint, list its tasks, start, fill, and close it); `npx cyber-agentkit reference check`
 keeps every implementation shaped like it. The `sprint` and `backlog` commands compute only the models
 the CLI builds in. To use your own, such as `cyber-asana.sprint-model.tags` in `.agents/references/`,

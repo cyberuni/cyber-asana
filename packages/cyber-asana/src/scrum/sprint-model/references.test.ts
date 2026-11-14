@@ -6,7 +6,11 @@ import { fileURLToPath } from 'node:url'
 import { afterAll, describe, expect, it } from 'vitest'
 
 const PACKAGE = join(dirname(fileURLToPath(import.meta.url)), '../../..')
-const NAMES = ['cyber-asana.sprint-model.interface', 'cyber-asana.sprint-model.sections']
+const NAMES = [
+	'cyber-asana.sprint-model.interface',
+	'cyber-asana.sprint-model.sections',
+	'cyber-asana.sprint-model.custom-field',
+]
 const repo = mkdtempSync(join(tmpdir(), 'ca-refs-'))
 afterAll(() => rmSync(repo, { recursive: true, force: true }))
 
@@ -32,11 +36,12 @@ describe('sprint-model references', () => {
 	it('are accepted by cyber-agentkit reference check', () => {
 		const result = agentkit('check', ...NAMES)
 		expect(result.failed ?? []).toEqual([])
-		expect(result.passed).toBe(2)
+		expect(result.passed).toBe(3)
 	})
 
 	it('lists sections as an implementation of the many-cardinality interface', () => {
 		const result = agentkit('implementations', 'cyber-asana.sprint-model')
 		expect(JSON.stringify(result)).toContain('cyber-asana.sprint-model.sections')
+		expect(JSON.stringify(result)).toContain('cyber-asana.sprint-model.custom-field')
 	})
 })

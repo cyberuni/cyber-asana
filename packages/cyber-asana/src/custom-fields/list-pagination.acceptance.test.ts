@@ -29,6 +29,12 @@ function createPaginatingCustomFieldGateway(): CustomFieldGateway {
 		listCustomFieldSettingsForPortfolio: vi.fn(),
 		listCustomFieldSettingsForGoal: vi.fn(),
 		listCustomFieldSettingsForTeam: vi.fn(),
+		createCustomField: vi.fn(),
+		createEnumOption: vi.fn(),
+		insertEnumOption: vi.fn(),
+		updateEnumOption: vi.fn(),
+		addCustomFieldToProject: vi.fn(),
+		removeCustomFieldFromProject: vi.fn(),
 	}
 }
 

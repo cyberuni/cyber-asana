@@ -394,3 +394,55 @@ Feature: scrum scopes
   Scenario: a half-given or backwards window is window-invalid
     When report workload runs with --from alone, or with from after to
     Then it fails with code "window-invalid" and exits 2
+
+  # ── the custom-field model ──
+
+  Scenario: a portfolio scope works under the custom-field model
+    Given a portfolio scope and sprint_model "custom-field"
+    When sprint tasks runs
+    Then the tasks whose Sprint value is the current sprint's option are listed
+
+  Scenario: the current sprint is an option of the Sprint field
+    Given the Sprint field has the option "Sprint 2" and today is in sprint 2
+    When sprint current runs
+    Then the sprint is "Sprint 2" and each project the field is attached to is listed
+
+  Scenario: a sprint with no option fails naming an option
+    Given the Sprint field has no option "Sprint 3"
+    When sprint tasks runs for sprint 3
+    Then it fails with code "sprint-none" and the message names an option
+
+  Scenario: sprint start creates the option and is idempotent
+    Given the Sprint field has no option "Sprint 3"
+    When sprint start runs twice for sprint 3
+    Then the option is created once and the second run reports already_started
+
+  Scenario: sprint add sets the Sprint field
+    Given task "t1" with no Sprint value
+    When sprint add runs for "t1" in sprint 2
+    Then "t1" holds the option "Sprint 2"
+
+  Scenario: sprint close with carry_over move carries incomplete tasks to the next option
+    Given sprint 2 with incomplete tasks "t4" and "t6" and no option "Sprint 3"
+    When sprint close runs with carry_over move
+    Then the option "Sprint 3" is created and "t4" and "t6" hold it
+
+  Scenario: the backlog is incomplete tasks with the Sprint field unset
+    Given incomplete tasks, some with a Sprint value and some without
+    When backlog list runs
+    Then only those without a Sprint value are listed, and no backlog section is reported missing
+
+  Scenario: a free workspace fails with premium-required
+    Given task search answers 402
+    When sprint tasks runs under the custom-field model
+    Then it fails with code "premium-required", exit 7, naming the model
+
+  Scenario: no Sprint field fails with sprint-field-missing
+    Given no project of the scope has a Sprint field
+    When any sprint command runs under the custom-field model
+    Then it fails with code "sprint-field-missing" and a hint naming custom-field create
+
+  Scenario: two different Sprint fields fail with sprint-field-ambiguous
+    Given project "p1" uses one Sprint field and "p2" another
+    When any sprint command runs under the custom-field model
+    Then it fails with code "sprint-field-ambiguous" listing both fields

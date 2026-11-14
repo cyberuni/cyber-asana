@@ -23,6 +23,11 @@ const CODED_EXIT_CODES: Readonly<Record<string, number>> = {
 	'team-unsupported': 2,
 	// Workload: the window flags are wrong; pass both dates, in order, or neither.
 	'window-invalid': 2,
+	// The custom-field model: create and attach the Sprint field, then retry.
+	'sprint-field-missing': 2,
+	'sprint-field-ambiguous': 2,
+	// Task search is premium: the same code a raw 402 from Asana gets.
+	'premium-required': 7,
 }
 
 export function exitCodeFor(error: unknown): number {

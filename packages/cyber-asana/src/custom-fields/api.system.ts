@@ -1,6 +1,9 @@
+import Asana from 'asana'
 import { describe } from 'vitest'
 import { createRuntimeContext, type RuntimeContext } from '../composition.js'
+import { createClient } from '../platform/client.js'
 import { isPaidPlan, isSystemTestEnabled, systemEnv } from '../testing/system.js'
+import { defineCustomFieldAuthoringAcceptanceSpecs } from './authoring.acceptance.js'
 import {
 	defineCustomFieldListPaginationAcceptanceSpecs,
 	defineCustomFieldSettingsListPaginationAcceptanceSpecs,
@@ -34,5 +37,22 @@ describe.skipIf(!settingsSystemEnabled)(
 		getApi: getCustomFieldApi,
 		projectGid: projectGid!,
 		includeFetchAll: false,
+	}),
+)
+
+const authoringEnabled = isSystemTestEnabled() && isPaidPlan() && Boolean(workspaceGid && projectGid)
+
+// Field and enum-option authoring plus the project attach: the request bodies the scrum design marks
+// as documented but unverified. The spec deletes the probe field it makes.
+describe.skipIf(!authoringEnabled)(
+	'custom-fields/api authoring system',
+	defineCustomFieldAuthoringAcceptanceSpecs({
+		getApi: getCustomFieldApi,
+		workspaceGid: workspaceGid!,
+		projectGid: projectGid!,
+		uniqueName: () => `cyber-asana system probe ${Date.now()}`,
+		deleteField: async (customFieldGid) => {
+			await new Asana.CustomFieldsApi(createClient()).deleteCustomField(customFieldGid)
+		},
 	}),
 )

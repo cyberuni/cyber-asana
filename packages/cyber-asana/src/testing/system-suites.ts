@@ -33,6 +33,11 @@ export const SYSTEM_SUITES: SystemSuite[] = [
 	{ file: 'src/portfolios/api.system.ts', env: ['ASANA_WORKSPACE_GID'], paid: true },
 	{ file: 'src/project-templates/api.system.ts', env: ['ASANA_WORKSPACE_GID'] },
 	{ file: 'src/projects/api.system.ts', env: ['ASANA_WORKSPACE_GID'] },
+	{
+		file: 'src/scrum/sprint-custom-field.system.ts',
+		env: ['ASANA_WORKSPACE_GID', 'ASANA_SYSTEM_TEST_PROJECT_GID'],
+		paid: true,
+	},
 	{ file: 'src/scrum/sprint-sections.system.ts', env: ['ASANA_WORKSPACE_GID', 'ASANA_SYSTEM_TEST_PROJECT_GID'] },
 	{ file: 'src/search/api.system.ts', env: ['ASANA_WORKSPACE_GID'] },
 	{ file: 'src/sections/api.system.ts', env: ['ASANA_SYSTEM_TEST_PROJECT_GID'] },

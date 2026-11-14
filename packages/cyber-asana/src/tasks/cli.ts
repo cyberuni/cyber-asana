@@ -52,6 +52,8 @@ import {
 	searchTasks,
 	updateTask,
 } from './default.js'
+import { type CustomFieldFilter, parseCustomFieldFilter } from './search-custom-fields.js'
+import { searchAllPages } from './search-paging.js'
 import {
 	applyConventions,
 	buildTaskCreateFields,
@@ -716,6 +718,17 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 		.option('--subtype <subtype>', 'Resource subtype filter (e.g. milestone)')
 		.option('--sort-by <field>', 'Sort field: due_date, created_at, completed_at, likes, modified_at')
 		.option('--sort-asc', 'Sort ascending (default: descending)')
+		.option(
+			'--custom-field-filter <gid.operator=value>',
+			'Filter on a custom field, repeatable; operator is value, is_set, less_than, greater_than, before, or after (premium)',
+			(value: string, previous: CustomFieldFilter[] = []) => [...previous, parseCustomFieldFilter(value)],
+		)
+		.option('--all', 'Page past the 100-result search cap (sorts by created_at ascending)')
+		.option('--max-pages <number>', 'Maximum pages to fetch with --all (default: 10)', (v: string) => {
+			const n = Number(v)
+			if (!Number.isInteger(n) || n < 1) throw new InvalidArgumentError('max-pages must be an integer greater than 0')
+			return n
+		})
 		.option('--opt-fields <fields>', 'Comma-separated optional Asana fields to include')
 		.action(
 			async (
@@ -775,6 +788,9 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 					subtype?: string
 					sortBy?: string
 					sortAsc?: boolean
+					customFieldFilter?: CustomFieldFilter[]
+					all?: boolean
+					maxPages?: number
 					optFields?: string
 				},
 			) => {
@@ -832,9 +848,27 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 					resourceSubtype: opts.subtype,
 					sortBy: opts.sortBy,
 					sortAscending: opts.sortAsc,
+					...(opts.customFieldFilter && { customFields: opts.customFieldFilter }),
 					optFields: opts.optFields ?? TASK_LIST_FIELDS,
 				}
-				const data = await resolveTaskApi(api).searchTasks(requiredGid(opts, 'workspace', 'Workspace GID'), searchOpts)
+				const workspaceGid = requiredGid(opts, 'workspace', 'Workspace GID')
+				const taskApi = resolveTaskApi(api)
+				if (opts.all) {
+					const result = await searchAllPages(
+						(ws, o) => taskApi.searchTasks(ws, o) as Promise<Array<Task & { created_at?: string }>>,
+						workspaceGid,
+						searchOpts,
+						opts.maxPages !== undefined ? { maxPages: opts.maxPages } : {},
+					)
+					output(result, () => {
+						fmtTaskList(result.data)
+						if (result.truncated) {
+							console.log(`Stopped after ${result.page_count} page(s); raise --max-pages to see more.`)
+						}
+					})
+					return
+				}
+				const data = await taskApi.searchTasks(workspaceGid, searchOpts)
 				output(data, () => fmtTaskList(data))
 			},
 		)

@@ -367,6 +367,41 @@ describe('tasks/mcp', () => {
 		expect(injectedCreateTask).toHaveBeenCalledWith('ws1', 'New Task', {})
 	})
 
+	it('asana_task_search maps custom_field_filters to custom field filters', async () => {
+		const searchTasks = vi.fn().mockResolvedValue([])
+		const server = createServer()
+		registerTaskTools(server as any, { searchTasks } as any)
+
+		await server.handlers.get('asana_task_search')?.({
+			workspace_gid: 'ws1',
+			custom_field_filters: ['123.value=5', '456.is_set=false'],
+		})
+
+		expect(searchTasks.mock.calls[0]?.[1]?.customFields).toEqual([
+			{ gid: '123', operator: 'value', value: '5' },
+			{ gid: '456', operator: 'is_set', value: 'false' },
+		])
+	})
+
+	it('asana_task_search fetch_all pages past 100 and returns data with truncation', async () => {
+		const full = Array.from({ length: 100 }, (_, i) => ({
+			gid: String(i),
+			created_at: `2026-01-${String(i + 1).padStart(3, '0')}`,
+		}))
+		const searchTasks = vi
+			.fn()
+			.mockResolvedValueOnce(full)
+			.mockResolvedValueOnce([{ gid: 'x', created_at: '2026-02' }])
+		const server = createServer()
+		registerTaskTools(server as any, { searchTasks } as any)
+
+		const result = await server.handlers.get('asana_task_search')?.({ workspace_gid: 'ws1', fetch_all: true })
+
+		const body = JSON.parse(result.content[0].text)
+		expect(body.data).toHaveLength(101)
+		expect(body.truncated).toBe(false)
+	})
+
 	describe('assignee resolves through the repo user registry', () => {
 		let dir: string | undefined
 		const previousConfig = process.env.CYBER_ASANA_CONFIG

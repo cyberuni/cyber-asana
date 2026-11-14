@@ -23,6 +23,12 @@ describe('createCustomFieldApi', () => {
 			listCustomFieldSettingsForProject: vi.fn(),
 			listCustomFieldSettingsForPortfolio: vi.fn(),
 			listCustomFieldSettingsForGoal: vi.fn(),
+			createCustomField: vi.fn(),
+			createEnumOption: vi.fn(),
+			insertEnumOption: vi.fn(),
+			updateEnumOption: vi.fn(),
+			addCustomFieldToProject: vi.fn(),
+			removeCustomFieldFromProject: vi.fn(),
 			listCustomFieldSettingsForTeam: vi.fn(),
 		})
 
@@ -40,6 +46,12 @@ describe('createCustomFieldApi', () => {
 			listCustomFieldSettingsForProject: vi.fn(),
 			listCustomFieldSettingsForPortfolio: vi.fn(),
 			listCustomFieldSettingsForGoal: vi.fn(),
+			createCustomField: vi.fn(),
+			createEnumOption: vi.fn(),
+			insertEnumOption: vi.fn(),
+			updateEnumOption: vi.fn(),
+			addCustomFieldToProject: vi.fn(),
+			removeCustomFieldFromProject: vi.fn(),
 			listCustomFieldSettingsForTeam: vi.fn(),
 		})
 
@@ -62,6 +74,12 @@ function settingsGatewayStub() {
 		listCustomFieldSettingsForProject: vi.fn(),
 		listCustomFieldSettingsForPortfolio: vi.fn(),
 		listCustomFieldSettingsForGoal: vi.fn(),
+		createCustomField: vi.fn(),
+		createEnumOption: vi.fn(),
+		insertEnumOption: vi.fn(),
+		updateEnumOption: vi.fn(),
+		addCustomFieldToProject: vi.fn(),
+		removeCustomFieldFromProject: vi.fn(),
 		listCustomFieldSettingsForTeam: vi.fn(),
 	}
 }
@@ -130,5 +148,91 @@ describe('custom-fields/api custom field settings', () => {
 
 		expect(result).toEqual({ data: [mockSetting], next_page: null, limit: 100 })
 		expect(mockList).toHaveBeenCalledWith('proj1', undefined)
+	})
+})
+
+describe('custom-fields/api writes', () => {
+	const gateway = (over: Record<string, unknown>) => ({ ...settingsGatewayStub(), ...over }) as never
+
+	it('attachCustomField attaches a field the project lacks', async () => {
+		const add = vi.fn().mockResolvedValue({ gid: 's1' })
+		const api = createCustomFieldApi(
+			gateway({
+				listCustomFieldSettingsForProject: vi.fn().mockResolvedValue({ data: [], next_page: null, limit: 100 }),
+				addCustomFieldToProject: add,
+			}),
+		)
+
+		const result = await api.attachCustomField('p1', 'cf1', { isImportant: true })
+
+		expect(add).toHaveBeenCalledWith('p1', 'cf1', { isImportant: true })
+		expect(result).toEqual({ project: 'p1', custom_field: 'cf1', status: 'attached' })
+	})
+
+	it('attachCustomField is a no-op when the project already has the field', async () => {
+		const add = vi.fn()
+		const api = createCustomFieldApi(
+			gateway({
+				listCustomFieldSettingsForProject: vi.fn().mockResolvedValue([{ gid: 's1', custom_field: { gid: 'cf1' } }]),
+				addCustomFieldToProject: add,
+			}),
+		)
+
+		expect(await api.attachCustomField('p1', 'cf1')).toEqual({
+			project: 'p1',
+			custom_field: 'cf1',
+			status: 'already_attached',
+		})
+		expect(add).not.toHaveBeenCalled()
+	})
+
+	it('detachCustomField is a no-op when the field is not attached', async () => {
+		const remove = vi.fn()
+		const api = createCustomFieldApi(
+			gateway({
+				listCustomFieldSettingsForProject: vi.fn().mockResolvedValue([]),
+				removeCustomFieldFromProject: remove,
+			}),
+		)
+
+		expect(await api.detachCustomField('p1', 'cf1')).toEqual({
+			project: 'p1',
+			custom_field: 'cf1',
+			status: 'already_detached',
+		})
+		expect(remove).not.toHaveBeenCalled()
+	})
+
+	it('detachCustomField removes an attached field', async () => {
+		const remove = vi.fn().mockResolvedValue(undefined)
+		const api = createCustomFieldApi(
+			gateway({
+				listCustomFieldSettingsForProject: vi.fn().mockResolvedValue([{ custom_field: { gid: 'cf1' } }]),
+				removeCustomFieldFromProject: remove,
+			}),
+		)
+
+		expect((await api.detachCustomField('p1', 'cf1')).status).toBe('detached')
+		expect(remove).toHaveBeenCalledWith('p1', 'cf1')
+	})
+
+	it('passes field and enum-option writes through to the gateway', async () => {
+		const g = {
+			createCustomField: vi.fn().mockResolvedValue({ gid: 'cf1' }),
+			createEnumOption: vi.fn().mockResolvedValue({ gid: 'o1' }),
+			insertEnumOption: vi.fn().mockResolvedValue({ gid: 'o1' }),
+			updateEnumOption: vi.fn().mockResolvedValue({ gid: 'o1' }),
+		}
+		const api = createCustomFieldApi(gateway(g))
+
+		await api.createCustomField({ workspace: 'ws', name: 'Sprint', resourceSubtype: 'enum' })
+		await api.createEnumOption('cf1', { name: 'Sprint 1' })
+		await api.insertEnumOption('cf1', { enumOption: 'o1', afterEnumOption: 'o0' })
+		await api.updateEnumOption('o1', { enabled: false })
+
+		expect(g.createCustomField).toHaveBeenCalledWith({ workspace: 'ws', name: 'Sprint', resourceSubtype: 'enum' })
+		expect(g.createEnumOption).toHaveBeenCalledWith('cf1', { name: 'Sprint 1' })
+		expect(g.insertEnumOption).toHaveBeenCalledWith('cf1', { enumOption: 'o1', afterEnumOption: 'o0' })
+		expect(g.updateEnumOption).toHaveBeenCalledWith('o1', { enabled: false })
 	})
 })

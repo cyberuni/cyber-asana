@@ -49,9 +49,35 @@ commands for each operation.
 
 `sprint start`, `sprint add`, and `sprint close` are safe to repeat: a second run changes nothing.
 
+## The `custom-field` model
+
+The second model, `custom-field`, makes a sprint an option of one `Sprint` enum field that every
+project of the scope shares, and the backlog the incomplete tasks whose Sprint field is unset. It works
+for `project`, `projects`, and `portfolio` scopes, so it is the model for a scope that spans projects.
+Its reference is `cyber-asana.sprint-model.custom-field`.
+
+It finds the field from the `sprint` role in `.agents/cyber-asana.json` (`config discover-fields`
+saves it), else by the name `Sprint` or `Iteration` among each project's attached fields. Create and
+attach it with [`custom-field create` and `custom-field attach`](/cyber-asana/cli/custom-fields/), or
+let `init-asana-scrum` do it.
+
+Listing a sprint's tasks, the backlog, and `sprint close` use [task search](/cyber-asana/cli/tasks/#search),
+which needs a premium workspace and pages past 100 results on its own. On a free workspace they stop
+with `premium-required`. The model's other commands behave as follows:
+
+| Command | What it does |
+| --- | --- |
+| `sprint start` | Creates the sprint's enum option. When it exists it changes nothing and exits 0. |
+| `sprint add <task-gid>...` | Sets each task's Sprint field to the sprint's option and reports the option it left. A task whose projects lack the field is `outside_scope`. |
+| `sprint close` | `move` sets each incomplete task to the next sprint's option (created if missing); `leave` changes nothing. |
+| `backlog list` | Incomplete tasks with no Sprint value. It reports no backlog section. |
+
+Search is eventually consistent: a task whose Sprint value just changed can take a moment to move
+between `sprint tasks` and `backlog list`.
+
 ## Failure statuses
 
-Each status is told apart by `error.code`, and each exits `2` because the caller can fix it and retry.
+Each status is told apart by `error.code`.
 
 | Code | When |
 | --- | --- |
@@ -59,3 +85,8 @@ Each status is told apart by `error.code`, and each exits `2` because the caller
 | `sprint-unknown` | `--sprint` is not `current`, `next`, `previous`, a number, or a name the format writes. |
 | `model-unsupported` | The scope's `sprint_model` is one the CLI does not build in, or the scope kind does not suit the model. The error names the model; follow its reference with the primitive commands instead. |
 | `policy-incomplete` | `sprint_anchor_date` is not set. |
+| `sprint-field-missing` | The `custom-field` model finds no Sprint field on the scope's projects. The error names `custom-field create` and `attach`. |
+| `sprint-field-ambiguous` | The scope's projects use more than one Sprint field. The error lists them. |
+| `premium-required` | The `custom-field` model needs task search and Asana answered `402`. Exits `7`, like any plan limitation. |
+
+All but `premium-required` exit `2`.

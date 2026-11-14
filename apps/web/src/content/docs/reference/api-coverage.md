@@ -56,8 +56,8 @@ operations such as project export and TODO scanning are described separately bel
 | Teams | 🟡 | 2 / 7 | `team` | Read-only |
 | Workspaces | 🟡 | 2 / 6 | `workspace` | Read-only |
 | Stories | 🟡 | 5 / 7 | `story`, `comment` | Full comment lifecycle on tasks; no goal stories |
-| Custom fields | 🟡 | 2 / 8 | `custom-field` | Read-only discovery; no field or enum-option authoring |
-| Custom field settings | ✅ | 4 / 4 | `custom-field` | All four reads; attaching a field is administration and stays out |
+| Custom fields | 🟡 | 6 / 8 | `custom-field` | Discovery, create, and enum-option create, insert, and update; no field update or delete |
+| Custom field settings | ✅ | 4 / 4 | `custom-field` | All four reads; project attach and detach are `custom-field attach\|detach` |
 | User task lists | 🟡 | — | `task my-tasks` | Only the "My Tasks" read path |
 | Batch API | 🟡 | — | `task get-many` | Used internally, not exposed generically |
 
@@ -202,19 +202,19 @@ handshake, surfaced as a normal result rather than a `412`. See
 | Teams | `team list\|get` | `asana_team_list`, `asana_team_get` |
 | Workspaces | `workspace list\|get` | `asana_workspace_list`, `asana_workspace_get` |
 | Attachments | `attachment list\|get\|create\|delete` | `asana_attachment_list`, `asana_attachment_get`, `asana_attachment_create`, `asana_attachment_delete` |
-| Custom fields | `custom-field list\|get` | `asana_custom_field_list`, `asana_custom_field_get` |
-| Custom field settings | `custom-field project\|portfolio\|goal\|team` | `asana_custom_field_list_for_*` |
+| Custom fields | `custom-field list\|get\|create`, `custom-field enum-option add\|move\|update` | `asana_custom_field_list`, `asana_custom_field_get`, `asana_custom_field_create`, `asana_custom_field_enum_option_create\|insert\|update` |
+| Custom field settings | `custom-field project\|portfolio\|goal\|team`, `custom-field attach\|detach` | `asana_custom_field_list_for_*`, `asana_custom_field_attach`, `asana_custom_field_detach` |
 
-Custom fields are read-only here by design: `custom-field list` and `custom-field get`
-exist so the GIDs that `task create` / `task update` require in `--custom-field` and
-`--custom-fields-json` are discoverable — `get` returns the field's `enum_options` and
-their GIDs. Defining or editing fields is workspace administration and is not wrapped.
+`custom-field list` and `custom-field get` make discoverable the GIDs that `task create` /
+`task update` require in `--custom-field` and `--custom-fields-json` — `get` returns the
+field's `enum_options` and their GIDs. `create` and `enum-option` author a field and its
+options; updating a field's other properties and deleting a field are not wrapped.
 
 `custom-field project <gid>` is the narrower half of the same question: the fields
 actually attached to that project, with their enum options, which is what Asana will
 accept in a `custom_fields` payload there. `portfolio`, `goal`, and `team` cover the other
-three parents. Attaching or detaching a field lives on the Projects API and is
-administration, so it stays out.
+three parents. `attach` and `detach` add or remove a project's custom-field setting
+(the Projects API) and are idempotent.
 
 ## What cyber-asana adds on top
 

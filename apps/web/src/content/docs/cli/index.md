@@ -36,7 +36,7 @@ help text. Every resource group's `--help` ends with worked examples.
 | [Attachments](/cyber-asana/cli/attachments/) | `list`, `get`, `create`, `delete` |
 | [Events](/cyber-asana/cli/events/) | `list` (change feed; sync-token cursored, not paginated) |
 | [People & places](/cyber-asana/cli/people/) | `user list/get/me`, `team list/get`, `workspace list/get` |
-| [Custom fields](/cyber-asana/cli/custom-fields/) | `list`, `get` (find the GIDs task writes are keyed by) |
+| [Custom fields](/cyber-asana/cli/custom-fields/) | `list`, `get` (find the GIDs task writes are keyed by), `create`, `enum-option`, `attach`, `detach` |
 | [Authentication](/cyber-asana/cli/auth/) | `auth status`, `auth login`, `auth token`, `auth logout` |
 | [Repo config](/cyber-asana/cli/repo-config/) | `config show/list/path/resolve-project/add/set-default/remove-project-alias/remove/sync/add-user/resolve-user/list-users/remove-user/set/unset/discover-fields/set-field/unset-field`, `config scope add/remove/list`, `scrum scope resolve` |
 | [Sprints & backlog](/cyber-asana/cli/sprints/) | `sprint current/list/tasks/add/start/close`, `backlog list` |

@@ -60,13 +60,14 @@ The table lives in `SYSTEM_SUITES` in `packages/cyber-asana/src/testing/system-s
 | `ai-studio/api` | `ASANA_WORKSPACE_GID`, `ASANA_SYSTEM_TEST_AI_STUDIO` (service account, AI Studio org) | opt-in |
 | `allocations/api` | workspace; project (fixture) for the body-fields test. Skips itself on a 402 (plan without resource management) | plan-gated, optional |
 | `attachments/api` | task (fixture) | any |
-| `custom-fields/api` | workspace, project (fixture) | paid |
+| `custom-fields/api` | workspace, project (fixture); also covers field create, enum options, and project attach | paid |
 | `goals/api` | workspace | paid |
 | `memberships/api` | project (fixture) | any |
 | `ooo/api` | workspace | any |
 | `portfolios/api` | workspace | paid |
 | `project-templates/api` | workspace | any |
 | `projects/api` | workspace | any |
+| `scrum/sprint-custom-field` | workspace, project (fixture). Makes and deletes a probe Sprint field; search retries up to 60s (eventual consistency) | paid |
 | `scrum/sprint-sections` | workspace, project (fixture) | any |
 | `search/api` | workspace | any |
 | `sections/api` | project (fixture) | any |

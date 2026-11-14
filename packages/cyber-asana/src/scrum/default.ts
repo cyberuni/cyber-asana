@@ -1,8 +1,10 @@
 import { createAsanaAllocationGateway } from '../allocations/gateway.js'
 import { createFileScopeStore } from '../config/scope-store.js'
+import { createAsanaCustomFieldGateway } from '../custom-fields/gateway.js'
 import { createAsanaOooGateway } from '../ooo/gateway.js'
 import { createClient } from '../platform/client.js'
 import { createAsanaPortfolioGateway } from '../portfolios/gateway.js'
+import { createAsanaProjectGateway } from '../projects/gateway.js'
 import { createAsanaSectionGateway } from '../sections/gateway.js'
 import { createAsanaTaskGateway } from '../tasks/gateway.js'
 import { createAsanaUserGateway } from '../users/gateway.js'
@@ -18,7 +20,16 @@ export function createDefaultScrumApi(): ScrumApi {
 	return createScrumApi({
 		store: createFileScopeStore,
 		gateways: { portfolios: createAsanaPortfolioGateway(client), tasks },
-		sprint: { sections: createAsanaSectionGateway(client), tasks, users: createAsanaUserGateway(client) },
+		sprint: {
+			sections: createAsanaSectionGateway(client),
+			tasks,
+			users: createAsanaUserGateway(client),
+			fieldModel: {
+				customFields: createAsanaCustomFieldGateway(client),
+				tasks,
+				projects: createAsanaProjectGateway(client),
+			},
+		},
 		dependencies: tasks,
 		loadPolicy: () => loadScrumPolicy(),
 		loadHealthSettings: () => loadHealthSettings(),
