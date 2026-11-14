@@ -70,4 +70,94 @@ export function registerScrumTools(server: McpServer, api?: ScrumApi | (() => Sc
 				await resolveApi(api).resolveScope({ ...(scope !== undefined && { scope }), ...(tasks && { tasks: true }) }),
 			),
 	)
+
+	const sprintParams = {
+		scope: z.string().optional().describe('Scope name (default: the scope marked default)'),
+		sprint: z
+			.string()
+			.optional()
+			.describe('current (default), next, previous, a sprint number, or a name written by sprint_name_format'),
+	}
+	const errors =
+		' Fails with code sprint-none (no sprint started; start one with asana_sprint_start), sprint-unknown, model-unsupported (a sprint model the CLI does not build in), or policy-incomplete (no sprint_anchor_date).'
+	const pick = <T extends { scope?: string; sprint?: string }>({ scope, sprint }: T) => ({
+		...(scope !== undefined && { scope }),
+		...(sprint !== undefined && { sprint }),
+	})
+
+	server.tool(
+		'asana_sprint_current',
+		"Today's sprint, computed from the scrum policy (anchor date, length, name format) in the user's Asana timezone: index, name, dates, working days, and the projects that hold its section." +
+			errors,
+		{ scope: sprintParams.scope },
+		async ({ scope }) => json(await resolveApi(api).currentSprint({ ...(scope !== undefined && { scope }) })),
+	)
+
+	server.tool(
+		'asana_sprint_list',
+		'List the sprints that have a section in the scope, plus the current one, each with its state (past, current, future).' +
+			errors,
+		{ scope: sprintParams.scope },
+		async ({ scope }) => json(await resolveApi(api).listSprints({ ...(scope !== undefined && { scope }) })),
+	)
+
+	server.tool(
+		'asana_sprint_tasks',
+		"List a sprint's tasks, each counted once across the scope's projects, with total, completed, and open counts." +
+			errors,
+		{
+			...sprintParams,
+			incomplete: z.boolean().optional().describe('Only tasks that are not completed'),
+			opt_fields: z.string().optional().describe('Comma-separated Asana fields'),
+		},
+		async ({ incomplete, opt_fields, ...rest }) =>
+			json(
+				await resolveApi(api).sprintTasks({
+					...pick(rest),
+					...(incomplete && { incomplete: true }),
+					...(opt_fields !== undefined && { optFields: opt_fields }),
+				}),
+			),
+	)
+
+	server.tool(
+		'asana_sprint_add',
+		"Put tasks in a sprint: moves each into the sprint's section of its project in the scope. A task already there is reported in already_in_sprint and not touched." +
+			errors,
+		{ ...sprintParams, task_gids: z.array(z.string()).min(1).describe('Task GIDs') },
+		async ({ task_gids, ...rest }) => json(await resolveApi(api).addToSprint({ ...pick(rest), tasks: task_gids })),
+	)
+
+	server.tool(
+		'asana_sprint_start',
+		"Create the sprint's section in each project of the scope that lacks one. Idempotent: when every section exists nothing changes and already_started is true." +
+			errors,
+		sprintParams,
+		async (params) => json(await resolveApi(api).startSprint(pick(params))),
+	)
+
+	server.tool(
+		'asana_sprint_close',
+		"Close a sprint and carry its incomplete tasks over as the policy's carry_over says: move puts them in the next sprint's section (created when missing), leave keeps them. Moves nothing when no task is incomplete." +
+			errors,
+		sprintParams,
+		async (params) => json(await resolveApi(api).closeSprint(pick(params))),
+	)
+
+	server.tool(
+		'asana_backlog_list',
+		"List the backlog: incomplete tasks in sections that are not sprint sections, in each project's order, each once. backlog_section_missing names projects without the policy's backlog section." +
+			errors.replace('sprint-none (no sprint started; start one with asana_sprint_start), sprint-unknown, ', ''),
+		{
+			scope: sprintParams.scope,
+			opt_fields: z.string().optional().describe('Comma-separated Asana fields'),
+		},
+		async ({ scope, opt_fields }) =>
+			json(
+				await resolveApi(api).listBacklog({
+					...(scope !== undefined && { scope }),
+					...(opt_fields !== undefined && { optFields: opt_fields }),
+				}),
+			),
+	)
 }

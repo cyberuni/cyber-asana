@@ -210,3 +210,213 @@ export function scrumCommand(api?: ResolveApi) {
 
 	return cmd
 }
+
+type SprintFlags = StoreFlags & { scope?: string; sprint?: string }
+
+function addSprintOptions(cmd: Command, opts: { sprint?: boolean } = { sprint: true }) {
+	cmd.option('--scope <name>', 'Scope name (default: the scope marked default, else the repo default project)')
+	if (opts.sprint) {
+		cmd.option('--sprint <ref>', 'Sprint: current (default), next, previous, a number, or a name', 'current')
+	}
+	return cmd
+		.option('--repo <key>', 'Repo key for the global registry (default: derived from the git remote)')
+		.option('--config <path>', 'Config file path (overrides CYBER_ASANA_CONFIG)')
+}
+
+function sprintInput(opts: SprintFlags) {
+	return {
+		...(opts.scope !== undefined && { scope: opts.scope }),
+		...(opts.sprint !== undefined && opts.sprint !== 'current' && { sprint: opts.sprint }),
+	}
+}
+
+function dates(sprint: { start: string; end: string }) {
+	return `${sprint.start} to ${sprint.end}`
+}
+
+type TaskRow = { gid: string; name?: unknown; completed?: unknown; assignee?: { name?: string } | null }
+
+const taskColumns = [
+	{ label: 'GID', get: (t: TaskRow) => t.gid },
+	{ label: 'Name', get: (t: TaskRow) => String(t.name ?? '') },
+	{ label: 'Done', get: (t: TaskRow) => (t.completed ? 'yes' : '') },
+	{ label: 'Assignee', get: (t: TaskRow) => t.assignee?.name ?? '' },
+]
+
+/** `sprint current | list | tasks | add | start | close`: computed sprints over the scope's sprint model. */
+export function sprintCommand(api?: ResolveApi) {
+	const cmd = new Command('sprint').description(
+		'Sprints from the scrum policy: the name and dates are computed, the scope holds the projects',
+	)
+	cmd.addHelpText(
+		'after',
+		[
+			'',
+			'Examples:',
+			'  cyber-asana sprint current',
+			'  cyber-asana sprint tasks --sprint previous --incomplete',
+			'  cyber-asana sprint start --sprint next',
+			'  cyber-asana sprint add <task-gid> <task-gid>',
+			'  cyber-asana sprint close',
+			'',
+			'Exit 2 with error.code sprint-none (no sprint started), sprint-unknown, model-unsupported, or policy-incomplete.',
+		].join('\n'),
+	)
+
+	addSprintOptions(
+		cmd.command('current').description("Today's sprint: index, name, dates, and the projects holding it"),
+		{
+			sprint: false,
+		},
+	).action(async (opts: SprintFlags) => {
+		const current = await resolveApi(api).currentSprint(sprintInput(opts), storeOptions(opts))
+		output(current, () => {
+			printFields({
+				Scope: current.scope,
+				Sprint: `${current.sprint.name} (#${current.sprint.n})`,
+				Dates: dates(current.sprint),
+				'Working days': String(current.sprint.working_days),
+				Today: `${current.today} (${current.timezone}, from ${current.timezone_source === 'asana' ? 'Asana' : 'this machine'})`,
+				Projects: current.projects.map((p) => p.gid).join(', '),
+				Missing: current.missing.length ? current.missing.join(', ') : undefined,
+			})
+			printNextSteps([
+				'cyber-asana sprint tasks — list its tasks',
+				...(current.missing.length
+					? [`cyber-asana sprint start --scope ${current.scope} — create it where missing`]
+					: []),
+			])
+		})
+	})
+
+	addSprintOptions(cmd.command('list').description('Sprints that have a section in the scope, with the current one'), {
+		sprint: false,
+	}).action(async (opts: SprintFlags) => {
+		const listing = await resolveApi(api).listSprints(sprintInput(opts), storeOptions(opts))
+		output(listing, () => {
+			printTable(
+				listing.sprints,
+				[
+					{ label: '#', get: (s) => String(s.n) },
+					{ label: 'Name', get: (s) => s.name },
+					{ label: 'Start', get: (s) => s.start },
+					{ label: 'End', get: (s) => s.end },
+					{ label: 'State', get: (s) => s.state },
+					{ label: 'Exists', get: (s) => (s.exists ? 'yes' : 'no') },
+				],
+				{ entity: 'sprints' },
+			)
+			printCountSummary(listing.sprints.length, 'sprint(s)')
+			printNextSteps(['cyber-asana sprint tasks --sprint <n> — list one sprint'])
+		})
+	})
+
+	addSprintOptions(
+		cmd.command('tasks').description("List a sprint's tasks, each counted once across the scope's projects"),
+	)
+		.option('--incomplete', 'Only tasks that are not completed')
+		.option('--opt-fields <fields>', 'Comma-separated Asana fields (default: gid,name,completed,assignee.name)')
+		.action(async (opts: SprintFlags & { incomplete?: boolean; optFields?: string }) => {
+			const result = await resolveApi(api).sprintTasks(
+				{
+					...sprintInput(opts),
+					...(opts.incomplete && { incomplete: true }),
+					...(opts.optFields !== undefined && { optFields: opts.optFields }),
+				},
+				storeOptions(opts),
+			)
+			output(result, () => {
+				console.log(`${result.sprint.name} (${dates(result.sprint)})`)
+				printTable(result.tasks as TaskRow[], taskColumns, { entity: 'tasks' })
+				printCountSummary(result.count.total, `task(s): ${result.count.completed} completed, ${result.count.open} open`)
+				printNextSteps(['cyber-asana sprint close — carry the open tasks over'])
+			})
+		})
+
+	addSprintOptions(
+		cmd
+			.command('add <task-gid...>')
+			.description("Put tasks in a sprint: moves each into the sprint's section of its project in the scope"),
+	).action(async (tasks: string[], opts: SprintFlags) => {
+		const result = await resolveApi(api).addToSprint({ ...sprintInput(opts), tasks }, storeOptions(opts))
+		output(result, () => {
+			for (const a of result.added)
+				console.log(
+					`Added task ${a.task} to ${result.sprint.name} in project ${a.project}${a.from ? ` (from ${a.from})` : ''}`,
+				)
+			for (const t of result.already_in_sprint) console.log(`Task ${t} was already in ${result.sprint.name}`)
+			for (const t of result.outside_scope) console.log(`Task ${t} is in none of the scope's projects; left alone`)
+			printNextSteps(['cyber-asana sprint tasks — see the sprint'])
+		})
+	})
+
+	addSprintOptions(
+		cmd
+			.command('start')
+			.description("Create the sprint's section in each project that lacks one; a no-op when they exist"),
+	).action(async (opts: SprintFlags) => {
+		const result = await resolveApi(api).startSprint(sprintInput(opts), storeOptions(opts))
+		output(result, () => {
+			console.log(
+				result.already_started
+					? `${result.sprint.name} already started (${result.existing.length} project(s)); nothing to do`
+					: `Started ${result.sprint.name} (${dates(result.sprint)}): created its section in ${result.created.join(', ')}`,
+			)
+			printNextSteps([
+				'cyber-asana backlog list — pick what to commit',
+				'cyber-asana sprint add <task-gid> — commit a task',
+			])
+		})
+	})
+
+	addSprintOptions(
+		cmd.command('close').description("Close a sprint: carry its incomplete tasks over as the policy's carry_over says"),
+	).action(async (opts: SprintFlags) => {
+		const result = await resolveApi(api).closeSprint(sprintInput(opts), storeOptions(opts))
+		output(result, () => {
+			if (result.carry_over === 'move') {
+				console.log(
+					result.moved.length === 0
+						? `${result.sprint.name} has no incomplete tasks; nothing to carry over`
+						: `${result.moved.length} task(s) moved from ${result.sprint.name} to ${result.next_sprint.name}`,
+				)
+			} else {
+				console.log(`carry_over is leave: ${result.left.length} incomplete task(s) stay in ${result.sprint.name}`)
+			}
+			if (!result.ended) console.log(`Note: ${result.sprint.name} runs until ${result.sprint.end}`)
+			printNextSteps([`cyber-asana sprint tasks --sprint ${result.next_sprint.n} — see the next sprint`])
+		})
+	})
+
+	return cmd
+}
+
+/** `backlog list`: incomplete tasks that belong to no sprint. */
+export function backlogCommand(api?: ResolveApi) {
+	const cmd = new Command('backlog').description('The scrum backlog: incomplete tasks that belong to no sprint')
+	addSprintOptions(cmd.command('list').description('List the backlog in each project order, each task once'), {
+		sprint: false,
+	})
+		.option('--opt-fields <fields>', 'Comma-separated Asana fields (default: gid,name,completed,assignee.name)')
+		.action(async (opts: SprintFlags & { optFields?: string }) => {
+			const result = await resolveApi(api).listBacklog(
+				{ ...sprintInput(opts), ...(opts.optFields !== undefined && { optFields: opts.optFields }) },
+				storeOptions(opts),
+			)
+			output(result, () => {
+				printTable(
+					result.tasks as Array<TaskRow & { section?: string }>,
+					[...taskColumns, { label: 'Section', get: (t: TaskRow & { section?: string }) => t.section ?? '' }],
+					{ entity: 'tasks' },
+				)
+				printCountSummary(result.count, 'task(s) in the backlog')
+				if (result.backlog_section_missing.length) {
+					console.log(
+						`\nNo "${result.backlog_section}" section in project(s) ${result.backlog_section_missing.join(', ')}. Create it with: cyber-asana section create "${result.backlog_section}" --project-gid <gid>`,
+					)
+				}
+				printNextSteps(['cyber-asana sprint add <task-gid> — commit a task to the current sprint'])
+			})
+		})
+	return cmd
+}
