@@ -41,7 +41,18 @@ function setup(
 					{ gid: 'p2', resource_type: 'project' },
 				]) as never,
 			},
-			tasks: { listTasks: vi.fn(async () => []) },
+			tasks: {
+				listTasks: vi.fn(async () => [
+					{ gid: 't2', name: 'Task two', completed: false, assignee: { gid: 'u1', name: 'Ada' } },
+				]) as never,
+			},
+			teams: {
+				listTeamProjects: vi.fn(async () => [{ gid: 'p1' }, { gid: 'p2' }]) as never,
+				listTeamMembers: vi.fn(async () => [
+					{ gid: 'm1', user: { gid: 'u1', name: 'Ada' } },
+					{ gid: 'm2', user: { gid: 'u2', name: 'Bo' } },
+				]) as never,
+			},
 		},
 		sprint: {
 			...sections.gateways,
@@ -73,6 +84,16 @@ describe('scrum api: custom-field sprint model', () => {
 	it('works for a portfolio scope, which the sections model does not support', async () => {
 		const { api } = setup({ scope: growth })
 		expect((await api.sprintTasks({})).tasks.map((t) => t.gid)).toEqual(['t2', 't3'])
+	})
+
+	it('runs a team scope, listing every member in the team standup, including one with no task', async () => {
+		const { api } = setup({ scope: { name: 'web-team', kind: 'team', team: '1400', default: true } })
+		const report = await api.reportTeamStandup({})
+		expect(report.sprint?.name).toBe('Sprint 2')
+		expect(report.members.map((m) => m.member.gid)).toEqual(['u1', 'u2'])
+		expect(report.members[0]?.today.tasks.map((t) => t.gid)).toEqual(['t2'])
+		expect(report.members[1]?.today.count).toBe(0)
+		expect(report.count).toEqual({ members: 2 })
 	})
 
 	it('hands the registered Sprint field to the model without discovering it', async () => {

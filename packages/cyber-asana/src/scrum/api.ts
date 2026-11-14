@@ -21,7 +21,14 @@ import {
 	nextDay,
 	velocityOf,
 } from './reports/sprint-report.js'
-import { buildStandup, buildTeamStandup, pointsOf, type StandupTask, standupWindowStart, startOfDayIn } from './reports/standup.js'
+import {
+	buildStandup,
+	buildTeamStandup,
+	pointsOf,
+	type StandupTask,
+	standupWindowStart,
+	startOfDayIn,
+} from './reports/standup.js'
 import { joinedAt, type TaskStory } from './reports/stories.js'
 import {
 	buildWorkload,
