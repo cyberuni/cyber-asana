@@ -77,5 +77,5 @@ The table lives in `SYSTEM_SUITES` in `packages/cyber-asana/src/testing/system-s
 | `tags/api` | workspace | any |
 | `tasks/api` | workspace, project, task, second task (fixtures); `ASANA_SYSTEM_TEST_SECTION_GID` for create-in-section | any |
 | `task-templates/api` | project (fixture) | any |
-| `teams/api` | workspace | any |
+| `teams/api` | workspace; `ASANA_SYSTEM_TEST_TEAM_GID` (export a team of the workspace; not a fixture) for the members and projects pagination tests | any |
 | `workspaces/api` | none | any |
