@@ -38,6 +38,10 @@ export const SYSTEM_SUITES: SystemSuite[] = [
 		env: ['ASANA_WORKSPACE_GID', 'ASANA_SYSTEM_TEST_PROJECT_GID'],
 		paid: true,
 	},
+	{
+		file: 'src/scrum/reports/stories.system.ts',
+		env: ['ASANA_WORKSPACE_GID', 'ASANA_SYSTEM_TEST_PROJECT_GID', 'ASANA_SYSTEM_TEST_SECTION_GID'],
+	},
 	{ file: 'src/scrum/sprint-sections.system.ts', env: ['ASANA_WORKSPACE_GID', 'ASANA_SYSTEM_TEST_PROJECT_GID'] },
 	{ file: 'src/search/api.system.ts', env: ['ASANA_WORKSPACE_GID'] },
 	{ file: 'src/sections/api.system.ts', env: ['ASANA_SYSTEM_TEST_PROJECT_GID'] },
