@@ -421,7 +421,7 @@ Each unit can ship alone and passes `pnpm verify`; units that need it also pass 
 | U3 | `scrum.scopes` (schema 3), `config scope add \| remove \| list`, `scrum scope resolve` for `project`, `projects`, `portfolio`; the `sprint` and `status` field roles | G9, G10, G8 (recursion) | U2 | Built; in review |
 | U4 | `cyber-asana.sprint-model.interface` + `.sections`; `sprint current \| list \| tasks \| add \| start \| close`, `backlog list`; MCP tools | G12 (sprints) | U1, U3 | Built; in review |
 | U5 | `init-asana-scrum` v1: project and projects scopes, the `sections` model, writing the policy and fields | K2 | U4 | Built; in review |
-| U6 | `cyber-asana.report.interface` + `.standup`; `report standup`; `asana-scrum` v1 with the standup route; turn `asana-standup` into a routing stub (D7); update K5 | G12 (standup), K1, K3 | U4 |  |
+| U6 | `cyber-asana.report.interface` + `.standup`; `report standup`; `asana-scrum` v1 with the standup route; turn `asana-standup` into a routing stub (D7); update K5 | G12 (standup), K1, K3 | U4 | Built; in review |
 | U7 | `.sprint`, `.retro`, `.velocity` reports, the burndown, and the commitment snapshot (D6); review and retro routes; turn `asana-sprint-report` into a routing stub (D7) | K4, G14 | U6 |  |
 | U8 | `.health` report and the health route | — | U6 |  |
 | U9 | `team members \| projects`, the `team` scope, team standup | G4 | U3, U6 |  |
@@ -451,6 +451,18 @@ U1 can ship before anything else and fixes wrong numbers users see today.
 - **Policy writes.** Only keys that differ from the default go into `.agents/references/cyber-asana.scrum.md`, frontmatter only and with no `merge` key. `sprint_anchor_date` has no default, so it is always written.
 - **Skipped steps.** Step 7 (capacity probe) is skipped and said so (U10); step 8 verifies with `sprint current` and `backlog list` until `report health` exists (U8).
 - **K7.** `init-asana` gains a last, optional step that offers `init-asana-scrum` and treats no answer as no.
+
+### 9.3 Decisions made while building U6
+
+- **Done, Today, and the window.** The Done window opens at midnight, in the user's timezone, of the previous working day (skipping days not in `working_days`) or of the day `<n>d` back, and runs to now, so a task completed earlier today counts. One Asana call per project (`completed_since`) serves Done and the no-sprint fallback; the sprint's own tasks come from the sprint model.
+- **Overdue is in Today.** § 7.1 says "due today"; an incomplete sprint task whose `due_on` is before today also lists, with `reason: overdue`, since leaving it out would hide late work from the standup.
+- **No sprint, in three ways.** D12's "no current sprint" covers an unset `sprint_anchor_date`, today before it, and a missing sprint section. Standup carries on in all three and says why in `sprint_note`, where the `sprint` commands fail with `policy-incomplete` or `sprint-none`. A sprint named with `--sprint` that has no section is still `sprint-none`.
+- **Blocked reads a state only with a status field.** `state:<state>` signals need the `status` field role; without one they are skipped and `notes` says so. `state_carrier: sections` is treated like `none`, as no built-in model can combine it with sections.
+- **Fields come from the project registry.** The scope store now returns each registered project's field roles; the report reads the story points, task points, and status GIDs from them. A role no project registers shows no figure, and `points_tracked` says which.
+- **`--team` is `team-unsupported`, exit 2.** It is a code of its own until U9, told apart by `error.code`.
+- **A member is a GID or an email**, looked up with `user get`; `--me` and `--member` conflict as a usage error.
+- **Placement.** The report command lives in `src/scrum/reports/cli.ts` beside the pure `standup.ts`, because the architecture test treats only files named `cli.ts` or `mcp.ts` as delivery. `asana_report_standup` stays in `src/scrum/mcp.ts`.
+- **K5 and the stub.** The `asana` skill's table sends standup, sprint, and scrum-setup requests to `asana-scrum` and `init-asana-scrum`. `asana-standup` keeps its trigger and routes to `asana-scrum` for one minor release.
 
 ## 10. Items settled after the first review
 
