@@ -281,3 +281,44 @@ Feature: scrum scopes
   Scenario: the team form is refused for now
     When report standup runs with --team
     Then it fails with code "team-unsupported" and exits 2
+
+  # ── reports: health ──
+
+  Scenario: each enabled check yields a result and each finding a level, the task, and a fix
+    Given a sprint task with no assignee and another overdue
+    When report health runs
+    Then H3 and H4 are "failed", and each finding names its task and a fix command
+
+  Scenario: only the checks in the reference run
+    Given the health reference lists checks H3 and H4
+    When report health runs
+    Then only H3 and H4 appear in checks
+
+  Scenario: H8 is skipped, not passed
+    When report health runs
+    Then H8 is "skipped" with the reason "capacity unknown: allocations not wired yet"
+
+  Scenario: without a state carrier in progress means incomplete and assigned
+    Given state_carrier none and an assigned task unchanged for four days
+    When report health runs
+    Then H5 flags it and notes say in progress fell back
+
+  Scenario: a missing sprint section is finding H9
+    Given the current sprint has no section and H9 is enabled
+    When report health runs
+    Then H9 is reported with the sprint start command and the task checks are skipped
+
+  Scenario: a missing sprint section fails when H9 is not enabled
+    Given the current sprint has no section and checks omit H9
+    When report health runs
+    Then it fails with code "sprint-none"
+
+  Scenario: a sprint that has not begun fails even with H9 enabled
+    Given today is before the anchor date
+    When report health runs
+    Then it fails with code "sprint-none"
+
+  Scenario: a task in two sprints is flagged
+    Given an incomplete task in "Sprint 2" and "Sprint 3"
+    When report health runs
+    Then H11 names both sprints

@@ -423,7 +423,7 @@ Each unit can ship alone and passes `pnpm verify`; units that need it also pass 
 | U5 | `init-asana-scrum` v1: project and projects scopes, the `sections` model, writing the policy and fields | K2 | U4 | Built; in review |
 | U6 | `cyber-asana.report.interface` + `.standup`; `report standup`; `asana-scrum` v1 with the standup route; turn `asana-standup` into a routing stub (D7); update K5 | G12 (standup), K1, K3 | U4 | Built; in review |
 | U7 | `.sprint`, `.retro`, `.velocity` reports, the burndown, and the commitment snapshot (D6); review and retro routes; turn `asana-sprint-report` into a routing stub (D7) | K4, G14 | U6 |  |
-| U8 | `.health` report and the health route | — | U6 |  |
+| U8 | `.health` report and the health route | — | U6 | Built; in review |
 | U9 | `team members \| projects`, the `team` scope, team standup | G4 | U3, U6 |  |
 | U10 | The `allocations` domain, `.workload` report, workload route, H8, and the capacity probe in setup | G5 | U8 |  |
 | U11 | `.custom-field` model, search custom-field filters and paging, custom-field create and enum options, project field attach; setup support | G3, G6, G7 | U4, U5 |  |
@@ -463,6 +463,17 @@ U1 can ship before anything else and fixes wrong numbers users see today.
 - **A member is a GID or an email**, looked up with `user get`; `--me` and `--member` conflict as a usage error.
 - **Placement.** The report command lives in `src/scrum/reports/cli.ts` beside the pure `standup.ts`, because the architecture test treats only files named `cli.ts` or `mcp.ts` as delivery. `asana_report_standup` stays in `src/scrum/mcp.ts`.
 - **K5 and the stub.** The `asana` skill's table sends standup, sprint, and scrum-setup requests to `asana-scrum` and `init-asana-scrum`. `asana-standup` keeps its trigger and routes to `asana-scrum` for one minor release.
+
+### 9.4 Decisions made while building U8
+
+- **H9 or `sprint-none`.** H9 wins when the sprint is computable but has no section in any project of the scope and H9 is enabled: the report runs, H9 reports it with `sprint start` as its fix, and the checks that read the sprint's tasks are skipped with the reason. With H9 left out of `checks`, D12 applies and the report fails with `sprint-none`. A sprint that has not begun (today before the anchor) is always `sprint-none`, and an unset anchor is `policy-incomplete`: there is no sprint to be missing.
+- **Findings and exit codes.** A report that ran exits 0 whatever it found; `counts` and each finding's `level` carry the result, and a caller that wants a gate reads them. `sprint-none` and `policy-incomplete` stay exit 2.
+- **A check is passed, failed, or skipped.** `checks` has one entry per enabled check, so a check that could not run (H8 until U10, a points check without a points field, a task check without a sprint section) says so with a `reason` instead of looking clean.
+- **H8 is a stub.** It is always skipped with `capacity unknown: allocations not wired yet`. U10 fills in the body inside `buildHealth`; the settings, the finding shape, and the docs need no change.
+- **Levels.** Error: H4 overdue, H8 over capacity, H9 no section, H11 a task in two sprints. Warning: the rest. H6 is one finding per person (`person`, `tasks`); every other finding is per task, and H9 is per project.
+- **What the checks read.** The sprint's tasks (completed ones are ignored) come from the sprint model. H10 and H11 read every existing sprint's incomplete tasks, so they cost one section read per sprint and run only when enabled. H10 means a sprint older than today's, whatever `--sprint` names. Overdue and stale use the user's today and the instant now. A task with subtasks is a parent: it is excluded from H1 and is the subject of H2.
+- **In progress.** H5 and H6 read the `in_progress` workflow state from the `status` field; without one they use incomplete and assigned, and `in_progress_basis` and `notes` say so (§ 4.3).
+- **Settings.** `checks` rejects an unknown or repeated ID and an empty list; the thresholds are validated like the policy keys. The reference's frontmatter is the only home of the thresholds.
 
 ## 10. Items settled after the first review
 
