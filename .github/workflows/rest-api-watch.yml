@@ -1,0 +1,60 @@
+name: rest-api-watch
+on:
+  schedule:
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Print issue body without creating
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: rest-api-watch
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @cyberuni/gap-analysis run fetch-rest -- --json > /tmp/rest.json
+      - name: Diff against baseline
+        id: diff
+        continue-on-error: true
+        run: |
+          set +e
+          pnpm --filter @cyberuni/gap-analysis run diff-rest -- /tmp/rest.json --json > /tmp/diff.json
+          exit_code=$?
+          set -e
+          echo "changed=$exit_code" >> "$GITHUB_OUTPUT"
+          if [ "$exit_code" -ne 0 ]; then
+            pnpm --filter @cyberuni/gap-analysis run diff-rest -- /tmp/rest.json --issue-body > /tmp/issue-body.md
+          fi
+      - name: Print issue body (dry run)
+        if: steps.diff.outputs.changed != '0' && inputs.dry_run == true
+        run: cat /tmp/issue-body.md
+      - name: Open issue
+        if: steps.diff.outputs.changed != '0' && inputs.dry_run != true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create rest-api-drift --color 0E8A16 --description "Asana REST API drift" 2>/dev/null || true
+          gh label create maintenance --color C5DEF5 --description "Routine maintenance" 2>/dev/null || true
+          if gh issue list --label rest-api-drift --state open --json title --jq '.[].title' | grep -Fq 'Asana REST API changed'; then
+            echo "Open issue already exists; skipping"
+            exit 0
+          fi
+          gh issue create --title "chore: Asana REST API changed" \
+            --label rest-api-drift --label maintenance \
+            --body-file /tmp/issue-body.md

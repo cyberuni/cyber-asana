@@ -1,0 +1,25 @@
+openapi: 3.0.0
+info:
+  title: Asana
+  version: '1.0'
+paths:
+  /tasks/{task_gid}:
+    parameters:
+      - name: task_gid
+        in: path
+    get:
+      tags:
+        - Tasks
+      operationId: getTask
+    delete:
+      tags:
+        - Tasks
+      operationId: deleteTask
+      deprecated: true
+  /projects:
+    get:
+      tags:
+        - Projects
+      operationId: getProjects
+    post:
+      operationId: createProject

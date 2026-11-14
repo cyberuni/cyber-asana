@@ -1,0 +1,1904 @@
+{
+	"source": "https://raw.githubusercontent.com/Asana/openapi/master/defs/asana_oas.yaml",
+	"fetched_at": "2026-11-14",
+	"operation_count": 271,
+	"operations": [
+		{
+			"operationId": "addCustomFieldSettingForGoal",
+			"method": "POST",
+			"path": "/goals/{goal_gid}/addCustomFieldSetting",
+			"tag": "Goals",
+			"deprecated": false
+		},
+		{
+			"operationId": "addCustomFieldSettingForPortfolio",
+			"method": "POST",
+			"path": "/portfolios/{portfolio_gid}/addCustomFieldSetting",
+			"tag": "Portfolios",
+			"deprecated": false
+		},
+		{
+			"operationId": "addCustomFieldSettingForProject",
+			"method": "POST",
+			"path": "/projects/{project_gid}/addCustomFieldSetting",
+			"tag": "Projects",
+			"deprecated": false
+		},
+		{
+			"operationId": "addCustomFieldSettingForTable",
+			"method": "POST",
+			"path": "/tables/{table_gid}/addCustomFieldSetting",
+			"tag": "Tables",
+			"deprecated": false
+		},
+		{
+			"operationId": "addDependenciesForTask",
+			"method": "POST",
+			"path": "/tasks/{task_gid}/addDependencies",
+			"tag": "Tasks",
+			"deprecated": false
+		},
+		{
+			"operationId": "addDependentsForTask",
+			"method": "POST",
+			"path": "/tasks/{task_gid}/addDependents",
+			"tag": "Tasks",
+			"deprecated": false
+		},
+		{
+			"operationId": "addFollowers",
+			"method": "POST",
+			"path": "/goals/{goal_gid}/addFollowers",
+			"tag": "Goals",
+			"deprecated": false
+		},
+		{
+			"operationId": "addFollowersForProject",
+			"method": "POST",
+			"path": "/projects/{project_gid}/addFollowers",
+			"tag": "Projects",
+			"deprecated": false
+		},
+		{
+			"operationId": "addFollowersForTask",
+			"method": "POST",
+			"path": "/tasks/{task_gid}/addFollowers",
+			"tag": "Tasks",
+			"deprecated": false
+		},
+		{
+			"operationId": "addItemForPortfolio",
+			"method": "POST",
+			"path": "/portfolios/{portfolio_gid}/addItem",
+			"tag": "Portfolios",
+			"deprecated": false
+		},
+		{
+			"operationId": "addMembersForPortfolio",
+			"method": "POST",
+			"path": "/portfolios/{portfolio_gid}/addMembers",
+			"tag": "Portfolios",
+			"deprecated": false
+		},
+		{
+			"operationId": "addMembersForProject",
+			"method": "POST",
+			"path": "/projects/{project_gid}/addMembers",
+			"tag": "Projects",
+			"deprecated": false
+		},
+		{
+			"operationId": "addProjectForTask",
+			"method": "POST",
+			"path": "/tasks/{task_gid}/addProject",
+			"tag": "Tasks",
+			"deprecated": false
+		},
+		{
+			"operationId": "addSupportingRelationship",
+			"method": "POST",
+			"path": "/goals/{goal_gid}/addSupportingRelationship",
+			"tag": "Goal relationships",
+			"deprecated": false
+		},
+		{
+			"operationId": "addTagForTask",
+			"method": "POST",
+			"path": "/tasks/{task_gid}/addTag",
+			"tag": "Tasks",
+			"deprecated": false
+		},
+		{
+			"operationId": "addTaskForSection",
+			"method": "POST",
+			"path": "/sections/{section_gid}/addTask",
+			"tag": "Sections",
+			"deprecated": false
+		},
+		{
+			"operationId": "addUserForTeam",
+			"method": "POST",
+			"path": "/teams/{team_gid}/addUser",
+			"tag": "Teams",
+			"deprecated": false
+		},
+		{
+			"operationId": "addUserForWorkspace",
+			"method": "POST",
+			"path": "/workspaces/{workspace_gid}/addUser",
+			"tag": "Workspaces",
+			"deprecated": false
+		},
+		{
+			"operationId": "approveAccessRequest",
+			"method": "POST",
+			"path": "/access_requests/{access_request_gid}/approve",
+			"tag": "Access requests",
+			"deprecated": false
+		},
+		{
+			"operationId": "createAccessRequest",
+			"method": "POST",
+			"path": "/access_requests",
+			"tag": "Access requests",
+			"deprecated": false
+		},
+		{
+			"operationId": "createAllocation",
+			"method": "POST",
+			"path": "/allocations",
+			"tag": "Allocations",
+			"deprecated": false
+		},
+		{
+			"operationId": "createAttachmentForObject",
+			"method": "POST",
+			"path": "/attachments",
+			"tag": "Attachments",
+			"deprecated": false
+		},
+		{
+			"operationId": "createBatchRequest",
+			"method": "POST",
+			"path": "/batch",
+			"tag": "Batch API",
+			"deprecated": false
+		},
+		{
+			"operationId": "createBudget",
+			"method": "POST",
+			"path": "/budgets",
+			"tag": "Budgets",
+			"deprecated": false
+		},
+		{
+			"operationId": "createCustomField",
+			"method": "POST",
+			"path": "/custom_fields",
+			"tag": "Custom fields",
+			"deprecated": false
+		},
+		{
+			"operationId": "createEnumOptionForCustomField",
+			"method": "POST",
+			"path": "/custom_fields/{custom_field_gid}/enum_options",
+			"tag": "Custom fields",
+			"deprecated": false
+		},
+		{
+			"operationId": "createGoal",
+			"method": "POST",
+			"path": "/goals",
+			"tag": "Goals",
+			"deprecated": false
+		},
+		{
+			"operationId": "createGoalMetric",
+			"method": "POST",
+			"path": "/goals/{goal_gid}/setMetric",
+			"tag": "Goals",
+			"deprecated": false
+		},
+		{
+			"operationId": "createGraphExport",
+			"method": "POST",
+			"path": "/exports/graph",
+			"tag": "Exports",
+			"deprecated": false
+		},
+		{
+			"operationId": "createMembership",
+			"method": "POST",
+			"path": "/memberships",
+			"tag": "Memberships",
+			"deprecated": false
+		},
+		{
+			"operationId": "createOooEntry",
+			"method": "POST",
+			"path": "/ooo_entries",
+			"tag": "Ooo entries",
+			"deprecated": false
+		},
+		{
+			"operationId": "createOrganizationExport",
+			"method": "POST",
+			"path": "/organization_exports",
+			"tag": "Organization exports",
+			"deprecated": false
+		},
+		{
+			"operationId": "createPortfolio",
+			"method": "POST",
+			"path": "/portfolios",
+			"tag": "Portfolios",
+			"deprecated": false
+		},
+		{
+			"operationId": "createProject",
+			"method": "POST",
+			"path": "/projects",
+			"tag": "Projects",
+			"deprecated": false
+		},
+		{
+			"operationId": "createProjectBrief",
+			"method": "POST",
+			"path": "/projects/{project_gid}/project_briefs",
+			"tag": "Project briefs",
+			"deprecated": false
+		},
+		{
+			"operationId": "createProjectForTeam",
+			"method": "POST",
+			"path": "/teams/{team_gid}/projects",
+			"tag": "Projects",
+			"deprecated": false
+		},
+		{
+			"operationId": "createProjectForWorkspace",
+			"method": "POST",
+			"path": "/workspaces/{workspace_gid}/projects",
+			"tag": "Projects",
+			"deprecated": false
+		},
+		{
+			"operationId": "createProjectStatusForProject",
+			"method": "POST",
+			"path": "/projects/{project_gid}/project_statuses",
+			"tag": "Project statuses",
+			"deprecated": false
+		},
+		{
+			"operationId": "createRate",
+			"method": "POST",
+			"path": "/rates",
+			"tag": "Rates",
+			"deprecated": false
+		},
+		{
+			"operationId": "createRecord",
+			"method": "POST",
+			"path": "/records",
+			"tag": "Records",
+			"deprecated": false
+		},
+		{
+			"operationId": "createResourceExport",
+			"method": "POST",
+			"path": "/exports/resource",
+			"tag": "Exports",
+			"deprecated": false
+		},
+		{
+			"operationId": "createRole",
+			"method": "POST",
+			"path": "/roles",
+			"tag": "Roles",
+			"deprecated": false
+		},
+		{
+			"operationId": "createSectionForProject",
+			"method": "POST",
+			"path": "/projects/{project_gid}/sections",
+			"tag": "Sections",
+			"deprecated": false
+		},
+		{
+			"operationId": "createStatusForObject",
+			"method": "POST",
+			"path": "/status_updates",
+			"tag": "Status updates",
+			"deprecated": false
+		},
+		{
+			"operationId": "createStoryForGoal",
+			"method": "POST",
+			"path": "/goals/{goal_gid}/stories",
+			"tag": "Stories",
+			"deprecated": false
+		},
+		{
+			"operationId": "createStoryForRecord",
+			"method": "POST",
+			"path": "/records/{record_gid}/stories",
+			"tag": "Stories",
+			"deprecated": false
+		},
+		{
+			"operationId": "createStoryForTask",
+			"method": "POST",
+			"path": "/tasks/{task_gid}/stories",
+			"tag": "Stories",
+			"deprecated": false
+		},
+		{
+			"operationId": "createSubtaskForTask",
+			"method": "POST",
+			"path": "/tasks/{task_gid}/subtasks",
+			"tag": "Tasks",
+			"deprecated": false
+		},
+		{
+			"operationId": "createTable",
+			"method": "POST",
+			"path": "/tables",
+			"tag": "Tables",
+			"deprecated": false
+		},
+		{
+			"operationId": "createTag",
+			"method": "POST",
+			"path": "/tags",
+			"tag": "Tags",
+			"deprecated": false
+		},
+		{
+			"operationId": "createTagForWorkspace",
+			"method": "POST",
+			"path": "/workspaces/{workspace_gid}/tags",
+			"tag": "Tags",
+			"deprecated": false
+		},
+		{
+			"operationId": "createTask",
+			"method": "POST",
+			"path": "/tasks",
+			"tag": "Tasks",
+			"deprecated": false
+		},
+		{
+			"operationId": "createTeam",
+			"method": "POST",
+			"path": "/teams",
+			"tag": "Teams",
+			"deprecated": false
+		},
+		{
+			"operationId": "createTimeTrackingCategory",
+			"method": "POST",
+			"path": "/time_tracking_categories",
+			"tag": "Time tracking categories",
+			"deprecated": false
+		},
+		{
+			"operationId": "createTimeTrackingEntry",
+			"method": "POST",
+			"path": "/tasks/{task_gid}/time_tracking_entries",
+			"tag": "Time tracking entries",
+			"deprecated": false
+		},
+		{
+			"operationId": "createTimesheetApprovalStatus",
+			"method": "POST",
+			"path": "/timesheet_approval_statuses",
+			"tag": "Timesheet approval statuses",
+			"deprecated": false
+		},
+		{
+			"operationId": "createWebhook",
+			"method": "POST",
+			"path": "/webhooks",
+			"tag": "Webhooks",
+			"deprecated": false
+		},
+		{
+			"operationId": "deleteAllocation",
+			"method": "DELETE",
+			"path": "/allocations/{allocation_gid}",
+			"tag": "Allocations",
+			"deprecated": false
+		},
+		{
+			"operationId": "deleteAttachment",
+			"method": "DELETE",
+			"path": "/attachments/{attachment_gid}",
+			"tag": "Attachments",
+			"deprecated": false
+		},
+		{
+			"operationId": "deleteBudget",
+			"method": "DELETE",
+			"path": "/budgets/{budget_gid}",
+			"tag": "Budgets",
+			"deprecated": false
+		},
+		{
+			"operationId": "deleteCustomField",
+			"method": "DELETE",
+			"path": "/custom_fields/{custom_field_gid}",
+			"tag": "Custom fields",
+			"deprecated": false
+		},
+		{
+			"operationId": "deleteGoal",
+			"method": "DELETE",
+			"path": "/goals/{goal_gid}",
+			"tag": "Goals",
+			"deprecated": false
+		},
+		{
+			"operationId": "deleteMembership",
+			"method": "DELETE",
+			"path": "/memberships/{membership_gid}",
+			"tag": "Memberships",
+			"deprecated": false
+		},
+		{
+			"operationId": "deleteOooEntry",
+			"method": "DELETE",
+			"path": "/ooo_entries/{ooo_entry_gid}",
+			"tag": "Ooo entries",
+			"deprecated": false
+		},
+		{
+			"operationId": "deletePortfolio",
+			"method": "DELETE",
+			"path": "/portfolios/{portfolio_gid}",
+			"tag": "Portfolios",
+			"deprecated": false
+		},
+		{
+			"operationId": "deleteProject",
+			"method": "DELETE",
+			"path": "/projects/{project_gid}",
+			"tag": "Projects",
+			"deprecated": false
+		},
+		{
+			"operationId": "deleteProjectBrief",
+			"method": "DELETE",
+			"path": "/project_briefs/{project_brief_gid}",
+			"tag": "Project briefs",
+			"deprecated": false
+		},
+		{
+			"operationId": "deleteProjectStatus",
+			"method": "DELETE",
+			"path": "/project_statuses/{project_status_gid}",
+			"tag": "Project statuses",
+			"deprecated": false
+		},
+		{
+			"operationId": "deleteProjectTemplate",
+			"method": "DELETE",
+			"path": "/project_templates/{project_template_gid}",
+			"tag": "Project templates",
+			"deprecated": false
+		},
+		{
+			"operationId": "deleteRate",
+			"method": "DELETE",
+			"path": "/rates/{rate_gid}",
+			"tag": "Rates",
+			"deprecated": false
+		},
+		{
+			"operationId": "deleteRecord",
+			"method": "DELETE",
+			"path": "/records/{record_gid}",
+			"tag": "Records",
+			"deprecated": false
+		},
+		{
+			"operationId": "deleteRole",
+			"method": "DELETE",
+			"path": "/roles/{role_gid}",
+			"tag": "Roles",
+			"deprecated": false
+		},
+		{
+			"operationId": "deleteSection",
+			"method": "DELETE",
+			"path": "/sections/{section_gid}",
+			"tag": "Sections",
+			"deprecated": false
+		},
+		{
+			"operationId": "deleteStatus",
+			"method": "DELETE",
+			"path": "/status_updates/{status_update_gid}",
+			"tag": "Status updates",
+			"deprecated": false
+		},
+		{
+			"operationId": "deleteStory",
+			"method": "DELETE",
+			"path": "/stories/{story_gid}",
+			"tag": "Stories",
+			"deprecated": false
+		},
+		{
+			"operationId": "deleteTable",
+			"method": "DELETE",
+			"path": "/tables/{table_gid}",
+			"tag": "Tables",
+			"deprecated": false
+		},
+		{
+			"operationId": "deleteTag",
+			"method": "DELETE",
+			"path": "/tags/{tag_gid}",
+			"tag": "Tags",
+			"deprecated": false
+		},
+		{
+			"operationId": "deleteTask",
+			"method": "DELETE",
+			"path": "/tasks/{task_gid}",
+			"tag": "Tasks",
+			"deprecated": false
+		},
+		{
+			"operationId": "deleteTaskTemplate",
+			"method": "DELETE",
+			"path": "/task_templates/{task_template_gid}",
+			"tag": "Task templates",
+			"deprecated": false
+		},
+		{
+			"operationId": "deleteTimeTrackingCategory",
+			"method": "DELETE",
+			"path": "/time_tracking_categories/{time_tracking_category_gid}",
+			"tag": "Time tracking categories",
+			"deprecated": false
+		},
+		{
+			"operationId": "deleteTimeTrackingEntry",
+			"method": "DELETE",
+			"path": "/time_tracking_entries/{time_tracking_entry_gid}",
+			"tag": "Time tracking entries",
+			"deprecated": false
+		},
+		{
+			"operationId": "deleteWebhook",
+			"method": "DELETE",
+			"path": "/webhooks/{webhook_gid}",
+			"tag": "Webhooks",
+			"deprecated": false
+		},
+		{
+			"operationId": "duplicatePortfolio",
+			"method": "POST",
+			"path": "/portfolios/{portfolio_gid}/duplicate",
+			"tag": "Portfolios",
+			"deprecated": false
+		},
+		{
+			"operationId": "duplicateProject",
+			"method": "POST",
+			"path": "/projects/{project_gid}/duplicate",
+			"tag": "Projects",
+			"deprecated": false
+		},
+		{
+			"operationId": "duplicateTask",
+			"method": "POST",
+			"path": "/tasks/{task_gid}/duplicate",
+			"tag": "Tasks",
+			"deprecated": false
+		},
+		{
+			"operationId": "getAccessRequests",
+			"method": "GET",
+			"path": "/access_requests",
+			"tag": "Access requests",
+			"deprecated": false
+		},
+		{
+			"operationId": "getAgent",
+			"method": "GET",
+			"path": "/agents/{agent_gid}",
+			"tag": "Agents",
+			"deprecated": false
+		},
+		{
+			"operationId": "getAgentsForWorkspace",
+			"method": "GET",
+			"path": "/workspaces/{workspace_gid}/agents",
+			"tag": "Agents",
+			"deprecated": false
+		},
+		{
+			"operationId": "getAiStudioRuns",
+			"method": "GET",
+			"path": "/workspaces/{workspace_gid}/ai_studio/runs",
+			"tag": "AI Studio usage API",
+			"deprecated": false
+		},
+		{
+			"operationId": "getAiStudioSeats",
+			"method": "GET",
+			"path": "/workspaces/{workspace_gid}/ai_studio/seats",
+			"tag": "AI Studio usage API",
+			"deprecated": false
+		},
+		{
+			"operationId": "getAllocation",
+			"method": "GET",
+			"path": "/allocations/{allocation_gid}",
+			"tag": "Allocations",
+			"deprecated": false
+		},
+		{
+			"operationId": "getAllocations",
+			"method": "GET",
+			"path": "/allocations",
+			"tag": "Allocations",
+			"deprecated": false
+		},
+		{
+			"operationId": "getAttachment",
+			"method": "GET",
+			"path": "/attachments/{attachment_gid}",
+			"tag": "Attachments",
+			"deprecated": false
+		},
+		{
+			"operationId": "getAttachmentsForObject",
+			"method": "GET",
+			"path": "/attachments",
+			"tag": "Attachments",
+			"deprecated": false
+		},
+		{
+			"operationId": "getAuditLogEvents",
+			"method": "GET",
+			"path": "/workspaces/{workspace_gid}/audit_log_events",
+			"tag": "Audit log API",
+			"deprecated": false
+		},
+		{
+			"operationId": "getBudget",
+			"method": "GET",
+			"path": "/budgets/{budget_gid}",
+			"tag": "Budgets",
+			"deprecated": false
+		},
+		{
+			"operationId": "getBudgets",
+			"method": "GET",
+			"path": "/budgets",
+			"tag": "Budgets",
+			"deprecated": false
+		},
+		{
+			"operationId": "getCustomField",
+			"method": "GET",
+			"path": "/custom_fields/{custom_field_gid}",
+			"tag": "Custom fields",
+			"deprecated": false
+		},
+		{
+			"operationId": "getCustomFieldSettingsForGoal",
+			"method": "GET",
+			"path": "/goals/{goal_gid}/custom_field_settings",
+			"tag": "Custom field settings",
+			"deprecated": false
+		},
+		{
+			"operationId": "getCustomFieldSettingsForPortfolio",
+			"method": "GET",
+			"path": "/portfolios/{portfolio_gid}/custom_field_settings",
+			"tag": "Custom field settings",
+			"deprecated": false
+		},
+		{
+			"operationId": "getCustomFieldSettingsForProject",
+			"method": "GET",
+			"path": "/projects/{project_gid}/custom_field_settings",
+			"tag": "Custom field settings",
+			"deprecated": false
+		},
+		{
+			"operationId": "getCustomFieldSettingsForTable",
+			"method": "GET",
+			"path": "/tables/{table_gid}/custom_field_settings",
+			"tag": "Tables",
+			"deprecated": false
+		},
+		{
+			"operationId": "getCustomFieldSettingsForTableLegacy",
+			"method": "GET",
+			"path": "/tables/{table_gid}/getCustomFieldSettings",
+			"tag": "Tables",
+			"deprecated": true
+		},
+		{
+			"operationId": "getCustomFieldSettingsForTeam",
+			"method": "GET",
+			"path": "/teams/{team_gid}/custom_field_settings",
+			"tag": "Custom field settings",
+			"deprecated": false
+		},
+		{
+			"operationId": "getCustomFieldsForWorkspace",
+			"method": "GET",
+			"path": "/workspaces/{workspace_gid}/custom_fields",
+			"tag": "Custom fields",
+			"deprecated": false
+		},
+		{
+			"operationId": "getCustomType",
+			"method": "GET",
+			"path": "/custom_types/{custom_type_gid}",
+			"tag": "Custom types",
+			"deprecated": false
+		},
+		{
+			"operationId": "getCustomTypes",
+			"method": "GET",
+			"path": "/custom_types",
+			"tag": "Custom types",
+			"deprecated": false
+		},
+		{
+			"operationId": "getDependenciesForTask",
+			"method": "GET",
+			"path": "/tasks/{task_gid}/dependencies",
+			"tag": "Tasks",
+			"deprecated": false
+		},
+		{
+			"operationId": "getDependentsForTask",
+			"method": "GET",
+			"path": "/tasks/{task_gid}/dependents",
+			"tag": "Tasks",
+			"deprecated": false
+		},
+		{
+			"operationId": "getEvents",
+			"method": "GET",
+			"path": "/events",
+			"tag": "Events",
+			"deprecated": false
+		},
+		{
+			"operationId": "getFavoritesForUser",
+			"method": "GET",
+			"path": "/users/{user_gid}/favorites",
+			"tag": "Users",
+			"deprecated": false
+		},
+		{
+			"operationId": "getGoal",
+			"method": "GET",
+			"path": "/goals/{goal_gid}",
+			"tag": "Goals",
+			"deprecated": false
+		},
+		{
+			"operationId": "getGoalRelationship",
+			"method": "GET",
+			"path": "/goal_relationships/{goal_relationship_gid}",
+			"tag": "Goal relationships",
+			"deprecated": false
+		},
+		{
+			"operationId": "getGoalRelationships",
+			"method": "GET",
+			"path": "/goal_relationships",
+			"tag": "Goal relationships",
+			"deprecated": false
+		},
+		{
+			"operationId": "getGoals",
+			"method": "GET",
+			"path": "/goals",
+			"tag": "Goals",
+			"deprecated": false
+		},
+		{
+			"operationId": "getItemsForPortfolio",
+			"method": "GET",
+			"path": "/portfolios/{portfolio_gid}/items",
+			"tag": "Portfolios",
+			"deprecated": false
+		},
+		{
+			"operationId": "getJob",
+			"method": "GET",
+			"path": "/jobs/{job_gid}",
+			"tag": "Jobs",
+			"deprecated": false
+		},
+		{
+			"operationId": "getMembership",
+			"method": "GET",
+			"path": "/memberships/{membership_gid}",
+			"tag": "Memberships",
+			"deprecated": false
+		},
+		{
+			"operationId": "getMemberships",
+			"method": "GET",
+			"path": "/memberships",
+			"tag": "Memberships",
+			"deprecated": false
+		},
+		{
+			"operationId": "getNotificationsForUser",
+			"method": "GET",
+			"path": "/users/{user_gid}/notifications",
+			"tag": "Notifications",
+			"deprecated": false
+		},
+		{
+			"operationId": "getOooEntries",
+			"method": "GET",
+			"path": "/ooo_entries",
+			"tag": "Ooo entries",
+			"deprecated": false
+		},
+		{
+			"operationId": "getOooEntry",
+			"method": "GET",
+			"path": "/ooo_entries/{ooo_entry_gid}",
+			"tag": "Ooo entries",
+			"deprecated": false
+		},
+		{
+			"operationId": "getOrganizationExport",
+			"method": "GET",
+			"path": "/organization_exports/{organization_export_gid}",
+			"tag": "Organization exports",
+			"deprecated": false
+		},
+		{
+			"operationId": "getParentGoalsForGoal",
+			"method": "GET",
+			"path": "/goals/{goal_gid}/parentGoals",
+			"tag": "Goals",
+			"deprecated": false
+		},
+		{
+			"operationId": "getPortfolio",
+			"method": "GET",
+			"path": "/portfolios/{portfolio_gid}",
+			"tag": "Portfolios",
+			"deprecated": false
+		},
+		{
+			"operationId": "getPortfolioMembership",
+			"method": "GET",
+			"path": "/portfolio_memberships/{portfolio_membership_gid}",
+			"tag": "Portfolio memberships",
+			"deprecated": false
+		},
+		{
+			"operationId": "getPortfolioMemberships",
+			"method": "GET",
+			"path": "/portfolio_memberships",
+			"tag": "Portfolio memberships",
+			"deprecated": false
+		},
+		{
+			"operationId": "getPortfolioMembershipsForPortfolio",
+			"method": "GET",
+			"path": "/portfolios/{portfolio_gid}/portfolio_memberships",
+			"tag": "Portfolio memberships",
+			"deprecated": false
+		},
+		{
+			"operationId": "getPortfolios",
+			"method": "GET",
+			"path": "/portfolios",
+			"tag": "Portfolios",
+			"deprecated": false
+		},
+		{
+			"operationId": "getProject",
+			"method": "GET",
+			"path": "/projects/{project_gid}",
+			"tag": "Projects",
+			"deprecated": false
+		},
+		{
+			"operationId": "getProjectBrief",
+			"method": "GET",
+			"path": "/project_briefs/{project_brief_gid}",
+			"tag": "Project briefs",
+			"deprecated": false
+		},
+		{
+			"operationId": "getProjectMembership",
+			"method": "GET",
+			"path": "/project_memberships/{project_membership_gid}",
+			"tag": "Project memberships",
+			"deprecated": false
+		},
+		{
+			"operationId": "getProjectMembershipsForProject",
+			"method": "GET",
+			"path": "/projects/{project_gid}/project_memberships",
+			"tag": "Project memberships",
+			"deprecated": false
+		},
+		{
+			"operationId": "getProjectPortfolioSetting",
+			"method": "GET",
+			"path": "/project_portfolio_settings/{project_portfolio_setting_gid}",
+			"tag": "Project portfolio settings",
+			"deprecated": false
+		},
+		{
+			"operationId": "getProjectPortfolioSettingsForPortfolio",
+			"method": "GET",
+			"path": "/portfolios/{portfolio_gid}/project_portfolio_settings",
+			"tag": "Project portfolio settings",
+			"deprecated": false
+		},
+		{
+			"operationId": "getProjectPortfolioSettingsForProject",
+			"method": "GET",
+			"path": "/projects/{project_gid}/project_portfolio_settings",
+			"tag": "Project portfolio settings",
+			"deprecated": false
+		},
+		{
+			"operationId": "getProjectStatus",
+			"method": "GET",
+			"path": "/project_statuses/{project_status_gid}",
+			"tag": "Project statuses",
+			"deprecated": false
+		},
+		{
+			"operationId": "getProjectStatusesForProject",
+			"method": "GET",
+			"path": "/projects/{project_gid}/project_statuses",
+			"tag": "Project statuses",
+			"deprecated": false
+		},
+		{
+			"operationId": "getProjectTemplate",
+			"method": "GET",
+			"path": "/project_templates/{project_template_gid}",
+			"tag": "Project templates",
+			"deprecated": false
+		},
+		{
+			"operationId": "getProjectTemplates",
+			"method": "GET",
+			"path": "/project_templates",
+			"tag": "Project templates",
+			"deprecated": false
+		},
+		{
+			"operationId": "getProjectTemplatesForTeam",
+			"method": "GET",
+			"path": "/teams/{team_gid}/project_templates",
+			"tag": "Project templates",
+			"deprecated": false
+		},
+		{
+			"operationId": "getProjects",
+			"method": "GET",
+			"path": "/projects",
+			"tag": "Projects",
+			"deprecated": false
+		},
+		{
+			"operationId": "getProjectsForTask",
+			"method": "GET",
+			"path": "/tasks/{task_gid}/projects",
+			"tag": "Projects",
+			"deprecated": false
+		},
+		{
+			"operationId": "getProjectsForTeam",
+			"method": "GET",
+			"path": "/teams/{team_gid}/projects",
+			"tag": "Projects",
+			"deprecated": false
+		},
+		{
+			"operationId": "getProjectsForWorkspace",
+			"method": "GET",
+			"path": "/workspaces/{workspace_gid}/projects",
+			"tag": "Projects",
+			"deprecated": false
+		},
+		{
+			"operationId": "getRate",
+			"method": "GET",
+			"path": "/rates/{rate_gid}",
+			"tag": "Rates",
+			"deprecated": false
+		},
+		{
+			"operationId": "getRates",
+			"method": "GET",
+			"path": "/rates",
+			"tag": "Rates",
+			"deprecated": false
+		},
+		{
+			"operationId": "getReactionsOnObject",
+			"method": "GET",
+			"path": "/reactions",
+			"tag": "Reactions",
+			"deprecated": false
+		},
+		{
+			"operationId": "getRecord",
+			"method": "GET",
+			"path": "/records/{record_gid}",
+			"tag": "Records",
+			"deprecated": false
+		},
+		{
+			"operationId": "getRecordsForTable",
+			"method": "GET",
+			"path": "/tables/{table_gid}/records",
+			"tag": "Records",
+			"deprecated": false
+		},
+		{
+			"operationId": "getRole",
+			"method": "GET",
+			"path": "/roles/{role_gid}",
+			"tag": "Roles",
+			"deprecated": false
+		},
+		{
+			"operationId": "getRoles",
+			"method": "GET",
+			"path": "/roles",
+			"tag": "Roles",
+			"deprecated": false
+		},
+		{
+			"operationId": "getSection",
+			"method": "GET",
+			"path": "/sections/{section_gid}",
+			"tag": "Sections",
+			"deprecated": false
+		},
+		{
+			"operationId": "getSectionsForProject",
+			"method": "GET",
+			"path": "/projects/{project_gid}/sections",
+			"tag": "Sections",
+			"deprecated": false
+		},
+		{
+			"operationId": "getStatus",
+			"method": "GET",
+			"path": "/status_updates/{status_update_gid}",
+			"tag": "Status updates",
+			"deprecated": false
+		},
+		{
+			"operationId": "getStatusesForObject",
+			"method": "GET",
+			"path": "/status_updates",
+			"tag": "Status updates",
+			"deprecated": false
+		},
+		{
+			"operationId": "getStoriesForGoal",
+			"method": "GET",
+			"path": "/goals/{goal_gid}/stories",
+			"tag": "Stories",
+			"deprecated": false
+		},
+		{
+			"operationId": "getStoriesForRecord",
+			"method": "GET",
+			"path": "/records/{record_gid}/stories",
+			"tag": "Stories",
+			"deprecated": false
+		},
+		{
+			"operationId": "getStoriesForTask",
+			"method": "GET",
+			"path": "/tasks/{task_gid}/stories",
+			"tag": "Stories",
+			"deprecated": false
+		},
+		{
+			"operationId": "getStory",
+			"method": "GET",
+			"path": "/stories/{story_gid}",
+			"tag": "Stories",
+			"deprecated": false
+		},
+		{
+			"operationId": "getSubtasksForTask",
+			"method": "GET",
+			"path": "/tasks/{task_gid}/subtasks",
+			"tag": "Tasks",
+			"deprecated": false
+		},
+		{
+			"operationId": "getTable",
+			"method": "GET",
+			"path": "/tables/{table_gid}",
+			"tag": "Tables",
+			"deprecated": false
+		},
+		{
+			"operationId": "getTablesForWorkspace",
+			"method": "GET",
+			"path": "/workspaces/{workspace_gid}/tables",
+			"tag": "Tables",
+			"deprecated": false
+		},
+		{
+			"operationId": "getTag",
+			"method": "GET",
+			"path": "/tags/{tag_gid}",
+			"tag": "Tags",
+			"deprecated": false
+		},
+		{
+			"operationId": "getTags",
+			"method": "GET",
+			"path": "/tags",
+			"tag": "Tags",
+			"deprecated": false
+		},
+		{
+			"operationId": "getTagsForTask",
+			"method": "GET",
+			"path": "/tasks/{task_gid}/tags",
+			"tag": "Tags",
+			"deprecated": false
+		},
+		{
+			"operationId": "getTagsForWorkspace",
+			"method": "GET",
+			"path": "/workspaces/{workspace_gid}/tags",
+			"tag": "Tags",
+			"deprecated": false
+		},
+		{
+			"operationId": "getTask",
+			"method": "GET",
+			"path": "/tasks/{task_gid}",
+			"tag": "Tasks",
+			"deprecated": false
+		},
+		{
+			"operationId": "getTaskCountsForProject",
+			"method": "GET",
+			"path": "/projects/{project_gid}/task_counts",
+			"tag": "Projects",
+			"deprecated": false
+		},
+		{
+			"operationId": "getTaskForCustomID",
+			"method": "GET",
+			"path": "/workspaces/{workspace_gid}/tasks/custom_id/{custom_id}",
+			"tag": "Tasks",
+			"deprecated": false
+		},
+		{
+			"operationId": "getTaskTemplate",
+			"method": "GET",
+			"path": "/task_templates/{task_template_gid}",
+			"tag": "Task templates",
+			"deprecated": false
+		},
+		{
+			"operationId": "getTaskTemplates",
+			"method": "GET",
+			"path": "/task_templates",
+			"tag": "Task templates",
+			"deprecated": false
+		},
+		{
+			"operationId": "getTasks",
+			"method": "GET",
+			"path": "/tasks",
+			"tag": "Tasks",
+			"deprecated": false
+		},
+		{
+			"operationId": "getTasksForProject",
+			"method": "GET",
+			"path": "/projects/{project_gid}/tasks",
+			"tag": "Tasks",
+			"deprecated": false
+		},
+		{
+			"operationId": "getTasksForSection",
+			"method": "GET",
+			"path": "/sections/{section_gid}/tasks",
+			"tag": "Tasks",
+			"deprecated": false
+		},
+		{
+			"operationId": "getTasksForTag",
+			"method": "GET",
+			"path": "/tags/{tag_gid}/tasks",
+			"tag": "Tasks",
+			"deprecated": false
+		},
+		{
+			"operationId": "getTasksForUserTaskList",
+			"method": "GET",
+			"path": "/user_task_lists/{user_task_list_gid}/tasks",
+			"tag": "Tasks",
+			"deprecated": false
+		},
+		{
+			"operationId": "getTeam",
+			"method": "GET",
+			"path": "/teams/{team_gid}",
+			"tag": "Teams",
+			"deprecated": false
+		},
+		{
+			"operationId": "getTeamMembership",
+			"method": "GET",
+			"path": "/team_memberships/{team_membership_gid}",
+			"tag": "Team memberships",
+			"deprecated": false
+		},
+		{
+			"operationId": "getTeamMemberships",
+			"method": "GET",
+			"path": "/team_memberships",
+			"tag": "Team memberships",
+			"deprecated": false
+		},
+		{
+			"operationId": "getTeamMembershipsForTeam",
+			"method": "GET",
+			"path": "/teams/{team_gid}/team_memberships",
+			"tag": "Team memberships",
+			"deprecated": false
+		},
+		{
+			"operationId": "getTeamMembershipsForUser",
+			"method": "GET",
+			"path": "/users/{user_gid}/team_memberships",
+			"tag": "Team memberships",
+			"deprecated": false
+		},
+		{
+			"operationId": "getTeamsForUser",
+			"method": "GET",
+			"path": "/users/{user_gid}/teams",
+			"tag": "Teams",
+			"deprecated": false
+		},
+		{
+			"operationId": "getTeamsForWorkspace",
+			"method": "GET",
+			"path": "/workspaces/{workspace_gid}/teams",
+			"tag": "Teams",
+			"deprecated": false
+		},
+		{
+			"operationId": "getTimePeriod",
+			"method": "GET",
+			"path": "/time_periods/{time_period_gid}",
+			"tag": "Time periods",
+			"deprecated": false
+		},
+		{
+			"operationId": "getTimePeriods",
+			"method": "GET",
+			"path": "/time_periods",
+			"tag": "Time periods",
+			"deprecated": false
+		},
+		{
+			"operationId": "getTimeTrackingCategories",
+			"method": "GET",
+			"path": "/time_tracking_categories",
+			"tag": "Time tracking categories",
+			"deprecated": false
+		},
+		{
+			"operationId": "getTimeTrackingCategory",
+			"method": "GET",
+			"path": "/time_tracking_categories/{time_tracking_category_gid}",
+			"tag": "Time tracking categories",
+			"deprecated": false
+		},
+		{
+			"operationId": "getTimeTrackingEntries",
+			"method": "GET",
+			"path": "/time_tracking_entries",
+			"tag": "Time tracking entries",
+			"deprecated": false
+		},
+		{
+			"operationId": "getTimeTrackingEntriesForTask",
+			"method": "GET",
+			"path": "/tasks/{task_gid}/time_tracking_entries",
+			"tag": "Time tracking entries",
+			"deprecated": false
+		},
+		{
+			"operationId": "getTimeTrackingEntriesForTimeTrackingCategory",
+			"method": "GET",
+			"path": "/time_tracking_categories/{time_tracking_category_gid}/time_tracking_entries",
+			"tag": "Time tracking categories",
+			"deprecated": false
+		},
+		{
+			"operationId": "getTimeTrackingEntry",
+			"method": "GET",
+			"path": "/time_tracking_entries/{time_tracking_entry_gid}",
+			"tag": "Time tracking entries",
+			"deprecated": false
+		},
+		{
+			"operationId": "getTimesheetApprovalStatus",
+			"method": "GET",
+			"path": "/timesheet_approval_statuses/{timesheet_approval_status_gid}",
+			"tag": "Timesheet approval statuses",
+			"deprecated": false
+		},
+		{
+			"operationId": "getTimesheetApprovalStatuses",
+			"method": "GET",
+			"path": "/timesheet_approval_statuses",
+			"tag": "Timesheet approval statuses",
+			"deprecated": false
+		},
+		{
+			"operationId": "getUser",
+			"method": "GET",
+			"path": "/users/{user_gid}",
+			"tag": "Users",
+			"deprecated": false
+		},
+		{
+			"operationId": "getUserForWorkspace",
+			"method": "GET",
+			"path": "/workspaces/{workspace_gid}/users/{user_gid}",
+			"tag": "Users",
+			"deprecated": false
+		},
+		{
+			"operationId": "getUserTaskList",
+			"method": "GET",
+			"path": "/user_task_lists/{user_task_list_gid}",
+			"tag": "User task lists",
+			"deprecated": false
+		},
+		{
+			"operationId": "getUserTaskListForUser",
+			"method": "GET",
+			"path": "/users/{user_gid}/user_task_list",
+			"tag": "User task lists",
+			"deprecated": false
+		},
+		{
+			"operationId": "getUsers",
+			"method": "GET",
+			"path": "/users",
+			"tag": "Users",
+			"deprecated": false
+		},
+		{
+			"operationId": "getUsersForTeam",
+			"method": "GET",
+			"path": "/teams/{team_gid}/users",
+			"tag": "Users",
+			"deprecated": false
+		},
+		{
+			"operationId": "getUsersForWorkspace",
+			"method": "GET",
+			"path": "/workspaces/{workspace_gid}/users",
+			"tag": "Users",
+			"deprecated": false
+		},
+		{
+			"operationId": "getWebhook",
+			"method": "GET",
+			"path": "/webhooks/{webhook_gid}",
+			"tag": "Webhooks",
+			"deprecated": false
+		},
+		{
+			"operationId": "getWebhooks",
+			"method": "GET",
+			"path": "/webhooks",
+			"tag": "Webhooks",
+			"deprecated": false
+		},
+		{
+			"operationId": "getWorkspace",
+			"method": "GET",
+			"path": "/workspaces/{workspace_gid}",
+			"tag": "Workspaces",
+			"deprecated": false
+		},
+		{
+			"operationId": "getWorkspaceEvents",
+			"method": "GET",
+			"path": "/workspaces/{workspace_gid}/events",
+			"tag": "Workspaces",
+			"deprecated": false
+		},
+		{
+			"operationId": "getWorkspaceMembership",
+			"method": "GET",
+			"path": "/workspace_memberships/{workspace_membership_gid}",
+			"tag": "Workspace memberships",
+			"deprecated": false
+		},
+		{
+			"operationId": "getWorkspaceMembershipsForUser",
+			"method": "GET",
+			"path": "/users/{user_gid}/workspace_memberships",
+			"tag": "Workspace memberships",
+			"deprecated": false
+		},
+		{
+			"operationId": "getWorkspaceMembershipsForWorkspace",
+			"method": "GET",
+			"path": "/workspaces/{workspace_gid}/workspace_memberships",
+			"tag": "Workspace memberships",
+			"deprecated": false
+		},
+		{
+			"operationId": "getWorkspaces",
+			"method": "GET",
+			"path": "/workspaces",
+			"tag": "Workspaces",
+			"deprecated": false
+		},
+		{
+			"operationId": "insertEnumOptionForCustomField",
+			"method": "POST",
+			"path": "/custom_fields/{custom_field_gid}/enum_options/insert",
+			"tag": "Custom fields",
+			"deprecated": false
+		},
+		{
+			"operationId": "insertSectionForProject",
+			"method": "POST",
+			"path": "/projects/{project_gid}/sections/insert",
+			"tag": "Sections",
+			"deprecated": false
+		},
+		{
+			"operationId": "instantiateProject",
+			"method": "POST",
+			"path": "/project_templates/{project_template_gid}/instantiateProject",
+			"tag": "Project templates",
+			"deprecated": false
+		},
+		{
+			"operationId": "instantiateTask",
+			"method": "POST",
+			"path": "/task_templates/{task_template_gid}/instantiateTask",
+			"tag": "Task templates",
+			"deprecated": false
+		},
+		{
+			"operationId": "markNotificationsReadForUser",
+			"method": "POST",
+			"path": "/users/{user_gid}/notifications/markRead",
+			"tag": "Notifications",
+			"deprecated": false
+		},
+		{
+			"operationId": "markNotificationsUnreadForUser",
+			"method": "POST",
+			"path": "/users/{user_gid}/notifications/markUnread",
+			"tag": "Notifications",
+			"deprecated": false
+		},
+		{
+			"operationId": "projectSaveAsTemplate",
+			"method": "POST",
+			"path": "/projects/{project_gid}/saveAsTemplate",
+			"tag": "Projects",
+			"deprecated": false
+		},
+		{
+			"operationId": "rejectAccessRequest",
+			"method": "POST",
+			"path": "/access_requests/{access_request_gid}/reject",
+			"tag": "Access requests",
+			"deprecated": false
+		},
+		{
+			"operationId": "removeCustomFieldSettingForGoal",
+			"method": "POST",
+			"path": "/goals/{goal_gid}/removeCustomFieldSetting",
+			"tag": "Goals",
+			"deprecated": false
+		},
+		{
+			"operationId": "removeCustomFieldSettingForPortfolio",
+			"method": "POST",
+			"path": "/portfolios/{portfolio_gid}/removeCustomFieldSetting",
+			"tag": "Portfolios",
+			"deprecated": false
+		},
+		{
+			"operationId": "removeCustomFieldSettingForProject",
+			"method": "POST",
+			"path": "/projects/{project_gid}/removeCustomFieldSetting",
+			"tag": "Projects",
+			"deprecated": false
+		},
+		{
+			"operationId": "removeCustomFieldSettingForTable",
+			"method": "POST",
+			"path": "/tables/{table_gid}/removeCustomFieldSetting",
+			"tag": "Tables",
+			"deprecated": false
+		},
+		{
+			"operationId": "removeDependenciesForTask",
+			"method": "POST",
+			"path": "/tasks/{task_gid}/removeDependencies",
+			"tag": "Tasks",
+			"deprecated": false
+		},
+		{
+			"operationId": "removeDependentsForTask",
+			"method": "POST",
+			"path": "/tasks/{task_gid}/removeDependents",
+			"tag": "Tasks",
+			"deprecated": false
+		},
+		{
+			"operationId": "removeFollowerForTask",
+			"method": "POST",
+			"path": "/tasks/{task_gid}/removeFollowers",
+			"tag": "Tasks",
+			"deprecated": false
+		},
+		{
+			"operationId": "removeFollowers",
+			"method": "POST",
+			"path": "/goals/{goal_gid}/removeFollowers",
+			"tag": "Goals",
+			"deprecated": false
+		},
+		{
+			"operationId": "removeFollowersForProject",
+			"method": "POST",
+			"path": "/projects/{project_gid}/removeFollowers",
+			"tag": "Projects",
+			"deprecated": false
+		},
+		{
+			"operationId": "removeItemForPortfolio",
+			"method": "POST",
+			"path": "/portfolios/{portfolio_gid}/removeItem",
+			"tag": "Portfolios",
+			"deprecated": false
+		},
+		{
+			"operationId": "removeMembersForPortfolio",
+			"method": "POST",
+			"path": "/portfolios/{portfolio_gid}/removeMembers",
+			"tag": "Portfolios",
+			"deprecated": false
+		},
+		{
+			"operationId": "removeMembersForProject",
+			"method": "POST",
+			"path": "/projects/{project_gid}/removeMembers",
+			"tag": "Projects",
+			"deprecated": false
+		},
+		{
+			"operationId": "removeProjectForTask",
+			"method": "POST",
+			"path": "/tasks/{task_gid}/removeProject",
+			"tag": "Tasks",
+			"deprecated": false
+		},
+		{
+			"operationId": "removeSupportingRelationship",
+			"method": "POST",
+			"path": "/goals/{goal_gid}/removeSupportingRelationship",
+			"tag": "Goal relationships",
+			"deprecated": false
+		},
+		{
+			"operationId": "removeTagForTask",
+			"method": "POST",
+			"path": "/tasks/{task_gid}/removeTag",
+			"tag": "Tasks",
+			"deprecated": false
+		},
+		{
+			"operationId": "removeUserForTeam",
+			"method": "POST",
+			"path": "/teams/{team_gid}/removeUser",
+			"tag": "Teams",
+			"deprecated": false
+		},
+		{
+			"operationId": "removeUserForWorkspace",
+			"method": "POST",
+			"path": "/workspaces/{workspace_gid}/removeUser",
+			"tag": "Workspaces",
+			"deprecated": false
+		},
+		{
+			"operationId": "rollupProject",
+			"method": "POST",
+			"path": "/projects/{project_gid}/rollup",
+			"tag": "Projects",
+			"deprecated": false
+		},
+		{
+			"operationId": "rollupTask",
+			"method": "POST",
+			"path": "/tasks/{task_gid}/rollup",
+			"tag": "Tasks",
+			"deprecated": false
+		},
+		{
+			"operationId": "searchProjectsForWorkspace",
+			"method": "GET",
+			"path": "/workspaces/{workspace_gid}/projects/search",
+			"tag": "Projects",
+			"deprecated": false
+		},
+		{
+			"operationId": "searchRecordsForWorkspace",
+			"method": "GET",
+			"path": "/workspaces/{workspace_gid}/records/search",
+			"tag": "Records",
+			"deprecated": false
+		},
+		{
+			"operationId": "searchTasksForWorkspace",
+			"method": "GET",
+			"path": "/workspaces/{workspace_gid}/tasks/search",
+			"tag": "Tasks",
+			"deprecated": false
+		},
+		{
+			"operationId": "setParentForTask",
+			"method": "POST",
+			"path": "/tasks/{task_gid}/setParent",
+			"tag": "Tasks",
+			"deprecated": false
+		},
+		{
+			"operationId": "triggerRule",
+			"method": "POST",
+			"path": "/rule_triggers/{rule_trigger_gid}/run",
+			"tag": "Rules",
+			"deprecated": false
+		},
+		{
+			"operationId": "typeaheadForWorkspace",
+			"method": "GET",
+			"path": "/workspaces/{workspace_gid}/typeahead",
+			"tag": "Typeahead",
+			"deprecated": false
+		},
+		{
+			"operationId": "updateAllocation",
+			"method": "PUT",
+			"path": "/allocations/{allocation_gid}",
+			"tag": "Allocations",
+			"deprecated": false
+		},
+		{
+			"operationId": "updateBudget",
+			"method": "PUT",
+			"path": "/budgets/{budget_gid}",
+			"tag": "Budgets",
+			"deprecated": false
+		},
+		{
+			"operationId": "updateCustomField",
+			"method": "PUT",
+			"path": "/custom_fields/{custom_field_gid}",
+			"tag": "Custom fields",
+			"deprecated": false
+		},
+		{
+			"operationId": "updateEnumOption",
+			"method": "PUT",
+			"path": "/enum_options/{enum_option_gid}",
+			"tag": "Custom fields",
+			"deprecated": false
+		},
+		{
+			"operationId": "updateGoal",
+			"method": "PUT",
+			"path": "/goals/{goal_gid}",
+			"tag": "Goals",
+			"deprecated": false
+		},
+		{
+			"operationId": "updateGoalMetric",
+			"method": "POST",
+			"path": "/goals/{goal_gid}/setMetricCurrentValue",
+			"tag": "Goals",
+			"deprecated": false
+		},
+		{
+			"operationId": "updateGoalRelationship",
+			"method": "PUT",
+			"path": "/goal_relationships/{goal_relationship_gid}",
+			"tag": "Goal relationships",
+			"deprecated": false
+		},
+		{
+			"operationId": "updateMembership",
+			"method": "PUT",
+			"path": "/memberships/{membership_gid}",
+			"tag": "Memberships",
+			"deprecated": false
+		},
+		{
+			"operationId": "updateOooEntry",
+			"method": "PUT",
+			"path": "/ooo_entries/{ooo_entry_gid}",
+			"tag": "Ooo entries",
+			"deprecated": false
+		},
+		{
+			"operationId": "updatePortfolio",
+			"method": "PUT",
+			"path": "/portfolios/{portfolio_gid}",
+			"tag": "Portfolios",
+			"deprecated": false
+		},
+		{
+			"operationId": "updateProject",
+			"method": "PUT",
+			"path": "/projects/{project_gid}",
+			"tag": "Projects",
+			"deprecated": false
+		},
+		{
+			"operationId": "updateProjectBrief",
+			"method": "PUT",
+			"path": "/project_briefs/{project_brief_gid}",
+			"tag": "Project briefs",
+			"deprecated": false
+		},
+		{
+			"operationId": "updateProjectPortfolioSetting",
+			"method": "PUT",
+			"path": "/project_portfolio_settings/{project_portfolio_setting_gid}",
+			"tag": "Project portfolio settings",
+			"deprecated": false
+		},
+		{
+			"operationId": "updateRate",
+			"method": "PUT",
+			"path": "/rates/{rate_gid}",
+			"tag": "Rates",
+			"deprecated": false
+		},
+		{
+			"operationId": "updateRecord",
+			"method": "PUT",
+			"path": "/records/{record_gid}",
+			"tag": "Records",
+			"deprecated": false
+		},
+		{
+			"operationId": "updateRole",
+			"method": "PUT",
+			"path": "/roles/{role_gid}",
+			"tag": "Roles",
+			"deprecated": false
+		},
+		{
+			"operationId": "updateSection",
+			"method": "PUT",
+			"path": "/sections/{section_gid}",
+			"tag": "Sections",
+			"deprecated": false
+		},
+		{
+			"operationId": "updateStory",
+			"method": "PUT",
+			"path": "/stories/{story_gid}",
+			"tag": "Stories",
+			"deprecated": false
+		},
+		{
+			"operationId": "updateTable",
+			"method": "PUT",
+			"path": "/tables/{table_gid}",
+			"tag": "Tables",
+			"deprecated": false
+		},
+		{
+			"operationId": "updateTag",
+			"method": "PUT",
+			"path": "/tags/{tag_gid}",
+			"tag": "Tags",
+			"deprecated": false
+		},
+		{
+			"operationId": "updateTask",
+			"method": "PUT",
+			"path": "/tasks/{task_gid}",
+			"tag": "Tasks",
+			"deprecated": false
+		},
+		{
+			"operationId": "updateTeam",
+			"method": "PUT",
+			"path": "/teams/{team_gid}",
+			"tag": "Teams",
+			"deprecated": false
+		},
+		{
+			"operationId": "updateTimeTrackingCategory",
+			"method": "PUT",
+			"path": "/time_tracking_categories/{time_tracking_category_gid}",
+			"tag": "Time tracking categories",
+			"deprecated": false
+		},
+		{
+			"operationId": "updateTimeTrackingEntry",
+			"method": "PUT",
+			"path": "/time_tracking_entries/{time_tracking_entry_gid}",
+			"tag": "Time tracking entries",
+			"deprecated": false
+		},
+		{
+			"operationId": "updateTimesheetApprovalStatus",
+			"method": "PUT",
+			"path": "/timesheet_approval_statuses/{timesheet_approval_status_gid}",
+			"tag": "Timesheet approval statuses",
+			"deprecated": false
+		},
+		{
+			"operationId": "updateUser",
+			"method": "PUT",
+			"path": "/users/{user_gid}",
+			"tag": "Users",
+			"deprecated": false
+		},
+		{
+			"operationId": "updateUserForWorkspace",
+			"method": "PUT",
+			"path": "/workspaces/{workspace_gid}/users/{user_gid}",
+			"tag": "Users",
+			"deprecated": false
+		},
+		{
+			"operationId": "updateWebhook",
+			"method": "PUT",
+			"path": "/webhooks/{webhook_gid}",
+			"tag": "Webhooks",
+			"deprecated": false
+		},
+		{
+			"operationId": "updateWorkspace",
+			"method": "PUT",
+			"path": "/workspaces/{workspace_gid}",
+			"tag": "Workspaces",
+			"deprecated": false
+		}
+	]
+}

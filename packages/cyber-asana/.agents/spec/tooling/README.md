@@ -47,6 +47,9 @@ exported, `.` and `./mcp`, plus the `cyber-asana` binary.
 - **`mcp-catalog-watch.yml`** — a scheduled job (Mondays 09:00 UTC, plus manual dispatch with a
   `dry_run` input) that watches the MCP catalog and opens an issue when it drifts. It is the reason
   new Asana SDK surface tends to arrive as a filed issue rather than being noticed by hand.
+- **`rest-api-watch.yml`** — the same schedule and `dry_run` input, watching Asana's REST API
+  OpenAPI file instead. It diffs the set of operations (added, removed, newly deprecated) against
+  `tools/gap-analysis/data/asana-rest-baseline.json` and opens a `rest-api-drift` issue.
 
 ## Releasing
 
