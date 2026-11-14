@@ -22,7 +22,7 @@ Ask in plain words. The skill picks the first row that matches; when a request s
 | Turn TODO and FIXME comments into tasks | [Import TODOs](#import-todos) |
 | Set up credentials or verify the connection | [`init-asana`](/cyber-asana/skills/init-asana/) |
 | Add, remove, or sync registry projects and users | [`config-asana`](/cyber-asana/skills/config-asana/) |
-| A standup update | [`asana-standup`](/cyber-asana/skills/asana-standup/) |
+| A standup update, the current sprint, or sprint housekeeping | [`asana-scrum`](/cyber-asana/skills/asana-scrum/) |
 | A sprint summary | [`asana-sprint-report`](/cyber-asana/skills/asana-sprint-report/) |
 | Pull a project into local markdown | [`sync-asana-project`](/cyber-asana/skills/sync-asana-project/) |
 

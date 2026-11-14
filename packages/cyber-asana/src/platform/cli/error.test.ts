@@ -17,7 +17,7 @@ describe('exitCodeFor', () => {
 		expect(exitCodeFor(new CodedConfigError('scope-unknown', 'No such scope', { options: ['web'] }))).toBe(2)
 	})
 
-	it.each(['sprint-none', 'sprint-unknown', 'model-unsupported', 'policy-incomplete'])(
+	it.each(['sprint-none', 'sprint-unknown', 'model-unsupported', 'policy-incomplete', 'team-unsupported'])(
 		'maps %s to 2: the caller can start a sprint or fix the configuration and retry',
 		(code) => {
 			expect(exitCodeFor(new CodedConfigError(code, 'x'))).toBe(2)

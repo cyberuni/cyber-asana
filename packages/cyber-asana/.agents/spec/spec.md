@@ -71,6 +71,7 @@ they all satisfy.
 - [init-asana](skills/init-asana/README.md)
 - [config-asana](skills/config-asana/README.md)
 - [asana](skills/asana/README.md)
+- [asana-scrum](skills/asana-scrum/README.md)
 - [asana-standup](skills/asana-standup/README.md)
 - [asana-sprint-report](skills/asana-sprint-report/README.md)
 - [sync-asana-project](skills/sync-asana-project/README.md)
@@ -90,7 +91,7 @@ they all satisfy.
 | `catalog` | `skills/` (behavior) |
 | `comments` | `skills/asana/` (reference) · `stories/` (behavior) |
 | `config` | `config/` (behavior) |
-| `cyber-asana` | `attachments/` (behavior) · `axi/` (reference) · `config/` (behavior) · `goals/` (behavior) · `portfolios/` (behavior) · `projects/` (behavior) · `sections/` (behavior) · `skills/` (behavior) · `skills/asana-sprint-report/` (reference) · `skills/asana-standup/` (reference) · `skills/asana/` (reference) · `skills/init-asana/` (reference) · `skills/config-asana/` (reference) · `skills/sync-asana-project/` (reference) · `status/` (behavior) · `stories/` (behavior) · `tags/` (behavior) · `tasks/` (behavior) · `teams/` (behavior) · `url/` (behavior) · `users/` (behavior) · `workspaces/` (behavior) |
+| `cyber-asana` | `attachments/` (behavior) · `axi/` (reference) · `config/` (behavior) · `goals/` (behavior) · `portfolios/` (behavior) · `projects/` (behavior) · `sections/` (behavior) · `skills/` (behavior) · `skills/asana-scrum/` (reference) · `skills/asana-sprint-report/` (reference) · `skills/asana-standup/` (reference) · `skills/asana/` (reference) · `skills/init-asana/` (reference) · `skills/config-asana/` (reference) · `skills/sync-asana-project/` (reference) · `status/` (behavior) · `stories/` (behavior) · `tags/` (behavior) · `tasks/` (behavior) · `teams/` (behavior) · `url/` (behavior) · `users/` (behavior) · `workspaces/` (behavior) |
 | `dependencies` | `tasks/` (behavior) |
 | `directory` | `users/` (behavior) |
 | `discovery` | `workspaces/` (behavior) |
@@ -116,13 +117,13 @@ they all satisfy.
 | `project-scoped-write` | `sections/` (behavior) |
 | `projects` | `projects/` (behavior) |
 | `repo-registry` | `config/` (behavior) · `skills/config-asana/` (reference) |
-| `reporting` | `skills/asana-sprint-report/` (reference) · `skills/asana-standup/` (reference) |
+| `reporting` | `skills/asana-scrum/` (reference) · `skills/asana-sprint-report/` (reference) · `skills/asana-standup/` (reference) |
 | `resolution` | `skills/asana/` (reference) |
 | `rich-text` | `skills/asana/` (reference) · `stories/` (behavior) |
 | `search` | `tasks/` (behavior) |
 | `sections` | `sections/` (behavior) |
 | `setup` | `skills/init-asana/` (reference) · `skills/config-asana/` (reference) |
-| `skills` | `skills/` (behavior) · `skills/asana-sprint-report/` (reference) · `skills/asana-standup/` (reference) · `skills/asana/` (reference) · `skills/init-asana/` (reference) · `skills/config-asana/` (reference) · `skills/sync-asana-project/` (reference) |
+| `skills` | `skills/` (behavior) · `skills/asana-scrum/` (reference) · `skills/asana-sprint-report/` (reference) · `skills/asana-standup/` (reference) · `skills/asana/` (reference) · `skills/init-asana/` (reference) · `skills/config-asana/` (reference) · `skills/sync-asana-project/` (reference) |
 | `status` | `status/` (behavior) |
 | `status-updates` | `status/` (behavior) |
 | `stories` | `stories/` (behavior) |

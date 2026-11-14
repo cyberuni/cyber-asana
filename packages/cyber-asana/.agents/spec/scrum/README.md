@@ -10,8 +10,7 @@ concept: [cyber-asana, scrum, scope, repo-registry]
 The scrum system (design: [`docs/design/scrum-system.md`](../../../../../docs/design/scrum-system.md))
 runs on a **scope**: the set of Asana projects a team works in. This node specifies the scope layer
 (how a scope is configured, listed, selected, and resolved to its projects) and the sprint layer
-(sprint identity, the `sections` sprint model, and the `sprint` and `backlog` commands). Reports are
-other units.
+(sprint identity, the `sections` sprint model, and the `sprint` and `backlog` commands). Reports start with the standup.
 
 A scope names Asana objects by GID, so it lives in config beside the project registry, never in the
 `cyber-asana.scrum` reference (which holds policy and no GIDs). A scope has a `name`, a `kind`, and
@@ -132,6 +131,35 @@ other text is `sprint-unknown`. `previous` of sprint 1 is `sprint-none`.
 | `sprint-unknown` | `--sprint` names no sprint | 2 |
 | `model-unsupported` | the scope's model is not built in, or the scope kind does not suit the model | 2 |
 | `policy-incomplete` | `sprint_anchor_date` is not set | 2 |
+| `team-unsupported` | `report standup --team`, until the team scope is built | 2 |
+
+## Reports
+
+Every report is `cyber-asana report <key>` with an `asana_report_<key>` tool, through the same
+`api.ts`. The CLI computes and the skill narrates; the layout is a `cyber-asana.report.<key>`
+reference that implements `cyber-asana.report`.
+
+### Standup
+
+`report standup` (`--me` default, `--member <gid-or-email>`, `--scope`, `--sprint`) returns, for one
+member:
+
+- **Done** — tasks completed within `standup_window`, a true completed filter. The window opens at
+  midnight, in the user's timezone, of the previous working day (skipping days not in
+  `working_days`) or of the day `<n>d` back, and runs to now.
+- **Today** — incomplete tasks in the current sprint that are in progress, due today, or overdue. When
+  no workflow state is carried (`state_carrier` is `none`, or `field` with no registered `status`
+  field) Today is every incomplete assigned task in the sprint, and `notes` says so.
+- **Blocked** — incomplete tasks in the current sprint that a `blocked_signals` entry marks, each with
+  its blocker: the incomplete dependency, the tag, or the state. Tasks outside the sprint are not
+  listed (D14).
+- Story points and task points are totalled apart, per section, and shown only for fields the scope's
+  projects register.
+
+With no current sprint (no `sprint_anchor_date`, today before it, or no section for the sprint) the
+report carries on without sprint filters, and `sprint_note` says why (D12). A sprint named with
+`--sprint` that has no section is `sprint-none`. `--team` is `team-unsupported` (exit 2) until the team
+scope is built.
 
 ## Scenario map
 

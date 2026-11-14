@@ -110,11 +110,11 @@ describe('the shipped catalog', () => {
 		expect(found.map((violation) => violation.message)).toEqual([])
 	})
 
-	it('covers all seven shipped skills', async () => {
+	it('covers all eight shipped skills', async () => {
 		// A contract that silently checked nothing would also report no violations.
 		const { skillsRoot } = repoCatalogSources()
 		const entries = await readdir(skillsRoot, { withFileTypes: true })
-		expect(entries.filter((entry) => entry.isDirectory())).toHaveLength(7)
+		expect(entries.filter((entry) => entry.isDirectory())).toHaveLength(8)
 	})
 })
 

@@ -15,6 +15,7 @@ export function createDefaultScrumApi(): ScrumApi {
 		store: createFileScopeStore,
 		gateways: { portfolios: createAsanaPortfolioGateway(client), tasks },
 		sprint: { sections: createAsanaSectionGateway(client), tasks, users: createAsanaUserGateway(client) },
+		dependencies: tasks,
 		loadPolicy: () => loadScrumPolicy(),
 	})
 }

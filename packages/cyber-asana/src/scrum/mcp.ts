@@ -160,4 +160,22 @@ export function registerScrumTools(server: McpServer, api?: ScrumApi | (() => Sc
 				}),
 			),
 	)
+
+	server.tool(
+		'asana_report_standup',
+		"A member's standup (R1), computed: Done (completed within the policy's standup_window), Today (incomplete, in the current sprint, in progress or due today; falls back to every incomplete assigned task when no state is carried, and says so in notes), and Blocked (from blocked_signals, each with its blocker). Story and task points are totalled apart. With no current sprint it carries on without sprint filters and sprint_note says why. Fails with code sprint-none for an explicitly named sprint that has not started, sprint-unknown, model-unsupported, or team-unsupported (team standup is not built yet).",
+		{
+			...sprintParams,
+			member: z.string().optional().describe('Another member by GID or email; the signed-in user when omitted'),
+			team: z.boolean().optional().describe('The whole team; not built yet'),
+		},
+		async ({ member, team, ...rest }) =>
+			json(
+				await resolveApi(api).reportStandup({
+					...pick(rest),
+					...(member !== undefined && { member }),
+					...(team && { team: true }),
+				}),
+			),
+	)
 }

@@ -37,6 +37,7 @@ function setup(store: ScopeStore, tasks: Record<string, Array<{ gid: string }>> 
 			tasks: { listTasks: vi.fn(async (gid: string) => (tasks[gid] ?? []) as never) },
 		},
 		sprint: createSprintWorld({}).gateways as never,
+		dependencies: { getDependencies: vi.fn(async () => []) },
 		loadPolicy: async () => ({ ...DEFAULT_SCRUM_POLICY, sprint_anchor_date: '2026-01-05' }),
 	})
 }

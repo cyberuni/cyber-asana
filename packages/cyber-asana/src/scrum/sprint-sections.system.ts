@@ -36,6 +36,7 @@ function live() {
 		}),
 		gateways: { portfolios: createAsanaPortfolioGateway(client), tasks },
 		sprint: { sections, tasks, users: createAsanaUserGateway(client) },
+		dependencies: tasks,
 		loadPolicy: async () => ({ ...DEFAULT_SCRUM_POLICY, sprint_anchor_date: '2026-01-05' }),
 	})
 	return { api, sections, tasks }

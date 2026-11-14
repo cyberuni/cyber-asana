@@ -14,6 +14,7 @@ import {
 	createEmptyRepoConfig,
 	defaultConfigPath,
 	loadRepoConfig,
+	type ProjectFields,
 	pathExists,
 	removeScope,
 	saveRepoConfig,
@@ -37,6 +38,8 @@ export type LoadedScopes = {
 	sources: Record<string, ScopeSource>
 	/** The registered project marked `default`, which stands in for a scope when none is configured. */
 	defaultProject?: { gid: string; name: string }
+	/** The field roles each registered project maps, keyed by project GID. */
+	fields?: Record<string, ProjectFields>
 }
 
 /** The scope configuration as the scrum API sees it: read both sources, write to one. */
@@ -80,6 +83,7 @@ export function createFileScopeStore(opts: ScopeStoreOptions = {}): ScopeStore {
 				scopes: effective.scopes,
 				sources,
 				...(marked && { defaultProject: { gid: marked.gid, name: marked.name } }),
+				fields: Object.fromEntries(projects.filter((p) => p.fields).map((p) => [p.gid, p.fields as ProjectFields])),
 			}
 		},
 

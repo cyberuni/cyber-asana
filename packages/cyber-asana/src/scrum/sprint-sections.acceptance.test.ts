@@ -21,7 +21,8 @@ function setup() {
 			portfolios: { listPortfolioItems: vi.fn(async () => []) },
 			tasks: { listTasks: vi.fn(async () => []) },
 		},
-		sprint: { ...w.gateways, users: { getMe: vi.fn(async () => ({ gid: 'u' })) as never } },
+		sprint: { ...w.gateways, users: { getMe: vi.fn(async () => ({ gid: 'u' })), getUser: vi.fn() } as never },
+		dependencies: { getDependencies: vi.fn(async () => []) },
 		loadPolicy: async () => ({ ...DEFAULT_SCRUM_POLICY, sprint_anchor_date: '2026-01-05' }),
 		now: () => new Date('2026-01-20T12:00:00Z'),
 	})

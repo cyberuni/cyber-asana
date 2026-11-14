@@ -220,3 +220,64 @@ Feature: scrum scopes
     Given the format "Sprint {n}"
     When sprint tasks runs with --sprint "Iteration 9"
     Then it fails with code "sprint-unknown"
+
+  # ── reports: standup ──
+
+  Scenario: Done holds only tasks completed inside the window
+    Given a member completed "a" yesterday and "old" ten days ago, and "open" is incomplete
+    When report standup runs
+    Then Done lists "a" only
+
+  Scenario: the window opens at midnight of the previous working day in the user's timezone
+    Given today is a Monday and working_days are Monday to Friday
+    When the window is computed
+    Then it opens at midnight of the previous Friday in the user's timezone
+
+  Scenario: Today is limited to the current sprint
+    Given incomplete assigned tasks "a" in "Sprint 2" and "back" in the Backlog
+    When report standup runs
+    Then Today lists "a" only
+
+  Scenario: with a status field Today is in progress, due today, or overdue
+    Given state_carrier field and tasks in progress, due today, overdue, and due later
+    When report standup runs
+    Then Today lists the first three, each with its reason
+
+  Scenario: without a state carrier Today falls back and says so
+    Given state_carrier none
+    When report standup runs
+    Then Today lists every incomplete assigned task and notes name the state_carrier
+
+  Scenario: Blocked names the blocker of each task
+    Given a task with an incomplete dependency "d", a task tagged as blocked, and a task in a blocked state
+    When report standup runs
+    Then each appears under Blocked with its signal, and the dependency names "d"
+
+  Scenario: Blocked lists only the current sprint
+    Given a blocked task in the Backlog
+    When report standup runs
+    Then it is not under Blocked
+
+  Scenario: story points and task points are totalled apart
+    Given Done tasks with story points 5 and Today tasks with task points 2 and 3
+    When report standup runs
+    Then Done points are story 5, task 0 and Today points are story 0, task 5
+
+  Scenario: no current sprint carries on and says why
+    Given the current sprint has no section
+    When report standup runs
+    Then sprint is null, sprint_note names the sprint, and Today lists every incomplete assigned task
+
+  Scenario: a named sprint that has not started fails
+    Given no "Sprint 5" section
+    When report standup runs with --sprint 5
+    Then it fails with code "sprint-none"
+
+  Scenario: another member by email
+    Given a user with that email
+    When report standup runs with --member
+    Then the report is for that user's tasks and member.source is "member"
+
+  Scenario: the team form is refused for now
+    When report standup runs with --team
+    Then it fails with code "team-unsupported" and exits 2
