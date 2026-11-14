@@ -108,7 +108,7 @@ Fix any type errors or lint failures before finishing.
 
 ### 7. Add a changeset
 
-Invoke the `add-changeset` skill. Use `patch` for parameter additions or fixes, `minor` for new resources or new actions.
+Invoke the `buddy-changesets:changesets` skill. Use `patch` for parameter additions or fixes, `minor` for new resources or new actions.
 
 ### 8. Summarize
 
