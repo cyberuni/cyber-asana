@@ -17,6 +17,7 @@ import {
 	resolveUser,
 	type UserObservation,
 } from './repo-config.js'
+import { dropScope, parseScopeEntries, type ScopeEntry, upsertScope } from './scopes.js'
 
 const GLOBAL_CONFIG_DIR_NAME = 'cyber-asana'
 const GLOBAL_CONFIG_FILE_NAME = 'config.json'
@@ -24,6 +25,8 @@ const GLOBAL_CONFIG_FILE_NAME = 'config.json'
 export type GlobalRepoEntry = {
 	repo: string
 	projects: RepoProjectEntry[]
+	/** A person's own scrum scopes for this repo; the repo's `scrum.scopes` win a name clash. */
+	scopes?: ScopeEntry[]
 }
 
 export type GlobalConfig = {
@@ -56,7 +59,13 @@ export function parseGlobalConfig(raw: unknown): GlobalConfig {
 		if (typeof repoEntry.repo !== 'string' || repoEntry.repo.length === 0) {
 			throw new Error(`repos[${index}].repo must be a non-empty string`)
 		}
-		return { repo: repoEntry.repo, projects: parseProjectEntries(repoEntry.projects, `repos[${index}].projects`) }
+		return {
+			repo: repoEntry.repo,
+			projects: parseProjectEntries(repoEntry.projects, `repos[${index}].projects`),
+			...(repoEntry.scopes !== undefined && {
+				scopes: parseScopeEntries(repoEntry.scopes, `repos[${index}].scopes`),
+			}),
+		}
 	})
 	if (record.users === undefined) {
 		return { schema_version: 1, repos }
@@ -176,7 +185,7 @@ export function addGlobalProject(config: GlobalConfig, repo: string, entry: Repo
 	const existing = config.repos[index] as GlobalRepoEntry
 	const projects = addProject({ schema_version: 2, projects: existing.projects }, entry).projects
 	const repos = config.repos.slice()
-	repos[index] = { repo, projects }
+	repos[index] = { ...existing, projects }
 	return { ...config, repos }
 }
 
@@ -190,7 +199,29 @@ export function removeGlobalProject(
 	const existing = config.repos[index] as GlobalRepoEntry
 	const projects = removeProject({ schema_version: 2, projects: existing.projects }, query).projects
 	const repos = config.repos.slice()
-	repos[index] = { repo, projects }
+	repos[index] = { ...existing, projects }
+	return { ...config, repos }
+}
+
+export function addGlobalScope(config: GlobalConfig, repo: string, entry: ScopeEntry): GlobalConfig {
+	const index = config.repos.findIndex((r) => r.repo === repo)
+	if (index === -1) {
+		return { ...config, repos: [...config.repos, { repo, projects: [], scopes: upsertScope([], entry) }] }
+	}
+	const existing = config.repos[index] as GlobalRepoEntry
+	const repos = config.repos.slice()
+	repos[index] = { ...existing, scopes: upsertScope(existing.scopes ?? [], entry) }
+	return { ...config, repos }
+}
+
+/** Remove a scope from one repo; an emptied list is dropped. Throws when the repo has no scope of that name. */
+export function removeGlobalScope(config: GlobalConfig, repo: string, name: string): GlobalConfig {
+	const index = config.repos.findIndex((r) => r.repo === repo)
+	const existing = config.repos[index]
+	const scopes = dropScope(existing?.scopes ?? [], name)
+	const { scopes: _drop, ...rest } = existing as GlobalRepoEntry
+	const repos = config.repos.slice()
+	repos[index] = scopes.length === 0 ? rest : { ...rest, scopes }
 	return { ...config, repos }
 }
 
@@ -214,7 +245,7 @@ export function observeGlobalProject(
 	const projects = existing.projects.slice()
 	projects[projectIndex] = { ...project, name: observation.name }
 	const repos = config.repos.slice()
-	repos[index] = { repo: observation.repo, projects }
+	repos[index] = { ...existing, projects }
 	return { updated: true, config: { ...config, repos } }
 }
 

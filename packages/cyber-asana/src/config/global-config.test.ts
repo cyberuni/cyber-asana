@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import {
 	addGlobalProject,
+	addGlobalScope,
 	addGlobalUser,
 	createEmptyGlobalConfig,
 	findGlobalRepoEntry,
@@ -16,6 +17,7 @@ import {
 	parseGlobalConfig,
 	removeGlobalAliases,
 	removeGlobalProject,
+	removeGlobalScope,
 	removeGlobalUser,
 	resolveGlobalProject,
 	resolveGlobalUser,
@@ -304,5 +306,53 @@ describe('resolveRepoKey', () => {
 
 	it('returns null when no .git is found anywhere up to the filesystem root', async () => {
 		expect(await resolveRepoKey(root)).toBeNull()
+	})
+})
+
+describe('global scopes (inside a repos[] entry)', () => {
+	const scope = { name: 'mine', kind: 'projects' as const, projects: ['1', '2'] }
+
+	it('parses scopes on a repo entry and omits them when absent', () => {
+		const config = parseGlobalConfig({
+			schema_version: 1,
+			repos: [
+				{ repo: 'github.com/org/a', projects: [], scopes: [scope] },
+				{ repo: 'github.com/org/b', projects: [] },
+			],
+		})
+		expect(config.repos[0]?.scopes).toEqual([scope])
+		expect(config.repos[1]).toEqual({ repo: 'github.com/org/b', projects: [] })
+	})
+
+	it('rejects an invalid scope, naming where it is', () => {
+		expect(() =>
+			parseGlobalConfig({
+				schema_version: 1,
+				repos: [{ repo: 'r', projects: [], scopes: [{ name: 'x', kind: 'portfolio' }] }],
+			}),
+		).toThrow('repos[0].scopes[0].portfolio')
+	})
+
+	it('adds a scope to a repo, creating the repo entry when it has none', () => {
+		const next = addGlobalScope(createEmptyGlobalConfig(), 'github.com/org/a', scope)
+		expect(next.repos).toEqual([{ repo: 'github.com/org/a', projects: [], scopes: [scope] }])
+	})
+
+	it('removes a scope and drops the emptied list', () => {
+		const config = addGlobalScope(createEmptyGlobalConfig(), 'r', scope)
+		expect(removeGlobalScope(config, 'r', 'MINE').repos).toEqual([{ repo: 'r', projects: [] }])
+	})
+
+	it('throws when removing a scope the repo does not have', () => {
+		expect(() => removeGlobalScope(createEmptyGlobalConfig(), 'r', 'mine')).toThrow('Scope "mine" is not configured')
+	})
+
+	it('keeps scopes when a project is added, removed, or refreshed', () => {
+		const withScope = addGlobalScope(createEmptyGlobalConfig(), 'r', scope)
+		const added = addGlobalProject(withScope, 'r', { gid: '1', name: 'A', aliases: [] })
+		expect(added.repos[0]?.scopes).toEqual([scope])
+		expect(removeGlobalProject(added, 'r', { gid: '1' }).repos[0]?.scopes).toEqual([scope])
+		const observed = observeGlobalProject(added, { repo: 'r', gid: '1', name: 'B' })
+		expect(observed.config.repos[0]?.scopes).toEqual([scope])
 	})
 })
