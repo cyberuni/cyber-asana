@@ -9,7 +9,7 @@ description: Use this skill when setting up scrum on Asana — scope, sprint mod
 
 When the user wants to set up scrum for a repo or team on Asana: choose the projects a team works in, the way a sprint is stored, the fields it reads, the backlog and current sprint, and the sprint policy. Also when they re-run it to review or change that setup.
 
-It covers the `project`, `projects`, and `portfolio` scopes and the `sections`, `custom-field`, and `project` sprint models, and it can create the Sprint and Status fields and the sprint portfolio. The `team` scope comes in a later unit; say so when the user asks for it.
+It covers the `project`, `projects`, `portfolio`, and `team` scopes and the `sections`, `custom-field`, and `project` sprint models, and it can create the Sprint and Status fields and the sprint portfolio.
 
 ## Rules
 
@@ -28,7 +28,7 @@ Run `cyber-asana workspace list --toon`. If it fails because of the token or wor
 
 Show `cyber-asana config scope list`. If a scope exists, ask whether to keep it or add another.
 
-To add one, ask the kind: `project` (one project), `projects` (several; a task in two of them counts once), `portfolio` (every project in a portfolio, nested portfolios included), or `team` (every unarchived project and every member of one Asana team; find it with `cyber-asana team list`). A `team` scope needs the `custom-field` sprint model: the `sections` model stops with `model-unsupported` for it, so recommend `custom-field` in step 3.
+To add one, ask the kind: `project` (one project), `projects` (several; a task in two of them counts once), `portfolio` (every project in a portfolio, nested portfolios included), or `team` (every unarchived project and every member of one Asana team; find it with `cyber-asana team list`). A `team` scope needs the `custom-field` or `project` sprint model: the `sections` model stops with `model-unsupported` for it, so recommend `custom-field` in step 3.
 
 Find the projects with `cyber-asana project search <keyword>` (or the registry through `cyber-asana config list`) and portfolios with `cyber-asana portfolio list`, confirm the picks, then, on approval:
 
