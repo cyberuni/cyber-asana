@@ -12,6 +12,10 @@ describe('exitCodeFor', () => {
 		expect(exitCodeFor(new ReferenceAmbiguousError('cyber-asana.scrum', ['a/cyber-asana.scrum']))).toBe(8)
 	})
 
+	it("maps page-path-refused (a --page path holding someone else's file) to 2", () => {
+		expect(exitCodeFor(new CodedConfigError('page-path-refused', 'exists'))).toBe(2)
+	})
+
 	it('maps scope-incomplete (a project-model scope without its backlog or portfolio) to 2', () => {
 		expect(exitCodeFor(new CodedConfigError('scope-incomplete', 'No backlog project'))).toBe(2)
 	})
