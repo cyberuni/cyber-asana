@@ -59,6 +59,7 @@ import { backlogCommand, scopeConfigCommand, scrumCommand, sprintCommand } from 
 import { registerScrumTools } from './scrum/mcp.js'
 import { loadScrumPolicy } from './scrum/policy.js'
 import { reportCommand } from './scrum/reports/cli.js'
+import { loadHealthSettings } from './scrum/reports/health.js'
 import { createSearchApi, type SearchApi } from './search/api.js'
 import { searchCommand } from './search/cli.js'
 import { createAsanaSearchGateway } from './search/gateway.js'
@@ -159,6 +160,7 @@ export function createRuntimeContext(): RuntimeContext {
 			},
 			dependencies: taskGateway,
 			loadPolicy: () => loadScrumPolicy(),
+			loadHealthSettings: () => loadHealthSettings(),
 		}),
 		search: createSearchApi(createAsanaSearchGateway(client)),
 		sections: createSectionApi(sectionGateway),

@@ -1,5 +1,5 @@
 import { Command, Option } from 'commander'
-import { output, printEmpty, printFields, printNextSteps } from '../../platform/cli/output.js'
+import { output, printEmpty, printFields, printNextSteps, printSummary } from '../../platform/cli/output.js'
 import type { ScrumApi } from '../api.js'
 import {
 	addSprintOptions,
@@ -43,7 +43,32 @@ function printGroup(title: string, entity: string, group: StandupGroup, tracked:
 	for (const item of group.tasks) console.log(describe(item))
 }
 
-/** `report standup`; later units add the other reports under `report`. */
+type Health = Awaited<ReturnType<ScrumApi['reportHealth']>>
+
+const plural = (n: number, noun: string) => `${n} ${noun}${n === 1 ? '' : 's'}`
+
+function printHealth(result: Health) {
+	console.log(`Health of ${result.sprint.name} (${dates(result.sprint)}) — ${result.today_date} (${result.timezone})`)
+	printFields({
+		Scope: result.scope,
+		Sprint: result.sprint_started ? result.sprint.name : `${result.sprint.name} (no section yet)`,
+	})
+	console.log('\nChecks')
+	for (const check of result.checks) {
+		const detail = check.status === 'skipped' ? ` — ${check.reason}` : check.findings ? ` (${check.findings})` : ''
+		console.log(`  ${check.id.padEnd(3)}  ${check.status.padEnd(7)}  ${check.name}${detail}`)
+	}
+	console.log('\nFindings')
+	if (result.findings.length === 0) printEmpty('findings')
+	for (const f of result.findings) {
+		console.log(`  [${f.level}] ${f.check}  ${f.message}`)
+		console.log(`    fix: ${f.fix}`)
+	}
+	printSummary(`\n${plural(result.counts.error, 'error')}, ${plural(result.counts.warning, 'warning')}`)
+	for (const note of result.notes) console.log(`\nNote: ${note}`)
+}
+
+/** `report standup` and `report health`; later units add the other reports under `report`. */
 export function reportCommand(api?: ResolveApi) {
 	const cmd = new Command('report').description('Scrum reports computed from Asana: the CLI counts, the skill narrates')
 	cmd.addHelpText(
@@ -54,6 +79,7 @@ export function reportCommand(api?: ResolveApi) {
 			'  cyber-asana report standup',
 			'  cyber-asana report standup --member someone@example.com --scope web',
 			'  cyber-asana report standup --json',
+			'  cyber-asana report health --scope web',
 		].join('\n'),
 	)
 
@@ -95,5 +121,21 @@ export function reportCommand(api?: ResolveApi) {
 				])
 			})
 		})
+
+	addSprintOptions(
+		cmd
+			.command('health')
+			.description('Health checks H1–H11 over the sprint: estimates, owners, due dates, WIP, blockers, structure'),
+	).action(async (opts: SprintFlags) => {
+		const result = await resolveApi(api).reportHealth(sprintInput(opts), storeOptions(opts))
+		output(result, () => {
+			printHealth(result)
+			printNextSteps(
+				result.findings.length > 0
+					? ["Run a finding's fix command, then: cyber-asana report health — check again"]
+					: ['cyber-asana sprint tasks — see the whole sprint', "cyber-asana report standup — a member's day"],
+			)
+		})
+	})
 	return cmd
 }

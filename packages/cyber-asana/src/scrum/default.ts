@@ -6,6 +6,7 @@ import { createAsanaTaskGateway } from '../tasks/gateway.js'
 import { createAsanaUserGateway } from '../users/gateway.js'
 import { createScrumApi, type ScrumApi } from './api.js'
 import { loadScrumPolicy } from './policy.js'
+import { loadHealthSettings } from './reports/health.js'
 
 /** The scrum API wired to the live Asana client, the config files, and the shipped policy reference. */
 export function createDefaultScrumApi(): ScrumApi {
@@ -17,6 +18,7 @@ export function createDefaultScrumApi(): ScrumApi {
 		sprint: { sections: createAsanaSectionGateway(client), tasks, users: createAsanaUserGateway(client) },
 		dependencies: tasks,
 		loadPolicy: () => loadScrumPolicy(),
+		loadHealthSettings: () => loadHealthSettings(),
 	})
 }
 

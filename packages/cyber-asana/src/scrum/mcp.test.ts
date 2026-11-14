@@ -41,6 +41,7 @@ function fakeApi(): ScrumApi {
 		closeSprint: vi.fn(async () => ({ moved: [] })),
 		listBacklog: vi.fn(async () => ({ tasks: [] })),
 		reportStandup: vi.fn(async () => ({ done: { count: 0 } })),
+		reportHealth: vi.fn(async () => ({ counts: { error: 0, warning: 0 } })),
 	} as unknown as ScrumApi
 }
 
@@ -62,6 +63,7 @@ describe('scrum/mcp', () => {
 				'asana_sprint_tasks',
 				'asana_backlog_list',
 				'asana_report_standup',
+				'asana_report_health',
 			].sort(),
 		)
 	})
@@ -169,5 +171,14 @@ describe('scrum/mcp', () => {
 		})
 		expect(api.reportStandup).toHaveBeenCalledWith({ scope: 'web', sprint: 'previous', member: 'a@b.io' })
 		expect(JSON.parse(result.content[0].text).done.count).toBe(0)
+	})
+
+	it('asana_report_health passes scope and sprint to the api', async () => {
+		const server = createServer()
+		const api = fakeApi()
+		registerScrumTools(server as any, api)
+		const result = await server.handlers.get('asana_report_health')?.({ scope: 'web', sprint: 'previous' })
+		expect(api.reportHealth).toHaveBeenCalledWith({ scope: 'web', sprint: 'previous' })
+		expect(JSON.parse(result.content[0].text).counts.error).toBe(0)
 	})
 })
