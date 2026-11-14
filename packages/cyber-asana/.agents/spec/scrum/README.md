@@ -161,6 +161,41 @@ report carries on without sprint filters, and `sprint_note` says why (D12). A sp
 `--sprint` that has no section is `sprint-none`. `--team` is `team-unsupported` (exit 2) until the team
 scope is built.
 
+### Health
+
+`report health` (`--scope`, `--sprint`) runs one result per check named in the `checks` key of the
+`cyber-asana.report.health` reference (default: all eleven) over the sprint's tasks. Each finding has
+a level, the task, and a fix command. Thresholds are that reference's frontmatter: `stale_days` (3),
+`wip_limit` (3), `overdue_grace_days` (0).
+
+| Check | Finds | Level |
+|---|---|---|
+| H1 | an incomplete sprint task with no estimate, parents excluded | warning |
+| H2 | a task with subtasks that carries points | warning |
+| H3 | an incomplete sprint task with no assignee | warning |
+| H4 | an incomplete sprint task due more than `overdue_grace_days` ago | error |
+| H5 | an in-progress task unchanged for `stale_days` | warning |
+| H6 | a person with more than `wip_limit` tasks in progress (one finding per person) | warning |
+| H7 | a sprint task a `blocked_signals` entry marks | warning |
+| H8 | the sprint over capacity | error |
+| H9 | the sprint has no section in a project of the scope (one finding per project) | error |
+| H10 | an incomplete task in a sprint older than today's | warning |
+| H11 | an incomplete task in two or more sprints | error |
+
+- **In progress** is the policy's `in_progress` state read from the `status` field when
+  `state_carrier` is `field` and the scope registers one; otherwise every incomplete assigned sprint
+  task, and `notes` says so (§ 4.3).
+- **H8 is skipped, never passed.** Capacity comes from Allocations only (D4), which are not wired
+  yet, so the check reports `skipped` with the reason `capacity unknown: allocations not wired
+  yet`. A check that needs the sprint's tasks, or a points field, is skipped with its reason when
+  they are missing.
+- **H9 wins over `sprint-none`.** When today's sprint has no section in any project and H9 is
+  enabled, the report runs: H9 reports it and the checks that read the sprint's tasks are skipped
+  (D12 holds for every other cause). With H9 not enabled it fails with `sprint-none`. A sprint
+  that has not begun (today before the anchor) is `sprint-none`, and an unset anchor is
+  `policy-incomplete`, whatever `checks` says: there is no sprint to be missing.
+- A report that ran exits 0 however many findings it holds; `counts` carries the result.
+
 ## Scenario map
 
 See [scrum.feature](scrum.feature).

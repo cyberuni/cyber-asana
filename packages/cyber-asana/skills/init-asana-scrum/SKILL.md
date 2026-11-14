@@ -9,7 +9,7 @@ description: Use this skill when setting up scrum on Asana — scope, sprint mod
 
 When the user wants to set up scrum for a repo or team on Asana: choose the projects a team works in, the way a sprint is stored, the fields it reads, the backlog and current sprint, and the sprint policy. Also when they re-run it to review or change that setup.
 
-This is v1. It covers the `project` and `projects` scopes and the `sections` sprint model. Portfolio and team scopes, the `custom-field` and `project` models, creating fields, the capacity probe, and `report health` come in later units; say so when the user asks for one.
+This is v1. It covers the `project` and `projects` scopes and the `sections` sprint model. Portfolio and team scopes, the `custom-field` and `project` models, creating fields, and the capacity probe come in later units; say so when the user asks for one.
 
 ## Rules
 
@@ -71,11 +71,10 @@ Skip it and say so: the capacity probe (Asana Allocations) arrives with the work
 
 ### 8. Verify
 
-`report health` is a later unit, so verify with:
-
 ```bash
-cyber-asana sprint current --scope <name>
-cyber-asana backlog list --scope <name>
+cyber-asana report health --scope <name>
 ```
 
-Show both results. `sprint-none` or `policy-incomplete` (exit 2) means a step above is unfinished; name it. Finish with a summary of each step (`done`, `missing`, `changed`) and the next steps: `cyber-asana sprint add <task-gid>... --sprint current` to commit work, `cyber-asana sprint tasks`, and `cyber-asana sprint close` at the end of the sprint.
+Show the findings and the next steps it prints. This one command covers the structure: a missing current-sprint section is finding H9, with `sprint start` as its fix. Exit 2 means a step above is unfinished; read `error.code`: `policy-incomplete` (no `sprint_anchor_date`: step 6) or `sprint-none` (today is before the anchor date, so no sprint has begun; wait or move the anchor). Warnings on a brand-new sprint (no estimates yet, unassigned tasks) are not setup failures, and H8 is skipped until the capacity probe exists; say so.
+
+Finish with a summary of each step (`done`, `missing`, `changed`) and the next steps: `cyber-asana sprint add <task-gid>... --sprint current` to commit work, `cyber-asana sprint tasks`, `cyber-asana report health` as the sprint runs, and `cyber-asana sprint close` at the end of the sprint.

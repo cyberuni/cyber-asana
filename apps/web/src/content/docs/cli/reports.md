@@ -1,6 +1,6 @@
 ---
 title: Reports
-description: Compute a member's standup, with done, today, and blocked tasks, from the scrum policy and the scope.
+description: Compute a member's standup and the sprint's health findings from the scrum policy and the scope.
 sidebar:
   order: 24
 ---
@@ -13,6 +13,7 @@ Reports are computed by the CLI, so the counts and point totals are the same eve
 cyber-asana report standup
 cyber-asana report standup --member someone@example.com
 cyber-asana report standup --scope web --sprint previous --json
+cyber-asana report health
 ```
 
 Every report takes `--scope <name>` (see [Repo config](/cyber-asana/cli/repo-config/)), `--sprint`,
@@ -51,3 +52,38 @@ register those fields.
 
 The `cyber-asana.report.standup` reference holds the layout the skill follows; see
 [Overriding references](/cyber-asana/reference/overriding-references/).
+
+## `report health`
+
+One result per enabled check over the sprint's tasks, each finding with a level (`error` or
+`warning`), the task, and a fix command. `--sprint` picks a sprint other than the current one.
+
+| Check | Finds | Level |
+| --- | --- | --- |
+| H1 | an incomplete sprint task with no estimate (parents excluded) | warning |
+| H2 | a parent task (one with subtasks) that carries points | warning |
+| H3 | an incomplete sprint task with no assignee | warning |
+| H4 | an incomplete sprint task due more than `overdue_grace_days` ago | error |
+| H5 | an in-progress task with no change for `stale_days` | warning |
+| H6 | a person with more than `wip_limit` tasks in progress | warning |
+| H7 | a sprint task that a `blocked_signals` entry marks | warning |
+| H8 | the sprint over capacity | error |
+| H9 | the sprint has no section in a project of the scope | error |
+| H10 | an incomplete task left in a closed sprint | warning |
+| H11 | an incomplete task in two sprints | error |
+
+The `cyber-asana.report.health` reference sets which checks run and the thresholds in its
+frontmatter: `checks` (default: all eleven), `stale_days` (3), `wip_limit` (3), and
+`overdue_grace_days` (0). Override them one key at a time, as in
+[Overriding references](/cyber-asana/reference/overriding-references/).
+
+- **H8 is skipped for now.** It needs Asana Allocations, which arrive with the workload report. The
+  check shows as `skipped` with the reason `capacity unknown: allocations not wired yet`; it never
+  shows as passed.
+- **In progress without a state.** With `state_carrier: none`, or `field` with no registered `status`
+  field, H5 and H6 count every incomplete assigned sprint task, and `notes` says so.
+- **No current sprint.** Today before `sprint_anchor_date` fails with `sprint-none`, and no anchor
+  date fails with `policy-incomplete`. When today's sprint has no section, H9 reports it and the
+  checks that read the sprint's tasks are skipped, so the report still renders. With H9 left out of
+  `checks`, that case fails with `sprint-none` instead.
+- **Exit code.** Findings do not change it: a report that ran exits `0`. Read `counts` for the result.

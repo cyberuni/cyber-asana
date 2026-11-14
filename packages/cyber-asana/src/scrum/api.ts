@@ -5,6 +5,7 @@ import { listItems } from '../platform/pagination.js'
 import type { TaskGateway } from '../tasks/gateway.js'
 import type { UserGateway } from '../users/gateway.js'
 import type { ScrumPolicy } from './policy.js'
+import { buildHealth, type HealthSettings, type HealthTask, parseHealthSettings } from './reports/health.js'
 import { buildStandup, type StandupTask, standupWindowStart } from './reports/standup.js'
 import {
 	applyScopeOverrides,
@@ -28,6 +29,8 @@ export type ScrumApiDeps = {
 	/** Reads a task's dependencies, for the standup's blockers. */
 	dependencies: Pick<TaskGateway, 'getDependencies'>
 	loadPolicy: () => Promise<ScrumPolicy>
+	/** The `cyber-asana.report.health` thresholds; the defaults when unset. */
+	loadHealthSettings?: () => Promise<HealthSettings>
 	/** The clock, so a test can say what day it is. */
 	now?: () => Date
 }
@@ -37,6 +40,9 @@ export type SprintInput = { scope?: string; sprint?: string }
 
 const STANDUP_FIELDS =
 	'gid,name,completed,completed_at,due_on,permalink_url,assignee.gid,assignee.name,tags.name,custom_fields.gid,custom_fields.number_value,custom_fields.enum_value.name'
+
+const HEALTH_FIELDS =
+	'gid,name,completed,due_on,modified_at,permalink_url,num_subtasks,assignee.gid,assignee.name,tags.name,custom_fields.gid,custom_fields.number_value,custom_fields.enum_value.name'
 
 /** Inputs of `report standup`. */
 export type StandupInput = SprintInput & {
@@ -389,6 +395,78 @@ export function createScrumApi(deps: ScrumApiDeps) {
 				sprint,
 				...(sprintNote && { sprint_note: sprintNote }),
 				...standup,
+			}
+		},
+
+		/**
+		 * The health check report (R5): one result per enabled check over the sprint's tasks. When the
+		 * sprint has no section and H9 is enabled, H9 reports it and the task checks are skipped; with H9
+		 * disabled the report fails with `sprint-none` (D12). A sprint that has not begun, or no anchor
+		 * date, always fails: there is no sprint to be missing.
+		 */
+		async reportHealth(input: SprintInput, opts?: ScopeStoreOptions) {
+			const ctx = await prepare(input, opts)
+			const settings = await (deps.loadHealthSettings ?? (async () => parseHealthSettings({})))()
+			const sprint = ctx.resolve(input.sprint)
+			const { found, missing } = settings.checks.includes('H9')
+				? await ctx.model.sections(ctx.target, sprint)
+				: await ctx.requireStarted(sprint)
+			const started = found.length > 0
+
+			const sprintTasks = started
+				? ((await ctx.model.tasks(ctx.target, sprint, { optFields: HEALTH_FIELDS })) as HealthTask[])
+				: undefined
+			let allSprints: Array<{ n: number; name: string; tasks: HealthTask[] }> | undefined
+			if (settings.checks.includes('H10') || settings.checks.includes('H11')) {
+				allSprints = []
+				for (const { n } of await ctx.model.listSprints(ctx.target)) {
+					const window = sprintWindow(n, ctx.settings)
+					allSprints.push({
+						n,
+						name: window.name,
+						tasks: (await ctx.model.tasks(ctx.target, window, {
+							incomplete: true,
+							optFields: HEALTH_FIELDS,
+						})) as HealthTask[],
+					})
+				}
+			}
+
+			const gids = (role: 'story_points' | 'task_points' | 'status') =>
+				new Set(
+					ctx.target.projects.flatMap((p) => {
+						const field = ctx.loaded.fields?.[p.gid]?.[role]
+						return field ? [field.gid] : []
+					}),
+				)
+			const health = await buildHealth({
+				scope: ctx.scope.name,
+				settings,
+				policy: ctx.policy,
+				today: ctx.clock.today,
+				now: (deps.now ?? (() => new Date()))().toISOString(),
+				sprint,
+				...(sprintTasks && { sprintTasks }),
+				missingProjects: missing.map(projectRef),
+				...(allSprints && { allSprints }),
+				currentN: ctx.current ?? 0,
+				fields: { story: gids('story_points'), task: gids('task_points'), status: gids('status') },
+				dependenciesOf: async (taskGid) =>
+					(await deps.dependencies.getDependencies(taskGid, { optFields: 'gid,name,completed' })) as Array<{
+						gid: string
+						name?: string
+						completed?: boolean
+					}>,
+			})
+			return {
+				scope: ctx.scope.name,
+				today_date: ctx.clock.today,
+				timezone: ctx.clock.timezone,
+				timezone_source: ctx.clock.timezone_source,
+				sprint,
+				sprint_started: started,
+				settings,
+				...health,
 			}
 		},
 

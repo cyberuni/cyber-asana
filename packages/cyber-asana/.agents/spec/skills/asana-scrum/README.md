@@ -10,17 +10,19 @@ point for scrum work (design K1, D3 in [`docs/design/scrum-system.md`](../../../
 
 ## Subject
 
-- **Artifact** — `skills/asana-scrum/SKILL.md` and `references/standup.md`, plus the
+- **Artifact** — `skills/asana-scrum/SKILL.md` and `references/standup.md` and `references/health.md`, plus the
   `/cyber-asana:standup` command in `commands/standup.md`.
-- **Trigger** — the user asks for a standup, the sprint's status, or sprint housekeeping. Its front
-  block reads: *"Use this skill when the user wants scrum work from Asana — a standup, sprint status,
-  or sprint housekeeping."*
-- **What it covers** — a routing table, one procedure file per route. Today the one procedure is the
-  standup: load `cyber-asana.scrum`, the scope's `cyber-asana.sprint-model.<key>`, and
+- **Trigger** — the user asks for a standup, a sprint health check, the sprint's status, or sprint
+  housekeeping. Its front block reads: *"Use this skill when the user wants scrum work from Asana — a
+  standup, health check, sprint status, or sprint housekeeping."*
+- **What it covers** — a routing table, one procedure file per route. The standup
+  procedure: load `cyber-asana.scrum`, the scope's `cyber-asana.sprint-model.<key>`, and
   `cyber-asana.report.standup` through the `reference` skill of `cyber-agentkit`; run
   `cyber-asana report standup --json`; fill the report's layout without recounting; offer follow-ups.
   Sprint start, add, and close, and the current sprint and backlog, route straight to the `sprint` and
-  `backlog` commands. Review, retro, health, workload, and velocity are marked not built yet.
+  `backlog` commands. The health route (`references/health.md`) loads `cyber-asana.report.health`,
+  runs `cyber-asana report health --json`, fills its layout, and runs a fix command only on the
+  user's yes. Review, retro, workload, and velocity are marked not built yet.
 
 **Principle P2.** The CLI computes; the skill narrates. The skill must not add up points or recount
 tasks: it uses `count` and `points` from the report as given, with story and task points apart.

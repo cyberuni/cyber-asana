@@ -178,4 +178,11 @@ export function registerScrumTools(server: McpServer, api?: ScrumApi | (() => Sc
 				}),
 			),
 	)
+
+	server.tool(
+		'asana_report_health',
+		"The health check report (R5): one result per check enabled in the cyber-asana.report.health reference, over the sprint's tasks. H1 no estimate, H2 a parent carrying points, H3 unassigned, H4 overdue, H5 in progress with no change for stale_days, H6 a person over wip_limit, H7 blocked, H8 over capacity (skipped until allocations are wired), H9 the sprint has no section, H10 a closed sprint holding incomplete tasks, H11 a task in two sprints. Each finding has a level (error or warning), the task, and a fix command. With state_carrier none, in progress means incomplete and assigned, and notes says so. When the sprint has no section, H9 reports it (the task checks are skipped); with H9 disabled that is sprint-none. Fails with code sprint-none (today is before the anchor date, or H9 disabled), sprint-unknown, model-unsupported, or policy-incomplete.",
+		sprintParams,
+		async (params) => json(await resolveApi(api).reportHealth(pick(params))),
+	)
 }

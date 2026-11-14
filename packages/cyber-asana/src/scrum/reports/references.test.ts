@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url'
 import { afterAll, describe, expect, it } from 'vitest'
 
 const PACKAGE = join(dirname(fileURLToPath(import.meta.url)), '../../..')
-const NAMES = ['cyber-asana.report.interface', 'cyber-asana.report.standup']
+const NAMES = ['cyber-asana.report.interface', 'cyber-asana.report.standup', 'cyber-asana.report.health']
 const repo = mkdtempSync(join(tmpdir(), 'ca-refs-'))
 afterAll(() => rmSync(repo, { recursive: true, force: true }))
 
@@ -29,10 +29,23 @@ describe('report references', () => {
 	it('are accepted by cyber-agentkit reference check', () => {
 		const result = agentkit('check', ...NAMES)
 		expect(result.failed ?? []).toEqual([])
-		expect(result.passed).toBe(2)
+		expect(result.passed).toBe(3)
 	})
 
 	it('lists standup as an implementation of the many-cardinality interface', () => {
 		expect(JSON.stringify(agentkit('implementations', 'cyber-asana.report'))).toContain('cyber-asana.report.standup')
+	})
+
+	it('lists health as an implementation too', () => {
+		expect(JSON.stringify(agentkit('implementations', 'cyber-asana.report'))).toContain('cyber-asana.report.health')
+	})
+
+	it('ships health frontmatter that parses to the defaults', async () => {
+		const { readFileSync } = await import('node:fs')
+		const { parseHealthSettings, DEFAULT_HEALTH_SETTINGS } = await import('./health.js')
+		const front = readFileSync(join(PACKAGE, 'references/cyber-asana.report.health.md'), 'utf8').split('---')[1] ?? ''
+		const yaml = (await import('yaml')).parse(front)
+		expect(parseHealthSettings(yaml)).toEqual(DEFAULT_HEALTH_SETTINGS)
+		expect(yaml.checks).toHaveLength(11)
 	})
 })

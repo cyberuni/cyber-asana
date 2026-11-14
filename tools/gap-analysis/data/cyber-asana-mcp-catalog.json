@@ -55,6 +55,7 @@
 		"asana_project_template_instantiate",
 		"asana_project_template_list",
 		"asana_project_update",
+		"asana_report_health",
 		"asana_report_standup",
 		"asana_rule_trigger",
 		"asana_scope_add",
