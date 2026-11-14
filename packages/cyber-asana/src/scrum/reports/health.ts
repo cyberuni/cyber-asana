@@ -258,7 +258,9 @@ export async function buildHealth(input: HealthInput): Promise<Health> {
 		notes.push(
 			policy.state_carrier === 'field'
 				? 'state_carrier is field but no status field is registered for the scope, so in progress means incomplete and assigned.'
-				: `state_carrier is ${policy.state_carrier}: completion is the only state, so in progress means incomplete and assigned.`,
+				: policy.state_carrier === 'sections'
+					? 'state_carrier is sections: workflow states live in sections, which reports do not read, so in progress means incomplete and assigned.'
+					: `state_carrier is ${policy.state_carrier}: completion is the only state, so in progress means incomplete and assigned.`,
 		)
 	}
 	await needSprint('H5', () =>

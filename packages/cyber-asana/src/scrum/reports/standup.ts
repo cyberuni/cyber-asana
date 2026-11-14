@@ -144,7 +144,9 @@ function standupBasis(policy: ScrumPolicy, fields: StandupInput['fields']) {
 		notes.push(
 			policy.state_carrier === 'field'
 				? 'state_carrier is field but no status field is registered for the scope, so Today lists every incomplete assigned task.'
-				: `state_carrier is ${policy.state_carrier}: completion is the only state, so Today lists every incomplete assigned task.`,
+				: policy.state_carrier === 'sections'
+					? 'state_carrier is sections: workflow states live in sections, which reports do not read, so Today lists every incomplete assigned task.'
+					: `state_carrier is ${policy.state_carrier}: completion is the only state, so Today lists every incomplete assigned task.`,
 		)
 		if (policy.blocked_signals.some((s) => s.startsWith('state:'))) {
 			notes.push('A state:<state> blocked signal needs a status field, so it was skipped.')

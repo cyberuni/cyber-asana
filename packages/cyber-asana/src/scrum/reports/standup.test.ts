@@ -74,6 +74,16 @@ describe('buildStandup', () => {
 		expect(result.notes.join(' ')).toContain('state_carrier')
 	})
 
+	it('accepts state_carrier sections and says reports do not read sections as states', async () => {
+		const result = await buildStandup({
+			...base,
+			policy: { ...DEFAULT_SCRUM_POLICY, state_carrier: 'sections' },
+			tasks: [task({ gid: 'a' })],
+		})
+		expect(result.today.tasks.map((t) => t.gid)).toEqual(['a'])
+		expect(result.notes.join(' ')).toContain('state_carrier is sections: workflow states live in sections')
+	})
+
 	it('limits Today to the sprint tasks when a sprint exists', async () => {
 		const result = await buildStandup({
 			...base,
