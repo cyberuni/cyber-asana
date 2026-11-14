@@ -135,6 +135,7 @@ function mockRuntimeContext(): RuntimeContext {
 			getStatusOverview: vi.fn(),
 		},
 		rules: { triggerRule: vi.fn() },
+		scrum: { listScopes: vi.fn(), addScope: vi.fn(), removeScope: vi.fn(), resolveScope: vi.fn() },
 		events: { getEvents: vi.fn() },
 	}
 }
@@ -244,6 +245,44 @@ describe('composition wiring', () => {
 		await server.handlers.get('asana_task_template_list')?.({ project_gid: 'p1' })
 
 		expect(ctx.taskTemplates.listTaskTemplates).toHaveBeenCalledWith('p1', expect.any(Object))
+	})
+
+	it('CLI config scope list uses runtime context scrum api', async () => {
+		const ctx = mockRuntimeContext()
+		ctx.scrum.listScopes = vi.fn().mockResolvedValue({ scopes: [] })
+		const program = new Command()
+		registerCliCommands(program, () => ctx)
+
+		await program.parseAsync(['node', 'test', 'config', 'scope', 'list'], { from: 'node' })
+
+		expect(ctx.scrum.listScopes).toHaveBeenCalled()
+	})
+
+	it('CLI scrum scope resolve uses runtime context scrum api', async () => {
+		const ctx = mockRuntimeContext()
+		ctx.scrum.resolveScope = vi.fn().mockResolvedValue({
+			scope: { name: 'web', kind: 'project', projects: ['1'] },
+			implicit: false,
+			projects: [{ gid: '1' }],
+			sprint: { sprint_model: 'sections', sprint_length_days: 14 },
+		})
+		const program = new Command()
+		registerCliCommands(program, () => ctx)
+
+		await program.parseAsync(['node', 'test', 'scrum', 'scope', 'resolve', '--scope', 'web'], { from: 'node' })
+
+		expect(ctx.scrum.resolveScope).toHaveBeenCalledWith({ scope: 'web' }, expect.any(Object))
+	})
+
+	it('MCP asana_scope_resolve uses runtime context scrum api', async () => {
+		const ctx = mockRuntimeContext()
+		ctx.scrum.resolveScope = vi.fn().mockResolvedValue({ projects: [] })
+		const server = createMcpServer()
+		registerMcpTools(server as never, () => ctx)
+
+		await server.handlers.get('asana_scope_resolve')?.({ scope: 'web' })
+
+		expect(ctx.scrum.resolveScope).toHaveBeenCalledWith({ scope: 'web' })
 	})
 
 	it('CLI ai-studio runs uses runtime context aiStudio api', async () => {

@@ -10,6 +10,7 @@ import { createAsanaAttachmentGateway } from './attachments/gateway.js'
 import { registerAttachmentTools } from './attachments/mcp.js'
 import { authCommand } from './auth/cli.js'
 import { configCommand } from './config/cli.js'
+import { createFileScopeStore } from './config/scope-store.js'
 import { type CustomFieldApi, createCustomFieldApi } from './custom-fields/api.js'
 import { customFieldCommand } from './custom-fields/cli.js'
 import { createAsanaCustomFieldGateway } from './custom-fields/gateway.js'
@@ -53,6 +54,10 @@ import { createRuleApi, type RuleApi } from './rules/api.js'
 import { ruleCommand } from './rules/cli.js'
 import { createAsanaRuleGateway } from './rules/gateway.js'
 import { registerRuleTools } from './rules/mcp.js'
+import { createScrumApi, type ScrumApi } from './scrum/api.js'
+import { scopeConfigCommand, scrumCommand } from './scrum/cli.js'
+import { registerScrumTools } from './scrum/mcp.js'
+import { loadScrumPolicy } from './scrum/policy.js'
 import { createSearchApi, type SearchApi } from './search/api.js'
 import { searchCommand } from './search/cli.js'
 import { createAsanaSearchGateway } from './search/gateway.js'
@@ -109,6 +114,7 @@ export type RuntimeContext = {
 	projects: ProjectApi
 	projectTemplates: ProjectTemplateApi
 	rules: RuleApi
+	scrum: ScrumApi
 	search: SearchApi
 	sections: SectionApi
 	status: StatusApi
@@ -126,6 +132,7 @@ export function createRuntimeContext(): RuntimeContext {
 	const portfolioGateway = createAsanaPortfolioGateway(client)
 	const projectGateway = createAsanaProjectGateway(client)
 	const jobGateway = createAsanaJobGateway(client)
+	const taskGateway = createAsanaTaskGateway(client)
 	return {
 		aiStudio: createAiStudioApi(createAsanaAiStudioGateway(client)),
 		attachments: createAttachmentApi(createAsanaAttachmentGateway(client)),
@@ -139,6 +146,11 @@ export function createRuntimeContext(): RuntimeContext {
 		projects: createProjectApi(projectGateway),
 		projectTemplates: createProjectTemplateApi(createAsanaProjectTemplateGateway(client), { jobs: jobGateway }),
 		rules: createRuleApi(createAsanaRuleGateway(client)),
+		scrum: createScrumApi({
+			store: createFileScopeStore,
+			gateways: { portfolios: portfolioGateway, tasks: taskGateway },
+			loadPolicy: () => loadScrumPolicy(),
+		}),
 		search: createSearchApi(createAsanaSearchGateway(client)),
 		sections: createSectionApi(createAsanaSectionGateway(client)),
 		status: createStatusApi(createAsanaStatusGateway(client), {
@@ -147,7 +159,7 @@ export function createRuntimeContext(): RuntimeContext {
 		}),
 		stories: createStoryApi(createAsanaStoryGateway(client)),
 		tags: createTagApi(createAsanaTagGateway(client)),
-		tasks: createTaskApi(createAsanaTaskGateway(client)),
+		tasks: createTaskApi(taskGateway),
 		taskTemplates: createTaskTemplateApi(createAsanaTaskTemplateGateway(client)),
 		teams: createTeamApi(createAsanaTeamGateway(client)),
 		users: createUserApi(createAsanaUserGateway(client)),
@@ -185,14 +197,15 @@ export function registerCliCommands(program: Command, getContext: () => RuntimeC
 	program.addCommand(storyCommand('story', () => getContext().stories))
 	program.addCommand(storyCommand('comment', () => getContext().stories))
 	program.addCommand(authCommand())
-	program.addCommand(
-		configCommand(
-			() => getContext().projects,
-			() => getContext().users,
-			() => getContext().search,
-			() => getContext().customFields,
-		),
+	const config = configCommand(
+		() => getContext().projects,
+		() => getContext().users,
+		() => getContext().search,
+		() => getContext().customFields,
 	)
+	config.addCommand(scopeConfigCommand(() => getContext().scrum))
+	program.addCommand(config)
+	program.addCommand(scrumCommand(() => getContext().scrum))
 	program.addCommand(setupCommand())
 	program.addCommand(urlCommand())
 	program.addCommand(mcpCommand(getContext))
@@ -225,5 +238,6 @@ export function registerMcpTools(server: McpServer, getContext: () => RuntimeCon
 	registerEventTools(server, () => getContext().events)
 	registerAiStudioTools(server, () => getContext().aiStudio)
 	registerStoryTools(server, () => getContext().stories)
+	registerScrumTools(server, () => getContext().scrum)
 	registerUrlTools(server)
 }
