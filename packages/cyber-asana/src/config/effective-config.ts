@@ -66,7 +66,11 @@ export type EffectiveScopes = {
 	localPath: string | null
 	globalPath: string
 	repo: string | null
+	/** The merged list, which is what commands select from. */
 	scopes: ScopeEntry[]
+	/** What each source holds on its own, so a listing can say where a scope came from. */
+	fromRepo: ScopeEntry[]
+	fromGlobal: ScopeEntry[]
 }
 
 /**
@@ -97,6 +101,8 @@ export async function loadEffectiveScopes(opts?: {
 		globalPath,
 		repo,
 		scopes: mergeScopes(local?.scrum?.scopes ?? [], globalScopes),
+		fromRepo: local?.scrum?.scopes ?? [],
+		fromGlobal: globalScopes,
 	}
 }
 
