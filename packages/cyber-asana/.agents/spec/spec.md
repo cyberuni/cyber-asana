@@ -20,7 +20,7 @@ Strategy: **capability-first**, following the existing Screaming Architecture (`
 - CLI/MCP output, error, pagination, or truncation contract → `axi/`.
 - Asana URL parsing → `url/`.
 - Repo-local project registry, env-var config resolution (`ASANA_ACCESS_TOKEN`/`ASANA_WORKSPACE_GID`) → `config/`.
-- Scrum scopes (the projects a scrum team works in: `scrum.scopes`, `config scope`, `scrum scope resolve`, the `sprint` and `status` field roles) → `scrum/`. Later scrum units (sprints, reports) land there too; the design is `docs/design/scrum-system.md`.
+- Scrum scopes (the projects a scrum team works in: `scrum.scopes`, `config scope`, `scrum scope resolve`, the `sprint` and `status` field roles) → `scrum/`. The sprint layer (computed sprint identity, the `sections` sprint model, `sprint` and `backlog` commands) is there too; later units (reports) land there as well; the design is `docs/design/scrum-system.md`.
 - A rule, wiring pattern, or composition-root concern → `design/` (descriptive prose, not a node).
 - A decision + rationale → `design/decisions/`.
 - A flow spanning ≥2 domains (e.g. attach a file then post a status update) → `workflows/`, never a capability folder.
