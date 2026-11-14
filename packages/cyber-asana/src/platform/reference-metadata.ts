@@ -68,7 +68,16 @@ export async function loadReferenceMetadata<T>(
 	parse: (metadata: Record<string, unknown>) => T,
 	opts: LoadReferenceMetadataOptions = {},
 ): Promise<T | undefined> {
-	const layers = await referenceLayers({
+	const layers = await loadReferenceLayers(opts)
+	const resolved = resolveReference(parseReferenceName(name), layers)
+	if (resolved.status === 'ambiguous') throw new ReferenceAmbiguousError(name, resolved.options ?? [])
+	if (resolved.status !== 'found') return undefined
+	return parse(resolved.metadata ?? {})
+}
+
+/** The cyber-agentkit layers for this repo, user, and package: the one place options become layers. */
+export async function loadReferenceLayers(opts: LoadReferenceMetadataOptions = {}) {
+	return referenceLayers({
 		root: opts.root ?? process.cwd(),
 		...(opts.cwd !== undefined && { cwd: opts.cwd }),
 		home: opts.home ?? homedir(),
@@ -76,8 +85,4 @@ export async function loadReferenceMetadata<T>(
 		env: opts.env ?? process.env,
 		plugin: { name: PLUGIN_NAME, root: opts.packageRoot ?? packageRoot() },
 	})
-	const resolved = resolveReference(parseReferenceName(name), layers)
-	if (resolved.status === 'ambiguous') throw new ReferenceAmbiguousError(name, resolved.options ?? [])
-	if (resolved.status !== 'found') return undefined
-	return parse(resolved.metadata ?? {})
 }
