@@ -1,3 +1,4 @@
+import { isCodedConfigError } from '../coded-error.js'
 import { buildErrorBody, PLAN_LIMITATION_STATUS } from '../error-body.js'
 import { REFERENCE_AMBIGUOUS } from '../reference-metadata.js'
 import { encodeToon } from '../toon.js'
@@ -7,8 +8,17 @@ import { buildUsageErrorBody, isUsageError, renderUsageErrorText } from './usage
 // Meaningful, stable exit codes — principle 6 (structured errors & exit codes).
 // 0 success, 1 generic failure, then specific recoverable conditions agents can
 // branch on without parsing the message.
+// Config failures with a code of their own. Each is told apart by `error.code`, not by its exit
+// code: a scope the command line named wrongly, or never configured, is a command the caller can
+// fix and retry, which is what 2 means.
+const CODED_EXIT_CODES: Readonly<Record<string, number>> = {
+	'scope-missing': 2,
+	'scope-unknown': 2,
+}
+
 export function exitCodeFor(error: unknown): number {
 	if (isUsageError(error)) return 2 // the caller can fix the command line and retry
+	if (isCodedConfigError(error) && error.code in CODED_EXIT_CODES) return CODED_EXIT_CODES[error.code] as number
 	const body = buildErrorBody(error)
 	if (body.error.code === REFERENCE_AMBIGUOUS) return 8 // pick one of `options`, then retry
 	if (body.error.kind === 'config') return 3

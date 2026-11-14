@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { CodedConfigError } from '../coded-error.js'
 import { ReferenceAmbiguousError } from '../reference-metadata.js'
 import { exitCodeFor, renderCliError } from './error.js'
 
@@ -9,6 +10,15 @@ function asanaError(status: number, message = 'boom') {
 describe('exitCodeFor', () => {
 	it('maps an ambiguous reference to 8, apart from other config errors', () => {
 		expect(exitCodeFor(new ReferenceAmbiguousError('cyber-asana.scrum', ['a/cyber-asana.scrum']))).toBe(8)
+	})
+
+	it('maps scope-missing and scope-unknown to 2, as a fixable command line, apart from each other by code', () => {
+		expect(exitCodeFor(new CodedConfigError('scope-missing', 'No scope'))).toBe(2)
+		expect(exitCodeFor(new CodedConfigError('scope-unknown', 'No such scope', { options: ['web'] }))).toBe(2)
+	})
+
+	it('maps a coded config error with no pinned exit code to 3, like other config errors', () => {
+		expect(exitCodeFor(new CodedConfigError('something-else', 'x'))).toBe(3)
 	})
 
 	it('maps generic errors to 1', () => {
@@ -55,6 +65,26 @@ describe('renderCliError', () => {
 			ok: false,
 			error: { kind: 'config', code: 'reference-ambiguous', options: ['a/cyber-asana.scrum', 'b/cyber-asana.scrum'] },
 		})
+	})
+
+	it('renders a coded config error with its code, options, and hint under --json', () => {
+		const error = new CodedConfigError('scope-unknown', 'Scope "x" is not configured', {
+			options: ['web', 'platform'],
+			hint: 'Pick one of the options.',
+		})
+		expect(JSON.parse(renderCliError(error, 'json'))).toEqual({
+			ok: false,
+			error: {
+				kind: 'config',
+				code: 'scope-unknown',
+				message: 'Scope "x" is not configured',
+				options: ['web', 'platform'],
+				hint: 'Pick one of the options.',
+			},
+		})
+		expect(renderCliError(error, 'text')).toBe(
+			'Error: Scope "x" is not configured\nOptions: web, platform\nHint: Pick one of the options.',
+		)
 	})
 
 	it('renders Asana API errors as a single human line in text mode', () => {
