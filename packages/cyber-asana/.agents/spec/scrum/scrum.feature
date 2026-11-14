@@ -30,10 +30,10 @@ Feature: scrum scopes
     When config scope remove runs for "web"
     Then the file holds no scrum block
 
-  Scenario: removing a scope that is not configured names the known ones
+  Scenario: removing a scope that is not configured succeeds as a no-op
     Given one scope "web"
     When config scope remove runs for "nope"
-    Then it fails with 'Scope "nope" is not configured; known scopes: web'
+    Then it exits 0, reports already_absent, and writes nothing
 
   Scenario: a repo scope wins a name clash with a global scope
     Given the repo config scope "web" with project "1" and the global scope "web" with project "9"

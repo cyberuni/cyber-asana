@@ -8,7 +8,12 @@ function fakeApi(overrides: Partial<ScrumApi> = {}): ScrumApi {
 	return {
 		listScopes: vi.fn(async () => ({ scopes: [] })),
 		addScope: vi.fn(async (scope) => ({ scope, path: '/r.json', target: 'repo' as const })),
-		removeScope: vi.fn(async (name) => ({ removed: name, path: '/r.json', target: 'repo' as const })),
+		removeScope: vi.fn(async (name) => ({
+			removed: name,
+			already_absent: false,
+			path: '/r.json',
+			target: 'repo' as const,
+		})),
 		resolveScope: vi.fn(async () => ({
 			scope: { name: 'web', kind: 'project' as const, projects: ['1201'] },
 			implicit: false,
@@ -183,6 +188,28 @@ describe('config scope', () => {
 		expect(api.removeScope).toHaveBeenCalledWith('web', expect.objectContaining({ global: true }))
 	})
 
+	it('remove says so, and succeeds, when the scope was already gone', async () => {
+		const api = fakeApi({ removeScope: vi.fn(async (name) => ({ removed: name, already_absent: true as const })) })
+		const lines = await run(configProgram(api), 'config', 'scope', 'remove', 'web')
+		expect(lines.join('\n')).toContain('Scope web was already absent')
+	})
+
+	it('list prints a count and next steps', async () => {
+		const api = fakeApi({
+			listScopes: vi.fn(async () => ({
+				scopes: [{ name: 'web', kind: 'project' as const, projects: ['1201'], source: 'repo' as const }],
+			})),
+		})
+		const lines = await run(configProgram(api), 'config', 'scope', 'list')
+		expect(lines).toContain('\n1 scope(s)')
+		expect(lines.join('\n')).toContain('cyber-asana scrum scope resolve --scope <name>')
+	})
+
+	it('an empty list suggests adding a scope', async () => {
+		const lines = await run(configProgram(fakeApi()), 'config', 'scope', 'list')
+		expect(lines.join('\n')).toContain('cyber-asana config scope add <name> --kind project --project <gid>')
+	})
+
 	it('list names the empty state', async () => {
 		expect((await run(configProgram(fakeApi()), 'config', 'scope', 'list')).join('\n')).toContain('0 scopes found')
 	})
@@ -260,6 +287,10 @@ describe('scrum scope resolve', () => {
 	it('emits the whole resolution under --json', async () => {
 		const lines = await run(fakeApi(), 'scrum', 'scope', 'resolve', '--json')
 		expect(JSON.parse(lines.join('\n'))).toMatchObject({ implicit: false, projects: [{ gid: '1201' }] })
+	})
+
+	it('prints a project count', async () => {
+		expect(await run(fakeApi(), 'scrum', 'scope', 'resolve')).toContain('\n1 project(s)')
 	})
 
 	it('notes an implicit scope', async () => {

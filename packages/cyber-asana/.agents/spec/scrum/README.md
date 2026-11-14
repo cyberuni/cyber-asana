@@ -51,7 +51,8 @@ The `team` kind belongs to a later unit and is rejected today.
   repo's projects in the global registry never drops its scopes.
 - `config scope add | remove | list` and the `asana_scope_add | remove | list` tools go through one
   `api.ts`. `add` and `remove` write the repo config, or the global registry with `--global`;
-  `remove` without it takes the scope from the repo config, else from the global registry.
+  `remove` without it takes the scope from the repo config, else from the global registry. Removing a
+  scope that is not configured succeeds with `already_absent: true` and writes nothing.
 - Two field roles join `story_points` and `task_points`: `sprint` and `status`, both enum fields.
   `config discover-fields` matches a field named `Sprint` or `Iteration` to `sprint`, and `Status` or
   `Stage` to `status`, ignoring case and separators; a field of another subtype never matches.

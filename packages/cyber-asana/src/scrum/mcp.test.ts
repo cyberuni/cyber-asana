@@ -21,7 +21,12 @@ function fakeApi(): ScrumApi {
 	return {
 		listScopes: vi.fn(async () => ({ scopes: [] })),
 		addScope: vi.fn(async (scope) => ({ scope, path: '/r.json', target: 'repo' as const })),
-		removeScope: vi.fn(async (name) => ({ removed: name, path: '/r.json', target: 'repo' as const })),
+		removeScope: vi.fn(async (name) => ({
+			removed: name,
+			already_absent: false as const,
+			path: '/r.json',
+			target: 'repo' as const,
+		})),
 		resolveScope: vi.fn(async () => ({
 			scope: { name: 'web', kind: 'project' as const, projects: ['1'] },
 			implicit: false,

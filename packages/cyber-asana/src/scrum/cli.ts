@@ -1,7 +1,7 @@
 import { Command, InvalidArgumentError } from 'commander'
 import { resolveProjectRef } from '../config/repo-config.js'
 import { SCOPE_KINDS, SCOPE_OVERRIDE_KEYS, type ScopeEntry, type ScopeKind } from '../config/scopes.js'
-import { output, printFields, printNextSteps, printTable } from '../platform/cli/output.js'
+import { output, printCountSummary, printFields, printNextSteps, printTable } from '../platform/cli/output.js'
 import type { ScrumApi } from './api.js'
 import { createDefaultScrumApi } from './default.js'
 
@@ -126,7 +126,11 @@ export function scopeConfigCommand(api?: ResolveApi) {
 		.option('--config <path>', 'Config file path (overrides CYBER_ASANA_CONFIG)')
 		.action(async (name: string, opts: StoreFlags) => {
 			const result = await resolveApi(api).removeScope(name, { ...storeOptions(opts), global: opts.global })
-			output(result, () => console.log(`Removed scope ${name} from ${result.path}`))
+			output(result, () =>
+				console.log(
+					result.already_absent ? `Scope ${name} was already absent` : `Removed scope ${name} from ${result.path}`,
+				),
+			)
 		})
 
 	cmd
@@ -148,6 +152,12 @@ export function scopeConfigCommand(api?: ResolveApi) {
 						{ label: 'Overrides', get: overrides },
 					],
 					{ entity: 'scopes' },
+				)
+				printCountSummary(listing.scopes.length, 'scope(s)')
+				printNextSteps(
+					listing.scopes.length > 0
+						? ['cyber-asana scrum scope resolve --scope <name> — see the projects a scope covers']
+						: ['cyber-asana config scope add <name> --kind project --project <gid> — add a scope'],
 				)
 				if (listing.implicit) {
 					console.log(
@@ -193,6 +203,7 @@ export function scrumCommand(api?: ResolveApi) {
 					],
 					{ entity: 'projects' },
 				)
+				printCountSummary(resolved.projects.length, 'project(s)')
 				if (resolved.tasks) console.log(`\n${resolved.tasks.length} task(s) across the scope`)
 			})
 		})

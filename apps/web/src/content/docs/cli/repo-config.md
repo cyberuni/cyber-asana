@@ -168,6 +168,7 @@ cyber-asana scrum scope resolve --scope platform --tasks
 
 `--project` takes a GID or a registered alias, comma-separated or repeated. `scope remove` takes the
 scope from the repo config, or from the global registry when the repo config has none by that name.
+Removing a scope that is not configured succeeds and reports `already_absent: true`.
 
 A command that takes `--scope <name>` runs against the scope you name, else the scope marked `default`.
 With no scope configured, the repo's default project acts as an implicit `project` scope, so a repo that

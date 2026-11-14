@@ -41,9 +41,15 @@ export function createScrumApi(deps: ScrumApiDeps) {
 			return { scope, path, target }
 		},
 
+		/** Removing a scope that is not configured succeeds with `already_absent: true` and writes nothing. */
 		async removeScope(name: string, opts?: ScopeStoreOptions & { global?: boolean }) {
-			const { path, target } = await deps.store(opts).remove(name, opts?.global ? 'global' : undefined)
-			return { removed: name, path, target }
+			const store = deps.store(opts)
+			const key = name.trim().toLowerCase()
+			if (!(await store.load()).scopes.some((scope) => scope.name.trim().toLowerCase() === key)) {
+				return { removed: name, already_absent: true as const }
+			}
+			const { path, target } = await store.remove(name, opts?.global ? 'global' : undefined)
+			return { removed: name, already_absent: false as const, path, target }
 		},
 
 		/**

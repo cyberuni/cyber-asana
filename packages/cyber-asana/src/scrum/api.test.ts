@@ -65,7 +65,18 @@ describe('scrum api: scopes', () => {
 
 	it('removes a scope', async () => {
 		const store = memoryStore([web])
-		expect(await setup(store).removeScope('web')).toEqual({ removed: 'web', path: '/repo.json', target: 'repo' })
+		expect(await setup(store).removeScope('web')).toEqual({
+			removed: 'web',
+			already_absent: false,
+			path: '/repo.json',
+			target: 'repo',
+		})
+	})
+
+	it('treats removing a scope that is not configured as done, writing nothing', async () => {
+		const store = memoryStore([web])
+		expect(await setup(store).removeScope('Nope')).toEqual({ removed: 'Nope', already_absent: true })
+		expect(store.remove).not.toHaveBeenCalled()
 	})
 })
 
