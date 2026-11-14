@@ -1,7 +1,7 @@
 import { createAsanaAllocationGateway } from '../allocations/gateway.js'
 import { createFileScopeStore } from '../config/scope-store.js'
-import { createAsanaOooGateway } from '../ooo/gateway.js'
 import { createAsanaCustomFieldGateway } from '../custom-fields/gateway.js'
+import { createAsanaOooGateway } from '../ooo/gateway.js'
 import { createClient } from '../platform/client.js'
 import { createAsanaPortfolioGateway } from '../portfolios/gateway.js'
 import { createAsanaProjectGateway } from '../projects/gateway.js'
