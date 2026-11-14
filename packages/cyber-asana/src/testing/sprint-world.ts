@@ -1,7 +1,7 @@
 import { vi } from 'vitest'
 
 export type WorldTask = { gid: string; name?: string; completed?: boolean }
-export type WorldSection = { gid: string; name: string; tasks: WorldTask[] }
+type WorldSection = { gid: string; name: string; tasks: WorldTask[] }
 
 /**
  * An in-memory Asana for sprint tests: projects hold ordered sections, sections hold ordered tasks.
