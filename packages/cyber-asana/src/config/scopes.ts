@@ -38,7 +38,7 @@ export type ScopeEntry = {
 export type ScrumBlock = { scopes: ScopeEntry[] }
 
 /** Asana objects the `project` sprint model works on; GIDs, so they live in config (P1). */
-export const SCOPE_PROJECT_MODEL_KEYS = ['backlog_project', 'sprint_portfolio', 'sprint_template'] as const
+const SCOPE_PROJECT_MODEL_KEYS = ['backlog_project', 'sprint_portfolio', 'sprint_template'] as const
 
 const SCOPE_KEYS = [
 	'name',
