@@ -420,7 +420,7 @@ Each unit can ship alone and passes `pnpm verify`; units that need it also pass 
 | U2 | `loadReferenceMetadata` (conventions moved onto it). The `cyber-asana.scrum` package default with its key parser. A docs page on overriding it. Confirm whether project sections contribute frontmatter. | G11 | — | Shipped (#322) |
 | U3 | `scrum.scopes` (schema 3), `config scope add \| remove \| list`, `scrum scope resolve` for `project`, `projects`, `portfolio`; the `sprint` and `status` field roles | G9, G10, G8 (recursion) | U2 | Built; in review |
 | U4 | `cyber-asana.sprint-model.interface` + `.sections`; `sprint current \| list \| tasks \| add \| start \| close`, `backlog list`; MCP tools | G12 (sprints) | U1, U3 | Built; in review |
-| U5 | `init-asana-scrum` v1: project and projects scopes, the `sections` model, writing the policy and fields | K2 | U4 |  |
+| U5 | `init-asana-scrum` v1: project and projects scopes, the `sections` model, writing the policy and fields | K2 | U4 | Built; in review |
 | U6 | `cyber-asana.report.interface` + `.standup`; `report standup`; `asana-scrum` v1 with the standup route; turn `asana-standup` into a routing stub (D7); update K5 | G12 (standup), K1, K3 | U4 |  |
 | U7 | `.sprint`, `.retro`, `.velocity` reports, the burndown, and the commitment snapshot (D6); review and retro routes; turn `asana-sprint-report` into a routing stub (D7) | K4, G14 | U6 |  |
 | U8 | `.health` report and the health route | — | U6 |  |
@@ -442,6 +442,15 @@ U1 can ship before anything else and fixes wrong numbers users see today.
 - **Backlog.** A sprint section is any section whose name matches `sprint_name_format`; the backlog is every incomplete task in the other sections, including the `backlog_section`, so a team's `Icebox` counts. A task a sprint section of another project holds is left out.
 - **`sprint close` target.** With `carry_over: move` the next sprint's section is created where missing, because the tasks need somewhere to go. Sprints are listed by sections present, so `sprint list` shows the current sprint even before its section exists (`exists: no`).
 - **Commands sit at the top level** (`sprint`, `backlog`), not under `scrum`, as the build brief names them; `scrum scope resolve` stays where U3 put it.
+
+### 9.2 Decisions made while building U5
+
+- **v1 scope of `init-asana-scrum`.** It sets up the `project` and `projects` scopes with the `sections` model only. For a portfolio or team scope, or another model, it says which later unit adds it and stops short, instead of offering a setup that would fail with `model-unsupported`.
+- **Fields are reported, not created.** Step 4 runs `config discover-fields` and, for a missing role, tells the user how to add the field by hand (G6 and G7 land in U11). The `sections` model needs no `sprint` field.
+- **Order of steps 5 and 6.** `sprint start` needs `sprint_anchor_date`, so the skill walks the policy before it starts the current sprint, though § 8.2 lists structure first.
+- **Policy writes.** Only keys that differ from the default go into `.agents/references/cyber-asana.scrum.md`, frontmatter only and with no `merge` key. `sprint_anchor_date` has no default, so it is always written.
+- **Skipped steps.** Step 7 (capacity probe) is skipped and said so (U10); step 8 verifies with `sprint current` and `backlog list` until `report health` exists (U8).
+- **K7.** `init-asana` gains a last, optional step that offers `init-asana-scrum` and treats no answer as no.
 
 ## 10. Items settled after the first review
 
