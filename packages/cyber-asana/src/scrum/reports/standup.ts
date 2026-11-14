@@ -17,11 +17,11 @@ export type StandupTask = {
 	}> | null
 }
 
-export type Member = { gid: string; name?: string }
+type Member = { gid: string; name?: string }
 
 type Dependency = { gid: string; name?: string; completed?: boolean }
 
-export type Blocker = { signal: string; task?: { gid: string; name?: string } }
+type Blocker = { signal: string; task?: { gid: string; name?: string } }
 
 export type StandupItem = {
 	gid: string
@@ -35,7 +35,7 @@ export type StandupItem = {
 	blockers?: Blocker[]
 }
 
-export type Points = { story: number; task: number }
+type Points = { story: number; task: number }
 
 export type StandupGroup = { count: number; points: Points; tasks: StandupItem[] }
 
