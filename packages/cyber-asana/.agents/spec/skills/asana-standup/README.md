@@ -19,4 +19,4 @@ one minor release, then it is deleted, and so is this node.
 
 **What it adopts.** The catalog contract in [skills](../README.md).
 
-**Sibling.** [asana-sprint-report](../asana-sprint-report/README.md), which retires the same way in U7.
+**Sibling.** [asana-sprint-report](../asana-sprint-report/README.md), which retired the same way in U7.

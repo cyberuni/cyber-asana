@@ -1,6 +1,6 @@
 ---
 title: Reports
-description: Compute a member's standup, the sprint's health findings, and the team's workload against capacity from the scrum policy and the scope.
+description: Compute a member's standup, the sprint review, retro data, velocity, the sprint's health findings, and the team's workload from the scrum policy and the scope.
 sidebar:
   order: 24
 ---
@@ -16,6 +16,9 @@ cyber-asana report standup --scope web --sprint previous --json
 cyber-asana report health
 cyber-asana report workload
 cyber-asana report workload --from 2026-01-19 --to 2026-01-30
+cyber-asana report sprint --sprint previous
+cyber-asana report retro
+cyber-asana report velocity
 ```
 
 Every report takes `--scope <name>` (see [Repo config](/cyber-asana/cli/repo-config/)), `--sprint`,
@@ -128,3 +131,53 @@ The `cyber-asana.report.workload` reference sets the two thresholds in its front
 - **No current sprint.** A sprint with no section fails with `sprint-none`; a half-given or
   backwards window fails with `window-invalid`. Both exit `2`.
 - **Exit code.** A report that ran exits `0` whatever it found.
+## The commitment snapshot
+
+The review and the retro compare the sprint with what it committed to. The commitment is a status
+update that `cyber-asana sprint start --snapshot` posts on each project of the scope once the sprint
+holds its tasks: titled `<sprint> started`, with the committed tasks and their points. Asana cannot
+edit a status update, so it is posted once per sprint; a second run changes nothing. Without
+`--snapshot`, `sprint start` touches no status update.
+
+With no snapshot the reports rebuild the commitment from each task's "moved to the sprint" story: a
+task that joined by the end of the sprint's first day was committed. That cannot find a task removed
+from the sprint, so `removed` is `null` and `notes` says so.
+
+## `report sprint`
+
+The sprint review (`--scope`, `--sprint`, default the current sprint). A sprint with no section fails
+with `sprint-none`.
+
+| Field | What it holds |
+| --- | --- |
+| `committed` | The commitment and its `source`: `snapshot`, `rebuilt`, or `unavailable`. |
+| `completed`, `added`, `removed` | Count, points, and tasks. `removed` is `null` without a snapshot. |
+| `completion_rate` | Percent by count and by each kind of points, against everything in the sprint now; `null` where nothing was planned. |
+| `carry_over_candidates` | The incomplete tasks. |
+| `burndown` | One entry a day up to today: tasks completed that day and what is left, from `completed_at`. |
+| `demo` | Completed tasks with story points, or every completed task when no story points are tracked. |
+
+Story points and task points are never merged.
+
+## `report retro`
+
+The retro facts (`--scope`, `--sprint`).
+
+| Field | What it holds |
+| --- | --- |
+| `carry_over` | The incomplete tasks. |
+| `scope_change` | Added and removed, as in the review. |
+| `blocked` | Tasks with hours blocked, and the total. Best effort, from task history. |
+| `cycle_time` | Mean and median days from `created_at` to `completed_at`. |
+| `estimate_vs_actual` | Points committed in the snapshot against the points the finished task carries now (the convention is to replace the estimate with the actual). `null` without a snapshot. |
+
+Blocked time reads Asana's system stories: a dependency added until removed or completed, a tag
+added until removed. It does not read a `state:<x>` signal. When no story shows a block, `notes`
+says no blocked time is reported.
+
+## `report velocity`
+
+Points completed per closed sprint over `velocity_window`, and the mean (`--scope`; no `--sprint`).
+Story and task points are shown apart. Fewer closed sprints than the window gives a note.
+
+The layouts are the `cyber-asana.report.sprint`, `.retro`, and `.velocity` references.

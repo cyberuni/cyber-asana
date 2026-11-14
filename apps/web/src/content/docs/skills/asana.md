@@ -23,7 +23,7 @@ Ask in plain words. The skill picks the first row that matches; when a request s
 | Set up credentials or verify the connection | [`init-asana`](/cyber-asana/skills/init-asana/) |
 | Add, remove, or sync registry projects and users | [`config-asana`](/cyber-asana/skills/config-asana/) |
 | A standup update, the current sprint, or sprint housekeeping | [`asana-scrum`](/cyber-asana/skills/asana-scrum/) |
-| A sprint summary | [`asana-sprint-report`](/cyber-asana/skills/asana-sprint-report/) |
+| A sprint review, a retro, or velocity | [`asana-scrum`](/cyber-asana/skills/asana-scrum/) |
 | Pull a project into local markdown | [`sync-asana-project`](/cyber-asana/skills/sync-asana-project/) |
 
 A single read or update of one Asana object needs no procedure: the skill runs the matching `cyber-asana <resource> <action>` command. When you have opted in to the MCP server, its `asana_<resource>_<action>` tools are equivalent. To read a task with its comments and change history in one call, it runs `cyber-asana task get <gid> --with-stories [--since <iso-time>] --json`.

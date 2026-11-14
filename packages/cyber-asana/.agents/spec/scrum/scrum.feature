@@ -446,3 +446,69 @@ Feature: scrum scopes
     Given project "p1" uses one Sprint field and "p2" another
     When any sprint command runs under the custom-field model
     Then it fails with code "sprint-field-ambiguous" listing both fields
+  # ── reports: sprint review, retro, velocity, and the commitment snapshot ──
+
+  Scenario: sprint start --snapshot posts the commitment once per project
+    Given a started sprint holding tasks "a" and "b" and no snapshot
+    When sprint start runs with --snapshot
+    Then one status update titled "Sprint 2 started" lists "a" and "b" with their points
+
+  Scenario: a second snapshot is not posted
+    Given a project that already has a snapshot for the sprint
+    When sprint start runs with --snapshot
+    Then nothing is posted and the project is reported as existing
+
+  Scenario: sprint start without --snapshot leaves status updates alone
+    When sprint start runs
+    Then no status update is read or written
+
+  Scenario: the review compares the sprint with its snapshot
+    Given a snapshot committing "a", "c" and "gone", and a sprint now holding "a", "c" and "d"
+    When report sprint runs
+    Then "d" is added, "gone" is removed, and committed.source is "snapshot"
+
+  Scenario: without a snapshot the commitment is rebuilt and removed is unknown
+    Given no snapshot and stories showing "a" and "c" joined on the first day and "d" later
+    When report sprint runs
+    Then committed lists "a" and "c", "d" is added, removed is null, and committed.source is "rebuilt"
+
+  Scenario: completion rate is per kind and null where nothing was planned
+    Given story points planned and no task points
+    When report sprint runs
+    Then the story rate is a percentage and the task rate is null
+
+  Scenario: the burndown counts what is left at the end of each day
+    Given completions on the second and third days
+    When report sprint runs on the third day
+    Then the burndown has three days with the remaining counts falling
+
+  Scenario: the demo lists completed stories
+    Given completed tasks with and without story points
+    When report sprint runs
+    Then demo lists the ones with story points, or all when no story points are tracked
+
+  Scenario: the retro reads blocked time from stories
+    Given a blocked tag added to a task 12 hours before now and never removed
+    When report retro runs
+    Then blocked lists the task with 12 hours, still blocked
+
+  Scenario: the retro names the gap when no story shows a block
+    Given no story shows a block
+    When report retro runs
+    Then blocked is empty and notes say no block time is reported
+
+  Scenario: estimate against actual needs the snapshot
+    Given no snapshot
+    When report retro runs
+    Then estimate_vs_actual is null and notes say why
+
+  Scenario: velocity covers the last closed sprints
+    Given closed sprints 1 to 4 and velocity_window 3
+    When report velocity runs
+    Then sprints 2 to 4 are listed with the mean of each figure
+
+  Scenario: a sprint with no section fails
+    Given no "Sprint 9" section
+    When report sprint runs with --sprint 9
+    Then it fails with code "sprint-none"
+

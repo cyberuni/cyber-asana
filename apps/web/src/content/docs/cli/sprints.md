@@ -43,7 +43,7 @@ commands for each operation.
 | `sprint list` | The sprints that have a section in the scope, plus the current one, each `past`, `current`, or `future`. |
 | `sprint tasks` | The sprint's tasks, each once across projects, with completed and open counts. `--incomplete` keeps the open ones. |
 | `sprint add <task-gid>...` | Moves each task into the sprint's section in every project of the scope it is in. A task already there is left alone. |
-| `sprint start` | Creates the sprint's section in each project that lacks one. When the sections exist it changes nothing and exits 0. |
+| `sprint start` | Creates the sprint's section in each project that lacks one. When the sections exist it changes nothing and exits 0. With `--snapshot` it also posts the commitment (see [Reports](/cyber-asana/cli/reports/#the-commitment-snapshot)). |
 | `sprint close` | Carries the sprint's incomplete tasks over as the policy's `carry_over` says: `move` puts them in the next sprint's section (created if missing), `leave` moves nothing. |
 | `backlog list` | The backlog in each project's order, each task once. It names a project that lacks the backlog section. |
 

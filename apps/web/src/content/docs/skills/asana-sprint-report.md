@@ -1,19 +1,12 @@
 ---
 title: asana-sprint-report
-description: Summarizes a sprint as completed versus incomplete tasks, for a retro or for stakeholders. Alpha.
+description: Moved into asana-scrum. This stub routes there for one minor release, then is deleted.
 ---
 
-The `asana-sprint-report` skill (alpha) produces a sprint summary. Source: [`SKILL.md`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana-sprint-report/SKILL.md).
+The `asana-sprint-report` skill moved into [`asana-scrum`](/cyber-asana/skills/asana-scrum/), which
+computes the sprint review and the retro in the CLI (`cyber-asana report sprint` and
+`cyber-asana report retro`) instead of asking the model to add up task lists. The skill stays as a
+stub that routes to `asana-scrum` for one minor release, then it is deleted. Use `asana-scrum`,
+`/cyber-asana:sprint-review`, or `/cyber-asana:retro` instead.
 
-## When it triggers
-
-Use it when you ask for a sprint summary, retrospective data, or completion stats for a project or section.
-
-## How to use it
-
-1. **Identify scope.** It asks or infers the project, the section that is the sprint, and the start date, using `project list` and `section list`.
-2. **Fetch completed tasks** with `section tasks <section-gid> --completed-since <start-date>` for a sprint section, or `task list --completed-since <start-date>` for a whole project. Either returns only tasks completed on or after the date.
-3. **Fetch incomplete tasks** with `section tasks <section-gid> --incomplete`, or `task list --incomplete` for a whole project.
-4. **Points, when the project has them.** With `story_points` or `task_points` in the registry entry, it reports the two as separate totals, completed and incomplete, and never counts a parent's subtasks twice.
-5. **Write the report:** completed and incomplete lists with assignees, the completion rate, and a short narrative on blockers, scope creep, and load.
-6. **Offer follow-up:** moving incomplete tasks to the next sprint section.
+Source: [`SKILL.md`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana-sprint-report/SKILL.md).

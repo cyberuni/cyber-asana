@@ -140,7 +140,7 @@ The default budget is 80% of the limit (120 free, 1,200 paid, 48 for search), so
 
 ## Agent skills
 
-`cyber-asana` ships workflow skills under [`packages/cyber-asana/skills/`](https://github.com/cyberuni/cyber-asana/tree/main/packages/cyber-asana/skills) for Cursor, Claude Code, and other agents. **Start here** — skills drive the CLI (and MCP tools when you have opted into the server), encode how to resolve projects from repo config, and common workflows (standups, sprint reports, task creation).
+`cyber-asana` ships workflow skills under [`packages/cyber-asana/skills/`](https://github.com/cyberuni/cyber-asana/tree/main/packages/cyber-asana/skills) for Cursor, Claude Code, and other agents. **Start here** — skills drive the CLI (and MCP tools when you have opted into the server), encode how to resolve projects from repo config, and common workflows (standups, sprint reviews and retros, task creation).
 
 ### Install skills
 
@@ -163,9 +163,9 @@ Set [authentication](#authentication) before running any workflow.
 | [`init-asana`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/init-asana/SKILL.md) | First-time setup; `ASANA_ACCESS_TOKEN`, workspace GID, verify connection |
 | [`init-asana-scrum`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/init-asana-scrum/SKILL.md) | Scrum setup — scope, `sections` sprint model, fields, backlog, current sprint, policy |
 | [`config-asana`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/config-asana/SKILL.md) | Add, remove, refresh, and show Asana projects and users in the repo config or the personal global registry |
-| [`asana-scrum`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana-scrum/SKILL.md) | Scrum work — the standup (done, today, blocked) and the sprint health check, computed by the CLI; sprint housekeeping |
+| [`asana-scrum`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana-scrum/SKILL.md) | Scrum work — the standup, the sprint review, the retro, velocity, and the sprint health check, computed by the CLI; sprint housekeeping |
 | [`asana-standup`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana-standup/SKILL.md) | Moved into `asana-scrum`; a stub that routes there for one minor release |
-| [`asana-sprint-report`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana-sprint-report/SKILL.md) (alpha) | Sprint retro — completed vs incomplete in a project/section |
+| [`asana-sprint-report`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana-sprint-report/SKILL.md) | Moved into `asana-scrum`; a stub that routes there for one minor release |
 | [`sync-asana-project`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/sync-asana-project/SKILL.md) (alpha) | Pull project tasks into local markdown for planning |
 
 To create a task explicitly, run the **`/cyber-asana:create-task`** command (plugin installs). It and the `asana` skill share one procedure, [`skills/asana/references/create-task.md`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana/references/create-task.md), so prefer either over ad-hoc `asana_task_create` calls: agents then resolve workspace, project, and URL fields consistently.
@@ -486,7 +486,8 @@ Tools are named `asana_<resource>_<action>` (e.g. `asana_task_create`).
 | `team` | `asana_team_list`, `asana_team_get` |
 | `scope` | `asana_scope_list`, `asana_scope_add`, `asana_scope_remove`, `asana_scope_resolve` (scrum scopes: the projects a scrum team works in) |
 | `sprint` | `asana_sprint_current`, `asana_sprint_list`, `asana_sprint_tasks`, `asana_sprint_add`, `asana_sprint_start`, `asana_sprint_close`, `asana_backlog_list` (computed sprints and the backlog; the `sections` model) |
-| `report` | `asana_report_standup` (a member's standup: done, today, blocked; story and task points apart), `asana_report_health` (sprint health checks H1–H11, each finding with a fix command), `asana_report_workload` (per person load vs Allocations capacity, over/under flags, team total) |
+| `report` | `asana_report_standup` (a member's standup: done, today, blocked; story and task points apart), `asana_report_health` (sprint health checks H1–H11, each finding with a fix command), `asana_report_workload` (per person load vs Allocations capacity, over/under flags, team total), `asana_report_sprint` (the sprint review: committed vs completed vs added vs removed, burndown, demo list), `asana_report_retro` (carry-over, scope change, blocked time, cycle time, estimate vs actual), `asana_report_velocity` (points per closed sprint and the mean) |
+
 | `portfolio` | `asana_portfolio_list`, `asana_portfolio_item_list`, `asana_portfolio_get`, `asana_portfolio_create`, `asana_portfolio_update`, `asana_portfolio_delete` |
 | `goal` | `asana_goal_list`, `asana_goal_get`, `asana_goal_create`, `asana_goal_update`, `asana_goal_delete` |
 | `tag` | `asana_tag_list`, `asana_tag_get`, `asana_tag_create`, `asana_tag_update`, `asana_tag_delete`, `asana_tag_list_for_task`, `asana_tag_list_tasks`, `asana_tag_add_to_task`, `asana_tag_remove_from_task` |

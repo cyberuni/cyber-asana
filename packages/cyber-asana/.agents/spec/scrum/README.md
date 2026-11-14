@@ -255,6 +255,43 @@ person, the load of their incomplete assigned tasks against capacity. Thresholds
   capacity and are never subtracted from it. Without a workspace (`--workspace` or
   `ASANA_WORKSPACE_GID`), or when the read fails, the report says so in `notes` and carries on.
 - A report that ran exits 0 whatever it found.
+### The commitment snapshot
+
+`sprint start --snapshot` (and `asana_sprint_start` with `snapshot`) posts, on each project of the scope
+that holds the sprint's section, a status update titled `<sprint> started` (`status_type` `on_track`).
+Its text carries a marker line with the sprint index, a count line, and one line per task: GID, story
+points, task points, name. A project that already has a snapshot for the sprint is left alone, so the
+command is idempotent. The snapshot is posted after the sprint is filled; the first one posted for a
+sprint is its commitment, since Asana cannot edit a status update (D6). Without `--snapshot`, `sprint
+start` does not touch status updates.
+
+### Sprint review, retro, and velocity
+
+`report sprint`, `report retro`, and `report velocity` (`--scope`; `--sprint` on the first two)
+compute from the sprint's tasks, its commitment, and, for the retro, each task's system stories.
+
+- **Commitment.** From the snapshot when one exists (`source: snapshot`). Otherwise rebuilt from each
+  task's "moved to the sprint" story: a task that joined by the end of the sprint's first day, in the
+  user's timezone, was committed (`source: rebuilt`). Tasks removed from the sprint cannot be found
+  that way, so `removed` is `null`. With no history at all, `source` is `unavailable`. Each case adds
+  a note. Points in a rebuild are as they are now.
+- **Sprint review (R2).** Committed, completed, added (in the sprint now, not committed), and removed
+  (committed, gone now); completion rate by count and by each kind of points, against everything in the
+  sprint now, `null` where nothing was planned; carry-over candidates (incomplete tasks); a daily
+  burndown from `completed_at` up to today; and the completed stories for the demo (completed tasks
+  with story points, or every completed task when no story points are tracked).
+- **Retro (R3).** Carry-over, scope change, blocked tasks and hours, cycle time (`completed_at` minus
+  `created_at`, mean and median), and estimate against actual: the points committed in the snapshot
+  against the points the finished task carries now (task-conventions records actuals over the
+  estimate). Without a snapshot the estimate comparison is `null` and a note says why.
+- **Blocked time is best effort (G14).** It reads system stories by `resource_subtype`: a dependency
+  added until removed or completed, a tag added until removed. The values are Asana's documented ones,
+  held in `reports/stories.ts` and probed by a system test; a `state:<x>` signal leaves no story the
+  report reads. When no story shows a block, `notes` says no block time is reported.
+- **Velocity (R4).** The points each of the last `velocity_window` closed sprints completed (completed
+  by the end of its last day), story and task apart, and their mean. Fewer closed sprints than the
+  window gives a note.
+- A sprint without a section is `sprint-none` (D12). Points are never merged into one figure.
 
 ## Scenario map
 
