@@ -149,6 +149,21 @@ describe('sprint and backlog commands', () => {
 		expect(await run(api, 'sprint', 'start')).toMatch(/already started/i)
 	})
 
+	it('sprint start --snapshot posts the commitment and says where, idempotently', async () => {
+		const startSprint = vi.fn(async () => ({
+			scope: 'web',
+			sprint,
+			created: [],
+			existing: ['p1', 'p2'],
+			already_started: true,
+			snapshot: { posted: ['p1'], existing: ['p2'] },
+		}))
+		const out = await run(fakeApi({ startSprint } as never), 'sprint', 'start', '--snapshot')
+		expect(startSprint).toHaveBeenCalledWith({ snapshot: true }, { configPath: undefined, repo: undefined })
+		expect(out).toContain('Posted the commitment snapshot in project(s) p1')
+		expect(out).toContain('already had one in p2')
+	})
+
 	it('sprint close reports what moved and where', async () => {
 		const out = await run(fakeApi(), 'sprint', 'close')
 		expect(out).toContain('Sprint 3')
