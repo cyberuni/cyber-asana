@@ -19,8 +19,8 @@ walks an agent through setting up scrum on Asana (K2, D5 of the [scrum design](.
   implementations through the `reference` skill of `cyber-agentkit`, `config discover-fields`
   (reporting missing fields, never creating them), the backlog section and `sprint start`, the
   non-default policy keys written into `.agents/references/cyber-asana.scrum.md`, and verification
-  with `sprint current` and `backlog list`.
-- **What it leaves out** — the capacity probe (U10), `report health` (U8), field creation (U11),
+  with `report health`.
+- **What it leaves out** — the capacity probe (U10), field creation (U11),
   and the portfolio and team scopes and the other sprint models (U9, U11, U15). It says so rather
   than offering them.
 - **Behavior it holds to** — idempotent (a re-run shows the setup and changes only what the user

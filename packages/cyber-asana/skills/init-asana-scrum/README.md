@@ -22,6 +22,6 @@ The skill guides, asking before it creates or writes anything:
 - Reporting the points, `sprint`, and `status` fields `config discover-fields` finds (creating them is a later unit)
 - Creating the backlog section and starting the current sprint
 - Writing only non-default policy keys into `.agents/references/cyber-asana.scrum.md`
-- Verifying with `sprint current` and `backlog list`
+- Verifying with `report health`
 
 Re-running it shows the setup and changes only what you pick.
