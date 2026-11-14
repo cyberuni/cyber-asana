@@ -20,14 +20,18 @@ metadata:
 
 ## Workflow
 
-### 1. Refresh cyber-asana catalog if MCP source changed
+### 1. Update the `asana` SDK
+
+Follow [update-asana-sdk](../update-asana-sdk/SKILL.md) Steps 1 to 4 first: bump `asana` and check whether each added tool has an SDK basis (for example `TablesApi`, `RecordsApi`). Classify overlap in Step 4 only after this, so a stale SDK copy does not hide an existing API.
+
+### 2. Refresh cyber-asana catalog if MCP source changed
 
 ```sh
 pnpm --filter @cyberuni/gap-analysis run catalog
 pnpm --filter @cyberuni/gap-analysis run check
 ```
 
-### 2. Generate gap report
+### 3. Generate gap report
 
 ```sh
 pnpm --filter @cyberuni/gap-analysis run report -- --json
@@ -42,7 +46,7 @@ Read the four buckets:
 | `overlap` | Both servers can serve the workflow; update routing |
 | `unmapped_*` | Overlap map references a tool missing from a catalog |
 
-### 3. Classify catalog deltas
+### 4. Classify catalog deltas
 
 For each **added** official tool:
 
@@ -55,14 +59,14 @@ For each **removed** official tool:
 - Note deprecation in maintainer summary
 - Remove stale entries from `overlap-map.ts`
 
-### 4. Update routing, overlap map, and web docs
+### 5. Update routing, overlap map, and web docs
 
 - Edit [`tools/gap-analysis/src/overlap-map.ts`](../../tools/gap-analysis/src/overlap-map.ts) for new or changed pairs
 - When dual-MCP readme routing exists, update the routing table there
 - Update [`apps/web/src/content/docs/reference/mcp-comparison.md`](../../apps/web/src/content/docs/reference/mcp-comparison.md): its tool totals, overlap/official-only/cyber-only summary, routing tables, and capability descriptions must match the report
 - Update affected skills under `skills/` if they reference MCP tool choice
 
-### 5. Implementation handoff
+### 6. Implementation handoff
 
 If cyber-asana should gain tools:
 
@@ -73,7 +77,7 @@ If docs-only:
 
 - Routing/readme/web-docs/skills changes suffice
 
-### 6. Refresh official baseline (separate commit)
+### 7. Refresh official baseline (separate commit)
 
 After analysis is complete:
 
@@ -90,7 +94,7 @@ pnpm --filter @cyberuni/gap-analysis run diff-official -- /tmp/official.json
 # should exit 0 after baseline refresh
 ```
 
-### 7. Maintainer summary
+### 8. Maintainer summary
 
 Post or include in PR:
 
