@@ -491,6 +491,7 @@ Tools are named `asana_<resource>_<action>` (e.g. `asana_task_create`).
 | `goal` | `asana_goal_list`, `asana_goal_get`, `asana_goal_create`, `asana_goal_update`, `asana_goal_delete` |
 | `tag` | `asana_tag_list`, `asana_tag_get`, `asana_tag_create`, `asana_tag_update`, `asana_tag_delete`, `asana_tag_list_for_task`, `asana_tag_list_tasks`, `asana_tag_add_to_task`, `asana_tag_remove_from_task` |
 | `ooo` | `asana_ooo_list`, `asana_ooo_get`, `asana_ooo_create`, `asana_ooo_update`, `asana_ooo_delete` |
+| `allocation` | `asana_allocation_list`, `asana_allocation_get`, `asana_allocation_create`, `asana_allocation_update`, `asana_allocation_delete` (resource-management allocations; plan-limited, 402 without it) |
 | `ai-studio` | `asana_ai_studio_run_list`, `asana_ai_studio_seat_list` (AI Studio usage; service accounts in AI Studio-licensed organizations only) |
 | `attachment` | `asana_attachment_list`, `asana_attachment_get`, `asana_attachment_create`, `asana_attachment_delete` |
 | `project-template` | `asana_project_template_list`, `asana_project_template_get`, `asana_project_template_instantiate` |
@@ -643,6 +644,7 @@ Installing twice is a no-op, and unrelated settings are preserved.
 | `goal` | `list`, `get`, `create`, `update`, `delete` |
 | `tag` | `list`, `get`, `create`, `update`, `delete`, `tasks`, `task list/add/remove` |
 | `ooo` | `list`, `get`, `create`, `update`, `delete` |
+| `allocation` | `list`, `get`, `create`, `update`, `delete` (resource management; see [Allocations](https://cyberuni.github.io/cyber-asana/cli/allocations/)) |
 | `sprint` | `current`, `list`, `tasks`, `add`, `start`, `close` (see [Sprints and backlog](https://cyberuni.github.io/cyber-asana/cli/sprints/)) |
 | `backlog` | `list` |
 | `ai-studio` | `runs`, `seats` |

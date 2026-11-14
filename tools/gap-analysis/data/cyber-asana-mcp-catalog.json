@@ -5,6 +5,11 @@
 	"tools": [
 		"asana_ai_studio_run_list",
 		"asana_ai_studio_seat_list",
+		"asana_allocation_create",
+		"asana_allocation_delete",
+		"asana_allocation_get",
+		"asana_allocation_list",
+		"asana_allocation_update",
 		"asana_attachment_create",
 		"asana_attachment_delete",
 		"asana_attachment_get",

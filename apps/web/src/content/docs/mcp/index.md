@@ -138,6 +138,7 @@ Default: if both can do the job, prefer **official for discovery and previews** 
 | `goal` | `asana_goal_list`, `asana_goal_get`, `asana_goal_create`, `asana_goal_update`, `asana_goal_delete` |
 | `tag` | `asana_tag_list`, `asana_tag_get`, `asana_tag_create`, `asana_tag_update`, `asana_tag_delete`, `asana_tag_list_for_task`, `asana_tag_list_tasks`, `asana_tag_add_to_task`, `asana_tag_remove_from_task` |
 | `ooo` | `asana_ooo_list`, `asana_ooo_get`, `asana_ooo_create`, `asana_ooo_update`, `asana_ooo_delete` |
+| `allocation` | `asana_allocation_list`, `asana_allocation_get`, `asana_allocation_create`, `asana_allocation_update`, `asana_allocation_delete` (resource-management allocations; plan-limited, 402 without it) |
 | `ai-studio` | `asana_ai_studio_run_list`, `asana_ai_studio_seat_list` (AI Studio usage; service accounts in AI Studio-licensed organizations only) |
 | `attachment` | `asana_attachment_list`, `asana_attachment_get`, `asana_attachment_create`, `asana_attachment_delete` |
 | `custom-field` | `asana_custom_field_list`, `asana_custom_field_get`, `asana_custom_field_list_for_project`, `asana_custom_field_list_for_portfolio`, `asana_custom_field_list_for_goal`, `asana_custom_field_list_for_team` |
