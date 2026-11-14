@@ -39,6 +39,7 @@ help text. Every resource group's `--help` ends with worked examples.
 | [Custom fields](/cyber-asana/cli/custom-fields/) | `list`, `get` (find the GIDs task writes are keyed by) |
 | [Authentication](/cyber-asana/cli/auth/) | `auth status`, `auth login`, `auth token`, `auth logout` |
 | [Repo config](/cyber-asana/cli/repo-config/) | `config show/list/path/resolve-project/add/set-default/remove-project-alias/remove/sync/add-user/resolve-user/list-users/remove-user/set/unset/discover-fields/set-field/unset-field`, `config scope add/remove/list`, `scrum scope resolve` |
+| [Sprints & backlog](/cyber-asana/cli/sprints/) | `sprint current/list/tasks/add/start/close`, `backlog list` |
 | [Memberships](/cyber-asana/cli/memberships/) | `list`, `get`, `create`, `update`, `delete` |
 | [Task templates](/cyber-asana/cli/task-templates/) | `list`, `get`, `instantiate` |
 | [Project templates](/cyber-asana/cli/project-templates/) | `list`, `get`, `instantiate` |
@@ -128,7 +129,7 @@ cyber-asana section get <gid> --opt-fields name,project.name,created_at
 | --- | --- |
 | `0` | Success |
 | `1` | Generic error |
-| `2` | Usage error (bad flag or subcommand), or a scrum scope the command cannot use (`scope-unknown`, `scope-missing`); `error.code` tells them apart |
+| `2` | Usage error (bad flag or subcommand), or a scrum scope or sprint the command cannot use (`scope-unknown`, `scope-missing`, `sprint-none`, `sprint-unknown`, `model-unsupported`, `policy-incomplete`); `error.code` tells them apart |
 | `3` | Auth or config error |
 | `4` | Forbidden |
 | `5` | Not found |

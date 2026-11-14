@@ -85,6 +85,16 @@ A task is done when its change is released to production and its actual points a
 It needs no `merge` key. Every key it leaves out keeps its default, and every section it leaves
 out keeps the shipped text. Only `## Definition of done` is replaced.
 
+## Sprint models
+
+The plugin also ships `cyber-asana.sprint-model.interface` and its first implementation,
+`cyber-asana.sprint-model.sections`. The interface lists what each sprint model must say (how to find
+the current sprint, list its tasks, start, fill, and close it); `npx cyber-agentkit reference check`
+keeps every implementation shaped like it. The `sprint` and `backlog` commands compute only the models
+the CLI builds in. To use your own, such as `cyber-asana.sprint-model.tags` in `.agents/references/`,
+implement the interface and point a scope's `sprint_model` at the key; the commands then stop with
+`model-unsupported`, and an agent follows your reference with the primitive commands it lists.
+
 ## When two plugins ship the same name
 
 If another installed plugin also ships `cyber-asana.scrum` or `cyber-asana.task-conventions`, the
