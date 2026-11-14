@@ -16,6 +16,7 @@ export ASANA_WORKSPACE_GID=<workspace-gid>  # optional default workspace
 pnpm verify                             # lint + build + typecheck + test + knip
 pnpm ca dev task list --project <gid>   # run CLI without building (tsx)
 pnpm ca test:system                     # live API tests (requires ASANA_SYSTEM_TEST=1)
+pnpm ca test:system:paid                # setup + every live suite on a paid workspace, with a ran/skipped summary
 ```
 
 `pnpm ca <script>` is the root shortcut for `pnpm run --filter=./packages/cyber-asana <script>`;

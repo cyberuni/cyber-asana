@@ -107,6 +107,8 @@ ASANA_SYSTEM_TEST=1 ASANA_ACCESS_TOKEN=<pat> pnpm test:system
 
 To fill a project with what those suites page over (two sections, two tasks, and on the first task two comments and two link attachments), run `pnpm test:system:setup [project-gid]` in `packages/cyber-asana`. Without a project it finds or creates `cyber-asana system test` in `ASANA_WORKSPACE_GID`. It is idempotent, looks fixtures up by name, and prints the `ASANA_WORKSPACE_GID` and `ASANA_SYSTEM_TEST_*` lines to export. Paste those lines into a gitignored `.env` (in the package or the repo root): `pnpm test:system` loads it, and a variable already exported in the shell wins over the file. `ASANA_SYSTEM_TEST=1` and the token still come from the shell. Use the workspace it prints: it is the project's own, which can differ from your ambient `ASANA_WORKSPACE_GID`.
 
+On a paid workspace, `pnpm test:system:paid [project-gid]` does the setup above, sets `ASANA_SYSTEM_TEST=1` and `ASANA_PLAN=paid`, runs every suite, and ends with a ran/passed/failed/skipped summary (exit `3` when a required suite skipped). Each new `*.system.ts` must add a row to `src/testing/system-suites.ts` (a test enforces it) and to the `run-system-tests` skill's table.
+
 Optional env vars for specific suites:
 
 | Variable | Used by |
