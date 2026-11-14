@@ -1,4 +1,5 @@
 import { buildErrorBody, PLAN_LIMITATION_STATUS } from '../error-body.js'
+import { REFERENCE_AMBIGUOUS } from '../reference-metadata.js'
 import { encodeToon } from '../toon.js'
 import type { OutputFormat } from './output.js'
 import { buildUsageErrorBody, isUsageError, renderUsageErrorText } from './usage.js'
@@ -9,6 +10,7 @@ import { buildUsageErrorBody, isUsageError, renderUsageErrorText } from './usage
 export function exitCodeFor(error: unknown): number {
 	if (isUsageError(error)) return 2 // the caller can fix the command line and retry
 	const body = buildErrorBody(error)
+	if (body.error.code === REFERENCE_AMBIGUOUS) return 8 // pick one of `options`, then retry
 	if (body.error.kind === 'config') return 3
 	switch (body.error.status) {
 		case PLAN_LIMITATION_STATUS:
@@ -38,6 +40,7 @@ export function renderCliError(error: unknown, format: OutputFormat): string {
 	if (format === 'toon') return encodeToon(body)
 	const prefix = body.error.kind === 'asana_api' ? 'Asana API error' : 'Error'
 	let text = `${prefix}: ${body.error.message}`
+	if (body.error.options?.length) text += `\nOptions: ${body.error.options.join(', ')}`
 	if (body.error.hint) text += `\nHint: ${body.error.hint}`
 	return text
 }

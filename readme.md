@@ -599,7 +599,8 @@ for AI agents to consume:
 - **Structured errors & exit codes** — under `--json`/`--toon`, errors are
   structured objects. Exit codes: `0` success, `1` generic, `2` usage (bad flag
   or subcommand), `3` auth/config, `4` forbidden, `5` not found, `6` rate limited,
-  `7` above the workspace's plan level (Asana `402`).
+  `7` above the workspace's plan level (Asana `402`), `8` an ambiguous reference
+  (two plugins ship it; the error lists the options).
 - **Self-correcting usage errors** — an unknown flag reports the flags that
   command actually accepts, plus a `--help` pointer, and exits `2`.
 - **Consistent help** — every resource group's `--help` ends with worked

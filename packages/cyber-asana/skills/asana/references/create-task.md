@@ -47,6 +47,12 @@ Its frontmatter holds the repo's settings, which the CLI (and the MCP server, if
 | `description_template` | The CLI fills it in as the description when you pass no notes. Pass your own `--notes`/`--html-notes` only when you have real content, and start from the template's headings when you do |
 | `default_tags` | Applied automatically when you pass no tags. Each entry is a tag GID or a tag name resolved in the workspace. Pass `--tag` only to override them |
 
+If the `reference` skill reports the name as ambiguous (two plugins ship it), settle it there:
+it lists the options, asks which to build on and whether for the repository or only the user, and
+saves the pick with `reference customize cyber-asana.task-conventions --extends <pick>`. The CLI
+cannot ask, so until a pick is saved `task create` stops with `reference-ambiguous` (exit `8`)
+and lists the same options; settle it the same way, then run the command again.
+
 ## 2. Gather required fields
 
 All three are required before `cyber-asana task create`. Infer when possible; ask if any are missing.
