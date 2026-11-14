@@ -84,7 +84,7 @@ See the [full OAuth documentation](https://github.com/cyberuni/cyber-asana#oauth
 Ask your agent, with the skills installed:
 
 - "Create an Asana task for this bug" (the `asana` skill)
-- "Write my standup from Asana" (the `asana-standup` skill)
+- "Write my standup from Asana" (the `asana-scrum` skill, or `/cyber-asana:standup`)
 - "Link this PR to its Asana task" (`/cyber-asana:link-pr`)
 
 MCP is opt-in. To use the tools instead of the CLI, accept the MCP step in `init-asana` or start the server yourself:

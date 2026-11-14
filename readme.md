@@ -163,7 +163,8 @@ Set [authentication](#authentication) before running any workflow.
 | [`init-asana`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/init-asana/SKILL.md) | First-time setup; `ASANA_ACCESS_TOKEN`, workspace GID, verify connection |
 | [`init-asana-scrum`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/init-asana-scrum/SKILL.md) | Scrum setup — scope, `sections` sprint model, fields, backlog, current sprint, policy |
 | [`config-asana`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/config-asana/SKILL.md) | Add, remove, refresh, and show Asana projects and users in the repo config or the personal global registry |
-| [`asana-standup`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana-standup/SKILL.md) | Standup update — recent completions and due-soon tasks |
+| [`asana-scrum`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana-scrum/SKILL.md) | Scrum work — the standup (done, today, blocked), computed by the CLI; sprint housekeeping |
+| [`asana-standup`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana-standup/SKILL.md) | Moved into `asana-scrum`; a stub that routes there for one minor release |
 | [`asana-sprint-report`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana-sprint-report/SKILL.md) (alpha) | Sprint retro — completed vs incomplete in a project/section |
 | [`sync-asana-project`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/sync-asana-project/SKILL.md) (alpha) | Pull project tasks into local markdown for planning |
 
