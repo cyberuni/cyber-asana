@@ -60,6 +60,7 @@
 		"asana_project_counts",
 		"asana_project_create",
 		"asana_project_delete",
+		"asana_project_duplicate",
 		"asana_project_export",
 		"asana_project_get",
 		"asana_project_list",

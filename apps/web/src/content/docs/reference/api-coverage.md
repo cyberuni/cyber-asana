@@ -50,7 +50,7 @@ operations such as project export and TODO scanning are described separately bel
 | Project templates | 🟡 | 4 / 5 | `project-template` | List, get, and instantiate; no template deletion |
 | Sections | ✅ | 7 / 7 | `section` | Complete, including section reordering, section-scoped task placement, and listing a section's tasks |
 | Portfolios | 🟡 | 8 / 13 | `portfolio` | CRUD, item listing, item add and remove; members are managed under `membership` |
-| Projects | 🟡 | 7 / 20 | `project` | CRUD, counts, search. Templates have their own row; members are managed under `membership` |
+| Projects | 🟡 | 8 / 20 | `project` | CRUD, counts, search, duplicate. Templates have their own row; members are managed under `membership` |
 | Goals | 🟡 | 5 / 12 | `goal` | CRUD only; no metrics or followers |
 | Users | 🟡 | 3 / 8 | `user` | Read-only |
 | Teams | 🟡 | 2 / 7 | `team` | Read-only; also a team's projects, which `team projects` lists |
@@ -127,7 +127,7 @@ managing them.
 | Search projects | `project search [text]` | `asana_project_search` |
 | Create / update / delete | `project create\|update\|delete` | `asana_project_create` / `_update` / `_delete` |
 
-Not covered: members, followers, attaching or detaching a custom field, duplicate,
+Not covered: members, followers, attaching or detaching a custom field,
 save-as-template, and the team-scoped create/list variants. Reading a project's attached
 custom fields is covered — see `custom-field project` below.
 

@@ -44,6 +44,8 @@ describe('projects/cli', () => {
 			deleteProject: vi.fn(),
 			searchProjects: vi.fn(),
 			exportProject: vi.fn(),
+			duplicateProject: vi.fn(),
+			duplicateProjectAndWait: vi.fn(),
 		}
 
 		await new Command()
@@ -74,6 +76,8 @@ describe('projects/cli', () => {
 				deleteProject: vi.fn(),
 				searchProjects: vi.fn(),
 				exportProject: vi.fn(),
+				duplicateProject: vi.fn(),
+				duplicateProjectAndWait: vi.fn(),
 			}),
 		)
 
@@ -96,6 +100,8 @@ describe('projects/cli', () => {
 			deleteProject: vi.fn(),
 			searchProjects: vi.fn(),
 			exportProject: vi.fn(),
+			duplicateProject: vi.fn(),
+			duplicateProjectAndWait: vi.fn(),
 		}
 
 		await new Command()
@@ -141,6 +147,8 @@ describe('projects/cli', () => {
 				deleteProject: vi.fn().mockResolvedValue(undefined),
 				searchProjects: vi.fn(),
 				exportProject: vi.fn(),
+				duplicateProject: vi.fn(),
+				duplicateProjectAndWait: vi.fn(),
 			}),
 		)
 
@@ -331,6 +339,8 @@ describe('projects/cli', () => {
 				deleteProject: vi.fn(),
 				searchProjects: vi.fn(),
 				exportProject: vi.fn(),
+				duplicateProject: vi.fn(),
+				duplicateProjectAndWait: vi.fn(),
 			}),
 		)
 
@@ -353,6 +363,8 @@ describe('projects/cli', () => {
 			deleteProject: vi.fn(),
 			searchProjects: vi.fn(),
 			exportProject: vi.fn(),
+			duplicateProject: vi.fn(),
+			duplicateProjectAndWait: vi.fn(),
 		}
 
 		await new Command()
@@ -381,6 +393,8 @@ describe('projects/cli', () => {
 					deleteProject: vi.fn(),
 					searchProjects: vi.fn(),
 					exportProject: vi.fn(),
+					duplicateProject: vi.fn(),
+					duplicateProjectAndWait: vi.fn(),
 				}),
 			)
 			.parseAsync(['node', 'test', 'project', 'list', '--workspace-gid', 'ws1'], { from: 'node' })
@@ -403,6 +417,8 @@ describe('projects/cli', () => {
 					deleteProject: vi.fn(),
 					searchProjects: vi.fn(),
 					exportProject: vi.fn(),
+					duplicateProject: vi.fn(),
+					duplicateProjectAndWait: vi.fn(),
 				}),
 			)
 			.parseAsync(['node', 'test', 'project', 'list', '--workspace-gid', 'ws1', '--custom-type', 'ct1'], {

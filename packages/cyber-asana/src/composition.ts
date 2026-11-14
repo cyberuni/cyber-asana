@@ -158,7 +158,7 @@ export function createRuntimeContext(): RuntimeContext {
 		ooo: createOooApi(oooGateway),
 		jobs: createJobApi(jobGateway),
 		portfolios: createPortfolioApi(portfolioGateway),
-		projects: createProjectApi(projectGateway),
+		projects: createProjectApi(projectGateway, { jobs: jobGateway }),
 		projectTemplates: createProjectTemplateApi(createAsanaProjectTemplateGateway(client), { jobs: jobGateway }),
 		rules: createRuleApi(createAsanaRuleGateway(client)),
 		scrum: createScrumApi({

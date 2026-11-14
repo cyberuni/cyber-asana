@@ -15,6 +15,8 @@ function mockRuntimeContext(): RuntimeContext {
 			deleteProject: vi.fn(),
 			searchProjects: vi.fn(),
 			exportProject: vi.fn(),
+			duplicateProject: vi.fn(),
+			duplicateProjectAndWait: vi.fn(),
 		},
 		tasks: {
 			listTasks: vi.fn(),

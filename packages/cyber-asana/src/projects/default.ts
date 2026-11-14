@@ -1,16 +1,20 @@
+import { createAsanaJobGateway } from '../jobs/gateway.js'
 import { createClient } from '../platform/client.js'
+import type { WaitForJobOptions } from '../platform/job-polling.js'
 import type { ReadOptions } from '../platform/read-options.js'
 import { createProjectApi, type ProjectExport } from './api.js'
 import {
 	type CreateProjectFields,
 	createAsanaProjectGateway,
+	type DuplicateProjectFields,
 	type ProjectListOptions,
 	type SearchProjectsOptions,
 	type UpdateProjectFields,
 } from './gateway.js'
 
 function defaultProjectApi() {
-	return createProjectApi(createAsanaProjectGateway(createClient()))
+	const client = createClient()
+	return createProjectApi(createAsanaProjectGateway(client), { jobs: createAsanaJobGateway(client) })
 }
 
 export async function listProjects(workspaceGid: string, opts?: ProjectListOptions) {
@@ -43,4 +47,16 @@ export async function searchProjects(workspaceGid: string, opts?: SearchProjects
 
 export async function exportProject(projectGid: string): Promise<ProjectExport> {
 	return defaultProjectApi().exportProject(projectGid)
+}
+
+export async function duplicateProject(projectGid: string, fields: DuplicateProjectFields) {
+	return defaultProjectApi().duplicateProject(projectGid, fields)
+}
+
+export async function duplicateProjectAndWait(
+	projectGid: string,
+	fields: DuplicateProjectFields,
+	opts?: WaitForJobOptions,
+) {
+	return defaultProjectApi().duplicateProjectAndWait(projectGid, fields, opts)
 }

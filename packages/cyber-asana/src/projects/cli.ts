@@ -1,10 +1,11 @@
 import { writeFile } from 'node:fs/promises'
-import { Command } from 'commander'
+import { Command, InvalidArgumentError } from 'commander'
 import {
 	addGidOption,
 	addPaginationOptions,
 	addReadOptions,
 	itemsForOutput,
+	normalizedGid,
 	paginationOptionsFromCli,
 	printNextPageHint,
 	readOptionsFromCli,
@@ -19,12 +20,16 @@ import {
 	selectFormat,
 } from '../platform/cli/output.js'
 import { deleteIdempotently, deleteMessage } from '../platform/idempotent-delete.js'
+import { DEFAULT_JOB_POLL_INTERVAL_MS } from '../platform/job-polling.js'
 import { encodeToon } from '../platform/toon.js'
 import { isFull, truncate } from '../platform/truncate.js'
-import { type ProjectApi, renderProjectMarkdown } from './api.js'
+import { newProjectOf } from '../project-templates/api.js'
+import { DEFAULT_DUPLICATE_TIMEOUT_SECONDS, type ProjectApi, renderProjectMarkdown } from './api.js'
 import {
 	createProject,
 	deleteProject,
+	duplicateProject,
+	duplicateProjectAndWait,
 	exportProject,
 	getProject,
 	getProjectTaskCounts,
@@ -46,6 +51,8 @@ function resolveProjectApi(api?: ProjectApi | (() => ProjectApi)): ProjectApi {
 			deleteProject,
 			searchProjects,
 			exportProject,
+			duplicateProject,
+			duplicateProjectAndWait,
 		}
 	)
 }
@@ -418,6 +425,63 @@ export function projectCommand(api?: ProjectApi | (() => ProjectApi)) {
 				}
 			}
 		})
+
+	addGidOption(
+		cmd
+			.command('duplicate <gid>')
+			.description('Duplicate a project; waits for Asana to build the copy and prints the new project GID')
+			.requiredOption('--name <name>', 'Name for the new project'),
+		'team',
+		'Team GID for the new project',
+	)
+		.option(
+			'--include <elements>',
+			'Elements to copy, comma-separated (for example members,task_notes,task_assignee,task_dates)',
+			(value: string) => value.split(',').filter(Boolean),
+		)
+		.option('--no-wait', 'Return the job immediately instead of waiting for the copy')
+		.option(
+			'--timeout <seconds>',
+			`Seconds to wait for the job (default: ${DEFAULT_DUPLICATE_TIMEOUT_SECONDS})`,
+			(value: string) => {
+				const seconds = Number(value)
+				if (!Number.isInteger(seconds) || seconds < 1) {
+					throw new InvalidArgumentError('--timeout must be a whole number of seconds greater than 0')
+				}
+				return seconds
+			},
+		)
+		.action(
+			async (
+				gid: string,
+				opts: { name: string; team?: string; teamGid?: string; include?: string[]; wait: boolean; timeout?: number },
+			) => {
+				const teamGid = normalizedGid(opts, 'team')
+				const fields = {
+					name: opts.name,
+					...(teamGid !== undefined && { team: teamGid }),
+					...(opts.include !== undefined && { include: opts.include }),
+				}
+				const projectApi = resolveProjectApi(api)
+				if (!opts.wait) {
+					const job = await projectApi.duplicateProject(gid, fields)
+					output(job, () => {
+						printFields({ Job: job.gid ?? null, Status: job.status ?? null })
+						printNextSteps([`cyber-asana job get ${job.gid} — poll until the copy is ready`])
+					})
+					return
+				}
+				const job = await projectApi.duplicateProjectAndWait(gid, fields, {
+					maxAttempts: opts.timeout ?? DEFAULT_DUPLICATE_TIMEOUT_SECONDS,
+					intervalMs: DEFAULT_JOB_POLL_INTERVAL_MS,
+				})
+				output(job, () => {
+					const created = newProjectOf(job)
+					printFields({ Project: created?.gid ?? null, Name: created?.name ?? null, Job: job.gid ?? null })
+					if (created?.gid) printNextSteps([`cyber-asana project get ${created.gid} — view the new project`])
+				})
+			},
+		)
 
 	return cmd
 }

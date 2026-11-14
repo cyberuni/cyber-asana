@@ -1,8 +1,11 @@
 import { observeProjectIfConfigured, projectObservationFromApi } from '../config/repo-config.js'
+import type { JobGateway } from '../jobs/gateway.js'
+import { assertJobSucceeded, type Job, type WaitForJobOptions, waitForJob } from '../platform/job-polling.js'
 import { listItems } from '../platform/pagination.js'
 import type { ReadOptions } from '../platform/read-options.js'
 import type {
 	CreateProjectFields,
+	DuplicateProjectFields,
 	ProjectGateway,
 	ProjectListOptions,
 	SearchProjectsOptions,
@@ -11,6 +14,7 @@ import type {
 
 export type {
 	CreateProjectFields,
+	DuplicateProjectFields,
 	ProjectAccessLevel,
 	ProjectDefaultView,
 	ProjectListOptions,
@@ -43,7 +47,13 @@ export type ProjectExport = {
 
 export type ProjectApi = ReturnType<typeof createProjectApi>
 
-export function createProjectApi(gateway: ProjectGateway) {
+/** Duplicating is asynchronous, so waiting for the copy also needs to read jobs. */
+export type ProjectDeps = { jobs?: Pick<JobGateway, 'getJob'> }
+
+/** A copy takes longer to build than a single task, so the wait is longer than the shared default. */
+export const DEFAULT_DUPLICATE_TIMEOUT_SECONDS = 60
+
+export function createProjectApi(gateway: ProjectGateway, deps: ProjectDeps = {}) {
 	return {
 		listProjects(workspaceGid: string, opts?: ProjectListOptions) {
 			return gateway.listProjects(workspaceGid, opts)
@@ -67,6 +77,23 @@ export function createProjectApi(gateway: ProjectGateway) {
 		},
 		deleteProject(projectGid: string) {
 			return gateway.deleteProject(projectGid)
+		},
+		duplicateProject(projectGid: string, fields: DuplicateProjectFields) {
+			return gateway.duplicateProject(projectGid, fields)
+		},
+		/**
+		 * Duplicate and wait for Asana to finish building the copy. Resolves with the succeeded job, whose
+		 * `new_project` carries the GID. A failed job, and a wait that ran out, raise `JobFailedError`.
+		 */
+		async duplicateProjectAndWait(
+			projectGid: string,
+			fields: DuplicateProjectFields,
+			opts?: WaitForJobOptions,
+		): Promise<Job> {
+			const jobs = deps.jobs
+			if (!jobs) throw new Error('duplicateProjectAndWait needs a job gateway to poll the duplication')
+			const job = await gateway.duplicateProject(projectGid, fields)
+			return assertJobSucceeded(await waitForJob(job, (jobGid) => jobs.getJob(jobGid), opts))
 		},
 		searchProjects(workspaceGid: string, opts?: SearchProjectsOptions) {
 			return gateway.searchProjects(workspaceGid, opts)

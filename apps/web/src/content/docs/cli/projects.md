@@ -75,6 +75,20 @@ defaults to `num_tasks,num_incomplete_tasks,num_completed_tasks`.
 This endpoint has a stricter rate and cost profile than ordinary project reads — prefer the
 default field set unless you need additional count fields.
 
+## Duplicate
+
+```sh
+cyber-asana project duplicate <gid> --name "Sprint 3" --team-gid <gid>
+cyber-asana project duplicate <gid> --name "Sprint 3" --include members,task_notes
+cyber-asana project duplicate <gid> --name "Sprint 3" --no-wait
+```
+
+Copies a project. Asana builds the copy as a job, so the command waits for it and prints the new
+project GID. `--no-wait` returns the job instead, which `cyber-asana job get <gid>` polls, and
+`--timeout <seconds>` bounds the wait (default 60). A job that failed, or a wait that ran out, is an
+error. `--include` names the elements to copy, as Asana lists them. The MCP tool is
+`asana_project_duplicate`.
+
 ## Export
 
 ```sh
