@@ -184,10 +184,58 @@ describe('report standup command', () => {
 		expect(JSON.parse(out).done.count).toBe(1)
 	})
 
-	it('--team is passed on so the api can refuse it by code', async () => {
-		const api = fakeApi()
-		await run(api, 'report', 'standup', '--team')
-		expect(api.reportStandup).toHaveBeenCalledWith({ team: true }, { configPath: undefined, repo: undefined })
+	it('--team asks the api for the team standup and prints one block per person', async () => {
+		const teamStandup = {
+			scope: 'web-team',
+			today_date: '2026-01-21',
+			timezone: 'UTC',
+			timezone_source: 'asana',
+			window: standup.window,
+			sprint: standup.sprint,
+			today_basis: 'in-progress-or-due',
+			points_tracked: { story: true, task: false },
+			notes: [],
+			count: { members: 2 },
+			members: [
+				{ member: { gid: 'u1', name: 'Ada' }, done: standup.done, today: standup.today, blocked: group([]) },
+				{ member: { gid: 'u2', name: 'Bo' }, done: group([]), today: group([]), blocked: standup.blocked },
+			],
+		}
+		const api = fakeApi({ reportTeamStandup: vi.fn(async () => teamStandup) })
+		const out = await run(api, 'report', 'standup', '--team', '--scope', 'web-team')
+		expect(api.reportTeamStandup).toHaveBeenCalledWith(
+			{ scope: 'web-team' },
+			{ configPath: undefined, repo: undefined },
+		)
+		expect(api.reportStandup).not.toHaveBeenCalled()
+		expect(out).toContain('Team standup')
+		expect(out).toContain('Ada (u1)')
+		expect(out).toContain('Bo (u2)')
+		expect(out).toContain('Shipped it')
+		expect(out).toContain('0 done tasks found')
+		expect(out).toContain('2 member(s)')
+	})
+
+	it('--team says what was empty when the scope has no people', async () => {
+		const api = fakeApi({
+			reportTeamStandup: vi.fn(async () => ({
+				scope: 'x',
+				today_date: '2026-01-21',
+				timezone: 'UTC',
+				timezone_source: 'asana',
+				window: standup.window,
+				sprint: null,
+				points_tracked: { story: false, task: false },
+				notes: [],
+				count: { members: 0 },
+				members: [],
+			})),
+		})
+		expect(await run(api, 'report', 'standup', '--team')).toContain('0 members found')
+	})
+
+	it('--team conflicts with --member', async () => {
+		await expect(run(fakeApi(), 'report', 'standup', '--team', '--member', 'x')).rejects.toThrow()
 	})
 
 	it('rejects --me together with --member as a usage error', async () => {

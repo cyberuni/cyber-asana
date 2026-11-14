@@ -5,7 +5,7 @@
  * belongs to `repo-config.ts` and `global-config.ts`.
  */
 
-export const SCOPE_KINDS = ['project', 'projects', 'portfolio'] as const
+export const SCOPE_KINDS = ['project', 'projects', 'portfolio', 'team'] as const
 
 export type ScopeKind = (typeof SCOPE_KINDS)[number]
 
@@ -19,6 +19,8 @@ export type ScopeEntry = {
 	projects?: string[]
 	/** The portfolio GID of a `portfolio` scope. */
 	portfolio?: string
+	/** The team GID of a `team` scope. */
+	team?: string
 	/** Marks the scope used when a command is not given `--scope`. At most one per list. */
 	default?: true
 	sprint_model?: string
@@ -29,7 +31,7 @@ export type ScopeEntry = {
 
 export type ScrumBlock = { scopes: ScopeEntry[] }
 
-const SCOPE_KEYS = ['name', 'kind', 'projects', 'portfolio', 'default', ...SCOPE_OVERRIDE_KEYS]
+const SCOPE_KEYS = ['name', 'kind', 'projects', 'portfolio', 'team', 'default', ...SCOPE_OVERRIDE_KEYS]
 
 export function normalizeScopeName(name: string): string {
 	return name.trim().toLowerCase()
@@ -64,12 +66,21 @@ function parseScopeEntry(entry: unknown, label: string): ScopeEntry {
 
 	if (kind === 'portfolio') {
 		if (scope.projects !== undefined) throw new Error(`${label}.projects is not allowed on a portfolio scope`)
+		if (scope.team !== undefined) throw new Error(`${label}.team is not allowed on a portfolio scope`)
 		if (typeof scope.portfolio !== 'string' || scope.portfolio.length === 0) {
 			throw new Error(`${label}.portfolio must be a non-empty string`)
 		}
 		entryOut.portfolio = scope.portfolio
+	} else if (kind === 'team') {
+		if (scope.projects !== undefined) throw new Error(`${label}.projects is not allowed on a team scope`)
+		if (scope.portfolio !== undefined) throw new Error(`${label}.portfolio is not allowed on a team scope`)
+		if (typeof scope.team !== 'string' || scope.team.length === 0) {
+			throw new Error(`${label}.team must be a non-empty string`)
+		}
+		entryOut.team = scope.team
 	} else {
 		if (scope.portfolio !== undefined) throw new Error(`${label}.portfolio is not allowed on a ${kind} scope`)
+		if (scope.team !== undefined) throw new Error(`${label}.team is not allowed on a ${kind} scope`)
 		const projects = scope.projects
 		if (!Array.isArray(projects) || projects.some((gid) => typeof gid !== 'string' || gid.length === 0)) {
 			throw new Error(`${label}.projects must be an array of non-empty project GID strings`)

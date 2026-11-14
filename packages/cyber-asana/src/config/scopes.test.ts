@@ -30,9 +30,39 @@ describe('parseScopeEntries', () => {
 		})
 	})
 
+	it('reads a team scope, which names the team and no projects', () => {
+		const [scope] = parseScopeEntries(
+			[{ name: 'web-team', kind: 'team', team: '1400', sprint_model: 'custom-field' }],
+			'scrum.scopes',
+		)
+		expect(scope).toEqual({ name: 'web-team', kind: 'team', team: '1400', sprint_model: 'custom-field' })
+	})
+
+	it.each([
+		[[{ name: 'a', kind: 'team' }], 'scrum.scopes[0].team must be a non-empty string'],
+		[
+			[{ name: 'a', kind: 'team', team: '1', projects: ['2'] }],
+			'scrum.scopes[0].projects is not allowed on a team scope',
+		],
+		[
+			[{ name: 'a', kind: 'team', team: '1', portfolio: '2' }],
+			'scrum.scopes[0].portfolio is not allowed on a team scope',
+		],
+		[
+			[{ name: 'a', kind: 'project', projects: ['1'], team: '2' }],
+			'scrum.scopes[0].team is not allowed on a project scope',
+		],
+		[
+			[{ name: 'a', kind: 'portfolio', portfolio: '1', team: '2' }],
+			'scrum.scopes[0].team is not allowed on a portfolio scope',
+		],
+	])('rejects a bad team scope: %j', (raw, message) => {
+		expect(() => parseScopeEntries(raw, 'scrum.scopes')).toThrow(message)
+	})
+
 	it.each([
 		[[{ kind: 'project', projects: ['1'] }], 'scrum.scopes[0].name must be a non-empty string'],
-		[[{ name: 'a', kind: 'team', team: '1' }], 'scrum.scopes[0].kind must be one of project, projects, portfolio'],
+		[[{ name: 'a', kind: 'cohort' }], 'scrum.scopes[0].kind must be one of project, projects, portfolio, team'],
 		[
 			[{ name: 'a', kind: 'project', projects: ['1', '2'] }],
 			'scrum.scopes[0] of kind project needs exactly one project',

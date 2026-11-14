@@ -21,7 +21,7 @@ import {
 	nextDay,
 	velocityOf,
 } from './reports/sprint-report.js'
-import { buildStandup, pointsOf, type StandupTask, standupWindowStart, startOfDayIn } from './reports/standup.js'
+import { buildStandup, buildTeamStandup, pointsOf, type StandupTask, standupWindowStart, startOfDayIn } from './reports/standup.js'
 import { joinedAt, type TaskStory } from './reports/stories.js'
 import {
 	buildWorkload,
@@ -35,6 +35,7 @@ import {
 import {
 	applyScopeOverrides,
 	collectScopeTasks,
+	resolveScopePeople,
 	resolveScopeProjects,
 	type ScopeGateways,
 	selectScope,
@@ -96,8 +97,6 @@ const REPORT_FIELDS =
 export type StandupInput = SprintInput & {
 	/** Another person, by GID or email; the user when unset. */
 	member?: string
-	/** The whole team; not built yet. */
-	team?: boolean
 }
 
 /** Inputs of `report workload`: a sprint, or else a `from`/`to` window. */
@@ -397,6 +396,7 @@ export function createScrumApi(deps: ScrumApiDeps) {
 				...(loaded.defaultProject && { defaultProject: loaded.defaultProject }),
 			})
 			const projects = await resolveScopeProjects(scope, deps.gateways)
+			const people = await resolveScopePeople(scope, deps.gateways)
 			const sprint = applyScopeOverrides(await deps.loadPolicy(), scope)
 			const tasks = input.tasks
 				? await collectScopeTasks(
@@ -405,7 +405,7 @@ export function createScrumApi(deps: ScrumApiDeps) {
 						input.taskFields ? { optFields: input.taskFields } : undefined,
 					)
 				: undefined
-			return { scope, implicit, projects, sprint, ...(tasks && { tasks }) }
+			return { scope, implicit, projects, ...(people && { people }), sprint, ...(tasks && { tasks }) }
 		},
 
 		async currentSprint(input: SprintInput, opts?: ScopeStoreOptions) {
@@ -544,11 +544,6 @@ export function createScrumApi(deps: ScrumApiDeps) {
 		 * and says why (D12); an explicitly named sprint that has not started is `sprint-none`.
 		 */
 		async reportStandup(input: StandupInput, opts?: ScopeStoreOptions) {
-			if (input.team) {
-				throw new CodedConfigError('team-unsupported', 'The team standup is not built yet', {
-					hint: 'Use --me (the default) or --member <user>.',
-				})
-			}
 			const ctx = await prepare(input, opts, true)
 			const mine = input.member === undefined || input.member === 'me'
 			const user = mine
@@ -562,80 +557,25 @@ export function createScrumApi(deps: ScrumApiDeps) {
 				...(user.name !== undefined && { name: user.name }),
 				source: mine ? ('me' as const) : ('member' as const),
 			}
+			const base = await standupBase(ctx, input)
+			const standup = await buildStandup({ ...base.input, member })
+			return { ...base.header, member, ...standup }
+		},
 
-			let sprint: Sprint | null = null
-			let sprintNote: string | undefined
-			if (input.sprint !== undefined && input.sprint !== 'current') {
-				sprint = ctx.resolve(input.sprint)
-				await ctx.requireStarted(sprint)
-			} else if (ctx.settings.sprint_anchor_date === undefined) {
-				sprintNote = 'sprint_anchor_date is not set, so there is no current sprint.'
-			} else if (ctx.current === undefined) {
-				sprintNote = `Today (${ctx.clock.today}) is before sprint_anchor_date ${ctx.settings.sprint_anchor_date}, so no sprint has begun.`
-			} else {
-				const candidate = ctx.resolve('current')
-				if ((await ctx.model.sections(ctx.target, candidate)).found.length === 0) {
-					sprintNote = `${candidate.name} has no section in any project of scope ${ctx.scope.name}.`
-				} else {
-					sprint = candidate
-				}
-			}
-			if (sprintNote) sprintNote += ' Showing every incomplete assigned task, with no sprint filter.'
-
-			const window = standupWindowStart(
-				ctx.policy.standup_window,
-				ctx.clock.today,
-				ctx.policy.working_days,
-				ctx.clock.timezone,
-			)
-			const sprintGids = sprint
-				? new Set((await ctx.model.tasks(ctx.target, sprint, { incomplete: true, optFields: 'gid' })).map((t) => t.gid))
-				: undefined
-
-			const listed = new Map<string, StandupTask>()
-			for (const project of ctx.target.projects) {
-				const tasks = listItems(
-					await deps.gateways.tasks.listTasks(project.gid, {
-						fetchAll: true,
-						optFields: STANDUP_FIELDS,
-						incompleteOrCompletedSince: window.since,
-					}),
-				) as StandupTask[]
-				for (const task of tasks) if (!listed.has(task.gid)) listed.set(task.gid, task)
-			}
-
-			const gids = (role: 'story_points' | 'task_points' | 'status') =>
-				new Set(
-					ctx.target.projects.flatMap((p) => {
-						const field = ctx.loaded.fields?.[p.gid]?.[role]
-						return field ? [field.gid] : []
-					}),
-				)
-			const standup = await buildStandup({
-				member,
-				today: ctx.clock.today,
-				since: window.since,
-				tasks: [...listed.values()],
-				...(sprintGids && { sprintGids }),
-				policy: ctx.policy,
-				fields: { story: gids('story_points'), task: gids('task_points'), status: gids('status') },
-				dependenciesOf: async (taskGid) =>
-					(await deps.dependencies.getDependencies(taskGid, { optFields: 'gid,name,completed' })) as Array<{
-						gid: string
-						name?: string
-						completed?: boolean
-					}>,
-			})
+		/**
+		 * The team's standup (R1, `--team`): the same report for every person of the scope, grouped by person.
+		 * The people are a `team` scope's members, including those with no task yet, or else the assignees
+		 * seen in the scope's tasks.
+		 */
+		async reportTeamStandup(input: SprintInput, opts?: ScopeStoreOptions) {
+			const ctx = await prepare(input, opts, true)
+			const people = await resolveScopePeople(ctx.scope, deps.gateways)
+			const base = await standupBase(ctx, input)
+			const team = await buildTeamStandup({ ...base.input, ...(people && { people }) })
 			return {
-				scope: ctx.scope.name,
-				member,
-				today_date: ctx.clock.today,
-				timezone: ctx.clock.timezone,
-				timezone_source: ctx.clock.timezone_source,
-				window: { setting: ctx.policy.standup_window, from: window.from, since: window.since },
-				sprint,
-				...(sprintNote && { sprint_note: sprintNote }),
-				...standup,
+				...base.header,
+				...team,
+				count: { members: team.members.length },
 			}
 		},
 
@@ -892,5 +832,85 @@ export function createScrumApi(deps: ScrumApiDeps) {
 				count: tasks.length,
 			}
 		},
+	}
+
+	/**
+	 * What every standup shares: the sprint (or why there is none), the Done window, the scope's tasks
+	 * from Asana, and the field GIDs. A person's standup and the team's differ only in who they pick out.
+	 */
+	async function standupBase(ctx: Awaited<ReturnType<typeof prepare>>, input: SprintInput) {
+		let sprint: Sprint | null = null
+		let sprintNote: string | undefined
+		if (input.sprint !== undefined && input.sprint !== 'current') {
+			sprint = ctx.resolve(input.sprint)
+			await ctx.requireStarted(sprint)
+		} else if (ctx.settings.sprint_anchor_date === undefined) {
+			sprintNote = 'sprint_anchor_date is not set, so there is no current sprint.'
+		} else if (ctx.current === undefined) {
+			sprintNote = `Today (${ctx.clock.today}) is before sprint_anchor_date ${ctx.settings.sprint_anchor_date}, so no sprint has begun.`
+		} else {
+			const candidate = ctx.resolve('current')
+			if ((await ctx.model.sections(ctx.target, candidate)).found.length === 0) {
+				sprintNote = `${candidate.name} has no section in any project of scope ${ctx.scope.name}.`
+			} else {
+				sprint = candidate
+			}
+		}
+		if (sprintNote) sprintNote += ' Showing every incomplete assigned task, with no sprint filter.'
+
+		const window = standupWindowStart(
+			ctx.policy.standup_window,
+			ctx.clock.today,
+			ctx.policy.working_days,
+			ctx.clock.timezone,
+		)
+		const sprintGids = sprint
+			? new Set((await ctx.model.tasks(ctx.target, sprint, { incomplete: true, optFields: 'gid' })).map((t) => t.gid))
+			: undefined
+
+		const listed = new Map<string, StandupTask>()
+		for (const project of ctx.target.projects) {
+			const tasks = listItems(
+				await deps.gateways.tasks.listTasks(project.gid, {
+					fetchAll: true,
+					optFields: STANDUP_FIELDS,
+					incompleteOrCompletedSince: window.since,
+				}),
+			) as StandupTask[]
+			for (const task of tasks) if (!listed.has(task.gid)) listed.set(task.gid, task)
+		}
+
+		const gids = (role: 'story_points' | 'task_points' | 'status') =>
+			new Set(
+				ctx.target.projects.flatMap((p) => {
+					const field = ctx.loaded.fields?.[p.gid]?.[role]
+					return field ? [field.gid] : []
+				}),
+			)
+		return {
+			input: {
+				today: ctx.clock.today,
+				since: window.since,
+				tasks: [...listed.values()],
+				...(sprintGids && { sprintGids }),
+				policy: ctx.policy,
+				fields: { story: gids('story_points'), task: gids('task_points'), status: gids('status') },
+				dependenciesOf: async (taskGid: string) =>
+					(await deps.dependencies.getDependencies(taskGid, { optFields: 'gid,name,completed' })) as Array<{
+						gid: string
+						name?: string
+						completed?: boolean
+					}>,
+			},
+			header: {
+				scope: ctx.scope.name,
+				today_date: ctx.clock.today,
+				timezone: ctx.clock.timezone,
+				timezone_source: ctx.clock.timezone_source,
+				window: { setting: ctx.policy.standup_window, from: window.from, since: window.since },
+				sprint,
+				...(sprintNote && { sprint_note: sprintNote }),
+			},
+		}
 	}
 }

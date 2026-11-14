@@ -35,6 +35,10 @@ function setup(store: ScopeStore, tasks: Record<string, Array<{ gid: string }>> 
 				listPortfolioItems: vi.fn(async () => [{ gid: '9', name: 'P', resource_type: 'project' }] as never),
 			},
 			tasks: { listTasks: vi.fn(async (gid: string) => (tasks[gid] ?? []) as never) },
+			teams: {
+				listTeamProjects: vi.fn(async () => [{ gid: '77', name: 'Web' }] as never),
+				listTeamMembers: vi.fn(async () => [{ gid: 'm1', user: { gid: 'u1', name: 'Ada' } }] as never),
+			},
 		},
 		sprint: createSprintWorld({}).gateways as never,
 		dependencies: { getDependencies: vi.fn(async () => []) },
@@ -113,6 +117,18 @@ describe('scrum api: resolveScope', () => {
 	it('follows a portfolio scope through the portfolio gateway', async () => {
 		const api = setup(memoryStore([{ name: 'growth', kind: 'portfolio', portfolio: '1300' }]))
 		expect((await api.resolveScope({ scope: 'growth' })).projects).toEqual([{ gid: '9', name: 'P' }])
+	})
+
+	it('resolves a team scope to the projects and the people of the team', async () => {
+		const api = setup(memoryStore([{ name: 'web-team', kind: 'team', team: '1400' }]))
+		const resolved = await api.resolveScope({ scope: 'web-team' })
+		expect(resolved.projects).toEqual([{ gid: '77', name: 'Web' }])
+		expect(resolved.people).toEqual([{ gid: 'u1', name: 'Ada' }])
+	})
+
+	it('has no configured people for a scope that is not a team', async () => {
+		const api = setup(memoryStore([web]))
+		expect(await api.resolveScope({ scope: 'web' })).not.toHaveProperty('people')
 	})
 
 	it('adds the scope tasks, each counted once, only when asked', async () => {

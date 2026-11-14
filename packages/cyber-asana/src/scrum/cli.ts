@@ -41,7 +41,9 @@ function positiveInt(value: string) {
 }
 
 function members(scope: ScopeEntry): string {
-	return scope.kind === 'portfolio' ? (scope.portfolio ?? '') : (scope.projects ?? []).join(', ')
+	if (scope.kind === 'portfolio') return scope.portfolio ?? ''
+	if (scope.kind === 'team') return scope.team ?? ''
+	return (scope.projects ?? []).join(', ')
 }
 
 function overrides(scope: ScopeEntry): string {
@@ -54,6 +56,7 @@ type AddFlags = StoreFlags & {
 	kind: ScopeKind
 	project: string[]
 	portfolio?: string
+	team?: string
 	default?: boolean
 	sprintModel?: string
 	sprintLengthDays?: number
@@ -73,6 +76,7 @@ export function scopeConfigCommand(api?: ResolveApi) {
 			'  cyber-asana config scope add web --kind project --project <gid> --default',
 			'  cyber-asana config scope add platform --kind projects --project <gid>,<gid> --sprint-length-days 7',
 			'  cyber-asana config scope add growth --kind portfolio --portfolio <gid>',
+			'  cyber-asana config scope add web-team --kind team --team <gid>',
 			'  cyber-asana config scope add mine --kind projects --project <gid>,<gid> --global   # personal registry',
 			'  cyber-asana config scope list',
 			'  cyber-asana config scope remove platform',
@@ -85,6 +89,7 @@ export function scopeConfigCommand(api?: ResolveApi) {
 		.requiredOption('--kind <kind>', `Scope kind: ${SCOPE_KINDS.join(', ')}`, scopeKind)
 		.option('--project <gid-or-alias>', 'Project GID or registered alias, comma-separated or repeated', collect, [])
 		.option('--portfolio <gid>', 'Portfolio GID, for kind portfolio')
+		.option('--team <gid>', 'Team GID, for kind team')
 		.option('--default', 'Use this scope when a command is given no --scope')
 		.option('--sprint-model <model>', 'Override the policy sprint_model for this scope')
 		.option('--sprint-length-days <n>', 'Override the policy sprint_length_days for this scope', positiveInt)
@@ -106,6 +111,7 @@ export function scopeConfigCommand(api?: ResolveApi) {
 				kind: opts.kind,
 				...(projects && { projects }),
 				...(opts.portfolio !== undefined && { portfolio: opts.portfolio }),
+				...(opts.team !== undefined && { team: opts.team }),
 				...(opts.default && { default: true as const }),
 				...(opts.sprintModel !== undefined && { sprint_model: opts.sprintModel }),
 				...(opts.sprintLengthDays !== undefined && { sprint_length_days: opts.sprintLengthDays }),
@@ -204,6 +210,17 @@ export function scrumCommand(api?: ResolveApi) {
 					{ entity: 'projects' },
 				)
 				printCountSummary(resolved.projects.length, 'project(s)')
+				if (resolved.people) {
+					printTable(
+						resolved.people,
+						[
+							{ label: 'User GID', get: (p) => p.gid },
+							{ label: 'Name', get: (p) => p.name ?? '' },
+						],
+						{ entity: 'people' },
+					)
+					printCountSummary(resolved.people.length, 'people')
+				}
 				if (resolved.tasks) console.log(`\n${resolved.tasks.length} task(s) across the scope`)
 			})
 		})

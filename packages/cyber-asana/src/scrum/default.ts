@@ -9,6 +9,7 @@ import { createAsanaSectionGateway } from '../sections/gateway.js'
 import { createAsanaStatusGateway } from '../status/gateway.js'
 import { createAsanaStoryGateway } from '../stories/gateway.js'
 import { createAsanaTaskGateway } from '../tasks/gateway.js'
+import { createAsanaTeamGateway } from '../teams/gateway.js'
 import { createAsanaUserGateway } from '../users/gateway.js'
 import { createScrumApi, type ScrumApi } from './api.js'
 import { loadScrumPolicy } from './policy.js'
@@ -21,7 +22,7 @@ export function createDefaultScrumApi(): ScrumApi {
 	const tasks = createAsanaTaskGateway(client)
 	return createScrumApi({
 		store: createFileScopeStore,
-		gateways: { portfolios: createAsanaPortfolioGateway(client), tasks },
+		gateways: { portfolios: createAsanaPortfolioGateway(client), tasks, teams: createAsanaTeamGateway(client) },
 		sprint: {
 			sections: createAsanaSectionGateway(client),
 			tasks,

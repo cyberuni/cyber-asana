@@ -46,6 +46,7 @@ function fakeApi(): ScrumApi {
 		reportStandup: vi.fn(async () => ({ done: { count: 0 } })),
 		reportHealth: vi.fn(async () => ({ counts: { error: 0, warning: 0 } })),
 		reportWorkload: vi.fn(async () => ({ team: { people: 0 } })),
+		reportTeamStandup: vi.fn(async () => ({ members: [] })),
 	} as unknown as ScrumApi
 }
 
@@ -122,6 +123,14 @@ describe('scrum/mcp', () => {
 		)
 	})
 
+	it('asana_scope_add builds a team scope', async () => {
+		const api = fakeApi()
+		const server = createServer()
+		registerScrumTools(server as any, api)
+		await server.handlers.get('asana_scope_add')?.({ name: 'web-team', kind: 'team', team_gid: '1400' })
+		expect(api.addScope).toHaveBeenCalledWith({ name: 'web-team', kind: 'team', team: '1400' }, { global: undefined })
+	})
+
 	it('asana_scope_remove forwards the name', async () => {
 		const api = fakeApi()
 		const server = createServer()
@@ -160,12 +169,22 @@ describe('scrum/mcp', () => {
 		expect(JSON.parse(result.content[0].text)).toEqual({ tasks: [] })
 	})
 
-	it('restricts kind to the kinds built so far', () => {
+	it('accepts every scope kind, team included', () => {
 		const server = createServer()
 		registerScrumTools(server as any, fakeApi())
 		const kind = server.schemas.get('asana_scope_add')?.kind as { safeParse: (v: unknown) => { success: boolean } }
-		expect(kind.safeParse('project').success).toBe(true)
-		expect(kind.safeParse('team').success).toBe(false)
+		for (const k of ['project', 'projects', 'portfolio', 'team']) expect(kind.safeParse(k).success).toBe(true)
+		expect(kind.safeParse('cohort').success).toBe(false)
+	})
+
+	it('asana_report_standup with team asks the api for the team standup', async () => {
+		const server = createServer()
+		const api = fakeApi()
+		registerScrumTools(server as any, api)
+		const result = await server.handlers.get('asana_report_standup')?.({ scope: 'web', team: true })
+		expect(api.reportTeamStandup).toHaveBeenCalledWith({ scope: 'web' })
+		expect(api.reportStandup).not.toHaveBeenCalled()
+		expect(JSON.parse(result.content[0].text).members).toEqual([])
 	})
 
 	it('asana_report_standup passes scope, sprint, member and team to the api', async () => {

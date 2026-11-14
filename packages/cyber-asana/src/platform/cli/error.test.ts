@@ -22,7 +22,6 @@ describe('exitCodeFor', () => {
 		'sprint-unknown',
 		'model-unsupported',
 		'policy-incomplete',
-		'team-unsupported',
 		'window-invalid',
 	])('maps %s to 2: the caller can start a sprint or fix the configuration and retry', (code) => {
 		expect(exitCodeFor(new CodedConfigError(code, 'x'))).toBe(2)
