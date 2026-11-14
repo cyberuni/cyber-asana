@@ -425,7 +425,7 @@ Each unit can ship alone and passes `pnpm verify`; units that need it also pass 
 | U7 | `.sprint`, `.retro`, `.velocity` reports, the burndown, and the commitment snapshot (D6); review and retro routes; turn `asana-sprint-report` into a routing stub (D7) | K4, G14 | U6 |  |
 | U8 | `.health` report and the health route | — | U6 | Built; in review |
 | U9 | `team members \| projects`, the `team` scope, team standup | G4 | U3, U6 |  |
-| U10 | The `allocations` domain, `.workload` report, workload route, H8, and the capacity probe in setup | G5 | U8 |  |
+| U10 | The `allocations` domain, `.workload` report, workload route, H8, and the capacity probe in setup | G5 | U8 |Built; in review |
 | U11 | `.custom-field` model, search custom-field filters and paging, custom-field create and enum options, project field attach; setup support | G3, G6, G7 | U4, U5 |  |
 | U12 | `cyber-asana.dashboard` and `report dashboard` (CLI, D2.1); the planning route (needs velocity and capacity) | — | U7, U8, U10 |  |
 | U13 | `--post-status` (D2.2) and `status_type` validation | G13 | U12 |  |
@@ -474,6 +474,18 @@ U1 can ship before anything else and fixes wrong numbers users see today.
 - **What the checks read.** The sprint's tasks (completed ones are ignored) come from the sprint model. H10 and H11 read every existing sprint's incomplete tasks, so they cost one section read per sprint and run only when enabled. H10 means a sprint older than today's, whatever `--sprint` names. Overdue and stale use the user's today and the instant now. A task with subtasks is a parent: it is excluded from H1 and is the subject of H2.
 - **In progress.** H5 and H6 read the `in_progress` workflow state from the `status` field; without one they use incomplete and assigned, and `in_progress_basis` and `notes` say so (§ 4.3).
 - **Settings.** `checks` rejects an unknown or repeated ID and an empty list; the thresholds are validated like the policy keys. The reference's frontmatter is the only home of the thresholds.
+
+### 9.5 Decisions made while building U10
+
+- **`allocation list` filters.** `--parent`, `--assignee`, and `--workspace` (falling back to `ASANA_WORKSPACE_GID`) pass straight to `getAllocations`. The CLI does not require one: which filters Asana demands is left to Asana, so an unfiltered call fails there rather than on an unverified rule here. The (docs) body fields are confirmed by a system test that creates, reads back, updates, and deletes an allocation; it skips on a 402 or without `ASANA_SYSTEM_TEST_PROJECT_GID`. It could not run in the build session (no token), so the live confirmation is still owed.
+- **402 is plan limitation, not failure.** `allocation` commands exit `7` like every plan-limited call. In reports, a 402 from the allocation read makes capacity `unknown` with reason `plan`; any other error propagates.
+- **Capacity maths.** Capacity is read once per project of the scope (`parent`), summed per person, and clipped to the window. Percent is `percent × working_hours_per_day × working days inside`. Hours are "as given" when the allocation lies inside the window, and in proportion to the working days inside when it extends past, so a quarter-long 100-hour allocation never gives a two-week sprint 100 hours. Whether Asana means hours per allocation or per week is unverified; the system test and a live run settle it.
+- **Who is listed.** People with load or with an overlapping allocation. A person with allocations and no tasks shows at 0% and `under`. Capacity 0 with load is `over`.
+- **Unknown capacity.** Reason `plan` (402) or `no-allocation` (none overlaps the window); flag `unknown`, no judgment drawn. Team capacity and utilization count only people with known capacity, and `capacity_unknown` says how many are not.
+- **`--from`/`--to`.** Replace the sprint with a window; the load is the scope's incomplete assigned tasks due inside it (no due date: left out, counted in `notes`). `--sprint` conflicts with them; only one of the two, a malformed date, or `from` after `to` is `window-invalid`, exit `2`. A window needs no anchor date, so it works before a sprint exists. The default (sprint) form is `sprint-none` without a section, per D12.
+- **Out-of-office (D9).** One `ooo list` read per person, over the window, shown as a note and never subtracted. No workspace (`--workspace` or `ASANA_WORKSPACE_GID`) or a failed read becomes a `notes` entry; the report still runs.
+- **H8.** One error per person over `over_allocation_pct`, using the workload computation for the sprint's dates with the thresholds of the `cyber-asana.report.workload` reference, their one home. Skipped with a reason beginning `capacity unknown` for a 402 or no overlapping allocation. Allocations are read only when H8 is enabled. Fix command: `report workload`.
+- **Placement.** `src/allocations/` is a domain. `src/scrum/api.ts` takes `allocations` and `ooo` gateways as optional dependencies (unset: no capacity, no out-of-office), so existing wiring and tests are unchanged.
 
 ## 10. Items settled after the first review
 

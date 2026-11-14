@@ -20,6 +20,7 @@ function setup(
 		fields?: LoadedScopes['fields']
 		dependencies?: Record<string, Array<{ gid: string; name?: string; completed?: boolean }>>
 		allocations?: Array<Record<string, unknown>> | 'plan'
+		overAllocationPct?: number
 	} = {},
 ) {
 	const world = createSprintWorld({
@@ -54,6 +55,10 @@ function setup(
 		loadPolicy: async () => ({ ...DEFAULT_SCRUM_POLICY, sprint_anchor_date: '2026-01-05', ...opts.policy }),
 		loadHealthSettings: async () => parseHealthSettings({ ...opts.health }),
 		allocations: { listAllocations: listAllocations as never },
+		loadWorkloadSettings: async () => ({
+			over_allocation_pct: opts.overAllocationPct ?? 100,
+			under_allocation_pct: 60,
+		}),
 		now: () => new Date(opts.now ?? '2026-01-21T12:00:00Z'),
 	})
 	return { api, world, listAllocations }
@@ -128,6 +133,27 @@ describe('scrum api: report health', () => {
 		expect(listAllocations).toHaveBeenCalledWith(expect.objectContaining({ parent: 'p1' }))
 		expect(report.checks[0]).toMatchObject({ id: 'H8', status: 'failed', findings: 1 })
 		expect(report.findings[0]).toMatchObject({ check: 'H8', level: 'error', person: { gid: 'u1' } })
+	})
+
+	it('H8 uses the over_allocation_pct of the workload reference', async () => {
+		const world = {
+			health: { checks: ['H8'] as never },
+			sections: [{ name: 'Sprint 2', tasks: [open('a', { custom_fields: [{ gid: 'fs', number_value: 30 }] })] }],
+			fields: { p1: { story_points: { gid: 'fs', name: 'Story Points' } } },
+			allocations: [
+				{
+					gid: 'al1',
+					assignee: mine,
+					parent: { gid: 'p1' },
+					start_date: '2026-01-19',
+					end_date: '2026-02-01',
+					effort: { type: 'hours', value: 20 },
+				},
+			],
+		}
+		// 30 h of work for 20 h of capacity is 150%: fine when the team allows 200%.
+		const lenient = await setup({ ...world, overAllocationPct: 200 }).api.reportHealth({})
+		expect(lenient.checks[0]).toMatchObject({ id: 'H8', status: 'passed' })
 	})
 
 	it('H8 is skipped with the plan reason on a 402, and the report still runs', async () => {

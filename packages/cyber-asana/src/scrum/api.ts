@@ -539,7 +539,7 @@ export function createScrumApi(deps: ScrumApiDeps) {
 									scope: ctx.scope.name,
 									window: { from: sprint.start, to: sprint.end },
 									policy: ctx.policy,
-									settings: parseWorkloadSettings({}),
+									settings: await (deps.loadWorkloadSettings ?? (async () => parseWorkloadSettings({})))(),
 									tasks: sprintTasks as WorkloadTask[],
 									fields: { story: gids('story_points'), task: gids('task_points') },
 									capacity: allocations,

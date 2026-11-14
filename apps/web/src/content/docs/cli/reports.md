@@ -80,7 +80,7 @@ frontmatter: `checks` (default: all eleven), `stale_days` (3), `wip_limit` (3), 
 [Overriding references](/cyber-asana/reference/overriding-references/).
 
 - **H8 reads capacity from Allocations**, as [`report workload`](#report-workload) does: one error
-  per person whose sprint load in effort hours exceeds their capacity for the sprint's dates, with
+  per person whose sprint load in effort hours is above `over_allocation_pct` of their capacity (from the `cyber-asana.report.workload` reference) for the sprint's dates, with
   `report workload` as its fix command. When capacity is unknown (a 402 plan limit, or no allocation
   overlapping the sprint) the check shows as `skipped` with the reason, for example
   `capacity unknown: no allocation overlaps the sprint dates`; it never shows as passed. People
