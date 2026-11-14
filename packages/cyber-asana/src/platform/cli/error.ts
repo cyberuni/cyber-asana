@@ -14,6 +14,11 @@ import { buildUsageErrorBody, isUsageError, renderUsageErrorText } from './usage
 const CODED_EXIT_CODES: Readonly<Record<string, number>> = {
 	'scope-missing': 2,
 	'scope-unknown': 2,
+	// Sprint commands: start a sprint, name a real one, or fix the policy, then retry.
+	'sprint-none': 2,
+	'sprint-unknown': 2,
+	'model-unsupported': 2,
+	'policy-incomplete': 2,
 }
 
 export function exitCodeFor(error: unknown): number {

@@ -1,16 +1,20 @@
 import { createFileScopeStore } from '../config/scope-store.js'
 import { createClient } from '../platform/client.js'
 import { createAsanaPortfolioGateway } from '../portfolios/gateway.js'
+import { createAsanaSectionGateway } from '../sections/gateway.js'
 import { createAsanaTaskGateway } from '../tasks/gateway.js'
+import { createAsanaUserGateway } from '../users/gateway.js'
 import { createScrumApi, type ScrumApi } from './api.js'
 import { loadScrumPolicy } from './policy.js'
 
 /** The scrum API wired to the live Asana client, the config files, and the shipped policy reference. */
 export function createDefaultScrumApi(): ScrumApi {
 	const client = createClient()
+	const tasks = createAsanaTaskGateway(client)
 	return createScrumApi({
 		store: createFileScopeStore,
-		gateways: { portfolios: createAsanaPortfolioGateway(client), tasks: createAsanaTaskGateway(client) },
+		gateways: { portfolios: createAsanaPortfolioGateway(client), tasks },
+		sprint: { sections: createAsanaSectionGateway(client), tasks, users: createAsanaUserGateway(client) },
 		loadPolicy: () => loadScrumPolicy(),
 	})
 }

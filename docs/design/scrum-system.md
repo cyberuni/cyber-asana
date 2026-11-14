@@ -419,7 +419,7 @@ Each unit can ship alone and passes `pnpm verify`; units that need it also pass 
 | U1 | A true completed-since filter, honest help text, and `section tasks`. Patch the two existing skills to use them. | G1, G2 (fixes G-S1, G-R1, G-R3 now) | — | Shipped (#321) |
 | U2 | `loadReferenceMetadata` (conventions moved onto it). The `cyber-asana.scrum` package default with its key parser. A docs page on overriding it. Confirm whether project sections contribute frontmatter. | G11 | — | Shipped (#322) |
 | U3 | `scrum.scopes` (schema 3), `config scope add \| remove \| list`, `scrum scope resolve` for `project`, `projects`, `portfolio`; the `sprint` and `status` field roles | G9, G10, G8 (recursion) | U2 | Built; in review |
-| U4 | `cyber-asana.sprint-model.interface` + `.sections`; `sprint current \| list \| tasks \| add \| start \| close`, `backlog list`; MCP tools | G12 (sprints) | U1, U3 |  |
+| U4 | `cyber-asana.sprint-model.interface` + `.sections`; `sprint current \| list \| tasks \| add \| start \| close`, `backlog list`; MCP tools | G12 (sprints) | U1, U3 | Built; in review |
 | U5 | `init-asana-scrum` v1: project and projects scopes, the `sections` model, writing the policy and fields | K2 | U4 |  |
 | U6 | `cyber-asana.report.interface` + `.standup`; `report standup`; `asana-scrum` v1 with the standup route; turn `asana-standup` into a routing stub (D7); update K5 | G12 (standup), K1, K3 | U4 |  |
 | U7 | `.sprint`, `.retro`, `.velocity` reports, the burndown, and the commitment snapshot (D6); review and retro routes; turn `asana-sprint-report` into a routing stub (D7) | K4, G14 | U6 |  |
@@ -433,6 +433,15 @@ Each unit can ship alone and passes `pnpm verify`; units that need it also pass 
 | U15 | `.project` model (one project per sprint, in a portfolio) | G8 (add/remove) | U11 |  |
 
 U1 can ship before anything else and fixes wrong numbers users see today.
+
+### 9.1 Decisions made while building U4
+
+- **"Today" and the timezone (D11).** Asana's public API returns no user timezone: the SDK's `UsersApi` and user model carry none. `sprint current` reads a `time_zone` from `user me` when one is present and otherwise uses the machine's timezone, and reports which in `timezone_source` (`asana` or `machine`). The first live run that finds a timezone on `user me` needs no code change.
+- **Exit codes (Q6, in part).** `sprint-none`, `sprint-unknown`, `model-unsupported`, and `policy-incomplete` all exit `2`: each is a command the caller can fix and retry (start a sprint, name a real one, change the scope or the policy). `error.code` tells them apart. `premium-required` is untouched: the `sections` model never uses search.
+- **Scope kinds for `sections`.** `portfolio` is `model-unsupported` for the `sections` model, as § 4.2 lists only `project` and `projects`, with a message that says the kind, not the model, is the problem.
+- **Backlog.** A sprint section is any section whose name matches `sprint_name_format`; the backlog is every incomplete task in the other sections, including the `backlog_section`, so a team's `Icebox` counts. A task a sprint section of another project holds is left out.
+- **`sprint close` target.** With `carry_over: move` the next sprint's section is created where missing, because the tasks need somewhere to go. Sprints are listed by sections present, so `sprint list` shows the current sprint even before its section exists (`exists: no`).
+- **Commands sit at the top level** (`sprint`, `backlog`), not under `scrum`, as the build brief names them; `scrum scope resolve` stays where U3 put it.
 
 ## 10. Items settled after the first review
 

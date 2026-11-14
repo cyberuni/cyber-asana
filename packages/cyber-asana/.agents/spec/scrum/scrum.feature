@@ -118,3 +118,105 @@ Feature: scrum scopes
     Given portfolio "1" holds portfolio "2", which holds portfolio "1"
     When scrum scope resolve runs for a portfolio scope over "1"
     Then each portfolio is read once
+
+  # ── sprints ──
+
+  Scenario: the sprint is computed from the anchor, length, and name format
+    Given sprint_anchor_date 2026-01-05, sprint_length_days 14, and "Sprint {n}"
+    When sprint current runs on 2026-01-20
+    Then the sprint is "Sprint 2", 2026-01-19 to 2026-02-01, with 10 working days
+
+  Scenario: today is read in the user's timezone
+    Given user me reports the timezone "Asia/Tokyo" and it is 2026-01-18T20:00Z
+    When sprint current runs
+    Then today is 2026-01-19 and timezone_source is "asana"
+
+  Scenario: no timezone from Asana falls back to the machine's, and says so
+    Given user me reports no timezone
+    When sprint current runs
+    Then timezone_source is "machine"
+
+  Scenario: before the anchor there is no sprint
+    Given sprint_anchor_date 2026-01-05 and today 2026-01-01
+    When sprint current runs
+    Then it fails with code "sprint-none"
+
+  Scenario: a sprint with no section fails with the command that starts it
+    Given no project of the scope has a section for the current sprint
+    When sprint current runs
+    Then it fails with code "sprint-none" and a hint naming sprint start
+
+  Scenario: no anchor date is policy-incomplete
+    Given the policy sets no sprint_anchor_date
+    When sprint current runs
+    Then it fails with code "policy-incomplete"
+
+  Scenario: a model the CLI does not build in stops naming it
+    Given the scope's sprint_model is "tags"
+    When any sprint command runs
+    Then it fails with code "model-unsupported" naming "tags"
+
+  Scenario: a portfolio scope is not supported by the sections model
+    Given a portfolio scope and sprint_model "sections"
+    When sprint current runs
+    Then it fails with code "model-unsupported"
+
+  Scenario: sprint start is idempotent
+    Given a project with no section for sprint 3
+    When sprint start runs twice for sprint 3
+    Then the first creates the section and the second reports already_started and creates nothing
+
+  Scenario: sprint add moves a task into the sprint section
+    Given task "t1" in the Backlog section and a "Sprint 2" section in the same project
+    When sprint add runs for "t1"
+    Then "t1" is in "Sprint 2" and the result names "Backlog" as where it came from
+
+  Scenario: adding a task already in the sprint is a no-op
+    Given task "t4" in "Sprint 2"
+    When sprint add runs for "t4"
+    Then nothing is moved and "t4" is in already_in_sprint
+
+  Scenario: a task outside the scope's projects is reported, not moved
+    Given a task in none of the scope's projects
+    When sprint add runs for it
+    Then it is listed in outside_scope
+
+  Scenario: sprint close with carry_over move carries incomplete tasks into the next sprint
+    Given "Sprint 2" with incomplete tasks "t4" and "t6" and no "Sprint 3" section
+    When sprint close runs with carry_over move
+    Then "Sprint 3" is created and holds "t4" and "t6", and completed tasks stay in "Sprint 2"
+
+  Scenario: sprint close with carry_over leave moves nothing
+    Given "Sprint 2" with incomplete tasks
+    When sprint close runs with carry_over leave
+    Then no task moves, no section is created, and the incomplete tasks are listed in left
+
+  Scenario: closing again changes nothing
+    Given sprint close already ran with carry_over move
+    When sprint close runs again
+    Then nothing moves and nothing is created
+
+  Scenario: the backlog is every incomplete task in no sprint section
+    Given sections "Backlog", "Sprint 2", and "Icebox" with incomplete tasks in each
+    When backlog list runs
+    Then it lists the Backlog and Icebox tasks, each with its section, and none from "Sprint 2"
+
+  Scenario: a task a sprint section of another project holds is not in the backlog
+    Given task "tx" in Backlog of one project and in "Sprint 2" of another
+    When backlog list runs
+    Then "tx" is not listed
+
+  Scenario: a missing backlog section is named, not fatal
+    Given a project with no "Backlog" section
+    When backlog list runs
+    Then backlog_section_missing names the project
+
+  Scenario: sprint list marks each sprint past, current, or future
+    Given sections for sprints 1 and 2 and today in sprint 2
+    When sprint list runs
+    Then sprint 1 is "past" and sprint 2 is "current"
+
+  Scenario: --sprint rejects text that names no sprint
+    Given the format "Sprint {n}"
+    When sprint tasks runs with --sprint "Iteration 9"
+    Then it fails with code "sprint-unknown"

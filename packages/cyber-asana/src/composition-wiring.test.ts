@@ -135,7 +135,19 @@ function mockRuntimeContext(): RuntimeContext {
 			getStatusOverview: vi.fn(),
 		},
 		rules: { triggerRule: vi.fn() },
-		scrum: { listScopes: vi.fn(), addScope: vi.fn(), removeScope: vi.fn(), resolveScope: vi.fn() },
+		scrum: {
+			listScopes: vi.fn(),
+			addScope: vi.fn(),
+			removeScope: vi.fn(),
+			resolveScope: vi.fn(),
+			currentSprint: vi.fn(),
+			listSprints: vi.fn(),
+			sprintTasks: vi.fn(),
+			addToSprint: vi.fn(),
+			startSprint: vi.fn(),
+			closeSprint: vi.fn(),
+			listBacklog: vi.fn(),
+		},
 		events: { getEvents: vi.fn() },
 	}
 }

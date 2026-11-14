@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { LoadedScopes, ScopeStore } from '../config/scope-store.js'
 import type { ScopeEntry } from '../config/scopes.js'
+import { createSprintWorld } from '../testing/sprint-world.js'
 import { createScrumApi } from './api.js'
 import { DEFAULT_SCRUM_POLICY } from './policy.js'
 
@@ -35,6 +36,7 @@ function setup(store: ScopeStore, tasks: Record<string, Array<{ gid: string }>> 
 			},
 			tasks: { listTasks: vi.fn(async (gid: string) => (tasks[gid] ?? []) as never) },
 		},
+		sprint: createSprintWorld({}).gateways as never,
 		loadPolicy: async () => ({ ...DEFAULT_SCRUM_POLICY, sprint_anchor_date: '2026-01-05' }),
 	})
 }

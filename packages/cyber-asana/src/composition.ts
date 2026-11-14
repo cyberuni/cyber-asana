@@ -55,7 +55,7 @@ import { ruleCommand } from './rules/cli.js'
 import { createAsanaRuleGateway } from './rules/gateway.js'
 import { registerRuleTools } from './rules/mcp.js'
 import { createScrumApi, type ScrumApi } from './scrum/api.js'
-import { scopeConfigCommand, scrumCommand } from './scrum/cli.js'
+import { backlogCommand, scopeConfigCommand, scrumCommand, sprintCommand } from './scrum/cli.js'
 import { registerScrumTools } from './scrum/mcp.js'
 import { loadScrumPolicy } from './scrum/policy.js'
 import { createSearchApi, type SearchApi } from './search/api.js'
@@ -133,6 +133,8 @@ export function createRuntimeContext(): RuntimeContext {
 	const projectGateway = createAsanaProjectGateway(client)
 	const jobGateway = createAsanaJobGateway(client)
 	const taskGateway = createAsanaTaskGateway(client)
+	const sectionGateway = createAsanaSectionGateway(client)
+	const userGateway = createAsanaUserGateway(client)
 	return {
 		aiStudio: createAiStudioApi(createAsanaAiStudioGateway(client)),
 		attachments: createAttachmentApi(createAsanaAttachmentGateway(client)),
@@ -149,10 +151,15 @@ export function createRuntimeContext(): RuntimeContext {
 		scrum: createScrumApi({
 			store: createFileScopeStore,
 			gateways: { portfolios: portfolioGateway, tasks: taskGateway },
+			sprint: {
+				sections: sectionGateway,
+				tasks: taskGateway,
+				users: userGateway,
+			},
 			loadPolicy: () => loadScrumPolicy(),
 		}),
 		search: createSearchApi(createAsanaSearchGateway(client)),
-		sections: createSectionApi(createAsanaSectionGateway(client)),
+		sections: createSectionApi(sectionGateway),
 		status: createStatusApi(createAsanaStatusGateway(client), {
 			portfolios: portfolioGateway,
 			projects: projectGateway,
@@ -206,6 +213,8 @@ export function registerCliCommands(program: Command, getContext: () => RuntimeC
 	config.addCommand(scopeConfigCommand(() => getContext().scrum))
 	program.addCommand(config)
 	program.addCommand(scrumCommand(() => getContext().scrum))
+	program.addCommand(sprintCommand(() => getContext().scrum))
+	program.addCommand(backlogCommand(() => getContext().scrum))
 	program.addCommand(setupCommand())
 	program.addCommand(urlCommand())
 	program.addCommand(mcpCommand(getContext))

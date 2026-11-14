@@ -33,19 +33,35 @@ function fakeApi(): ScrumApi {
 			projects: [{ gid: '1' }],
 			sprint: { sprint_model: 'sections', sprint_length_days: 14 },
 		})),
-	} as ScrumApi
+		currentSprint: vi.fn(async () => ({ sprint: { name: 'Sprint 2' } })),
+		listSprints: vi.fn(async () => ({ sprints: [] })),
+		sprintTasks: vi.fn(async () => ({ tasks: [] })),
+		addToSprint: vi.fn(async () => ({ added: [] })),
+		startSprint: vi.fn(async () => ({ created: [] })),
+		closeSprint: vi.fn(async () => ({ moved: [] })),
+		listBacklog: vi.fn(async () => ({ tasks: [] })),
+	} as unknown as ScrumApi
 }
 
 describe('scrum/mcp', () => {
-	it('registers the scope tools under the asana_<resource>_<action> naming', () => {
+	it('registers the scope, sprint, and backlog tools under the asana_<resource>_<action> naming', () => {
 		const server = createServer()
 		registerScrumTools(server as any, fakeApi())
-		expect([...server.handlers.keys()].sort()).toEqual([
-			'asana_scope_add',
-			'asana_scope_list',
-			'asana_scope_remove',
-			'asana_scope_resolve',
-		])
+		expect([...server.handlers.keys()].sort()).toEqual(
+			[
+				'asana_scope_add',
+				'asana_scope_list',
+				'asana_scope_remove',
+				'asana_scope_resolve',
+				'asana_sprint_add',
+				'asana_sprint_close',
+				'asana_sprint_current',
+				'asana_sprint_list',
+				'asana_sprint_start',
+				'asana_sprint_tasks',
+				'asana_backlog_list',
+			].sort(),
+		)
 	})
 
 	it('asana_scope_list returns the listing as JSON', async () => {
@@ -109,6 +125,27 @@ describe('scrum/mcp', () => {
 		const result = await server.handlers.get('asana_scope_resolve')?.({ scope: 'web', tasks: true })
 		expect(api.resolveScope).toHaveBeenCalledWith({ scope: 'web', tasks: true })
 		expect(JSON.parse(result.content[0].text).projects).toEqual([{ gid: '1' }])
+	})
+
+	it('sprint tools forward scope and sprint to the api', async () => {
+		const api = fakeApi()
+		const server = createServer()
+		registerScrumTools(server as any, api)
+		await server.handlers.get('asana_sprint_current')?.({ scope: 'web' })
+		expect(api.currentSprint).toHaveBeenCalledWith({ scope: 'web' })
+		await server.handlers.get('asana_sprint_tasks')?.({ scope: 'web', sprint: 'previous', incomplete: true })
+		expect(api.sprintTasks).toHaveBeenCalledWith({ scope: 'web', sprint: 'previous', incomplete: true })
+		await server.handlers.get('asana_sprint_add')?.({ task_gids: ['1', '2'], sprint: 'next' })
+		expect(api.addToSprint).toHaveBeenCalledWith({ tasks: ['1', '2'], sprint: 'next' })
+		await server.handlers.get('asana_sprint_start')?.({ sprint: 'next' })
+		expect(api.startSprint).toHaveBeenCalledWith({ sprint: 'next' })
+		await server.handlers.get('asana_sprint_close')?.({})
+		expect(api.closeSprint).toHaveBeenCalledWith({})
+		await server.handlers.get('asana_sprint_list')?.({})
+		expect(api.listSprints).toHaveBeenCalledWith({})
+		const result = await server.handlers.get('asana_backlog_list')?.({ scope: 'web' })
+		expect(api.listBacklog).toHaveBeenCalledWith({ scope: 'web' })
+		expect(JSON.parse(result.content[0].text)).toEqual({ tasks: [] })
 	})
 
 	it('restricts kind to the kinds built so far', () => {

@@ -17,6 +17,13 @@ describe('exitCodeFor', () => {
 		expect(exitCodeFor(new CodedConfigError('scope-unknown', 'No such scope', { options: ['web'] }))).toBe(2)
 	})
 
+	it.each(['sprint-none', 'sprint-unknown', 'model-unsupported', 'policy-incomplete'])(
+		'maps %s to 2: the caller can start a sprint or fix the configuration and retry',
+		(code) => {
+			expect(exitCodeFor(new CodedConfigError(code, 'x'))).toBe(2)
+		},
+	)
+
 	it('maps a coded config error with no pinned exit code to 3, like other config errors', () => {
 		expect(exitCodeFor(new CodedConfigError('something-else', 'x'))).toBe(3)
 	})

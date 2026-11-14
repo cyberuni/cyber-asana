@@ -3,14 +3,15 @@ spec-type: behavioral
 concept: [cyber-asana, scrum, scope, repo-registry]
 ---
 
-# scrum — the scopes a scrum team works in
+# scrum — scopes, sprints, and the backlog
 
 ## What
 
 The scrum system (design: [`docs/design/scrum-system.md`](../../../../../docs/design/scrum-system.md))
 runs on a **scope**: the set of Asana projects a team works in. This node specifies the scope layer
-only: how a scope is configured, listed, selected, and resolved to its projects. Sprints, reports,
-and the policy reference are other units.
+(how a scope is configured, listed, selected, and resolved to its projects) and the sprint layer
+(sprint identity, the `sections` sprint model, and the `sprint` and `backlog` commands). Reports are
+other units.
 
 A scope names Asana objects by GID, so it lives in config beside the project registry, never in the
 `cyber-asana.scrum` reference (which holds policy and no GIDs). A scope has a `name`, a `kind`, and
@@ -79,6 +80,58 @@ Two failures are told apart by `error.code`, and both are stable:
 
 Both exit 2, the code for a command the caller can fix and retry. They are `kind: config` errors with
 `code`, `options`, and `hint`, in the CLI body and in the MCP error alike.
+
+## Sprints
+
+### Identity
+
+Sprint identity is computed from the policy and never typed in: `sprint_anchor_date` is the first
+day of sprint 1, sprints follow each other in blocks of `sprint_length_days`, the name comes from
+`sprint_name_format` (`{n}`, `{start}`, `{end}`, `{year}`), and `working_days` counts the weekdays a
+sprint holds. A scope's overrides apply first. A date before the anchor is in no sprint. With no
+anchor the commands stop with `policy-incomplete`.
+
+"Today" is the date in the timezone `user me` reports (D11). Asana's public API returns no user
+timezone at the time of writing, so the machine's timezone stands in, and `sprint current` reports
+which one it used as `timezone_source` (`asana` or `machine`). A zone name that does not parse is
+treated as absent.
+
+`--sprint` takes `current` (default), `next`, `previous`, a number, or a name the format writes; any
+other text is `sprint-unknown`. `previous` of sprint 1 is `sprint-none`.
+
+### The `sections` model
+
+- A sprint is a section named by the computed name in each project of the scope. The backlog is every
+  incomplete task in a section that does not match `sprint_name_format` (the policy's
+  `backlog_section` is one of them), in each project's order, each task once, minus any task a sprint
+  section of another project holds. It reads sections and their tasks only, so it works on a free
+  workspace. Scope kinds `project` and `projects` only; a `portfolio` scope is `model-unsupported`.
+- `sprint current` needs the sprint's section in at least one project, else `sprint-none` with the
+  `sprint start` command to run. `tasks`, `add`, and `close` need the same.
+- `sprint start` creates the section in each project that lacks it; when none lacks it, it changes
+  nothing and reports `already_started`. `sprint add` moves each task into the sprint's section of
+  each scope project the task is in; a task already there is `already_in_sprint`, and a task in none
+  of the scope's projects is `outside_scope`. `sprint close` follows the policy's `carry_over`: `move`
+  puts each incomplete task in the next sprint's section, created when missing; `leave` moves nothing
+  and lists what stayed; no incomplete task means nothing happens. All three can be repeated safely.
+- `sprint list` shows the sprints that have a section in the scope plus the current one, each `past`,
+  `current`, or `future`.
+- A scope whose `sprint_model` is not built into the CLI stops with `model-unsupported`, naming the
+  model and the built-in options. An agent then follows that model's `cyber-asana.sprint-model.<key>`
+  reference with its primitive commands. `cyber-asana.sprint-model.interface` (cardinality `many`)
+  declares the sections each model fills; `cyber-asana.sprint-model.sections` implements it, and
+  `reference check` accepts both.
+- Every sprint command has an `asana_sprint_*` MCP tool (`backlog list` is `asana_backlog_list`)
+  through the same `api.ts`.
+
+### Failure statuses
+
+| Code | When | Exit |
+|---|---|---|
+| `sprint-none` | today is before the anchor, there is no previous sprint, or the sprint has no section in any project | 2 |
+| `sprint-unknown` | `--sprint` names no sprint | 2 |
+| `model-unsupported` | the scope's model is not built in, or the scope kind does not suit the model | 2 |
+| `policy-incomplete` | `sprint_anchor_date` is not set | 2 |
 
 ## Scenario map
 
