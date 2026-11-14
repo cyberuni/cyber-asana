@@ -6,6 +6,7 @@
  */
 export const STORY_SUBTYPES = {
 	sectionChanged: 'section_changed',
+	enumFieldChanged: 'enum_custom_field_changed',
 	addedToProject: 'added_to_project',
 	addedToTag: 'added_to_tag',
 	removedFromTag: 'removed_from_tag',
@@ -29,6 +30,7 @@ export function joinedAt(stories: TaskStory[], sprintName: string): string | und
 		.filter(
 			(s) =>
 				(s.resource_subtype === STORY_SUBTYPES.sectionChanged ||
+					s.resource_subtype === STORY_SUBTYPES.enumFieldChanged ||
 					s.resource_subtype === STORY_SUBTYPES.addedToProject) &&
 				s.created_at &&
 				mentions(s.text, sprintName),

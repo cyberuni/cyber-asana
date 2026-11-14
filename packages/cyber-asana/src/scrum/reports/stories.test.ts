@@ -19,6 +19,13 @@ describe('system stories (G14)', () => {
 		expect(joinedAt([], 'Sprint 2')).toBeUndefined()
 	})
 
+	it('reads an enum field change to the sprint option as joining it (the custom-field model)', () => {
+		const stories = [
+			story('enum_custom_field_changed', '2026-01-08T10:00:00Z', 'changed Sprint from "Sprint 1" to "Sprint 2"'),
+		]
+		expect(joinedAt(stories, 'Sprint 2')).toBe('2026-01-08T10:00:00Z')
+	})
+
 	it('sums the hours a tag blocked a task, open until completion or now', () => {
 		const stories = [
 			story('added_to_tag', '2026-01-08T00:00:00Z', 'added tag Blocked'),
