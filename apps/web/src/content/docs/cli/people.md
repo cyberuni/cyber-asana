@@ -35,12 +35,19 @@ at all, register the people you assign to once with
 ```sh
 cyber-asana team list
 cyber-asana team get <gid>
+cyber-asana team members <gid>
+cyber-asana team projects <gid>
 ```
 
 | Command | Arguments | Options |
 | --- | --- | --- |
 | `list` | — | `--workspace-gid <gid>` / `--workspace <gid>`, [pagination](/cyber-asana/cli/#pagination) |
 | `get` | `<gid>` | — |
+| `members` | `<gid>` | [pagination](/cyber-asana/cli/#pagination); lists each member's user GID and name, including people with no task yet |
+| `projects` | `<gid>` | `--archived` (only archived projects; default both), [pagination](/cyber-asana/cli/#pagination) |
+
+The `team` [scrum scope](/cyber-asana/cli/repo-config/#scrum-scopes) reads these two lists to learn which projects and which people
+a team covers.
 
 ## Workspaces
 

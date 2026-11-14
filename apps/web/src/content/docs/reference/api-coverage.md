@@ -53,7 +53,7 @@ operations such as project export and TODO scanning are described separately bel
 | Projects | 🟡 | 7 / 20 | `project` | CRUD, counts, search. Templates have their own row; members are managed under `membership` |
 | Goals | 🟡 | 5 / 12 | `goal` | CRUD only; no metrics or followers |
 | Users | 🟡 | 3 / 8 | `user` | Read-only |
-| Teams | 🟡 | 2 / 7 | `team` | Read-only |
+| Teams | 🟡 | 2 / 7 | `team` | Read-only; also a team's projects, which `team projects` lists |
 | Workspaces | 🟡 | 2 / 6 | `workspace` | Read-only |
 | Stories | 🟡 | 5 / 7 | `story`, `comment` | Full comment lifecycle on tasks; no goal stories |
 | Custom fields | 🟡 | 6 / 8 | `custom-field` | Discovery, create, and enum-option create, insert, and update; no field update or delete |
@@ -70,7 +70,8 @@ Rates, Reactions, Roles, Team memberships†, Time periods, Time tracking
 categories, Time tracking entries, Timesheet approval statuses, Webhooks,
 Workspace memberships.
 
-† **Team memberships** — who belongs to a team — stay on this list. Asana's unified
+† **Team memberships** — who belongs to a team — stay on this list apart from the read
+`team members <gid>`, which lists a team's members for the `team` scrum scope. Asana's unified
 Memberships endpoint, which `membership` wraps, takes projects, portfolios, goals, custom
 types, and custom fields as the parent; a team can be a *member* there, but team rosters
 themselves are a separate resource.
@@ -199,7 +200,7 @@ handshake, surfaced as a normal result rather than a `412`. See
 | Resource | CLI | MCP tools |
 | --- | --- | --- |
 | Users | `user list\|get\|me` | `asana_user_list`, `asana_user_get`, `asana_user_me` |
-| Teams | `team list\|get` | `asana_team_list`, `asana_team_get` |
+| Teams | `team list\|get\|members\|projects` | `asana_team_list`, `asana_team_get`, `asana_team_members`, `asana_team_projects` |
 | Workspaces | `workspace list\|get` | `asana_workspace_list`, `asana_workspace_get` |
 | Attachments | `attachment list\|get\|create\|delete` | `asana_attachment_list`, `asana_attachment_get`, `asana_attachment_create`, `asana_attachment_delete` |
 | Custom fields | `custom-field list\|get\|create`, `custom-field enum-option add\|move\|update` | `asana_custom_field_list`, `asana_custom_field_get`, `asana_custom_field_create`, `asana_custom_field_enum_option_create\|insert\|update` |
