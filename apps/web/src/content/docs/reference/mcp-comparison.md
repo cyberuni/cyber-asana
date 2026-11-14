@@ -44,17 +44,17 @@ each is below, so you can tell a deliberate boundary from an oversight.
 | `get_notifications` | Read the current user's notifications | None: Asana's REST API has no notifications endpoint |
 | `update_notifications` | Mark notifications read or unread | None: same reason |
 | `get_status_overview` | Aggregated status report across projects and portfolios — task summaries and flagged blockers, found by its own keyword search | None for the search half. Once you know the GID, `asana_status_overview` rolls up the latest status and task counts for a project or portfolio in one call — deterministic and parent-scoped, with no keyword search and no blocker flagging |
-| `get_table` | Fetch a table's definition | None: the `asana` SDK (v3.3.0) has no tables or records API, so there is no REST equivalent to wrap |
-| `get_tables` | List tables | None: the `asana` SDK (v3.3.0) has no tables or records API, so there is no REST equivalent to wrap |
-| `create_table` | Create a table | None: the `asana` SDK (v3.3.0) has no tables or records API, so there is no REST equivalent to wrap |
-| `update_table` | Update a table | None: the `asana` SDK (v3.3.0) has no tables or records API, so there is no REST equivalent to wrap |
-| `get_record` | Fetch one table record | None: the `asana` SDK (v3.3.0) has no tables or records API, so there is no REST equivalent to wrap |
-| `get_records` | List a table's records | None: the `asana` SDK (v3.3.0) has no tables or records API, so there is no REST equivalent to wrap |
-| `search_records` | Search a table's records | None: the `asana` SDK (v3.3.0) has no tables or records API, so there is no REST equivalent to wrap |
-| `create_records` | Create table records | None: the `asana` SDK (v3.3.0) has no tables or records API, so there is no REST equivalent to wrap |
-| `update_records` | Update table records | None: the `asana` SDK (v3.3.0) has no tables or records API, so there is no REST equivalent to wrap |
-| `delete_record` | Delete a table record | None: the `asana` SDK (v3.3.0) has no tables or records API, so there is no REST equivalent to wrap |
-| `add_record_comment` | Comment on a table record | None: the `asana` SDK (v3.3.0) has no tables or records API, so there is no REST equivalent to wrap |
+| `get_table` | Fetch a table's definition | Not yet. The REST API covers it (`asana` SDK 3.4.0: `getTable`); no cyber-asana tool wraps it |
+| `get_tables` | List tables | Not yet. The REST API covers it (`asana` SDK 3.4.0: `getTablesForWorkspace`); no cyber-asana tool wraps it |
+| `create_table` | Create a table | Not yet. The REST API covers it (`asana` SDK 3.4.0: `createTable`); no cyber-asana tool wraps it |
+| `update_table` | Update a table | Not yet. The REST API covers it (`asana` SDK 3.4.0: `updateTable`); no cyber-asana tool wraps it |
+| `get_record` | Fetch one table record | Not yet. The REST API covers it (`asana` SDK 3.4.0: `getRecord`); no cyber-asana tool wraps it |
+| `get_records` | List a table's records | Not yet. The REST API covers it (`asana` SDK 3.4.0: `getRecordsForTable`); no cyber-asana tool wraps it |
+| `search_records` | Search a table's records | Not yet. The REST API covers it (`asana` SDK 3.4.0: `searchRecordsForWorkspace`); no cyber-asana tool wraps it |
+| `create_records` | Create table records | Not yet. The REST API covers it (`asana` SDK 3.4.0: `createRecord`); no cyber-asana tool wraps it |
+| `update_records` | Update table records | Not yet. The REST API covers it (`asana` SDK 3.4.0: `updateRecord`); no cyber-asana tool wraps it |
+| `delete_record` | Delete a table record | Not yet. The REST API covers it (`asana` SDK 3.4.0: `deleteRecord`); no cyber-asana tool wraps it |
+| `add_record_comment` | Comment on a table record | Not yet. The REST API covers it (`asana` SDK 3.4.0: `StoriesApi record story`); no cyber-asana tool wraps it |
 
 If your workflow depends on preview-then-confirm flows, Asana AI agents, notifications, tables and records, or searched
 status reporting, keep the official server installed.
