@@ -15,7 +15,7 @@ Turn the two reporting skills `asana-standup` and `asana-sprint-report` into a c
 
 ### 1.1 Council decisions
 
-The Council settled D1–D4 on 2026-11-05, and D5–D9 on 2026-11-08 by agreeing to the recommendations for O1–O5 (§ 10), D10 on 2026-11-08 from the spec dry run (§ 11), and D11–D14 on 2026-11-13 for Q7, Q8, Q9, and Q11 (§ 11). The rest of this document follows them.
+The Council settled D1–D4 on 2026-11-05, D8 on 2026-11-14 (local file only), and D5–D9 on 2026-11-08 by agreeing to the recommendations for O1–O5 (§ 10), D10 on 2026-11-08 from the spec dry run (§ 11), and D11–D14 on 2026-11-13 for Q7, Q8, Q9, and Q11 (§ 11). The rest of this document follows them.
 
 | ID | Question | Decision |
 | --- | --- | --- |
@@ -26,7 +26,7 @@ The Council settled D1–D4 on 2026-11-05, and D5–D9 on 2026-11-08 by agreeing
 | D5 (O1) | Setup: its own skill or a route of `asana-scrum` | **Its own skill, `init-asana-scrum`.** |
 | D6 (O2) | Where the sprint commitment snapshot lives | **A status update posted when the sprint starts.** When no snapshot exists, rebuild the commitment from task history. |
 | D7 (O3) | How `asana-standup` and `asana-sprint-report` retire | **Each stays as a stub that routes to `asana-scrum` for one minor release, then is deleted.** |
-| D8 (O4) | Where the generated dashboard page goes | **Decided when U14 is built.** Until then the CLI writes a local file. |
+| D8 (O4) | Where the generated dashboard page goes | **Local file only** (Council, 2026-11-14). `report dashboard --page <path>` writes the HTML to the given path and publishes nothing. |
 | D9 (O5) | Out-of-office entries on workload | **A note beside a person's capacity, never subtracted from it**, so D4 holds. |
 | D10 (Q10) | Where the scrum system's design spec lives | **In the repo's existing spec tree, `packages/cyber-asana/.agents/spec/`.** |
 | D11 (Q7) | Which timezone sets "today" and the standup window | **The user's Asana timezone, read through `user me`.** |
@@ -340,7 +340,7 @@ Every report is a `cyber-asana report <key>` command:
 | --- | --- | --- | --- |
 | D2.1 | CLI | `cyber-asana report dashboard`: the reports listed in `cyber-asana.dashboard` `reports`, in one text, JSON, or TOON output | the reports above |
 | D2.2 | Asana status update | `report dashboard --post-status`: posts a status update on the scope's project, or its portfolio for a `portfolio` scope. `status_type` comes from `status_rules`; the body is the `## Status update` template in Asana's HTML subset. The skill shows the post and asks before sending. | `createStatusForObject` (A3). There is no edit, so each post is a new update and the history builds up. |
-| D2.3 | Generated page | `report dashboard --page <path>`: writes a self-contained HTML file from the dashboard JSON, with burndown, velocity, and workload charts and the health findings. Until U14 decides where it is published, the CLI writes a local file (D8). | none; built from the CLI JSON |
+| D2.3 | Generated page | `report dashboard --page <path>`: writes a self-contained HTML file from the dashboard JSON, with burndown, velocity, and workload charts and the health findings, to the path given, and publishes nothing (D8: local file only). | none; built from the CLI JSON |
 
 An Asana-native dashboard (charts inside Asana) is not reachable through the API (A2). The docs page for the dashboard tells teams which fields to chart by hand in Asana.
 
@@ -427,9 +427,9 @@ Each unit can ship alone and passes `pnpm verify`; units that need it also pass 
 | U9 | `team members \| projects`, the `team` scope, team standup | G4 | U3, U6 | Built; in review |
 | U10 | The `allocations` domain, `.workload` report, workload route, H8, and the capacity probe in setup | G5 | U8 |Built; in review |
 | U11 | `.custom-field` model, search custom-field filters and paging, custom-field create and enum options, project field attach; setup support | G3, G6, G7 | U4, U5 | Built; in review |
-| U12 | `cyber-asana.dashboard` and `report dashboard` (CLI, D2.1); the planning route (needs velocity and capacity) | — | U7, U8, U10 |  |
+| U12 | `cyber-asana.dashboard` and `report dashboard` (CLI, D2.1); the planning route (needs velocity and capacity) | — | U7, U8, U10 | Built; in review |
 | U13 | `--post-status` (D2.2) and `status_type` validation | G13 | U12 |  |
-| U14 | `--page` generated HTML (D2.3), and where the page is published (D8) | — | U12 |  |
+| U14 | `--page` generated HTML (D2.3), written to a local path and published nowhere (D8) | — | U12 |  |
 | U15 | `.project` model (one project per sprint, in a portfolio) | G8 (add/remove) | U11 | Built; in review |
 
 U1 can ship before anything else and fixes wrong numbers users see today.
@@ -532,6 +532,19 @@ U1 can ship before anything else and fixes wrong numbers users see today.
 - **G8.** `portfolio item add | remove` (and `asana_portfolio_item_add | remove`) read the portfolio's items first, so adding an item already there is `already_added` and removing an absent one is `already_removed`, both exit `0`.
 - **Not run live.** The request bodies of `addItemForPortfolio`, `removeItemForPortfolio`, and `duplicateProject` are *(docs)* fields, confirmed by `portfolios/api.system.ts` and `scrum/sprint-project.system.ts`. They need a paid workspace and a token, which the build session did not have, so run `ASANA_SYSTEM_TEST=1 ASANA_PLAN=paid pnpm test:system` before relying on them.
 
+### 9.10 Decisions made while building U12
+
+- **D8, recorded.** The Council decided on 2026-11-14: "Local file only". `--page <path>` (U14) writes the HTML to the given path and publishes nothing. U12 builds no `--page` and no `--post-status` (U13); `forms` and `status_parent` are read and validated now so those units add no setting.
+- **`status_rules` shape.** The frontmatter is `off_track: error`, `at_risk: warning`, `otherwise: on_track`: the first two name the least severe health finding that sets that status, the third is the fallback. A team changes one rule and keeps the others; an unknown key, a level that is not `error` or `warning`, or a status outside Asana's five throws.
+- **Dashboard-level `status_type` is `null` without health.** With no health report listed, or one that failed, there is nothing to grade, so `status_type` is `null` and `status_basis` says so, instead of reporting a green `on_track` nobody checked. U13 must not post a `null`.
+- **A failed report does not fail the dashboard.** A coded configuration status (`sprint-none`, `policy-incomplete`, `model-unsupported`, `premium-required`) becomes an entry with `status: failed` and its `error.code`, and the other reports still run; a sprint with no section still shows the health finding H9. A scope that cannot be selected, or a failure that is not a coded status, fails the command. The command exits 0 once the dashboard is built; `counts` and `status_type` carry the result, as for the health report (§ 9.4).
+- **Unsupported, never dropped.** The six reports the CLI ships are computed. Any other key in `reports` is an `unsupported` entry with a reason, and with the reference's name when `implementations cyber-asana.report` lists it, so a repo's own report is found and the agent follows its reference. A key no implementation ships is unsupported with a different reason.
+- **Text output is a summary.** Each report shows the figures a reader scans (the sprint's committed/completed/added/removed and rate, each finding with its fix, the team's load and the people flagged over or under, the velocity mean); the full output of one report is its own command, named in the next steps. `--json` and `--toon` carry the whole of every report.
+- **Placement.** `createScrumApi` now composes a core (every earlier method) with `createDashboardApi` in `src/scrum/dashboard-api.ts`, which runs the core's reports, so the dashboard adds no second path to Asana. The settings and `statusFor` are pure, in `reports/dashboard.ts`. `src/platform/reference-implementations.ts` wraps cyber-agentkit's `referenceImplementations` for any interface.
+- **`sprint plan`, the P2 helper.** The planning route needed sums the model would otherwise do, so the CLI computes them: `sprint plan` (read only; `asana_sprint_plan`) gives the velocity mean, capacity hours, the backlog with running totals, a proposal, and `--tasks` totals of a user's pick against each limit. The proposal stops at the first task that overruns a limit, never skipping to a smaller one, because backlog order is the team's priority. Story and task points each have their own velocity limit; effort hours (both kinds times `hours_per_point`) have the capacity limit. Capacity comes from the workload computation with no tasks, so its clipping and plan handling are not repeated. `--sprint` defaults to `next`, and the sprint needs no section yet.
+- **The route asks before each write.** The plan route is `sprint start`, `sprint add`, and `sprint start --snapshot`, each with the user's yes and each safe to repeat. The route names no totals of its own: every edit is re-totalled with `sprint plan --tasks`.
+- **Skill budget.** The `asana-scrum` description now reads "standup, planning, review, retro, health, workload, or dashboard" (119 characters) and drops "sprints"; the body's routing table still covers sprint housekeeping.
+
 ## 10. Items settled after the first review
 
 The Council agreed to each recommendation below on 2026-11-08. Each is recorded as D5–D9 in § 1.1.
@@ -541,7 +554,7 @@ The Council agreed to each recommendation below on 2026-11-08. Each is recorded 
 | O1 | Should setup be its own skill (`init-asana-scrum`) or a route of `asana-scrum`? D3 named a routing skill that covers standup and said nothing about setup. | A separate skill, matching the repo's `init-asana` / `asana` split, so a once-only setup never takes routing budget from daily use |
 | O2 | Where should the sprint commitment snapshot live? Asana keeps no history of a sprint's membership, other than system stories. | Post it as a status update ("Sprint N started": the committed tasks and points) when the sprint starts. It is visible in Asana and cannot be edited (A3). Fall back to rebuilding it from stories when no snapshot exists. |
 | O3 | How should `asana-standup` and `asana-sprint-report` be retired? | Keep each as a stub that routes to `asana-scrum` for one minor release, with a changeset that says so, then delete them |
-| O4 | Where does the generated dashboard page (D2.3) go: a local file only, a file committed to the repo, or a published page? | Decide at U14. Until then the CLI writes a local file. |
+| O4 | Where does the generated dashboard page (D2.3) go: a local file only, a file committed to the repo, or a published page? | **Decided 2026-11-14: a local file only.** `--page <path>` writes the HTML to the given path and publishes nothing (D8). |
 | O5 | Should out-of-office entries (`ooo`, already wrapped) annotate workload? D4 rules them out as a capacity source. | Show them as a note beside a person's capacity and never subtract them, so D4 holds |
 
 ## 11. Questions from the spec dry run
