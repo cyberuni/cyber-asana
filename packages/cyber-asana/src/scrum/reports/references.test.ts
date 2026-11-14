@@ -70,4 +70,12 @@ describe('report references', () => {
 		expect(parseWorkloadSettings(yaml)).toEqual(DEFAULT_WORKLOAD_SETTINGS)
 		expect(yaml).toMatchObject({ over_allocation_pct: 100, under_allocation_pct: 60 })
 	})
+
+	it('checks the dashboard reference with cyber-agentkit', () => {
+		const dir = join(repo, '.agents/references')
+		copyFileSync(join(PACKAGE, 'references/cyber-asana.dashboard.md'), join(dir, 'cyber-asana.dashboard.md'))
+		const result = agentkit('check', 'cyber-asana.dashboard')
+		expect(result.failed ?? []).toEqual([])
+		expect(result.passed).toBe(1)
+	})
 })

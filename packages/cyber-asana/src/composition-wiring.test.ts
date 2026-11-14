@@ -171,6 +171,8 @@ function mockRuntimeContext(): RuntimeContext {
 			reportRetro: vi.fn(),
 			reportVelocity: vi.fn(),
 			reportTeamStandup: vi.fn(),
+			reportDashboard: vi.fn(),
+			planSprint: vi.fn(),
 		},
 		events: { getEvents: vi.fn() },
 	}

@@ -6,12 +6,16 @@ import { CodedConfigError } from '../platform/coded-error.js'
 import { envValue } from '../platform/env.js'
 import { buildErrorBody, PLAN_LIMITATION_STATUS } from '../platform/error-body.js'
 import { listItems } from '../platform/pagination.js'
+import type { ReferenceImplementationInfo } from '../platform/reference-implementations.js'
 import type { StatusGateway } from '../status/gateway.js'
 import type { StoryGateway } from '../stories/gateway.js'
 import type { TaskGateway } from '../tasks/gateway.js'
 import type { UserGateway } from '../users/gateway.js'
+import { createDashboardApi } from './dashboard-api.js'
+import { buildPlan, type PlanInput } from './plan.js'
 import type { ScrumPolicy } from './policy.js'
 import { type CommitmentTask, findCommitment, formatCommitment } from './reports/commitment.js'
+import type { DashboardSettings } from './reports/dashboard.js'
 import { buildHealth, type HealthSettings, type HealthTask, parseHealthSettings } from './reports/health.js'
 import {
 	buildRetro,
@@ -88,6 +92,10 @@ export type ScrumApiDeps = {
 	workspaceGid?: () => string | undefined
 	/** The `cyber-asana.report.workload` thresholds; the defaults when unset. */
 	loadWorkloadSettings?: () => Promise<WorkloadSettings>
+	/** The `cyber-asana.dashboard` settings; the defaults when unset. */
+	loadDashboardSettings?: () => Promise<DashboardSettings>
+	/** The implementations of the `cyber-asana.report` interface, so the dashboard can name a report it cannot compute. */
+	listReports?: () => Promise<ReferenceImplementationInfo[]>
 	/** The clock, so a test can say what day it is. */
 	now?: () => Date
 }
@@ -117,9 +125,13 @@ const WORKLOAD_FIELDS =
 
 const ALLOCATION_FIELDS = 'gid,assignee.gid,assignee.name,parent.gid,start_date,end_date,effort.type,effort.value'
 
+const PLAN_FIELDS = 'gid,name,custom_fields.gid,custom_fields.number_value'
+
 const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/
 
+/** The scrum API: the computing core plus the dashboard, which runs the core's reports. */
 export type ScrumApi = ReturnType<typeof createScrumApi>
+export type CoreScrumApi = ReturnType<typeof createCoreScrumApi>
 
 export type ScopeListing = {
 	scopes: Array<ScopeEntry & { source: ScopeSource }>
@@ -128,6 +140,11 @@ export type ScopeListing = {
 }
 
 export function createScrumApi(deps: ScrumApiDeps) {
+	const core = createCoreScrumApi(deps)
+	return { ...core, ...createDashboardApi(deps, core) }
+}
+
+function createCoreScrumApi(deps: ScrumApiDeps) {
 	const models: Record<string, SprintModel> = {
 		sections: createSectionsModel(deps.sprint),
 		...(deps.sprint.fieldModel && { 'custom-field': createCustomFieldModel(deps.sprint.fieldModel) }),
@@ -371,6 +388,26 @@ export function createScrumApi(deps: ScrumApiDeps) {
 			notes.push(`${unknown} task(s) show no "moved to ${sprint.name}" story, so they count as committed.`)
 		}
 		return { committed: { source: 'rebuilt' as const, tasks }, notes }
+	}
+
+	/** The closed sprints of the last `velocity_window` that have a section, each with what it completed. */
+	async function velocityFor(ctx: Ctx, fields: { story: Set<string>; task: Set<string> }) {
+		const current = ctx.current ?? 0
+		const window = ctx.policy.velocity_window
+		const closed = (await ctx.model.listSprints(ctx.target)).filter((sprint) => sprint.n < current).slice(-window)
+		const sprints = []
+		for (const { n } of closed) {
+			const sprint = sprintWindow(n, ctx.settings)
+			const tasks = (await ctx.model.tasks(ctx.target, sprint, { optFields: REPORT_FIELDS })) as StandupTask[]
+			sprints.push({ n, name: sprint.name, completed: completedBy(tasks, sprint, ctx.clock.timezone, fields) })
+		}
+		const notes =
+			sprints.length < window
+				? [
+						`${sprints.length} closed sprint(s) found, fewer than velocity_window ${window}; the mean covers only those.`,
+					]
+				: []
+		return { sprints, window, notes }
 	}
 
 	/** The pieces R2 and R3 share: the sprint's tasks, its commitment, and the points fields. */
@@ -835,23 +872,58 @@ export function createScrumApi(deps: ScrumApiDeps) {
 		/** R4, velocity: points completed per closed sprint over `velocity_window`, and the mean. */
 		async reportVelocity(input: { scope?: string }, opts?: ScopeStoreOptions) {
 			const ctx = await prepare(input, opts)
-			const current = ctx.current ?? 0
-			const window = ctx.policy.velocity_window
-			const closed = (await ctx.model.listSprints(ctx.target)).filter((s) => s.n < current).slice(-window)
 			const { fields, tracked } = pointFields(ctx)
-			const sprints = []
-			for (const { n } of closed) {
-				const sprint = sprintWindow(n, ctx.settings)
-				const tasks = (await ctx.model.tasks(ctx.target, sprint, { optFields: REPORT_FIELDS })) as StandupTask[]
-				sprints.push({ n, name: sprint.name, completed: completedBy(tasks, sprint, ctx.clock.timezone, fields) })
+			const result = await velocityFor(ctx, fields)
+			return {
+				scope: ctx.scope.name,
+				...velocityOf(result.sprints, result.window),
+				points_tracked: tracked,
+				notes: result.notes,
 			}
-			const notes =
-				sprints.length < window
-					? [
-							`${sprints.length} closed sprint(s) found, fewer than velocity_window ${window}; the mean covers only those.`,
-						]
-					: []
-			return { scope: ctx.scope.name, ...velocityOf(sprints, window), points_tracked: tracked, notes }
+		},
+
+		/**
+		 * The planning arithmetic (C2): the backlog top that fits the mean of the last `velocity_window` closed
+		 * sprints and the Allocations capacity for the sprint's dates, plus the totals of the tasks the user
+		 * picked (`tasks`). Defaults to the next sprint; it needs no section, since planning comes first.
+		 */
+		async planSprint(input: SprintInput & { tasks?: string[] }, opts?: ScopeStoreOptions) {
+			const ctx = await prepare(input, opts)
+			const sprint = ctx.resolve(input.sprint ?? 'next')
+			const { fields } = pointFields(ctx)
+			const velocity = await velocityFor(ctx, fields)
+			const mean = velocityOf(velocity.sprints, velocity.window).mean
+			const allocations = await readAllocations(ctx.target.projects.map((p) => p.gid))
+			const workload = buildWorkload({
+				scope: ctx.scope.name,
+				window: { from: sprint.start, to: sprint.end },
+				policy: ctx.policy,
+				settings: await (deps.loadWorkloadSettings ?? (async () => parseWorkloadSettings({})))(),
+				tasks: [],
+				fields,
+				capacity: allocations,
+			})
+			const backlog = (await ctx.model.backlog(ctx.target, { optFields: PLAN_FIELDS })) as PlanInput['tasks']
+			const plan = buildPlan({
+				tasks: backlog,
+				fields,
+				hoursPerPoint: ctx.policy.hours_per_point,
+				velocity: { sprints: velocity.sprints.length, mean },
+				capacity:
+					workload.team.capacity_hours !== null
+						? { status: 'known', hours: workload.team.capacity_hours }
+						: { status: 'unknown', reason: allocations.status === 'unavailable' ? 'plan' : 'no-allocation' },
+				...(input.tasks && { selection: input.tasks }),
+			})
+			return {
+				scope: ctx.scope.name,
+				today_date: ctx.clock.today,
+				timezone: ctx.clock.timezone,
+				sprint,
+				velocity_window: velocity.window,
+				...plan,
+				notes: [...velocity.notes, ...plan.notes],
+			}
 		},
 
 		async listBacklog(input: { scope?: string; optFields?: string }, opts?: ScopeStoreOptions) {

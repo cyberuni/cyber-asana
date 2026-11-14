@@ -1,6 +1,6 @@
 ---
 name: asana-scrum
-description: Use this skill when the user wants scrum work from Asana — standup, review, retro, health, workload, or sprints.
+description: Use this skill when the user wants scrum from Asana — standup, planning, review, retro, health, workload, or dashboard.
 ---
 
 # Asana Scrum
@@ -17,6 +17,7 @@ arithmetic.
 | The user wants to… | Go to |
 | --- | --- |
 | a standup update — done, today, blockers ("write my standup", "what did I do yesterday", "what is blocking me") | **Standup** below |
+| plan a sprint — propose and commit the next sprint's work ("plan the sprint", "what should we commit to", "sprint planning") | **Plan** below |
 | a sprint health check — missing estimates, unassigned or overdue tasks, stale or blocked work, a sprint never started ("is the sprint healthy", "what is wrong with the board") | **Health** below |
 | the team's workload or capacity — who is over or under allocated, who has room ("is anyone overloaded", "how loaded is the sprint") | **Workload** below |
 | the current sprint, its tasks, or the backlog ("which sprint is this", "what is in the sprint") | run `cyber-asana sprint current`, `sprint tasks`, or `backlog list` directly |
@@ -24,6 +25,7 @@ arithmetic.
 | a sprint review for stakeholders — what was committed, completed, added, removed ("sprint review", "what did we deliver", "demo list") | **Review** below |
 | a retro — carry-over, blocked time, cycle time, actions ("run the retro", "retro data") | **Retro** below |
 | velocity ("how many points per sprint", "what is our velocity") | run `cyber-asana report velocity` and present it as `cyber-asana.report.velocity` lays out |
+| the dashboard — every report at once, with a status ("sprint dashboard", "how is the sprint going overall") | **Dashboard** below |
 | set up scopes, the policy, or the sprint structure | `init-asana-scrum` skill |
 
 ## Standup
@@ -52,6 +54,23 @@ command routes here too.
 Read [`references/retro.md`](references/retro.md) and follow it. It files the agreed actions as tasks
 through the `asana` skill's create-task procedure and, at its end, offers `sprint close`. The
 `/cyber-asana:retro` command routes here too.
+
+## Plan
+
+Read [`references/plan.md`](references/plan.md) and follow it. It runs `cyber-asana sprint plan` for the
+totals, lets the user edit the commitment, and asks before each of `sprint start`, `sprint add`, and
+`sprint start --snapshot`. The `/cyber-asana:sprint-plan` command routes here too.
+
+## Dashboard
+
+Run `cyber-asana report dashboard --json` (add `--scope` or `--sprint` as the user names them) and
+present it from the JSON as given. Lead with `status_type` and `status_basis`, then each report's key
+figures in the listed order. Name every entry that is `failed` (with its `error.code` and what fixes
+it, as the route for that report says) and every entry that is `unsupported` (its `reason`). For an
+unsupported report that has a `reference`, load that `cyber-asana.report.<key>` reference with the
+`reference` skill and follow it with the primitive commands it names. Never recount, regrade, or
+invent a status: `status_type` is `null` when health did not run, and you say so. Offer the full
+report (`cyber-asana report <key>`) for any section the user wants to open.
 
 ## Start a sprint
 

@@ -21,7 +21,7 @@ PR), run them in order.
 | set up credentials, the workspace, or verify the connection | `init-asana` skill |
 | set up scrum — scopes, the sprint policy, the sprint structure | `init-asana-scrum` skill |
 | add, remove, or sync projects or users in the registry | `config-asana` skill |
-| a standup update — done, today, blockers; the current sprint or backlog; start or close a sprint; a sprint review, a retro, or velocity | `asana-scrum` skill |
+| a standup update — done, today, blockers; the current sprint or backlog; start or close a sprint; sprint planning, a sprint review, a retro, velocity, or the dashboard | `asana-scrum` skill |
 | link a pull or merge request to its task ("link this PR to Asana", "comment the MR on the task") | **Link a PR** below |
 | clean up, restructure, or write a task or project description ("tidy this description", "use the PRD template"), or recover when `html_notes` fails with "XML is invalid" or "Rich text should be wrapped in <body> tag" | **Tidy a description** below |
 | turn TODO/FIXME comments in the code into tasks ("create tasks from TODOs", a tech-debt sweep) | **Import TODOs** below |

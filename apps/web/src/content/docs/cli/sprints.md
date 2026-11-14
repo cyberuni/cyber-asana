@@ -17,6 +17,7 @@ cyber-asana sprint tasks --sprint previous --incomplete
 cyber-asana sprint add <task-gid> <task-gid> --sprint next
 cyber-asana sprint start --sprint next
 cyber-asana sprint close
+cyber-asana sprint plan
 cyber-asana backlog list
 ```
 
@@ -120,3 +121,33 @@ Each status is told apart by `error.code`.
 | `premium-required` | The `custom-field` model needs task search and Asana answered `402`. Exits `7`, like any plan limitation. |
 
 All but `premium-required` exit `2`.
+
+## `sprint plan`
+
+The arithmetic of planning, so the model never adds numbers. It reads, and writes nothing.
+
+```sh
+cyber-asana sprint plan
+cyber-asana sprint plan --sprint current --scope web
+cyber-asana sprint plan --tasks <gid>,<gid>
+```
+
+`--sprint` defaults to `next`, and the sprint needs no section yet. The command combines three things:
+
+- **Velocity**: the mean of the last `velocity_window` closed sprints, story and task points apart (the
+  [velocity report](/cyber-asana/cli/reports/#report-velocity)).
+- **Capacity**: the team's Asana Allocations hours for the sprint's dates. When the plan has no
+  allocations (402), or none overlaps the dates, capacity is `unknown` with the reason, and the plan fits
+  against velocity alone.
+- **The backlog**, in its priority order, with a running total of story points, task points, and effort
+  hours (both kinds times `hours_per_point`) after each task.
+
+`proposal` is the backlog top that fits every limit: story points and task points each against their own
+mean, effort hours against capacity. It stops at the first task that overruns a limit, and
+`stopped_before` says which limit. It never skips ahead to a smaller task, since the backlog order is the
+team's priority. With neither velocity nor capacity there is nothing to fit against, and the proposal is
+empty with a note.
+
+`--tasks` totals the tasks you settled on and compares each total with its limit (`selection`, with
+`fits`). A GID that is not in the backlog is listed in `not_in_backlog`. Once you agree a plan, run
+`sprint start`, `sprint add`, and `sprint start --snapshot` to make it real.
