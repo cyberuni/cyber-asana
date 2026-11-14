@@ -161,6 +161,7 @@ Set [authentication](#authentication) before running any workflow.
 | --- | --- |
 | [`asana`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana/SKILL.md) | Entry point for Asana work — routes to the skill that owns the request; plans the work into tasks (reusing existing ones, grouping several under a parent task), imports TODO/FIXME comments as tasks, links a pull or merge request to its task, tidies descriptions, and tracks session work |
 | [`init-asana`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/init-asana/SKILL.md) | First-time setup; `ASANA_ACCESS_TOKEN`, workspace GID, verify connection |
+| [`init-asana-scrum`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/init-asana-scrum/SKILL.md) | Scrum setup — scope, `sections` sprint model, fields, backlog, current sprint, policy |
 | [`config-asana`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/config-asana/SKILL.md) | Add, remove, refresh, and show Asana projects and users in the repo config or the personal global registry |
 | [`asana-standup`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana-standup/SKILL.md) | Standup update — recent completions and due-soon tasks |
 | [`asana-sprint-report`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana-sprint-report/SKILL.md) (alpha) | Sprint retro — completed vs incomplete in a project/section |

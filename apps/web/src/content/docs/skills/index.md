@@ -26,6 +26,7 @@ Set [authentication](/cyber-asana/getting-started/#authentication) before runnin
 | --- | --- |
 | [`asana`](/cyber-asana/skills/asana/) | Entry point for Asana work — routes to the skill that owns the request; plans the work into tasks (reusing existing ones, grouping several under a parent task), imports TODO/FIXME comments as tasks, links a pull or merge request to its task, tidies descriptions, and tracks session work |
 | [`init-asana`](/cyber-asana/skills/init-asana/) | First-time setup; `ASANA_ACCESS_TOKEN`, workspace GID, verify connection |
+| [`init-asana-scrum`](/cyber-asana/skills/init-asana-scrum/) | Scrum setup — scope, `sections` sprint model, fields, backlog, current sprint, policy |
 | [`config-asana`](/cyber-asana/skills/config-asana/) | Add, remove, refresh, and show Asana projects and users in the repo config or the personal global registry |
 | [`asana-standup`](/cyber-asana/skills/asana-standup/) | Standup update — recent completions and due-soon tasks |
 | [`asana-sprint-report`](/cyber-asana/skills/asana-sprint-report/) (alpha) | Sprint retro — completed vs incomplete in a project/section |

@@ -133,6 +133,10 @@ alongside the CLI. Both servers can run together with separate config keys and c
 
 See [reference.md](./reference.md) for dual-config JSON examples and routing guidance.
 
+### 9. Optional — scrum setup
+
+Last, offer scrum: ask once whether the user wants to run sprints from Asana for this repo or team. On yes, hand off to the `init-asana-scrum` skill, which adds a scope, picks the sprint model, creates the backlog and current sprint, and writes the sprint policy. Treat no answer as **no** and finish.
+
 ## References
 
 - [reference.md](./reference.md) — per-client MCP opt-in, dual MCP setup and routing
