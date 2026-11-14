@@ -145,11 +145,12 @@ export function createRuntimeContext(): RuntimeContext {
 	const userGateway = createAsanaUserGateway(client)
 	const allocationGateway = createAsanaAllocationGateway(client)
 	const oooGateway = createAsanaOooGateway(client)
+	const customFieldGateway = createAsanaCustomFieldGateway(client)
 	return {
 		allocations: createAllocationApi(allocationGateway),
 		aiStudio: createAiStudioApi(createAsanaAiStudioGateway(client)),
 		attachments: createAttachmentApi(createAsanaAttachmentGateway(client)),
-		customFields: createCustomFieldApi(createAsanaCustomFieldGateway(client)),
+		customFields: createCustomFieldApi(customFieldGateway),
 		events: createEventApi(createAsanaEventGateway(client)),
 		goals: createGoalApi(createAsanaGoalGateway(client)),
 		memberships: createMembershipApi(createAsanaMembershipGateway(client)),
@@ -166,6 +167,7 @@ export function createRuntimeContext(): RuntimeContext {
 				sections: sectionGateway,
 				tasks: taskGateway,
 				users: userGateway,
+				fieldModel: { customFields: customFieldGateway, tasks: taskGateway, projects: projectGateway },
 			},
 			dependencies: taskGateway,
 			loadPolicy: () => loadScrumPolicy(),

@@ -115,11 +115,31 @@ other text is `sprint-unknown`. `previous` of sprint 1 is `sprint-none`.
   and lists what stayed; no incomplete task means nothing happens. All three can be repeated safely.
 - `sprint list` shows the sprints that have a section in the scope plus the current one, each `past`,
   `current`, or `future`.
+
+### The `custom-field` model
+
+- A sprint is an option, named by the computed name, of the one `Sprint` enum field the scope's
+  projects share. The field comes from the `sprint` field role in repo config, else from the
+  project's custom field settings by name (`Sprint` or `Iteration`, enum). No project with the field
+  is `sprint-field-missing`; two different fields in one scope is `sprint-field-ambiguous`. Every
+  scope kind works.
+- A sprint "exists" when the field has an enabled option of that name. `sprint current`, `tasks`,
+  `add`, and `close` need it, else `sprint-none` naming an option (not a section).
+- `sprint tasks` and `backlog list` use task search. A sprint's tasks are those whose Sprint value is
+  the option; the backlog is incomplete tasks whose Sprint field is unset. Search pages past 100
+  results by sorting on `created_at`. A `402` from Asana is `premium-required`, which names the model,
+  and exits 7 like any other plan limitation.
+- `sprint start` creates the option; when it exists, nothing changes and the result is
+  `already_started`. `sprint add` sets the task's field to the option; a task already holding it is
+  `already_in_sprint`, and a task none of whose projects has the field is `outside_scope`.
+  `sprint close` follows `carry_over`: `move` sets each incomplete task's field to the next sprint's
+  option, created when missing; `leave` changes nothing. All three can be repeated safely.
+- `backlog list` has no backlog section: it reports no missing `backlog_section`.
 - A scope whose `sprint_model` is not built into the CLI stops with `model-unsupported`, naming the
   model and the built-in options. An agent then follows that model's `cyber-asana.sprint-model.<key>`
   reference with its primitive commands. `cyber-asana.sprint-model.interface` (cardinality `many`)
-  declares the sections each model fills; `cyber-asana.sprint-model.sections` implements it, and
-  `reference check` accepts both.
+  declares the sections each model fills; `cyber-asana.sprint-model.sections` and
+  `cyber-asana.sprint-model.custom-field` implement it, and `reference check` accepts all three.
 - Every sprint command has an `asana_sprint_*` MCP tool (`backlog list` is `asana_backlog_list`)
   through the same `api.ts`.
 
@@ -133,6 +153,9 @@ other text is `sprint-unknown`. `previous` of sprint 1 is `sprint-none`.
 | `policy-incomplete` | `sprint_anchor_date` is not set | 2 |
 | `team-unsupported` | `report standup --team`, until the team scope is built | 2 |
 | `window-invalid` | `report workload` with only one of `--from` and `--to`, a malformed date, or `from` after `to` | 2 |
+| `sprint-field-missing` | the `custom-field` model finds no Sprint field on the scope's projects | 2 |
+| `sprint-field-ambiguous` | the scope's projects use more than one Sprint field | 2 |
+| `premium-required` | the `custom-field` model needs task search and Asana answered 402 | 7 |
 
 ## Reports
 

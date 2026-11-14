@@ -28,11 +28,16 @@ import {
 	selectScope,
 } from './scope.js'
 import { parseSprintRef, type Sprint, sprintNumber, sprintWindow, todayIn } from './sprint.js'
+import { type CustomFieldModelGateways, createCustomFieldModel } from './sprint-model/custom-field.js'
 import { createSectionsModel, type SectionsModelGateways } from './sprint-model/sections.js'
 import type { CarryOver, SprintModel, SprintTarget } from './sprint-model/types.js'
 
 /** The Asana reads and writes the sprint commands need, beside the scope's own. */
-export type SprintGateways = SectionsModelGateways & { users: Pick<UserGateway, 'getMe' | 'getUser'> }
+export type SprintGateways = SectionsModelGateways & {
+	users: Pick<UserGateway, 'getMe' | 'getUser'>
+	/** What the `custom-field` model needs; without it that model is reported as not built in. */
+	fieldModel?: CustomFieldModelGateways
+}
 
 export type ScrumApiDeps = {
 	/** Opens the scope configuration; each call may name its own config file or repo key. */
@@ -83,8 +88,6 @@ const ALLOCATION_FIELDS = 'gid,assignee.gid,assignee.name,parent.gid,start_date,
 
 const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/
 
-const BUILT_IN_MODELS = ['sections']
-
 export type ScrumApi = ReturnType<typeof createScrumApi>
 
 export type ScopeListing = {
@@ -94,7 +97,11 @@ export type ScopeListing = {
 }
 
 export function createScrumApi(deps: ScrumApiDeps) {
-	const models: Record<string, SprintModel> = { sections: createSectionsModel(deps.sprint) }
+	const models: Record<string, SprintModel> = {
+		sections: createSectionsModel(deps.sprint),
+		...(deps.sprint.fieldModel && { 'custom-field': createCustomFieldModel(deps.sprint.fieldModel) }),
+	}
+	const BUILT_IN_MODELS = Object.keys(models)
 
 	/** Today in the user's Asana timezone when `user me` reports one, else the machine's. */
 	function clockFor(me: { time_zone?: string }) {
@@ -120,7 +127,7 @@ export function createScrumApi(deps: ScrumApiDeps) {
 		const policy = await deps.loadPolicy()
 		const settings = { ...policy, ...applyScopeOverrides(policy, scope) }
 		const model = models[settings.sprint_model]
-		if (!BUILT_IN_MODELS.includes(settings.sprint_model) || !model) {
+		if (!model) {
 			throw new CodedConfigError(
 				'model-unsupported',
 				`The sprint model "${settings.sprint_model}" is not built into the CLI`,
@@ -130,15 +137,26 @@ export function createScrumApi(deps: ScrumApiDeps) {
 				},
 			)
 		}
-		if (scope.kind !== 'project' && scope.kind !== 'projects') {
+		if (model.kind === 'section' && scope.kind !== 'project' && scope.kind !== 'projects') {
 			throw new CodedConfigError(
 				'model-unsupported',
 				`The sections sprint model supports project and projects scopes, not ${scope.kind}`,
-				{ hint: 'Use a project or projects scope, or a sprint model that supports this scope kind.' },
+				{ hint: 'Use a project or projects scope, or the custom-field sprint model, which supports every scope kind.' },
 			)
 		}
 		const projects = await resolveScopeProjects(scope, deps.gateways)
-		const target: SprintTarget = { projects, settings, backlogSection: policy.backlog_section }
+		const sprintFields = Object.fromEntries(
+			projects.flatMap((p) => {
+				const gid = loaded.fields?.[p.gid]?.sprint?.gid
+				return gid ? [[p.gid, gid] as const] : []
+			}),
+		)
+		const target: SprintTarget = {
+			projects,
+			settings,
+			backlogSection: policy.backlog_section,
+			...(Object.keys(sprintFields).length > 0 && { sprintFields }),
+		}
 		const me = (await deps.sprint.users.getMe()) as { gid?: string; name?: string; time_zone?: string }
 		const clock = clockFor(me)
 		// A report that carries on without a sprint (D12) must still run when the anchor is unset.
@@ -163,7 +181,7 @@ export function createScrumApi(deps: ScrumApiDeps) {
 			if (sections.found.length === 0) {
 				throw new CodedConfigError(
 					'sprint-none',
-					`${sprint.name} has no section in any project of scope ${scope.name}`,
+					`${sprint.name} has no ${model.kind} in any project of scope ${scope.name}`,
 					{
 						hint: startHint(String(sprint.n)),
 					},
@@ -678,7 +696,11 @@ export function createScrumApi(deps: ScrumApiDeps) {
 		async listBacklog(input: { scope?: string; optFields?: string }, opts?: ScopeStoreOptions) {
 			const ctx = await prepare(input, opts)
 			const tasks = await ctx.model.backlog(ctx.target, input.optFields ? { optFields: input.optFields } : {})
-			const { missing } = await ctx.model.sections(ctx.target, { name: ctx.target.backlogSection })
+			// Only a section model keeps its backlog in a section; an option model's backlog is "no option".
+			const { missing } =
+				ctx.model.kind === 'section'
+					? await ctx.model.sections(ctx.target, { name: ctx.target.backlogSection })
+					: { missing: [] }
 			return {
 				scope: ctx.scope.name,
 				backlog_section: ctx.target.backlogSection,

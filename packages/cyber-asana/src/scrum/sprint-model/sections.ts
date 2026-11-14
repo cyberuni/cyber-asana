@@ -37,6 +37,8 @@ export function createSectionsModel(gateways: SectionsModelGateways): SprintMode
 	}
 
 	const model: SprintModel = {
+		kind: 'section',
+
 		async sections(target, sprint) {
 			const found: SprintSection[] = []
 			const missing: ScopeProject[] = []
