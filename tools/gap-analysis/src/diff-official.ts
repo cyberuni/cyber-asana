@@ -40,6 +40,7 @@ ${removed}
 
 ## Next steps
 
+- [ ] Update the \`asana\` SDK with \`.agents/skills/update-asana-sdk\` and check whether the new tools have an SDK basis
 - [ ] Run \`.agents/skills/analyze-official-asana-mcp\` locally
 - [ ] Run \`pnpm --filter @cyberuni/gap-analysis run report -- --json\` and review buckets
 - [ ] Update \`tools/gap-analysis/src/overlap-map.ts\` if overlap pairs changed

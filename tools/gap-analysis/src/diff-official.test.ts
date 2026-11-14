@@ -30,6 +30,21 @@ describe('renderIssueBody', () => {
 		expect(body).toContain('`create_tasks`')
 		expect(body).toContain('analyze-official-asana-mcp')
 	})
+
+	it('starts the checklist with the SDK update step', () => {
+		const body = renderIssueBody({
+			added: [],
+			removed: [],
+			unchanged: [],
+			baseline_path: 'data/official-asana-mcp-baseline.json',
+			fetched_at: '2026-05-25',
+			tool_count_before: 0,
+			tool_count_after: 0,
+		})
+
+		const firstStep = body.split('## Next steps\n\n')[1]?.split('\n')[0]
+		expect(firstStep).toContain('update-asana-sdk')
+	})
 })
 
 describe('diffToolLists unchanged only', () => {
