@@ -25,9 +25,10 @@ function setup() {
 		},
 		sprint: {
 			...sections.gateways,
-			users: { getMe: vi.fn(async () => ({ gid: 'u' })) as never },
+			users: { getMe: vi.fn(async () => ({ gid: 'u' })) as never, getUser: vi.fn() as never },
 			fieldModel: field.gateways as never,
 		},
+		dependencies: { getDependencies: vi.fn(async () => []) },
 		loadPolicy: async () => ({
 			...DEFAULT_SCRUM_POLICY,
 			sprint_anchor_date: '2026-01-05',

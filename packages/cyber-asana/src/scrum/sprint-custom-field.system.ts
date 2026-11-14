@@ -27,7 +27,7 @@ function live(sprintFieldGid: string) {
 				scopes: [{ name: 'system', kind: 'project' as const, projects: [projectGid as string], default: true }],
 				sources: {},
 				// The probe field has no name the discovery matcher knows, so register it as the sprint role.
-				projectFields: { [projectGid as string]: { sprint: { gid: sprintFieldGid, name: 'probe' } } },
+				fields: { [projectGid as string]: { sprint: { gid: sprintFieldGid, name: 'probe' } } },
 			}),
 			add: async () => {
 				throw new Error('read-only')
@@ -43,6 +43,7 @@ function live(sprintFieldGid: string) {
 			users: createAsanaUserGateway(client),
 			fieldModel: { customFields, tasks, projects: createAsanaProjectGateway(client) },
 		},
+		dependencies: tasks,
 		loadPolicy: async () => ({
 			...DEFAULT_SCRUM_POLICY,
 			sprint_anchor_date: '2026-01-05',
