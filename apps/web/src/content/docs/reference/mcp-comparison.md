@@ -9,7 +9,7 @@ competitors — tool names do not collide, and running **both** in the same host
 intended setup. The MCP server is opt-in: the cyber-asana plugin does not start it (see [CLI vs MCP](/cyber-asana/reference/cli-vs-mcp/)). This page shows what each one covers so you know which to reach for.
 
 :::note
-Compared against Asana's documented MCP tools reference (33 tools). The official server
+Compared against Asana's documented MCP tools reference (44 tools). The official server
 also exposes undocumented internal/widget tools in some hosts; those are out of scope.
 :::
 
@@ -17,7 +17,7 @@ also exposes undocumented internal/widget tools in some hosts; those are out of 
 
 | | Official Asana MCP | cyber-asana MCP |
 | --- | --- | --- |
-| Tools | 33 | 111 |
+| Tools | 44 | 112 |
 | Transport | Hosted remote (`https://mcp.asana.com/v2/mcp`) | Local stdio (`cyber-asana mcp`) |
 | Auth | OAuth 2.0 (hosted, an **MCP app** you register) | Personal access token, or OAuth 2.0 + PKCE via `cyber-asana auth login` (your own **API app**) |
 | Config key | `asana` | `cyber-asana` |
@@ -25,7 +25,7 @@ also exposes undocumented internal/widget tools in some hosts; those are out of 
 | Output | JSON | JSON, or TOON via `CYBER_ASANA_MCP_FORMAT=toon` |
 | Also available as a CLI | No | Yes — same core, same operations |
 
-**Overlap: 25 tool pairs. Official-only: 8. cyber-asana-only: 86.**
+**Overlap: 25 tool pairs. Official-only: 19. cyber-asana-only: 87.**
 
 ## What only the official server has
 
@@ -44,8 +44,19 @@ each is below, so you can tell a deliberate boundary from an oversight.
 | `get_notifications` | Read the current user's notifications | None: Asana's REST API has no notifications endpoint |
 | `update_notifications` | Mark notifications read or unread | None: same reason |
 | `get_status_overview` | Aggregated status report across projects and portfolios — task summaries and flagged blockers, found by its own keyword search | None for the search half. Once you know the GID, `asana_status_overview` rolls up the latest status and task counts for a project or portfolio in one call — deterministic and parent-scoped, with no keyword search and no blocker flagging |
+| `get_table` | Fetch a table's definition | Not yet. The REST API covers it (`asana` SDK 3.4.0: `getTable`); no cyber-asana tool wraps it |
+| `get_tables` | List tables | Not yet. The REST API covers it (`asana` SDK 3.4.0: `getTablesForWorkspace`); no cyber-asana tool wraps it |
+| `create_table` | Create a table | Not yet. The REST API covers it (`asana` SDK 3.4.0: `createTable`); no cyber-asana tool wraps it |
+| `update_table` | Update a table | Not yet. The REST API covers it (`asana` SDK 3.4.0: `updateTable`); no cyber-asana tool wraps it |
+| `get_record` | Fetch one table record | Not yet. The REST API covers it (`asana` SDK 3.4.0: `getRecord`); no cyber-asana tool wraps it |
+| `get_records` | List a table's records | Not yet. The REST API covers it (`asana` SDK 3.4.0: `getRecordsForTable`); no cyber-asana tool wraps it |
+| `search_records` | Search a table's records | Not yet. The REST API covers it (`asana` SDK 3.4.0: `searchRecordsForWorkspace`); no cyber-asana tool wraps it |
+| `create_records` | Create table records | Not yet. The REST API covers it (`asana` SDK 3.4.0: `createRecord`); no cyber-asana tool wraps it |
+| `update_records` | Update table records | Not yet. The REST API covers it (`asana` SDK 3.4.0: `updateRecord`); no cyber-asana tool wraps it |
+| `delete_record` | Delete a table record | Not yet. The REST API covers it (`asana` SDK 3.4.0: `deleteRecord`); no cyber-asana tool wraps it |
+| `add_record_comment` | Comment on a table record | Not yet. The REST API covers it (`asana` SDK 3.4.0: `StoriesApi record story`); no cyber-asana tool wraps it |
 
-If your workflow depends on preview-then-confirm flows, Asana AI agents, notifications, or searched
+If your workflow depends on preview-then-confirm flows, Asana AI agents, notifications, tables and records, or searched
 status reporting, keep the official server installed.
 
 ## What both servers cover
