@@ -1,6 +1,6 @@
 import { Command, InvalidArgumentError } from 'commander'
 import { resolveProjectRef } from '../config/repo-config.js'
-import { SCOPE_KINDS, type ScopeEntry, type ScopeKind } from '../config/scopes.js'
+import { SCOPE_KINDS, SCOPE_OVERRIDE_KEYS, type ScopeEntry, type ScopeKind } from '../config/scopes.js'
 import { output, printFields, printNextSteps, printTable } from '../platform/cli/output.js'
 import type { ScrumApi } from './api.js'
 import { createDefaultScrumApi } from './default.js'
@@ -45,8 +45,7 @@ function members(scope: ScopeEntry): string {
 }
 
 function overrides(scope: ScopeEntry): string {
-	return (['sprint_model', 'sprint_length_days', 'sprint_anchor_date'] as const)
-		.filter((key) => scope[key] !== undefined)
+	return SCOPE_OVERRIDE_KEYS.filter((key) => scope[key] !== undefined)
 		.map((key) => `${key}=${scope[key]}`)
 		.join(' ')
 }
