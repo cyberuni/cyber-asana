@@ -7,7 +7,9 @@
 		"catalog": "tsx src/catalog.ts",
 		"check": "tsx src/catalog.ts --check",
 		"diff-official": "tsx src/diff-official.ts",
+		"diff-rest": "tsx src/diff-rest.ts",
 		"fetch-official": "tsx src/fetch-official.ts",
+		"fetch-rest": "tsx src/fetch-rest.ts",
 		"report": "tsx src/report.ts",
 		"test": "vitest run",
 		"typecheck": "tsc --noEmit"
@@ -20,5 +22,8 @@
 	},
 	"engines": {
 		"node": ">=22"
+	},
+	"dependencies": {
+		"yaml": "^2.9.1"
 	}
 }
