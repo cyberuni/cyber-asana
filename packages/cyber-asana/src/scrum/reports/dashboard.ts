@@ -1,4 +1,9 @@
-import { type LoadReferenceMetadataOptions, loadReferenceMetadata } from '../../platform/reference-metadata.js'
+import {
+	type LoadReferenceMetadataOptions,
+	loadReferenceContent,
+	loadReferenceMetadata,
+} from '../../platform/reference-metadata.js'
+import { parseStatusTemplate, type StatusTemplate } from './status-update.js'
 
 /** The reference whose frontmatter says which reports the dashboard runs and how it grades them (§ 5.5). */
 const DASHBOARD_REFERENCE = 'cyber-asana.dashboard'
@@ -97,4 +102,11 @@ export function statusFor(counts: { error: number; warning: number }, rules: Sta
 	if (matches(rules.off_track, counts)) return 'off_track'
 	if (matches(rules.at_risk, counts)) return 'at_risk'
 	return rules.otherwise
+}
+
+/** The `## Status update` template of the resolved `cyber-asana.dashboard` reference. */
+export async function loadStatusTemplate(opts: LoadReferenceMetadataOptions = {}): Promise<StatusTemplate> {
+	const template = await loadReferenceContent(DASHBOARD_REFERENCE, parseStatusTemplate, opts)
+	if (!template) throw new Error(`${DASHBOARD_REFERENCE} is not installed, so there is no status update template`)
+	return template
 }

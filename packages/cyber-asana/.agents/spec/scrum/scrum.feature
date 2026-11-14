@@ -678,3 +678,22 @@ Feature: scrum scopes
     Given a pick of tasks whose story points exceed the velocity mean
     When sprint plan runs with --tasks
     Then selection.fits is false and against shows the total, the limit, and over
+
+  Scenario: the dashboard posts a status update on the scope's project
+    Given the health report finds one warning and no error
+    When report dashboard runs with --post-status
+    Then a status update with status_type "at_risk" is created on the scope's project
+    And the result says a status update cannot be edited
+
+  Scenario: a dry run posts nothing
+    When report dashboard runs with --post-status --dry-run
+    Then the title and body are printed and no status update is created
+
+  Scenario: no post without a graded status
+    Given cyber-asana.dashboard lists only velocity
+    When report dashboard runs with --post-status
+    Then it fails with code "health-required" and nothing is posted
+
+  Scenario: status create refuses a status_type the parent does not take
+    When status create runs on a project with --status-type "achieved"
+    Then it fails with code "status-type-invalid" listing the project's types

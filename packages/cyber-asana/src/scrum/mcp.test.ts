@@ -41,6 +41,7 @@ function fakeApi(): ScrumApi {
 		reportSprint: vi.fn(async () => ({ completed: { count: 0 } })),
 		reportRetro: vi.fn(async () => ({ carry_over: [] })),
 		reportVelocity: vi.fn(async () => ({ sprints: [] })),
+		postDashboardStatus: vi.fn(async () => ({ posted: false })),
 		reportDashboard: vi.fn(async () => ({ reports: [] })),
 		planSprint: vi.fn(async () => ({ proposal: { tasks: [] } })),
 		closeSprint: vi.fn(async () => ({ moved: [] })),
@@ -76,6 +77,7 @@ describe('scrum/mcp', () => {
 				'asana_report_retro',
 				'asana_report_velocity',
 				'asana_report_dashboard',
+				'asana_report_dashboard_post',
 				'asana_sprint_plan',
 			].sort(),
 		)
@@ -243,6 +245,16 @@ describe('scrum/mcp', () => {
 		const result = await server.handlers.get('asana_report_dashboard')?.({ scope: 'web', sprint: 'previous' })
 		expect(api.reportDashboard).toHaveBeenCalledWith({ scope: 'web', sprint: 'previous' })
 		expect(JSON.parse(result.content[0].text)).toEqual({ reports: [] })
+	})
+
+	it('asana_report_dashboard_post posts, and dry_run only previews', async () => {
+		const server = createServer()
+		const api = fakeApi()
+		registerScrumTools(server as any, api)
+		await server.handlers.get('asana_report_dashboard_post')?.({ scope: 'web' })
+		expect(api.postDashboardStatus).toHaveBeenCalledWith({ scope: 'web' }, undefined, { dryRun: false })
+		await server.handlers.get('asana_report_dashboard_post')?.({ dry_run: true })
+		expect(api.postDashboardStatus).toHaveBeenLastCalledWith({}, undefined, { dryRun: true })
 	})
 
 	it('asana_sprint_plan forwards scope, sprint, and the picked tasks', async () => {

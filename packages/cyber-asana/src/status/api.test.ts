@@ -71,3 +71,55 @@ describe('createStatusApi', () => {
 		expect(mockCreateStatus).toHaveBeenCalledWith('proj1', { status_type: 'on_track', text: 'All good' })
 	})
 })
+
+describe('createStatusApi createStatus validation (G13)', () => {
+	const gateway = () => ({
+		listStatuses: vi.fn(),
+		getStatus: vi.fn(),
+		createStatus: vi.fn().mockResolvedValue(mockStatus),
+		deleteStatus: vi.fn(),
+	})
+
+	it('rejects an unknown status_type before any call', async () => {
+		const g = gateway()
+		const api = createStatusApi(g, overviewGateways())
+		await expect(api.createStatus('p1', { status_type: 'green' })).rejects.toMatchObject({
+			code: 'status-type-invalid',
+		})
+		expect(g.createStatus).not.toHaveBeenCalled()
+	})
+
+	it('posts a shared type without looking the parent up', async () => {
+		const g = gateway()
+		const gateways = overviewGateways()
+		await createStatusApi(g, gateways).createStatus('p1', { status_type: 'at_risk' })
+		expect(g.createStatus).toHaveBeenCalledOnce()
+		expect(gateways.portfolios.getPortfolio).not.toHaveBeenCalled()
+	})
+
+	it('checks an exclusive type against the stated parent type, with no lookup', async () => {
+		const g = gateway()
+		const api = createStatusApi(g, overviewGateways())
+		await expect(api.createStatus('p1', { status_type: 'achieved' }, { parentType: 'project' })).rejects.toMatchObject({
+			code: 'status-type-invalid',
+		})
+		await api.createStatus('g1', { status_type: 'achieved' }, { parentType: 'goal' })
+		expect(g.createStatus).toHaveBeenCalledOnce()
+	})
+
+	it('detects the parent type for an exclusive type when none is stated', async () => {
+		const g = gateway()
+		const gateways = {
+			...overviewGateways(),
+			goals: { getGoal: vi.fn().mockResolvedValue({ gid: 'g1' }) },
+		}
+		gateways.portfolios.getPortfolio.mockRejectedValue(new Error('404'))
+		gateways.projects.getProject.mockRejectedValue(new Error('404'))
+		const api = createStatusApi(g, gateways)
+		await expect(api.createStatus('g1', { status_type: 'on_hold' })).rejects.toMatchObject({
+			code: 'status-type-invalid',
+		})
+		await api.createStatus('g1', { status_type: 'dropped' })
+		expect(g.createStatus).toHaveBeenCalledOnce()
+	})
+})

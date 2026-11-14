@@ -67,6 +67,7 @@ The table lives in `SYSTEM_SUITES` in `packages/cyber-asana/src/testing/system-s
 | `portfolios/api` | workspace, project (item add/remove) | paid |
 | `project-templates/api` | workspace | any |
 | `projects/api` | workspace | any |
+| `scrum/reports/status-post` | project (fixture). Posts the rendered shipped dashboard `## Status update` template as a project status update and deletes it | any |
 | `scrum/reports/stories` | workspace, project and section (fixtures). Makes and deletes two probe tasks; confirms the story `resource_subtype` values the retro and sprint reports read (G14) | any |
 | `scrum/sprint-custom-field` | workspace, project (fixture). Makes and deletes a probe Sprint field; search retries up to 60s (eventual consistency) | paid |
 | `scrum/sprint-project` | workspace, project (fixture; the backlog project). Makes a throwaway portfolio and probe sprint projects, deletes them afterwards | paid |

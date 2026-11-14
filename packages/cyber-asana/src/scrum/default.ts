@@ -17,7 +17,7 @@ import { createAsanaTeamGateway } from '../teams/gateway.js'
 import { createAsanaUserGateway } from '../users/gateway.js'
 import { createScrumApi, type ScrumApi } from './api.js'
 import { loadScrumPolicy } from './policy.js'
-import { loadDashboardSettings } from './reports/dashboard.js'
+import { loadDashboardSettings, loadStatusTemplate } from './reports/dashboard.js'
 import { loadHealthSettings } from './reports/health.js'
 import { loadWorkloadSettings } from './reports/workload.js'
 
@@ -60,6 +60,7 @@ export function createDefaultScrumApi(): ScrumApi {
 		ooo: createAsanaOooGateway(client),
 		loadWorkloadSettings: () => loadWorkloadSettings(),
 		loadDashboardSettings: () => loadDashboardSettings(),
+		loadStatusTemplate: () => loadStatusTemplate(),
 		listReports: () => listReferenceImplementations('cyber-asana.report'),
 	})
 }

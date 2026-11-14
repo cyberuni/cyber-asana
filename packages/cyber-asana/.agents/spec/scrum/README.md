@@ -380,6 +380,22 @@ dashboard result and publishes nothing.
   `{ path, bytes, sections }`. The text dashboard is not printed.
 - **No MCP counterpart.** `asana_report_dashboard` has no `page` option; see design § 9.11.
 
+### Dashboard status update
+
+`report dashboard --post-status` (D2.2; `--dry-run`) posts the dashboard as a status update.
+
+- **Grade required.** A `null` `status_type` posts nothing: `health-required`, exit 2.
+- **Parent.** `status_parent` (`project`, `portfolio`, `scope-default`) and the scope pick the one
+  project or portfolio; none available is `status-parent-unavailable`, exit 2.
+- **Template.** The `## Status update` section: a `Title:` line and an html block with `{named}`
+  placeholders. A line repeats per finding or per person, a line with an uncomputed figure is dropped,
+  an unknown placeholder is `status-template-invalid`. Missing commitment or capacity reads unknown
+  with its reason, never zero. Values are HTML-escaped.
+- **Checked before the call.** The body must fit Asana's HTML subset (`status-body-invalid`).
+- **Each post is new** (A3); the result says so and carries `posted`, `dry_run`, and the update's `gid`.
+- **MCP.** `asana_report_dashboard_post` (`dry_run`); `asana_report_dashboard` stays read only (§ 9.12).
+- **G13.** `status create` checks `status_type` per parent type (`status-type-invalid`, exit 2).
+
 ### Planning arithmetic
 
 `sprint plan` (`--scope`, `--sprint`, default `next`; `--tasks`) is read only. It combines the mean

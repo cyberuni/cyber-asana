@@ -77,26 +77,39 @@ export function registerStatusTools(server: McpServer, api?: StatusApi | (() => 
 		'Create a status update on an Asana project, portfolio, or goal',
 		{
 			parent_gid: z.string().describe('Parent GID (project, portfolio, or goal)'),
-			status_type: z.string().describe('Status type (e.g. on_track, at_risk, off_track, on_hold, complete)'),
+			status_type: z
+				.string()
+				.describe(
+					'Status type: on_track, at_risk, off_track, on_hold, complete (project, portfolio); on_track, at_risk, off_track, achieved, partial, missed, dropped (goal). Fails with code status-type-invalid, listing the options.',
+				),
+			parent_type: z
+				.enum(['project', 'portfolio', 'goal'])
+				.optional()
+				.describe('Checks status_type against this parent type without looking the parent up'),
 			text: z.string().optional().describe('Status update body as plain text'),
 			html_text: z.string().optional().describe('Status update body as Asana rich text HTML'),
 			title: z.string().optional().describe('Status update title'),
 		},
-		async ({ parent_gid, status_type, text, html_text, title }) => ({
-			content: [
-				{
-					type: 'text',
-					text: JSON.stringify(
-						await resolveStatusApi(api).createStatus(parent_gid, {
-							status_type,
-							...(text !== undefined && { text }),
-							...(html_text !== undefined && { html_text }),
-							...(title !== undefined && { title }),
-						}),
-					),
-				},
-			],
-		}),
+		async ({ parent_gid, status_type, parent_type, text, html_text, title }) => {
+			const fields = {
+				status_type,
+				...(text !== undefined && { text }),
+				...(html_text !== undefined && { html_text }),
+				...(title !== undefined && { title }),
+			}
+			return {
+				content: [
+					{
+						type: 'text',
+						text: JSON.stringify(
+							await (parent_type
+								? resolveStatusApi(api).createStatus(parent_gid, fields, { parentType: parent_type })
+								: resolveStatusApi(api).createStatus(parent_gid, fields)),
+						),
+					},
+				],
+			}
+		},
 	)
 
 	server.tool(
