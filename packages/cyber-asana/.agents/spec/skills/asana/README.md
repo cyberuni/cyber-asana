@@ -31,7 +31,7 @@ model-triggered entry for Asana work in the plugin, and the `/cyber-asana:create
   one declares an `argument-hint` (`[task-gid] [emoji] [template:prd|bug|research] [tone]
   [sources]`).
 - **What it covers** — classifying the request and handing it to the skill that owns it
-  (`init-asana`, `config-asana`, `asana-scrum`, `asana-sprint-report`,
+  (`init-asana`, `config-asana`, `asana-scrum`,
   `sync-asana-project`), plus the procedures it owns itself:
   - **Plan the work** — run first for both a task request and session tracking: splitting the
     request or the session (conversation, the branch's commits and diff, any pull request) into

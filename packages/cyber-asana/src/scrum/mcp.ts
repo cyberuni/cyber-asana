@@ -130,10 +130,11 @@ export function registerScrumTools(server: McpServer, api?: ScrumApi | (() => Sc
 
 	server.tool(
 		'asana_sprint_start',
-		"Create the sprint's section in each project of the scope that lacks one. Idempotent: when every section exists nothing changes and already_started is true." +
+		"Create the sprint's section in each project of the scope that lacks one. Idempotent: when every section exists nothing changes and already_started is true. With snapshot=true it also posts the commitment (the sprint's tasks and points) as a status update on each project that has none for the sprint; ask the user first, since a status update cannot be edited. Run it again once the sprint is filled." +
 			errors,
-		sprintParams,
-		async (params) => json(await resolveApi(api).startSprint(pick(params))),
+		{ ...sprintParams, snapshot: z.boolean().optional().describe('Post the commitment snapshot as a status update') },
+		async ({ snapshot, ...rest }) =>
+			json(await resolveApi(api).startSprint({ ...pick(rest), ...(snapshot && { snapshot: true }) })),
 	)
 
 	server.tool(
@@ -204,5 +205,30 @@ export function registerScrumTools(server: McpServer, api?: ScrumApi | (() => Sc
 					...(workspace_gid !== undefined && { workspace: workspace_gid }),
 				}),
 			),
+	)
+
+	const reportErrors =
+		' Fails with code sprint-none (the sprint has no section; start it with asana_sprint_start), sprint-unknown, or model-unsupported.'
+	server.tool(
+		'asana_report_sprint',
+		'The sprint review (R2), computed: committed (from the commitment snapshot posted at sprint start, else rebuilt from task history) against completed, added and removed; completion rate by count and by each kind of points; carry-over candidates; a daily burndown from completed_at; and the completed stories for the demo. Story and task points are never merged. notes names what could not be read, such as removed tasks without a snapshot.' +
+			reportErrors,
+		sprintParams,
+		async (params) => json(await resolveApi(api).reportSprint(pick(params))),
+	)
+
+	server.tool(
+		'asana_report_retro',
+		'The retro data (R3), computed: carry-over, scope change, blocked tasks and time blocked (best effort from system stories), cycle time, and estimate against actual (committed points against the points a finished task carries now; needs the commitment snapshot). notes names the gaps.' +
+			reportErrors,
+		sprintParams,
+		async (params) => json(await resolveApi(api).reportRetro(pick(params))),
+	)
+
+	server.tool(
+		'asana_report_velocity',
+		"Velocity (R4), computed: the points each closed sprint completed, story and task points apart, over the policy's velocity_window, plus the mean. Takes no sprint: it covers the closed ones. Fails with code model-unsupported or policy-incomplete.",
+		{ scope: sprintParams.scope },
+		async ({ scope }) => json(await resolveApi(api).reportVelocity({ ...(scope !== undefined && { scope }) })),
 	)
 }

@@ -38,6 +38,9 @@ function fakeApi(): ScrumApi {
 		sprintTasks: vi.fn(async () => ({ tasks: [] })),
 		addToSprint: vi.fn(async () => ({ added: [] })),
 		startSprint: vi.fn(async () => ({ created: [] })),
+		reportSprint: vi.fn(async () => ({ completed: { count: 0 } })),
+		reportRetro: vi.fn(async () => ({ carry_over: [] })),
+		reportVelocity: vi.fn(async () => ({ sprints: [] })),
 		closeSprint: vi.fn(async () => ({ moved: [] })),
 		listBacklog: vi.fn(async () => ({ tasks: [] })),
 		reportStandup: vi.fn(async () => ({ done: { count: 0 } })),
@@ -66,6 +69,9 @@ describe('scrum/mcp', () => {
 				'asana_report_standup',
 				'asana_report_health',
 				'asana_report_workload',
+				'asana_report_sprint',
+				'asana_report_retro',
+				'asana_report_velocity',
 			].sort(),
 		)
 	})
@@ -192,5 +198,26 @@ describe('scrum/mcp', () => {
 		expect(api.reportWorkload).toHaveBeenCalledWith({ scope: 'web', from: '2026-01-19', to: '2026-01-23' })
 		await server.handlers.get('asana_report_workload')?.({ sprint: 'previous' })
 		expect(api.reportWorkload).toHaveBeenLastCalledWith({ sprint: 'previous' })
+	})
+
+	it('asana_report_sprint | retro | velocity forward scope and sprint to the api', async () => {
+		const server = createServer()
+		const api = fakeApi()
+		registerScrumTools(server as any, api)
+		await server.handlers.get('asana_report_sprint')?.({ scope: 'web', sprint: 'previous' })
+		expect(api.reportSprint).toHaveBeenCalledWith({ scope: 'web', sprint: 'previous' })
+		await server.handlers.get('asana_report_retro')?.({ sprint: '3' })
+		expect(api.reportRetro).toHaveBeenCalledWith({ sprint: '3' })
+		const result = await server.handlers.get('asana_report_velocity')?.({ scope: 'web' })
+		expect(api.reportVelocity).toHaveBeenCalledWith({ scope: 'web' })
+		expect(JSON.parse(result.content[0].text)).toEqual({ sprints: [] })
+	})
+
+	it('asana_sprint_start passes snapshot only when asked', async () => {
+		const server = createServer()
+		const api = fakeApi()
+		registerScrumTools(server as any, api)
+		await server.handlers.get('asana_sprint_start')?.({ snapshot: true })
+		expect(api.startSprint).toHaveBeenCalledWith({ snapshot: true })
 	})
 })

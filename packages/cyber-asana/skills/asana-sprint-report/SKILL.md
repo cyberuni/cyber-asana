@@ -1,84 +1,14 @@
 ---
 name: asana-sprint-report
-description: Use this skill when the user wants a sprint summary — completed vs incomplete tasks for retro or stakeholders.
-metadata:
-  stability: alpha
+description: Use this skill when the user wants a sprint summary or retro data from Asana — it now routes to the asana-scrum skill.
 ---
 
-# Asana Sprint Report
+# Asana Sprint Report (moved)
 
-## When to use
+This skill moved into `asana-scrum`, which computes the sprint review and the retro in the CLI
+instead of asking you to add up task lists. This stub stays for one minor release, then it is
+deleted.
 
-When the user asks for a sprint summary, retrospective data, or completion stats for a project or section.
-
-## Instructions
-
-### 1. Identify scope
-
-Ask (or infer): which project, which section (sprint), and the sprint start date.
-
-```bash
-cyber-asana project list --toon
-cyber-asana section list --project-gid <project-gid> --toon
-```
-
-Read the output for project and section GIDs. (`--toon` is the token-efficient format; use `--json` for raw JSON.)
-
-### 2. Fetch completed tasks
-
-For a sprint section, list that section's tasks completed since the sprint started:
-
-```bash
-cyber-asana section tasks <section-gid> --completed-since <sprint-start-date> --toon
-```
-
-For a whole project:
-
-```bash
-cyber-asana task list --project-gid <project-gid> --completed-since <sprint-start-date> --toon
-```
-
-`--completed-since` returns only tasks completed on or after the date. Open tasks are not in this list.
-
-### 3. Fetch incomplete tasks
-
-```bash
-cyber-asana section tasks <section-gid> --incomplete --toon
-cyber-asana task list --project-gid <project-gid> --incomplete --toon   # whole project
-```
-
-Do not filter a project's lists by section by hand; `section tasks` already returns only that section's tasks.
-
-### 3b. Points (when the project has points fields)
-
-Read `fields.story_points` and `fields.task_points` on the project's entry in `.agents/cyber-asana.json`. Skip this step when it has neither. Otherwise add the field values to both fetches (`--completed-since` adds the completion fields it needs on its own):
-
-```bash
---opt-fields name,assignee.name,due_on,completed,custom_fields.gid,custom_fields.display_value
-```
-
-Report story points and task points as two separate totals, completed and incomplete. The `cyber-asana.task-conventions` reference (§ Story points and task points) draws the line between them. A task carries one of them, never both, so the two totals never overlap and nothing is added across them. Parent tasks carry neither; do not count a parent's subtasks again through the parent.
-
-### 4. Produce the report (LLM judgment)
-
-Compute completion rate and identify patterns — blocked tasks, scope creep, assignee load. Write a narrative summary alongside the raw counts.
-
-```
-## Sprint Report — <Section/Project Name>
-Period: <start> – <end>
-
-**Completed (N)**
-- Task name — assignee
-
-**Incomplete (M)**
-- Task name — assignee — due <date>
-
-Completion rate: X%
-Story points: <done> of <total> · Task points: <done> of <total>   (only when the project has the fields)
-
-<narrative: patterns, blockers, notes>
-```
-
-### 5. Offer follow-up
-
-Ask if the user wants to move incomplete tasks to the next sprint section.
+Load the `asana-scrum` skill from the cyber-asana plugin and follow its **Review** route for a
+sprint summary or stakeholder update, or its **Retro** route for retro data. Do not run the old
+`section tasks` and `task list --completed-since` steps.

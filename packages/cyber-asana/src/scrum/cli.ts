@@ -354,20 +354,43 @@ export function sprintCommand(api?: ResolveApi) {
 		cmd
 			.command('start')
 			.description("Create the sprint's section in each project that lacks one; a no-op when they exist"),
-	).action(async (opts: SprintFlags) => {
-		const result = await resolveApi(api).startSprint(sprintInput(opts), storeOptions(opts))
-		output(result, () => {
-			console.log(
-				result.already_started
-					? `${result.sprint.name} already started (${result.existing.length} project(s)); nothing to do`
-					: `Started ${result.sprint.name} (${dates(result.sprint)}): created its section in ${result.created.join(', ')}`,
+	)
+		.option(
+			'--snapshot',
+			'Post the commitment (the sprint tasks and points) as a status update on each project; a no-op where one exists',
+		)
+		.action(async (opts: SprintFlags & { snapshot?: boolean }) => {
+			const result = await resolveApi(api).startSprint(
+				{ ...sprintInput(opts), ...(opts.snapshot && { snapshot: true }) },
+				storeOptions(opts),
 			)
-			printNextSteps([
-				'cyber-asana backlog list — pick what to commit',
-				'cyber-asana sprint add <task-gid> — commit a task',
-			])
+			output(result, () => {
+				console.log(
+					result.already_started
+						? `${result.sprint.name} already started (${result.existing.length} project(s)); nothing to do`
+						: `Started ${result.sprint.name} (${dates(result.sprint)}): created its section in ${result.created.join(', ')}`,
+				)
+				if (result.snapshot) {
+					if (result.snapshot.posted.length) {
+						console.log(`Posted the commitment snapshot in project(s) ${result.snapshot.posted.join(', ')}`)
+					}
+					if (result.snapshot.existing.length) {
+						console.log(
+							`The commitment snapshot was already there; ${result.snapshot.existing.length} project(s) already had one in ${result.snapshot.existing.join(', ')}`,
+						)
+					}
+				}
+				printNextSteps(
+					result.snapshot
+						? ['cyber-asana report sprint — compare the sprint with its commitment']
+						: [
+								'cyber-asana backlog list — pick what to commit',
+								'cyber-asana sprint add <task-gid> — commit a task',
+								'cyber-asana sprint start --snapshot — post the commitment once the sprint is filled',
+							],
+				)
+			})
 		})
-	})
 
 	addSprintOptions(
 		cmd.command('close').description("Close a sprint: carry its incomplete tasks over as the policy's carry_over says"),

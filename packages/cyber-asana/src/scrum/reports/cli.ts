@@ -10,6 +10,7 @@ import {
 	sprintInput,
 	storeOptions,
 } from '../cli.js'
+import { addSprintReportCommands } from './sprint/cli.js'
 import type { StandupGroup, StandupItem } from './standup.js'
 
 type ReportFlags = SprintFlags & { me?: boolean; member?: string; team?: boolean }
@@ -216,5 +217,6 @@ export function reportCommand(api?: ResolveApi) {
 				])
 			})
 		})
+	addSprintReportCommands(cmd, api)
 	return cmd
 }
