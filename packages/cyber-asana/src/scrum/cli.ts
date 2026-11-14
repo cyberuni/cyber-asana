@@ -244,6 +244,8 @@ export function scrumCommand(api?: ResolveApi) {
 	return cmd
 }
 
+const plural = (n: number, noun: string) => `${n} ${noun}${n === 1 ? '' : 's'}`
+
 export type SprintFlags = StoreFlags & { scope?: string; sprint?: string }
 
 export function addSprintOptions(cmd: Command, opts: { sprint?: boolean } = { sprint: true }) {
@@ -288,6 +290,8 @@ export function sprintCommand(api?: ResolveApi) {
 			'Examples:',
 			'  cyber-asana sprint current',
 			'  cyber-asana sprint tasks --sprint previous --incomplete',
+			'  cyber-asana sprint plan',
+			'  cyber-asana sprint plan --tasks <gid>,<gid>',
 			'  cyber-asana sprint start --sprint next',
 			'  cyber-asana sprint add <task-gid> <task-gid>',
 			'  cyber-asana sprint close',
@@ -422,6 +426,86 @@ export function sprintCommand(api?: ResolveApi) {
 								'cyber-asana sprint start --snapshot — post the commitment once the sprint is filled',
 							],
 				)
+			})
+		})
+
+	addSprintOptions(
+		cmd
+			.command('plan')
+			.description(
+				'Planning arithmetic: the backlog top that fits recent velocity and capacity, and the totals of the tasks you pick',
+			),
+		{ sprint: false },
+	)
+		.option('--sprint <ref>', 'Sprint to plan: next (default), current, a number, or a name', 'next')
+		.option(
+			'--tasks <gids>',
+			'Task GIDs you picked, comma-separated or repeated; totals them against the limits',
+			collect,
+			[],
+		)
+		.action(async (opts: SprintFlags & { tasks: string[] }) => {
+			const plan = await resolveApi(api).planSprint(
+				{
+					...(opts.scope !== undefined && { scope: opts.scope }),
+					...(opts.sprint !== undefined && { sprint: opts.sprint }),
+					...(opts.tasks.length > 0 && { tasks: opts.tasks }),
+				},
+				storeOptions(opts),
+			)
+			output(plan, () => {
+				const t = plan.points_tracked
+				const figures = (totals: { story_points: number; task_points: number; effort_hours: number }) =>
+					[
+						...(t.story ? [`${totals.story_points} story points`] : []),
+						...(t.task ? [`${totals.task_points} task points`] : []),
+						`${totals.effort_hours} h`,
+					].join(', ')
+				console.log(`Plan for ${plan.sprint.name} (${dates(plan.sprint)}) — scope ${plan.scope}`)
+				const mean = plan.velocity.mean
+				printFields({
+					Velocity: mean
+						? `mean ${[...(t.story ? [`${mean.story} story points`] : []), ...(t.task ? [`${mean.task} task points`] : [])].join(', ') || `${mean.count} tasks`} over ${plan.velocity.sprints} closed sprints`
+						: 'none (no closed sprint)',
+					Capacity:
+						plan.capacity.status === 'known'
+							? `capacity ${plan.capacity.hours} h (${plan.hours_per_point} h per point)`
+							: `capacity unknown (${plan.capacity.reason})`,
+				})
+				console.log(`\nBacklog (${plan.backlog.length})`)
+				printTable(
+					plan.backlog,
+					[
+						{ label: 'GID', get: (r) => r.gid },
+						{ label: 'Name', get: (r) => r.name },
+						{ label: 'Points', get: (r) => figures(r).replace(/, [\d.]+ h$/, '') || '0' },
+						{ label: 'Running', get: (r) => figures({ ...r.cumulative }) },
+						{ label: 'Fits', get: (r) => (r.within_limits ? 'yes' : 'no') },
+					],
+					{ entity: 'tasks' },
+				)
+				const p = plan.proposal
+				console.log(`\nProposed: ${plural(p.totals.count, 'task')} — ${figures(p.totals)}`)
+				for (const gid of p.tasks) console.log(`  ${gid}  ${plan.backlog.find((r) => r.gid === gid)?.name ?? ''}`)
+				if (p.stopped_before)
+					console.log(`  stopped before ${p.stopped_before.gid}: ${p.stopped_before.reasons.join('; ')}`)
+				if (p.unestimated.length) console.log(`  no estimate: ${p.unestimated.join(', ')}`)
+				if (plan.selection) {
+					const sel = plan.selection
+					console.log(
+						`\nSelection: ${plural(sel.totals.count, 'task')} — ${sel.fits ? 'fits' : 'does not fit'} (${figures(sel.totals)})`,
+					)
+					for (const [key, a] of Object.entries(sel.against)) {
+						console.log(`  ${key.replace('_', ' ')} ${a.total} of ${a.limit ?? 'no limit'}${a.over ? ' (over)' : ''}`)
+					}
+					if (sel.not_in_backlog.length) console.log(`  not in the backlog: ${sel.not_in_backlog.join(', ')}`)
+				}
+				for (const note of plan.notes) console.log(`\nNote: ${note}`)
+				printNextSteps([
+					`cyber-asana sprint start --sprint ${plan.sprint.n} — create the sprint, once you agree the plan`,
+					`cyber-asana sprint add <task-gid>... --sprint ${plan.sprint.n} — put the agreed tasks in it`,
+					`cyber-asana sprint start --sprint ${plan.sprint.n} --snapshot — record the commitment`,
+				])
 			})
 		})
 

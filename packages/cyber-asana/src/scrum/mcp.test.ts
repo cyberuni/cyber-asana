@@ -42,6 +42,7 @@ function fakeApi(): ScrumApi {
 		reportRetro: vi.fn(async () => ({ carry_over: [] })),
 		reportVelocity: vi.fn(async () => ({ sprints: [] })),
 		reportDashboard: vi.fn(async () => ({ reports: [] })),
+		planSprint: vi.fn(async () => ({ proposal: { tasks: [] } })),
 		closeSprint: vi.fn(async () => ({ moved: [] })),
 		listBacklog: vi.fn(async () => ({ tasks: [] })),
 		reportStandup: vi.fn(async () => ({ done: { count: 0 } })),
@@ -75,6 +76,7 @@ describe('scrum/mcp', () => {
 				'asana_report_retro',
 				'asana_report_velocity',
 				'asana_report_dashboard',
+				'asana_sprint_plan',
 			].sort(),
 		)
 	})
@@ -241,6 +243,16 @@ describe('scrum/mcp', () => {
 		const result = await server.handlers.get('asana_report_dashboard')?.({ scope: 'web', sprint: 'previous' })
 		expect(api.reportDashboard).toHaveBeenCalledWith({ scope: 'web', sprint: 'previous' })
 		expect(JSON.parse(result.content[0].text)).toEqual({ reports: [] })
+	})
+
+	it('asana_sprint_plan forwards scope, sprint, and the picked tasks', async () => {
+		const server = createServer()
+		const api = fakeApi()
+		registerScrumTools(server as any, api)
+		await server.handlers.get('asana_sprint_plan')?.({ scope: 'web', sprint: 'current', task_gids: ['a', 'b'] })
+		expect(api.planSprint).toHaveBeenCalledWith({ scope: 'web', sprint: 'current', tasks: ['a', 'b'] })
+		await server.handlers.get('asana_sprint_plan')?.({})
+		expect(api.planSprint).toHaveBeenLastCalledWith({})
 	})
 
 	it('asana_sprint_start passes snapshot only when asked', async () => {

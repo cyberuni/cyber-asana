@@ -244,4 +244,15 @@ export function registerScrumTools(server: McpServer, api?: ScrumApi | (() => Sc
 		sprintParams,
 		async (params) => json(await resolveApi(api).reportDashboard(pick(params))),
 	)
+
+	server.tool(
+		'asana_sprint_plan',
+		"The planning arithmetic (C2, read only): the mean velocity of the last velocity_window closed sprints, the team's Allocations capacity hours for the sprint's dates, and the backlog in priority order with running totals. proposal is the backlog top that fits both (story and task points each against their own mean, effort hours against capacity), stopping at the first task that overruns; stopped_before says why. With task_gids it also totals the tasks the user picked against each limit (selection, with fits). capacity is unknown, with a reason, when the plan has no allocations (402) or none overlaps the dates; then it fits against velocity alone. Defaults to the next sprint, which needs no section yet. Use it instead of adding points yourself. Fails with code sprint-unknown, model-unsupported, or policy-incomplete.",
+		{
+			...sprintParams,
+			task_gids: z.array(z.string()).optional().describe('Task GIDs the user picked; totals them against the limits'),
+		},
+		async ({ task_gids, ...rest }) =>
+			json(await resolveApi(api).planSprint({ ...pick(rest), ...(task_gids && { tasks: task_gids }) })),
+	)
 }
