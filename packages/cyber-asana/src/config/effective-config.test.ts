@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import {
 	loadEffectiveProjects,
+	loadEffectiveScopes,
 	loadEffectiveUsers,
 	mergeProjectEntries,
 	mergeUserEntries,
@@ -327,5 +328,78 @@ describe('resolveEffectiveAssignee', () => {
 	it('names both config add-user and --global when nothing resolves', async () => {
 		await expect(resolveEffectiveAssignee('carol', { startDir: root })).rejects.toThrow(/config add-user/)
 		await expect(resolveEffectiveAssignee('carol', { startDir: root })).rejects.toThrow(/--global/)
+	})
+})
+
+describe('loadEffectiveScopes', () => {
+	let root: string
+	const globalPath = () => join(root, 'global.json')
+
+	beforeEach(async () => {
+		root = await mkdtemp(join(tmpdir(), 'cyber-asana-effective-scopes-'))
+		await mkdir(join(root, '.git'))
+		await mkdir(join(root, '.agents'))
+		await writeFile(join(root, '.git', 'config'), '[remote "origin"]\n\turl = git@github.com:org/repo.git\n')
+		process.env.CYBER_ASANA_GLOBAL_CONFIG = globalPath()
+	})
+
+	afterEach(async () => {
+		delete process.env.CYBER_ASANA_GLOBAL_CONFIG
+		await rm(root, { recursive: true, force: true })
+	})
+
+	it('unions repo scopes with the global scopes for this repo, repo first and winning a name clash', async () => {
+		await saveRepoConfig(join(root, '.agents', 'cyber-asana.json'), {
+			schema_version: 3,
+			projects: [],
+			scrum: { scopes: [{ name: 'web', kind: 'project', projects: ['1'], default: true }] },
+		})
+		await saveGlobalConfig(globalPath(), {
+			schema_version: 1,
+			repos: [
+				{
+					repo: 'github.com/org/repo',
+					projects: [],
+					scopes: [
+						{ name: 'Web', kind: 'project', projects: ['9'] },
+						{ name: 'mine', kind: 'projects', projects: ['1', '2'] },
+					],
+				},
+				{
+					repo: 'github.com/org/other',
+					projects: [],
+					scopes: [{ name: 'elsewhere', kind: 'project', projects: ['7'] }],
+				},
+			],
+		})
+		const effective = await loadEffectiveScopes({ startDir: root })
+		expect(effective.scopes.map((scope) => [scope.name, scope.projects])).toEqual([
+			['web', ['1']],
+			['mine', ['1', '2']],
+		])
+		expect(effective.repo).toBe('github.com/org/repo')
+	})
+
+	it('reads only the repo config when there is no global file', async () => {
+		await saveRepoConfig(join(root, '.agents', 'cyber-asana.json'), {
+			schema_version: 3,
+			projects: [],
+			scrum: { scopes: [{ name: 'web', kind: 'project', projects: ['1'] }] },
+		})
+		expect((await loadEffectiveScopes({ startDir: root })).scopes).toHaveLength(1)
+	})
+
+	it('returns no scopes, and no error, when neither source has any', async () => {
+		const effective = await loadEffectiveScopes({ startDir: root })
+		expect(effective.scopes).toEqual([])
+		expect(effective.localPath).toBeNull()
+	})
+
+	it('uses an explicit repo key for the global lookup', async () => {
+		await saveGlobalConfig(globalPath(), {
+			schema_version: 1,
+			repos: [{ repo: 'custom', projects: [], scopes: [{ name: 'c', kind: 'project', projects: ['3'] }] }],
+		})
+		expect((await loadEffectiveScopes({ startDir: root, repo: 'custom' })).scopes.map((s) => s.name)).toEqual(['c'])
 	})
 })

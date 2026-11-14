@@ -62,7 +62,7 @@ describe('parseRepoConfig', () => {
 	})
 
 	it('rejects unsupported schema_version', () => {
-		expect(() => parseRepoConfig({ schema_version: 3, projects: [] })).toThrow('schema_version')
+		expect(() => parseRepoConfig({ schema_version: 4, projects: [] })).toThrow('schema_version')
 	})
 
 	it('rejects a project alias that is not a non-empty string', () => {

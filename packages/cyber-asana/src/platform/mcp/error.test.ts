@@ -1,6 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
 import { describe, expect, it, vi } from 'vitest'
+import { CodedConfigError } from '../coded-error.js'
 import { ReferenceAmbiguousError } from '../reference-metadata.js'
 import { formatMcpToolError, withMcpErrorHandling } from './error.js'
 
@@ -86,6 +87,14 @@ describe('formatMcpToolError', () => {
 				status: 402,
 				hint: expect.stringContaining('plan level'),
 			},
+		})
+	})
+
+	it('returns a coded config error with its code and options', () => {
+		const result = formatMcpToolError(new CodedConfigError('scope-unknown', 'no scope', { options: ['web'] }))
+		expect(result.isError).toBe(true)
+		expect(JSON.parse((result.content[0] as { text: string }).text)).toMatchObject({
+			error: { kind: 'config', code: 'scope-unknown', options: ['web'] },
 		})
 	})
 

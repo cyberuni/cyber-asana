@@ -1,3 +1,4 @@
+import { isCodedConfigError } from './coded-error.js'
 import { isReferenceAmbiguousError } from './reference-metadata.js'
 
 type AsanaApiErrorDetail = {
@@ -82,6 +83,19 @@ export function buildErrorBody(error: unknown): ErrorBody {
 				...(status !== undefined && { status }),
 				errors: asanaErrors,
 				...(asanaHint !== undefined && { hint: asanaHint }),
+			},
+		}
+	}
+
+	if (isCodedConfigError(error)) {
+		return {
+			ok: false,
+			error: {
+				kind: 'config',
+				code: error.code,
+				message: error.message,
+				...(error.options !== undefined && { options: [...error.options] }),
+				...(error.hint !== undefined && { hint: error.hint }),
 			},
 		}
 	}

@@ -24,6 +24,8 @@ export type ProjectCustomField = {
 const ROLE_MATCHERS: Record<FieldRole, { names: RegExp; subtypes: string[] }> = {
 	story_points: { names: /^(?:story )?(?:points?|pts)$|^sp$/, subtypes: ['number', 'enum'] },
 	task_points: { names: /^task (?:points?|pts)$|^tp$/, subtypes: ['number', 'enum'] },
+	sprint: { names: /^(?:sprint|iteration)$/, subtypes: ['enum'] },
+	status: { names: /^(?:status|stage)$/, subtypes: ['enum'] },
 }
 
 function normalizeFieldName(name: string): string {

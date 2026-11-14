@@ -14,6 +14,7 @@ import {
 	resolveProject,
 	resolveUser,
 } from './repo-config.js'
+import { mergeScopes, type ScopeEntry } from './scopes.js'
 
 export type EffectiveProjects = {
 	localPath: string | null
@@ -58,6 +59,50 @@ export async function loadEffectiveProjects(opts?: {
 		globalPath,
 		repo,
 		projects: mergeProjectEntries(local?.projects ?? [], globalProjects),
+	}
+}
+
+export type EffectiveScopes = {
+	localPath: string | null
+	globalPath: string
+	repo: string | null
+	/** The merged list, which is what commands select from. */
+	scopes: ScopeEntry[]
+	/** What each source holds on its own, so a listing can say where a scope came from. */
+	fromRepo: ScopeEntry[]
+	fromGlobal: ScopeEntry[]
+}
+
+/**
+ * The repo config's `scrum.scopes` unioned with the global registry's `scopes` for this repo
+ * (`mergeScopes`: the repo wins a name clash and supplies the default). Like projects, an absent
+ * source contributes nothing; the caller decides whether an empty result is an error.
+ */
+export async function loadEffectiveScopes(opts?: {
+	configPath?: string
+	repo?: string
+	startDir?: string
+}): Promise<EffectiveScopes> {
+	const startDir = opts?.startDir ?? process.cwd()
+
+	const foundLocalPath = await resolveConfigPath(startDir, opts?.configPath)
+	const localExists = foundLocalPath !== null && (await pathExists(foundLocalPath))
+	const local = localExists ? await loadRepoConfig(foundLocalPath as string) : null
+
+	const globalPath = globalConfigPath(startDir)
+	const repo = opts?.repo ?? (await resolveRepoKey(startDir))
+	let globalScopes: ScopeEntry[] = []
+	if (repo !== null && (await pathExists(globalPath))) {
+		globalScopes = findGlobalRepoEntry(await loadGlobalConfig(globalPath), repo)?.scopes ?? []
+	}
+
+	return {
+		localPath: localExists ? foundLocalPath : null,
+		globalPath,
+		repo,
+		scopes: mergeScopes(local?.scrum?.scopes ?? [], globalScopes),
+		fromRepo: local?.scrum?.scopes ?? [],
+		fromGlobal: globalScopes,
 	}
 }
 
