@@ -155,7 +155,10 @@ the `cyber-asana.scrum` reference, which holds policy and no GIDs. The `scrum` b
 | `team` | one team GID | the team's unarchived projects, and the team's members as the scope's people (including members with no task yet) |
 
 A scope may override only `sprint_model`, `sprint_length_days`, and `sprint_anchor_date` (`YYYY-MM-DD`).
-Everything else comes from the `cyber-asana.scrum` reference. Names are unique ignoring case, and at
+Everything else comes from the `cyber-asana.scrum` reference. Three more optional keys name the Asana
+objects of the `project` sprint model: `backlog_project` (`--backlog-project`; a `project` scope's own
+project when unset), `sprint_portfolio` (`--sprint-portfolio`; a `portfolio` scope's own portfolio when
+unset), and `sprint_template` (`--sprint-template`, a project duplicated to start each sprint). Names are unique ignoring case, and at
 most one scope is `default`.
 
 ```sh
@@ -163,6 +166,7 @@ cyber-asana config scope add web --kind project --project 1201 --default
 cyber-asana config scope add platform --kind projects --project 1201,1202 --sprint-length-days 7
 cyber-asana config scope add growth --kind portfolio --portfolio 1300
 cyber-asana config scope add web-team --kind team --team 1400
+cyber-asana config scope add squad --kind project --project 1201 --sprint-model project --sprint-portfolio 1300
 cyber-asana config scope add mine --kind projects --project 1201,1202 --global   # your own registry
 cyber-asana config scope list
 cyber-asana config scope remove platform

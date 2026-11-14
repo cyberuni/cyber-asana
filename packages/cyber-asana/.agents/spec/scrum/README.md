@@ -15,7 +15,8 @@ runs on a **scope**: the set of Asana projects a team works in. This node specif
 A scope names Asana objects by GID, so it lives in config beside the project registry, never in the
 `cyber-asana.scrum` reference (which holds policy and no GIDs). A scope has a `name`, a `kind`, and
 the members that kind needs, and may override exactly three policy keys: `sprint_model`,
-`sprint_length_days`, and `sprint_anchor_date`.
+`sprint_length_days`, and `sprint_anchor_date`. Three more optional keys name the Asana objects of the
+`project` sprint model: `backlog_project`, `sprint_portfolio`, and `sprint_template`.
 
 | Kind | Members | Resolves to |
 |---|---|---|
@@ -145,11 +146,39 @@ other text is `sprint-unknown`. `previous` of sprint 1 is `sprint-none`.
   `sprint close` follows `carry_over`: `move` sets each incomplete task's field to the next sprint's
   option, created when missing; `leave` changes nothing. All three can be repeated safely.
 - `backlog list` has no backlog section: it reports no missing `backlog_section`.
+### The `project` model
+
+- A sprint is a project, named by the computed name, in a portfolio. The scope names the **backlog
+  project** (`backlog_project`, or a `project` scope's own project) and the **sprint portfolio**
+  (`sprint_portfolio`, or a `portfolio` scope's own portfolio); a scope that lacks either is
+  `scope-incomplete` (exit 2) naming what is missing. Every scope kind works once both are known.
+  Only the portfolio's projects whose names match `sprint_name_format` are sprints; the backlog project
+  is never one.
+- A sprint "exists" when the portfolio holds such a project. `sprint current`, `tasks`, `add`, and
+  `close` need it, else `sprint-none` naming a project. `section_gid` in `sprint current` is the sprint
+  project's GID.
+- `sprint tasks` lists the sprint project's tasks. The backlog is the backlog project's incomplete
+  tasks that no sprint project holds. Neither uses task search, so reading works on a free plan;
+  portfolios are the one paid piece.
+- `sprint start` creates the project and adds it to the portfolio: it duplicates the scope's
+  `sprint_template` when set, else creates a plain project in the backlog project's workspace and team.
+  It reports the new project as `sprint_project`. When the project exists it changes nothing and reports
+  `already_started`. `sprint add` multi-homes a backlog task into the sprint project (the task stays in
+  the backlog project); a task already in it is `already_in_sprint`, and a task not in the backlog
+  project is `outside_scope`. `sprint close` follows `carry_over`: `move` starts the next sprint's
+  project when missing, adds each incomplete task to it, then removes the task from the closed sprint's
+  project, so a task is in one sprint at a time; `leave` changes nothing. The closed project is not
+  archived. All three can be repeated safely.
+- `state_carrier: sections` is allowed with this model, as with `custom-field`. Reports do not read
+  sections as workflow states, so they fall back to completion and assignment and say so in `notes`.
+- `backlog list` has no backlog section: it reports no missing `backlog_section`.
+
 - A scope whose `sprint_model` is not built into the CLI stops with `model-unsupported`, naming the
   model and the built-in options. An agent then follows that model's `cyber-asana.sprint-model.<key>`
   reference with its primitive commands. `cyber-asana.sprint-model.interface` (cardinality `many`)
   declares the sections each model fills; `cyber-asana.sprint-model.sections` and
-  `cyber-asana.sprint-model.custom-field` implement it, and `reference check` accepts all three.
+  `cyber-asana.sprint-model.custom-field`, and `cyber-asana.sprint-model.project` implement it, and
+  `reference check` accepts all four.
 - Every sprint command has an `asana_sprint_*` MCP tool (`backlog list` is `asana_backlog_list`)
   through the same `api.ts`.
 
@@ -164,6 +193,7 @@ other text is `sprint-unknown`. `previous` of sprint 1 is `sprint-none`.
 | `window-invalid` | `report workload` with only one of `--from` and `--to`, a malformed date, or `from` after `to` | 2 |
 | `sprint-field-missing` | the `custom-field` model finds no Sprint field on the scope's projects | 2 |
 | `sprint-field-ambiguous` | the scope's projects use more than one Sprint field | 2 |
+| `scope-incomplete` | the `project` model's scope names no backlog project or no sprint portfolio | 2 |
 | `premium-required` | the `custom-field` model needs task search and Asana answered 402 | 7 |
 
 ## Reports
