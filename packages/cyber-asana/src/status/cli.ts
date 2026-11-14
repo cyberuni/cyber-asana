@@ -20,7 +20,13 @@ import {
 } from '../platform/cli/output.js'
 import { deleteIdempotently, deleteMessage } from '../platform/idempotent-delete.js'
 import { isFull, truncate } from '../platform/truncate.js'
-import type { StatusApi, StatusOverview, StatusOverviewEntry, StatusOverviewParentType } from './api.js'
+import type {
+	StatusApi,
+	StatusOverview,
+	StatusOverviewEntry,
+	StatusOverviewParentType,
+	StatusParentType,
+} from './api.js'
 import { createStatus, deleteStatus, getStatus, getStatusOverview, listStatuses } from './default.js'
 
 type Status = { gid: string; status_type?: string; title?: string; text?: string; created_at?: string }
@@ -52,6 +58,14 @@ const STATUS_OVERVIEW_NEXT_STEPS = [
 ]
 
 const PARENT_TYPES: StatusOverviewParentType[] = ['project', 'portfolio']
+const CREATE_PARENT_TYPES: StatusParentType[] = ['project', 'portfolio', 'goal']
+
+function parseCreateParentType(value: string): StatusParentType {
+	if (!CREATE_PARENT_TYPES.includes(value as StatusParentType)) {
+		throw new InvalidArgumentError(`parent-type must be one of ${CREATE_PARENT_TYPES.join(', ')}`)
+	}
+	return value as StatusParentType
+}
 
 function parseParentType(value: string): StatusOverviewParentType {
 	if (!PARENT_TYPES.includes(value as StatusOverviewParentType)) {
@@ -187,7 +201,15 @@ export function statusCommand(api?: StatusApi | (() => StatusApi)) {
 		cmd
 			.command('create')
 			.description('Create a status update on a project, portfolio, or goal')
-			.requiredOption('--status-type <type>', 'Status type (e.g. on_track, at_risk, off_track, on_hold, complete)')
+			.requiredOption(
+				'--status-type <type>',
+				'Status type: on_track, at_risk, off_track, on_hold, complete (project, portfolio); on_track, at_risk, off_track, achieved, partial, missed, dropped (goal)',
+			)
+			.option(
+				'--parent-type <type>',
+				'project, portfolio, or goal: checks --status-type against it without looking the parent up',
+				parseCreateParentType,
+			)
 			.option('--text <text>', 'Status update body as plain text')
 			.option('--html-text <html>', 'Status update body as Asana rich text HTML')
 			.option('--title <title>', 'Status update title'),
@@ -198,16 +220,21 @@ export function statusCommand(api?: StatusApi | (() => StatusApi)) {
 			parent?: string
 			parentGid?: string
 			statusType: string
+			parentType?: StatusParentType
 			text?: string
 			htmlText?: string
 			title?: string
 		}) => {
-			const data = await resolveStatusApi(api).createStatus(requiredGid(opts, 'parent', 'Parent GID'), {
+			const fields = {
 				status_type: opts.statusType,
 				...(opts.text !== undefined && { text: opts.text }),
 				...(opts.htmlText !== undefined && { html_text: opts.htmlText }),
 				...(opts.title !== undefined && { title: opts.title }),
-			})
+			}
+			const parent = requiredGid(opts, 'parent', 'Parent GID')
+			const data = await (opts.parentType
+				? resolveStatusApi(api).createStatus(parent, fields, { parentType: opts.parentType })
+				: resolveStatusApi(api).createStatus(parent, fields))
 			output(data, () => fmtStatus(data))
 		},
 	)

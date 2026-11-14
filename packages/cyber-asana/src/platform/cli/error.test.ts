@@ -146,3 +146,9 @@ describe('renderCliError', () => {
 		expect(toon).toContain('message: nope')
 	})
 })
+
+describe('status-type-invalid', () => {
+	it('is a caller-fixable usage error, exit 2', () => {
+		expect(exitCodeFor(new CodedConfigError('status-type-invalid', 'x'))).toBe(2)
+	})
+})

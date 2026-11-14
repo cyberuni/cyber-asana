@@ -27,7 +27,7 @@ cyber-asana status delete <gid>
 | `overview` | `<parent-gid>` | `--limit <number>`, `--parent-type <project\|portfolio>`, `--full` |
 | `list` | — | `--parent-gid <gid>` / `--parent <gid>`, `--created-since <timestamp>`, [pagination](/cyber-asana/cli/#pagination) |
 | `get` | `<gid>` | — |
-| `create` | — | `--parent-gid <gid>`, `--status-type <type>` (required), `--text <text>`, `--html-text <html>`, `--title <title>` |
+| `create` | — | `--parent-gid <gid>`, `--status-type <type>` (required), `--parent-type <project\|portfolio\|goal>`, `--text <text>`, `--html-text <html>`, `--title <title>` |
 | `delete` | `<gid>` | — |
 
 `--created-since` takes an ISO 8601 timestamp and trims the history to the updates posted
@@ -71,8 +71,18 @@ Status body text is truncated with a size hint; pass `--full` for the whole thin
 
 ## Status types
 
-`--status-type` is required on create. Asana accepts `on_track`, `at_risk`, `off_track`,
-`on_hold`, and `complete`.
+`--status-type` is required on create, and `create` checks it against the parent before posting.
+
+| Parent | Accepted `--status-type` |
+| --- | --- |
+| Project or portfolio | `on_track`, `at_risk`, `off_track`, `on_hold`, `complete` |
+| Goal | `on_track`, `at_risk`, `off_track`, `achieved`, `partial`, `missed`, `dropped` |
+
+A value no parent accepts, or one the parent does not (`achieved` on a project), stops with
+`error.code` `status-type-invalid`, exit `2`, and `error.options` lists the values that work. A
+value every parent accepts costs no extra call. A value only some parents accept makes `create` look
+the parent up first; pass `--parent-type` to skip that lookup. `asana_status_create` takes the same
+check, with `parent_type`.
 
 ```sh
 cyber-asana status create --parent <project-gid> \

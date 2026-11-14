@@ -194,6 +194,7 @@ export function createRuntimeContext(): RuntimeContext {
 		status: createStatusApi(createAsanaStatusGateway(client), {
 			portfolios: portfolioGateway,
 			projects: projectGateway,
+			goals: createAsanaGoalGateway(client),
 		}),
 		stories: createStoryApi(createAsanaStoryGateway(client)),
 		tags: createTagApi(createAsanaTagGateway(client)),

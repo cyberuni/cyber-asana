@@ -363,4 +363,26 @@ describe('status/cli', () => {
 		expect(listStatuses.mock.calls[0][1]).not.toHaveProperty('createdSince')
 		vi.restoreAllMocks()
 	})
+
+	it('status create --parent-type passes the parent type to the API', async () => {
+		vi.spyOn(console, 'log').mockImplementation(() => {})
+		const createStatus = vi.fn().mockResolvedValue({ gid: 'st1', status_type: 'achieved' })
+		const program = new Command().addCommand(
+			statusCommand({
+				listStatuses: vi.fn(),
+				getStatus: vi.fn(),
+				createStatus,
+				deleteStatus: vi.fn(),
+				getStatusOverview: vi.fn(),
+			}),
+		)
+
+		await program.parseAsync(
+			['node', 'test', 'status', 'create', '--parent-gid', 'g1', '--status-type', 'achieved', '--parent-type', 'goal'],
+			{ from: 'node' },
+		)
+
+		expect(createStatus).toHaveBeenCalledWith('g1', { status_type: 'achieved' }, { parentType: 'goal' })
+		vi.restoreAllMocks()
+	})
 })

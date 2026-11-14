@@ -85,6 +85,20 @@ describe('status/mcp', () => {
 		expect(createStatusMock).toHaveBeenCalledWith('proj1', { status_type: 'on_track', text: 'All good' })
 	})
 
+	it('asana_status_create forwards parent_type so the status_type is checked against it', async () => {
+		createStatusMock.mockResolvedValue({ gid: 'st1' })
+		const server = createServer()
+		registerStatusTools(server as any)
+
+		await server.handlers.get('asana_status_create')?.({
+			parent_gid: 'g1',
+			status_type: 'achieved',
+			parent_type: 'goal',
+		})
+
+		expect(createStatusMock).toHaveBeenCalledWith('g1', { status_type: 'achieved' }, { parentType: 'goal' })
+	})
+
 	it('status tools can use injected dependencies', async () => {
 		const injectedCreateStatus = vi.fn().mockResolvedValue({ gid: 'st1', status_type: 'on_track' })
 		const server = createServer()

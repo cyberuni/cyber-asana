@@ -29,6 +29,8 @@ const CODED_EXIT_CODES: Readonly<Record<string, number>> = {
 	// The dashboard page: the --page path holds a file this command did not write; pick another path.
 	'page-path-refused': 2,
 	// Task search is premium: the same code a raw 402 from Asana gets.
+	// A status update's status_type does not fit its parent: pick one of error.options, then retry.
+	'status-type-invalid': 2,
 	'premium-required': 7,
 }
 
