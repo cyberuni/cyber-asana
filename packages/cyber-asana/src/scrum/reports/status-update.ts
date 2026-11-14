@@ -36,7 +36,8 @@ const LABELS: Record<string, string> = {
 	complete: 'Complete',
 }
 
-const escapeHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+const escapeHtml = (s: string) =>
+	s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;')
 
 type Scalars = Record<string, string | undefined>
 type Groups = Record<string, Array<Record<string, string>>>
@@ -44,7 +45,7 @@ type Groups = Record<string, Array<Record<string, string>>>
 function gather(dashboard: Dashboard): { scalars: Scalars; groups: Groups; sprint: string } {
 	const ok = (key: string) => dashboard.reports.find((r) => r.key === key && r.status === 'ok')?.data
 	const scalars: Scalars = {
-		scope: escapeHtml(dashboard.scope),
+		scope: dashboard.scope,
 		status: LABELS[dashboard.status_type] ?? dashboard.status_type,
 		status_type: dashboard.status_type,
 	}
@@ -67,7 +68,7 @@ function gather(dashboard: Dashboard): { scalars: Scalars; groups: Groups; sprin
 
 	const sprint = ok('sprint')
 	if (sprint) {
-		scalars.sprint = escapeHtml(sprint.sprint.name)
+		scalars.sprint = sprint.sprint.name
 		const none = sprint.committed.source === 'unavailable'
 		const unknown = 'unknown (no commitment snapshot)'
 		scalars.committed_tasks = none ? unknown : String(sprint.committed.count)
@@ -131,7 +132,9 @@ const GROUP_OF: Record<string, string> = {
 
 const PLACEHOLDER = /\{([a-z_]+)\}/g
 
-function fill(line: string, scalars: Scalars, groups: Groups): string[] {
+/** `html` escapes scalars for the body; the title is plain text and takes them as they are. */
+function fill(line: string, scalars: Scalars, groups: Groups, html: boolean): string[] {
+	const put = (v: string) => (html ? escapeHtml(v) : v)
 	const names = [...line.matchAll(PLACEHOLDER)].map((m) => m[1] as string)
 	for (const name of names) {
 		if (!SCALARS.includes(name) && !(name in GROUP_OF)) {
@@ -148,7 +151,7 @@ function fill(line: string, scalars: Scalars, groups: Groups): string[] {
 		)
 	}
 	if (names.some((n) => scalars[n] === undefined)) return []
-	return [line.replace(PLACEHOLDER, (_m, n: string) => scalars[n] as string)]
+	return [line.replace(PLACEHOLDER, (_m, n: string) => put(scalars[n] as string))]
 }
 
 /**
@@ -162,12 +165,12 @@ export function renderStatusUpdate(
 ): { title: string; html_text: string } {
 	const { scalars, groups } = gather(dashboard)
 	const title =
-		fill(template.title, scalars, groups)[0] ??
-		fill(template.title, { ...scalars, sprint: scalars.scope }, groups)[0] ??
+		fill(template.title, scalars, groups, false)[0] ??
+		fill(template.title, { ...scalars, sprint: scalars.scope }, groups, false)[0] ??
 		''
-	const lines = template.body.split('\n').flatMap((line) => fill(line, scalars, groups))
+	const lines = template.body.split('\n').flatMap((line) => fill(line, scalars, groups, true))
 	const html = lines.join('\n').replace(/<h[1-3]>[^\n]*<\/h[1-3]>\n<ul>\n<\/ul>\n?/g, '')
-	return { title: title.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>'), html_text: html }
+	return { title, html_text: html }
 }
 
 const unavailable = (why: string) =>

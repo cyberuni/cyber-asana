@@ -140,6 +140,19 @@ describe('renderStatusUpdate', () => {
 		expect(r.html_text).toContain('Story points: 8 of unknown (no commitment snapshot)')
 	})
 
+	it('keeps the title plain text and escapes quotes in attributes and values', () => {
+		const d = structuredClone(dashboard) as { reports: Array<{ key: string; data: any }> }
+		d.reports[1]!.data.sprint.name = 'Q&A "beta" <1>'
+		d.reports[0]!.data.findings[0].task.url = 'https://x.test/?a="b"&c=d'
+		const r = renderStatusUpdate(
+			{ title: '{sprint}', body: '<body><ul>\n<li>{finding}</li>\n<li>{sprint}</li>\n</ul>\n</body>' },
+			d as never,
+		)
+		expect(r.title).toBe('Q&A "beta" <1>')
+		expect(r.html_text).toContain('href="https://x.test/?a=&quot;b&quot;&amp;c=d"')
+		expect(r.html_text).toContain('<li>Q&amp;A &quot;beta&quot; &lt;1&gt;</li>')
+	})
+
 	it('rejects a placeholder it does not know', () => {
 		expect(() => renderStatusUpdate({ title: '{nope}', body: '<body></body>' }, dashboard)).toThrow(/nope/)
 	})
