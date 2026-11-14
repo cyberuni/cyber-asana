@@ -64,7 +64,7 @@ The table lives in `SYSTEM_SUITES` in `packages/cyber-asana/src/testing/system-s
 | `goals/api` | workspace | paid |
 | `memberships/api` | project (fixture) | any |
 | `ooo/api` | workspace | any |
-| `portfolios/api` | workspace | paid |
+| `portfolios/api` | workspace, project (item add/remove) | paid |
 | `project-templates/api` | workspace | any |
 | `projects/api` | workspace | any |
 | `scrum/reports/stories` | workspace, project and section (fixtures). Makes and deletes two probe tasks; confirms the story `resource_subtype` values the retro and sprint reports read (G14) | any |

@@ -17,7 +17,12 @@ export type PortfolioGateway = {
 	createPortfolio(workspaceGid: string, name: string): Promise<Asana.Portfolio>
 	updatePortfolio(portfolioGid: string, fields: { name?: string }): Promise<Asana.Portfolio>
 	deletePortfolio(portfolioGid: string): Promise<void>
+	addPortfolioItem(portfolioGid: string, itemGid: string, opts?: PortfolioItemPlacement): Promise<void>
+	removePortfolioItem(portfolioGid: string, itemGid: string): Promise<void>
 }
+
+/** Where in the portfolio's item order an added item goes; Asana appends when neither is given. */
+export type PortfolioItemPlacement = { insertBefore?: string; insertAfter?: string }
 
 export function createAsanaPortfolioGateway(client: Asana.ApiClient): PortfolioGateway {
 	const portfoliosApi = new Asana.PortfoliosApi(client)
@@ -49,6 +54,21 @@ export function createAsanaPortfolioGateway(client: Asana.ApiClient): PortfolioG
 		},
 		async deletePortfolio(portfolioGid) {
 			await portfoliosApi.deletePortfolio(portfolioGid)
+		},
+		async addPortfolioItem(portfolioGid, itemGid, opts) {
+			await portfoliosApi.addItemForPortfolio(
+				{
+					data: {
+						item: itemGid,
+						...(opts?.insertBefore !== undefined && { insert_before: opts.insertBefore }),
+						...(opts?.insertAfter !== undefined && { insert_after: opts.insertAfter }),
+					},
+				},
+				portfolioGid,
+			)
+		},
+		async removePortfolioItem(portfolioGid, itemGid) {
+			await portfoliosApi.removeItemForPortfolio({ data: { item: itemGid } }, portfolioGid)
 		},
 	}
 }

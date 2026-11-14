@@ -36,6 +36,8 @@ describe('portfolios/cli', () => {
 				createPortfolio: vi.fn(),
 				updatePortfolio: vi.fn(),
 				deletePortfolio: vi.fn(),
+				addPortfolioItem: vi.fn(),
+				removePortfolioItem: vi.fn(),
 			}),
 		)
 
@@ -59,6 +61,8 @@ describe('portfolios/cli', () => {
 				createPortfolio: vi.fn(),
 				updatePortfolio: vi.fn(),
 				deletePortfolio: vi.fn(),
+				addPortfolioItem: vi.fn(),
+				removePortfolioItem: vi.fn(),
 			}),
 		)
 
@@ -80,6 +84,8 @@ describe('portfolios/cli', () => {
 				createPortfolio: vi.fn(),
 				updatePortfolio: vi.fn(),
 				deletePortfolio: vi.fn(),
+				addPortfolioItem: vi.fn(),
+				removePortfolioItem: vi.fn(),
 			}),
 		)
 
@@ -102,6 +108,8 @@ describe('portfolios/cli', () => {
 				createPortfolio: vi.fn(),
 				updatePortfolio: vi.fn(),
 				deletePortfolio: vi.fn().mockResolvedValue(undefined),
+				addPortfolioItem: vi.fn(),
+				removePortfolioItem: vi.fn(),
 			}),
 		)
 
@@ -152,6 +160,8 @@ describe('portfolios/cli', () => {
 				createPortfolio: injectedCreatePortfolio,
 				updatePortfolio: vi.fn(),
 				deletePortfolio: vi.fn(),
+				addPortfolioItem: vi.fn(),
+				removePortfolioItem: vi.fn(),
 			}),
 		)
 
@@ -173,6 +183,8 @@ describe('portfolios/cli', () => {
 				createPortfolio: vi.fn(),
 				updatePortfolio: vi.fn(),
 				deletePortfolio: vi.fn(),
+				addPortfolioItem: vi.fn(),
+				removePortfolioItem: vi.fn(),
 			}),
 		)
 
@@ -195,6 +207,8 @@ describe('portfolios/cli', () => {
 				createPortfolio: vi.fn(),
 				updatePortfolio: vi.fn(),
 				deletePortfolio: vi.fn(),
+				addPortfolioItem: vi.fn(),
+				removePortfolioItem: vi.fn(),
 			}),
 		)
 
@@ -217,6 +231,8 @@ describe('portfolios/cli', () => {
 				createPortfolio: vi.fn(),
 				updatePortfolio: vi.fn(),
 				deletePortfolio: vi.fn(),
+				addPortfolioItem: vi.fn(),
+				removePortfolioItem: vi.fn(),
 			}),
 		)
 
@@ -239,6 +255,8 @@ describe('portfolios/cli', () => {
 				createPortfolio: vi.fn(),
 				updatePortfolio: vi.fn(),
 				deletePortfolio: vi.fn(),
+				addPortfolioItem: vi.fn(),
+				removePortfolioItem: vi.fn(),
 			}),
 		)
 

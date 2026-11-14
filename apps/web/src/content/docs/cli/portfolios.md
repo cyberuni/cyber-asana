@@ -16,6 +16,8 @@ cyber-asana portfolio items <gid>
 cyber-asana portfolio create "2026 Roadmap"
 cyber-asana portfolio update <gid> --name "2026 Roadmap (H1)"
 cyber-asana portfolio delete <gid>
+cyber-asana portfolio item add <portfolio-gid> <project-gid>
+cyber-asana portfolio item remove <portfolio-gid> <project-gid>
 ```
 
 | Command | Arguments | Options |
@@ -26,6 +28,8 @@ cyber-asana portfolio delete <gid>
 | `create` | `<name>` | `--workspace-gid <gid>` / `--workspace <gid>` |
 | `update` | `<gid>` | `--name <name>` |
 | `delete` | `<gid>` | — |
+| `item add` | `<portfolio-gid> <item-gid>` | `--insert-before <gid>`, `--insert-after <gid>` |
+| `item remove` | `<portfolio-gid> <item-gid>` | — |
 
 `items` lists the projects a portfolio contains.
 
@@ -35,8 +39,9 @@ tokens only; a regular personal access token can list just its own portfolios ei
 `--custom-type` narrows `list` to portfolios of one custom type. An empty value selects portfolios
 with no custom type.
 
-Adding and removing portfolio items is not wrapped — see
-[API coverage](/cyber-asana/reference/api-coverage/). Portfolio members are managed with
+`item add` puts a project or a nested portfolio in a portfolio; `item remove` takes it out. Both are
+idempotent: adding an item already there reports `already_added`, removing one that is not there
+reports `already_removed`, and both exit `0`. Portfolio members are managed with
 [`membership`](/cyber-asana/cli/memberships/).
 
 ## Related

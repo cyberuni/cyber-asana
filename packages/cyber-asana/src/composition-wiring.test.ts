@@ -73,6 +73,8 @@ function mockRuntimeContext(): RuntimeContext {
 			createPortfolio: vi.fn(),
 			updatePortfolio: vi.fn(),
 			deletePortfolio: vi.fn(),
+			addPortfolioItem: vi.fn(),
+			removePortfolioItem: vi.fn(),
 		},
 		goals: {
 			listGoals: vi.fn(),
