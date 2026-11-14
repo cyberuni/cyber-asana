@@ -19,6 +19,7 @@ PR), run them in order.
 | create, add, or file a task or several ("create an Asana task for this", "file this bug in Asana", "break this work into tasks", a pasted Asana URL to create a related task) | **Create a task** below |
 | record this session's work as a task ("track this in Asana", "log what we did") | **Track session work** below |
 | set up credentials, the workspace, or verify the connection | `init-asana` skill |
+| set up scrum — scopes, the sprint policy, the sprint structure | `init-asana-scrum` skill |
 | add, remove, or sync projects or users in the registry | `config-asana` skill |
 | a standup update — done, today, blockers; the current sprint or backlog; start or close a sprint | `asana-scrum` skill |
 | a sprint summary for a retro or stakeholders | `asana-sprint-report` skill (the `asana-scrum` skill takes over later) |
