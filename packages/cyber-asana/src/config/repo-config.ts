@@ -1,6 +1,8 @@
 import { access, mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname, isAbsolute, join, resolve } from 'node:path'
 
+import { dropScope, parseScopeEntries, type ScrumBlock, upsertScope } from './scopes.js'
+
 const DEFAULT_CONFIG_RELATIVE_PATH = join('.agents', 'cyber-asana.json')
 
 export type RepoProjectEntry = {
@@ -54,10 +56,12 @@ export type RepoDefaults = {
 }
 
 export type RepoConfig = {
-	schema_version: 2
+	/** 3 once the file holds a `scrum` block; 1 is read as 2. */
+	schema_version: 2 | 3
 	projects: RepoProjectEntry[]
 	users?: RepoUserEntry[]
 	defaults?: RepoDefaults
+	scrum?: ScrumBlock
 }
 
 const DEFAULTS_KEYS = ['assignee', 'section'] as const
@@ -80,9 +84,10 @@ export function parseRepoConfig(raw: unknown): RepoConfig {
 		throw new Error('Repo config must be a JSON object')
 	}
 	const record = raw as Record<string, unknown>
-	if (record.schema_version !== 1 && record.schema_version !== 2) {
-		throw new Error('Unsupported or missing schema_version; expected 1 or 2')
+	if (record.schema_version !== 1 && record.schema_version !== 2 && record.schema_version !== 3) {
+		throw new Error('Unsupported or missing schema_version; expected 1, 2, or 3')
 	}
+	const schemaVersion = record.schema_version === 3 ? 3 : 2
 	const projects = parseProjectEntries(record.projects, 'projects')
 	const defaults = projects.filter((project) => project.default)
 	if (defaults.length > 1) {
@@ -94,17 +99,42 @@ export function parseRepoConfig(raw: unknown): RepoConfig {
 			'Repo config has a conventions block, which is no longer read: task conventions now live in the frontmatter of the cyber-asana.task-conventions reference. Move its keys into the YAML frontmatter of .agents/references/cyber-asana.task-conventions.md, then delete the block.',
 		)
 	}
-	const extras = {
-		...(record.defaults !== undefined && { defaults: parseDefaults(record.defaults) }),
-	}
-	if (record.users === undefined) {
-		return { schema_version: 2, projects, ...extras }
-	}
-	if (!Array.isArray(record.users)) {
+	if (record.users !== undefined && !Array.isArray(record.users)) {
 		throw new Error('Repo config users must be an array')
 	}
-	const users = record.users.map((entry, index) => parseUserEntry(entry, index))
-	return { schema_version: 2, projects, users, ...extras }
+	const users = record.users?.map((entry, index) => parseUserEntry(entry, index))
+	return {
+		schema_version: schemaVersion,
+		projects,
+		...(users && { users }),
+		...(record.defaults !== undefined && { defaults: parseDefaults(record.defaults) }),
+		...(record.scrum !== undefined && { scrum: parseScrumBlock(record.scrum, schemaVersion) }),
+	}
+}
+
+function parseScrumBlock(raw: unknown, schemaVersion: 2 | 3): ScrumBlock {
+	if (schemaVersion < 3) {
+		throw new Error('Repo config scrum needs schema_version 3; set "schema_version": 3 to use scrum scopes')
+	}
+	if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+		throw new Error('Repo config scrum must be an object')
+	}
+	for (const key of Object.keys(raw)) {
+		if (key !== 'scopes') throw new Error(`Unknown repo config key scrum.${key}; expected scopes`)
+	}
+	return { scopes: parseScopeEntries((raw as Record<string, unknown>).scopes ?? [], 'scrum.scopes') }
+}
+
+/** Add a scope, or replace the one with that name. The file becomes schema 3, which scopes need. */
+export function addScope(config: RepoConfig, entry: ScrumBlock['scopes'][number]): RepoConfig {
+	return { ...config, schema_version: 3, scrum: { scopes: upsertScope(config.scrum?.scopes ?? [], entry) } }
+}
+
+/** Remove a scope by name; an emptied `scrum` block is dropped. Throws when no scope has that name. */
+export function removeScope(config: RepoConfig, name: string): RepoConfig {
+	const scopes = dropScope(config.scrum?.scopes ?? [], name)
+	const { scrum: _drop, ...rest } = config
+	return scopes.length === 0 ? rest : { ...rest, scrum: { scopes } }
 }
 
 /** Unknown keys are rejected rather than ignored, so a typo reports itself instead of doing nothing. */
