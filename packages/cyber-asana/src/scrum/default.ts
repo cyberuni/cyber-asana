@@ -1,9 +1,12 @@
 import { createAsanaAllocationGateway } from '../allocations/gateway.js'
 import { createFileScopeStore } from '../config/scope-store.js'
 import { createAsanaCustomFieldGateway } from '../custom-fields/gateway.js'
+import { createAsanaJobGateway } from '../jobs/gateway.js'
 import { createAsanaOooGateway } from '../ooo/gateway.js'
 import { createClient } from '../platform/client.js'
 import { createAsanaPortfolioGateway } from '../portfolios/gateway.js'
+import { newProjectOf } from '../project-templates/api.js'
+import { createProjectApi } from '../projects/api.js'
 import { createAsanaProjectGateway } from '../projects/gateway.js'
 import { createAsanaSectionGateway } from '../sections/gateway.js'
 import { createAsanaStatusGateway } from '../status/gateway.js'
@@ -20,9 +23,12 @@ import { loadWorkloadSettings } from './reports/workload.js'
 export function createDefaultScrumApi(): ScrumApi {
 	const client = createClient()
 	const tasks = createAsanaTaskGateway(client)
+	const portfolios = createAsanaPortfolioGateway(client)
+	const projectGateway = createAsanaProjectGateway(client)
+	const projectApi = createProjectApi(projectGateway, { jobs: createAsanaJobGateway(client) })
 	return createScrumApi({
 		store: createFileScopeStore,
-		gateways: { portfolios: createAsanaPortfolioGateway(client), tasks, teams: createAsanaTeamGateway(client) },
+		gateways: { portfolios, tasks, teams: createAsanaTeamGateway(client) },
 		sprint: {
 			sections: createAsanaSectionGateway(client),
 			tasks,
@@ -30,7 +36,18 @@ export function createDefaultScrumApi(): ScrumApi {
 			fieldModel: {
 				customFields: createAsanaCustomFieldGateway(client),
 				tasks,
-				projects: createAsanaProjectGateway(client),
+				projects: projectGateway,
+			},
+			projectModel: {
+				portfolios,
+				projects: projectGateway,
+				tasks,
+				duplicateProject: async (templateGid, fields) => {
+					const job = await projectApi.duplicateProjectAndWait(templateGid, fields)
+					const created = newProjectOf(job)
+					if (!created?.gid) throw new Error(`Asana job ${job.gid} succeeded but named no new project`)
+					return { gid: created.gid }
+				},
 			},
 		},
 		dependencies: tasks,

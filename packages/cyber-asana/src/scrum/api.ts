@@ -49,6 +49,7 @@ import {
 } from './scope.js'
 import { parseSprintRef, type Sprint, sprintNumber, sprintWindow, todayIn } from './sprint.js'
 import { type CustomFieldModelGateways, createCustomFieldModel } from './sprint-model/custom-field.js'
+import { createProjectModel, type ProjectModelGateways } from './sprint-model/project.js'
 import { createSectionsModel, type SectionsModelGateways } from './sprint-model/sections.js'
 import type { CarryOver, SprintModel, SprintTarget } from './sprint-model/types.js'
 
@@ -57,6 +58,8 @@ export type SprintGateways = SectionsModelGateways & {
 	users: Pick<UserGateway, 'getMe' | 'getUser'>
 	/** What the `custom-field` model needs; without it that model is reported as not built in. */
 	fieldModel?: CustomFieldModelGateways
+	/** What the `project` model needs; without it that model is reported as not built in. */
+	projectModel?: ProjectModelGateways
 }
 
 export type ScrumApiDeps = {
@@ -128,8 +131,33 @@ export function createScrumApi(deps: ScrumApiDeps) {
 	const models: Record<string, SprintModel> = {
 		sections: createSectionsModel(deps.sprint),
 		...(deps.sprint.fieldModel && { 'custom-field': createCustomFieldModel(deps.sprint.fieldModel) }),
+		...(deps.sprint.projectModel && { project: createProjectModel(deps.sprint.projectModel) }),
 	}
 	const BUILT_IN_MODELS = Object.keys(models)
+
+	/** The backlog project, sprint portfolio, and template a `project`-model scope names, or the ones its kind implies. */
+	function projectModelObjects(scope: ScopeEntry): NonNullable<SprintTarget['sprintProject']> {
+		const backlog = scope.backlog_project ?? (scope.kind === 'project' ? scope.projects?.[0] : undefined)
+		const portfolio = scope.sprint_portfolio ?? (scope.kind === 'portfolio' ? scope.portfolio : undefined)
+		const missing = [
+			...(backlog ? [] : ['backlog project (backlog_project)']),
+			...(portfolio ? [] : ['sprint portfolio (sprint_portfolio)']),
+		]
+		if (!backlog || !portfolio) {
+			throw new CodedConfigError(
+				'scope-incomplete',
+				`Scope ${scope.name} uses the project sprint model but names no ${missing.join(' or ')}`,
+				{
+					hint: 'Set them with: cyber-asana config scope add <name> ... --backlog-project <gid> --sprint-portfolio <gid>',
+				},
+			)
+		}
+		return {
+			backlog: { gid: backlog },
+			portfolio,
+			...(scope.sprint_template && { template: scope.sprint_template }),
+		}
+	}
 
 	/** Today in the user's Asana timezone when `user me` reports one, else the machine's. */
 	function clockFor(me: { time_zone?: string }) {
@@ -172,7 +200,8 @@ export function createScrumApi(deps: ScrumApiDeps) {
 				{ hint: 'Use a project or projects scope, or the custom-field sprint model, which supports every scope kind.' },
 			)
 		}
-		const projects = await resolveScopeProjects(scope, deps.gateways)
+		const sprintProject = model.kind === 'project' ? projectModelObjects(scope) : undefined
+		const projects = sprintProject ? [sprintProject.backlog] : await resolveScopeProjects(scope, deps.gateways)
 		const sprintFields = Object.fromEntries(
 			projects.flatMap((p) => {
 				const gid = loaded.fields?.[p.gid]?.sprint?.gid
@@ -184,6 +213,7 @@ export function createScrumApi(deps: ScrumApiDeps) {
 			settings,
 			backlogSection: policy.backlog_section,
 			...(Object.keys(sprintFields).length > 0 && { sprintFields }),
+			...(sprintProject && { sprintProject }),
 		}
 		const me = (await deps.sprint.users.getMe()) as { gid?: string; name?: string; time_zone?: string }
 		const clock = clockFor(me)
@@ -488,7 +518,7 @@ export function createScrumApi(deps: ScrumApiDeps) {
 		async startSprint(input: SprintInput & { snapshot?: boolean }, opts?: ScopeStoreOptions) {
 			const ctx = await prepare(input, opts)
 			const sprint = ctx.resolve(input.sprint)
-			const { created, existing } = await ctx.model.start(ctx.target, sprint)
+			const { created, existing, sprintProject } = await ctx.model.start(ctx.target, sprint)
 			let snapshot: { posted: string[]; existing: string[] } | undefined
 			if (input.snapshot) {
 				if (!deps.history) {
@@ -521,6 +551,7 @@ export function createScrumApi(deps: ScrumApiDeps) {
 				sprint,
 				created: created.map(projectRef),
 				existing: existing.map(projectRef),
+				...(sprintProject && { sprint_project: sprintProject }),
 				already_started: created.length === 0,
 				...(snapshot && { snapshot }),
 			}
