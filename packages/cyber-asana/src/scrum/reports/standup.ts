@@ -10,11 +10,25 @@ export type StandupTask = {
 	permalink_url?: string | null
 	assignee?: { gid?: string; name?: string } | null
 	tags?: Array<{ name?: string }> | null
+	created_at?: string | null
 	custom_fields?: Array<{
 		gid?: string
 		number_value?: number | null
 		enum_value?: { name?: string } | null
 	}> | null
+}
+
+/** A task's story and task points, summed over the custom fields registered for each role. */
+export function pointsOf(
+	t: Pick<StandupTask, 'custom_fields'>,
+	fields: { story: Set<string>; task: Set<string> },
+): { story: number; task: number } {
+	const sum = (gids: Set<string>) =>
+		(t.custom_fields ?? []).reduce(
+			(total, f) => total + (f.gid !== undefined && gids.has(f.gid) ? (f.number_value ?? 0) : 0),
+			0,
+		)
+	return { story: sum(fields.story), task: sum(fields.task) }
 }
 
 type Member = { gid: string; name?: string }
@@ -90,7 +104,7 @@ function offsetMs(instant: number, timeZone: string): number {
 }
 
 /** The instant a calendar date begins in a timezone. */
-function startOfDayIn(date: string, timeZone: string): string {
+export function startOfDayIn(date: string, timeZone: string): string {
 	const utc = toMs(date)
 	let instant = utc - offsetMs(utc, timeZone)
 	instant = utc - offsetMs(instant, timeZone) // settle across a daylight-saving change
@@ -129,16 +143,8 @@ export async function buildStandup(input: StandupInput): Promise<Standup> {
 
 	const statusOf = (t: StandupTask) =>
 		t.custom_fields?.find((f) => f.gid !== undefined && fields.status.has(f.gid))?.enum_value?.name
-	const pointsOf = (t: StandupTask) => {
-		const sum = (gids: Set<string>) =>
-			(t.custom_fields ?? []).reduce(
-				(total, f) => total + (f.gid !== undefined && gids.has(f.gid) ? (f.number_value ?? 0) : 0),
-				0,
-			)
-		return { story: sum(fields.story), task: sum(fields.task) }
-	}
 	const item = (t: StandupTask, extra: Partial<StandupItem> = {}): StandupItem => {
-		const points = pointsOf(t)
+		const points = pointsOf(t, fields)
 		return {
 			gid: t.gid,
 			name: t.name ?? '',
@@ -153,7 +159,7 @@ export async function buildStandup(input: StandupInput): Promise<Standup> {
 	const group = (tasks: Array<{ task: StandupTask; extra?: Partial<StandupItem> }>): StandupGroup => {
 		const points = tasks.reduce(
 			(total, { task }) => {
-				const p = pointsOf(task)
+				const p = pointsOf(task, fields)
 				return { story: total.story + p.story, task: total.task + p.task }
 			},
 			{ story: 0, task: 0 },
