@@ -362,6 +362,24 @@ result.
 - **Settings** are the frontmatter of `cyber-asana.dashboard`. A bad value throws, as the policy's
   does. `forms` and `status_parent` are read and validated now and used by U13 and U14.
 
+### Dashboard page
+
+`report dashboard --page <path>` (D2.3, D8) writes one self-contained HTML file built from the
+dashboard result and publishes nothing.
+
+- **Self-contained.** Inline CSS, inline SVG for the burndown, CSS bars for workload and velocity; no
+  script, link, import, or network reference. Light and dark through `prefers-color-scheme`; a
+  viewport meta and fluid layout for a phone.
+- **Sections** are always `header, burndown, health, workload, velocity, notes`, in that order. A
+  report that is not listed, failed, or is unsupported is named in its own section, so a subset of
+  `reports` never drops one silently. Notes lists every note and every failed or unsupported report.
+- **Escaping.** Every user string (task, person, scope, message, command) is HTML-escaped.
+- **Overwrite guard.** The page carries a generator marker. An existing path is replaced only when it
+  holds that marker; any other file or a directory is refused with `page-path-refused` (exit 2).
+- **Output.** Text prints `Wrote <path>` with the byte and section counts; `--json` gives
+  `{ path, bytes, sections }`. The text dashboard is not printed.
+- **No MCP counterpart.** `asana_report_dashboard` has no `page` option; see design § 9.11.
+
 ### Planning arithmetic
 
 `sprint plan` (`--scope`, `--sprint`, default `next`; `--tasks`) is read only. It combines the mean

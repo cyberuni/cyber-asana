@@ -641,6 +641,28 @@ Feature: scrum scopes
     When report dashboard runs with --scope "nope"
     Then it fails with code "scope-unknown"
 
+  Scenario: the dashboard page is one self-contained file
+    Given a dashboard with the sprint, health, workload, and velocity reports
+    When report dashboard runs with --page "dash.html"
+    Then the file holds the sections header, burndown, health, workload, velocity, and notes
+    And it references no script and no network address
+    And --json returns the path, the byte count, and the sections
+
+  Scenario: the page names a report it could not show
+    Given the workload report failed with code "sprint-none"
+    When report dashboard runs with --page
+    Then the workload section names the report and the code instead of a chart
+
+  Scenario: the page escapes user content
+    Given a task name containing "<img onerror=x>"
+    When report dashboard runs with --page
+    Then the file holds the escaped text and no img element
+
+  Scenario: the page refuses a file it did not write
+    Given "notes.txt" exists
+    When report dashboard runs with --page "notes.txt"
+    Then it fails with code "page-path-refused" and the file is unchanged
+
   Scenario: the plan proposes the backlog top that fits velocity and capacity
     Given a velocity mean of 8 story points and 40 capacity hours
     And a backlog of 3, 5, and 2 story points

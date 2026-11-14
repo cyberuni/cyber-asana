@@ -30,7 +30,8 @@ point for scrum work (design K1, D3 in [`docs/design/scrum-system.md`](../../../
   presents the proposal from the JSON as given, totals every edit with `sprint plan --tasks` instead of
   adding by hand, and asks before each of `sprint start`, `sprint add`, and `sprint start --snapshot`.
   The dashboard route runs `report dashboard --json`, leads with `status_type`, and names every failed or
-  unsupported report. Velocity runs `report velocity`
+  unsupported report, and offers `--page <path>` for the local HTML page, telling the user where it was
+  written. Velocity runs `report velocity`
   directly. Sprint start, add, and close, and the current sprint and backlog, route to the `sprint`
   and `backlog` commands; the skill asks before `sprint start --snapshot` (a status update cannot be
   edited) and before `sprint close`.
