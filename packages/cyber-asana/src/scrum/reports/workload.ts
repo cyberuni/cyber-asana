@@ -70,7 +70,7 @@ export type WorkloadAllocation = {
 
 export type OooRange = { start_date: string; end_date: string }
 
-export type CapacityUnknownReason = 'plan' | 'no-allocation'
+type CapacityUnknownReason = 'plan' | 'no-allocation'
 
 export type WorkloadInput = {
 	scope: string
