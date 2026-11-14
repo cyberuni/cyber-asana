@@ -133,6 +133,8 @@ export function createRuntimeContext(): RuntimeContext {
 	const projectGateway = createAsanaProjectGateway(client)
 	const jobGateway = createAsanaJobGateway(client)
 	const taskGateway = createAsanaTaskGateway(client)
+	const sectionGateway = createAsanaSectionGateway(client)
+	const userGateway = createAsanaUserGateway(client)
 	return {
 		aiStudio: createAiStudioApi(createAsanaAiStudioGateway(client)),
 		attachments: createAttachmentApi(createAsanaAttachmentGateway(client)),
@@ -149,10 +151,15 @@ export function createRuntimeContext(): RuntimeContext {
 		scrum: createScrumApi({
 			store: createFileScopeStore,
 			gateways: { portfolios: portfolioGateway, tasks: taskGateway },
+			sprint: {
+				sections: sectionGateway,
+				tasks: taskGateway,
+				users: userGateway,
+			},
 			loadPolicy: () => loadScrumPolicy(),
 		}),
 		search: createSearchApi(createAsanaSearchGateway(client)),
-		sections: createSectionApi(createAsanaSectionGateway(client)),
+		sections: createSectionApi(sectionGateway),
 		status: createStatusApi(createAsanaStatusGateway(client), {
 			portfolios: portfolioGateway,
 			projects: projectGateway,

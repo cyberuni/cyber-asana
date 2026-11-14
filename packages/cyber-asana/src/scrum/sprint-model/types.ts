@@ -18,7 +18,10 @@ export type CarryOver = 'move' | 'leave'
 /** One implementation of `cyber-asana.sprint-model`, for the models the CLI builds in. */
 export type SprintModel = {
 	/** The sprint's Asana object in each project, and the projects that lack it. */
-	sections(target: SprintTarget, sprint: Sprint): Promise<{ found: SprintSection[]; missing: ScopeProject[] }>
+	sections(
+		target: SprintTarget,
+		sprint: Pick<Sprint, 'name'>,
+	): Promise<{ found: SprintSection[]; missing: ScopeProject[] }>
 	/** The sprints that exist in at least one project, by index. */
 	listSprints(target: SprintTarget): Promise<Array<{ n: number; sections: SprintSection[] }>>
 	tasks(target: SprintTarget, sprint: Sprint, opts: { incomplete?: boolean; optFields?: string }): Promise<SprintTask[]>

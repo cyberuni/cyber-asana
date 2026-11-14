@@ -33,7 +33,7 @@ function fakeApi(): ScrumApi {
 			projects: [{ gid: '1' }],
 			sprint: { sprint_model: 'sections', sprint_length_days: 14 },
 		})),
-	} as ScrumApi
+	} as unknown as ScrumApi
 }
 
 describe('scrum/mcp', () => {
