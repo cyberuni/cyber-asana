@@ -414,23 +414,23 @@ New Asana resources it needs (allocations, team memberships) get their own domai
 
 Each unit can ship alone and passes `pnpm verify`; units that need it also pass system tests. A unit changes one concern and adds a changeset when it changes a published file. Later units depend only on earlier ones.
 
-| Unit | Delivers | Closes | Depends on |
-| --- | --- | --- | --- |
-| U1 | A true completed-since filter, honest help text, and `section tasks`. Patch the two existing skills to use them. | G1, G2 (fixes G-S1, G-R1, G-R3 now) | — |
-| U2 | `loadReferenceMetadata` (conventions moved onto it). The `cyber-asana.scrum` package default with its key parser. A docs page on overriding it. Confirm whether project sections contribute frontmatter. | G11 | — |
-| U3 | `scrum.scopes` (schema 3), `config scope add \| remove \| list`, `scrum scope resolve` for `project`, `projects`, `portfolio`; the `sprint` and `status` field roles | G9, G10, G8 (recursion) | U2 |
-| U4 | `cyber-asana.sprint-model.interface` + `.sections`; `sprint current \| list \| tasks \| add \| start \| close`, `backlog list`; MCP tools | G12 (sprints) | U1, U3 |
-| U5 | `init-asana-scrum` v1: project and projects scopes, the `sections` model, writing the policy and fields | K2 | U4 |
-| U6 | `cyber-asana.report.interface` + `.standup`; `report standup`; `asana-scrum` v1 with the standup route; turn `asana-standup` into a routing stub (D7); update K5 | G12 (standup), K1, K3 | U4 |
-| U7 | `.sprint`, `.retro`, `.velocity` reports, the burndown, and the commitment snapshot (D6); review and retro routes; turn `asana-sprint-report` into a routing stub (D7) | K4, G14 | U6 |
-| U8 | `.health` report and the health route | — | U6 |
-| U9 | `team members \| projects`, the `team` scope, team standup | G4 | U3, U6 |
-| U10 | The `allocations` domain, `.workload` report, workload route, H8, and the capacity probe in setup | G5 | U8 |
-| U11 | `.custom-field` model, search custom-field filters and paging, custom-field create and enum options, project field attach; setup support | G3, G6, G7 | U4, U5 |
-| U12 | `cyber-asana.dashboard` and `report dashboard` (CLI, D2.1); the planning route (needs velocity and capacity) | — | U7, U8, U10 |
-| U13 | `--post-status` (D2.2) and `status_type` validation | G13 | U12 |
-| U14 | `--page` generated HTML (D2.3), and where the page is published (D8) | — | U12 |
-| U15 | `.project` model (one project per sprint, in a portfolio) | G8 (add/remove) | U11 |
+| Unit | Delivers | Closes | Depends on | Status |
+| --- | --- | --- | --- | --- |
+| U1 | A true completed-since filter, honest help text, and `section tasks`. Patch the two existing skills to use them. | G1, G2 (fixes G-S1, G-R1, G-R3 now) | — | Shipped (#321) |
+| U2 | `loadReferenceMetadata` (conventions moved onto it). The `cyber-asana.scrum` package default with its key parser. A docs page on overriding it. Confirm whether project sections contribute frontmatter. | G11 | — | Shipped (#322) |
+| U3 | `scrum.scopes` (schema 3), `config scope add \| remove \| list`, `scrum scope resolve` for `project`, `projects`, `portfolio`; the `sprint` and `status` field roles | G9, G10, G8 (recursion) | U2 | Built; in review |
+| U4 | `cyber-asana.sprint-model.interface` + `.sections`; `sprint current \| list \| tasks \| add \| start \| close`, `backlog list`; MCP tools | G12 (sprints) | U1, U3 |  |
+| U5 | `init-asana-scrum` v1: project and projects scopes, the `sections` model, writing the policy and fields | K2 | U4 |  |
+| U6 | `cyber-asana.report.interface` + `.standup`; `report standup`; `asana-scrum` v1 with the standup route; turn `asana-standup` into a routing stub (D7); update K5 | G12 (standup), K1, K3 | U4 |  |
+| U7 | `.sprint`, `.retro`, `.velocity` reports, the burndown, and the commitment snapshot (D6); review and retro routes; turn `asana-sprint-report` into a routing stub (D7) | K4, G14 | U6 |  |
+| U8 | `.health` report and the health route | — | U6 |  |
+| U9 | `team members \| projects`, the `team` scope, team standup | G4 | U3, U6 |  |
+| U10 | The `allocations` domain, `.workload` report, workload route, H8, and the capacity probe in setup | G5 | U8 |  |
+| U11 | `.custom-field` model, search custom-field filters and paging, custom-field create and enum options, project field attach; setup support | G3, G6, G7 | U4, U5 |  |
+| U12 | `cyber-asana.dashboard` and `report dashboard` (CLI, D2.1); the planning route (needs velocity and capacity) | — | U7, U8, U10 |  |
+| U13 | `--post-status` (D2.2) and `status_type` validation | G13 | U12 |  |
+| U14 | `--page` generated HTML (D2.3), and where the page is published (D8) | — | U12 |  |
+| U15 | `.project` model (one project per sprint, in a portfolio) | G8 (add/remove) | U11 |  |
 
 U1 can ship before anything else and fixes wrong numbers users see today.
 
@@ -452,7 +452,7 @@ A dry run of the `spec` skill (sdd2) on this document raised these questions. Th
 
 | ID | Question | Scope | Status | Recommendation |
 | --- | --- | --- | --- | --- |
-| Q6 | What CLI exit code does each failure status get (`scope-missing`, `scope-unknown`, `policy-invalid`, `policy-incomplete`, `model-unsupported`, `premium-required`, `sprint-none`)? | **Functional spec**, not design spec. An exit code is an encoding of an outcome. The design spec states only that each outcome is told apart and stable; the build unit that adds the command pins the code with its tests. | Open, for the functional spec | `2` for the configuration statuses (`scope-*`, `policy-*`, `model-unsupported`), and the CLI's existing API-error code for `premium-required` |
+| Q6 | What CLI exit code does each failure status get (`scope-missing`, `scope-unknown`, `policy-invalid`, `policy-incomplete`, `model-unsupported`, `premium-required`, `sprint-none`)? | **Functional spec**, not design spec. An exit code is an encoding of an outcome. The design spec states only that each outcome is told apart and stable; the build unit that adds the command pins the code with its tests. | Open, for the functional spec; U3 pinned `scope-missing` and `scope-unknown` at `2` | `2` for the configuration statuses (`scope-*`, `policy-*`, `model-unsupported`), and the CLI's existing API-error code for `premium-required` |
 | Q7 | Which timezone sets "today" and the standup window: the user's Asana timezone or the machine's? | Design spec | **Decided: D11** | The user's Asana timezone, read through `user me` |
 | Q8 | When there is no current sprint (before `sprint_anchor_date`, or its section or option is missing), do reports fail with `sprint-none` or carry on without sprint filters? | Design spec | **Decided: D12** | Standup carries on and says so; review, health, and workload fail with `sprint-none` |
 | Q9 | When two plugins ship `cyber-asana.scrum`, so the name is ambiguous, does a run warn and use the package default, or fail? | Design spec | **Decided: D13**, not as recommended | Warn and use the package default, as `loadConventions()` does for task conventions |
