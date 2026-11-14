@@ -216,8 +216,8 @@ importers:
         specifier: ^1.32.1
         version: 1.32.1(supports-color@8.1.1)(zod@4.6.5)
       asana:
-        specifier: ^3.3.0
-        version: 3.3.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1)
+        specifier: ^3.4.0
+        version: 3.4.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1)
       commander:
         specifier: ^15.0.0
         version: 15.0.0
@@ -2202,8 +2202,8 @@ packages:
     resolution: {integrity: sha512-COROpnaoap1E2F000S62r6A60uHZnmlvomhfyT2DlTcrY1OrBKn2UhH7qn5wTC9zMvD0AY7csdPSNwKP+7WiQw==}
     engines: {node: '>= 0.4'}
 
-  asana@3.3.0:
-    resolution: {integrity: sha512-Lxx6PjL0ekKtpeaAIiXA35X/g4T9sb2dotMUojRcPfKLWWPyDCbW8JPoR/KGUfBHm4j96c6RyEJeKPjCUVH0tg==}
+  asana@3.4.0:
+    resolution: {integrity: sha512-xKQTo/o5smmvkXpa2FjFnsVSG2PSs+teOF8ugq4xabhen1NJM2borxrmp/hl+7Tg6jMiCwQ23g6V/zOGL08X6A==}
 
   assertion-error@2.0.1:
     resolution: {integrity: sha512-Izi8RQcffqCeNVgFigKli1ssklIbpHnCYc6AknXGYoB6grJqyeby7jv12JUQgmTAnIDnbck1uxksT4dzN3PWBA==}
@@ -5707,7 +5707,7 @@ snapshots:
 
   aria-query@5.3.2: {}
 
-  asana@3.3.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1):
+  asana@3.4.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1):
     dependencies:
       '@babel/cli': 7.29.7(@babel/core@7.29.7(supports-color@8.1.1))
       superagent: 6.1.0(supports-color@8.1.1)

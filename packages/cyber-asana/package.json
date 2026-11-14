@@ -50,10 +50,10 @@
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
-		"cyber-agentkit": "^2.0.0",
 		"@modelcontextprotocol/sdk": "^1.32.1",
-		"asana": "^3.3.0",
+		"asana": "^3.4.0",
 		"commander": "^15.0.0",
+		"cyber-agentkit": "^2.0.0",
 		"yaml": "^2.9.1",
 		"zod": "^4.6.5"
 	},
