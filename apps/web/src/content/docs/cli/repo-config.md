@@ -115,14 +115,78 @@ project entry records the fields found for it:
 { "gid": "1201", "name": "Backend", "aliases": ["api"], "fields": { "story_points": { "gid": "9001", "name": "Story Points" } } }
 ```
 
-There are two roles: `story_points` and `task_points`. The task conventions reference says what
-each measures. On a number
+There are four roles: `story_points`, `task_points`, `sprint`, and `status`. The task conventions
+reference says what the two points roles measure. `sprint` and `status` are enum fields the scrum
+system reads: which sprint a task is in, and its workflow state. On an enum field, `discover-fields`
+fills `sprint` from "Sprint" or "Iteration" and `status` from "Status" or "Stage". On a number
 or dropdown field, `discover-fields` fills `story_points` from "Story Points", "Story pts", or "SP",
 and `task_points` from "Task Points", "Task pts", or "TP". A bare "Points" or "pts" fills
 `story_points`, which a project with a single points field uses for everything. A project with both
 a story points and a task points field gets both roles saved. When several fields match one role,
 it saves none for that role and lists them; pick one with `set-field`. On a later run, a saved field that is still on the
 project is kept even if its name does not match, and one no longer on the project is dropped.
+
+## Scrum scopes
+
+A scope is the set of Asana projects a scrum team works in. It names GIDs, so it lives here and not in
+the `cyber-asana.scrum` reference, which holds policy and no GIDs. The `scrum` block needs
+`schema_version: 3`. The CLI still reads versions 1 and 2, and writes version 3 once you add a scope.
+
+```json
+{
+  "schema_version": 3,
+  "projects": [{ "gid": "1201", "name": "web" }],
+  "scrum": {
+    "scopes": [
+      { "name": "web", "kind": "project", "projects": ["1201"], "default": true },
+      { "name": "platform", "kind": "projects", "projects": ["1201", "1202"], "sprint_length_days": 7 },
+      { "name": "growth", "kind": "portfolio", "portfolio": "1300" }
+    ]
+  }
+}
+```
+
+| Kind | Members | Covers |
+| --- | --- | --- |
+| `project` | one project GID | that project |
+| `projects` | one or more project GIDs | those projects; a task in two of them counts once |
+| `portfolio` | one portfolio GID | the portfolio's projects, including those in nested portfolios |
+
+A scope may override only `sprint_model`, `sprint_length_days`, and `sprint_anchor_date` (`YYYY-MM-DD`).
+Everything else comes from the `cyber-asana.scrum` reference. Names are unique ignoring case, and at
+most one scope is `default`.
+
+```sh
+cyber-asana config scope add web --kind project --project 1201 --default
+cyber-asana config scope add platform --kind projects --project 1201,1202 --sprint-length-days 7
+cyber-asana config scope add growth --kind portfolio --portfolio 1300
+cyber-asana config scope add mine --kind projects --project 1201,1202 --global   # your own registry
+cyber-asana config scope list
+cyber-asana config scope remove platform
+cyber-asana scrum scope resolve --scope platform --tasks
+```
+
+`--project` takes a GID or a registered alias, comma-separated or repeated. `scope remove` takes the
+scope from the repo config, or from the global registry when the repo config has none by that name.
+
+A command that takes `--scope <name>` runs against the scope you name, else the scope marked `default`.
+With no scope configured, the repo's default project acts as an implicit `project` scope, so a repo that
+has only run `config add` still works. Once any scope exists, the default project no longer stands in.
+
+`scrum scope resolve` prints the scope, its projects, and its sprint settings, which are the
+`cyber-asana.scrum` values with the scope's overrides laid over them. A `portfolio` scope follows
+nested portfolios, reading each once. `--tasks` also lists the scope's tasks.
+
+Two failures are told apart by `error.code`, and both exit `2`:
+
+| Code | When |
+| --- | --- |
+| `scope-unknown` | `--scope` names a scope that is not configured. `options` lists the ones that are |
+| `scope-missing` | no `--scope`, no default scope, and no default project to stand in |
+
+The global registry can hold `scopes` inside a `repos[]` entry, for a scope that is yours alone. The
+repo's scopes win a name clash, and the repo supplies the default scope when it has one. The MCP tools
+are `asana_scope_list`, `asana_scope_add`, `asana_scope_remove`, and `asana_scope_resolve`.
 
 ## Task conventions
 

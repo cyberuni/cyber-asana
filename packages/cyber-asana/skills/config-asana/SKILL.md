@@ -15,6 +15,8 @@ users. That covers:
 - **Add / pin** a project or a person, by search or by GID, to either registry.
 - **Remove** a project, a user, or one of a user's aliases, from either registry.
 - **Refresh** names that drifted since they were registered (`sync`).
+- **Scopes**: add, remove, or list the scrum scopes (the projects a scrum team works in), and
+  register the `sprint` and `status` fields a scope's sprint model reads.
 - **Show / verify** what's registered — including the **merged** (repo config + global, combined)
   view a skill script or agent actually resolves against.
 
@@ -159,15 +161,48 @@ cyber-asana config set-field story_points <field-gid> --project <gid-name-or-ali
 cyber-asana config unset-field story_points --project <gid-name-or-alias>
 ```
 
-The roles are `story_points` (user-story work) and `task_points` (chore work); which one a task
-gets is decided in the `cyber-asana.task-conventions` reference. On a number or dropdown field,
+The roles are `story_points` (user-story work), `task_points` (chore work), `sprint`, and `status`.
+Which points role a task gets is decided in the `cyber-asana.task-conventions` reference.
+`sprint` and `status` are enum fields the scrum system reads: which sprint a task is in, and its
+workflow state. `discover-fields` matches an enum field named "Sprint" or "Iteration" for `sprint`
+and "Status" or "Stage" for `status`; a text or number field never matches them. On a number or dropdown field,
 `discover-fields` matches "Story Points", "Story pts", or "SP" for `story_points` and "Task
 Points", "Task pts", or "TP" for `task_points`. A bare "Points" or "pts" counts as `story_points`.
 A project with both fields gets both roles saved. When several fields match one role, it saves
 none for that role and lists them; pick one with `set-field`. A field saved by hand is kept on a later `discover-fields` while it is still on the
 project. Without a project, all three use the default project. Commit the updated config.
 
-### H. Task conventions
+### H. Scrum scopes
+
+A scope is the set of Asana projects a scrum team works in. It names GIDs, so it lives in config
+(`scrum.scopes` in `.agents/cyber-asana.json`, or `scopes` inside a repo entry of the global
+registry), never in the `cyber-asana.scrum` reference, which holds policy only. Adding the first
+scope upgrades the file to `schema_version: 3`.
+
+```bash
+cyber-asana config scope add web --kind project --project <gid-or-alias> --default
+cyber-asana config scope add platform --kind projects --project <gid>,<gid> --sprint-length-days 7
+cyber-asana config scope add growth --kind portfolio --portfolio <gid>
+cyber-asana config scope add mine --kind projects --project <gid>,<gid> --global   # personal registry
+cyber-asana config scope list                          # both registries; source and default shown
+cyber-asana config scope remove platform [--global]
+cyber-asana scrum scope resolve [--scope <name>] [--tasks]   # check what a scope covers
+```
+
+- **Kinds.** `project` takes exactly one project, `projects` takes several, `portfolio` takes a
+  portfolio and follows nested portfolios. There is no `team` kind yet.
+- **Overrides.** A scope may set only `--sprint-model`, `--sprint-length-days`, and
+  `--sprint-anchor-date`. Everything else is policy and belongs in the `cyber-asana.scrum` reference.
+- **Which scope runs.** `--scope <name>`, else the scope marked `--default`. With no scope
+  configured at all, the repo's default project stands in as an implicit `project` scope. A repo
+  scope wins a name clash with a global one.
+- **Failures.** `scope-unknown` (the name is not configured; `options` lists the ones that are) and
+  `scope-missing` (nothing selects a scope) both exit 2. Offer the listed scopes, or
+  `config scope add`, rather than guessing one.
+- Ask which kind and which projects before adding, and run `scrum scope resolve --scope <name>` after
+  to show what it covers. Commit `.agents/cyber-asana.json` for a repo scope.
+
+### I. Task conventions
 
 Task conventions (`task_name_format`, `description_template`, `default_tags`) are not part of
 either registry. They live in the frontmatter of the `cyber-asana.task-conventions` reference —
