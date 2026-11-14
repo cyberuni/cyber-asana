@@ -31,6 +31,13 @@ const CODED_EXIT_CODES: Readonly<Record<string, number>> = {
 	// Task search is premium: the same code a raw 402 from Asana gets.
 	// A status update's status_type does not fit its parent: pick one of error.options, then retry.
 	'status-type-invalid': 2,
+	// `report dashboard --post-status`: fix the dashboard reference or the flags, then retry.
+	'health-required': 2,
+	'status-parent-unavailable': 2,
+	'status-template-invalid': 2,
+	'status-body-invalid': 2,
+	'dry-run-needs-post-status': 2,
+	'post-status-and-page': 2,
 	'premium-required': 7,
 }
 

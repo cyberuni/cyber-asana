@@ -86,3 +86,20 @@ export async function loadReferenceLayers(opts: LoadReferenceMetadataOptions = {
 		plugin: { name: PLUGIN_NAME, root: opts.packageRoot ?? packageRoot() },
 	})
 }
+
+/**
+ * The composed text of a reference, read through the same tiers as `loadReferenceMetadata`, handed
+ * to `parse`. Returns undefined when no tier ships the name, and throws `ReferenceAmbiguousError`
+ * when the name is ambiguous.
+ */
+export async function loadReferenceContent<T>(
+	name: string,
+	parse: (content: string) => T,
+	opts: LoadReferenceMetadataOptions = {},
+): Promise<T | undefined> {
+	const layers = await loadReferenceLayers(opts)
+	const resolved = resolveReference(parseReferenceName(name), layers)
+	if (resolved.status === 'ambiguous') throw new ReferenceAmbiguousError(name, resolved.options ?? [])
+	if (resolved.status !== 'found' || resolved.content === undefined) return undefined
+	return parse(resolved.content)
+}

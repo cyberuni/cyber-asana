@@ -12,35 +12,40 @@ status_rules:
 
 ## Status update
 
-A team patches this section to change what a posted status update says. Placeholders in angle brackets are filled from the dashboard JSON; leave out any line whose data the dashboard did not compute.
+`report dashboard --post-status` fills this section from the dashboard JSON and posts it. A team patches it to change what a posted status update says.
 
-Title: `<sprint name> — <status label>`
+Placeholders are in curly braces and every value is HTML-escaped. A line whose figure the dashboard did not compute is left out, and so is a heading left with no lines. A commitment that could not be rebuilt reads "unknown (no commitment snapshot)", never zero. A line holding `{finding}` is written once per health finding, and a line holding `{person}`, `{load}`, `{capacity}`, or `{flag}` once per person.
 
-Body, in Asana's HTML subset (the `tidy-description` reference of the `asana` skill lists what it allows: no `<p>`, `<br>`, or `<th>`, and real newlines between blocks):
+Scalars: `{scope}`, `{sprint}`, `{status}` (the label, such as "At risk"), `{status_type}`, `{errors}`, `{warnings}`, `{committed_tasks}`, `{completed_tasks}`, `{completion_rate}`, `{story_completed}`, `{story_committed}`, `{task_completed}`, `{task_committed}`, `{velocity_window}`, `{velocity_story}`, `{velocity_task}`. An unknown placeholder stops the post with `status-template-invalid`.
+
+Title: `{sprint} — {status}`
+
+Body, in Asana's HTML subset (the `tidy-description` reference of the `asana` skill lists what it allows: no `<p>`, `<br>`, or `<th>`, and real newlines between blocks). The post is checked against that subset before it is sent:
 
 ```html
 <body><h2>Health</h2>
 <ul>
-<li><strong><error count> errors</strong>, <warning count> warnings</li>
-<li><finding line: check ID, task name, message></li>
+<li><strong>{errors} errors</strong>, {warnings} warnings</li>
+<li>{finding}</li>
 </ul>
 <h2>Sprint</h2>
 <ul>
-<li>Committed <n> tasks, completed <n> (<rate> by count)</li>
-<li>Story points: <completed> of <committed>; task points: <completed> of <committed></li>
+<li>Committed {committed_tasks} tasks, completed {completed_tasks} ({completion_rate} by count)</li>
+<li>Story points: {story_completed} of {story_committed}</li>
+<li>Task points: {task_completed} of {task_committed}</li>
 </ul>
 <h2>Workload</h2>
 <ul>
-<li><person>: <load> h of <capacity> h (<flag>)</li>
+<li>{person}: {load} of {capacity} ({flag})</li>
 </ul>
 <h2>Velocity</h2>
 <ul>
-<li>Mean of the last <window> sprints: <story> story points, <task> task points</li>
+<li>Mean of the last {velocity_window} sprints: {velocity_story} story points, {velocity_task} task points</li>
 </ul>
 </body>
 ```
 
-Keep story points and task points apart. Never turn a missing figure into zero: write "unknown" and the reason.
+Keep story points and task points apart.
 
 ## Page
 

@@ -33,6 +33,7 @@ import {
 	standupWindowStart,
 	startOfDayIn,
 } from './reports/standup.js'
+import type { StatusTemplate } from './reports/status-update.js'
 import { joinedAt, type TaskStory } from './reports/stories.js'
 import {
 	buildWorkload,
@@ -94,6 +95,8 @@ export type ScrumApiDeps = {
 	loadWorkloadSettings?: () => Promise<WorkloadSettings>
 	/** The `cyber-asana.dashboard` settings; the defaults when unset. */
 	loadDashboardSettings?: () => Promise<DashboardSettings>
+	/** The `## Status update` template of `cyber-asana.dashboard`, for `report dashboard --post-status`. */
+	loadStatusTemplate?: () => Promise<StatusTemplate>
 	/** The implementations of the `cyber-asana.report` interface, so the dashboard can name a report it cannot compute. */
 	listReports?: () => Promise<ReferenceImplementationInfo[]>
 	/** The clock, so a test can say what day it is. */

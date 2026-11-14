@@ -1,5 +1,6 @@
 import type { Command } from 'commander'
 import { output, printCountSummary, printFields, printNextSteps } from '../../../platform/cli/output.js'
+import { CodedConfigError } from '../../../platform/coded-error.js'
 import {
 	addSprintOptions,
 	type ResolveApi,
@@ -110,35 +111,82 @@ export function addDashboardCommand(cmd: Command, api?: ResolveApi) {
 				'--page <path>',
 				'Write the dashboard as one self-contained HTML file to <path> (local file only; publishes nothing)',
 			),
-	).action(async (opts: SprintFlags & { page?: string }) => {
-		const r = await resolveApi(api).reportDashboard(sprintInput(opts), storeOptions(opts))
-		if (opts.page !== undefined) {
-			const { html, sections } = renderDashboardPage(r)
-			const written = await writeDashboardPage(opts.page, html)
-			output({ ...written, sections }, () => {
-				console.log(
-					`Wrote ${written.path} (${written.bytes} bytes, ${sections.length} sections: ${sections.join(', ')})`,
-				)
+	)
+		.option(
+			'--post-status',
+			"Post the dashboard as a status update on the scope's project or portfolio (cannot be edited; each post is new)",
+		)
+		.option('--dry-run', 'With --post-status: print what would be posted and post nothing')
+		.action(async (opts: SprintFlags & { page?: string; postStatus?: boolean; dryRun?: boolean }) => {
+			if (opts.postStatus && opts.page !== undefined) {
+				throw new CodedConfigError('post-status-and-page', '--post-status and --page are two forms; pick one', {
+					hint: 'Run them as two commands.',
+				})
+			}
+			if (opts.dryRun && !opts.postStatus) {
+				throw new CodedConfigError('dry-run-needs-post-status', '--dry-run only applies to --post-status', {
+					hint: 'Run `cyber-asana report dashboard --post-status --dry-run`, or drop --dry-run.',
+				})
+			}
+			if (opts.postStatus) {
+				const post = await resolveApi(api).postDashboardStatus(sprintInput(opts), storeOptions(opts), {
+					dryRun: opts.dryRun === true,
+				})
+				const gid = (post as { status_update?: { gid: string } }).status_update?.gid
+				output(post, () => {
+					if (post.posted) {
+						console.log(`Posted a status update on ${post.parent.type} ${post.parent.gid}`)
+					} else {
+						console.log(
+							`Dry run: nothing was posted. This is what --post-status would send to ${post.parent.type} ${post.parent.gid}`,
+						)
+					}
+					printFields({
+						Status: `${post.status_type} (${post.status_basis})`,
+						Title: post.title,
+						...(gid && { ID: gid }),
+					})
+					console.log(`\n${post.html_text}`)
+					for (const note of post.notes) console.log(`\nNote: ${note}`)
+					printNextSteps(
+						gid
+							? [
+									`cyber-asana status get ${gid} — read the posted update`,
+									`cyber-asana status delete ${gid} — remove it (an update cannot be edited)`,
+								]
+							: ['cyber-asana report dashboard --post-status — post it'],
+					)
+				})
+				return
+			}
+			const r = await resolveApi(api).reportDashboard(sprintInput(opts), storeOptions(opts))
+			if (opts.page !== undefined) {
+				const { html, sections } = renderDashboardPage(r)
+				const written = await writeDashboardPage(opts.page, html)
+				output({ ...written, sections }, () => {
+					console.log(
+						`Wrote ${written.path} (${written.bytes} bytes, ${sections.length} sections: ${sections.join(', ')})`,
+					)
+					printNextSteps([
+						`Open ${written.path} in a browser; nothing was published`,
+						'cyber-asana report dashboard — the same reports as text',
+					])
+				})
+				return
+			}
+			output(r, () => {
+				console.log(`Dashboard for ${r.scope}`)
+				printFields({
+					Status: r.status_type ? `${r.status_type} (${r.status_basis})` : `none (${r.status_basis})`,
+					Reports: r.settings.reports.join(', '),
+				})
+				for (const entry of r.reports) printEntry(entry)
+				printCountSummary(r.reports.length, 'report(s)')
+				console.log(`${r.counts.ok} ok, ${r.counts.failed} failed, ${r.counts.unsupported} unsupported`)
 				printNextSteps([
-					`Open ${written.path} in a browser; nothing was published`,
-					'cyber-asana report dashboard — the same reports as text',
+					'cyber-asana report health — the findings in full, each with its fix',
+					'cyber-asana report <key> — any one report in full',
 				])
 			})
-			return
-		}
-		output(r, () => {
-			console.log(`Dashboard for ${r.scope}`)
-			printFields({
-				Status: r.status_type ? `${r.status_type} (${r.status_basis})` : `none (${r.status_basis})`,
-				Reports: r.settings.reports.join(', '),
-			})
-			for (const entry of r.reports) printEntry(entry)
-			printCountSummary(r.reports.length, 'report(s)')
-			console.log(`${r.counts.ok} ok, ${r.counts.failed} failed, ${r.counts.unsupported} unsupported`)
-			printNextSteps([
-				'cyber-asana report health — the findings in full, each with its fix',
-				'cyber-asana report <key> — any one report in full',
-			])
 		})
-	})
 }

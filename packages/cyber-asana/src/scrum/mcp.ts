@@ -246,6 +246,14 @@ export function registerScrumTools(server: McpServer, api?: ScrumApi | (() => Sc
 	)
 
 	server.tool(
+		'asana_report_dashboard_post',
+		"Posts the dashboard (D2.2) as an Asana status update on the scope's project, or its portfolio for a portfolio scope (status_parent in cyber-asana.dashboard). The title and body come from the reference's `## Status update` template, in Asana's HTML subset; status_type is graded by status_rules over the health findings. A status update cannot be edited, so every call posts a new one. It writes, so it is a tool of its own and `asana_report_dashboard` stays read only. Show the user the post with dry_run: true and ask before posting for real. Fails with code health-required (health did not run, nothing posted), status-parent-unavailable, status-template-invalid, status-body-invalid, scope-missing, or scope-unknown.",
+		{ ...sprintParams, dry_run: z.boolean().optional().describe('Return what would be posted and post nothing') },
+		async ({ dry_run, ...rest }) =>
+			json(await resolveApi(api).postDashboardStatus(pick(rest), undefined, { dryRun: dry_run === true })),
+	)
+
+	server.tool(
 		'asana_sprint_plan',
 		"The planning arithmetic (C2, read only): the mean velocity of the last velocity_window closed sprints, the team's Allocations capacity hours for the sprint's dates, and the backlog in priority order with running totals. proposal is the backlog top that fits both (story and task points each against their own mean, effort hours against capacity), stopping at the first task that overruns; stopped_before says why. With task_gids it also totals the tasks the user picked against each limit (selection, with fits). capacity is unknown, with a reason, when the plan has no allocations (402) or none overlaps the dates; then it fits against velocity alone. Defaults to the next sprint, which needs no section yet. Use it instead of adding points yourself. Fails with code sprint-unknown, model-unsupported, or policy-incomplete.",
 		{

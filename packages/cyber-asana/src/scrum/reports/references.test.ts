@@ -79,3 +79,61 @@ describe('report references', () => {
 		expect(result.passed).toBe(1)
 	})
 })
+
+describe('the shipped cyber-asana.dashboard status update template', () => {
+	it('renders to a body inside the HTML subset for a full dashboard', async () => {
+		const { loadStatusTemplate } = await import('./dashboard.js')
+		const { renderStatusUpdate } = await import('./status-update.js')
+		const { findHtmlSubsetProblems } = await import('../../platform/html-subset.js')
+		const empty = mkdtempSync(join(tmpdir(), 'dash-tpl-'))
+		const template = await loadStatusTemplate({ root: empty, home: empty, env: {} })
+		const out = renderStatusUpdate(template, {
+			scope: 'web',
+			status_type: 'off_track',
+			reports: [
+				{
+					key: 'health',
+					status: 'ok',
+					data: {
+						counts: { error: 1, warning: 0 },
+						findings: [{ check: 'H4', message: 'late', task: { gid: '1', name: 'T' }, fix: 'x' }],
+					},
+				},
+				{
+					key: 'sprint',
+					status: 'ok',
+					data: {
+						sprint: { name: 'Sprint 3' },
+						points_tracked: { story: true, task: true },
+						committed: { source: 'snapshot', count: 4, points: { story: 8, task: 3 } },
+						completed: { count: 2, points: { story: 5, task: 1 } },
+						completion_rate: { count: 50 },
+					},
+				},
+				{
+					key: 'workload',
+					status: 'ok',
+					data: {
+						people: [
+							{
+								person: { gid: 'u', name: 'A' },
+								effort_hours: { total: 5 },
+								capacity: { status: 'known', hours: 8 },
+								flag: 'ok',
+							},
+						],
+					},
+				},
+				{
+					key: 'velocity',
+					status: 'ok',
+					data: { window: 3, mean: { story: 6, task: 2 }, points_tracked: { story: true, task: true } },
+				},
+			],
+		} as never)
+		expect(out.title).toBe('Sprint 3 — Off track')
+		expect(findHtmlSubsetProblems(out.html_text)).toEqual([])
+		for (const h of ['Health', 'Sprint', 'Workload', 'Velocity']) expect(out.html_text).toContain(`<h2>${h}</h2>`)
+		expect(out.html_text).toContain('Mean of the last 3 sprints: 6 story points, 2 task points')
+	})
+})
