@@ -79,6 +79,15 @@ it printed and that it opens in any browser. It overwrites only a page it wrote 
 `page-path-refused` (exit 2), another file is there, so ask for a new path. Never overwrite it
 yourself.
 
+Then offer to post it to Asana. Preview first with
+`cyber-asana report dashboard --post-status --dry-run` (same `--scope` and `--sprint`) and show the
+user the title, the `status_type`, and the body it prints. Ask before sending, and say that Asana
+cannot edit a status update, so each post is new. On the user's yes run the same command without
+`--dry-run`, and give them the update's `gid`. It posts nothing and exits `2` with a code to act on:
+`health-required` means health did not run (list `health` in the dashboard's `reports`),
+`status-parent-unavailable` means the scope has no single project or portfolio (set `status_parent`).
+Never post to try it out.
+
 ## Start a sprint
 
 `cyber-asana sprint start` creates the sprint's section and does nothing if it exists. The commitment

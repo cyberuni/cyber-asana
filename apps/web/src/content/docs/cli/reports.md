@@ -222,6 +222,34 @@ command exits `0` once it has produced the dashboard; read `counts` and `status_
 them. A scope that is not configured fails the whole command (`scope-missing`, `scope-unknown`, exit
 `2`).
 
+### `--post-status`: a status update in Asana
+
+```sh
+cyber-asana report dashboard --post-status --dry-run
+cyber-asana report dashboard --post-status
+```
+
+Posts the dashboard as a status update on the scope's project, or on its portfolio for a `portfolio`
+scope (`status_parent` picks). The `status_type` is the dashboard's graded one, and the title and
+body come from the `## Status update` section of `cyber-asana.dashboard`, checked against Asana's
+HTML subset before the call. **Asana cannot edit a status update**, so every post is a new one and
+the history builds up; `status delete <gid>` removes one. `--dry-run` prints the title and body and
+posts nothing. The MCP tool is `asana_report_dashboard_post` (with `dry_run`).
+
+Nothing is posted, and the command exits `2`, when it cannot do so safely. Read `error.code`:
+
+| Code | Meaning and fix |
+| --- | --- |
+| `health-required` | `status_type` is `null` because health did not run. List `health` in `reports` and fix what made it fail. |
+| `status-parent-unavailable` | The scope has no single project or no portfolio for `status_parent`. Set `status_parent`, or add `sprint_portfolio` to the scope. |
+| `status-template-invalid` | The `## Status update` section has no title line or html block, or uses a placeholder that does not exist. |
+| `status-body-invalid` | The rendered body uses a tag outside Asana's HTML subset. |
+| `post-status-and-page`, `dry-run-needs-post-status` | A flag combination that does not apply. |
+
+The template's placeholders (`{sprint}`, `{status}`, `{errors}`, `{finding}`, `{person}`, and the
+rest) are listed in the reference. A line whose figure was not computed is left out; a commitment
+that could not be rebuilt reads "unknown", never zero.
+
 ### `--page`: a local HTML page
 
 ```sh
@@ -266,11 +294,11 @@ reference, never dropped; the `asana-scrum` skill follows that reference with th
 | --- | --- | --- |
 | `reports` | `[sprint, health, workload, velocity]` | Report keys, in order. At least one, none repeated. |
 | `forms` | `[cli]` | Which forms the dashboard takes: `cli`, `status-update`, `page`. `page` is written with `--page`. |
-| `status_parent` | `scope-default` | Where a status update will be posted: `project`, `portfolio`, or `scope-default`. |
+| `status_parent` | `scope-default` | Where `--post-status` posts: `project`, `portfolio`, or `scope-default`. |
 | `status_rules` | `off_track: error`, `at_risk: warning`, `otherwise: on_track` | `off_track` and `at_risk` name the least severe health finding that sets the status (`error` or `warning`); `otherwise` is the status when neither does. |
 
-Its `## Status update` and `## Page` sections hold the templates later forms use. The status update
-template is written in Asana's HTML subset, which the `tidy-description` reference lists.
+Its `## Status update` section is the template `--post-status` fills, written in Asana's HTML subset,
+which the `tidy-description` reference lists. Its `## Page` section describes the page.
 
 Asana cannot create a native dashboard through its API. To chart a sprint inside Asana, build a
 dashboard by hand on the fields this system keeps up to date: the Sprint field, the points fields,
