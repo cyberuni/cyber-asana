@@ -3,9 +3,9 @@ import { type LoadReferenceMetadataOptions, loadReferenceMetadata } from '../../
 /** The reference whose frontmatter says which reports the dashboard runs and how it grades them (§ 5.5). */
 const DASHBOARD_REFERENCE = 'cyber-asana.dashboard'
 
-export const DASHBOARD_FORMS = ['cli', 'status-update', 'page'] as const
-export const STATUS_PARENTS = ['project', 'portfolio', 'scope-default'] as const
-export const STATUS_TYPES = ['on_track', 'at_risk', 'off_track', 'on_hold', 'complete'] as const
+const DASHBOARD_FORMS = ['cli', 'status-update', 'page'] as const
+const STATUS_PARENTS = ['project', 'portfolio', 'scope-default'] as const
+const STATUS_TYPES = ['on_track', 'at_risk', 'off_track', 'on_hold', 'complete'] as const
 const RULE_LEVELS = ['error', 'warning'] as const
 
 export type StatusType = (typeof STATUS_TYPES)[number]

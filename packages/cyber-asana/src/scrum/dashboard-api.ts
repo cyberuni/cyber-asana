@@ -4,7 +4,7 @@ import { type DashboardSettings, parseDashboardSettings, type StatusType, status
 import { selectScope } from './scope.js'
 
 /** The reports the CLI computes itself, by the key `cyber-asana.report.<key>` gives them. */
-export const BUILT_IN_REPORTS = ['standup', 'sprint', 'retro', 'velocity', 'health', 'workload'] as const
+const BUILT_IN_REPORTS = ['standup', 'sprint', 'retro', 'velocity', 'health', 'workload'] as const
 type BuiltInReport = (typeof BUILT_IN_REPORTS)[number]
 
 const REPORT_PREFIX = 'cyber-asana.report.'
