@@ -16,6 +16,11 @@ export type SystemSuite = {
 
 export const SYSTEM_SUITES: SystemSuite[] = [
 	{ file: 'src/ai-studio/api.system.ts', env: ['ASANA_WORKSPACE_GID', 'ASANA_SYSTEM_TEST_AI_STUDIO'], optional: true },
+	{
+		file: 'src/allocations/api.system.ts',
+		env: ['ASANA_WORKSPACE_GID', 'ASANA_SYSTEM_TEST_PROJECT_GID'],
+		optional: true,
+	},
 	{ file: 'src/attachments/api.system.ts', env: ['ASANA_SYSTEM_TEST_TASK_GID'] },
 	{
 		file: 'src/custom-fields/api.system.ts',

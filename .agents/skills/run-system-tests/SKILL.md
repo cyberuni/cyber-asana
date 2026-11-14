@@ -58,6 +58,7 @@ The table lives in `SYSTEM_SUITES` in `packages/cyber-asana/src/testing/system-s
 | Suite | Variables (besides `ASANA_SYSTEM_TEST`, token) | Plan |
 | --- | --- | --- |
 | `ai-studio/api` | `ASANA_WORKSPACE_GID`, `ASANA_SYSTEM_TEST_AI_STUDIO` (service account, AI Studio org) | opt-in |
+| `allocations/api` | workspace; project (fixture) for the body-fields test. Skips itself on a 402 (plan without resource management) | plan-gated, optional |
 | `attachments/api` | task (fixture) | any |
 | `custom-fields/api` | workspace, project (fixture) | paid |
 | `goals/api` | workspace | paid |
