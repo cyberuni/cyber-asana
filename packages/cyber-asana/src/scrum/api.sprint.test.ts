@@ -27,8 +27,12 @@ function setup(opts: { scopes?: ScopeEntry[]; policy?: Partial<ScrumPolicy>; now
 		},
 		sprint: {
 			...world.gateways,
-			users: { getMe: vi.fn(async () => ({ gid: 'u', ...(opts.timeZone && { time_zone: opts.timeZone }) })) as never },
+			users: {
+				getMe: vi.fn(async () => ({ gid: 'u', ...(opts.timeZone && { time_zone: opts.timeZone }) })),
+				getUser: vi.fn(),
+			} as never,
 		},
+		dependencies: { getDependencies: vi.fn(async () => []) },
 		loadPolicy: async () => ({ ...DEFAULT_SCRUM_POLICY, sprint_anchor_date: '2026-01-05', ...opts.policy }),
 		now: () => new Date(opts.now ?? '2026-01-20T12:00:00Z'),
 	})

@@ -1,8 +1,11 @@
 import type { ScopeSource, ScopeStore, ScopeStoreOptions } from '../config/scope-store.js'
 import type { ScopeEntry } from '../config/scopes.js'
 import { CodedConfigError } from '../platform/coded-error.js'
+import { listItems } from '../platform/pagination.js'
+import type { TaskGateway } from '../tasks/gateway.js'
 import type { UserGateway } from '../users/gateway.js'
 import type { ScrumPolicy } from './policy.js'
+import { buildStandup, type StandupTask, standupWindowStart } from './reports/standup.js'
 import {
 	applyScopeOverrides,
 	collectScopeTasks,
@@ -15,13 +18,15 @@ import { createSectionsModel, type SectionsModelGateways } from './sprint-model/
 import type { CarryOver, SprintModel, SprintTarget } from './sprint-model/types.js'
 
 /** The Asana reads and writes the sprint commands need, beside the scope's own. */
-export type SprintGateways = SectionsModelGateways & { users: Pick<UserGateway, 'getMe'> }
+export type SprintGateways = SectionsModelGateways & { users: Pick<UserGateway, 'getMe' | 'getUser'> }
 
 export type ScrumApiDeps = {
 	/** Opens the scope configuration; each call may name its own config file or repo key. */
 	store: (opts?: ScopeStoreOptions) => ScopeStore
 	gateways: ScopeGateways
 	sprint: SprintGateways
+	/** Reads a task's dependencies, for the standup's blockers. */
+	dependencies: Pick<TaskGateway, 'getDependencies'>
 	loadPolicy: () => Promise<ScrumPolicy>
 	/** The clock, so a test can say what day it is. */
 	now?: () => Date
@@ -29,6 +34,17 @@ export type ScrumApiDeps = {
 
 /** Inputs every sprint command takes. */
 export type SprintInput = { scope?: string; sprint?: string }
+
+const STANDUP_FIELDS =
+	'gid,name,completed,completed_at,due_on,permalink_url,assignee.gid,assignee.name,tags.name,custom_fields.gid,custom_fields.number_value,custom_fields.enum_value.name'
+
+/** Inputs of `report standup`. */
+export type StandupInput = SprintInput & {
+	/** Another person, by GID or email; the user when unset. */
+	member?: string
+	/** The whole team; not built yet. */
+	team?: boolean
+}
 
 const BUILT_IN_MODELS = ['sections']
 
@@ -44,9 +60,8 @@ export function createScrumApi(deps: ScrumApiDeps) {
 	const models: Record<string, SprintModel> = { sections: createSectionsModel(deps.sprint) }
 
 	/** Today in the user's Asana timezone when `user me` reports one, else the machine's. */
-	async function today() {
+	function clockFor(me: { time_zone?: string }) {
 		const now = (deps.now ?? (() => new Date()))()
-		const me = (await deps.sprint.users.getMe()) as { time_zone?: string }
 		if (me.time_zone) {
 			try {
 				return { today: todayIn(me.time_zone, now), timezone: me.time_zone, timezone_source: 'asana' as const }
@@ -59,7 +74,7 @@ export function createScrumApi(deps: ScrumApiDeps) {
 	}
 
 	/** Pick the scope, check the CLI builds its model in, and compute the sprint the command names. */
-	async function prepare(input: SprintInput, opts?: ScopeStoreOptions) {
+	async function prepare(input: SprintInput, opts?: ScopeStoreOptions, lenient = false) {
 		const loaded = await deps.store(opts).load()
 		const { scope } = selectScope(loaded.scopes, {
 			...(input.scope !== undefined && { name: input.scope }),
@@ -87,8 +102,11 @@ export function createScrumApi(deps: ScrumApiDeps) {
 		}
 		const projects = await resolveScopeProjects(scope, deps.gateways)
 		const target: SprintTarget = { projects, settings, backlogSection: policy.backlog_section }
-		const clock = await today()
-		const current = sprintNumber(clock.today, settings)
+		const me = (await deps.sprint.users.getMe()) as { gid?: string; name?: string; time_zone?: string }
+		const clock = clockFor(me)
+		// A report that carries on without a sprint (D12) must still run when the anchor is unset.
+		const current =
+			lenient && settings.sprint_anchor_date === undefined ? undefined : sprintNumber(clock.today, settings)
 		const startHint = (ref: string) => `Start it with: cyber-asana sprint start --sprint ${ref} --scope ${scope.name}`
 		const resolve = (ref = 'current'): Sprint => {
 			const n = parseSprintRef(ref, current ?? 0, settings)
@@ -116,7 +134,7 @@ export function createScrumApi(deps: ScrumApiDeps) {
 			}
 			return sections
 		}
-		return { scope, target, model, clock, current, resolve, requireStarted, settings, policy }
+		return { scope, target, model, clock, current, resolve, requireStarted, settings, policy, me, loaded }
 	}
 
 	const projectRef = (p: { gid: string; name?: string }) => p.gid
@@ -270,6 +288,107 @@ export function createScrumApi(deps: ScrumApiDeps) {
 				moved: result.moved,
 				left: result.left,
 				created_next: result.created_next.map(projectRef),
+			}
+		},
+
+		/**
+		 * A member's standup (R1): what they completed within `standup_window`, what is on their plate in the
+		 * current sprint, and what is blocked. With no current sprint it carries on without sprint filters
+		 * and says why (D12); an explicitly named sprint that has not started is `sprint-none`.
+		 */
+		async reportStandup(input: StandupInput, opts?: ScopeStoreOptions) {
+			if (input.team) {
+				throw new CodedConfigError('team-unsupported', 'The team standup is not built yet', {
+					hint: 'Use --me (the default) or --member <user>.',
+				})
+			}
+			const ctx = await prepare(input, opts, true)
+			const mine = input.member === undefined || input.member === 'me'
+			const user = mine
+				? ctx.me
+				: ((await deps.sprint.users.getUser(input.member as string, { optFields: 'gid,name' })) as {
+						gid?: string
+						name?: string
+					})
+			const member = {
+				gid: user.gid as string,
+				...(user.name !== undefined && { name: user.name }),
+				source: mine ? ('me' as const) : ('member' as const),
+			}
+
+			let sprint: Sprint | null = null
+			let sprintNote: string | undefined
+			if (input.sprint !== undefined && input.sprint !== 'current') {
+				sprint = ctx.resolve(input.sprint)
+				await ctx.requireStarted(sprint)
+			} else if (ctx.settings.sprint_anchor_date === undefined) {
+				sprintNote = 'sprint_anchor_date is not set, so there is no current sprint.'
+			} else if (ctx.current === undefined) {
+				sprintNote = `Today (${ctx.clock.today}) is before sprint_anchor_date ${ctx.settings.sprint_anchor_date}, so no sprint has begun.`
+			} else {
+				const candidate = ctx.resolve('current')
+				if ((await ctx.model.sections(ctx.target, candidate)).found.length === 0) {
+					sprintNote = `${candidate.name} has no section in any project of scope ${ctx.scope.name}.`
+				} else {
+					sprint = candidate
+				}
+			}
+			if (sprintNote) sprintNote += ' Showing every incomplete assigned task, with no sprint filter.'
+
+			const window = standupWindowStart(
+				ctx.policy.standup_window,
+				ctx.clock.today,
+				ctx.policy.working_days,
+				ctx.clock.timezone,
+			)
+			const sprintGids = sprint
+				? new Set((await ctx.model.tasks(ctx.target, sprint, { incomplete: true, optFields: 'gid' })).map((t) => t.gid))
+				: undefined
+
+			const listed = new Map<string, StandupTask>()
+			for (const project of ctx.target.projects) {
+				const tasks = listItems(
+					await deps.gateways.tasks.listTasks(project.gid, {
+						fetchAll: true,
+						optFields: STANDUP_FIELDS,
+						incompleteOrCompletedSince: window.since,
+					}),
+				) as StandupTask[]
+				for (const task of tasks) if (!listed.has(task.gid)) listed.set(task.gid, task)
+			}
+
+			const gids = (role: 'story_points' | 'task_points' | 'status') =>
+				new Set(
+					ctx.target.projects.flatMap((p) => {
+						const field = ctx.loaded.fields?.[p.gid]?.[role]
+						return field ? [field.gid] : []
+					}),
+				)
+			const standup = await buildStandup({
+				member,
+				today: ctx.clock.today,
+				since: window.since,
+				tasks: [...listed.values()],
+				...(sprintGids && { sprintGids }),
+				policy: ctx.policy,
+				fields: { story: gids('story_points'), task: gids('task_points'), status: gids('status') },
+				dependenciesOf: async (taskGid) =>
+					(await deps.dependencies.getDependencies(taskGid, { optFields: 'gid,name,completed' })) as Array<{
+						gid: string
+						name?: string
+						completed?: boolean
+					}>,
+			})
+			return {
+				scope: ctx.scope.name,
+				member,
+				today_date: ctx.clock.today,
+				timezone: ctx.clock.timezone,
+				timezone_source: ctx.clock.timezone_source,
+				window: { setting: ctx.policy.standup_window, from: window.from, since: window.since },
+				sprint,
+				...(sprintNote && { sprint_note: sprintNote }),
+				...standup,
 			}
 		},
 

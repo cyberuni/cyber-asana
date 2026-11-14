@@ -156,6 +156,7 @@ export function createRuntimeContext(): RuntimeContext {
 				tasks: taskGateway,
 				users: userGateway,
 			},
+			dependencies: taskGateway,
 			loadPolicy: () => loadScrumPolicy(),
 		}),
 		search: createSearchApi(createAsanaSearchGateway(client)),
