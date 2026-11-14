@@ -322,3 +322,64 @@ Feature: scrum scopes
     Given an incomplete task in "Sprint 2" and "Sprint 3"
     When report health runs
     Then H11 names both sprints
+
+  # ── reports: workload ──
+
+  Scenario: workload sums both point kinds into effort hours and shows the parts
+    Given hours_per_point 2 and Ann has 3 story points and 1 task point open in the sprint
+    When report workload runs
+    Then Ann has effort hours story 6, task 2, and total 8
+
+  Scenario: a percent allocation is percent times working hours per day times working days
+    Given Ann is allocated 50 percent for the whole of a ten working day sprint
+    When report workload runs
+    Then Ann's capacity is 40 hours
+
+  Scenario: an hours allocation is taken as given when it lies inside the window
+    Given Ann is allocated 20 hours inside the sprint
+    When report workload runs
+    Then Ann's capacity is 20 hours
+
+  Scenario: an allocation is clipped to the window
+    Given Ann is allocated 100 percent and 80 hours over twenty working days, and the window covers five of them
+    When report workload runs
+    Then Ann's capacity is 60 hours
+
+  Scenario: utilization over the threshold is over and under the threshold is under
+    Given Ann is at 125 percent and Bob at 12.5 percent
+    When report workload runs
+    Then Ann is flagged "over" and Bob "under"
+
+  Scenario: a plan without allocations names the reason and still shows the load
+    Given Asana answers 402 to the allocation read
+    When report workload runs
+    Then every person's capacity is "unknown" with reason "plan", the effort hours show, and notes name the plan limit
+
+  Scenario: a person with no allocation in the window is unknown, not fine
+    Given Bob has tasks and no allocation overlapping the window
+    When report workload runs
+    Then Bob's capacity is "unknown" with reason "no-allocation" and his flag is "unknown"
+
+  Scenario: out of office is a note and never subtracted
+    Given Ann is out of office for two days of the sprint and allocated 40 hours
+    When report workload runs
+    Then Ann lists her out-of-office range and her capacity is still 40 hours
+
+  Scenario: the team total counts only people whose capacity is known
+    Given Ann's capacity is 40 hours and Bob's is unknown
+    When report workload runs
+    Then the team capacity is 40 hours, one person is unknown, and utilization is Ann's alone
+
+  Scenario: a sprint with no section fails with sprint-none
+    Given the sprint has no section
+    When report workload runs
+    Then it fails with code "sprint-none" and exits 2
+
+  Scenario: --from and --to replace the sprint
+    Given incomplete assigned tasks due inside and outside a window, and one with no due date
+    When report workload runs with --from and --to
+    Then only the task due inside counts, and notes count the one with no due date
+
+  Scenario: a half-given or backwards window is window-invalid
+    When report workload runs with --from alone, or with from after to
+    Then it fails with code "window-invalid" and exits 2

@@ -156,6 +156,7 @@ function mockRuntimeContext(): RuntimeContext {
 			listBacklog: vi.fn(),
 			reportStandup: vi.fn(),
 			reportHealth: vi.fn(),
+			reportWorkload: vi.fn(),
 		},
 		events: { getEvents: vi.fn() },
 	}

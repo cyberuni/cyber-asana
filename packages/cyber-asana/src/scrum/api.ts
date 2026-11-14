@@ -1,12 +1,25 @@
+import type { AllocationGateway } from '../allocations/gateway.js'
 import type { ScopeSource, ScopeStore, ScopeStoreOptions } from '../config/scope-store.js'
 import type { ScopeEntry } from '../config/scopes.js'
+import type { OooGateway } from '../ooo/gateway.js'
 import { CodedConfigError } from '../platform/coded-error.js'
+import { envValue } from '../platform/env.js'
+import { buildErrorBody, PLAN_LIMITATION_STATUS } from '../platform/error-body.js'
 import { listItems } from '../platform/pagination.js'
 import type { TaskGateway } from '../tasks/gateway.js'
 import type { UserGateway } from '../users/gateway.js'
 import type { ScrumPolicy } from './policy.js'
 import { buildHealth, type HealthSettings, type HealthTask, parseHealthSettings } from './reports/health.js'
 import { buildStandup, type StandupTask, standupWindowStart } from './reports/standup.js'
+import {
+	buildWorkload,
+	type OooRange,
+	parseWorkloadSettings,
+	type WorkloadAllocation,
+	type WorkloadInput,
+	type WorkloadSettings,
+	type WorkloadTask,
+} from './reports/workload.js'
 import {
 	applyScopeOverrides,
 	collectScopeTasks,
@@ -31,6 +44,14 @@ export type ScrumApiDeps = {
 	loadPolicy: () => Promise<ScrumPolicy>
 	/** The `cyber-asana.report.health` thresholds; the defaults when unset. */
 	loadHealthSettings?: () => Promise<HealthSettings>
+	/** Reads allocations (the only capacity source, D4). Unset: capacity is unknown for the workload report. */
+	allocations?: Pick<AllocationGateway, 'listAllocations'>
+	/** Reads out-of-office entries for the note beside capacity (D9). */
+	ooo?: Pick<OooGateway, 'listOooEntries'>
+	/** The workspace GID out-of-office reads need; `ASANA_WORKSPACE_GID` when unset. */
+	workspaceGid?: () => string | undefined
+	/** The `cyber-asana.report.workload` thresholds; the defaults when unset. */
+	loadWorkloadSettings?: () => Promise<WorkloadSettings>
 	/** The clock, so a test can say what day it is. */
 	now?: () => Date
 }
@@ -51,6 +72,16 @@ export type StandupInput = SprintInput & {
 	/** The whole team; not built yet. */
 	team?: boolean
 }
+
+/** Inputs of `report workload`: a sprint, or else a `from`/`to` window. */
+export type WorkloadReportInput = SprintInput & { from?: string; to?: string; workspace?: string }
+
+const WORKLOAD_FIELDS =
+	'gid,name,completed,due_on,assignee.gid,assignee.name,custom_fields.gid,custom_fields.number_value'
+
+const ALLOCATION_FIELDS = 'gid,assignee.gid,assignee.name,parent.gid,start_date,end_date,effort.type,effort.value'
+
+const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/
 
 const BUILT_IN_MODELS = ['sections']
 
@@ -144,6 +175,63 @@ export function createScrumApi(deps: ScrumApiDeps) {
 	}
 
 	const projectRef = (p: { gid: string; name?: string }) => p.gid
+
+	/**
+	 * Allocations on each project of the scope, for capacity (D4). A 402 means the plan has no
+	 * allocations: capacity is unknown, not a failure. Any other error is real.
+	 */
+	async function readAllocations(projectGids: string[]): Promise<WorkloadInput['capacity']> {
+		if (!deps.allocations) return { status: 'ok', allocations: [] }
+		const seen = new Map<string, WorkloadAllocation>()
+		try {
+			for (const parent of projectGids) {
+				const found = listItems(
+					await deps.allocations.listAllocations({ parent, fetchAll: true, optFields: ALLOCATION_FIELDS }),
+				) as WorkloadAllocation[]
+				for (const a of found) seen.set(a.gid ?? `${parent}:${seen.size}`, a)
+			}
+		} catch (error) {
+			if (buildErrorBody(error).error.status === PLAN_LIMITATION_STATUS)
+				return { status: 'unavailable', reason: 'plan' }
+			throw error
+		}
+		return { status: 'ok', allocations: [...seen.values()] }
+	}
+
+	/** Out-of-office ranges per person, as a note beside capacity. Never an error: the note says why it is missing. */
+	async function readOoo(
+		gids: string[],
+		window: { from: string; to: string },
+		workspace: string | undefined,
+	): Promise<{ ooo?: Record<string, OooRange[]>; note?: string }> {
+		if (!deps.ooo || gids.length === 0) return {}
+		const workspaceGid = workspace ?? (deps.workspaceGid ?? (() => envValue('ASANA_WORKSPACE_GID')))()
+		if (!workspaceGid) {
+			return {
+				note: 'Out-of-office was not read: no workspace is set (ASANA_WORKSPACE_GID or --workspace).',
+			}
+		}
+		const ooo: Record<string, OooRange[]> = {}
+		try {
+			for (const gid of gids) {
+				const entries = listItems(
+					await deps.ooo.listOooEntries(gid, workspaceGid, {
+						startDate: window.from,
+						endDate: window.to,
+						fetchAll: true,
+						optFields: 'start_date,end_date',
+					}),
+				) as Array<{ start_date?: string; end_date?: string }>
+				const ranges = entries.flatMap((e) =>
+					e.start_date && e.end_date ? [{ start_date: e.start_date, end_date: e.end_date }] : [],
+				)
+				if (ranges.length > 0) ooo[gid] = ranges
+			}
+		} catch (error) {
+			return { note: `Out-of-office was not read: ${buildErrorBody(error).error.message}` }
+		}
+		return { ooo }
+	}
 
 	return {
 		async listScopes(opts?: ScopeStoreOptions): Promise<ScopeListing> {
@@ -467,6 +555,103 @@ export function createScrumApi(deps: ScrumApiDeps) {
 				sprint_started: started,
 				settings,
 				...health,
+			}
+		},
+
+		/**
+		 * The workload report (R6): per person, the load of their incomplete assigned tasks against the
+		 * capacity Allocations give for the window. The window is the sprint's dates, or `from`/`to` (then
+		 * the scope's incomplete assigned tasks due inside it). Capacity that cannot be read is named and
+		 * the load still shows; out-of-office is a note, never subtracted (D9).
+		 */
+		async reportWorkload(input: WorkloadReportInput, opts?: ScopeStoreOptions) {
+			const hasWindow = input.from !== undefined || input.to !== undefined
+			if (hasWindow) {
+				const bad = (why: string) =>
+					new CodedConfigError('window-invalid', why, {
+						hint: 'Pass both --from and --to as YYYY-MM-DD days, from not after to, or neither for the current sprint.',
+					})
+				if (input.from === undefined || input.to === undefined) throw bad('--from and --to go together')
+				if (
+					!ISO_DAY.test(input.from) ||
+					!ISO_DAY.test(input.to) ||
+					Number.isNaN(Date.parse(input.from)) ||
+					Number.isNaN(Date.parse(input.to))
+				) {
+					throw bad(`"${input.from}" to "${input.to}" is not a YYYY-MM-DD window`)
+				}
+				if (input.from > input.to) throw bad(`${input.from} is after ${input.to}`)
+			}
+			const ctx = await prepare(input, opts, hasWindow)
+			const settings = await (deps.loadWorkloadSettings ?? (async () => parseWorkloadSettings({})))()
+			const notes: string[] = []
+
+			let sprint: Sprint | null = null
+			let window: { from: string; to: string }
+			let tasks: WorkloadTask[]
+			if (!hasWindow) {
+				sprint = ctx.resolve(input.sprint)
+				await ctx.requireStarted(sprint)
+				window = { from: sprint.start, to: sprint.end }
+				tasks = (await ctx.model.tasks(ctx.target, sprint, {
+					incomplete: true,
+					optFields: WORKLOAD_FIELDS,
+				})) as WorkloadTask[]
+			} else {
+				window = { from: input.from as string, to: input.to as string }
+				const all = (await collectScopeTasks(
+					ctx.target.projects.map((p) => p.gid),
+					deps.gateways,
+					{ optFields: WORKLOAD_FIELDS },
+				)) as WorkloadTask[]
+				const incomplete = all.filter((t) => t.completed !== true)
+				const undated = incomplete.filter((t) => !t.due_on).length
+				tasks = incomplete.filter((t) => t.due_on && t.due_on >= window.from && t.due_on <= window.to)
+				if (undated > 0) {
+					notes.push(
+						`${undated} task(s) with no due date are left out: a ${window.from} to ${window.to} window counts tasks due inside it.`,
+					)
+				}
+			}
+
+			const gids = (role: 'story_points' | 'task_points') =>
+				new Set(
+					ctx.target.projects.flatMap((p) => {
+						const field = ctx.loaded.fields?.[p.gid]?.[role]
+						return field ? [field.gid] : []
+					}),
+				)
+			const capacity = await readAllocations(ctx.target.projects.map((p) => p.gid))
+			const people = new Set<string>()
+			for (const t of tasks) if (t.assignee?.gid) people.add(t.assignee.gid)
+			if (capacity.status === 'ok') {
+				for (const a of capacity.allocations) if (a.assignee?.gid) people.add(a.assignee.gid)
+			}
+			const { ooo, note } = await readOoo([...people], window, input.workspace)
+			if (note) notes.push(note)
+
+			const workload = buildWorkload({
+				scope: ctx.scope.name,
+				window,
+				policy: ctx.policy,
+				settings,
+				tasks,
+				fields: { story: gids('story_points'), task: gids('task_points') },
+				capacity,
+				...(ooo && { ooo }),
+			})
+			return {
+				scope: ctx.scope.name,
+				today_date: ctx.clock.today,
+				timezone: ctx.clock.timezone,
+				timezone_source: ctx.clock.timezone_source,
+				sprint,
+				window,
+				settings,
+				hours_per_point: ctx.policy.hours_per_point,
+				working_hours_per_day: ctx.policy.working_hours_per_day,
+				...workload,
+				notes: [...notes, ...workload.notes],
 			}
 		},
 

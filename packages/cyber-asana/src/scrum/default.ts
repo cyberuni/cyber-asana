@@ -1,4 +1,6 @@
+import { createAsanaAllocationGateway } from '../allocations/gateway.js'
 import { createFileScopeStore } from '../config/scope-store.js'
+import { createAsanaOooGateway } from '../ooo/gateway.js'
 import { createClient } from '../platform/client.js'
 import { createAsanaPortfolioGateway } from '../portfolios/gateway.js'
 import { createAsanaSectionGateway } from '../sections/gateway.js'
@@ -7,6 +9,7 @@ import { createAsanaUserGateway } from '../users/gateway.js'
 import { createScrumApi, type ScrumApi } from './api.js'
 import { loadScrumPolicy } from './policy.js'
 import { loadHealthSettings } from './reports/health.js'
+import { loadWorkloadSettings } from './reports/workload.js'
 
 /** The scrum API wired to the live Asana client, the config files, and the shipped policy reference. */
 export function createDefaultScrumApi(): ScrumApi {
@@ -19,6 +22,9 @@ export function createDefaultScrumApi(): ScrumApi {
 		dependencies: tasks,
 		loadPolicy: () => loadScrumPolicy(),
 		loadHealthSettings: () => loadHealthSettings(),
+		allocations: createAsanaAllocationGateway(client),
+		ooo: createAsanaOooGateway(client),
+		loadWorkloadSettings: () => loadWorkloadSettings(),
 	})
 }
 

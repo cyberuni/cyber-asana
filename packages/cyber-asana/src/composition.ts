@@ -64,6 +64,7 @@ import { registerScrumTools } from './scrum/mcp.js'
 import { loadScrumPolicy } from './scrum/policy.js'
 import { reportCommand } from './scrum/reports/cli.js'
 import { loadHealthSettings } from './scrum/reports/health.js'
+import { loadWorkloadSettings } from './scrum/reports/workload.js'
 import { createSearchApi, type SearchApi } from './search/api.js'
 import { searchCommand } from './search/cli.js'
 import { createAsanaSearchGateway } from './search/gateway.js'
@@ -142,15 +143,17 @@ export function createRuntimeContext(): RuntimeContext {
 	const taskGateway = createAsanaTaskGateway(client)
 	const sectionGateway = createAsanaSectionGateway(client)
 	const userGateway = createAsanaUserGateway(client)
+	const allocationGateway = createAsanaAllocationGateway(client)
+	const oooGateway = createAsanaOooGateway(client)
 	return {
-		allocations: createAllocationApi(createAsanaAllocationGateway(client)),
+		allocations: createAllocationApi(allocationGateway),
 		aiStudio: createAiStudioApi(createAsanaAiStudioGateway(client)),
 		attachments: createAttachmentApi(createAsanaAttachmentGateway(client)),
 		customFields: createCustomFieldApi(createAsanaCustomFieldGateway(client)),
 		events: createEventApi(createAsanaEventGateway(client)),
 		goals: createGoalApi(createAsanaGoalGateway(client)),
 		memberships: createMembershipApi(createAsanaMembershipGateway(client)),
-		ooo: createOooApi(createAsanaOooGateway(client)),
+		ooo: createOooApi(oooGateway),
 		jobs: createJobApi(jobGateway),
 		portfolios: createPortfolioApi(portfolioGateway),
 		projects: createProjectApi(projectGateway),
@@ -167,6 +170,9 @@ export function createRuntimeContext(): RuntimeContext {
 			dependencies: taskGateway,
 			loadPolicy: () => loadScrumPolicy(),
 			loadHealthSettings: () => loadHealthSettings(),
+			allocations: allocationGateway,
+			ooo: oooGateway,
+			loadWorkloadSettings: () => loadWorkloadSettings(),
 		}),
 		search: createSearchApi(createAsanaSearchGateway(client)),
 		sections: createSectionApi(sectionGateway),

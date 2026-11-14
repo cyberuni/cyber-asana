@@ -185,4 +185,24 @@ export function registerScrumTools(server: McpServer, api?: ScrumApi | (() => Sc
 		sprintParams,
 		async (params) => json(await resolveApi(api).reportHealth(pick(params))),
 	)
+
+	server.tool(
+		'asana_report_workload',
+		"The workload report (R6): per person, the story points, task points, and effort hours (both kinds × hours_per_point, parts shown) of their incomplete assigned tasks, against capacity hours from Asana Allocations clipped to the window (hours as given; percent × working_hours_per_day × working days), with utilization % and over/under flags (thresholds in cyber-asana.report.workload), and a team total. The window is the sprint's dates by default, or from/to, which count the scope's incomplete assigned tasks due inside it. Capacity that is unknown (402 plan limit, or no allocation) is named per person with its reason and the load still shows. Out-of-office entries appear as a note beside capacity and are never subtracted. Fails with code sprint-none (the sprint has no section), sprint-unknown, model-unsupported, policy-incomplete, or window-invalid.",
+		{
+			...sprintParams,
+			from: z.string().optional().describe('First day of the window, YYYY-MM-DD; with to, replaces the sprint'),
+			to: z.string().optional().describe('Last day of the window, YYYY-MM-DD'),
+			workspace_gid: z.string().optional().describe('Workspace GID for out-of-office (default: ASANA_WORKSPACE_GID)'),
+		},
+		async ({ from, to, workspace_gid, ...rest }) =>
+			json(
+				await resolveApi(api).reportWorkload({
+					...pick(rest),
+					...(from !== undefined && { from }),
+					...(to !== undefined && { to }),
+					...(workspace_gid !== undefined && { workspace: workspace_gid }),
+				}),
+			),
+	)
 }

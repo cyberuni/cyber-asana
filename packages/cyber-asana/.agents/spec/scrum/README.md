@@ -132,6 +132,7 @@ other text is `sprint-unknown`. `previous` of sprint 1 is `sprint-none`.
 | `model-unsupported` | the scope's model is not built in, or the scope kind does not suit the model | 2 |
 | `policy-incomplete` | `sprint_anchor_date` is not set | 2 |
 | `team-unsupported` | `report standup --team`, until the team scope is built | 2 |
+| `window-invalid` | `report workload` with only one of `--from` and `--to`, a malformed date, or `from` after `to` | 2 |
 
 ## Reports
 
@@ -195,6 +196,39 @@ a level, the task, and a fix command. Thresholds are that reference's frontmatte
   that has not begun (today before the anchor) is `sprint-none`, and an unset anchor is
   `policy-incomplete`, whatever `checks` says: there is no sprint to be missing.
 - A report that ran exits 0 however many findings it holds; `counts` carries the result.
+
+### Workload
+
+`report workload` (`--scope`, `--sprint`, or `--from` with `--to`, and `--workspace`) shows, per
+person, the load of their incomplete assigned tasks against capacity. Thresholds are the
+`cyber-asana.report.workload` frontmatter: `over_allocation_pct` (100) and `under_allocation_pct`
+(60).
+
+- **Window.** The current sprint's dates by default, with the sprint's incomplete tasks, so a sprint
+  with no section is `sprint-none` (D12). `--from` and `--to` replace the sprint: the scope's
+  incomplete assigned tasks whose due date lies inside the window; tasks with no due date are left
+  out and `notes` counts them. `--sprint` conflicts with them, and giving only one of the two is
+  `window-invalid`. A window needs no anchor date.
+- **Load.** Story points and task points are summed apart. Effort hours are each kind times
+  `hours_per_point`, with both parts and their total shown. Completed tasks and unassigned tasks
+  count for no one; the unassigned are counted in `unassigned_tasks`.
+- **Capacity (D4)** comes only from `AllocationsApi.getAllocations`, read once per project of the
+  scope (`parent`), clipped to the window. A percent allocation is `percent × working_hours_per_day ×
+  the working days inside the window`. An hours allocation is its hours as given when it lies inside
+  the window, and in proportion to the working days inside when it extends past. A person's capacity
+  is the sum over their allocations that overlap the window.
+- **Unknown capacity.** Asana answering 402 makes every person's capacity unknown with reason `plan`;
+  a person with no overlapping allocation is unknown with reason `no-allocation`. The load still
+  shows, no flag is drawn (`unknown`), and `notes` names the plan limit. Any other allocation error
+  is an error. The team's `capacity_hours` and `utilization_pct` count only people whose capacity is
+  known, and `capacity_unknown` says how many are not.
+- **Utilization and flags.** Utilization is effort hours over capacity hours, as a percentage to one
+  decimal. Above `over_allocation_pct` is `over`, below `under_allocation_pct` is `under`, otherwise
+  `ok`. A person with allocations and no tasks is listed, at 0% and `under`.
+- **Out of office (D9).** `ooo list` entries overlapping the window appear as `ooo` beside a person's
+  capacity and are never subtracted from it. Without a workspace (`--workspace` or
+  `ASANA_WORKSPACE_GID`), or when the read fails, the report says so in `notes` and carries on.
+- A report that ran exits 0 whatever it found.
 
 ## Scenario map
 
