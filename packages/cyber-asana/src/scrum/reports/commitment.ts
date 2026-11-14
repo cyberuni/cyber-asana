@@ -9,7 +9,7 @@ export type Commitment = { n: number; tasks: CommitmentTask[] }
 
 const MARKER = 'cyber-asana:sprint-commitment'
 const MARKER_LINE = new RegExp(`^\\[${MARKER} n=(\\d+)\\]$`)
-const TASK_LINE = /^- (\d+) \| story (\d+(?:\.\d+)?) \| task (\d+(?:\.\d+)?) \| (.*)$/
+const TASK_LINE = /^- ([^\s|]+) \| story (\d+(?:\.\d+)?) \| task (\d+(?:\.\d+)?) \| (.*)$/
 
 export function formatCommitment(sprint: { n: number; name: string }, tasks: CommitmentTask[]) {
 	const sum = (key: 'story' | 'task') => tasks.reduce((total, t) => total + t[key], 0)

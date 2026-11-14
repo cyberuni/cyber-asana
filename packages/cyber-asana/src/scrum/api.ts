@@ -6,11 +6,23 @@ import { CodedConfigError } from '../platform/coded-error.js'
 import { envValue } from '../platform/env.js'
 import { buildErrorBody, PLAN_LIMITATION_STATUS } from '../platform/error-body.js'
 import { listItems } from '../platform/pagination.js'
+import type { StatusGateway } from '../status/gateway.js'
+import type { StoryGateway } from '../stories/gateway.js'
 import type { TaskGateway } from '../tasks/gateway.js'
 import type { UserGateway } from '../users/gateway.js'
 import type { ScrumPolicy } from './policy.js'
+import { type CommitmentTask, findCommitment, formatCommitment } from './reports/commitment.js'
 import { buildHealth, type HealthSettings, type HealthTask, parseHealthSettings } from './reports/health.js'
-import { buildStandup, type StandupTask, standupWindowStart } from './reports/standup.js'
+import {
+	buildRetro,
+	buildSprintReport,
+	type Committed,
+	completedBy,
+	nextDay,
+	velocityOf,
+} from './reports/sprint-report.js'
+import { buildStandup, pointsOf, type StandupTask, standupWindowStart, startOfDayIn } from './reports/standup.js'
+import { joinedAt, type TaskStory } from './reports/stories.js'
 import {
 	buildWorkload,
 	type OooRange,
@@ -46,6 +58,14 @@ export type ScrumApiDeps = {
 	sprint: SprintGateways
 	/** Reads a task's dependencies, for the standup's blockers. */
 	dependencies: Pick<TaskGateway, 'getDependencies'>
+	/**
+	 * Status updates and system stories: the commitment snapshot, and the history the retro reads. Without
+	 * them the reports name what they could not read instead of failing.
+	 */
+	history?: {
+		statuses: Pick<StatusGateway, 'listStatuses' | 'createStatus'>
+		stories: Pick<StoryGateway, 'listStories'>
+	}
 	loadPolicy: () => Promise<ScrumPolicy>
 	/** The `cyber-asana.report.health` thresholds; the defaults when unset. */
 	loadHealthSettings?: () => Promise<HealthSettings>
@@ -69,6 +89,8 @@ const STANDUP_FIELDS =
 
 const HEALTH_FIELDS =
 	'gid,name,completed,due_on,modified_at,permalink_url,num_subtasks,assignee.gid,assignee.name,tags.name,custom_fields.gid,custom_fields.number_value,custom_fields.enum_value.name'
+const REPORT_FIELDS =
+	'gid,name,completed,completed_at,created_at,due_on,permalink_url,assignee.gid,assignee.name,tags.name,custom_fields.gid,custom_fields.number_value,custom_fields.enum_value.name'
 
 /** Inputs of `report standup`. */
 export type StandupInput = SprintInput & {
@@ -251,6 +273,91 @@ export function createScrumApi(deps: ScrumApiDeps) {
 		return { ooo }
 	}
 
+	type Ctx = Awaited<ReturnType<typeof prepare>>
+
+	/** GIDs of the custom fields registered for each points role across the scope's projects. */
+	function pointFields(ctx: Ctx) {
+		const gids = (role: 'story_points' | 'task_points') =>
+			new Set(
+				ctx.target.projects.flatMap((p) => {
+					const field = ctx.loaded.fields?.[p.gid]?.[role]
+					return field ? [field.gid] : []
+				}),
+			)
+		const fields = { story: gids('story_points'), task: gids('task_points') }
+		return { fields, tracked: { story: fields.story.size > 0, task: fields.task.size > 0 } }
+	}
+
+	/** The commitment snapshots a project holds, by sprint: its status updates carry them (D6). */
+	async function projectStatuses(projectGid: string) {
+		return listItems(
+			await (deps.history as NonNullable<ScrumApiDeps['history']>).statuses.listStatuses(projectGid, {
+				fetchAll: true,
+				optFields: 'created_at,title,text',
+			}),
+		) as Array<{ created_at?: string; text?: string }>
+	}
+
+	/**
+	 * What a sprint committed to: the snapshots posted when it started, else a rebuild from each task's
+	 * "moved to" stories (a task that joined by the end of the first day counts), else nothing.
+	 */
+	async function commitmentOf(ctx: Ctx, sprint: Sprint, members: StandupTask[]) {
+		const notes: string[] = []
+		if (!deps.history) return { committed: undefined as Committed | undefined, notes }
+		const { found } = await ctx.model.sections(ctx.target, sprint)
+		const snapshots: CommitmentTask[] = []
+		let any = false
+		for (const { project } of found) {
+			const snapshot = findCommitment(await projectStatuses(project.gid), sprint.n)
+			if (!snapshot) continue
+			any = true
+			for (const task of snapshot.commitment.tasks) {
+				if (!snapshots.some((x) => x.gid === task.gid)) snapshots.push(task)
+			}
+		}
+		if (any) return { committed: { source: 'snapshot' as const, tasks: snapshots }, notes }
+
+		const { fields } = pointFields(ctx)
+		const cutoff = Date.parse(startOfDayIn(nextDay(sprint.start), ctx.clock.timezone))
+		const tasks: CommitmentTask[] = []
+		let unknown = 0
+		for (const task of members) {
+			const stories = listItems(await deps.history.stories.listStories(task.gid, { fetchAll: true })) as TaskStory[]
+			const at = joinedAt(stories, sprint.name)
+			if (at === undefined) unknown++
+			if (at === undefined || Date.parse(at) < cutoff) {
+				const points = pointsOf(task, fields)
+				tasks.push({ gid: task.gid, name: task.name ?? '', ...points })
+			}
+		}
+		if (unknown > 0) {
+			notes.push(`${unknown} task(s) show no "moved to ${sprint.name}" story, so they count as committed.`)
+		}
+		return { committed: { source: 'rebuilt' as const, tasks }, notes }
+	}
+
+	/** The pieces R2 and R3 share: the sprint's tasks, its commitment, and the points fields. */
+	async function sprintFacts(input: SprintInput, opts?: ScopeStoreOptions) {
+		const ctx = await prepare(input, opts)
+		const sprint = ctx.resolve(input.sprint)
+		await ctx.requireStarted(sprint)
+		const tasks = (await ctx.model.tasks(ctx.target, sprint, { optFields: REPORT_FIELDS })) as StandupTask[]
+		const { committed, notes } = await commitmentOf(ctx, sprint, tasks)
+		const { fields, tracked } = pointFields(ctx)
+		const facts = {
+			sprint,
+			today: ctx.clock.today,
+			timezone: ctx.clock.timezone,
+			tasks,
+			committed,
+			fields,
+			points_tracked: tracked,
+			notes,
+		}
+		return { ctx, facts }
+	}
+
 	return {
 		async listScopes(opts?: ScopeStoreOptions): Promise<ScopeListing> {
 			const loaded = await deps.store(opts).load()
@@ -371,16 +478,44 @@ export function createScrumApi(deps: ScrumApiDeps) {
 			}
 		},
 
-		async startSprint(input: SprintInput, opts?: ScopeStoreOptions) {
+		async startSprint(input: SprintInput & { snapshot?: boolean }, opts?: ScopeStoreOptions) {
 			const ctx = await prepare(input, opts)
 			const sprint = ctx.resolve(input.sprint)
 			const { created, existing } = await ctx.model.start(ctx.target, sprint)
+			let snapshot: { posted: string[]; existing: string[] } | undefined
+			if (input.snapshot) {
+				if (!deps.history) {
+					throw new CodedConfigError(
+						'history-unavailable',
+						'This build has no status-update gateway to post a snapshot',
+					)
+				}
+				const { fields } = pointFields(ctx)
+				snapshot = { posted: [], existing: [] }
+				const { found } = await ctx.model.sections(ctx.target, sprint)
+				for (const { project } of found) {
+					if (findCommitment(await projectStatuses(project.gid), sprint.n)) {
+						snapshot.existing.push(project.gid)
+						continue
+					}
+					const tasks = (await ctx.model.tasks({ ...ctx.target, projects: [project] }, sprint, {
+						optFields: REPORT_FIELDS,
+					})) as StandupTask[]
+					const posted = formatCommitment(
+						sprint,
+						tasks.map((t) => ({ gid: t.gid, name: t.name ?? '', ...pointsOf(t, fields) })),
+					)
+					await deps.history.statuses.createStatus(project.gid, { status_type: 'on_track', ...posted })
+					snapshot.posted.push(project.gid)
+				}
+			}
 			return {
 				scope: ctx.scope.name,
 				sprint,
 				created: created.map(projectRef),
 				existing: existing.map(projectRef),
 				already_started: created.length === 0,
+				...(snapshot && { snapshot }),
 			}
 		},
 
@@ -691,6 +826,54 @@ export function createScrumApi(deps: ScrumApiDeps) {
 				...workload,
 				notes: [...notes, ...workload.notes],
 			}
+		},
+
+		/** R2, the sprint review: committed against completed, added and removed, with the burndown. */
+		async reportSprint(input: SprintInput, opts?: ScopeStoreOptions) {
+			const { ctx, facts } = await sprintFacts(input, opts)
+			return { scope: ctx.scope.name, ...buildSprintReport(facts) }
+		},
+
+		/** R3, the retro: carry-over, scope change, blocked time from stories, cycle time, estimate against actual. */
+		async reportRetro(input: SprintInput, opts?: ScopeStoreOptions) {
+			const { ctx, facts } = await sprintFacts(input, opts)
+			const storiesOf: Record<string, TaskStory[]> = {}
+			if (deps.history) {
+				for (const task of facts.tasks) {
+					storiesOf[task.gid] = listItems(
+						await deps.history.stories.listStories(task.gid, { fetchAll: true }),
+					) as TaskStory[]
+				}
+			} else {
+				facts.notes.push('Task history is not available in this build, so blocked time is not reported.')
+			}
+			const now = (deps.now ?? (() => new Date()))().toISOString()
+			return {
+				scope: ctx.scope.name,
+				...buildRetro({ ...facts, signals: ctx.policy.blocked_signals, storiesOf, now }),
+			}
+		},
+
+		/** R4, velocity: points completed per closed sprint over `velocity_window`, and the mean. */
+		async reportVelocity(input: { scope?: string }, opts?: ScopeStoreOptions) {
+			const ctx = await prepare(input, opts)
+			const current = ctx.current ?? 0
+			const window = ctx.policy.velocity_window
+			const closed = (await ctx.model.listSprints(ctx.target)).filter((s) => s.n < current).slice(-window)
+			const { fields, tracked } = pointFields(ctx)
+			const sprints = []
+			for (const { n } of closed) {
+				const sprint = sprintWindow(n, ctx.settings)
+				const tasks = (await ctx.model.tasks(ctx.target, sprint, { optFields: REPORT_FIELDS })) as StandupTask[]
+				sprints.push({ n, name: sprint.name, completed: completedBy(tasks, sprint, ctx.clock.timezone, fields) })
+			}
+			const notes =
+				sprints.length < window
+					? [
+							`${sprints.length} closed sprint(s) found, fewer than velocity_window ${window}; the mean covers only those.`,
+						]
+					: []
+			return { scope: ctx.scope.name, ...velocityOf(sprints, window), points_tracked: tracked, notes }
 		},
 
 		async listBacklog(input: { scope?: string; optFields?: string }, opts?: ScopeStoreOptions) {

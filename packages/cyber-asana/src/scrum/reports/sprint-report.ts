@@ -44,7 +44,7 @@ const DAY_MS = 86_400_000
 const add = (a: Points, b: Points): Points => ({ story: a.story + b.story, task: a.task + b.task })
 const zero = (): Points => ({ story: 0, task: 0 })
 const pct = (done: number, total: number) => (total === 0 ? null : Math.round((done / total) * 1000) / 10)
-const nextDay = (date: string) => new Date(Date.parse(`${date}T00:00:00Z`) + DAY_MS).toISOString().slice(0, 10)
+export const nextDay = (date: string) => new Date(Date.parse(`${date}T00:00:00Z`) + DAY_MS).toISOString().slice(0, 10)
 
 function itemOf(t: StandupTask, fields: Fields, tracked: Tracked): ReportItem {
 	const p = pointsOf(t, fields)

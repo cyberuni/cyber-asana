@@ -6,6 +6,8 @@ import { createClient } from '../platform/client.js'
 import { createAsanaPortfolioGateway } from '../portfolios/gateway.js'
 import { createAsanaProjectGateway } from '../projects/gateway.js'
 import { createAsanaSectionGateway } from '../sections/gateway.js'
+import { createAsanaStatusGateway } from '../status/gateway.js'
+import { createAsanaStoryGateway } from '../stories/gateway.js'
 import { createAsanaTaskGateway } from '../tasks/gateway.js'
 import { createAsanaUserGateway } from '../users/gateway.js'
 import { createScrumApi, type ScrumApi } from './api.js'
@@ -31,6 +33,7 @@ export function createDefaultScrumApi(): ScrumApi {
 			},
 		},
 		dependencies: tasks,
+		history: { statuses: createAsanaStatusGateway(client), stories: createAsanaStoryGateway(client) },
 		loadPolicy: () => loadScrumPolicy(),
 		loadHealthSettings: () => loadHealthSettings(),
 		allocations: createAsanaAllocationGateway(client),
