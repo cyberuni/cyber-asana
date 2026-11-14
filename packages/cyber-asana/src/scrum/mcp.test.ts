@@ -41,6 +41,7 @@ function fakeApi(): ScrumApi {
 		reportSprint: vi.fn(async () => ({ completed: { count: 0 } })),
 		reportRetro: vi.fn(async () => ({ carry_over: [] })),
 		reportVelocity: vi.fn(async () => ({ sprints: [] })),
+		reportDashboard: vi.fn(async () => ({ reports: [] })),
 		closeSprint: vi.fn(async () => ({ moved: [] })),
 		listBacklog: vi.fn(async () => ({ tasks: [] })),
 		reportStandup: vi.fn(async () => ({ done: { count: 0 } })),
@@ -73,6 +74,7 @@ describe('scrum/mcp', () => {
 				'asana_report_sprint',
 				'asana_report_retro',
 				'asana_report_velocity',
+				'asana_report_dashboard',
 			].sort(),
 		)
 	})
@@ -230,6 +232,15 @@ describe('scrum/mcp', () => {
 		const result = await server.handlers.get('asana_report_velocity')?.({ scope: 'web' })
 		expect(api.reportVelocity).toHaveBeenCalledWith({ scope: 'web' })
 		expect(JSON.parse(result.content[0].text)).toEqual({ sprints: [] })
+	})
+
+	it('asana_report_dashboard forwards scope and sprint to the api', async () => {
+		const server = createServer()
+		const api = fakeApi()
+		registerScrumTools(server as any, api)
+		const result = await server.handlers.get('asana_report_dashboard')?.({ scope: 'web', sprint: 'previous' })
+		expect(api.reportDashboard).toHaveBeenCalledWith({ scope: 'web', sprint: 'previous' })
+		expect(JSON.parse(result.content[0].text)).toEqual({ reports: [] })
 	})
 
 	it('asana_sprint_start passes snapshot only when asked', async () => {

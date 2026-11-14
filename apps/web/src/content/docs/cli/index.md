@@ -40,7 +40,7 @@ help text. Every resource group's `--help` ends with worked examples.
 | [Authentication](/cyber-asana/cli/auth/) | `auth status`, `auth login`, `auth token`, `auth logout` |
 | [Repo config](/cyber-asana/cli/repo-config/) | `config show/list/path/resolve-project/add/set-default/remove-project-alias/remove/sync/add-user/resolve-user/list-users/remove-user/set/unset/discover-fields/set-field/unset-field`, `config scope add/remove/list`, `scrum scope resolve` |
 | [Sprints & backlog](/cyber-asana/cli/sprints/) | `sprint current/list/tasks/add/start/close`, `backlog list` |
-| [Reports](/cyber-asana/cli/reports/) | `report standup`, `report sprint`, `report retro`, `report velocity` |
+| [Reports](/cyber-asana/cli/reports/) | `report standup`, `report sprint`, `report retro`, `report velocity`, `report dashboard` |
 | [Memberships](/cyber-asana/cli/memberships/) | `list`, `get`, `create`, `update`, `delete` |
 | [Task templates](/cyber-asana/cli/task-templates/) | `list`, `get`, `instantiate` |
 | [Project templates](/cyber-asana/cli/project-templates/) | `list`, `get`, `instantiate` |

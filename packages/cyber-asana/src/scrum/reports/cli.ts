@@ -17,6 +17,7 @@ import {
 	sprintInput,
 	storeOptions,
 } from '../cli.js'
+import { addDashboardCommand } from './dashboard/cli.js'
 import { addSprintReportCommands } from './sprint/cli.js'
 import type { StandupGroup, StandupItem } from './standup.js'
 
@@ -166,6 +167,7 @@ export function reportCommand(api?: ResolveApi) {
 			'  cyber-asana report health --scope web',
 			'  cyber-asana report workload',
 			'  cyber-asana report workload --from 2026-01-19 --to 2026-01-30 --scope web',
+			'  cyber-asana report dashboard --scope web --json',
 		].join('\n'),
 	)
 
@@ -259,5 +261,6 @@ export function reportCommand(api?: ResolveApi) {
 			})
 		})
 	addSprintReportCommands(cmd, api)
+	addDashboardCommand(cmd, api)
 	return cmd
 }

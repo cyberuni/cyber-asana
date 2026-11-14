@@ -95,6 +95,12 @@ the CLI builds in. To use your own, such as `cyber-asana.sprint-model.tags` in `
 implement the interface and point a scope's `sprint_model` at the key; the commands then stop with
 `model-unsupported`, and an agent follows your reference with the primitive commands it lists.
 
+## The dashboard
+
+`cyber-asana.dashboard` sets which reports `report dashboard` runs, in what order, and how the health
+findings grade the status. Override its keys in `.agents/references/cyber-asana.dashboard.md`; see
+[Reports](/cyber-asana/cli/reports/#report-dashboard) for each key.
+
 ## When two plugins ship the same name
 
 If another installed plugin also ships `cyber-asana.scrum` or `cyber-asana.task-conventions`, the

@@ -4,6 +4,7 @@ import { createAsanaCustomFieldGateway } from '../custom-fields/gateway.js'
 import { createAsanaJobGateway } from '../jobs/gateway.js'
 import { createAsanaOooGateway } from '../ooo/gateway.js'
 import { createClient } from '../platform/client.js'
+import { listReferenceImplementations } from '../platform/reference-implementations.js'
 import { createAsanaPortfolioGateway } from '../portfolios/gateway.js'
 import { newProjectOf } from '../project-templates/api.js'
 import { createProjectApi } from '../projects/api.js'
@@ -16,6 +17,7 @@ import { createAsanaTeamGateway } from '../teams/gateway.js'
 import { createAsanaUserGateway } from '../users/gateway.js'
 import { createScrumApi, type ScrumApi } from './api.js'
 import { loadScrumPolicy } from './policy.js'
+import { loadDashboardSettings } from './reports/dashboard.js'
 import { loadHealthSettings } from './reports/health.js'
 import { loadWorkloadSettings } from './reports/workload.js'
 
@@ -57,6 +59,8 @@ export function createDefaultScrumApi(): ScrumApi {
 		allocations: createAsanaAllocationGateway(client),
 		ooo: createAsanaOooGateway(client),
 		loadWorkloadSettings: () => loadWorkloadSettings(),
+		loadDashboardSettings: () => loadDashboardSettings(),
+		listReports: () => listReferenceImplementations('cyber-asana.report'),
 	})
 }
 

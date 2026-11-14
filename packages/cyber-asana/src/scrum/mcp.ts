@@ -237,4 +237,11 @@ export function registerScrumTools(server: McpServer, api?: ScrumApi | (() => Sc
 		{ scope: sprintParams.scope },
 		async ({ scope }) => json(await resolveApi(api).reportVelocity({ ...(scope !== undefined && { scope }) })),
 	)
+
+	server.tool(
+		'asana_report_dashboard',
+		"The dashboard (D2.1): runs the reports the cyber-asana.dashboard reference lists (default sprint, health, workload, velocity), in order, into one result. Each entry in reports is ok (with the report's data), failed (with error.code, such as sprint-none, and the rest still run), or unsupported (a report from `implementations cyber-asana.report` that the CLI does not compute, named with its reference, never dropped). status_type is graded by status_rules over the health findings (off_track on an error, at_risk on a warning, else on_track), or null when health did not run; status_basis says why. Reports that take no sprint (velocity) ignore it. Fails with code scope-missing or scope-unknown.",
+		sprintParams,
+		async (params) => json(await resolveApi(api).reportDashboard(pick(params))),
+	)
 }

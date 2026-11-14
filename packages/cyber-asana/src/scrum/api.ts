@@ -6,12 +6,15 @@ import { CodedConfigError } from '../platform/coded-error.js'
 import { envValue } from '../platform/env.js'
 import { buildErrorBody, PLAN_LIMITATION_STATUS } from '../platform/error-body.js'
 import { listItems } from '../platform/pagination.js'
+import type { ReferenceImplementationInfo } from '../platform/reference-implementations.js'
 import type { StatusGateway } from '../status/gateway.js'
 import type { StoryGateway } from '../stories/gateway.js'
 import type { TaskGateway } from '../tasks/gateway.js'
 import type { UserGateway } from '../users/gateway.js'
+import { createDashboardApi } from './dashboard-api.js'
 import type { ScrumPolicy } from './policy.js'
 import { type CommitmentTask, findCommitment, formatCommitment } from './reports/commitment.js'
+import type { DashboardSettings } from './reports/dashboard.js'
 import { buildHealth, type HealthSettings, type HealthTask, parseHealthSettings } from './reports/health.js'
 import {
 	buildRetro,
@@ -88,6 +91,10 @@ export type ScrumApiDeps = {
 	workspaceGid?: () => string | undefined
 	/** The `cyber-asana.report.workload` thresholds; the defaults when unset. */
 	loadWorkloadSettings?: () => Promise<WorkloadSettings>
+	/** The `cyber-asana.dashboard` settings; the defaults when unset. */
+	loadDashboardSettings?: () => Promise<DashboardSettings>
+	/** The implementations of the `cyber-asana.report` interface, so the dashboard can name a report it cannot compute. */
+	listReports?: () => Promise<ReferenceImplementationInfo[]>
 	/** The clock, so a test can say what day it is. */
 	now?: () => Date
 }
@@ -119,7 +126,9 @@ const ALLOCATION_FIELDS = 'gid,assignee.gid,assignee.name,parent.gid,start_date,
 
 const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/
 
+/** The scrum API: the computing core plus the dashboard, which runs the core's reports. */
 export type ScrumApi = ReturnType<typeof createScrumApi>
+export type CoreScrumApi = ReturnType<typeof createCoreScrumApi>
 
 export type ScopeListing = {
 	scopes: Array<ScopeEntry & { source: ScopeSource }>
@@ -128,6 +137,11 @@ export type ScopeListing = {
 }
 
 export function createScrumApi(deps: ScrumApiDeps) {
+	const core = createCoreScrumApi(deps)
+	return { ...core, ...createDashboardApi(deps, core) }
+}
+
+function createCoreScrumApi(deps: ScrumApiDeps) {
 	const models: Record<string, SprintModel> = {
 		sections: createSectionsModel(deps.sprint),
 		...(deps.sprint.fieldModel && { 'custom-field': createCustomFieldModel(deps.sprint.fieldModel) }),

@@ -1,6 +1,6 @@
 ---
 title: Reports
-description: Compute a member's standup, the sprint review, retro data, velocity, the sprint's health findings, and the team's workload from the scrum policy and the scope.
+description: Compute a member's standup, the sprint review, retro data, velocity, the sprint's health findings, the team's workload, and the dashboard that runs them together, from the scrum policy and the scope.
 sidebar:
   order: 24
 ---
@@ -20,6 +20,7 @@ cyber-asana report workload --from 2026-01-19 --to 2026-01-30
 cyber-asana report sprint --sprint previous
 cyber-asana report retro
 cyber-asana report velocity
+cyber-asana report dashboard
 ```
 
 Every report takes `--scope <name>` (see [Repo config](/cyber-asana/cli/repo-config/)), `--sprint`,
@@ -192,3 +193,57 @@ Points completed per closed sprint over `velocity_window`, and the mean (`--scop
 Story and task points are shown apart. Fewer closed sprints than the window gives a note.
 
 The layouts are the `cyber-asana.report.sprint`, `.retro`, and `.velocity` references.
+
+## `report dashboard`
+
+Runs the reports the `cyber-asana.dashboard` reference lists, in the order it lists them, into one
+text, `--json`, or `--toon` output. By default that is `sprint`, `health`, `workload`, and `velocity`.
+It takes `--scope` and `--sprint`; a report that takes no sprint, such as velocity, ignores `--sprint`.
+
+```sh
+cyber-asana report dashboard
+cyber-asana report dashboard --scope web --sprint previous --json
+```
+
+The JSON holds:
+
+| Field | Meaning |
+| --- | --- |
+| `reports` | One entry per listed report, in order. `status` is `ok` (with `data`, the report's own JSON), `failed` (with `error.code`, such as `sprint-none`), or `unsupported` (with `reason`, and `reference` when an implementation exists). |
+| `counts` | How many entries are `ok`, `failed`, and `unsupported`. |
+| `status_type` | `on_track`, `at_risk`, or `off_track`, graded from the health findings by `status_rules`. `null` when the health report did not run. |
+| `status_basis` | Why: the finding counts, or the reason there is no grade. |
+| `settings` | The dashboard settings in force. |
+| `notes` | One line for each unsupported report. |
+
+A report that fails with a configuration status is recorded and the rest still run, so a sprint with
+no section gives a dashboard with a failed sprint report and the health finding that says so. The
+command exits `0` once it has produced the dashboard; read `counts` and `status_type` to gate on
+them. A scope that is not configured fails the whole command (`scope-missing`, `scope-unknown`, exit
+`2`).
+
+### Your own reports
+
+The dashboard finds reports through the implementations of `cyber-asana.report`, so a report your
+repo adds, such as `cyber-asana.report.release-readiness`, can be listed in `reports`. The CLI
+computes only the six it ships. A listed report it does not compute is named `unsupported` with its
+reference, never dropped; the `asana-scrum` skill follows that reference with the primitive commands.
+
+### Settings
+
+`cyber-asana.dashboard` holds them in its frontmatter. Override a key in
+`.agents/references/cyber-asana.dashboard.md`:
+
+| Key | Default | Meaning |
+| --- | --- | --- |
+| `reports` | `[sprint, health, workload, velocity]` | Report keys, in order. At least one, none repeated. |
+| `forms` | `[cli]` | Which forms the dashboard takes: `cli`, `status-update`, `page`. Only `cli` is built. |
+| `status_parent` | `scope-default` | Where a status update will be posted: `project`, `portfolio`, or `scope-default`. |
+| `status_rules` | `off_track: error`, `at_risk: warning`, `otherwise: on_track` | `off_track` and `at_risk` name the least severe health finding that sets the status (`error` or `warning`); `otherwise` is the status when neither does. |
+
+Its `## Status update` and `## Page` sections hold the templates later forms use. The status update
+template is written in Asana's HTML subset, which the `tidy-description` reference lists.
+
+Asana cannot create a native dashboard through its API. To chart a sprint inside Asana, build a
+dashboard by hand on the fields this system keeps up to date: the Sprint field, the points fields,
+and the Status field.
