@@ -141,7 +141,7 @@ Default: if both can do the job, prefer **official for discovery and previews** 
 | `allocation` | `asana_allocation_list`, `asana_allocation_get`, `asana_allocation_create`, `asana_allocation_update`, `asana_allocation_delete` (resource-management allocations; plan-limited, 402 without it) |
 | `ai-studio` | `asana_ai_studio_run_list`, `asana_ai_studio_seat_list` (AI Studio usage; service accounts in AI Studio-licensed organizations only) |
 | `attachment` | `asana_attachment_list`, `asana_attachment_get`, `asana_attachment_create`, `asana_attachment_delete` |
-| `custom-field` | `asana_custom_field_list`, `asana_custom_field_get`, `asana_custom_field_list_for_project`, `asana_custom_field_list_for_portfolio`, `asana_custom_field_list_for_goal`, `asana_custom_field_list_for_team` |
+| `custom-field` | `asana_custom_field_list`, `asana_custom_field_get`, `asana_custom_field_list_for_project`, `asana_custom_field_list_for_portfolio`, `asana_custom_field_list_for_goal`, `asana_custom_field_list_for_team`, `asana_custom_field_create`, `asana_custom_field_enum_option_create`, `asana_custom_field_enum_option_insert`, `asana_custom_field_enum_option_update`, `asana_custom_field_attach`, `asana_custom_field_detach` |
 | `status` | `asana_status_list`, `asana_status_get`, `asana_status_create`, `asana_status_delete` |
 | `event` | `asana_event_list` (change feed; sync-token cursored, not paginated) |
 | `story` | `asana_story_list`, `asana_story_get`, `asana_story_create`, `asana_story_update`, `asana_story_delete` |

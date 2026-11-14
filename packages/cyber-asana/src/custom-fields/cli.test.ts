@@ -117,6 +117,12 @@ describe('custom-fields/cli', () => {
 		const program = new Command().addCommand(
 			customFieldCommand({
 				listCustomFields: vi.fn(),
+				createCustomField: vi.fn(),
+				createEnumOption: vi.fn(),
+				insertEnumOption: vi.fn(),
+				updateEnumOption: vi.fn(),
+				attachCustomField: vi.fn(),
+				detachCustomField: vi.fn(),
 				getCustomField: injectedGetCustomField,
 				listCustomFieldSettingsForProject: vi.fn(),
 				listCustomFieldSettingsForPortfolio: vi.fn(),
@@ -134,6 +140,12 @@ describe('custom-fields/cli', () => {
 function settingsApiStub() {
 	return {
 		listCustomFields: vi.fn(),
+		createCustomField: vi.fn(),
+		createEnumOption: vi.fn(),
+		insertEnumOption: vi.fn(),
+		updateEnumOption: vi.fn(),
+		attachCustomField: vi.fn(),
+		detachCustomField: vi.fn(),
 		getCustomField: vi.fn(),
 		listCustomFieldSettingsForProject: vi.fn(),
 		listCustomFieldSettingsForPortfolio: vi.fn(),
@@ -272,5 +284,119 @@ describe('custom-fields/cli custom field settings', () => {
 
 		expect(logSpy).toHaveBeenCalledWith(JSON.stringify(settings, null, 2))
 		logSpy.mockRestore()
+	})
+})
+
+describe('custom-fields/cli writes', () => {
+	function writeApi(over: Record<string, unknown>) {
+		return { ...settingsApiStub(), ...over } as never
+	}
+
+	async function run(api: never, ...args: string[]) {
+		const program = new Command().addCommand(customFieldCommand(api))
+		await program.parseAsync(['node', 'test', 'custom-field', ...args], { from: 'node' })
+	}
+
+	afterEach(() => vi.restoreAllMocks())
+
+	it('create builds an enum field with options from --option', async () => {
+		const createCustomField = vi.fn().mockResolvedValue({ gid: 'cf1', name: 'Sprint' })
+		vi.spyOn(console, 'log').mockImplementation(() => {})
+
+		await run(
+			writeApi({ createCustomField }),
+			'create',
+			'Sprint',
+			'--workspace-gid',
+			'ws1',
+			'--type',
+			'enum',
+			'--option',
+			'Sprint 1',
+			'--option',
+			'Sprint 2',
+		)
+
+		expect(createCustomField).toHaveBeenCalledWith({
+			workspace: 'ws1',
+			name: 'Sprint',
+			resourceSubtype: 'enum',
+			enumOptions: [{ name: 'Sprint 1' }, { name: 'Sprint 2' }],
+		})
+	})
+
+	it('create rejects --option on a non-enum type as a usage error', async () => {
+		const createCustomField = vi.fn()
+		await expect(
+			run(
+				writeApi({ createCustomField }),
+				'create',
+				'Pts',
+				'--workspace-gid',
+				'ws1',
+				'--type',
+				'number',
+				'--option',
+				'x',
+			),
+		).rejects.toThrow(/--option/)
+		expect(createCustomField).not.toHaveBeenCalled()
+	})
+
+	it('enum-option add creates an option after another', async () => {
+		const createEnumOption = vi.fn().mockResolvedValue({ gid: 'o2', name: 'Sprint 2' })
+		vi.spyOn(console, 'log').mockImplementation(() => {})
+
+		await run(
+			writeApi({ createEnumOption }),
+			'enum-option',
+			'add',
+			'cf1',
+			'Sprint 2',
+			'--insert-after',
+			'o1',
+			'--color',
+			'blue',
+		)
+
+		expect(createEnumOption).toHaveBeenCalledWith('cf1', { name: 'Sprint 2', color: 'blue', insertAfter: 'o1' })
+	})
+
+	it('enum-option move reorders an option before another', async () => {
+		const insertEnumOption = vi.fn().mockResolvedValue({ gid: 'o2' })
+		vi.spyOn(console, 'log').mockImplementation(() => {})
+
+		await run(writeApi({ insertEnumOption }), 'enum-option', 'move', 'cf1', 'o2', '--before', 'o1')
+
+		expect(insertEnumOption).toHaveBeenCalledWith('cf1', { enumOption: 'o2', beforeEnumOption: 'o1' })
+	})
+
+	it('enum-option move needs exactly one of --before and --after', async () => {
+		await expect(run(writeApi({}), 'enum-option', 'move', 'cf1', 'o2')).rejects.toThrow(/--before.*--after/)
+	})
+
+	it('enum-option update renames and disables', async () => {
+		const updateEnumOption = vi.fn().mockResolvedValue({ gid: 'o1' })
+		vi.spyOn(console, 'log').mockImplementation(() => {})
+
+		await run(writeApi({ updateEnumOption }), 'enum-option', 'update', 'o1', '--name', 'Renamed', '--disabled')
+
+		expect(updateEnumOption).toHaveBeenCalledWith('o1', { name: 'Renamed', enabled: false })
+	})
+
+	it('attach and detach report an idempotent status', async () => {
+		const attachCustomField = vi
+			.fn()
+			.mockResolvedValue({ project: 'p1', custom_field: 'cf1', status: 'already_attached' })
+		const detachCustomField = vi.fn().mockResolvedValue({ project: 'p1', custom_field: 'cf1', status: 'detached' })
+		const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+		await run(writeApi({ attachCustomField, detachCustomField }), 'attach', 'p1', 'cf1', '--important')
+		await run(writeApi({ attachCustomField, detachCustomField }), 'detach', 'p1', 'cf1')
+
+		expect(attachCustomField).toHaveBeenCalledWith('p1', 'cf1', { isImportant: true })
+		expect(detachCustomField).toHaveBeenCalledWith('p1', 'cf1')
+		const logged = log.mock.calls.map((c) => String(c[0])).join('\n')
+		expect(logged).toContain('already')
 	})
 })

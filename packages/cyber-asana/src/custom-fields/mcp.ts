@@ -3,12 +3,18 @@ import { z } from 'zod'
 import { paginationOptions, paginationParams, readOptions, readParams } from '../platform/mcp/options.js'
 import type { CustomFieldApi } from './api.js'
 import {
+	attachCustomField,
+	createCustomField,
+	createEnumOption,
+	detachCustomField,
 	getCustomField,
+	insertEnumOption,
 	listCustomFieldSettingsForGoal,
 	listCustomFieldSettingsForPortfolio,
 	listCustomFieldSettingsForProject,
 	listCustomFieldSettingsForTeam,
 	listCustomFields,
+	updateEnumOption,
 } from './default.js'
 
 function resolveCustomFieldApi(api?: CustomFieldApi | (() => CustomFieldApi)): CustomFieldApi {
@@ -21,6 +27,12 @@ function resolveCustomFieldApi(api?: CustomFieldApi | (() => CustomFieldApi)): C
 			listCustomFieldSettingsForPortfolio,
 			listCustomFieldSettingsForGoal,
 			listCustomFieldSettingsForTeam,
+			createCustomField,
+			createEnumOption,
+			insertEnumOption,
+			updateEnumOption,
+			attachCustomField,
+			detachCustomField,
 		}
 	)
 }
@@ -121,5 +133,117 @@ export function registerCustomFieldTools(server: McpServer, api?: CustomFieldApi
 				},
 			],
 		}),
+	)
+
+	const json = (value: unknown) => ({ content: [{ type: 'text' as const, text: JSON.stringify(value) }] })
+
+	server.tool(
+		'asana_custom_field_create',
+		'Create a custom field in a workspace. For enum and multi_enum types, enum_options seeds the options. Attach it to projects afterwards with asana_custom_field_attach',
+		{
+			workspace_gid: z.string().describe('Workspace GID'),
+			name: z.string().describe('Field name, unique within the workspace'),
+			type: z.enum(['text', 'enum', 'multi_enum', 'number', 'date', 'people']).describe('Field type'),
+			description: z.string().optional().describe('Field description'),
+			precision: z.number().int().optional().describe('Decimal places; number type only'),
+			enum_options: z.array(z.string()).optional().describe('Option names; enum and multi_enum types only'),
+		},
+		async ({ workspace_gid, name, type, description, precision, enum_options }) =>
+			json(
+				await resolveCustomFieldApi(api).createCustomField({
+					workspace: workspace_gid,
+					name,
+					resourceSubtype: type,
+					...(description !== undefined && { description }),
+					...(precision !== undefined && { precision }),
+					...(enum_options !== undefined && { enumOptions: enum_options.map((o) => ({ name: o })) }),
+				}),
+			),
+	)
+
+	server.tool(
+		'asana_custom_field_enum_option_create',
+		'Add an enum option to a custom field, at the end unless insert_before or insert_after names an existing option',
+		{
+			custom_field_gid: z.string().describe('Custom field GID'),
+			name: z.string().describe('Option name'),
+			color: z.string().optional().describe('Option color, such as blue'),
+			insert_before: z.string().optional().describe('Enum option GID to place this one before'),
+			insert_after: z.string().optional().describe('Enum option GID to place this one after'),
+		},
+		async ({ custom_field_gid, name, color, insert_before, insert_after }) =>
+			json(
+				await resolveCustomFieldApi(api).createEnumOption(custom_field_gid, {
+					name,
+					...(color !== undefined && { color }),
+					...(insert_before !== undefined && { insertBefore: insert_before }),
+					...(insert_after !== undefined && { insertAfter: insert_after }),
+				}),
+			),
+	)
+
+	server.tool(
+		'asana_custom_field_enum_option_insert',
+		"Reorder a custom field's enum: move one option before or after another (give exactly one of before_enum_option_gid and after_enum_option_gid)",
+		{
+			custom_field_gid: z.string().describe('Custom field GID'),
+			enum_option_gid: z.string().describe('The enum option to move'),
+			before_enum_option_gid: z.string().optional().describe('Place before this option'),
+			after_enum_option_gid: z.string().optional().describe('Place after this option'),
+		},
+		async ({ custom_field_gid, enum_option_gid, before_enum_option_gid, after_enum_option_gid }) =>
+			json(
+				await resolveCustomFieldApi(api).insertEnumOption(custom_field_gid, {
+					enumOption: enum_option_gid,
+					...(before_enum_option_gid !== undefined && { beforeEnumOption: before_enum_option_gid }),
+					...(after_enum_option_gid !== undefined && { afterEnumOption: after_enum_option_gid }),
+				}),
+			),
+	)
+
+	server.tool(
+		'asana_custom_field_enum_option_update',
+		'Rename, recolor, disable, or re-enable an enum option',
+		{
+			enum_option_gid: z.string().describe('Enum option GID'),
+			name: z.string().optional().describe('New name'),
+			color: z.string().optional().describe('New color'),
+			enabled: z.boolean().optional().describe('false disables the option, true re-enables it'),
+		},
+		async ({ enum_option_gid, name, color, enabled }) =>
+			json(
+				await resolveCustomFieldApi(api).updateEnumOption(enum_option_gid, {
+					...(name !== undefined && { name }),
+					...(color !== undefined && { color }),
+					...(enabled !== undefined && { enabled }),
+				}),
+			),
+	)
+
+	server.tool(
+		'asana_custom_field_attach',
+		'Attach a custom field to a project so its tasks can carry it. Idempotent: status is attached, or already_attached with nothing written',
+		{
+			project_gid: z.string().describe('Project GID'),
+			custom_field_gid: z.string().describe('Custom field GID'),
+			is_important: z.boolean().optional().describe('Show the field on the project list by default'),
+		},
+		async ({ project_gid, custom_field_gid, is_important }) =>
+			json(
+				await resolveCustomFieldApi(api).attachCustomField(project_gid, custom_field_gid, {
+					...(is_important !== undefined && { isImportant: is_important }),
+				}),
+			),
+	)
+
+	server.tool(
+		'asana_custom_field_detach',
+		'Detach a custom field from a project. Idempotent: status is detached, or already_detached with nothing written',
+		{
+			project_gid: z.string().describe('Project GID'),
+			custom_field_gid: z.string().describe('Custom field GID'),
+		},
+		async ({ project_gid, custom_field_gid }) =>
+			json(await resolveCustomFieldApi(api).detachCustomField(project_gid, custom_field_gid)),
 	)
 }

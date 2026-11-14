@@ -1,4 +1,4 @@
-import { Command } from 'commander'
+import { Command, Option } from 'commander'
 import {
 	addGidOption,
 	addPaginationOptions,
@@ -11,14 +11,20 @@ import {
 } from '../platform/cli/options.js'
 import { output, printCountSummary, printFields, printNextSteps, printTable } from '../platform/cli/output.js'
 import { isFull, truncate } from '../platform/truncate.js'
-import type { CustomFieldApi } from './api.js'
+import type { CreateCustomFieldInput, CustomFieldApi } from './api.js'
 import {
+	attachCustomField,
+	createCustomField,
+	createEnumOption,
+	detachCustomField,
 	getCustomField,
+	insertEnumOption,
 	listCustomFieldSettingsForGoal,
 	listCustomFieldSettingsForPortfolio,
 	listCustomFieldSettingsForProject,
 	listCustomFieldSettingsForTeam,
 	listCustomFields,
+	updateEnumOption,
 } from './default.js'
 
 type EnumOption = { gid: string; name?: string; enabled?: boolean }
@@ -30,6 +36,10 @@ type CustomField = {
 	enum_options?: EnumOption[]
 }
 
+const FIELD_TYPES = ['text', 'enum', 'multi_enum', 'number', 'date', 'people']
+
+const collect = (value: string, previous: string[]) => [...previous, value]
+
 function resolveCustomFieldApi(api?: CustomFieldApi | (() => CustomFieldApi)): CustomFieldApi {
 	if (typeof api === 'function') return api()
 	return (
@@ -40,6 +50,12 @@ function resolveCustomFieldApi(api?: CustomFieldApi | (() => CustomFieldApi)): C
 			listCustomFieldSettingsForPortfolio,
 			listCustomFieldSettingsForGoal,
 			listCustomFieldSettingsForTeam,
+			createCustomField,
+			createEnumOption,
+			insertEnumOption,
+			updateEnumOption,
+			attachCustomField,
+			detachCustomField,
 		}
 	)
 }
@@ -208,6 +224,146 @@ export function customFieldCommand(api?: CustomFieldApi | (() => CustomFieldApi)
 		(a, gid, opts) => a.listCustomFieldSettingsForTeam(gid, opts),
 		api,
 	)
+
+	addGidOption(
+		cmd
+			.command('create <name>')
+			.description('Create a custom field in a workspace')
+			.addOption(new Option('--type <type>', 'Field type').choices(FIELD_TYPES).default('text'))
+			.option('--description <text>', 'Field description')
+			.option('--option <name>', 'An enum option, repeatable; enum and multi_enum types only', collect, [] as string[])
+			.option('--precision <digits>', 'Decimal places; number type only', (v) => Number(v)),
+		'workspace',
+		'Workspace GID',
+	).action(
+		async (
+			name: string,
+			opts: {
+				workspace?: string
+				workspaceGid?: string
+				type: CreateCustomFieldInput['resourceSubtype']
+				description?: string
+				option: string[]
+				precision?: number
+			},
+		) => {
+			const isEnum = opts.type === 'enum' || opts.type === 'multi_enum'
+			if (opts.option.length > 0 && !isEnum) {
+				throw new Error(`--option applies to enum and multi_enum fields, not ${opts.type}`)
+			}
+			const field = (await resolveCustomFieldApi(api).createCustomField({
+				workspace: requiredGid(opts, 'workspace', 'Workspace GID'),
+				name,
+				resourceSubtype: opts.type,
+				...(opts.description !== undefined && { description: opts.description }),
+				...(opts.precision !== undefined && { precision: opts.precision }),
+				...(isEnum && opts.option.length > 0 && { enumOptions: opts.option.map((o) => ({ name: o })) }),
+			})) as CustomField
+			output(field, () => {
+				console.log(`Created custom field ${field.name ?? name} (${field.gid})`)
+				printNextSteps([
+					'cyber-asana custom-field attach <project-gid> <field-gid> — attach it to a project',
+					'cyber-asana custom-field enum-option add <field-gid> <name> — add an enum option',
+				])
+			})
+		},
+	)
+
+	const enumOption = cmd.command('enum-option').description("Manage a custom field's enum options")
+
+	enumOption
+		.command('add <field-gid> <name>')
+		.description('Add an enum option to a custom field (at the end unless placed)')
+		.option('--color <color>', 'Option color, such as blue or red')
+		.option('--insert-before <option-gid>', 'Place before this option')
+		.option('--insert-after <option-gid>', 'Place after this option')
+		.action(
+			async (fieldGid: string, name: string, opts: { color?: string; insertBefore?: string; insertAfter?: string }) => {
+				if (opts.insertBefore && opts.insertAfter) {
+					throw new Error('--insert-before and --insert-after are mutually exclusive')
+				}
+				const created = (await resolveCustomFieldApi(api).createEnumOption(fieldGid, {
+					name,
+					...(opts.color !== undefined && { color: opts.color }),
+					...(opts.insertBefore !== undefined && { insertBefore: opts.insertBefore }),
+					...(opts.insertAfter !== undefined && { insertAfter: opts.insertAfter }),
+				})) as EnumOption
+				output(created, () => console.log(`Added enum option ${created.name ?? name} (${created.gid}) to ${fieldGid}`))
+			},
+		)
+
+	enumOption
+		.command('move <field-gid> <option-gid>')
+		.description('Reorder an enum option before or after another')
+		.option('--before <option-gid>', 'Place before this option')
+		.option('--after <option-gid>', 'Place after this option')
+		.action(async (fieldGid: string, optionGid: string, opts: { before?: string; after?: string }) => {
+			if (Boolean(opts.before) === Boolean(opts.after)) {
+				throw new Error('Give exactly one of --before and --after')
+			}
+			await resolveCustomFieldApi(api).insertEnumOption(fieldGid, {
+				enumOption: optionGid,
+				...(opts.before !== undefined && { beforeEnumOption: opts.before }),
+				...(opts.after !== undefined && { afterEnumOption: opts.after }),
+			})
+			output({ custom_field: fieldGid, enum_option: optionGid, status: 'moved' }, () =>
+				console.log(`Moved enum option ${optionGid} in ${fieldGid}`),
+			)
+		})
+
+	enumOption
+		.command('update <option-gid>')
+		.description('Rename, recolor, disable, or re-enable an enum option')
+		.option('--name <name>', 'New name')
+		.option('--color <color>', 'New color')
+		.option('--disabled', 'Disable the option')
+		.option('--enabled', 'Enable the option')
+		.action(
+			async (optionGid: string, opts: { name?: string; color?: string; disabled?: boolean; enabled?: boolean }) => {
+				if (opts.disabled && opts.enabled) throw new Error('--disabled and --enabled are mutually exclusive')
+				const changes = {
+					...(opts.name !== undefined && { name: opts.name }),
+					...(opts.color !== undefined && { color: opts.color }),
+					...(opts.disabled && { enabled: false }),
+					...(opts.enabled && { enabled: true }),
+				}
+				if (Object.keys(changes).length === 0)
+					throw new Error('Nothing to update: give --name, --color, --disabled, or --enabled')
+				const updated = (await resolveCustomFieldApi(api).updateEnumOption(optionGid, changes)) as EnumOption
+				output(updated, () => console.log(`Updated enum option ${updated.name ?? optionGid} (${optionGid})`))
+			},
+		)
+
+	cmd
+		.command('attach <project-gid> <field-gid>')
+		.description('Attach a custom field to a project (no-op when it already is)')
+		.option('--important', 'Show the field on the project list by default')
+		.action(async (projectGid: string, fieldGid: string, opts: { important?: boolean }) => {
+			const result = await resolveCustomFieldApi(api).attachCustomField(projectGid, fieldGid, {
+				...(opts.important && { isImportant: true }),
+			})
+			output(result, () =>
+				console.log(
+					result.status === 'attached'
+						? `Attached custom field ${fieldGid} to project ${projectGid}`
+						: `Custom field ${fieldGid} was already attached to project ${projectGid}`,
+				),
+			)
+		})
+
+	cmd
+		.command('detach <project-gid> <field-gid>')
+		.description('Detach a custom field from a project (no-op when it is not attached)')
+		.action(async (projectGid: string, fieldGid: string) => {
+			const result = await resolveCustomFieldApi(api).detachCustomField(projectGid, fieldGid)
+			output(result, () =>
+				console.log(
+					result.status === 'detached'
+						? `Detached custom field ${fieldGid} from project ${projectGid}`
+						: `Custom field ${fieldGid} was already detached from project ${projectGid}`,
+				),
+			)
+		})
 
 	return cmd
 }

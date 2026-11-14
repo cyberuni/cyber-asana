@@ -84,6 +84,12 @@ describe('custom-fields/mcp', () => {
 		const server = createServer()
 		registerCustomFieldTools(server as any, {
 			listCustomFields: vi.fn(),
+			createCustomField: vi.fn(),
+			createEnumOption: vi.fn(),
+			insertEnumOption: vi.fn(),
+			updateEnumOption: vi.fn(),
+			attachCustomField: vi.fn(),
+			detachCustomField: vi.fn(),
 			getCustomField: injectedGetCustomField,
 			listCustomFieldSettingsForProject: vi.fn(),
 			listCustomFieldSettingsForPortfolio: vi.fn(),
@@ -153,6 +159,12 @@ describe('custom-fields/mcp custom field settings', () => {
 		const server = createServer()
 		registerCustomFieldTools(server as any, {
 			listCustomFields: vi.fn(),
+			createCustomField: vi.fn(),
+			createEnumOption: vi.fn(),
+			insertEnumOption: vi.fn(),
+			updateEnumOption: vi.fn(),
+			attachCustomField: vi.fn(),
+			detachCustomField: vi.fn(),
 			getCustomField: vi.fn(),
 			listCustomFieldSettingsForProject: injected,
 			listCustomFieldSettingsForPortfolio: vi.fn(),
@@ -163,5 +175,91 @@ describe('custom-fields/mcp custom field settings', () => {
 		await server.handlers.get('asana_custom_field_list_for_project')?.({ project_gid: 'proj1' })
 
 		expect(injected).toHaveBeenCalledWith('proj1', {})
+	})
+})
+
+describe('custom-fields/mcp writes', () => {
+	function setup(over: Record<string, unknown>) {
+		const api = {
+			listCustomFields: vi.fn(),
+			getCustomField: vi.fn(),
+			listCustomFieldSettingsForProject: vi.fn(),
+			listCustomFieldSettingsForPortfolio: vi.fn(),
+			listCustomFieldSettingsForGoal: vi.fn(),
+			listCustomFieldSettingsForTeam: vi.fn(),
+			createCustomField: vi.fn(),
+			createEnumOption: vi.fn(),
+			insertEnumOption: vi.fn(),
+			updateEnumOption: vi.fn(),
+			attachCustomField: vi.fn(),
+			detachCustomField: vi.fn(),
+			...over,
+		}
+		const server = createServer()
+		registerCustomFieldTools(server as any, api as any)
+		return server
+	}
+
+	it('asana_custom_field_create maps its parameters', async () => {
+		const createCustomField = vi.fn().mockResolvedValue({ gid: 'cf1' })
+		const server = setup({ createCustomField })
+
+		const result = await server.handlers.get('asana_custom_field_create')?.({
+			workspace_gid: 'ws1',
+			name: 'Sprint',
+			type: 'enum',
+			enum_options: ['Sprint 1'],
+		})
+
+		expect(createCustomField).toHaveBeenCalledWith({
+			workspace: 'ws1',
+			name: 'Sprint',
+			resourceSubtype: 'enum',
+			enumOptions: [{ name: 'Sprint 1' }],
+		})
+		expect(JSON.parse(result.content[0].text)).toEqual({ gid: 'cf1' })
+	})
+
+	it('enum option tools map create, insert, and update', async () => {
+		const createEnumOption = vi.fn().mockResolvedValue({ gid: 'o1' })
+		const insertEnumOption = vi.fn().mockResolvedValue({ gid: 'o1' })
+		const updateEnumOption = vi.fn().mockResolvedValue({ gid: 'o1' })
+		const server = setup({ createEnumOption, insertEnumOption, updateEnumOption })
+
+		await server.handlers.get('asana_custom_field_enum_option_create')?.({
+			custom_field_gid: 'cf1',
+			name: 'S2',
+			insert_after: 'o0',
+		})
+		await server.handlers.get('asana_custom_field_enum_option_insert')?.({
+			custom_field_gid: 'cf1',
+			enum_option_gid: 'o1',
+			before_enum_option_gid: 'o0',
+		})
+		await server.handlers.get('asana_custom_field_enum_option_update')?.({ enum_option_gid: 'o1', enabled: false })
+
+		expect(createEnumOption).toHaveBeenCalledWith('cf1', { name: 'S2', insertAfter: 'o0' })
+		expect(insertEnumOption).toHaveBeenCalledWith('cf1', { enumOption: 'o1', beforeEnumOption: 'o0' })
+		expect(updateEnumOption).toHaveBeenCalledWith('o1', { enabled: false })
+	})
+
+	it('attach and detach tools return the idempotent status', async () => {
+		const attachCustomField = vi.fn().mockResolvedValue({ status: 'attached' })
+		const detachCustomField = vi.fn().mockResolvedValue({ status: 'already_detached' })
+		const server = setup({ attachCustomField, detachCustomField })
+
+		await server.handlers.get('asana_custom_field_attach')?.({
+			project_gid: 'p1',
+			custom_field_gid: 'cf1',
+			is_important: true,
+		})
+		const detached = await server.handlers.get('asana_custom_field_detach')?.({
+			project_gid: 'p1',
+			custom_field_gid: 'cf1',
+		})
+
+		expect(attachCustomField).toHaveBeenCalledWith('p1', 'cf1', { isImportant: true })
+		expect(detachCustomField).toHaveBeenCalledWith('p1', 'cf1')
+		expect(JSON.parse(detached.content[0].text).status).toBe('already_detached')
 	})
 })

@@ -54,6 +54,12 @@ function mockRuntimeContext(): RuntimeContext {
 		teams: { listTeams: vi.fn(), getTeam: vi.fn() },
 		customFields: {
 			listCustomFields: vi.fn(),
+			createCustomField: vi.fn(),
+			createEnumOption: vi.fn(),
+			insertEnumOption: vi.fn(),
+			updateEnumOption: vi.fn(),
+			attachCustomField: vi.fn(),
+			detachCustomField: vi.fn(),
 			getCustomField: vi.fn(),
 			listCustomFieldSettingsForProject: vi.fn(),
 			listCustomFieldSettingsForPortfolio: vi.fn(),
