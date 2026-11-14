@@ -36,7 +36,7 @@ const LABELS: Record<string, string> = {
 	complete: 'Complete',
 }
 
-export const escapeHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+const escapeHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
 type Scalars = Record<string, string | undefined>
 type Groups = Record<string, Array<Record<string, string>>>
