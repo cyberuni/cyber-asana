@@ -72,6 +72,13 @@ unsupported report that has a `reference`, load that `cyber-asana.report.<key>` 
 invent a status: `status_type` is `null` when health did not run, and you say so. Offer the full
 report (`cyber-asana report <key>`) for any section the user wants to open.
 
+Then offer to write the page: `cyber-asana report dashboard --page <path>` (default
+`./sprint-dashboard.html`, plus `--scope` or `--sprint` as before) writes one self-contained HTML
+file and publishes nothing. Ask for the path first; on the user's yes run it, and tell them the path
+it printed and that it opens in any browser. It overwrites only a page it wrote before: on
+`page-path-refused` (exit 2), another file is there, so ask for a new path. Never overwrite it
+yourself.
+
 ## Start a sprint
 
 `cyber-asana sprint start` creates the sprint's section and does nothing if it exists. The commitment

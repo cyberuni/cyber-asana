@@ -1,5 +1,8 @@
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { Command } from 'commander'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { installUsageErrors } from '../../../platform/cli/usage.js'
 import type { ScrumApi } from '../../api.js'
 import { reportCommand } from '../cli.js'
@@ -27,6 +30,7 @@ const dashboard = {
 				added: { count: 1, points: { story: 1, task: 0 } },
 				removed: { count: 0, points: { story: 0, task: 0 } },
 				completion_rate: { count: 40, story: 50, task: null },
+				burndown: [{ date: '2026-01-19', completed: 0, remaining: { count: 4, story: 10, task: 0 } }],
 			},
 		},
 		{
@@ -150,5 +154,47 @@ describe('report dashboard command', () => {
 
 	it('--json prints the api result', async () => {
 		expect(JSON.parse(await run(api(), '--json', 'report', 'dashboard')).status_type).toBe('off_track')
+	})
+
+	describe('--page', () => {
+		let dir: string
+		beforeEach(async () => {
+			dir = await mkdtemp(join(tmpdir(), 'dash-cli-'))
+		})
+		afterEach(() => rm(dir, { recursive: true, force: true }))
+
+		it('writes the page, prints the path, and does not print the report text', async () => {
+			const path = join(dir, 'd.html')
+			const out = await run(api(), 'report', 'dashboard', '--page', path)
+			expect(await readFile(path, 'utf8')).toContain('id="velocity"')
+			expect(out).toContain(`Wrote ${path}`)
+			expect(out).toContain('6 sections')
+			expect(out).not.toContain('Dashboard for web')
+		})
+
+		it('--json returns path, bytes, and sections', async () => {
+			const path = join(dir, 'd.html')
+			const r = JSON.parse(await run(api(), '--json', 'report', 'dashboard', '--page', path))
+			expect(r).toEqual({
+				path,
+				bytes: (await readFile(path)).length,
+				sections: ['header', 'burndown', 'health', 'workload', 'velocity', 'notes'],
+			})
+		})
+
+		it('rerunning over its own output succeeds', async () => {
+			const path = join(dir, 'd.html')
+			await run(api(), 'report', 'dashboard', '--page', path)
+			await expect(run(api(), 'report', 'dashboard', '--page', path)).resolves.toContain('Wrote')
+		})
+
+		it('refuses to overwrite a file that is not a dashboard page', async () => {
+			const path = join(dir, 'keep.txt')
+			await writeFile(path, 'keep me')
+			await expect(run(api(), 'report', 'dashboard', '--page', path)).rejects.toMatchObject({
+				code: 'page-path-refused',
+			})
+			expect(await readFile(path, 'utf8')).toBe('keep me')
+		})
 	})
 })

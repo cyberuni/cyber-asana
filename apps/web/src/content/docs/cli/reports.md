@@ -222,6 +222,34 @@ command exits `0` once it has produced the dashboard; read `counts` and `status_
 them. A scope that is not configured fails the whole command (`scope-missing`, `scope-unknown`, exit
 `2`).
 
+### `--page`: a local HTML page
+
+```sh
+cyber-asana report dashboard --page ./sprint-dashboard.html
+```
+
+Writes the dashboard as one self-contained HTML file to the path you give, and publishes nothing.
+The page has no script and fetches nothing: its CSS is inline and its charts are inline SVG and CSS
+bars, so it opens from disk, attaches to an email, or prints. It follows light and dark mode and fits
+a phone screen. It carries the sections of the `## Page` part of `cyber-asana.dashboard`, in order:
+
+| Section | Shows |
+| --- | --- |
+| Header | The scope, the sprint's name and dates, and the status with its basis. |
+| Burndown | A line chart of tasks remaining per day. |
+| Health | The findings grouped as errors and warnings, each with its fix command. |
+| Workload | A bar per person for load against capacity, with the flag. Unknown capacity says unknown. |
+| Velocity | A bar per closed sprint for each tracked kind of point, with the mean. |
+| Notes | Every note the reports carried and every report that failed or is unsupported. |
+
+A report that is not in `reports`, failed, or is unsupported is named in its own section, never
+dropped, so the page works for any subset. Task names and every other text are escaped.
+
+The command prints the path and the section count. With `--json` it returns `{ path, bytes, sections }`.
+It overwrites a page it wrote before, so a rerun is safe, and refuses any other existing file with
+`page-path-refused` (exit `2`): pass a new path. MCP has no counterpart: `asana_report_dashboard`
+returns the JSON, and a tool that wrote files on the server's disk would surprise a client.
+
 ### Your own reports
 
 The dashboard finds reports through the implementations of `cyber-asana.report`, so a report your
@@ -237,7 +265,7 @@ reference, never dropped; the `asana-scrum` skill follows that reference with th
 | Key | Default | Meaning |
 | --- | --- | --- |
 | `reports` | `[sprint, health, workload, velocity]` | Report keys, in order. At least one, none repeated. |
-| `forms` | `[cli]` | Which forms the dashboard takes: `cli`, `status-update`, `page`. Only `cli` is built. |
+| `forms` | `[cli]` | Which forms the dashboard takes: `cli`, `status-update`, `page`. `page` is written with `--page`. |
 | `status_parent` | `scope-default` | Where a status update will be posted: `project`, `portfolio`, or `scope-default`. |
 | `status_rules` | `off_track: error`, `at_risk: warning`, `otherwise: on_track` | `off_track` and `at_risk` name the least severe health finding that sets the status (`error` or `warning`); `otherwise` is the status when neither does. |
 

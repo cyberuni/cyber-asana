@@ -23,7 +23,7 @@ Use it when you ask for a standup, to plan a sprint, a sprint review, a retro, v
 | Velocity | Runs `report velocity` and presents it. |
 | The current sprint, its tasks, or the backlog | Runs `sprint current`, `sprint tasks`, or `backlog list`. |
 | Start, fill, or close a sprint | Runs `sprint start`, `sprint add`, or `sprint close`. It asks before posting the commitment snapshot and before closing. |
-| The dashboard | Runs `report dashboard` and presents the status and each report's key figures, naming any report that failed or that the CLI does not compute. |
+| The dashboard | Runs `report dashboard` and presents the status and each report's key figures, naming any report that failed or that the CLI does not compute. Offers `--page` to write the dashboard as a local HTML file. |
 | Setup | Hands off to the setup skill. |
 
 

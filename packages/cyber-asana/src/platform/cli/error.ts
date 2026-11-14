@@ -26,6 +26,8 @@ const CODED_EXIT_CODES: Readonly<Record<string, number>> = {
 	'sprint-field-ambiguous': 2,
 	// The project model: set backlog_project and sprint_portfolio on the scope, then retry.
 	'scope-incomplete': 2,
+	// The dashboard page: the --page path holds a file this command did not write; pick another path.
+	'page-path-refused': 2,
 	// Task search is premium: the same code a raw 402 from Asana gets.
 	'premium-required': 7,
 }

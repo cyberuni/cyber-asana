@@ -9,6 +9,8 @@ import {
 	storeOptions,
 } from '../../cli.js'
 import type { DashboardEntry } from '../../dashboard-api.js'
+import { renderDashboardPage } from './page.js'
+import { writeDashboardPage } from './page-file.js'
 
 type Tracked = { story: boolean; task: boolean }
 type Points = { story: number; task: number }
@@ -103,9 +105,27 @@ export function addDashboardCommand(cmd: Command, api?: ResolveApi) {
 			.command('dashboard')
 			.description(
 				'The dashboard: the reports cyber-asana.dashboard lists, in order, with a status from the health findings',
+			)
+			.option(
+				'--page <path>',
+				'Write the dashboard as one self-contained HTML file to <path> (local file only; publishes nothing)',
 			),
-	).action(async (opts: SprintFlags) => {
+	).action(async (opts: SprintFlags & { page?: string }) => {
 		const r = await resolveApi(api).reportDashboard(sprintInput(opts), storeOptions(opts))
+		if (opts.page !== undefined) {
+			const { html, sections } = renderDashboardPage(r)
+			const written = await writeDashboardPage(opts.page, html)
+			output({ ...written, sections }, () => {
+				console.log(
+					`Wrote ${written.path} (${written.bytes} bytes, ${sections.length} sections: ${sections.join(', ')})`,
+				)
+				printNextSteps([
+					`Open ${written.path} in a browser; nothing was published`,
+					'cyber-asana report dashboard — the same reports as text',
+				])
+			})
+			return
+		}
 		output(r, () => {
 			console.log(`Dashboard for ${r.scope}`)
 			printFields({

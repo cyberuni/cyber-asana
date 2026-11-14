@@ -429,7 +429,7 @@ Each unit can ship alone and passes `pnpm verify`; units that need it also pass 
 | U11 | `.custom-field` model, search custom-field filters and paging, custom-field create and enum options, project field attach; setup support | G3, G6, G7 | U4, U5 | Built; in review |
 | U12 | `cyber-asana.dashboard` and `report dashboard` (CLI, D2.1); the planning route (needs velocity and capacity) | — | U7, U8, U10 | Built; in review |
 | U13 | `--post-status` (D2.2) and `status_type` validation | G13 | U12 |  |
-| U14 | `--page` generated HTML (D2.3), written to a local path and published nowhere (D8) | — | U12 |  |
+| U14 | `--page` generated HTML (D2.3), written to a local path and published nowhere (D8) | — | U12 | Built; in review |
 | U15 | `.project` model (one project per sprint, in a portfolio) | G8 (add/remove) | U11 | Built; in review |
 
 U1 can ship before anything else and fixes wrong numbers users see today.
@@ -544,6 +544,16 @@ U1 can ship before anything else and fixes wrong numbers users see today.
 - **`sprint plan`, the P2 helper.** The planning route needed sums the model would otherwise do, so the CLI computes them: `sprint plan` (read only; `asana_sprint_plan`) gives the velocity mean, capacity hours, the backlog with running totals, a proposal, and `--tasks` totals of a user's pick against each limit. The proposal stops at the first task that overruns a limit, never skipping to a smaller one, because backlog order is the team's priority. Story and task points each have their own velocity limit; effort hours (both kinds times `hours_per_point`) have the capacity limit. Capacity comes from the workload computation with no tasks, so its clipping and plan handling are not repeated. `--sprint` defaults to `next`, and the sprint needs no section yet.
 - **The route asks before each write.** The plan route is `sprint start`, `sprint add`, and `sprint start --snapshot`, each with the user's yes and each safe to repeat. The route names no totals of its own: every edit is re-totalled with `sprint plan --tasks`.
 - **Skill budget.** The `asana-scrum` description now reads "standup, planning, review, retro, health, workload, or dashboard" (119 characters) and drops "sprints"; the body's routing table still covers sprint housekeeping.
+
+### 9.11 Decisions made while building U14
+
+- **No `page` option on `asana_report_dashboard`.** The tool already returns the whole dashboard as JSON, which a client can turn into a page itself. Returning the HTML string would put tens of kilobytes of markup in the model's context for a form meant for a browser, and writing it on the server's disk is the side effect D8 and the brief rule out for MCP. The renderer is a pure function (`renderDashboardPage`), so a later tool could return it without a redesign.
+- **The overwrite guard is a marker, not an extension.** The page carries `<meta name="generator" content="cyber-asana report dashboard --page">`. An existing path is replaced only when it holds that marker; any other file (an HTML file the user wrote, a text file) or a directory is refused with `page-path-refused`, exit 2 (the caller picks another path). Checking the extension would still let `--page index.html` destroy a user's own page.
+- **`--page` replaces the text output.** With `--page` the command computes the dashboard once and prints only `Wrote <path>` (bytes, sections); `--json` returns `{ path, bytes, sections }`. The text dashboard stays one command away.
+- **Sections are fixed; content degrades.** The six sections of the reference's `## Page` always appear in its order. A report that is not in `reports`, failed (with its `error.code` and hint), or is unsupported is named in its own section, and Notes repeats every note and every failed or unsupported report. A figure with no data is never drawn as zero: unknown capacity says unknown, an empty velocity says there is no closed sprint.
+- **No script, no network.** CSS is inline with light and dark through `prefers-color-scheme` and a fluid layout; the burndown is inline SVG, workload and velocity are CSS bars with their figures written beside them, so the page also reads without styling. A test asserts the file holds no `http(s)://`, `<script`, `<link`, `@import`, or `src=`.
+- **Escaping in one place.** Every user string goes through one `esc` function; a test feeds hostile text through the task-adjacent fields and checks no element survives.
+- **`## Page` is still prose.** The reference's page section describes the sections but is not a template the CLI fills; patching it changes what the skill says, not the file `--page` writes. Making it a real template is left until a team asks.
 
 ## 10. Items settled after the first review
 
