@@ -1,6 +1,6 @@
 ---
 title: asana-scrum
-description: "Routes scrum work: the standup, sprint review, retro, velocity, health check, and team workload, computed by the CLI."
+description: "Routes scrum work: the standup, sprint planning, review, retro, velocity, health check, team workload, and dashboard, computed by the CLI."
 ---
 
 The `asana-scrum` skill is the entry point for scrum work. It classifies the request and follows the
@@ -8,13 +8,14 @@ one procedure that owns it. Source: [`SKILL.md`](https://github.com/cyberuni/cyb
 
 ## When it triggers
 
-Use it when you ask for a standup, a sprint review, a retro, velocity, a sprint health check, the team's workload, the sprint's status, or to start, fill, or close a sprint. Examples: "Write my standup", "What did we deliver this sprint?", "Run the retro", "Is the sprint healthy?", "Start the next sprint".
+Use it when you ask for a standup, to plan a sprint, a sprint review, a retro, velocity, a sprint health check, the team's workload, the sprint's status, or to start, fill, or close a sprint. Examples: "Write my standup", "Plan the next sprint", "What did we deliver this sprint?", "Run the retro", "Is the sprint healthy?", "Start the next sprint".
 
 ## Routes
 
 | You want | It does |
 | --- | --- |
 | A standup | Follows [`references/standup.md`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana-scrum/references/standup.md), or run `/cyber-asana:standup`. |
+| To plan a sprint | Follows [`references/plan.md`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana-scrum/references/plan.md), or run `/cyber-asana:sprint-plan`. |
 | A health check | Follows [`references/health.md`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana-scrum/references/health.md). |
 | The team's workload | Follows [`references/workload.md`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana-scrum/references/workload.md). |
 | A sprint review | Follows [`references/review.md`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana-scrum/references/review.md), or run `/cyber-asana:sprint-review`. |
@@ -22,6 +23,7 @@ Use it when you ask for a standup, a sprint review, a retro, velocity, a sprint 
 | Velocity | Runs `report velocity` and presents it. |
 | The current sprint, its tasks, or the backlog | Runs `sprint current`, `sprint tasks`, or `backlog list`. |
 | Start, fill, or close a sprint | Runs `sprint start`, `sprint add`, or `sprint close`. It asks before posting the commitment snapshot and before closing. |
+| The dashboard | Runs `report dashboard` and presents the status and each report's key figures, naming any report that failed or that the CLI does not compute. |
 | Setup | Hands off to the setup skill. |
 
 
@@ -47,6 +49,10 @@ You can change the layout by patching `## Layout` in `.agents/references/cyber-a
 ## The review route
 
 Runs [`cyber-asana report sprint --json`](/cyber-asana/cli/reports/) and fills the layout of `cyber-asana.report.sprint`: committed against completed, added, and removed; the completion rate; the carry-over candidates; the burndown trend; and the demo list. It says where the commitment came from, and what a missing snapshot costs. It offers to record feedback as backlog tasks, and the retro.
+
+## The plan route
+
+Runs [`cyber-asana sprint plan --json`](/cyber-asana/cli/sprints/#sprint-plan), which computes the mean velocity of the last closed sprints, the team's Allocations capacity for the sprint's dates, and the backlog top that fits both. The skill presents the proposal and why it stopped, judges the proposed tasks against the definition of ready, and drafts a sprint goal. You edit the commitment; each edit is totalled by the CLI (`sprint plan --tasks`), never added by the model. Then it asks before each of `sprint start`, `sprint add`, and `sprint start --snapshot`.
 
 ## The retro route
 

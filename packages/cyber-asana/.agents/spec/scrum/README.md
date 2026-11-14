@@ -339,6 +339,46 @@ compute from the sprint's tasks, its commitment, and, for the retro, each task's
   window gives a note.
 - A sprint without a section is `sprint-none` (D12). Points are never merged into one figure.
 
+### Dashboard
+
+`report dashboard` (`--scope`, `--sprint`; D2.1) runs the reports the `cyber-asana.dashboard`
+reference lists in `reports` (default `sprint, health, workload, velocity`), in that order, into one
+result.
+
+- **Reports are found through `implementations cyber-asana.report`.** The CLI computes the six it
+  ships (`standup`, `sprint`, `retro`, `velocity`, `health`, `workload`). A listed report it does not
+  compute, such as a repo's `cyber-asana.report.release-readiness`, is an entry with `status:
+  unsupported`, its `reason`, and its `reference` when an implementation exists. A key no
+  implementation ships is unsupported too. No listed report is dropped.
+- **A failure is recorded, not fatal.** A report that fails with a coded configuration status
+  (`sprint-none`, `policy-incomplete`, `model-unsupported`, `premium-required`) is an entry with
+  `status: failed` and its `error.code`; the rest still run. A scope that cannot be selected
+  (`scope-missing`, `scope-unknown`) fails the command, and so does anything that is not a coded
+  status. The command exits 0 once it has built the dashboard.
+- **`status_type`** is graded from the health findings by `status_rules`: `off_track` when a finding
+  reaches the level `off_track` names (default `error`), else `at_risk` at the level `at_risk` names
+  (default `warning`), else `otherwise` (default `on_track`). It is `null`, with `status_basis`
+  saying so, when the health report is not listed or did not run. U13 posts it.
+- **Settings** are the frontmatter of `cyber-asana.dashboard`. A bad value throws, as the policy's
+  does. `forms` and `status_parent` are read and validated now and used by U13 and U14.
+
+### Planning arithmetic
+
+`sprint plan` (`--scope`, `--sprint`, default `next`; `--tasks`) is read only. It combines the mean
+of the last `velocity_window` closed sprints, the Allocations capacity hours for the sprint's dates
+(the workload computation with no tasks), and the backlog in priority order.
+
+- **Limits.** Story points and task points each against their own velocity mean (a kind that is not
+  tracked has none); effort hours (both kinds times `hours_per_point`) against capacity hours. A
+  limit that cannot be known is `null` and not applied. Capacity unknown carries its reason (`plan`
+  or `no-allocation`).
+- **Proposal.** The backlog top in order, stopping at the first task whose running total overruns a
+  limit (`stopped_before`, naming the limits); it never skips ahead. With no limit at all the
+  proposal is empty and a note says there is nothing to fit against.
+- **Selection.** `--tasks` totals the tasks the user picked and compares each total with its limit
+  (`fits`); a GID outside the backlog is `not_in_backlog`.
+- The sprint needs no section: planning comes before `sprint start`.
+
 ## Scenario map
 
 See [scrum.feature](scrum.feature).

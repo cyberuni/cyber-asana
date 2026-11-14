@@ -28,7 +28,7 @@ Set [authentication](/cyber-asana/getting-started/#authentication) before runnin
 | [`init-asana`](/cyber-asana/skills/init-asana/) | First-time setup; `ASANA_ACCESS_TOKEN`, workspace GID, verify connection |
 | [`init-asana-scrum`](/cyber-asana/skills/init-asana-scrum/) | Scrum setup — scope, `sections` sprint model, fields, backlog, current sprint, policy |
 | [`config-asana`](/cyber-asana/skills/config-asana/) | Add, remove, refresh, and show Asana projects and users in the repo config or the personal global registry |
-| [`asana-scrum`](/cyber-asana/skills/asana-scrum/) | Scrum work — the standup, the sprint review, the retro, and velocity, computed by the CLI; sprint housekeeping |
+| [`asana-scrum`](/cyber-asana/skills/asana-scrum/) | Scrum work — the standup, sprint planning, the review, the retro, velocity, and the dashboard, computed by the CLI; sprint housekeeping |
 | [`asana-standup`](/cyber-asana/skills/asana-standup/) | Moved into `asana-scrum`; a stub that routes there for one minor release |
 | [`asana-sprint-report`](/cyber-asana/skills/asana-sprint-report/) | Moved into `asana-scrum`; a stub that routes there for one minor release |
 | [`sync-asana-project`](/cyber-asana/skills/sync-asana-project/) (alpha) | Pull project tasks into local markdown for planning |

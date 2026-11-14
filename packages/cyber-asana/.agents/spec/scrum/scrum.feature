@@ -609,3 +609,50 @@ Feature: scrum scopes
     Given state_carrier "sections" under the project model
     When report health runs
     Then it runs and notes that in progress means incomplete and assigned
+
+  # ── dashboard and planning ──
+
+  Scenario: the dashboard runs the listed reports in order
+    Given cyber-asana.dashboard lists reports health, velocity, sprint
+    When report dashboard runs
+    Then the entries are health, velocity, sprint in that order, each ok with its report data
+
+  Scenario: a listed report the CLI does not compute is named unsupported
+    Given cyber-asana.dashboard lists "release-readiness" and a repo implements cyber-asana.report.release-readiness
+    When report dashboard runs
+    Then the entry is unsupported with its reason and reference and the other reports still run
+
+  Scenario: a report that fails is recorded and the rest run
+    Given the sprint has no section
+    When report dashboard runs
+    Then the sprint report entry is failed with code "sprint-none" and health still ran
+
+  Scenario: the dashboard status follows the health findings
+    Given the health report finds one warning and no error
+    When report dashboard runs
+    Then status_type is "at_risk" and status_basis counts the findings
+
+  Scenario: no health report means no status
+    Given cyber-asana.dashboard lists only velocity
+    When report dashboard runs
+    Then status_type is null and status_basis says health did not run
+
+  Scenario: an unknown scope fails the dashboard
+    When report dashboard runs with --scope "nope"
+    Then it fails with code "scope-unknown"
+
+  Scenario: the plan proposes the backlog top that fits velocity and capacity
+    Given a velocity mean of 8 story points and 40 capacity hours
+    And a backlog of 3, 5, and 2 story points
+    When sprint plan runs
+    Then the proposal is the first two tasks and stopped_before names the story points limit
+
+  Scenario: the plan fits against velocity alone when capacity is unknown
+    Given the workspace plan has no allocations
+    When sprint plan runs
+    Then capacity is unknown with reason "plan" and the proposal is fitted to velocity
+
+  Scenario: the plan totals a selection against each limit
+    Given a pick of tasks whose story points exceed the velocity mean
+    When sprint plan runs with --tasks
+    Then selection.fits is false and against shows the total, the limit, and over

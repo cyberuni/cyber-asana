@@ -11,11 +11,11 @@ point for scrum work (design K1, D3 in [`docs/design/scrum-system.md`](../../../
 ## Subject
 
 - **Artifact** — `skills/asana-scrum/SKILL.md` and `references/standup.md`, `health.md`, `workload.md`,
-  `review.md`, and `retro.md`, plus the `/cyber-asana:standup`, `/cyber-asana:sprint-review`, and
-  `/cyber-asana:retro` commands in `commands/`.
-- **Trigger** — the user asks for a standup, a review, a retro, health, workload, or sprint
-  housekeeping. Its front block reads: *"Use this skill when the user wants scrum work from Asana —
-  standup, review, retro, health, workload, or sprints."*
+  `review.md`, `retro.md`, and `plan.md`, plus the `/cyber-asana:standup`, `/cyber-asana:sprint-plan`,
+  `/cyber-asana:sprint-review`, and `/cyber-asana:retro` commands in `commands/`.
+- **Trigger** — the user asks for a standup, planning, a review, a retro, health, workload, the dashboard, or sprint
+  housekeeping. Its front block reads: *"Use this skill when the user wants scrum from Asana — standup,
+  planning, review, retro, health, workload, or dashboard."*
 - **What it covers** — a routing table, one procedure file per route. The standup procedure: load
   `cyber-asana.scrum`, the scope's `cyber-asana.sprint-model.<key>`, and `cyber-asana.report.standup`
   through the `reference` skill of `cyber-agentkit`; run `cyber-asana report standup --json`; fill the
@@ -26,7 +26,11 @@ point for scrum work (design K1, D3 in [`docs/design/scrum-system.md`](../../../
   notes out-of-office beside capacity without reducing it, and recomputes nothing. The review loads
   `cyber-asana.report.sprint` and runs `report sprint`. The retro loads `cyber-asana.report.retro`,
   runs `report retro`, facilitates, files each agreed action as a task through the `asana` skill's
-  create-task procedure, and offers `sprint close` at the end. Velocity runs `report velocity`
+  create-task procedure, and offers `sprint close` at the end. The plan route runs `sprint plan --json`,
+  presents the proposal from the JSON as given, totals every edit with `sprint plan --tasks` instead of
+  adding by hand, and asks before each of `sprint start`, `sprint add`, and `sprint start --snapshot`.
+  The dashboard route runs `report dashboard --json`, leads with `status_type`, and names every failed or
+  unsupported report. Velocity runs `report velocity`
   directly. Sprint start, add, and close, and the current sprint and backlog, route to the `sprint`
   and `backlog` commands; the skill asks before `sprint start --snapshot` (a status update cannot be
   edited) and before `sprint close`.
