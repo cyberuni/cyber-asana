@@ -133,12 +133,38 @@ export function standupWindowStart(
 	return { from, since: startOfDayIn(from, timeZone) }
 }
 
+/**
+ * How Today is chosen and what the report fell back on: the same for every person in a scope, so the
+ * team standup states it once. `byState` is true when a status field carries the workflow state.
+ */
+function standupBasis(policy: ScrumPolicy, fields: StandupInput['fields']) {
+	const byState = policy.state_carrier === 'field' && fields.status.size > 0
+	const notes: string[] = []
+	if (!byState) {
+		notes.push(
+			policy.state_carrier === 'field'
+				? 'state_carrier is field but no status field is registered for the scope, so Today lists every incomplete assigned task.'
+				: `state_carrier is ${policy.state_carrier}: completion is the only state, so Today lists every incomplete assigned task.`,
+		)
+		if (policy.blocked_signals.some((s) => s.startsWith('state:'))) {
+			notes.push('A state:<state> blocked signal needs a status field, so it was skipped.')
+		}
+	}
+	return {
+		byState,
+		today_basis: byState ? ('in-progress-or-due' as const) : ('incomplete-and-assigned' as const),
+		points_tracked: { story: fields.story.size > 0, task: fields.task.size > 0 },
+		notes,
+	}
+}
+
 const same = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase()
 
 /** Compute a member's standup from the scope's tasks. Pure but for the dependency lookups. */
 export async function buildStandup(input: StandupInput): Promise<Standup> {
 	const { policy, fields, today } = input
-	const notes: string[] = []
+	const basis = standupBasis(policy, fields)
+	const { byState } = basis
 	const mine = input.tasks.filter((t) => t.assignee?.gid === input.member.gid)
 
 	const statusOf = (t: StandupTask) =>
@@ -171,14 +197,6 @@ export async function buildStandup(input: StandupInput): Promise<Standup> {
 	const done = mine.filter((t) => t.completed === true && t.completed_at != null && Date.parse(t.completed_at) >= since)
 	const open = mine.filter((t) => t.completed !== true && (input.sprintGids?.has(t.gid) ?? true))
 
-	const byState = policy.state_carrier === 'field' && fields.status.size > 0
-	if (!byState) {
-		notes.push(
-			policy.state_carrier === 'field'
-				? 'state_carrier is field but no status field is registered for the scope, so Today lists every incomplete assigned task.'
-				: `state_carrier is ${policy.state_carrier}: completion is the only state, so Today lists every incomplete assigned task.`,
-		)
-	}
 	const inProgress = policy.workflow_states.in_progress
 	const todayTasks: Array<{ task: StandupTask; extra?: Partial<StandupItem> }> = []
 	for (const task of open) {
@@ -213,16 +231,50 @@ export async function buildStandup(input: StandupInput): Promise<Standup> {
 		}
 		if (blockers.length > 0) blockedTasks.push({ task, extra: { blockers } })
 	}
-	if (!byState && policy.blocked_signals.some((s) => s.startsWith('state:'))) {
-		notes.push('A state:<state> blocked signal needs a status field, so it was skipped.')
-	}
 
 	return {
 		done: group(done.map((task) => ({ task }))),
 		today: group(todayTasks),
 		blocked: group(blockedTasks),
-		today_basis: byState ? 'in-progress-or-due' : 'incomplete-and-assigned',
-		points_tracked: { story: fields.story.size > 0, task: fields.task.size > 0 },
-		notes,
+		today_basis: basis.today_basis,
+		points_tracked: basis.points_tracked,
+		notes: basis.notes,
 	}
+}
+
+export type TeamStandupInput = Omit<StandupInput, 'member'> & {
+	/** The people to report on, in order; when unset, the assignees seen in `tasks`, by name. */
+	people?: Member[]
+}
+
+export type TeamStandup = Pick<Standup, 'today_basis' | 'points_tracked' | 'notes'> & {
+	members: Array<{ member: Member } & Pick<Standup, 'done' | 'today' | 'blocked'>>
+}
+
+/**
+ * The standup of every person in a scope (R1, `--team`). Each person's Done, Today and Blocked are the
+ * single-member computation over the same tasks; the basis, points tracking and notes are the same for
+ * all of them, so they are stated once.
+ */
+export async function buildTeamStandup(input: TeamStandupInput): Promise<TeamStandup> {
+	const { people: given, ...rest } = input
+	let people = given
+	if (!people) {
+		const seen = new Map<string, Member>()
+		for (const { assignee } of input.tasks) {
+			if (assignee?.gid && !seen.has(assignee.gid)) {
+				seen.set(assignee.gid, { gid: assignee.gid, ...(assignee.name !== undefined && { name: assignee.name }) })
+			}
+		}
+		people = [...seen.values()].sort(
+			(a, b) => (a.name ?? a.gid).localeCompare(b.name ?? b.gid) || a.gid.localeCompare(b.gid),
+		)
+	}
+	const members: TeamStandup['members'] = []
+	for (const member of people) {
+		const { done, today, blocked } = await buildStandup({ ...rest, member })
+		members.push({ member, done, today, blocked })
+	}
+	const { today_basis, points_tracked, notes } = standupBasis(input.policy, input.fields)
+	return { members, today_basis, points_tracked, notes }
 }

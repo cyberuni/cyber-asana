@@ -125,10 +125,16 @@ describe('config scope', () => {
 		)
 	})
 
-	it('add rejects an unknown kind, including team, which is not built yet', async () => {
+	it('add builds a team scope', async () => {
+		const api = fakeApi()
+		await run(configProgram(api), 'config', 'scope', 'add', 'web-team', '--kind', 'team', '--team', '1400')
+		expect(api.addScope).toHaveBeenCalledWith({ name: 'web-team', kind: 'team', team: '1400' }, expect.any(Object))
+	})
+
+	it('add rejects an unknown kind', async () => {
 		await expect(
-			run(configProgram(fakeApi()), 'config', 'scope', 'add', 'x', '--kind', 'team', '--project', '1'),
-		).rejects.toThrow('Unknown scope kind "team"')
+			run(configProgram(fakeApi()), 'config', 'scope', 'add', 'x', '--kind', 'cohort', '--project', '1'),
+		).rejects.toThrow('Unknown scope kind "cohort"')
 	})
 
 	it('add rejects a non-numeric sprint length', async () => {
@@ -291,6 +297,25 @@ describe('scrum scope resolve', () => {
 
 	it('prints a project count', async () => {
 		expect(await run(fakeApi(), 'scrum', 'scope', 'resolve')).toContain('\n1 project(s)')
+	})
+
+	it('prints the people of a team scope, with a count, after its projects', async () => {
+		const api = fakeApi({
+			resolveScope: vi.fn(async () => ({
+				scope: { name: 'web-team', kind: 'team' as const, team: '1400' },
+				implicit: false,
+				projects: [{ gid: '1201', name: 'Web' }],
+				people: [
+					{ gid: 'u1', name: 'Ada' },
+					{ gid: 'u2', name: 'Bo' },
+				],
+				sprint: { sprint_model: 'custom-field', sprint_length_days: 14 },
+			})),
+		})
+		const text = (await run(api, 'scrum', 'scope', 'resolve', '--scope', 'web-team')).join('\n')
+		expect(text).toContain('Ada')
+		expect(text).toContain('u2')
+		expect(text).toContain('2 people')
 	})
 
 	it('notes an implicit scope', async () => {

@@ -58,7 +58,7 @@ export const SYSTEM_SUITES: SystemSuite[] = [
 		],
 	},
 	{ file: 'src/task-templates/api.system.ts', env: ['ASANA_SYSTEM_TEST_PROJECT_GID'] },
-	{ file: 'src/teams/api.system.ts', env: ['ASANA_WORKSPACE_GID'] },
+	{ file: 'src/teams/api.system.ts', env: ['ASANA_WORKSPACE_GID', 'ASANA_SYSTEM_TEST_TEAM_GID'] },
 	{ file: 'src/workspaces/api.system.ts', env: [] },
 ]
 

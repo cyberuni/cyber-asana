@@ -183,6 +183,7 @@ scope upgrades the file to `schema_version: 3`.
 cyber-asana config scope add web --kind project --project <gid-or-alias> --default
 cyber-asana config scope add platform --kind projects --project <gid>,<gid> --sprint-length-days 7
 cyber-asana config scope add growth --kind portfolio --portfolio <gid>
+cyber-asana config scope add web-team --kind team --team <gid>
 cyber-asana config scope add mine --kind projects --project <gid>,<gid> --global   # personal registry
 cyber-asana config scope list                          # both registries; source and default shown
 cyber-asana config scope remove platform [--global]
@@ -190,7 +191,7 @@ cyber-asana scrum scope resolve [--scope <name>] [--tasks]   # check what a scop
 ```
 
 - **Kinds.** `project` takes exactly one project, `projects` takes several, `portfolio` takes a
-  portfolio and follows nested portfolios. There is no `team` kind yet.
+  portfolio and follows nested portfolios, `team` takes a team GID and covers its unarchived projects and its members (`team projects`, `team members`).
 - **Overrides.** A scope may set only `--sprint-model`, `--sprint-length-days`, and
   `--sprint-anchor-date`. Everything else is policy and belongs in the `cyber-asana.scrum` reference.
 - **Which scope runs.** `--scope <name>`, else the scope marked `--default`. With no scope

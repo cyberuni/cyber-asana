@@ -1,5 +1,12 @@
 import { Command, Option } from 'commander'
-import { output, printEmpty, printFields, printNextSteps, printSummary } from '../../platform/cli/output.js'
+import {
+	output,
+	printCountSummary,
+	printEmpty,
+	printFields,
+	printNextSteps,
+	printSummary,
+} from '../../platform/cli/output.js'
 import type { ScrumApi } from '../api.js'
 import {
 	addSprintOptions,
@@ -16,6 +23,7 @@ import type { StandupGroup, StandupItem } from './standup.js'
 type ReportFlags = SprintFlags & { me?: boolean; member?: string; team?: boolean }
 
 type Standup = Awaited<ReturnType<ScrumApi['reportStandup']>>
+type TeamStandup = Awaited<ReturnType<ScrumApi['reportTeamStandup']>>
 
 function pointsLine(group: StandupGroup, tracked: Standup['points_tracked']): string {
 	const parts = [
@@ -38,8 +46,14 @@ function describe(item: StandupItem): string {
 	return `  ${item.gid}  ${item.name}${[...extra, ...blockers].length ? ` — ${[...extra, ...blockers].join('; ')}` : ''}`
 }
 
-function printGroup(title: string, entity: string, group: StandupGroup, tracked: Standup['points_tracked']) {
-	console.log(`\n${title} (${group.count})${pointsLine(group, tracked)}`)
+function printGroup(
+	title: string,
+	entity: string,
+	group: StandupGroup,
+	tracked: Standup['points_tracked'],
+	indent = '',
+) {
+	console.log(`\n${indent}${title} (${group.count})${pointsLine(group, tracked)}`)
 	if (group.count === 0) printEmpty(entity)
 	for (const item of group.tasks) console.log(describe(item))
 }
@@ -115,6 +129,28 @@ function printWorkload(result: Workload) {
 	for (const note of result.notes) console.log(`\nNote: ${note}`)
 }
 
+function printTeamStandup(result: TeamStandup) {
+	console.log(`Team standup for ${result.scope} — ${result.today_date} (${result.timezone})`)
+	printFields({
+		Sprint: result.sprint ? `${result.sprint.name} (${dates(result.sprint)})` : 'none',
+		Window: `done since ${result.window.since} (${result.window.setting})`,
+	})
+	if (result.sprint_note) console.log(`\nNo current sprint: ${result.sprint_note}`)
+	if (result.members.length === 0) printEmpty('members')
+	for (const { member, done, today, blocked } of result.members) {
+		console.log(`\n${member.name ?? member.gid} (${member.gid})`)
+		printGroup('Done', 'done tasks', done, result.points_tracked)
+		printGroup('Today', 'tasks for today', today, result.points_tracked)
+		printGroup('Blocked', 'blocked tasks', blocked, result.points_tracked)
+	}
+	printCountSummary(result.count.members, 'member(s)')
+	for (const note of result.notes) console.log(`\nNote: ${note}`)
+	printNextSteps([
+		'cyber-asana report standup --member <user> — one person in full',
+		'cyber-asana sprint tasks — see the whole sprint',
+	])
+}
+
 /** `report standup`, `report health`, and `report workload`; later units add the other reports under `report`. */
 export function reportCommand(api?: ResolveApi) {
 	const cmd = new Command('report').description('Scrum reports computed from Asana: the CLI counts, the skill narrates')
@@ -125,6 +161,7 @@ export function reportCommand(api?: ResolveApi) {
 			'Examples:',
 			'  cyber-asana report standup',
 			'  cyber-asana report standup --member someone@example.com --scope web',
+			'  cyber-asana report standup --team --scope web-team',
 			'  cyber-asana report standup --json',
 			'  cyber-asana report health --scope web',
 			'  cyber-asana report workload',
@@ -139,13 +176,17 @@ export function reportCommand(api?: ResolveApi) {
 	)
 		.addOption(new Option('--me', 'The signed-in user (default)').conflicts(['member', 'team']))
 		.addOption(new Option('--member <user>', "Another member's GID or email").conflicts(['team']))
-		.option('--team', 'The whole team (not built yet; exits 2 with error.code team-unsupported)')
+		.option('--team', "Every person of the scope, grouped by person: a team scope's members, else the assignees seen")
 		.action(async (opts: ReportFlags) => {
+			if (opts.team) {
+				const team = await resolveApi(api).reportTeamStandup(sprintInput(opts), storeOptions(opts))
+				output(team, () => printTeamStandup(team))
+				return
+			}
 			const result = await resolveApi(api).reportStandup(
 				{
 					...sprintInput(opts),
 					...(opts.member !== undefined && { member: opts.member }),
-					...(opts.team && { team: true }),
 				},
 				storeOptions(opts),
 			)

@@ -24,9 +24,10 @@ export function registerScrumTools(server: McpServer, api?: ScrumApi | (() => Sc
 		'Add a scrum scope, or replace the one with the same name. Saves to the repo config (which becomes schema_version 3), or to the global registry with global=true. A scope may override only sprint_model, sprint_length_days, and sprint_anchor_date.',
 		{
 			name: z.string().describe('Scope name'),
-			kind: z.enum(SCOPE_KINDS).describe('project (exactly one project), projects (several), or portfolio'),
+			kind: z.enum(SCOPE_KINDS).describe('project (exactly one project), projects (several), portfolio, or team'),
 			project_gids: z.array(z.string()).optional().describe('Project GIDs, for kind project or projects'),
 			portfolio_gid: z.string().optional().describe('Portfolio GID, for kind portfolio'),
+			team_gid: z.string().optional().describe('Team GID, for kind team'),
 			default: z.boolean().optional().describe('Use this scope when none is named'),
 			sprint_model: z.string().optional().describe('Override the policy sprint_model'),
 			sprint_length_days: z.number().int().positive().optional().describe('Override the policy sprint_length_days'),
@@ -39,6 +40,7 @@ export function registerScrumTools(server: McpServer, api?: ScrumApi | (() => Sc
 				kind: params.kind,
 				...(params.project_gids !== undefined && { projects: params.project_gids }),
 				...(params.portfolio_gid !== undefined && { portfolio: params.portfolio_gid }),
+				...(params.team_gid !== undefined && { team: params.team_gid }),
 				...(params.default && { default: true as const }),
 				...(params.sprint_model !== undefined && { sprint_model: params.sprint_model }),
 				...(params.sprint_length_days !== undefined && { sprint_length_days: params.sprint_length_days }),
@@ -60,7 +62,7 @@ export function registerScrumTools(server: McpServer, api?: ScrumApi | (() => Sc
 
 	server.tool(
 		'asana_scope_resolve',
-		'Resolve a scrum scope to the projects it covers (following nested portfolios) and its effective sprint settings. Without scope, uses the scope marked default, else the repo default project. Fails with code scope-unknown for a name that is not configured, and scope-missing when nothing selects a scope.',
+		'Resolve a scrum scope to the projects it covers (following nested portfolios; a team scope covers the unarchived projects of its team) and its effective sprint settings. A team scope also returns people: the members of its team, including those with no task yet. Without scope, uses the scope marked default, else the repo default project. Fails with code scope-unknown for a name that is not configured, and scope-missing when nothing selects a scope.',
 		{
 			scope: z.string().optional().describe('Scope name'),
 			tasks: z.boolean().optional().describe("Also list the scope's tasks, each counted once"),
@@ -164,19 +166,17 @@ export function registerScrumTools(server: McpServer, api?: ScrumApi | (() => Sc
 
 	server.tool(
 		'asana_report_standup',
-		"A member's standup (R1), computed: Done (completed within the policy's standup_window), Today (incomplete, in the current sprint, in progress or due today; falls back to every incomplete assigned task when no state is carried, and says so in notes), and Blocked (from blocked_signals, each with its blocker). Story and task points are totalled apart. With no current sprint it carries on without sprint filters and sprint_note says why. Fails with code sprint-none for an explicitly named sprint that has not started, sprint-unknown, model-unsupported, or team-unsupported (team standup is not built yet).",
+		"A member's standup (R1), computed: Done (completed within the policy's standup_window), Today (incomplete, in the current sprint, in progress or due today; falls back to every incomplete assigned task when no state is carried, and says so in notes), and Blocked (from blocked_signals, each with its blocker). Story and task points are totalled apart. With no current sprint it carries on without sprint filters and sprint_note says why. With team=true it reports every person of the scope grouped by person (members[]: a team scope's members including people with no task yet, else the assignees seen) and ignores member. Fails with code sprint-none for an explicitly named sprint that has not started, sprint-unknown, or model-unsupported.",
 		{
 			...sprintParams,
 			member: z.string().optional().describe('Another member by GID or email; the signed-in user when omitted'),
-			team: z.boolean().optional().describe('The whole team; not built yet'),
+			team: z.boolean().optional().describe('Every person of the scope, grouped by person'),
 		},
 		async ({ member, team, ...rest }) =>
 			json(
-				await resolveApi(api).reportStandup({
-					...pick(rest),
-					...(member !== undefined && { member }),
-					...(team && { team: true }),
-				}),
+				team
+					? await resolveApi(api).reportTeamStandup(pick(rest))
+					: await resolveApi(api).reportStandup({ ...pick(rest), ...(member !== undefined && { member }) }),
 			),
 	)
 

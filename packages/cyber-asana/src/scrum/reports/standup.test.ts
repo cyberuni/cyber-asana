@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_SCRUM_POLICY, type ScrumPolicy } from '../policy.js'
-import { buildStandup, type StandupTask, standupWindowStart } from './standup.js'
+import { buildStandup, buildTeamStandup, type StandupTask, standupWindowStart } from './standup.js'
 
 const days = DEFAULT_SCRUM_POLICY.working_days
 
@@ -183,5 +183,53 @@ describe('buildStandup', () => {
 	it('says points are not tracked when neither field is registered', async () => {
 		const result = await buildStandup({ ...base, tasks: [] })
 		expect(result.points_tracked).toEqual({ story: false, task: false })
+	})
+})
+
+describe('buildTeamStandup', () => {
+	const { member: _member, ...teamBase } = base
+
+	it("groups the scope's tasks by assignee, the people being the assignees seen, ordered by name", async () => {
+		const result = await buildTeamStandup({
+			...teamBase,
+			tasks: [
+				task({ gid: 'a', assignee: other }),
+				task({ gid: 'b' }),
+				task({ gid: 'c', assignee: { gid: 'u3', name: 'Ada' }, completed: true, completed_at: '2026-01-20T10:00:00Z' }),
+				task({ gid: 'free', assignee: null }),
+			],
+		})
+		expect(result.members.map((m) => m.member.name)).toEqual(['Ada', 'Me', 'Other'])
+		expect(result.members[0]?.done.tasks.map((t) => t.gid)).toEqual(['c'])
+		expect(result.members[1]?.today.tasks.map((t) => t.gid)).toEqual(['b'])
+		expect(result.members[2]?.today.tasks.map((t) => t.gid)).toEqual(['a'])
+	})
+
+	it('lists the given people, in order, including those with no task, and ignores everyone else', async () => {
+		const result = await buildTeamStandup({
+			...teamBase,
+			people: [{ gid: 'u9', name: 'Newcomer' }, other],
+			tasks: [task({ gid: 'a', assignee: other }), task({ gid: 'b' })],
+		})
+		expect(result.members.map((m) => m.member.gid)).toEqual(['u9', 'u2'])
+		expect(result.members[0]?.today.count).toBe(0)
+		expect(result.members[1]?.today.tasks.map((t) => t.gid)).toEqual(['a'])
+	})
+
+	it('reports an empty team with no members and still says how Today was chosen', async () => {
+		const result = await buildTeamStandup({ ...teamBase, tasks: [] })
+		expect(result.members).toEqual([])
+		expect(result.today_basis).toBe('incomplete-and-assigned')
+		expect(result.points_tracked).toEqual({ story: false, task: false })
+		expect(result.notes.length).toBeGreaterThan(0)
+	})
+
+	it('carries the basis, points tracking and notes once for the team, not per person', async () => {
+		const result = await buildTeamStandup({
+			...teamBase,
+			tasks: [task({ gid: 'a' }), task({ gid: 'b', assignee: other })],
+		})
+		expect(result.members[0]).not.toHaveProperty('notes')
+		expect(result.notes).toHaveLength(1)
 	})
 })

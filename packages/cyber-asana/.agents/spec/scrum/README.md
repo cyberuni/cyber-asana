@@ -22,8 +22,7 @@ the members that kind needs, and may override exactly three policy keys: `sprint
 | `project` | exactly one project GID | that project |
 | `projects` | one or more project GIDs | those projects; a task homed in two of them counts once |
 | `portfolio` | one portfolio GID | the portfolio's projects, following nested portfolios |
-
-The `team` kind belongs to a later unit and is rejected today.
+| `team` | one team GID | the team's unarchived projects, and the team's members as the scope's people |
 
 **Key terms**
 
@@ -67,6 +66,17 @@ The `team` kind belongs to a later unit and is rejected today.
 - A `portfolio` scope reads `getItemsForPortfolio`, recurses into items that are portfolios, and
   collects items that are projects. A portfolio is read once however it is reached, so a cycle ends,
   and a project reachable twice is listed once.
+- A `team` scope reads `getProjectsForTeam` (archived projects left out, every page) for its projects
+  and `getTeamMembershipsForTeam` for its people: the team's members, each once by user GID,
+  including members who have no task yet. `scrum scope resolve` returns them as `people`; other kinds
+  return no `people`, because their people are the assignees seen. A team scope is a multi-project
+  scope, so its sprint model must support that: the `sections` model does not (below).
+
+- `team members <gid>` (`asana_team_members`) lists a team's memberships, each with its user, and
+  `team projects <gid>` (`asana_team_projects`) lists its projects (`--archived` keeps only archived
+  ones; unset returns both). They page like every other list: `--limit`, `--offset`, `--all`, and an
+  empty result says `0 team members found` or `0 projects found`. The `teams` spec node is frozen
+  and covers `team list | get` only; these two reads exist for the `team` scope and are specified here.
 
 ### Failure statuses
 
@@ -104,7 +114,7 @@ other text is `sprint-unknown`. `previous` of sprint 1 is `sprint-none`.
   incomplete task in a section that does not match `sprint_name_format` (the policy's
   `backlog_section` is one of them), in each project's order, each task once, minus any task a sprint
   section of another project holds. It reads sections and their tasks only, so it works on a free
-  workspace. Scope kinds `project` and `projects` only; a `portfolio` scope is `model-unsupported`.
+  workspace. Scope kinds `project` and `projects` only; a `portfolio` or `team` scope is `model-unsupported`, because a sprint start would create a section in every project a portfolio or team holds.
 - `sprint current` needs the sprint's section in at least one project, else `sprint-none` with the
   `sprint start` command to run. `tasks`, `add`, and `close` need the same.
 - `sprint start` creates the section in each project that lacks it; when none lacks it, it changes
@@ -151,7 +161,6 @@ other text is `sprint-unknown`. `previous` of sprint 1 is `sprint-none`.
 | `sprint-unknown` | `--sprint` names no sprint | 2 |
 | `model-unsupported` | the scope's model is not built in, or the scope kind does not suit the model | 2 |
 | `policy-incomplete` | `sprint_anchor_date` is not set | 2 |
-| `team-unsupported` | `report standup --team`, until the team scope is built | 2 |
 | `window-invalid` | `report workload` with only one of `--from` and `--to`, a malformed date, or `from` after `to` | 2 |
 | `sprint-field-missing` | the `custom-field` model finds no Sprint field on the scope's projects | 2 |
 | `sprint-field-ambiguous` | the scope's projects use more than one Sprint field | 2 |
@@ -182,8 +191,15 @@ member:
 
 With no current sprint (no `sprint_anchor_date`, today before it, or no section for the sprint) the
 report carries on without sprint filters, and `sprint_note` says why (D12). A sprint named with
-`--sprint` that has no section is `sprint-none`. `--team` is `team-unsupported` (exit 2) until the team
-scope is built.
+`--sprint` that has no section is `sprint-none`.
+
+`--team` runs the same report for every person of the scope and groups it by person: `members[]`, each
+with `member` (`gid`, `name`) and that person's `done`, `today`, and `blocked`, plus `count.members`.
+The people are a `team` scope's members (including those with no task yet, in the team's order), else
+the assignees seen in the scope's tasks, ordered by name; unassigned tasks belong to no one. The
+basis (`today_basis`), `points_tracked`, and `notes` hold for everyone, so they appear once. A scope
+with no one to report on has `members: []`, and the text output says `0 members found`. `--team`
+conflicts with `--me` and `--member` as a usage error.
 
 ### Health
 

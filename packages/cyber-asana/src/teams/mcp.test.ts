@@ -2,6 +2,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 const listTeamsMock = vi.fn()
 const getTeamMock = vi.fn()
+const listTeamMembersMock = vi.fn()
+const listTeamProjectsMock = vi.fn()
 
 vi.mock('./default.js', async () => {
 	const actual = await vi.importActual<typeof import('./default.js')>('./default.js')
@@ -9,6 +11,8 @@ vi.mock('./default.js', async () => {
 		...actual,
 		listTeams: listTeamsMock,
 		getTeam: getTeamMock,
+		listTeamMembers: listTeamMembersMock,
+		listTeamProjects: listTeamProjectsMock,
 	}
 })
 
@@ -64,10 +68,32 @@ describe('teams/mcp', () => {
 		registerTeamTools(server as any, {
 			listTeams: vi.fn(),
 			getTeam: injectedGetTeam,
+			listTeamMembers: vi.fn(),
+			listTeamProjects: vi.fn(),
 		})
 
 		await server.handlers.get('asana_team_get')?.({ team_gid: 'team1' })
 
 		expect(injectedGetTeam).toHaveBeenCalledWith('team1', undefined)
+	})
+
+	it('asana_team_members forwards the team gid and pagination options', async () => {
+		listTeamMembersMock.mockResolvedValue({ data: [], next_page: null, limit: 100 })
+		const server = createServer()
+		registerTeamTools(server as any)
+
+		await server.handlers.get('asana_team_members')?.({ team_gid: 'team1', limit: 5, fetch_all: true })
+
+		expect(listTeamMembersMock).toHaveBeenCalledWith('team1', { limit: 5, fetchAll: true })
+	})
+
+	it('asana_team_projects forwards the team gid, archived, and pagination options', async () => {
+		listTeamProjectsMock.mockResolvedValue({ data: [], next_page: null, limit: 100 })
+		const server = createServer()
+		registerTeamTools(server as any)
+
+		await server.handlers.get('asana_team_projects')?.({ team_gid: 'team1', archived: false, offset: 'abc' })
+
+		expect(listTeamProjectsMock).toHaveBeenCalledWith('team1', { offset: 'abc', archived: false })
 	})
 })

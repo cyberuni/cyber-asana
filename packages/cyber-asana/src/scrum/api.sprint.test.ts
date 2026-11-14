@@ -94,6 +94,14 @@ describe('scrum api: sprints', () => {
 		await expect(api.currentSprint({})).rejects.toMatchObject({ code: 'model-unsupported' })
 	})
 
+	it('stops with model-unsupported for a team scope under the sections model, naming the kind', async () => {
+		const { api } = setup({ scopes: [{ name: 't', kind: 'team', team: '9', default: true }] })
+		await expect(api.currentSprint({})).rejects.toMatchObject({
+			code: 'model-unsupported',
+			message: expect.stringContaining('not team'),
+		})
+	})
+
 	it('lists sprints with their state', async () => {
 		const { api } = setup()
 		const listed = await api.listSprints({})

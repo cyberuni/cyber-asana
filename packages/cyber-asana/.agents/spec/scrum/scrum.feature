@@ -114,6 +114,40 @@ Feature: scrum scopes
     When scrum scope resolve runs for a portfolio scope over "1"
     Then the projects are "10" and "12"
 
+  Scenario: a team scope resolves to the team's unarchived projects and its members
+    Given a team "1400" with projects "10" and "11" (and an archived "12") and members "Ada" and "Bo"
+    When scrum scope resolve runs for a team scope over "1400"
+    Then the projects are "10" and "11" and the people are "Ada" and "Bo"
+
+  Scenario: team members lists the memberships of a team with their users
+    Given a team "1400" with members "Ada" and "Bo"
+    When team members runs with "1400"
+    Then each member is listed with its user GID and name, and the count is named
+
+  Scenario: team projects pages and can keep only archived projects
+    Given a team "1400" with more projects than one page
+    When team projects runs with --archived and --all
+    Then only archived projects are asked for and every page is read
+
+  Scenario: a team with no members says so
+    Given a team with no members
+    When team members runs
+    Then the output says "0 team members found"
+
+  Scenario: a team member listed twice is one person
+    Given a team whose memberships name user "u1" twice and one membership with no user
+    When scrum scope resolve runs for that team scope
+    Then the people are "u1" once
+
+  Scenario: a team scope is not supported by the sections model
+    Given a team scope and sprint_model "sections"
+    When sprint current runs
+    Then it fails with code "model-unsupported", naming the kind team, and exits 2
+
+  Scenario: a team scope needs a team GID and no projects
+    When a team scope is added with projects, or without a team
+    Then it is rejected with a message naming the path
+
   Scenario: a portfolio that contains itself ends the walk
     Given portfolio "1" holds portfolio "2", which holds portfolio "1"
     When scrum scope resolve runs for a portfolio scope over "1"
@@ -278,9 +312,30 @@ Feature: scrum scopes
     When report standup runs with --member
     Then the report is for that user's tasks and member.source is "member"
 
-  Scenario: the team form is refused for now
+  Scenario: the team standup groups the scope by person
+    Given tasks assigned to "Ada" and "Bo", and "Bo" completed "c" yesterday
     When report standup runs with --team
-    Then it fails with code "team-unsupported" and exits 2
+    Then members lists "Ada" and "Bo" by name, each with their own Done, Today, and Blocked
+    And "c" is under Bo's Done and the basis and notes appear once
+
+  Scenario: unassigned tasks belong to nobody in the team standup
+    Given an incomplete task with no assignee
+    When report standup runs with --team
+    Then no member holds it
+
+  Scenario: a scope with no people has no members
+    Given no assigned task in the scope
+    When report standup runs with --team
+    Then members is empty and the text output says "0 members found"
+
+  Scenario: the team form conflicts with --member
+    When report standup runs with --team and --member
+    Then it fails as a usage error, exit 2
+
+  Scenario: the people of a team scope are the team's members, including those with no task
+    Given a team scope whose team has members "Ada" and "Newcomer", and only Ada has a task
+    When the team standup is built
+    Then members lists "Ada" and "Newcomer" in the team's order, Newcomer with empty groups
 
   # ── reports: health ──
 

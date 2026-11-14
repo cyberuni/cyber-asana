@@ -3,12 +3,15 @@ import { CodedConfigError } from '../platform/coded-error.js'
 import { listItems } from '../platform/pagination.js'
 import type { PortfolioGateway } from '../portfolios/gateway.js'
 import type { TaskGateway } from '../tasks/gateway.js'
+import type { TeamGateway } from '../teams/gateway.js'
 import type { ScrumPolicy } from './policy.js'
 
 /** The Asana reads a scope needs, taken as gateways so this module never touches the SDK. */
 export type ScopeGateways = {
 	portfolios: Pick<PortfolioGateway, 'listPortfolioItems'>
 	tasks: Pick<TaskGateway, 'listTasks'>
+	/** Reads a `team` scope's projects and people. Wired in production; a scope of another kind never needs it. */
+	teams?: Pick<TeamGateway, 'listTeamProjects' | 'listTeamMembers'>
 }
 
 export type SelectedScope = {
@@ -78,15 +81,33 @@ export type ScopeProject = { gid: string; name?: string }
 
 type PortfolioItem = { gid?: string; name?: string; resource_type?: string }
 
+export type ScopePerson = { gid: string; name?: string }
+
+function teamsGateway(gateways: Pick<ScopeGateways, 'teams'>) {
+	if (!gateways.teams) throw new Error('A team scope needs the teams gateway, which this wiring does not provide')
+	return gateways.teams
+}
+
 /**
  * The projects a scope covers. `project` and `projects` name them outright; `portfolio` reads the
- * portfolio's items and follows nested portfolios depth first. A project reachable twice is listed
- * once, and a portfolio is read once however it is reached, so a cycle ends.
+ * portfolio's items and follows nested portfolios depth first; `team` lists the team's projects,
+ * archived ones left out. A project reachable twice is listed once, and a portfolio is read once
+ * however it is reached, so a cycle ends.
  */
 export async function resolveScopeProjects(
 	scope: ScopeEntry,
-	gateways: Pick<ScopeGateways, 'portfolios'>,
+	gateways: Pick<ScopeGateways, 'portfolios' | 'teams'>,
 ): Promise<ScopeProject[]> {
+	if (scope.kind === 'team') {
+		const listed = listItems(
+			await teamsGateway(gateways).listTeamProjects(scope.team as string, {
+				fetchAll: true,
+				archived: false,
+				optFields: 'gid,name',
+			}),
+		) as ScopeProject[]
+		return listed.flatMap((p) => (p.gid ? [{ gid: p.gid, ...(p.name !== undefined && { name: p.name }) }] : []))
+	}
 	if (scope.kind !== 'portfolio') return (scope.projects ?? []).map((gid) => ({ gid }))
 	const projects = new Map<string, ScopeProject>()
 	const visited = new Set<string>()
@@ -106,6 +127,31 @@ export async function resolveScopeProjects(
 	}
 	await walk(scope.portfolio as string)
 	return [...projects.values()]
+}
+
+/**
+ * The people a scope names outright: a `team` scope's members, including those with no task yet.
+ * For every other kind the people are the assignees seen in the scope's tasks, so this returns
+ * `undefined` and the report derives them.
+ */
+export async function resolveScopePeople(
+	scope: ScopeEntry,
+	gateways: Pick<ScopeGateways, 'teams'>,
+): Promise<ScopePerson[] | undefined> {
+	if (scope.kind !== 'team') return undefined
+	const memberships = listItems(
+		await teamsGateway(gateways).listTeamMembers(scope.team as string, {
+			fetchAll: true,
+			optFields: 'user.gid,user.name',
+		}),
+	) as Array<{ user?: { gid?: string; name?: string } }>
+	const people = new Map<string, ScopePerson>()
+	for (const { user } of memberships) {
+		if (user?.gid && !people.has(user.gid)) {
+			people.set(user.gid, { gid: user.gid, ...(user.name !== undefined && { name: user.name }) })
+		}
+	}
+	return [...people.values()]
 }
 
 /** A scope's tasks across its projects. A task multi-homed in two of them is returned once, by GID. */

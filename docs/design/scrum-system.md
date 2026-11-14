@@ -424,7 +424,7 @@ Each unit can ship alone and passes `pnpm verify`; units that need it also pass 
 | U6 | `cyber-asana.report.interface` + `.standup`; `report standup`; `asana-scrum` v1 with the standup route; turn `asana-standup` into a routing stub (D7); update K5 | G12 (standup), K1, K3 | U4 | Built; in review |
 | U7 | `.sprint`, `.retro`, `.velocity` reports, the burndown, and the commitment snapshot (D6); review and retro routes; turn `asana-sprint-report` into a routing stub (D7) | K4, G14 | U6 | Built; in review |
 | U8 | `.health` report and the health route | — | U6 | Built; in review |
-| U9 | `team members \| projects`, the `team` scope, team standup | G4 | U3, U6 |  |
+| U9 | `team members \| projects`, the `team` scope, team standup | G4 | U3, U6 | Built; in review |
 | U10 | The `allocations` domain, `.workload` report, workload route, H8, and the capacity probe in setup | G5 | U8 |Built; in review |
 | U11 | `.custom-field` model, search custom-field filters and paging, custom-field create and enum options, project field attach; setup support | G3, G6, G7 | U4, U5 | Built; in review |
 | U12 | `cyber-asana.dashboard` and `report dashboard` (CLI, D2.1); the planning route (needs velocity and capacity) | — | U7, U8, U10 |  |
@@ -509,6 +509,16 @@ U1 can ship before anything else and fixes wrong numbers users see today.
 - **Velocity** counts a closed sprint's tasks completed by the end of its last day, for the last `velocity_window` sprints before the current one that have a section, and takes no `--sprint`.
 - **Placement.** The three reports' command code lives in `src/scrum/reports/sprint/cli.ts` (the architecture test counts only files named `cli.ts` as delivery) and mounts under `reportCommand`. The scrum API's `history` dependency (status updates and stories) is optional, so a build without it names the gap instead of failing.
 - **Counts of skills.** The skills spec prose said six; the catalog has eight. Fixed there and in the glossary (seven). `reference/cli-vs-mcp.md` still says "7 skills" beside a measured byte count, which a re-measure should refresh.
+
+### 9.8 Decisions made while building U9
+
+- **A team scope under the `sections` model is `model-unsupported`; under `custom-field` it works.** A team scope is multi-project, so it could run on `sections`, which reads only sections and their tasks. But `sprint start` would then create a section in every project the team holds, including projects unrelated to scrum, and `sprint add` and `sprint close` would reach across all of them. U4 refused `portfolio` for the same reason, and `team` follows it: the error names the kind (`not team`). The `custom-field` model (U11) keeps the sprint in one field, so a team scope runs on it, with the premium search that § 4.2 notes. `scrum scope resolve`, `team members`, and `team projects` work under either model.
+- **A team scope's projects are the unarchived ones.** `getProjectsForTeam` is read with `archived: false`. `team projects <gid>` itself returns both by default and takes `--archived` for only the archived ones, matching `project list`.
+- **People.** A `team` scope's people are its memberships' users, each once by GID, in the team's order, including members with no task yet. `scrum scope resolve` returns them as `people`, and other kinds return none. For every other kind the standup's people are the assignees seen in the scope's tasks, ordered by name; unassigned tasks belong to no one. A `team` scope reports on its members only, so a task assigned to someone outside the team is not shown.
+- **Team standup shape.** `report standup --team` is its own API method, `reportTeamStandup`, and returns `members[]` (each `member` plus its own `done`, `today`, `blocked`) and `count.members`. `today_basis`, `points_tracked`, and `notes` are the same for everyone, so they appear once. A scope with no one to report on returns `members: []`, and the text says `0 members found`. `--team` conflicts with `--me` and `--member` as a usage error (exit 2). The `team-unsupported` status U6 added is gone with the limit it described.
+- **The window and the sprint are read once.** The team standup makes the same Asana calls as a member's: one `completed_since` list per project plus the sprint's task GIDs. Only the dependency lookups for Blocked scale with the number of people.
+- **K2.** `init-asana-scrum` step 2 offers `team` and recommends the `custom-field` model for it, since `sections` stops with `model-unsupported`.
+- **G4 reads.** `team members` and `team projects` follow AGENTS.md pagination (`--limit`, `--offset`, `--all`, `--max-pages`) with a minimal default field set. The system tests read `ASANA_SYSTEM_TEST_TEAM_GID`.
 
 ## 10. Items settled after the first review
 

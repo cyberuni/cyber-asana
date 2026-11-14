@@ -5,6 +5,7 @@ import { DEFAULT_SCRUM_POLICY } from './policy.js'
 import {
 	applyScopeOverrides,
 	collectScopeTasks,
+	resolveScopePeople,
 	resolveScopeProjects,
 	type ScopeGateways,
 	selectScope,
@@ -109,6 +110,66 @@ function portfolioGateway(tree: Record<string, Item[]>): ScopeGateways['portfoli
 		},
 	}
 }
+
+function teamGateway(projects: Array<{ gid: string; name?: string }>, members: unknown[]) {
+	const calls: Array<[string, string, unknown]> = []
+	const gateway: NonNullable<ScopeGateways['teams']> = {
+		async listTeamProjects(gid, opts) {
+			calls.push(['projects', gid, opts])
+			return projects as never
+		},
+		async listTeamMembers(gid, opts) {
+			calls.push(['members', gid, opts])
+			return members as never
+		},
+	}
+	return { gateway, calls }
+}
+
+describe('team scopes', () => {
+	const team = { name: 't', kind: 'team', team: '1400' } as const
+
+	it('resolves the projects of the team, leaving archived ones out and reading every page', async () => {
+		const { gateway, calls } = teamGateway(
+			[
+				{ gid: '1', name: 'A' },
+				{ gid: '2', name: 'B' },
+			],
+			[],
+		)
+		expect(await resolveScopeProjects(team, { portfolios: portfolioGateway({}), teams: gateway })).toEqual([
+			{ gid: '1', name: 'A' },
+			{ gid: '2', name: 'B' },
+		])
+		expect(calls).toEqual([['projects', '1400', { fetchAll: true, archived: false, optFields: 'gid,name' }]])
+	})
+
+	it('names the people of the team from its memberships, including those with no task', async () => {
+		const { gateway, calls } = teamGateway(
+			[],
+			[
+				{ gid: 'm1', user: { gid: 'u1', name: 'Ada' } },
+				{ gid: 'm2', user: { gid: 'u2' } },
+				{ gid: 'm3' },
+				{ gid: 'm4', user: { gid: 'u1', name: 'Ada' } },
+			],
+		)
+		expect(await resolveScopePeople(team, { teams: gateway })).toEqual([{ gid: 'u1', name: 'Ada' }, { gid: 'u2' }])
+		expect(calls).toEqual([['members', '1400', { fetchAll: true, optFields: 'user.gid,user.name' }]])
+	})
+
+	it('has no configured people for the other kinds: they are the assignees seen', async () => {
+		const { gateway, calls } = teamGateway([], [])
+		expect(
+			await resolveScopePeople({ name: 'p', kind: 'projects', projects: ['1'] }, { teams: gateway }),
+		).toBeUndefined()
+		expect(calls).toEqual([])
+	})
+
+	it('fails plainly when a team scope is resolved without the teams gateway', async () => {
+		await expect(resolveScopeProjects(team, { portfolios: portfolioGateway({}) })).rejects.toThrow('teams gateway')
+	})
+})
 
 describe('resolveScopeProjects', () => {
 	const none = portfolioGateway({})

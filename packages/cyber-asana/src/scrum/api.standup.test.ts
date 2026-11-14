@@ -162,9 +162,64 @@ describe('scrum api: report standup', () => {
 		const report = await api.reportStandup({})
 		expect(report.blocked.tasks[0]?.blockers).toEqual([{ signal: 'dependency', task: { gid: 'd', name: 'upstream' } }])
 	})
+})
 
-	it('rejects the team form until it is built', async () => {
-		const { api } = setup()
-		await expect(api.reportStandup({ team: true })).rejects.toMatchObject({ code: 'team-unsupported' })
+describe('scrum api: report team standup', () => {
+	it('groups the scope by person, asking Asana for the window once per project', async () => {
+		const { api, listTasks } = setup({
+			listed: [
+				open('a'),
+				open('b', { assignee: { gid: 'u2', name: 'Bo' } }),
+				{
+					...open('done', { assignee: { gid: 'u2', name: 'Bo' } }),
+					completed: true,
+					completed_at: '2026-01-20T09:00:00Z',
+				},
+				open('back'),
+			],
+		})
+		const report = await api.reportTeamStandup({})
+		expect(listTasks).toHaveBeenCalledTimes(1)
+		expect(report.members.map((m) => m.member.gid)).toEqual(['u2', 'u1'])
+		const bo = report.members.find((m) => m.member.gid === 'u2')
+		expect(bo?.done.tasks.map((t) => t.gid)).toEqual(['done'])
+		expect(bo?.today.tasks.map((t) => t.gid)).toEqual(['b'])
+		const me = report.members.find((m) => m.member.gid === 'u1')
+		// The backlog task is outside the current sprint, so Today leaves it out.
+		expect(me?.today.tasks.map((t) => t.gid)).toEqual(['a'])
+		expect(report.sprint?.name).toBe('Sprint 2')
+		expect(report.count).toEqual({ members: 2 })
+		expect(report.today_date).toBe('2026-01-21')
+	})
+
+	it("names the blocker of a person's blocked task", async () => {
+		const { api } = setup({
+			listed: [open('a')],
+			dependencies: { a: [{ gid: 'd', name: 'upstream', completed: false }] },
+		})
+		const report = await api.reportTeamStandup({})
+		expect(report.members[0]?.blocked.tasks[0]?.blockers).toEqual([
+			{ signal: 'dependency', task: { gid: 'd', name: 'upstream' } },
+		])
+	})
+
+	it('reports no members, definitively, when nothing is assigned', async () => {
+		const { api } = setup({ listed: [open('x', { assignee: null })] })
+		const report = await api.reportTeamStandup({})
+		expect(report.members).toEqual([])
+		expect(report.count).toEqual({ members: 0 })
+	})
+
+	it('carries on without sprint filters, and says so, when the current sprint has no section', async () => {
+		const { api } = setup({ sections: [{ name: 'Backlog', tasks: [] }], listed: [open('back')] })
+		const report = await api.reportTeamStandup({})
+		expect(report.sprint).toBeNull()
+		expect(report.sprint_note).toContain('Sprint 2')
+		expect(report.members[0]?.today.tasks.map((t) => t.gid)).toEqual(['back'])
+	})
+
+	it('stops with model-unsupported for a team scope under the sections model', async () => {
+		const { api } = setup({ scopes: [{ name: 't', kind: 'team', team: '1', default: true }] })
+		await expect(api.reportTeamStandup({})).rejects.toMatchObject({ code: 'model-unsupported' })
 	})
 })

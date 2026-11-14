@@ -12,6 +12,7 @@ Reports are computed by the CLI, so the counts and point totals are the same eve
 ```sh
 cyber-asana report standup
 cyber-asana report standup --member someone@example.com
+cyber-asana report standup --team
 cyber-asana report standup --scope web --sprint previous --json
 cyber-asana report health
 cyber-asana report workload
@@ -30,7 +31,7 @@ Every report takes `--scope <name>` (see [Repo config](/cyber-asana/cli/repo-con
 | --- | --- |
 | `--me` | The signed-in user. This is the default. |
 | `--member <user>` | Another member, by GID or email. |
-| `--team` | Not built yet. Exits `2` with `error.code` `team-unsupported`. |
+| `--team` | Every person of the scope, grouped by person. Cannot be combined with `--me` or `--member`. |
 
 | Section | What it holds |
 | --- | --- |
@@ -40,6 +41,15 @@ Every report takes `--scope <name>` (see [Repo config](/cyber-asana/cli/repo-con
 
 Story points and task points are totalled apart for each section, and only when the scope's projects
 register those fields.
+
+### The team standup
+
+`--team` runs the same report for each person of the scope and groups it by person. The people are the
+members of a `team` scope, including people with no task yet, and for every other scope kind the
+assignees seen in the scope's tasks, ordered by name. Each person has their own Done, Today, and Blocked.
+`today_basis`, `points_tracked`, and `notes` are stated once for the team, and `count.members` is the
+number of people. A scope with nobody to report on prints `0 members found`. A `team` scope also needs a
+sprint model that supports it: the built-in `sections` model stops with `model-unsupported` for one.
 
 ### How it decides
 

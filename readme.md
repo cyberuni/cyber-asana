@@ -483,7 +483,7 @@ Tools are named `asana_<resource>_<action>` (e.g. `asana_task_create`).
 | `task-template` | `asana_task_template_list`, `asana_task_template_get`, `asana_task_template_instantiate` |
 | `section` | `asana_section_list`, `asana_section_get`, `asana_section_create`, `asana_section_update`, `asana_section_move`, `asana_section_task_add`, `asana_section_task_list`, `asana_section_delete` |
 | `user` | `asana_user_list`, `asana_user_get`, `asana_user_me` |
-| `team` | `asana_team_list`, `asana_team_get` |
+| `team` | `asana_team_list`, `asana_team_get`, `asana_team_members`, `asana_team_projects` |
 | `scope` | `asana_scope_list`, `asana_scope_add`, `asana_scope_remove`, `asana_scope_resolve` (scrum scopes: the projects a scrum team works in) |
 | `sprint` | `asana_sprint_current`, `asana_sprint_list`, `asana_sprint_tasks`, `asana_sprint_add`, `asana_sprint_start`, `asana_sprint_close`, `asana_backlog_list` (computed sprints and the backlog; the `sections` model) |
 | `report` | `asana_report_standup` (a member's standup: done, today, blocked; story and task points apart), `asana_report_health` (sprint health checks H1–H11, each finding with a fix command), `asana_report_workload` (per person load vs Allocations capacity, over/under flags, team total), `asana_report_sprint` (the sprint review: committed vs completed vs added vs removed, burndown, demo list), `asana_report_retro` (carry-over, scope change, blocked time, cycle time, estimate vs actual), `asana_report_velocity` (points per closed sprint and the mean) |
@@ -640,7 +640,7 @@ Installing twice is a no-op, and unrelated settings are preserved.
 | `task-template` | `list`, `get`, `instantiate` |
 | `section` | `list`, `get`, `create`, `update`, `move`, `delete`, `tasks`, `task add` |
 | `user` | `list`, `get`, `me` |
-| `team` | `list`, `get` |
+| `team` | `list`, `get`, `members`, `projects` |
 | `portfolio` | `list`, `items`, `get`, `create`, `update`, `delete` |
 | `goal` | `list`, `get`, `create`, `update`, `delete` |
 | `tag` | `list`, `get`, `create`, `update`, `delete`, `tasks`, `task list/add/remove` |

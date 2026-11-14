@@ -19,8 +19,6 @@ const CODED_EXIT_CODES: Readonly<Record<string, number>> = {
 	'sprint-unknown': 2,
 	'model-unsupported': 2,
 	'policy-incomplete': 2,
-	// Reports: the form asked for is not built yet; use another.
-	'team-unsupported': 2,
 	// Workload: the window flags are wrong; pass both dates, in order, or neither.
 	'window-invalid': 2,
 	// The custom-field model: create and attach the Sprint field, then retry.
