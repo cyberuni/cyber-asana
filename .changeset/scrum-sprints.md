@@ -1,5 +1,0 @@
----
-'cyber-asana': minor
----
-
-Add sprints and the backlog for scrum scopes. `sprint current | list | tasks | add | start | close` and `backlog list` (with the `asana_sprint_current`, `asana_sprint_list`, `asana_sprint_tasks`, `asana_sprint_add`, `asana_sprint_start`, `asana_sprint_close`, and `asana_backlog_list` MCP tools) compute each sprint's name and dates from the `cyber-asana.scrum` policy (`sprint_anchor_date`, `sprint_length_days`, `sprint_name_format`, `working_days`) and work on the scope's projects. The first sprint model, `sections`, makes a sprint a section in each project, needs no premium search, and honors `carry_over` on `sprint close`. `sprint start`, `add`, and `close` are safe to repeat. The package now ships the `cyber-asana.sprint-model.interface` and `cyber-asana.sprint-model.sections` references. A sprint model the CLI does not build in stops with `model-unsupported`; `sprint-none`, `sprint-unknown`, `model-unsupported`, and `policy-incomplete` all exit 2 and are told apart by `error.code`.

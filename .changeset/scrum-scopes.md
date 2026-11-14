@@ -1,5 +1,0 @@
----
-'cyber-asana': minor
----
-
-Add scrum scopes: the projects a scrum team works in. `.agents/cyber-asana.json` takes a `scrum.scopes` list under `schema_version: 3` (the loader still reads 1 and 2, and `config` writes 3 once you add a scope), and the global registry takes `scopes` inside a `repos[]` entry. `config scope add | remove | list` and `scrum scope resolve` (with the `asana_scope_add`, `asana_scope_remove`, `asana_scope_list`, and `asana_scope_resolve` MCP tools) cover the `project`, `projects`, and `portfolio` kinds; a portfolio scope follows nested portfolios, and a task in two projects of a scope counts once. A scope may override only `sprint_model`, `sprint_length_days`, and `sprint_anchor_date`. With no scope configured, the repo's default project acts as an implicit scope. A scope that cannot be chosen stops with `scope-unknown` or `scope-missing` (both exit 2, told apart by `error.code`). `config discover-fields` now also finds the `sprint` ("Sprint", "Iteration") and `status` ("Status", "Stage") enum fields. The `config-asana` skill covers scope add, remove, and list and the new field roles.
