@@ -7,7 +7,7 @@ merge: replace
 
 ## Requirements
 
-- Scope kind `project` or `projects`. The model does not support `portfolio` scopes.
+- Scope kind `project` or `projects`. The model does not support `portfolio` or `team` scopes: a portfolio or a team can hold many projects, and starting a sprint would create a section in each. Use the `custom-field` model for those.
 - Works on a free workspace: it reads sections and their tasks, and never uses task search.
 - One section named by the policy's `backlog_section` (default `Backlog`) in each project. `cyber-asana sprint start` does not create it; make it with `cyber-asana section create "Backlog" --project-gid <gid>`.
 - One section per sprint in each project of the scope, named by `sprint_name_format`, created by **Start a sprint**.

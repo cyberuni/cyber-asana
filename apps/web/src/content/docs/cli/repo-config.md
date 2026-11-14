@@ -140,7 +140,8 @@ the `cyber-asana.scrum` reference, which holds policy and no GIDs. The `scrum` b
     "scopes": [
       { "name": "web", "kind": "project", "projects": ["1201"], "default": true },
       { "name": "platform", "kind": "projects", "projects": ["1201", "1202"], "sprint_length_days": 7 },
-      { "name": "growth", "kind": "portfolio", "portfolio": "1300" }
+      { "name": "growth", "kind": "portfolio", "portfolio": "1300" },
+      { "name": "web-team", "kind": "team", "team": "1400" }
     ]
   }
 }
@@ -151,6 +152,7 @@ the `cyber-asana.scrum` reference, which holds policy and no GIDs. The `scrum` b
 | `project` | one project GID | that project |
 | `projects` | one or more project GIDs | those projects; a task in two of them counts once |
 | `portfolio` | one portfolio GID | the portfolio's projects, including those in nested portfolios |
+| `team` | one team GID | the team's unarchived projects, and the team's members as the scope's people (including members with no task yet) |
 
 A scope may override only `sprint_model`, `sprint_length_days`, and `sprint_anchor_date` (`YYYY-MM-DD`).
 Everything else comes from the `cyber-asana.scrum` reference. Names are unique ignoring case, and at
@@ -160,6 +162,7 @@ most one scope is `default`.
 cyber-asana config scope add web --kind project --project 1201 --default
 cyber-asana config scope add platform --kind projects --project 1201,1202 --sprint-length-days 7
 cyber-asana config scope add growth --kind portfolio --portfolio 1300
+cyber-asana config scope add web-team --kind team --team 1400
 cyber-asana config scope add mine --kind projects --project 1201,1202 --global   # your own registry
 cyber-asana config scope list
 cyber-asana config scope remove platform
@@ -176,7 +179,9 @@ has only run `config add` still works. Once any scope exists, the default projec
 
 `scrum scope resolve` prints the scope, its projects, and its sprint settings, which are the
 `cyber-asana.scrum` values with the scope's overrides laid over them. A `portfolio` scope follows
-nested portfolios, reading each once. `--tasks` also lists the scope's tasks.
+nested portfolios, reading each once. A `team` scope lists the team's projects and also its people, the team's members. `--tasks` also lists the scope's tasks.
+
+The built-in `sections` sprint model supports `project` and `projects` scopes only. A `portfolio` or `team` scope resolves under any model, but sprint commands and reports on it stop with `model-unsupported` under `sections`. Use the `custom-field` model for them.
 
 Two failures are told apart by `error.code`, and both exit `2`:
 

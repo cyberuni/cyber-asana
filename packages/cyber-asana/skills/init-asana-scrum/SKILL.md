@@ -28,7 +28,7 @@ Run `cyber-asana workspace list --toon`. If it fails because of the token or wor
 
 Show `cyber-asana config scope list`. If a scope exists, ask whether to keep it or add another.
 
-To add one, ask the kind: `project` (one project), `projects` (several; a task in two of them counts once), or `portfolio` (every project in a portfolio, nested portfolios included). For `team`, say it is not set up by this skill yet and stop short of it.
+To add one, ask the kind: `project` (one project), `projects` (several; a task in two of them counts once), `portfolio` (every project in a portfolio, nested portfolios included), or `team` (every unarchived project and every member of one Asana team; find it with `cyber-asana team list`). A `team` scope needs the `custom-field` sprint model: the `sections` model stops with `model-unsupported` for it, so recommend `custom-field` in step 3.
 
 Find the projects with `cyber-asana project search <keyword>` (or the registry through `cyber-asana config list`) and portfolios with `cyber-asana portfolio list`, confirm the picks, then, on approval:
 
@@ -36,12 +36,13 @@ Find the projects with `cyber-asana project search <keyword>` (or the registry t
 cyber-asana config scope add <name> --kind project --project <gid-or-alias> --default
 cyber-asana config scope add <name> --kind projects --project <gid>,<gid>
 cyber-asana config scope add <name> --kind portfolio --portfolio <gid>
+cyber-asana config scope add <name> --kind team --team <team-gid>
 cyber-asana scrum scope resolve --scope <name>
 ```
 
 Step 3 may add `--sprint-model custom-field` to the scope. Do it in the same command if the model is already decided.
 
-Show what `scrum scope resolve` reports.
+Show what `scrum scope resolve` reports (for a team, its projects and its people).
 
 ### 3. Sprint model
 

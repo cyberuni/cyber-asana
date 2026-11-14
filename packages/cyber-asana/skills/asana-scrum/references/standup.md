@@ -18,20 +18,21 @@ If a name is ambiguous (two plugins ship it), the `reference` skill lists the op
 ```bash
 cyber-asana report standup --json                              # the user
 cyber-asana report standup --member <gid-or-email> --json      # a teammate
+cyber-asana report standup --team --json                       # everyone, grouped by person
 ```
 
-Add `--scope <name>` when the user names a scope, and `--sprint <ref>` for a sprint other than the current one. A teammate's standup is for another member; the whole-team form (`--team`) is not built yet, so for "the team's standup" run it once per member the user names.
+Add `--scope <name>` when the user names a scope, and `--sprint <ref>` for a sprint other than the current one. Use `--team` for "the team's standup" or "everyone's": it groups the scope's people (a `team` scope's members, else the assignees seen), so no member needs naming. `--team` cannot be combined with `--member`.
 
 If the command fails, read `error.code`:
 
 - `scope-missing` or `scope-unknown`: run `cyber-asana config scope list` and ask which scope, or offer `init-asana-scrum`.
 - `sprint-none` (for a sprint the user named): offer `cyber-asana sprint start --sprint <ref>`.
-- `model-unsupported`: the scope's sprint model is not built into the CLI; follow its reference's primitive commands instead.
+- `model-unsupported`: the scope's sprint model is not built into the CLI, or the scope kind does not suit it (the `sections` model does not support `portfolio` or `team` scopes); follow its reference's primitive commands, or use a project or projects scope.
 - `reference-ambiguous` (exit 8): settle it as in step 1, then run again.
 
 ## 3. Write the standup
 
-Fill `cyber-asana.report.standup`'s `## Layout` from the JSON. Do not recount tasks or add points: use `count` and `points` as given, and keep story points and task points apart.
+Fill `cyber-asana.report.standup`'s `## Layout` from the JSON (its team layout for `--team`). Do not recount tasks or add points: use `count` and `points` as given, and keep story points and task points apart.
 
 - When `sprint` is null, say there is no current sprint and why (`sprint_note`); the lists then cover every incomplete assigned task.
 - When `today_basis` is `incomplete-and-assigned`, say Today lists every open assigned task because no workflow state is tracked.
