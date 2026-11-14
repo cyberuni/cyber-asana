@@ -6,12 +6,15 @@ import { fileURLToPath } from 'node:url'
 import { afterAll, describe, expect, it } from 'vitest'
 
 const PACKAGE = join(dirname(fileURLToPath(import.meta.url)), '../../..')
-const NAMES = [
-	'cyber-asana.report.interface',
+const IMPLEMENTATIONS = [
 	'cyber-asana.report.standup',
+	'cyber-asana.report.sprint',
+	'cyber-asana.report.retro',
+	'cyber-asana.report.velocity',
 	'cyber-asana.report.health',
 	'cyber-asana.report.workload',
 ]
+const NAMES = ['cyber-asana.report.interface', ...IMPLEMENTATIONS]
 const repo = mkdtempSync(join(tmpdir(), 'ca-refs-'))
 afterAll(() => rmSync(repo, { recursive: true, force: true }))
 
@@ -34,11 +37,12 @@ describe('report references', () => {
 	it('are accepted by cyber-agentkit reference check', () => {
 		const result = agentkit('check', ...NAMES)
 		expect(result.failed ?? []).toEqual([])
-		expect(result.passed).toBe(4)
+		expect(result.passed).toBe(NAMES.length)
 	})
 
-	it('lists standup as an implementation of the many-cardinality interface', () => {
-		expect(JSON.stringify(agentkit('implementations', 'cyber-asana.report'))).toContain('cyber-asana.report.standup')
+	it('lists every report as an implementation of the many-cardinality interface', () => {
+		const listed = JSON.stringify(agentkit('implementations', 'cyber-asana.report'))
+		for (const name of IMPLEMENTATIONS) expect(listed).toContain(name)
 	})
 
 	it('lists health as an implementation too', () => {
