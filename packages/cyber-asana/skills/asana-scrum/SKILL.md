@@ -1,6 +1,6 @@
 ---
 name: asana-scrum
-description: Use this skill when the user wants scrum work from Asana — a standup, health check, or sprint housekeeping.
+description: Use this skill when the user wants scrum work from Asana — a standup, health check, workload, or sprint housekeeping.
 ---
 
 # Asana Scrum
@@ -18,10 +18,11 @@ arithmetic.
 | --- | --- |
 | a standup update — done, today, blockers ("write my standup", "what did I do yesterday", "what is blocking me") | **Standup** below |
 | a sprint health check — missing estimates, unassigned or overdue tasks, stale or blocked work, a sprint never started ("is the sprint healthy", "what is wrong with the board") | **Health** below |
+| the team's workload or capacity — who is over or under allocated, who has room ("is anyone overloaded", "how loaded is the sprint") | **Workload** below |
 | the current sprint, its tasks, or the backlog ("which sprint is this", "what is in the sprint") | run `cyber-asana sprint current`, `sprint tasks`, or `backlog list` directly |
 | start a sprint, add a task to it, or close it and carry work over | run `cyber-asana sprint start`, `sprint add <task-gid>`, or `sprint close` directly; ask before `close` |
 | set up scopes, the policy, or the sprint structure | `init-asana-scrum` skill |
-| a sprint review, retro, workload, or velocity | not built yet; say so, and offer `sprint tasks --incomplete` for a quick look |
+| a sprint review, retro, or velocity | not built yet; say so, and offer `sprint tasks --incomplete` for a quick look |
 
 ## Standup
 
@@ -34,6 +35,11 @@ too.
 Read [`references/health.md`](references/health.md) and follow it, with the user's request as its
 input. It is the one home of the health procedure.
 
+## Workload
+
+Read [`references/workload.md`](references/workload.md) and follow it, with the user's request as
+its input. It is the one home of the workload procedure.
+
 ## Failure statuses
 
-A command's `error.code` says what to fix. `scope-missing` and `scope-unknown`: run `cyber-asana config scope list`, then pass `--scope`. `sprint-none`: offer `cyber-asana sprint start` (the health report instead reports a sprint with no section as finding H9, unless that check is turned off). `policy-incomplete`: the policy has no `sprint_anchor_date`. `reference-ambiguous` (exit 8): settle it as the procedure's step 1 says.
+A command's `error.code` says what to fix. `scope-missing` and `scope-unknown`: run `cyber-asana config scope list`, then pass `--scope`. `sprint-none`: offer `cyber-asana sprint start` (the health report instead reports a sprint with no section as finding H9, unless that check is turned off). `policy-incomplete`: the policy has no `sprint_anchor_date`. `window-invalid` (workload): pass both `--from` and `--to` as `YYYY-MM-DD`, in order, or neither. `reference-ambiguous` (exit 8): settle it as the procedure's step 1 says.
