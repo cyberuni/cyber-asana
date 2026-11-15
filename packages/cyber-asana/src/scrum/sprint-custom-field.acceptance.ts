@@ -40,54 +40,64 @@ async function eventually<T>(read: () => Promise<T>, ok: (value: T) => boolean, 
 export function defineSprintCustomFieldAcceptanceSpecs(deps: SprintCustomFieldAcceptanceDeps) {
 	const settle = deps.settleMs ?? 0
 	return () => {
-		it('starts a sprint as an option, sets a task into it, lists it by search, and carries it over on close', async () => {
-			const api = deps.getApi()
-			const taskGid = await deps.createTask('cyber-asana sprint custom-field probe')
-			try {
-				const started = await api.startSprint({ sprint: String(FIRST) })
-				expect(started.sprint.name).toBe(NAMES[0])
-				expect(started.already_started).toBe(false)
-				expect((await api.startSprint({ sprint: String(FIRST) })).already_started).toBe(true)
+		it(
+			'starts a sprint as an option, sets a task into it, lists it by search, and carries it over on close',
+			async () => {
+				const api = deps.getApi()
+				const taskGid = await deps.createTask('cyber-asana sprint custom-field probe')
+				try {
+					const started = await api.startSprint({ sprint: String(FIRST) })
+					expect(started.sprint.name).toBe(NAMES[0])
+					expect(started.already_started).toBe(false)
+					expect((await api.startSprint({ sprint: String(FIRST) })).already_started).toBe(true)
 
-				// custom_fields.{gid}.is_set=false: the task has no Sprint value yet.
-				const backlog = await eventually(
-					() => api.listBacklog({}),
-					(b) => b.tasks.some((t) => t.gid === taskGid),
-					settle,
-				)
-				expect(backlog.tasks.map((t) => t.gid)).toContain(taskGid)
+					// custom_fields.{gid}.is_set=false: the task has no Sprint value yet.
+					const backlog = await eventually(
+						() => api.listBacklog({}),
+						(b) => b.tasks.some((t) => t.gid === taskGid),
+						settle,
+					)
+					expect(backlog.tasks.map((t) => t.gid)).toContain(taskGid)
 
-				const added = await api.addToSprint({ sprint: String(FIRST), tasks: [taskGid] })
-				expect(added.added.map((a) => a.task)).toEqual([taskGid])
-				expect(await deps.sprintOf(taskGid)).toBe(NAMES[0])
-				expect((await api.addToSprint({ sprint: String(FIRST), tasks: [taskGid] })).already_in_sprint).toEqual([
-					taskGid,
-				])
+					const added = await api.addToSprint({ sprint: String(FIRST), tasks: [taskGid] })
+					expect(added.added.map((a) => a.task)).toEqual([taskGid])
+					expect(await deps.sprintOf(taskGid)).toBe(NAMES[0])
+					expect((await api.addToSprint({ sprint: String(FIRST), tasks: [taskGid] })).already_in_sprint).toEqual([
+						taskGid,
+					])
 
-				// custom_fields.{gid}.value: the sprint option's GID.
-				const listed = await eventually(
-					() => api.sprintTasks({ sprint: String(FIRST) }),
-					(l) => l.tasks.some((t) => t.gid === taskGid),
-					settle,
-				)
-				expect(listed.tasks.map((t) => t.gid)).toContain(taskGid)
-				const leftBacklog = await eventually(
-					() => api.listBacklog({}),
-					(b) => !b.tasks.some((t) => t.gid === taskGid),
-					settle,
-				)
-				expect(leftBacklog.tasks.map((t) => t.gid)).not.toContain(taskGid)
+					// custom_fields.{gid}.value: the sprint option's GID.
+					const listed = await eventually(
+						() => api.sprintTasks({ sprint: String(FIRST) }),
+						(l) => l.tasks.some((t) => t.gid === taskGid),
+						settle,
+					)
+					expect(listed.tasks.map((t) => t.gid)).toContain(taskGid)
+					const leftBacklog = await eventually(
+						() => api.listBacklog({}),
+						(b) => !b.tasks.some((t) => t.gid === taskGid),
+						settle,
+					)
+					expect(leftBacklog.tasks.map((t) => t.gid)).not.toContain(taskGid)
 
-				const closed = await api.closeSprint({ sprint: String(FIRST) })
-				expect(closed.next_sprint.name).toBe(NAMES[1])
-				expect(closed.moved.map((m) => m.task)).toEqual([taskGid])
-				expect(await deps.sprintOf(taskGid)).toBe(NAMES[1])
+					// Close searches for the open tasks again, on an index that may lag; a close that found none moved none.
+					const closed = await eventually(
+						() => api.closeSprint({ sprint: String(FIRST) }),
+						(c) => c.moved.length > 0,
+						settle,
+					)
+					expect(closed.next_sprint.name).toBe(NAMES[1])
+					expect(closed.moved.map((m) => m.task)).toEqual([taskGid])
+					expect(await deps.sprintOf(taskGid)).toBe(NAMES[1])
 
-				expect((await api.listSprints({})).sprints.map((s) => s.n)).toEqual(expect.arrayContaining([FIRST, SECOND]))
-			} finally {
-				await deps.deleteTask(taskGid)
-				await deps.disableOptions(NAMES)
-			}
-		})
+					expect((await api.listSprints({})).sprints.map((s) => s.n)).toEqual(expect.arrayContaining([FIRST, SECOND]))
+				} finally {
+					await deps.deleteTask(taskGid)
+					await deps.disableOptions(NAMES)
+				}
+				// Four searches each wait up to `settle` for Asana's index, on top of the calls themselves.
+			},
+			30_000 + settle * 4,
+		)
 	}
 }
