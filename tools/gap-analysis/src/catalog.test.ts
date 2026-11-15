@@ -39,7 +39,8 @@ describe('extractCyberTools', () => {
 		expect(tools).toContain('asana_ooo_list')
 		expect(tools).toContain('asana_project_template_instantiate')
 		expect(tools).toContain('asana_job_get')
-		expect(tools.length).toBe(148)
+		expect(tools).toContain('asana_html_check')
+		expect(tools.length).toBe(151)
 	})
 })
 
