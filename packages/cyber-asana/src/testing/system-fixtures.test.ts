@@ -1,17 +1,24 @@
 import { describe, expect, it } from 'vitest'
 import { ensureSystemFixtures, type FixtureContext, formatFixtureEnv } from './system-fixtures.js'
 
-type Counts = { projects: number; sections: number; tasks: number; stories: number; attachments: number }
+type Counts = { goals: number; projects: number; sections: number; tasks: number; stories: number; attachments: number }
 
-function createFakeContext(seed?: { sections?: string[]; projects?: string[]; team?: string }) {
+function createFakeContext(seed?: {
+	sections?: string[]
+	projects?: string[]
+	team?: string
+	goals?: string[]
+	goalsPaymentRequired?: boolean
+}) {
 	let nextGid = 1000
 	const gid = () => String(nextGid++)
-	const created: Counts = { projects: 0, sections: 0, tasks: 0, stories: 0, attachments: 0 }
+	const created: Counts = { goals: 0, projects: 0, sections: 0, tasks: 0, stories: 0, attachments: 0 }
 	const projects = (seed?.projects ?? []).map((name) => ({ gid: gid(), name }))
 	const sections = (seed?.sections ?? ['Untitled section']).map((name) => ({ gid: gid(), name }))
 	const tasks: Array<{ gid: string; name: string; section: string }> = []
 	const stories: Array<{ gid: string; task: string; text: string; type: string }> = []
 	const attachments: Array<{ gid: string; parent: string; name: string }> = []
+	const goals = (seed?.goals ?? []).map((name) => ({ gid: gid(), name }))
 	const page = <T>(data: T[]) => ({ data, next_page: null })
 
 	const context: FixtureContext = {
@@ -62,6 +69,18 @@ function createFakeContext(seed?: { sections?: string[]; projects?: string[]; te
 				return story
 			},
 		},
+		goals: {
+			listGoals: async () => page(goals),
+			listTimePeriods: async () => page([{ gid: 'tp-1' }]),
+			createGoal: async (_workspaceGid: string, name: string, opts?: { time_period?: string }) => {
+				if (seed?.goalsPaymentRequired) throw Object.assign(new Error('Payment Required'), { status: 402 })
+				if (!opts?.time_period) throw new Error('Bad Request')
+				created.goals++
+				const goal = { gid: gid(), name }
+				goals.push(goal)
+				return goal
+			},
+		},
 		attachments: {
 			listAttachments: async (parentGid: string) =>
 				page(attachments.filter((a) => a.parent === parentGid).map(({ gid, name }) => ({ gid, name }))),
@@ -74,7 +93,7 @@ function createFakeContext(seed?: { sections?: string[]; projects?: string[]; te
 		},
 	} as unknown as FixtureContext
 
-	return { context, created, projects, sections, tasks, stories, attachments }
+	return { context, created, goals, projects, sections, tasks, stories, attachments }
 }
 
 describe('ensureSystemFixtures', () => {
@@ -156,7 +175,50 @@ describe('ensureSystemFixtures team', () => {
 	})
 })
 
+describe('ensureSystemFixtures goal', () => {
+	it('creates a cyber-asana system test goal in a time period and reports its GID', async () => {
+		const fake = createFakeContext()
+
+		const fixtures = await ensureSystemFixtures(fake.context, { projectGid: 'project-1' })
+
+		expect(fake.goals.map((g) => g.name)).toEqual(['cyber-asana system test'])
+		expect(fixtures.goalGid).toBe(fake.goals[0]?.gid)
+	})
+
+	it('reuses the goal on a second run and leaves other goals alone', async () => {
+		const fake = createFakeContext({ goals: ['Someone else'] })
+		const first = await ensureSystemFixtures(fake.context, { projectGid: 'project-1' })
+
+		const second = await ensureSystemFixtures(fake.context, { projectGid: 'project-1' })
+
+		expect(fake.created.goals).toBe(1)
+		expect(fake.goals.map((g) => g.name)).toEqual(['Someone else', 'cyber-asana system test'])
+		expect(second).toEqual(first)
+	})
+
+	it('leaves the goal GID unset where Asana answers Payment Required', async () => {
+		const fixtures = await ensureSystemFixtures(createFakeContext({ goalsPaymentRequired: true }).context, {
+			projectGid: 'project-1',
+		})
+
+		expect(fixtures.goalGid).toBeUndefined()
+	})
+})
+
 describe('formatFixtureEnv', () => {
+	it('adds the goal line when there is a goal', () => {
+		const lines = formatFixtureEnv({
+			workspaceGid: 'ws-1',
+			projectGid: 'p-1',
+			sectionGid: 's-1',
+			taskGid: 't-1',
+			secondTaskGid: 't-2',
+			goalGid: 'g-1',
+		}).split('\n')
+
+		expect(lines.at(-1)).toBe('ASANA_SYSTEM_TEST_GOAL_GID=g-1')
+	})
+
 	it('adds the team line when there is a team', () => {
 		const lines = formatFixtureEnv({
 			workspaceGid: 'ws-1',
