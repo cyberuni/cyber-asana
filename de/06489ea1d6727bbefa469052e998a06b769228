@@ -1,0 +1,19 @@
+packages/cyber-asana/skills/asana/references/tidy-description.md
+  s_57021460c1aa30::t_99a9bcaedea58f 107-108
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "de06489ea1d6727bbefa469052e998a06b769228",
+  "prompts": {},
+  "sessions": {
+    "s_57021460c1aa30": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8769dad3-e80a-47c7-a617-be475c23bd01",
+        "model": "claude-sonnet-5-5"
+      },
+      "human_author": "unional <homawong@gmail.com>"
+    }
+  }
+}
