@@ -80,4 +80,5 @@ The table lives in `SYSTEM_SUITES` in `packages/cyber-asana/src/testing/system-s
 | `tasks/api` | workspace, project, task, second task (fixtures); `ASANA_SYSTEM_TEST_SECTION_GID` for create-in-section | any |
 | `task-templates/api` | project (fixture) | any |
 | `teams/api` | workspace; `ASANA_SYSTEM_TEST_TEAM_GID` (fixture: the project's team; export one to override; skips in a workspace without teams) for the members and projects pagination tests | any |
+| `users/me-time-zone` | none. Pins that `user me` returns no `time_zone` (D11) | any |
 | `workspaces/api` | none | any |
