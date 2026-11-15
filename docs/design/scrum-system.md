@@ -418,19 +418,19 @@ Each unit can ship alone and passes `pnpm verify`; units that need it also pass 
 | --- | --- | --- | --- | --- |
 | U1 | A true completed-since filter, honest help text, and `section tasks`. Patch the two existing skills to use them. | G1, G2 (fixes G-S1, G-R1, G-R3 now) | — | Shipped (#321) |
 | U2 | `loadReferenceMetadata` (conventions moved onto it). The `cyber-asana.scrum` package default with its key parser. A docs page on overriding it. Confirm whether project sections contribute frontmatter. | G11 | — | Shipped (#322) |
-| U3 | `scrum.scopes` (schema 3), `config scope add \| remove \| list`, `scrum scope resolve` for `project`, `projects`, `portfolio`; the `sprint` and `status` field roles | G9, G10, G8 (recursion) | U2 | Built; in review |
-| U4 | `cyber-asana.sprint-model.interface` + `.sections`; `sprint current \| list \| tasks \| add \| start \| close`, `backlog list`; MCP tools | G12 (sprints) | U1, U3 | Built; in review |
-| U5 | `init-asana-scrum` v1: project and projects scopes, the `sections` model, writing the policy and fields | K2 | U4 | Built; in review |
-| U6 | `cyber-asana.report.interface` + `.standup`; `report standup`; `asana-scrum` v1 with the standup route; turn `asana-standup` into a routing stub (D7); update K5 | G12 (standup), K1, K3 | U4 | Built; in review |
-| U7 | `.sprint`, `.retro`, `.velocity` reports, the burndown, and the commitment snapshot (D6); review and retro routes; turn `asana-sprint-report` into a routing stub (D7) | K4, G14 | U6 | Built; in review |
-| U8 | `.health` report and the health route | — | U6 | Built; in review |
-| U9 | `team members \| projects`, the `team` scope, team standup | G4 | U3, U6 | Built; in review |
-| U10 | The `allocations` domain, `.workload` report, workload route, H8, and the capacity probe in setup | G5 | U8 |Built; in review |
-| U11 | `.custom-field` model, search custom-field filters and paging, custom-field create and enum options, project field attach; setup support | G3, G6, G7 | U4, U5 | Built; in review |
-| U12 | `cyber-asana.dashboard` and `report dashboard` (CLI, D2.1); the planning route (needs velocity and capacity) | — | U7, U8, U10 | Built; in review |
-| U13 | `--post-status` (D2.2) and `status_type` validation | G13 | U12 | Built; in review |
-| U14 | `--page` generated HTML (D2.3), written to a local path and published nowhere (D8) | — | U12 | Built; in review |
-| U15 | `.project` model (one project per sprint, in a portfolio) | G8 (add/remove) | U11 | Built; in review |
+| U3 | `scrum.scopes` (schema 3), `config scope add \| remove \| list`, `scrum scope resolve` for `project`, `projects`, `portfolio`; the `sprint` and `status` field roles | G9, G10, G8 (recursion) | U2 | Shipped (#328) |
+| U4 | `cyber-asana.sprint-model.interface` + `.sections`; `sprint current \| list \| tasks \| add \| start \| close`, `backlog list`; MCP tools | G12 (sprints) | U1, U3 | Shipped (#331) |
+| U5 | `init-asana-scrum` v1: project and projects scopes, the `sections` model, writing the policy and fields | K2 | U4 | Shipped (#332) |
+| U6 | `cyber-asana.report.interface` + `.standup`; `report standup`; `asana-scrum` v1 with the standup route; turn `asana-standup` into a routing stub (D7); update K5 | G12 (standup), K1, K3 | U4 | Shipped (#333) |
+| U7 | `.sprint`, `.retro`, `.velocity` reports, the burndown, and the commitment snapshot (D6); review and retro routes; turn `asana-sprint-report` into a routing stub (D7) | K4, G14 | U6 | Shipped (#337) |
+| U8 | `.health` report and the health route | — | U6 | Shipped (#335) |
+| U9 | `team members \| projects`, the `team` scope, team standup | G4 | U3, U6 | Shipped (#336) |
+| U10 | The `allocations` domain, `.workload` report, workload route, H8, and the capacity probe in setup | G5 | U8 | Shipped (#338) |
+| U11 | `.custom-field` model, search custom-field filters and paging, custom-field create and enum options, project field attach; setup support | G3, G6, G7 | U4, U5 | Shipped (#334) |
+| U12 | `cyber-asana.dashboard` and `report dashboard` (CLI, D2.1); the planning route (needs velocity and capacity) | — | U7, U8, U10 | Shipped (#342) |
+| U13 | `--post-status` (D2.2) and `status_type` validation | G13 | U12 | Shipped (#344) |
+| U14 | `--page` generated HTML (D2.3), written to a local path and published nowhere (D8) | — | U12 | Shipped (#343) |
+| U15 | `.project` model (one project per sprint, in a portfolio) | G8 (add/remove) | U11 | Shipped (#340) |
 
 U1 can ship before anything else and fixes wrong numbers users see today.
 
