@@ -1,0 +1,39 @@
+packages/cyber-asana/src/goals/gateway.ts
+  s_7a57d05fb4f9a2::t_6cb448b59404df 16-17,39,44,66-68
+  s_7a57d05fb4f9a2::t_a00fe33b6bf470 69
+packages/cyber-asana/src/goals/api.ts
+  s_7a57d05fb4f9a2::t_6cb448b59404df 26-28
+packages/cyber-asana/src/goals/default.ts
+  s_7a57d05fb4f9a2::t_1f0946ac11113f 30-33
+packages/cyber-asana/src/goals/mcp.ts
+  s_7a57d05fb4f9a2::t_1f0946ac11113f 5,17
+packages/cyber-asana/src/goals/mcp.test.ts
+  s_7a57d05fb4f9a2::t_1f0946ac11113f 74
+packages/cyber-asana/src/goals/list-pagination.acceptance.test.ts
+  s_7a57d05fb4f9a2::t_1f0946ac11113f 17
+packages/cyber-asana/src/goals/cli.ts
+  s_7a57d05fb4f9a2::t_1f0946ac11113f 15,39
+packages/cyber-asana/src/goals/cli.test.ts
+  s_7a57d05fb4f9a2::t_1f0946ac11113f 38,61,83,140
+packages/cyber-asana/src/composition-wiring.test.ts
+  s_7a57d05fb4f9a2::t_b90df9c960ba95 87
+packages/cyber-asana/src/goals/api.test.ts
+  s_7a57d05fb4f9a2::t_0a7bbfdacfa4ac 15,23-37
+  s_7a57d05fb4f9a2::t_12a70e1d26f605 38
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "4b3e84855645b668f436960aa9e6ed6fe25eba1e",
+  "prompts": {},
+  "sessions": {
+    "s_7a57d05fb4f9a2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c1fdc096-b779-479f-a403-2f5bcb09f2ed",
+        "model": "claude-sonnet-5-5"
+      },
+      "human_author": "unional <homawong@gmail.com>"
+    }
+  }
+}
