@@ -16,7 +16,11 @@ describe.skipIf(!systemEnabled)('status/api goal status_type system', () => {
 	const gateway = () => createAsanaStatusGateway(createClient())
 
 	it.each(STATUS_TYPES.goal)('Asana accepts status_type %s on a goal', async (statusType) => {
-		const posted = await gateway().createStatus(goalGid!, { status_type: statusType, title: `probe ${statusType}` })
+		const posted = await gateway().createStatus(goalGid!, {
+			status_type: statusType,
+			title: `probe ${statusType}`,
+			text: `probe ${statusType}`,
+		})
 		try {
 			expect(posted.status_type).toBe(statusType)
 		} finally {
@@ -27,7 +31,11 @@ describe.skipIf(!systemEnabled)('status/api goal status_type system', () => {
 	it.each(PROJECT_ONLY)('Asana refuses status_type %s on a goal', async (statusType) => {
 		let posted: { gid: string } | undefined
 		try {
-			posted = await gateway().createStatus(goalGid!, { status_type: statusType, title: `probe ${statusType}` })
+			posted = await gateway().createStatus(goalGid!, {
+				status_type: statusType,
+				title: `probe ${statusType}`,
+				text: `probe ${statusType}`,
+			})
 		} catch {
 			return
 		}
