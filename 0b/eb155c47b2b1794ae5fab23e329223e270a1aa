@@ -1,0 +1,19 @@
+packages/cyber-asana/src/allocations/gateway.ts
+  s_7a57d05fb4f9a2::t_7d6d52a19fe91f 52,56,66,74
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "0beb155c47b2b1794ae5fab23e329223e270a1aa",
+  "prompts": {},
+  "sessions": {
+    "s_7a57d05fb4f9a2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c1fdc096-b779-479f-a403-2f5bcb09f2ed",
+        "model": "claude-sonnet-5-5"
+      },
+      "human_author": "unional <homawong@gmail.com>"
+    }
+  }
+}
