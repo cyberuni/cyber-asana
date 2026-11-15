@@ -49,36 +49,21 @@ export type AllocationGateway = {
 	deleteAllocation(allocationGid: string): Promise<void>
 }
 
-/**
- * Asana answers "Not a recognized ID: me" for an allocation assignee, unlike most user fields, so `me`
- * (which the CLI and MCP tools document) is swapped for the caller's GID before the request.
- */
-export async function resolveAssignee(
-	assignee: string | undefined,
-	getMe: () => Promise<string>,
-): Promise<string | undefined> {
-	return assignee === 'me' ? await getMe() : assignee
-}
-
-function toAsanaListOptions(opts: AllocationListOptions | undefined, assignee: string | undefined) {
+function toAsanaListOptions(opts?: AllocationListOptions) {
 	return {
 		...toAsanaPaginationOptions(opts),
 		...(opts?.parent !== undefined && { parent: opts.parent }),
-		...(assignee !== undefined && { assignee }),
+		...(opts?.assignee !== undefined && { assignee: opts.assignee }),
 		...(opts?.workspace !== undefined && { workspace: opts.workspace }),
 	}
 }
 
 export function createAsanaAllocationGateway(client: Asana.ApiClient): AllocationGateway {
 	const allocationsApi = new Asana.AllocationsApi(client)
-	const usersApi = new Asana.UsersApi(client)
-	const getMe = async () => ((await usersApi.getUser('me', { opt_fields: 'gid' })).data as { gid: string }).gid
 
 	return {
 		async listAllocations(opts) {
-			const res = await allocationsApi.getAllocations(
-				toAsanaListOptions(opts, await resolveAssignee(opts?.assignee, getMe)),
-			)
+			const res = await allocationsApi.getAllocations(toAsanaListOptions(opts))
 			return await collectListResponse(res, opts)
 		},
 		async getAllocation(allocationGid, opts) {
@@ -86,8 +71,7 @@ export function createAsanaAllocationGateway(client: Asana.ApiClient): Allocatio
 			return res.data
 		},
 		async createAllocation(fields) {
-			const assignee = (await resolveAssignee(fields.assignee, getMe)) as string
-			const res = await allocationsApi.createAllocation({ data: { ...fields, assignee } }, {})
+			const res = await allocationsApi.createAllocation({ data: fields }, {})
 			return res.data
 		},
 		async updateAllocation(allocationGid, fields) {
