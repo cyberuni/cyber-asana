@@ -45,6 +45,10 @@ const add = (a: Points, b: Points): Points => ({ story: a.story + b.story, task:
 const zero = (): Points => ({ story: 0, task: 0 })
 const pct = (done: number, total: number) => (total === 0 ? null : Math.round((done / total) * 1000) / 10)
 export const nextDay = (date: string) => new Date(Date.parse(`${date}T00:00:00Z`) + DAY_MS).toISOString().slice(0, 10)
+/** The earlier of two ISO dates. They compare as strings: `Math.min` would coerce them to `NaN`. */
+export const earlierDate = (a: string, b: string) => (a < b ? a : b)
+/** The later of two ISO dates. They compare as strings: `Math.max` would coerce them to `NaN`. */
+export const laterDate = (a: string, b: string) => (a > b ? a : b)
 
 function itemOf(t: StandupTask, fields: Fields, tracked: Tracked): ReportItem {
 	const p = pointsOf(t, fields)
@@ -120,7 +124,7 @@ export function buildSprintReport(input: SprintFacts) {
 	const demoTasks = demoByStory ? completed.filter((t) => pointsOf(t, fields).story > 0) : completed
 
 	const burndown = []
-	const last = input.today < sprint.end ? input.today : sprint.end
+	const last = earlierDate(input.today, sprint.end)
 	for (let day = sprint.start; day <= last; day = nextDay(day)) {
 		const cutoff = Date.parse(startOfDayIn(nextDay(day), input.timezone))
 		const finished = completed.filter((t) => t.completed_at != null && Date.parse(t.completed_at) < cutoff)

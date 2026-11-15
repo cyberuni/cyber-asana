@@ -20,11 +20,11 @@ export async function listReferenceImplementations(
 ): Promise<ReferenceImplementationInfo[]> {
 	const layers = await loadReferenceLayers(opts)
 	try {
-		return referenceImplementations(interfaceName, layers).implementations.map(({ name, pin, description }) => ({
-			name,
-			pin,
-			description,
-		}))
+		const result = referenceImplementations(interfaceName, layers)
+		// A `<prefix>.*` family name lists each matched interface; flatten them into one list.
+		const listed =
+			'family' in result ? result.interfaces.flatMap((entry) => entry.implementations) : result.implementations
+		return listed.map(({ name, pin, description }) => ({ name, pin, description }))
 	} catch (error) {
 		if ((error as { code?: string }).code === 'interface-unknown' || /unknown interface/i.test(String(error))) return []
 		throw error

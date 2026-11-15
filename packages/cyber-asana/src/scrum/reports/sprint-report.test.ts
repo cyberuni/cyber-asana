@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildRetro, buildSprintReport, velocityOf } from './sprint-report.js'
+import { buildRetro, buildSprintReport, earlierDate, laterDate, velocityOf } from './sprint-report.js'
 import type { StandupTask } from './standup.js'
 
 const sprint = { n: 2, name: 'Sprint 2', start: '2026-01-05', end: '2026-01-09', working_days: 5 }
@@ -175,5 +175,18 @@ describe('velocity (R4)', () => {
 	})
 	it('has no mean without closed sprints', () => {
 		expect(velocityOf([], 3).mean).toBeNull()
+	})
+})
+
+describe('earlierDate and laterDate', () => {
+	// ISO dates compare as strings; Math.min/Math.max would coerce them to NaN.
+	it('pick the earlier and the later of two ISO dates', () => {
+		expect(earlierDate('2026-01-09', '2026-01-05')).toBe('2026-01-05')
+		expect(laterDate('2026-01-09', '2026-01-05')).toBe('2026-01-09')
+	})
+
+	it('return the date when both are the same', () => {
+		expect(earlierDate('2026-01-05', '2026-01-05')).toBe('2026-01-05')
+		expect(laterDate('2026-01-05', '2026-01-05')).toBe('2026-01-05')
 	})
 })

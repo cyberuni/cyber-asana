@@ -40,7 +40,7 @@ describe('skipReason', () => {
 		expect(skipReason(suite, {})).toBe('missing ASANA_SYSTEM_TEST, ASANA_ACCESS_TOKEN, X_GID; needs ASANA_PLAN=paid')
 	})
 	it('treats an unexpanded placeholder as missing', () => {
-		const env = { ASANA_SYSTEM_TEST: '1', ASANA_ACCESS_TOKEN: 't', ASANA_PLAN: 'paid', X_GID: '${X_GID}' }
+		const env = { ASANA_SYSTEM_TEST: '1', ASANA_ACCESS_TOKEN: 't', ASANA_PLAN: 'paid', X_GID: '$' + '{X_GID}' }
 		expect(skipReason(suite, env)).toBe('missing X_GID')
 	})
 	it('is undefined when nothing is missing', () => {

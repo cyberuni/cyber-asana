@@ -139,7 +139,7 @@ describe('printCountSummary', () => {
 	})
 })
 
-describe('printEmpty', () => {
+describe('printEmpty with an entity', () => {
 	afterEach(() => vi.restoreAllMocks())
 
 	it('names the entity when one is given', () => {
