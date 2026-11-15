@@ -30,6 +30,14 @@ describe('fixHtml', () => {
 		)
 	})
 
+	it('puts a status-update heading on its own line', () => {
+		expect(fixHtml('<h2>Health</h2>all good', 'status-update')).toBe('<body><strong>Health</strong>\nall good</body>')
+	})
+
+	it('renames <b> and <i> that carry attributes', () => {
+		expect(fixHtml('<b class="x">a</b><i id="y">b</i>', 'task-notes')).toBe('<body><strong>a</strong><em>b</em></body>')
+	})
+
 	it('maps the tags Asana rejects to the nearest it keeps', () => {
 		expect(fixHtml('<del>a</del><th>b</th><span>c</span><sub>d</sub>', 'task-notes')).toBe(
 			'<body><s>a</s><td>b</td>cd</body>',

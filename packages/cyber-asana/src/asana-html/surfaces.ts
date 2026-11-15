@@ -47,7 +47,7 @@ export interface SurfaceRule {
 	readonly headingFallback: 'h3' | 'strong'
 	/** Where the verified claims come from and when they were checked. */
 	readonly evidence: string
-	/** Tags the surface inherits from task notes without a probe on this surface. */
+	/** Tags whose rule (kept or refused) the surface inherits from task notes, with no probe on this surface. */
 	readonly unverified: readonly string[]
 }
 
@@ -69,7 +69,10 @@ export const SURFACE_RULES: Readonly<Record<Surface, SurfaceRule>> = {
 		messages: Object.fromEntries(HEADING_TAGS.map((tag) => [tag, statusHeadingMessage(tag)])),
 		headingFallback: 'strong',
 		evidence:
-			'scrum-system.md §9.9 (live run 2026-11-14): headings h1-h3 escape the body; strong, lists, links and plain text keep their markup',
-		unverified: ['blockquote', 'code', 'em', 'hr', 'mark', 'pre', 's', 'table', 'td', 'tr', 'u'],
+			'scrum-system.md §9.9 (live run 2026-11-14): h1-h3 make Asana escape the whole body; tidy-description.md (live, 2026-11): strong, ul/li, a and plain text keep their markup, and a body without <body> is refused; status-post.system.ts posts the shipped template (strong, ul/li, escaped text)',
+		unverified: [
+			...['blockquote', 'code', 'em', 'hr', 'mark', 'ol', 'pre', 's', 'table', 'td', 'tr', 'u'],
+			...KNOWN_REJECTED_TAGS,
+		],
 	},
 }

@@ -26,7 +26,19 @@ describe('htmlRules', () => {
 	})
 
 	it('names the tags a status update inherits without a live probe', () => {
-		expect(htmlRules('status-update').unverified).toEqual(expect.arrayContaining(['table', 'blockquote']))
+		expect(htmlRules('status-update').unverified).toEqual(expect.arrayContaining(['table', 'blockquote', 'ol']))
+	})
+
+	it('marks the refusals a status update inherits from task notes as unverified', () => {
+		expect(htmlRules('status-update').unverified).toEqual(expect.arrayContaining(['p', 'br', 'div']))
+		expect(htmlRules('status-update').unverified).not.toContain('h1')
+	})
+
+	it('cites every source behind the status-update claims', () => {
+		const { evidence } = htmlRules('status-update')
+		expect(evidence).toContain('scrum-system.md')
+		expect(evidence).toContain('tidy-description.md')
+		expect(evidence).toContain('status-post.system.ts')
 	})
 
 	it('stays in step with the tags the tidy-description reference documents', () => {
