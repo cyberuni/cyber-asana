@@ -1,5 +1,6 @@
 import { type LoadReferenceMetadataOptions, loadReferenceMetadata } from '../../platform/reference-metadata.js'
 import type { ScrumPolicy } from '../policy.js'
+import { earlierDate, laterDate } from './sprint-report.js'
 
 /** The reference whose frontmatter holds the workload report's thresholds (§ 5.4 of the design). */
 const WORKLOAD_REFERENCE = 'cyber-asana.report.workload'
@@ -152,8 +153,8 @@ function allocationHours(
 	input: WorkloadInput,
 ): { from: string; to: string; hours: number } | null {
 	if (!a.start_date || !a.end_date || a.effort?.value === undefined || a.effort.value === null) return null
-	const from = a.start_date > input.window.from ? a.start_date : input.window.from
-	const to = a.end_date < input.window.to ? a.end_date : input.window.to
+	const from = laterDate(a.start_date, input.window.from)
+	const to = earlierDate(a.end_date, input.window.to)
 	if (from > to) return null
 	const { working_days, working_hours_per_day } = input.policy
 	const inside = countWorkingDays(from, to, working_days)
