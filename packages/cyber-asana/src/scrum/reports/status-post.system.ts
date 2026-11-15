@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
+import { checkHtml } from '../../asana-html/api.js'
 import { createClient } from '../../platform/client.js'
-import { findStatusHtmlProblems } from '../../platform/html-subset.js'
 import { createAsanaStatusGateway } from '../../status/gateway.js'
 import { isSystemTestEnabled, systemEnv } from '../../testing/system.js'
 import { loadStatusTemplate } from './dashboard.js'
@@ -75,7 +75,7 @@ describe.skipIf(!enabled)('dashboard status update (system)', () => {
 				},
 			],
 		})
-		expect(findStatusHtmlProblems(rendered.html_text)).toEqual([])
+		expect(checkHtml(rendered.html_text, 'status-update')).toEqual([])
 
 		const gateway = createAsanaStatusGateway(createClient())
 		const created = await gateway.createStatus(projectGid as string, {
