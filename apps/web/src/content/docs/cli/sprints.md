@@ -26,8 +26,10 @@ Every command takes `--scope <name>` (see [Repo config](/cyber-asana/cli/repo-co
 `sprint_name_format`.
 
 "Today" is the date in the timezone `user me` reports. Asana's public API does not return a user
-timezone today, so the date falls back to the machine's timezone, and `sprint current` says which one
-it used (`timezone_source`).
+timezone (checked live on 2026-11-14, with and without `opt_fields=time_zone`), so "today" is the
+date in the timezone of the machine running the command, and `sprint current` says so
+(`timezone_source: machine`). If Asana starts returning `time_zone`, the same command reports
+`timezone_source: asana` with no change on your side.
 
 ## The `sections` model
 
