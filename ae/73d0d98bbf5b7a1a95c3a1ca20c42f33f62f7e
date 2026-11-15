@@ -1,0 +1,21 @@
+packages/cyber-asana/src/scrum/sprint-custom-field.acceptance.ts
+  s_7a57d05fb4f9a2::t_0ff9c0f8b95f55 43-52,54-60,62-67,69-81,83-86,88-95
+packages/cyber-asana/src/scrum/sprint-custom-field.system.ts
+  s_7a57d05fb4f9a2::t_6e3a58fab90889 74-75
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "ae73d0d98bbf5b7a1a95c3a1ca20c42f33f62f7e",
+  "prompts": {},
+  "sessions": {
+    "s_7a57d05fb4f9a2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c1fdc096-b779-479f-a403-2f5bcb09f2ed",
+        "model": "claude-sonnet-5-5"
+      },
+      "human_author": "unional <homawong@gmail.com>"
+    }
+  }
+}
