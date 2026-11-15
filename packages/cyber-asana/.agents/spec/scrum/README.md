@@ -81,15 +81,9 @@ the members that kind needs, and may override exactly three policy keys: `sprint
 
 ### Failure statuses
 
-Two failures are told apart by `error.code`, and both are stable:
-
-| Code | When | Exit |
-|---|---|---|
-| `scope-unknown` | `--scope` names a scope that is not configured; `options` lists the ones that are | 2 |
-| `scope-missing` | no `--scope`, no default scope, and no default project to stand in | 2 |
-
-Both exit 2, the code for a command the caller can fix and retry. They are `kind: config` errors with
-`code`, `options`, and `hint`, in the CLI body and in the MCP error alike.
+`scope-unknown` and `scope-missing` are told apart by `error.code`, and both are stable. They are `kind: config`
+errors with `code`, `options`, and `hint`, in the CLI body and in the MCP error alike. Every scrum error code
+and its exit code is in [Error codes](#error-codes).
 
 ## Sprints
 
@@ -139,7 +133,7 @@ other text is `sprint-unknown`. `previous` of sprint 1 is `sprint-none`.
 - `sprint tasks` and `backlog list` use task search. A sprint's tasks are those whose Sprint value is
   the option; the backlog is incomplete tasks whose Sprint field is unset. Search pages past 100
   results by sorting on `created_at`. A `402` from Asana is `premium-required`, which names the model,
-  and exits 7 like any other plan limitation.
+  and exits like any other plan limitation (see [Error codes](#error-codes)).
 - `sprint start` creates the option; when it exists, nothing changes and the result is
   `already_started`. `sprint add` sets the task's field to the option; a task already holding it is
   `already_in_sprint`, and a task none of whose projects has the field is `outside_scope`.
@@ -151,7 +145,7 @@ other text is `sprint-unknown`. `previous` of sprint 1 is `sprint-none`.
 - A sprint is a project, named by the computed name, in a portfolio. The scope names the **backlog
   project** (`backlog_project`, or a `project` scope's own project) and the **sprint portfolio**
   (`sprint_portfolio`, or a `portfolio` scope's own portfolio); a scope that lacks either is
-  `scope-incomplete` (exit 2) naming what is missing. Every scope kind works once both are known.
+  `scope-incomplete` naming what is missing. Every scope kind works once both are known.
   Only the portfolio's projects whose names match `sprint_name_format` are sprints; the backlog project
   is never one.
 - A sprint "exists" when the portfolio holds such a project. `sprint current`, `tasks`, `add`, and
@@ -184,17 +178,9 @@ other text is `sprint-unknown`. `previous` of sprint 1 is `sprint-none`.
 
 ### Failure statuses
 
-| Code | When | Exit |
-|---|---|---|
-| `sprint-none` | today is before the anchor, there is no previous sprint, or the sprint has no section in any project | 2 |
-| `sprint-unknown` | `--sprint` names no sprint | 2 |
-| `model-unsupported` | the scope's model is not built in, or the scope kind does not suit the model | 2 |
-| `policy-incomplete` | `sprint_anchor_date` is not set | 2 |
-| `window-invalid` | `report workload` with only one of `--from` and `--to`, a malformed date, or `from` after `to` | 2 |
-| `sprint-field-missing` | the `custom-field` model finds no Sprint field on the scope's projects | 2 |
-| `sprint-field-ambiguous` | the scope's projects use more than one Sprint field | 2 |
-| `scope-incomplete` | the `project` model's scope names no backlog project or no sprint portfolio | 2 |
-| `premium-required` | the `custom-field` model needs task search and Asana answered 402 | 7 |
+The sprint codes (`sprint-none`, `sprint-unknown`, `model-unsupported`, `policy-incomplete`, `window-invalid`,
+`sprint-field-missing`, `sprint-field-ambiguous`, `scope-incomplete`, `premium-required`) are listed in
+[Error codes](#error-codes).
 
 ## Reports
 
@@ -375,7 +361,7 @@ dashboard result and publishes nothing.
   `reports` never drops one silently. Notes lists every note and every failed or unsupported report.
 - **Escaping.** Every user string (task, person, scope, message, command) is HTML-escaped.
 - **Overwrite guard.** The page carries a generator marker. An existing path is replaced only when it
-  holds that marker; any other file or a directory is refused with `page-path-refused` (exit 2).
+  holds that marker; any other file or a directory is refused with `page-path-refused`.
 - **Output.** Text prints `Wrote <path>` with the byte and section counts; `--json` gives
   `{ path, bytes, sections }`. The text dashboard is not printed.
 - **No MCP counterpart.** `asana_report_dashboard` has no `page` option; see design § 9.11.
@@ -384,9 +370,9 @@ dashboard result and publishes nothing.
 
 `report dashboard --post-status` (D2.2; `--dry-run`) posts the dashboard as a status update.
 
-- **Grade required.** A `null` `status_type` posts nothing: `health-required`, exit 2.
+- **Grade required.** A `null` `status_type` posts nothing: `health-required`.
 - **Parent.** `status_parent` (`project`, `portfolio`, `scope-default`) and the scope pick the one
-  project or portfolio; none available is `status-parent-unavailable`, exit 2.
+  project or portfolio; none available is `status-parent-unavailable`.
 - **Template.** The `## Status update` section: a `Title:` line and an html block with `{named}`
   placeholders. A line repeats per finding or per person, a line with an uncomputed figure is dropped,
   an unknown placeholder is `status-template-invalid`. Missing commitment or capacity reads unknown
@@ -394,7 +380,7 @@ dashboard result and publishes nothing.
 - **Checked before the call.** The body must fit Asana's HTML subset (`status-body-invalid`).
 - **Each post is new** (A3); the result says so and carries `posted`, `dry_run`, and the update's `gid`.
 - **MCP.** `asana_report_dashboard_post` (`dry_run`); `asana_report_dashboard` stays read only (§ 9.12).
-- **G13.** `status create` checks `status_type` per parent type (`status-type-invalid`, exit 2).
+- **G13.** `status create` checks `status_type` per parent type (`status-type-invalid`).
 
 ### Planning arithmetic
 
@@ -412,6 +398,37 @@ of the last `velocity_window` closed sprints, the Allocations capacity hours for
 - **Selection.** `--tasks` totals the tasks the user picked and compares each total with its limit
   (`fits`); a GID outside the backlog is `not_in_backlog`.
 - The sprint needs no section: planning comes before `sprint start`.
+
+## Error codes
+
+Every scrum command fails with one of these stable codes in `error.code`, or with a usage error. The exit
+code is set per code in `exitCodeFor` (`src/platform/cli/error.ts`). All are `kind: config` errors that carry
+`code` and `message`, and `options` and `hint` where they help.
+
+| Code | Exit | Kind | When it happens |
+|---|---|---|---|
+| `scope-unknown` | 2 | config | `--scope` names a scope that is not configured; `options` lists the ones that are |
+| `scope-missing` | 2 | config | no `--scope`, no default scope, and no default project to stand in |
+| `scope-incomplete` | 2 | config | the `project` model's scope names no backlog project or no sprint portfolio |
+| `policy-incomplete` | 2 | config | `sprint_anchor_date` is not set |
+| `model-unsupported` | 2 | config | the scope's model is not built in, or the scope kind does not suit the model |
+| `sprint-none` | 2 | config | today is before the anchor, there is no previous sprint, or the sprint has no section, option, or project in the scope |
+| `sprint-unknown` | 2 | config | `--sprint` names no sprint |
+| `sprint-field-missing` | 2 | config | the `custom-field` model finds no Sprint field on the scope's projects |
+| `sprint-field-ambiguous` | 2 | config | the scope's projects use more than one Sprint field |
+| `window-invalid` | 2 | config | `report workload` with only one of `--from` and `--to`, a malformed date, or `from` after `to` |
+| `page-path-refused` | 2 | config | `report dashboard --page` names a directory or a file this command did not write |
+| `health-required` | 2 | config | `report dashboard --post-status` with a `null` `status_type`; nothing is posted |
+| `status-parent-unavailable` | 2 | config | `report dashboard --post-status` finds no project or portfolio to post on |
+| `status-template-invalid` | 2 | config | the `## Status update` template uses an unknown placeholder |
+| `status-body-invalid` | 2 | config | the status update body does not fit Asana's HTML subset |
+| `status-type-invalid` | 2 | config | `status create` gets a `status_type` its parent type does not accept |
+| `post-status-and-page` | 2 | config | `report dashboard` gets both `--post-status` and `--page` |
+| `dry-run-needs-post-status` | 2 | config | `report dashboard --dry-run` without `--post-status` |
+| `premium-required` | 7 | config | the `custom-field` model needs task search and Asana answered 402 |
+| `reference-ambiguous` | 8 | config | more than one source ships a reference the command loads (such as `cyber-asana.scrum` or `cyber-asana.dashboard`); `options` lists them (D13) |
+
+A flag or subcommand that Commander rejects is a usage error and exits 2.
 
 ## Scenario map
 
