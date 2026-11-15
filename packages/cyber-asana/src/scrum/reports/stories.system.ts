@@ -30,12 +30,24 @@ describe.skipIf(!enabled)('scrum reports: system story subtypes (G14)', () => {
 			await sections.addTaskToSection(sectionGid as string, probe.gid)
 			await tasks.addDependencies(probe.gid, [blocker.gid])
 			await tasks.updateTask(blocker.gid, { completed: true })
-			const seen = listItems(
-				await stories.listStories(probe.gid, {
-					fetchAll: true,
-					optFields: 'resource_subtype,created_at,text',
-				} as never),
-			) as TaskStory[]
+			const wanted = [
+				STORY_SUBTYPES.sectionChanged,
+				STORY_SUBTYPES.dependencyAdded,
+				STORY_SUBTYPES.dependencyMarkedComplete,
+			]
+			// Asana writes some of these stories after the call returns, so read until all show or the wait runs out.
+			const deadline = Date.now() + 30_000
+			let seen: TaskStory[] = []
+			for (;;) {
+				seen = listItems(
+					await stories.listStories(probe.gid, {
+						fetchAll: true,
+						optFields: 'resource_subtype,created_at,text',
+					} as never),
+				) as TaskStory[]
+				if (wanted.every((w) => seen.some((s) => s.resource_subtype === w)) || Date.now() >= deadline) break
+				await new Promise((resolve) => setTimeout(resolve, 2000))
+			}
 			const subtypes = new Set(seen.map((s) => s.resource_subtype))
 			console.log('observed story subtypes:', [...subtypes].join(', '))
 			expect(subtypes).toContain(STORY_SUBTYPES.sectionChanged)
@@ -46,5 +58,5 @@ describe.skipIf(!enabled)('scrum reports: system story subtypes (G14)', () => {
 			await tasks.deleteTask(probe.gid)
 			await tasks.deleteTask(blocker.gid)
 		}
-	})
+	}, 60_000)
 })
