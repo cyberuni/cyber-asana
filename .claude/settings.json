@@ -2,6 +2,9 @@
 	"permissions": {
 		"allow": ["Bash(pnpm verify *)"]
 	},
+	"worktree": {
+		"baseRef": "head"
+	},
 	"hooks": {
 		"SessionStart": [
 			{
