@@ -1,7 +1,7 @@
 # Scrum System on Asana: Design
 
 **Date:** 2026-11-05
-**Status:** Council decisions recorded (D1–D14). Only Q6 stays open, for the functional spec (§ 11). This document is the deliverable of a design-only session; it builds nothing. Each unit in § 9 is built later in its own session, starting from this document.
+**Status:** Council decisions recorded (D1–D14). Nothing stays open: Q6 was settled in the functional spec (§ 11). This document is the deliverable of a design-only session; it builds nothing. Each unit in § 9 is built later in its own session, starting from this document.
 
 ## 1. Goal
 
@@ -34,7 +34,7 @@ The Council settled D1–D4 on 2026-11-05, D8 on 2026-11-14 (local file only), a
 | D13 (Q9) | An ambiguous reference name, such as two plugins shipping `cyber-asana.scrum` | **Delegated to `cyber-agentkit`, for every cyber-asana reference, `cyber-asana.task-conventions` included; cyber-asana duplicates none of its logic.** The CLI and MCP resolve through the library's `resolveReference`, which reports `ambiguous` with its options. They cannot ask, so they stop with a `reference-ambiguous` status that lists them. The skills settle it through the `reference` skill of `cyber-agentkit`, which lists the options (with `default`), asks which to build on and whether for the repository or only the user, and saves the pick with `reference customize <name> --extends <pick>`. This replaces today's behavior in `loadConventions()`, which warns and applies no conventions. |
 | D14 (Q11) | Whether the standup's Blocked lists tasks outside the current sprint | **No: the current sprint only, matching Today.** |
 
-§ 11 lists what is still open: Q6, for the functional spec.
+§ 11 lists the questions and where each was settled. Q6, the last, was settled in the functional spec.
 
 ### 1.2 Principles
 
@@ -586,7 +586,7 @@ A dry run of the `spec` skill (sdd2) on this document raised these questions. Th
 
 | ID | Question | Scope | Status | Recommendation |
 | --- | --- | --- | --- | --- |
-| Q6 | What CLI exit code does each failure status get (`scope-missing`, `scope-unknown`, `policy-invalid`, `policy-incomplete`, `model-unsupported`, `premium-required`, `sprint-none`)? | **Functional spec**, not design spec. An exit code is an encoding of an outcome. The design spec states only that each outcome is told apart and stable; the build unit that adds the command pins the code with its tests. | Open, for the functional spec; U3 pinned `scope-missing` and `scope-unknown` at `2` | `2` for the configuration statuses (`scope-*`, `policy-*`, `model-unsupported`), and the CLI's existing API-error code for `premium-required` |
+| Q6 | What CLI exit code does each failure status get (`scope-missing`, `scope-unknown`, `policy-invalid`, `policy-incomplete`, `model-unsupported`, `premium-required`, `sprint-none`)? | **Functional spec**, not design spec. An exit code is an encoding of an outcome. The design spec states only that each outcome is told apart and stable; the build unit that adds the command pins the code with its tests. | **Settled in the functional spec** ([#360](https://github.com/cyberuni/cyber-asana/pull/360)): the `## Error codes` table in `packages/cyber-asana/.agents/spec/scrum/README.md` lists every code and its exit | `2` for the configuration statuses (`scope-*`, `policy-*`, `model-unsupported`), and the CLI's existing API-error code for `premium-required` |
 | Q7 | Which timezone sets "today" and the standup window: the user's Asana timezone or the machine's? | Design spec | **Decided: D11** | The user's Asana timezone, read through `user me`, when Asana returns one; until then the machine's timezone (restated 2026-11-14) |
 | Q8 | When there is no current sprint (before `sprint_anchor_date`, or its section or option is missing), do reports fail with `sprint-none` or carry on without sprint filters? | Design spec | **Decided: D12** | Standup carries on and says so; review, health, and workload fail with `sprint-none` |
 | Q9 | When two plugins ship `cyber-asana.scrum`, so the name is ambiguous, does a run warn and use the package default, or fail? | Design spec | **Decided: D13**, not as recommended | Warn and use the package default, as `loadConventions()` does for task conventions |
