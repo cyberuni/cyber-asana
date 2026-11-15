@@ -149,7 +149,7 @@ export function createRuntimeContext(): RuntimeContext {
 	const customFieldGateway = createAsanaCustomFieldGateway(client)
 	const projectApi = createProjectApi(projectGateway, { jobs: jobGateway })
 	return {
-		allocations: createAllocationApi(allocationGateway),
+		allocations: createAllocationApi(allocationGateway, { users: userGateway }),
 		aiStudio: createAiStudioApi(createAsanaAiStudioGateway(client)),
 		attachments: createAttachmentApi(createAsanaAttachmentGateway(client)),
 		customFields: createCustomFieldApi(customFieldGateway),

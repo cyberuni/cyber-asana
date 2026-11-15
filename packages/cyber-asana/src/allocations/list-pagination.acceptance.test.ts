@@ -4,6 +4,7 @@ import { createAllocationApi } from './api.js'
 import type { AllocationGateway } from './gateway.js'
 import { defineAllocationListPaginationAcceptanceSpecs } from './list-pagination.acceptance.js'
 
+const users = { getMe: vi.fn() }
 const pages = [[{ gid: 'al1' }], [{ gid: 'al2' }], [{ gid: 'al3' }]]
 
 function createPaginatingGateway(): AllocationGateway {
@@ -19,7 +20,7 @@ function createPaginatingGateway(): AllocationGateway {
 describe(
 	'allocations/list pagination acceptance',
 	defineAllocationListPaginationAcceptanceSpecs({
-		getApi: () => createAllocationApi(createPaginatingGateway()),
+		getApi: () => createAllocationApi(createPaginatingGateway(), { users }),
 		filters: { parent: 'p1' },
 	}),
 )
@@ -27,7 +28,7 @@ describe(
 describe('allocations/list pagination acceptance gateway double', () => {
 	it('keeps the filters beside the paging options', async () => {
 		const gateway = createPaginatingGateway()
-		const result = await createAllocationApi(gateway).listAllocations({ parent: 'p1', limit: 25 })
+		const result = await createAllocationApi(gateway, { users }).listAllocations({ parent: 'p1', limit: 25 })
 
 		expect(result).toEqual({ data: pages[0], next_page: { offset: 'page2' }, limit: 25 })
 		expect(gateway.listAllocations).toHaveBeenCalledWith({ parent: 'p1', limit: 25 })

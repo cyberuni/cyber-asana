@@ -1,5 +1,6 @@
 import { createClient } from '../platform/client.js'
 import type { ReadOptions } from '../platform/read-options.js'
+import { createAsanaUserGateway } from '../users/gateway.js'
 import { createAllocationApi } from './api.js'
 import {
 	type AllocationCreateFields,
@@ -9,7 +10,8 @@ import {
 } from './gateway.js'
 
 function defaultAllocationApi() {
-	return createAllocationApi(createAsanaAllocationGateway(createClient()))
+	const client = createClient()
+	return createAllocationApi(createAsanaAllocationGateway(client), { users: createAsanaUserGateway(client) })
 }
 
 export async function listAllocations(opts?: AllocationListOptions) {

@@ -74,4 +74,21 @@ describe.skipIf(!systemEnabled)('allocations/api system', async () => {
 			}
 		})
 	})
+
+	// Asana's GET /allocations 404s on assignee=me; the api layer resolves it to the caller's GID (#351).
+	describe.skipIf(!available)('assignee me', () => {
+		it('lists the same allocations for me as for the caller GID', async () => {
+			const api = getApi()
+			const me = await runtimeContext!.users.getMe({ optFields: 'gid' })
+			const byMe = await api.listAllocations({ assignee: 'me', workspace: workspaceGid!, limit: 5, optFields: 'gid' })
+			const byGid = await api.listAllocations({
+				assignee: me.gid,
+				workspace: workspaceGid!,
+				limit: 5,
+				optFields: 'gid',
+			})
+
+			expect(byMe).toEqual(byGid)
+		})
+	})
 })

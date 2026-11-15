@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
+import type { UserGateway } from '../users/gateway.js'
 import { createAllocationApi } from './api.js'
 import type { AllocationGateway } from './gateway.js'
 
@@ -12,6 +13,10 @@ function gatewayStub(): AllocationGateway {
 	}
 }
 
+function usersStub(gid = 'u-me'): Pick<UserGateway, 'getMe'> {
+	return { getMe: vi.fn(async () => ({ gid }) as never) }
+}
+
 describe('allocations/api', () => {
 	it('delegates every operation to the gateway unchanged', async () => {
 		const gateway = gatewayStub()
@@ -19,7 +24,7 @@ describe('allocations/api', () => {
 		vi.mocked(gateway.getAllocation).mockResolvedValue({ gid: 'a1' })
 		vi.mocked(gateway.createAllocation).mockResolvedValue({ gid: 'a2' })
 		vi.mocked(gateway.updateAllocation).mockResolvedValue({ gid: 'a1' })
-		const api = createAllocationApi(gateway)
+		const api = createAllocationApi(gateway, { users: usersStub() })
 		const fields = {
 			assignee: 'u1',
 			parent: 'p1',
@@ -39,5 +44,44 @@ describe('allocations/api', () => {
 		expect(gateway.createAllocation).toHaveBeenCalledWith(fields)
 		expect(gateway.updateAllocation).toHaveBeenCalledWith('a1', { end_date: '2026-01-25' })
 		expect(gateway.deleteAllocation).toHaveBeenCalledWith('a1')
+	})
+
+	describe('assignee me', () => {
+		const fields = { assignee: 'me', parent: 'p1', start_date: '2026-01-05', end_date: '2026-01-18' }
+
+		it('resolves me to the caller GID before listing', async () => {
+			const gateway = gatewayStub()
+			const users = usersStub()
+			await createAllocationApi(gateway, { users }).listAllocations({ assignee: 'me', workspace: 'w1' })
+
+			expect(users.getMe).toHaveBeenCalledTimes(1)
+			expect(users.getMe).toHaveBeenCalledWith({ optFields: 'gid' })
+			expect(gateway.listAllocations).toHaveBeenCalledWith({ assignee: 'u-me', workspace: 'w1' })
+		})
+
+		it('resolves me before creating', async () => {
+			const gateway = gatewayStub()
+			await createAllocationApi(gateway, { users: usersStub() }).createAllocation(fields)
+
+			expect(gateway.createAllocation).toHaveBeenCalledWith({ ...fields, assignee: 'u-me' })
+		})
+
+		it('passes a real GID through without a lookup', async () => {
+			const gateway = gatewayStub()
+			const users = usersStub()
+			const api = createAllocationApi(gateway, { users })
+			await api.listAllocations({ assignee: '123' })
+			await api.createAllocation({ ...fields, assignee: '123' })
+
+			expect(users.getMe).not.toHaveBeenCalled()
+			expect(gateway.listAllocations).toHaveBeenCalledWith({ assignee: '123' })
+		})
+
+		it('does not look up the caller when no assignee is given', async () => {
+			const users = usersStub()
+			await createAllocationApi(gatewayStub(), { users }).listAllocations({ parent: 'p1' })
+
+			expect(users.getMe).not.toHaveBeenCalled()
+		})
 	})
 })
