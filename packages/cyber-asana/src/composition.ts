@@ -8,6 +8,8 @@ import { type AllocationApi, createAllocationApi } from './allocations/api.js'
 import { allocationCommand } from './allocations/cli.js'
 import { createAsanaAllocationGateway } from './allocations/gateway.js'
 import { registerAllocationTools } from './allocations/mcp.js'
+import { htmlCommand } from './asana-html/cli.js'
+import { registerHtmlTools } from './asana-html/mcp.js'
 import { type AttachmentApi, createAttachmentApi } from './attachments/api.js'
 import { attachmentCommand } from './attachments/cli.js'
 import { createAsanaAttachmentGateway } from './attachments/gateway.js'
@@ -251,6 +253,7 @@ export function registerCliCommands(program: Command, getContext: () => RuntimeC
 	program.addCommand(reportCommand(() => getContext().scrum))
 	program.addCommand(setupCommand())
 	program.addCommand(urlCommand())
+	program.addCommand(htmlCommand())
 	program.addCommand(mcpCommand(getContext))
 }
 
@@ -284,4 +287,5 @@ export function registerMcpTools(server: McpServer, getContext: () => RuntimeCon
 	registerStoryTools(server, () => getContext().stories)
 	registerScrumTools(server, () => getContext().scrum)
 	registerUrlTools(server)
+	registerHtmlTools(server)
 }

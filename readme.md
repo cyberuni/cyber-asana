@@ -503,6 +503,7 @@ Tools are named `asana_<resource>_<action>` (e.g. `asana_task_create`).
 | `membership` | `asana_membership_list`, `asana_membership_get`, `asana_membership_create`, `asana_membership_update`, `asana_membership_delete` |
 | `search` | `asana_search_objects` (typeahead; one `resource_type` per call, single capped page, not exhaustive) |
 | `url` | `asana_url_parse` (no API call; extracts GIDs from Asana app URLs) |
+| `html` | `asana_html_check`, `asana_html_fix`, `asana_html_rules` (no API call; Asana's rich-text rules per surface: `task-notes`, `status-update`) |
 
 List tools accept `limit`, `offset`, `opt_fields`, `fetch_all`, and `max_pages` where Asana supports them.
 Single-resource reads (`asana_<resource>_get` and `asana_user_me`) accept `opt_fields` too; leaving it out returns the same fields as before. `asana_membership_get` is the exception, because Asana's endpoint takes no `opt_fields`.
@@ -543,6 +544,7 @@ Notable parameters:
 - `asana_search_objects` — `resource_type` (one of `actor`, `agent`, `custom_field`, `goal`, `portfolio`, `project`, `project_template`, `tag`, `task`, `team`, `user`), `query`, `count` (1–100, default 20), `opt_fields`. Turns a name into a GID; not paginated and not exhaustive
 - `asana_custom_field_list_for_project` — the fields actually attached to one project, with their enum options. Narrower than `asana_custom_field_list`, and the right lookup before writing `custom_fields`: Asana rejects a payload naming a field the project does not have. Same shape for `_for_portfolio`, `_for_goal`, `_for_team`
 - `asana_url_parse` — local URL parsing; use `workspace_gid` + `project_gid` for create; `list_view_gid` is not a section GID
+- `asana_html_check` / `asana_html_fix` — `html` and `surface` (`task-notes` or `status-update`); check returns `ok` and `problems`, fix returns the fixed `html` and what it could not repair. `asana_html_rules` — optional `surface`; returns the allowed and rejected tags, the evidence, and what is unverified
 
 Per-tool parameter schemas live in `src/<domain>/mcp.ts` (e.g. `src/tasks/mcp.ts`) and [`src/url/mcp.ts`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/src/url/mcp.ts). MCP hosts also expose tool schemas at runtime when the server is connected.
 

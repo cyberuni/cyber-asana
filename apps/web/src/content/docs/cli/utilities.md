@@ -1,6 +1,6 @@
 ---
 title: Utilities
-description: URL parsing, TODO scanning, agent session setup, and running the MCP server.
+description: URL parsing, Asana HTML checks, TODO scanning, agent session setup, and running the MCP server.
 sidebar:
   order: 14
 ---
@@ -27,6 +27,29 @@ and legacy `/0/<workspace>/<task>`.
 
 The `list_view_gid` trap is the reason this command exists: it looks like a section GID in
 the URL but is not one, and passing it as a section is a common failure.
+
+## Check and fix Asana HTML
+
+Asana accepts a different subset of rich text on each surface, and some failures are silent: a
+status update holding a heading is accepted, then stored with the whole body escaped as text.
+These commands read one rule table and make no API call. Pass a file, or pipe the HTML on stdin.
+
+```sh
+cyber-asana html check body.html --surface status-update --json
+cyber-asana html fix body.html --surface status-update > fixed.html
+cyber-asana html rules --surface task-notes --json
+```
+
+| Surface | Used by |
+| --- | --- |
+| `task-notes` | `html_notes` on tasks (probed on `PUT /tasks/{gid}`) |
+| `status-update` | `html_text` on status updates; headings are written as `<strong>` lines |
+
+`check` returns `ok` and the `problems` it found, and exits 0 either way. `fix` writes a bare
+`<body>`, `<b>`/`<i>` as `<strong>`/`<em>`, paragraphs and breaks as newlines, and replaces any
+heading the surface does not keep. What it cannot repair, such as an `<img>` or a `<li>` outside a
+list, goes to stderr, or to `problems` with `--json`. `rules` lists each surface's allowed and
+rejected tags, the live probe behind them, and the tags not yet verified on that surface.
 
 ## Scan a codebase for TODOs
 
