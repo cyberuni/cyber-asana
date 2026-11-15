@@ -4,7 +4,7 @@ description: Why the cyber-asana plugin ships the CLI and skills and leaves its 
 ---
 
 The cyber-asana plugin installs the **CLI and the skills**. It does not start the MCP server.
-The server still exists (`cyber-asana mcp`, 111 tools), and you can turn it on with one step of the
+The server still exists (`cyber-asana mcp`, 148 tools), and you can turn it on with one step of the
 `init-asana` skill. This page explains that default, shows the measured numbers, and lists the cases
 where MCP is the better choice.
 
@@ -15,9 +15,9 @@ the agent does anything. The rest is paid only when the agent uses the surface.
 
 | Surface | Paid on every turn | Paid on use |
 | --- | --- | --- |
-| MCP, every tool schema loaded up front | **~21,200** (111 tool schemas) | the tool call and its result |
-| MCP, schemas deferred (Claude Code tool search) | ~650 (111 tool names) | ~190 per tool schema on average, up to ~1,300 (`asana_task_search`) |
-| Skills + CLI | **~290** (7 skill descriptions) | the skill body (~250–2,400 per skill, ~7,900 for all 7), `--help` only if needed (~400 for `task create`) |
+| MCP, every tool schema loaded up front | **~29,700** (148 tool schemas) | the tool call and its result |
+| MCP, schemas deferred (Claude Code tool search) | ~880 (148 tool names) | ~200 per tool schema on average, up to ~1,400 (`asana_task_search`) |
+| Skills + CLI | **~310** (8 skill descriptions) | the skill body (~100–3,100 per skill, ~10,900 for all 8), `--help` only if needed (~400 for `task create`) |
 
 Measured on cyber-asana 0.15.0 plus this change. Tokens are approximated as bytes ÷ 4.
 
@@ -34,8 +34,8 @@ The difference depends on the client.
 - **Claude Code** defers MCP tool schemas by default. It loads only the tool names and fetches a
   schema when the agent searches for the tool
   ([Claude Code — MCP tool search](https://code.claude.com/docs/en/mcp#scale-with-mcp-tool-search)).
-  The every-turn cost is then ~650 tokens for MCP against ~290 for the skills, which is a small
-  difference. Per task, a skill body (about 900 tokens for the `asana` router, plus its
+  The every-turn cost is then ~880 tokens for MCP against ~310 for the skills, which is a small
+  difference. Per task, a skill body (about 1,100 tokens for the `asana` router, plus its
   task-creation reference) can cost more than one deferred tool schema. Claude Code falls back to
   loading every schema up front with a custom `ANTHROPIC_BASE_URL` or `ENABLE_TOOL_SEARCH=false`.
 - **Cursor** describes syncing MCP tool descriptions to files so the agent can discover them on
@@ -44,7 +44,7 @@ The difference depends on the client.
 - **Codex** and **Copilot CLI** do not document deferred loading of MCP tool schemas
   ([Codex — MCP](https://learn.chatgpt.com/docs/extend/mcp?surface=cli),
   [Copilot CLI — MCP servers](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-mcp-servers)).
-  Without deferral, the full ~21,200 tokens are in context on every turn.
+  Without deferral, the full ~29,700 tokens are in context on every turn.
 
 Skills behave the same in every client that supports them: the description is always loaded and the
 body is loaded only when the skill is used
@@ -84,11 +84,11 @@ For how the two compare and how to run both, see
 Run from `packages/cyber-asana` after `pnpm build`:
 
 - **MCP tool schemas**: send `initialize`, `notifications/initialized` and `tools/list` as JSON-RPC to
-  `node dist/cli.js mcp` over stdin. Measure the bytes of `JSON.stringify(result.tools)`: 84,981
-  bytes for 111 tools. Names only: 2,585 bytes.
-- **Skill descriptions**: the bytes between the `---` fences of each `skills/*/SKILL.md`: 1,176 bytes
-  for 7 skills. **Skill bodies**: the rest of each file: 31,485 bytes.
-- **CLI help**: the output of `node dist/cli.js task create --help`: 1,577 bytes.
+  `node dist/cli.js mcp` over stdin. Measure the bytes of `JSON.stringify(result.tools)`: 118,903
+  bytes for 148 tools. Names only: 3,503 bytes.
+- **Skill descriptions**: the bytes between the `---` fences of each `skills/*/SKILL.md`: 1,221 bytes
+  for 8 skills. **Skill bodies**: the rest of each file: 43,792 bytes.
+- **CLI help**: the output of `node dist/cli.js task create --help`: 1,736 bytes.
 
 Bytes ÷ 4 is a rough approximation of tokens for English text and JSON. The exact count depends on
 the model's tokenizer, but the ratios between the surfaces hold.
