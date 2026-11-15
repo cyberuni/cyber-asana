@@ -104,6 +104,8 @@ Verified against the live Asana API (`PUT /tasks/{gid}`, 2026-08).
 
 `<span>` is accepted but silently stripped to its text.
 
+**Status updates take a narrower subset.** `html_text` on a status update is not validated the way `html_notes` is: a body holding `<h1>`–`<h3>` is accepted, then returned with the whole body escaped into literal text (`<body>&lt;body&gt;&lt;h2&gt;…`). Mark a heading with `<strong>` on its own line instead. Verified against the live API (2026-11): `<strong>`, `<ul>`/`<li>`, `<a>` and plain text keep their markup; a body without `<body>` is rejected as a bad request.
+
 `<pre><code>` nested together fails with an opaque *"unexpected error occurred"* — use `<pre>` alone.
 
 ### Line breaks are literal newlines
