@@ -1,0 +1,19 @@
+docs/design/scrum-system.md
+  s_7a57d05fb4f9a2::t_ef60723010bf60 32,439,590
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "41e4831c126860fe489870822445ac0a1d5d0630",
+  "prompts": {},
+  "sessions": {
+    "s_7a57d05fb4f9a2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c1fdc096-b779-479f-a403-2f5bcb09f2ed",
+        "model": "unknown"
+      },
+      "human_author": "unional <homawong@gmail.com>"
+    }
+  }
+}
