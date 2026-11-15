@@ -1,6 +1,27 @@
 import { describe, expect, it } from 'vitest'
 import { parseDocumentedSubset } from '../skills/html-subset.js'
-import { ASANA_HTML_REJECTED, ASANA_HTML_SUPPORTED, findHtmlSubsetProblems } from './html-subset.js'
+import {
+	ASANA_HTML_REJECTED,
+	ASANA_HTML_SUPPORTED,
+	findHtmlSubsetProblems,
+	findStatusHtmlProblems,
+} from './html-subset.js'
+
+describe('findStatusHtmlProblems', () => {
+	it('accepts a body of bold lines and lists', () => {
+		expect(findStatusHtmlProblems('<body><strong>Health</strong>\n<ul>\n<li>1 error</li>\n</ul>\n</body>')).toEqual([])
+	})
+
+	it('names a heading, which Asana answers by escaping the whole status update', () => {
+		expect(findStatusHtmlProblems('<body><h2>Health</h2>\n<ul>\n<li>x</li>\n</ul>\n</body>')).toContain(
+			'<h2> is not supported in a status update (Asana escapes the whole body); use <strong> for a heading',
+		)
+	})
+
+	it('still reports what the general subset rejects', () => {
+		expect(findStatusHtmlProblems('<p>x</p>')).toContain("<p> is not in Asana's HTML subset")
+	})
+})
 
 describe('findHtmlSubsetProblems', () => {
 	it('accepts a body of supported tags', () => {

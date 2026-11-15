@@ -1,5 +1,5 @@
 import { CodedConfigError, isCodedConfigError } from '../platform/coded-error.js'
-import { findHtmlSubsetProblems } from '../platform/html-subset.js'
+import { findStatusHtmlProblems } from '../platform/html-subset.js'
 import type { CoreScrumApi, ScrumApiDeps, SprintInput } from './api.js'
 import { type DashboardSettings, parseDashboardSettings, type StatusType, statusFor } from './reports/dashboard.js'
 import { renderStatusUpdate, statusParentFor } from './reports/status-update.js'
@@ -126,7 +126,7 @@ export function createDashboardApi(deps: ScrumApiDeps, core: CoreScrumApi) {
 			throw new CodedConfigError('status-template-invalid', 'This build cannot load the cyber-asana.dashboard template')
 		}
 		const { title, html_text } = renderStatusUpdate(await deps.loadStatusTemplate(), dashboard as never)
-		const problems = findHtmlSubsetProblems(html_text)
+		const problems = findStatusHtmlProblems(html_text)
 		if (problems.length > 0) {
 			throw new CodedConfigError(
 				'status-body-invalid',

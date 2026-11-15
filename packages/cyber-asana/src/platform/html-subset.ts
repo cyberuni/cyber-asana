@@ -26,3 +26,19 @@ export function findHtmlSubsetProblems(html: string): string[] {
 	if (/<li\b/.test(html.replace(/<(ul|ol)\b[\s\S]*?<\/\1>/g, ''))) problems.push('<li> must sit inside <ul> or <ol>')
 	return problems
 }
+
+/**
+ * Status updates take a narrower subset than task notes: Asana answers a heading (`<h1>`-`<h3>`)
+ * by escaping the whole body into literal text, so a status update marks a heading with `<strong>`.
+ */
+export function findStatusHtmlProblems(html: string): string[] {
+	const problems = findHtmlSubsetProblems(html).filter((p) => !/^<h[1-3]> /.test(p))
+	for (const heading of ['h1', 'h2', 'h3']) {
+		if (new RegExp(`<${heading}\\b`, 'i').test(html)) {
+			problems.push(
+				`<${heading}> is not supported in a status update (Asana escapes the whole body); use <strong> for a heading`,
+			)
+		}
+	}
+	return problems
+}

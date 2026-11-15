@@ -169,7 +169,7 @@ export function renderStatusUpdate(
 		fill(template.title, { ...scalars, sprint: scalars.scope }, groups, false)[0] ??
 		''
 	const lines = template.body.split('\n').flatMap((line) => fill(line, scalars, groups, true))
-	const html = lines.join('\n').replace(/<h[1-3]>[^\n]*<\/h[1-3]>\n<ul>\n<\/ul>\n?/g, '')
+	const html = lines.join('\n').replace(/<strong>[^<\n]*<\/strong>\n<ul>\n<\/ul>\n?/g, '')
 	return { title, html_text: html }
 }
 

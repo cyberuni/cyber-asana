@@ -20,25 +20,25 @@ Scalars: `{scope}`, `{sprint}`, `{status}` (the label, such as "At risk"), `{sta
 
 Title: `{sprint} — {status}`
 
-Body, in Asana's HTML subset (the `tidy-description` reference of the `asana` skill lists what it allows: no `<p>`, `<br>`, or `<th>`, and real newlines between blocks). The post is checked against that subset before it is sent:
+Body, in Asana's HTML subset (the `tidy-description` reference of the `asana` skill lists what it allows: no `<p>`, `<br>`, or `<th>`, and real newlines between blocks; a status update takes no headings either, since Asana escapes the whole body when it finds one, so a heading is a `<strong>` line). The post is checked against that subset before it is sent:
 
 ```html
-<body><h2>Health</h2>
+<body><strong>Health</strong>
 <ul>
 <li><strong>{errors} errors</strong>, {warnings} warnings</li>
 <li>{finding}</li>
 </ul>
-<h2>Sprint</h2>
+<strong>Sprint</strong>
 <ul>
 <li>Committed {committed_tasks} tasks, completed {completed_tasks} ({completion_rate} by count)</li>
 <li>Story points: {story_completed} of {story_committed}</li>
 <li>Task points: {task_completed} of {task_committed}</li>
 </ul>
-<h2>Workload</h2>
+<strong>Workload</strong>
 <ul>
 <li>{person}: {load} of {capacity} ({flag})</li>
 </ul>
-<h2>Velocity</h2>
+<strong>Velocity</strong>
 <ul>
 <li>Mean of the last {velocity_window} sprints: {velocity_story} story points, {velocity_task} task points</li>
 </ul>

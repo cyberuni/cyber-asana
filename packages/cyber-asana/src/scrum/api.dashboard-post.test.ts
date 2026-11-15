@@ -23,7 +23,7 @@ const open = (gid: string, extra: Record<string, unknown> = {}): WorldTask =>
 
 const TEMPLATE = {
 	title: '{sprint} — {status}',
-	body: '<body><h2>Health</h2>\n<ul>\n<li><strong>{errors} errors</strong>, {warnings} warnings</li>\n</ul>\n</body>',
+	body: '<body><strong>Health</strong>\n<ul>\n<li><strong>{errors} errors</strong>, {warnings} warnings</li>\n</ul>\n</body>',
 }
 
 function setup(
@@ -76,7 +76,7 @@ describe('scrum api: report dashboard --post-status', () => {
 		expect(createStatus).toHaveBeenCalledWith('p1', {
 			status_type: 'at_risk',
 			title: 'Sprint 2 — At risk',
-			html_text: '<body><h2>Health</h2>\n<ul>\n<li><strong>0 errors</strong>, 1 warnings</li>\n</ul>\n</body>',
+			html_text: '<body><strong>Health</strong>\n<ul>\n<li><strong>0 errors</strong>, 1 warnings</li>\n</ul>\n</body>',
 		})
 		expect(r).toMatchObject({
 			posted: true,
@@ -93,7 +93,7 @@ describe('scrum api: report dashboard --post-status', () => {
 		const r = await api.postDashboardStatus({}, undefined, { dryRun: true })
 		expect(createStatus).not.toHaveBeenCalled()
 		expect(r).toMatchObject({ posted: false, dry_run: true, title: 'Sprint 2 — At risk' })
-		expect(r.html_text).toContain('<h2>Health</h2>')
+		expect(r.html_text).toContain('<strong>Health</strong>')
 	})
 
 	it('does not post when health did not run: coded health-required', async () => {
@@ -104,6 +104,14 @@ describe('scrum api: report dashboard --post-status', () => {
 
 	it('refuses a body outside the HTML subset before any post', async () => {
 		const { api, createStatus } = setup({ template: { title: 'x', body: '<body><p>{errors}</p></body>' } })
+		await expect(api.postDashboardStatus({})).rejects.toMatchObject({ code: 'status-body-invalid' })
+		expect(createStatus).not.toHaveBeenCalled()
+	})
+
+	it('refuses a heading, which Asana answers by escaping the whole body', async () => {
+		const { api, createStatus } = setup({
+			template: { title: 'x', body: '<body><h2>Health</h2>\n<ul>\n<li>{errors}</li>\n</ul>\n</body>' },
+		})
 		await expect(api.postDashboardStatus({})).rejects.toMatchObject({ code: 'status-body-invalid' })
 		expect(createStatus).not.toHaveBeenCalled()
 	})
