@@ -19,7 +19,7 @@ the agent does anything. The rest is paid only when the agent uses the surface.
 | MCP, schemas deferred (Claude Code tool search) | ~880 (148 tool names) | ~200 per tool schema on average, up to ~1,400 (`asana_task_search`) |
 | Skills + CLI | **~310** (8 skill descriptions) | the skill body (~100–3,100 per skill, ~10,900 for all 8), `--help` only if needed (~400 for `task create`) |
 
-Measured on cyber-asana 0.15.0 plus this change. Tokens are approximated as bytes ÷ 4.
+Measured on cyber-asana main at 609c0c8 (after 0.23.0). Tokens are approximated as bytes ÷ 4.
 
 The skills cost less on every turn because a description is one line. A tool schema carries every
 parameter and its description. A skill also carries what a schema cannot: the procedure. The `asana`
