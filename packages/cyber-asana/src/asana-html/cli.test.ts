@@ -66,10 +66,15 @@ describe('asana-html/cli', () => {
 
 	it('rules lists every surface when none is named', async () => {
 		await run(['rules'], ['--json'])
-		expect(JSON.parse(printed()).map((r: { surface: string }) => r.surface)).toEqual(['task-notes', 'status-update'])
+		expect(JSON.parse(printed()).map((r: { surface: string }) => r.surface)).toEqual([
+			'task-notes',
+			'comment',
+			'project-brief',
+			'status-update',
+		])
 	})
 
 	it('refuses a surface it does not know', async () => {
-		await expect(run(['rules', '--surface', 'comment'])).rejects.toThrow(/Unknown surface "comment"/)
+		await expect(run(['rules', '--surface', 'wiki'])).rejects.toThrow(/Unknown surface "wiki"/)
 	})
 })

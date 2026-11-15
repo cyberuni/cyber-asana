@@ -39,7 +39,7 @@ describe('asana-html/mcp', () => {
 	})
 
 	it('asana_html_rules returns one surface or all', async () => {
-		expect(await call('asana_html_rules', {})).toHaveLength(2)
+		expect(await call('asana_html_rules', {})).toHaveLength(4)
 		expect(await call('asana_html_rules', { surface: 'task-notes' })).toHaveLength(1)
 	})
 })

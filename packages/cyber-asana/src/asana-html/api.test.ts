@@ -23,6 +23,6 @@ describe('asana-html api', () => {
 
 	it('gives the rules of one surface, or of every surface', () => {
 		expect(htmlRulesFor('status-update').map((r) => r.surface)).toEqual(['status-update'])
-		expect(htmlRulesFor().map((r) => r.surface)).toEqual(['task-notes', 'status-update'])
+		expect(htmlRulesFor().map((r) => r.surface)).toEqual(['task-notes', 'comment', 'project-brief', 'status-update'])
 	})
 })

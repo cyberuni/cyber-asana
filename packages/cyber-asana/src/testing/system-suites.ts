@@ -21,6 +21,7 @@ export const SYSTEM_SUITES: SystemSuite[] = [
 		env: ['ASANA_WORKSPACE_GID', 'ASANA_SYSTEM_TEST_PROJECT_GID'],
 		optional: true,
 	},
+	{ file: 'src/asana-html/surfaces.system.ts', env: ['ASANA_WORKSPACE_GID'] },
 	{ file: 'src/attachments/api.system.ts', env: ['ASANA_SYSTEM_TEST_TASK_GID'] },
 	{
 		file: 'src/custom-fields/api.system.ts',
