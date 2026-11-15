@@ -1,0 +1,28 @@
+packages/cyber-asana/src/users/me-time-zone.system.ts
+  s_7a57d05fb4f9a2::t_c203ad8b4d8f83 5-11,13,15-24
+  s_7a57d05fb4f9a2::t_f35a128759d2c5 1-4,12,14,25-26
+packages/cyber-asana/src/testing/system-suites.ts
+  s_7a57d05fb4f9a2::t_2d3f3618f88695 72
+.agents/skills/run-system-tests/SKILL.md
+  s_7a57d05fb4f9a2::t_11e0f4449289dd 83
+docs/design/scrum-system.md
+  s_7a57d05fb4f9a2::t_fb78b64f08785a 439
+apps/web/src/content/docs/cli/sprints.md
+  s_7a57d05fb4f9a2::t_7e6b30206dc23f 29-32
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "19d23c41ef08c4f93c03db08fa860b1f3ab8b4ee",
+  "prompts": {},
+  "sessions": {
+    "s_7a57d05fb4f9a2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c1fdc096-b779-479f-a403-2f5bcb09f2ed",
+        "model": "claude-sonnet-5-5"
+      },
+      "human_author": "unional <homawong@gmail.com>"
+    }
+  }
+}
