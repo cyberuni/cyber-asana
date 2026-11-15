@@ -1,0 +1,21 @@
+.gitignore
+  s_7a57d05fb4f9a2::t_638bbdf86904ab 10
+biome.json
+  s_7a57d05fb4f9a2::t_3b44ed9b82ae22 13-14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "a639258ebc943dd0f69b9262212da74607d639b2",
+  "prompts": {},
+  "sessions": {
+    "s_7a57d05fb4f9a2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c1fdc096-b779-479f-a403-2f5bcb09f2ed",
+        "model": "claude-sonnet-5-5"
+      },
+      "human_author": "unional <homawong@gmail.com>"
+    }
+  }
+}
