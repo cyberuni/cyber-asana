@@ -1,70 +1,21 @@
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { parseDocumentedSubset, readSubsetSkill, skillsRoot } from './html-subset.js'
+import { readSubsetSkill, skillsRoot } from './html-subset.js'
 
-// Verified against the live Asana API (PUT /tasks/{gid}), 2026-08. Issue #159 reported
-// several of these backwards, so the claims are pinned rather than trusted. When Asana
-// changes the subset out of band, `pnpm test:system` is what detects it — see
-// html-subset.system.ts. Update both sides together.
-const SUPPORTED = [
-	'<body>',
-	'<h1>',
-	'<h2>',
-	'<h3>',
-	'<strong>',
-	'<em>',
-	'<u>',
-	'<s>',
-	'<code>',
-	'<pre>',
-	'<ul>',
-	'<ol>',
-	'<li>',
-	'<a>',
-	'<blockquote>',
-	'<table>',
-	'<tr>',
-	'<td>',
-	'<hr>',
-	'<mark>',
-]
-const REJECTED = ['<p>', '<br>', '<div>', '<h4>', '<h5>', '<h6>', '<img>', '<del>', '<sub>', '<sup>', '<th>']
-
-// `<li>` is deliberately on both sides: supported inside a list, rejected outside one.
-const QUALIFIED = ['<li>']
-
-const documented = parseDocumentedSubset()
-
-describe('documented supported tags', () => {
-	it.each(SUPPORTED)('%s is listed as supported', (tag) => {
-		expect([...documented.supported]).toContain(tag)
+describe('the tag subset', () => {
+	// The tags live in the asana-html rule table (src/asana-html/surfaces.ts), where the CLI and MCP
+	// read them; the reference sends the agent there instead of carrying its own copy.
+	it('sends the agent to the rule table instead of listing tags', () => {
+		const content = readSubsetSkill()
+		expect(content).toContain('cyber-asana html rules --surface task-notes')
+		expect(content).not.toContain('**Supported**')
 	})
 
-	it.each(SUPPORTED.filter((tag) => !QUALIFIED.includes(tag)))('%s is not also listed as rejected', (tag) => {
-		expect([...documented.rejected]).not.toContain(tag)
-	})
-
-	it('lists nothing beyond the verified set', () => {
-		expect([...documented.supported].sort()).toEqual([...SUPPORTED].sort())
-	})
-})
-
-describe('documented rejected tags', () => {
-	it.each(REJECTED)('%s is listed as rejected', (tag) => {
-		expect([...documented.rejected]).toContain(tag)
-	})
-})
-
-describe('headings', () => {
-	// Issue #159 claimed <h2>/<h3> were unsupported and that emoji headers were the
-	// workaround. They are supported; <h4>-<h6> are the ones the API rejects.
-	it('treats h1-h3 as supported and h4-h6 as rejected', () => {
-		for (const tag of ['<h1>', '<h2>', '<h3>']) {
-			expect([...documented.supported]).toContain(tag)
-			expect([...documented.rejected]).not.toContain(tag)
-		}
-		for (const tag of ['<h4>', '<h5>', '<h6>']) expect([...documented.rejected]).toContain(tag)
+	it('checks and fixes the body before writing it back', () => {
+		const content = readSubsetSkill()
+		expect(content).toContain('cyber-asana html fix')
+		expect(content).toContain('cyber-asana html check')
 	})
 })
 
@@ -133,5 +84,17 @@ describe('where the procedure lives', () => {
 		const command = readFileSync(path.join(skillsRoot, '..', 'commands', 'tidy-description.md'), 'utf8')
 		expect(command).toMatch(/\*\*Tidy a description\*\* route/)
 		expect(command).toContain('references/tidy-description.md')
+	})
+})
+
+describe('other skills that write rich text', () => {
+	it('create-task fixes --html-notes for task notes', () => {
+		const content = readFileSync(path.join(skillsRoot, 'asana', 'references', 'create-task.md'), 'utf8')
+		expect(content).toContain('cyber-asana html fix')
+	})
+
+	it('the dashboard reference names the status-update rules', () => {
+		const content = readFileSync(path.join(skillsRoot, '..', 'references', 'cyber-asana.dashboard.md'), 'utf8')
+		expect(content).toContain('cyber-asana html rules --surface status-update')
 	})
 })

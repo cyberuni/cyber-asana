@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest'
-import { parseDocumentedSubset } from '../skills/html-subset.js'
 import { htmlRules } from './rules.js'
 import { SURFACES } from './surfaces.js'
 
@@ -41,12 +40,42 @@ describe('htmlRules', () => {
 		expect(evidence).toContain('status-post.system.ts')
 	})
 
-	it('stays in step with the tags the tidy-description reference documents', () => {
-		const documented = parseDocumentedSubset()
-		const notes = htmlRules('task-notes')
-		expect([...notes.allowed.map((t) => `<${t}>`)].sort()).toEqual([...documented.supported].sort())
-		// <li> is rejected only outside a list, which checkHtml checks by position.
-		const refusedByDoc = [...documented.rejected].filter((t) => t !== '<li>').map((t) => t.slice(1, -1))
-		expect(refusedByDoc.every((t) => notes.rejected.includes(t))).toBe(true)
+	// Verified against the live Asana API (PUT /tasks/{gid}), 2026-08. Issue #159 reported several of
+	// these backwards, so the claims are pinned rather than trusted. When Asana changes the subset out
+	// of band, `pnpm test:system` is what detects it (src/skills/html-subset.system.ts).
+	it('pins the task-notes subset to the live probe', () => {
+		const rules = htmlRules('task-notes')
+		expect(rules.allowed).toEqual(
+			[
+				'body',
+				'h1',
+				'h2',
+				'h3',
+				'strong',
+				'em',
+				'u',
+				's',
+				'code',
+				'pre',
+				'ul',
+				'ol',
+				'li',
+				'a',
+				'blockquote',
+				'table',
+				'tr',
+				'td',
+				'hr',
+				'mark',
+			].sort(),
+		)
+		expect(rules.rejected).toEqual(['p', 'br', 'div', 'h4', 'h5', 'h6', 'img', 'del', 'sub', 'sup', 'th'].sort())
+	})
+
+	// Issue #159 claimed <h2>/<h3> were unsupported. They are supported; <h4>-<h6> are the ones refused.
+	it('keeps h1-h3 and refuses h4-h6 in task notes', () => {
+		const rules = htmlRules('task-notes')
+		for (const tag of ['h1', 'h2', 'h3']) expect(rules.allowed).toContain(tag)
+		for (const tag of ['h4', 'h5', 'h6']) expect(rules.rejected).toContain(tag)
 	})
 })

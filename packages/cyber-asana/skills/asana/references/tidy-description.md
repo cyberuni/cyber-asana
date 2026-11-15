@@ -68,43 +68,39 @@ A template modifier is the only reason to add or reorder sections. When it moves
 
 ### 4. Write it back
 
-Wrap the whole document in a bare `<body>` — required, and it must carry no attributes.
+Wrap the whole document in a bare `<body>` — required, and it must carry no attributes. Write it to a
+file, normalize it, and check what is left before sending it:
 
 ```sh
-cyber-asana task update <gid> --html-notes '<body><h1>Summary</h1>Ship the thing.</body>'
+cyber-asana html fix body.html --surface task-notes > fixed.html
+cyber-asana html check fixed.html --surface task-notes --json
+cyber-asana task update <gid> --html-notes "$(cat fixed.html)"
 ```
 
-`project update` takes `--html-notes` too. `--notes` and `--html-notes` are mutually exclusive. With the cyber-asana MCP server enabled, the equivalents are `asana_task_update` / `asana_project_update` with `html_notes`.
+`html fix` writes the bare `<body>`, `<b>`/`<i>` as `<strong>`/`<em>`, `<p>`/`<br>` as newlines, and
+flattens `<h4>`–`<h6>` to `<h3>`. Whatever it cannot repair goes to stderr. When `html check` returns
+`ok: false`, fix each problem it names by hand before writing. Neither command calls the API.
+
+`project update` takes `--html-notes` too. `--notes` and `--html-notes` are mutually exclusive. With the cyber-asana MCP server enabled, the equivalents are `asana_html_fix` and `asana_html_check`, then `asana_task_update` / `asana_project_update` with `html_notes`.
 
 Read the task back afterward — Asana normalizes on save (`<b>`→`<strong>`, `<span>` stripped to text, list attributes dropped), so what you sent is not always what is stored.
 
 ## Asana's HTML subset
 
-Verified against the live Asana API (`PUT /tasks/{gid}`, 2026-08).
+The tags each surface accepts live in one rule table, with the live probe behind each rule. Read
+them rather than recalling them:
 
-**Supported**
+```sh
+cyber-asana html rules --surface task-notes --json
+```
 
-| Tag | Notes |
-| --- | --- |
-| `<body>` | Required outermost wrapper, no attributes |
-| `<h1>` `<h2>` `<h3>` | Headings — `<h4>`–`<h6>` are rejected |
-| `<strong>` `<em>` `<u>` `<s>` | `<b>` → `<strong>`, `<i>` → `<em>` on save |
-| `<code>` | Inline code |
-| `<pre>` | Code block; `data-language` attribute is kept |
-| `<ul>` `<ol>` `<li>` | Nesting allowed, including `<ol>` inside `<ul>` |
-| `<a href="...">` | `href` (or `data-asana-gid`) required; absolute URL only |
-| `<blockquote>` | Multi-line allowed |
-| `<table>` `<tr>` `<td>` | `<th>` is rejected — use `<td>` for the header row |
-| `<hr>` | Normalized to `<hr />` |
-| `<mark>` | Highlight; Asana injects its own color attributes |
+`allowed` and `rejected` list the tags, `evidence` names the probe and its date, and `unverified`
+lists any tag not yet probed on that surface. A `<li>` is refused outside a `<ul>` or `<ol>`.
+`<span>` is accepted but silently stripped to its text. A status update (`--surface
+status-update`) takes no headings: Asana accepts one, then stores the whole body escaped as literal
+text, so a heading there is a `<strong>` line.
 
-**Rejected — these are what produce `XML is invalid`**
-
-`<p>` · `<br>` · `<div>` · `<h4>`–`<h6>` · `<img>` · `<del>` · `<sub>` · `<sup>` · `<th>` · `<li>` outside a list
-
-`<span>` is accepted but silently stripped to its text.
-
-**Status updates take a narrower subset.** `html_text` on a status update is not validated the way `html_notes` is: a body holding `<h1>`–`<h3>` is accepted, then returned with the whole body escaped into literal text (`<body>&lt;body&gt;&lt;h2&gt;…`). Mark a heading with `<strong>` on its own line instead. Verified against the live API (2026-11): `<strong>`, `<ul>`/`<li>`, `<a>` and plain text keep their markup; a body without `<body>` is rejected as a bad request.
+The rules below are not tags, so `html check` does not catch them. Mind them by hand.
 
 `<pre><code>` nested together fails with an opaque *"unexpected error occurred"* — use `<pre>` alone.
 

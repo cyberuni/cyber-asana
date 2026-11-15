@@ -59,8 +59,8 @@ input. It is the one home of the PR-linking procedure, for every major git host;
 ## Tidy a description
 
 Read [`references/tidy-description.md`](references/tidy-description.md) and follow it, with the
-user's request as its input. It is the one home of the description-tidying procedure and of Asana's
-accepted HTML subset; the `/cyber-asana:tidy-description` command routes here too.
+user's request as its input. It is the one home of the description-tidying procedure; the tags Asana
+accepts come from `cyber-asana html rules`. The `/cyber-asana:tidy-description` command routes here too.
 
 ## Track session work
 

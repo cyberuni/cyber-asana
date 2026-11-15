@@ -20,7 +20,7 @@ Scalars: `{scope}`, `{sprint}`, `{status}` (the label, such as "At risk"), `{sta
 
 Title: `{sprint} — {status}`
 
-Body, in Asana's HTML subset (the `tidy-description` reference of the `asana` skill lists what it allows: no `<p>`, `<br>`, or `<th>`, and real newlines between blocks; a status update takes no headings either, since Asana escapes the whole body when it finds one, so a heading is a `<strong>` line). The post is checked against that subset before it is sent:
+Body, in the HTML a status update accepts (`cyber-asana html rules --surface status-update` lists it: no `<p>`, `<br>`, or `<th>`, and real newlines between blocks; no headings either, since Asana escapes the whole body when it finds one, so a heading is a `<strong>` line). The post is checked with the same rules (`cyber-asana html check --surface status-update`) before it is sent:
 
 ```html
 <body><strong>Health</strong>

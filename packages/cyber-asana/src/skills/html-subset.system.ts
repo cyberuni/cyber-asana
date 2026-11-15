@@ -1,13 +1,19 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { htmlRules } from '../asana-html/rules.js'
 import { createRuntimeContext, type RuntimeContext } from '../composition.js'
 import { buildErrorBody } from '../platform/error-body.js'
 import { isSystemTestEnabled, systemEnv } from '../testing/system.js'
-import { parseDocumentedSubset } from './html-subset.js'
 
 const workspaceGid = systemEnv('ASANA_WORKSPACE_GID')
 const systemEnabled = isSystemTestEnabled() && Boolean(workspaceGid)
 
-const documented = parseDocumentedSubset()
+// The task-notes row of the rule table (src/asana-html/surfaces.ts) is what this probe verifies.
+// <li> is allowed inside a list and probed as refused outside one.
+const taskNotes = htmlRules('task-notes')
+const documented = {
+	supported: new Set(taskNotes.allowed.map((tag) => `<${tag}>`)),
+	rejected: new Set([...taskNotes.rejected.map((tag) => `<${tag}>`), '<li>']),
+}
 
 /** Markup exercising each tag in a position where it is legal. */
 const SUPPORTED_SAMPLE: Record<string, string> = {
@@ -88,20 +94,23 @@ describe.skipIf(!systemEnabled)('skills/asana tidy-description HTML subset syste
 		if (taskGid) await getTaskApi().deleteTask(taskGid)
 	})
 
-	it('has a probe sample for every documented tag', () => {
-		// A tag added to tidy-description.md without a sample would otherwise go unverified.
+	it('has a probe sample for every tag in the rule table', () => {
+		// A tag added to the rule table without a sample would otherwise go unverified.
 		expect([...documented.supported].filter((tag) => !SUPPORTED_SAMPLE[tag])).toEqual([])
 		expect([...documented.rejected].filter((tag) => !REJECTED_SAMPLE[tag])).toEqual([])
 	})
 
 	it.each([...documented.supported])('%s is still accepted', async (tag) => {
 		const result = await putHtmlNotes(`<body>${SUPPORTED_SAMPLE[tag]}</body>`)
-		expect(result.ok ? null : result.message, `${tag} is documented as supported but Asana rejected it`).toBeNull()
+		expect(
+			result.ok ? null : result.message,
+			`${tag} is allowed in the task-notes rules but Asana rejected it`,
+		).toBeNull()
 	})
 
 	it.each([...documented.rejected])('%s is still rejected', async (tag) => {
 		const result = await putHtmlNotes(`<body>${REJECTED_SAMPLE[tag]}</body>`)
-		expect(result.ok, `${tag} is documented as rejected but Asana now accepts it`).toBe(false)
+		expect(result.ok, `${tag} is rejected in the task-notes rules but Asana now accepts it`).toBe(false)
 	})
 
 	describe('documented pitfalls', () => {
