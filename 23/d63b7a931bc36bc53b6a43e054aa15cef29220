@@ -1,0 +1,31 @@
+packages/cyber-asana/src/scrum/sprint-custom-field.system.ts
+  s_57021460c1aa30::t_b5514825678c07 74-75
+packages/cyber-asana/src/scrum/sprint-custom-field.acceptance.ts
+  s_57021460c1aa30::t_f8edc46a9ee488 98-99
+  s_57021460c1aa30::t_0d76fc2726e984 56-57,71-72,77-78,83-88
+  s_57021460c1aa30::t_abf3ca562d303f 54-55
+  s_57021460c1aa30::t_2c2dc46fa13108 58-60
+  s_57021460c1aa30::t_8d146ef63f6387 69-70
+  s_57021460c1aa30::t_8b512f3c329b21 73-76
+  s_57021460c1aa30::t_e2cc6ef6b53105 79-81
+  s_57021460c1aa30::t_a9382f3853f231 89-91
+  s_57021460c1aa30::t_221f212bd4aa66 95-97
+  s_57021460c1aa30::t_fe6d686697e4fe 100-101
+  s_57021460c1aa30::t_b8cef735014fd8 43-52,62-67,93-94
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "23d63b7a931bc36bc53b6a43e054aa15cef29220",
+  "prompts": {},
+  "sessions": {
+    "s_57021460c1aa30": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8769dad3-e80a-47c7-a617-be475c23bd01",
+        "model": "claude-sonnet-5-5"
+      },
+      "human_author": "unional <homawong@gmail.com>"
+    }
+  }
+}
