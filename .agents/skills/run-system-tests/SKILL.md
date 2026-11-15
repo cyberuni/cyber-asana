@@ -75,6 +75,7 @@ The table lives in `SYSTEM_SUITES` in `packages/cyber-asana/src/testing/system-s
 | `search/api` | workspace | any |
 | `sections/api` | project (fixture) | any |
 | `skills/html-subset` | workspace | any |
+| `status/api` | `ASANA_SYSTEM_TEST_GOAL_GID` (export one; a goal you may post on). Posts and deletes a probe status update per goal `status_type` value and confirms Asana refuses project-only values | paid |
 | `stories/api` | task (fixture) | any |
 | `tags/api` | workspace | any |
 | `tasks/api` | workspace, project, task, second task (fixtures); `ASANA_SYSTEM_TEST_SECTION_GID` for create-in-section | any |
