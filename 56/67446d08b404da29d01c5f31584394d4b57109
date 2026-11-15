@@ -1,0 +1,19 @@
+packages/cyber-asana/src/scrum/reports/stories.system.ts
+  s_7a57d05fb4f9a2::t_d70bcccd6229d1 33-49
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "5667446d08b404da29d01c5f31584394d4b57109",
+  "prompts": {},
+  "sessions": {
+    "s_7a57d05fb4f9a2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c1fdc096-b779-479f-a403-2f5bcb09f2ed",
+        "model": "claude-sonnet-5-5"
+      },
+      "human_author": "unional <homawong@gmail.com>"
+    }
+  }
+}
