@@ -10,7 +10,8 @@
 			"!**/.claude/settings.local.json",
 			"!.agents",
 			"!**/.astro",
-			"!.cyberfleet"
+			"!.cyberfleet",
+			"!**/.claude/worktrees"
 		]
 	},
 	"overrides": [

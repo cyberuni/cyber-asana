@@ -91,4 +91,53 @@ describe.skipIf(!systemEnabled)('allocations/api system', async () => {
 			expect(byMe).toEqual(byGid)
 		})
 	})
+
+	// #353. The API stores `effort.value` as given and returns it unchanged for any span: it reports no
+	// weekly or total figure and applies no per-week cap. So the response cannot say whether hours mean
+	// per allocation or per week; that meaning lives only in Asana's workload UI. See scrum-system.md 9.5.
+	describe.skipIf(!available || !projectGid)('hours semantics', () => {
+		it('stores hours verbatim whether the span is one day or two weeks', async () => {
+			const api = getApi()
+			const spans = [
+				['2030-01-07', '2030-01-07'],
+				['2030-01-07', '2030-01-20'],
+			] as const
+			for (const [start_date, end_date] of spans) {
+				const created = (await api.createAllocation({
+					assignee: meGid,
+					parent: projectGid!,
+					start_date,
+					end_date,
+					effort: { type: 'hours', value: 10 },
+				})) as Record<string, any>
+				try {
+					const read = (await api.getAllocation(created.gid, {
+						optFields: 'start_date,end_date,effort.type,effort.value',
+					})) as Record<string, any>
+					expect(read).toMatchObject({ start_date, end_date, effort: { type: 'hours', value: 10 } })
+				} finally {
+					await api.deleteAllocation(created.gid)
+				}
+			}
+		})
+	})
+
+	describe.skipIf(!available || !projectGid)('create with assignee me', () => {
+		it('creates for the caller and deletes it', async () => {
+			const api = getApi()
+			const created = (await api.createAllocation({
+				assignee: 'me',
+				parent: projectGid!,
+				start_date: '2030-01-07',
+				end_date: '2030-01-11',
+				effort: { type: 'hours', value: 4 },
+			})) as Record<string, any>
+			try {
+				const read = (await api.getAllocation(created.gid, { optFields: 'assignee.gid' })) as Record<string, any>
+				expect(read.assignee.gid).toBe(meGid)
+			} finally {
+				await api.deleteAllocation(created.gid)
+			}
+		})
+	})
 })
