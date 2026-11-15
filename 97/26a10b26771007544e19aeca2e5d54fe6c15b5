@@ -1,0 +1,42 @@
+packages/cyber-asana/src/scrum/reports/status-update.test.ts
+  s_57021460c1aa30::t_4c007e8b5e05d8 2,15,20,25,127,132-133
+packages/cyber-asana/src/platform/html-subset.test.ts
+  s_57021460c1aa30::t_8f5dd72650dc5e 9-24
+  s_57021460c1aa30::t_9f683d4421c555 3-8
+packages/cyber-asana/references/cyber-asana.dashboard.md
+  s_57021460c1aa30::t_6cd1a0a19bedd0 23,26,31,37,41
+packages/cyber-asana/src/scrum/reports/status-post.system.ts
+  s_57021460c1aa30::t_8f5dd72650dc5e 3,78,90
+  s_57021460c1aa30::t_4d6b30b5bad8c1 91
+packages/cyber-asana/src/scrum/api.dashboard-post.test.ts
+  s_57021460c1aa30::t_4c007e8b5e05d8 26,79,96
+  s_57021460c1aa30::t_d0b499b48be7c2 111,115-118
+  s_57021460c1aa30::t_9f683d4421c555 112-114
+.changeset/status-update-no-headings.md
+  s_57021460c1aa30::t_6fe2a91510ed00 1-5
+packages/cyber-asana/src/scrum/reports/status-update.ts
+  s_57021460c1aa30::t_6cd1a0a19bedd0 172
+packages/cyber-asana/src/scrum/reports/references.test.ts
+  s_57021460c1aa30::t_9f683d4421c555 137-138
+  s_57021460c1aa30::t_8f5dd72650dc5e 87,136
+packages/cyber-asana/src/platform/html-subset.ts
+  s_57021460c1aa30::t_6cd1a0a19bedd0 29-44
+packages/cyber-asana/src/scrum/dashboard-api.ts
+  s_57021460c1aa30::t_6cd1a0a19bedd0 2,129
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "9726a10b26771007544e19aeca2e5d54fe6c15b5",
+  "prompts": {},
+  "sessions": {
+    "s_57021460c1aa30": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8769dad3-e80a-47c7-a617-be475c23bd01",
+        "model": "unknown"
+      },
+      "human_author": "unional <homawong@gmail.com>"
+    }
+  }
+}
