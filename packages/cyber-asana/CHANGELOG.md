@@ -1,5 +1,17 @@
 # cyber-asana
 
+## 0.25.0
+
+### Minor Changes
+
+- bdaa5ef: Add `cyber-asana html check | fix | rules` and the `asana_html_check`, `asana_html_fix` and `asana_html_rules` MCP tools. They read one rule table of the rich text Asana accepts per surface (`task-notes`, `status-update`), with the live probe behind each rule and the tags not yet verified on a surface. `fix` normalizes a body for a surface, for example writing a status-update heading as a `<strong>` line, because Asana escapes the whole body of a status update that holds `<h1>`-`<h3>`. No API call.
+- 9a3ad26: `html check`, `html fix` and `html rules` now cover comments (`--surface comment`) and project briefs (`--surface project-brief`), and the status-update rules are fully probed. A live probe on 2026-11-15 found that a status update also escapes `<table>`, `<tr>`, `<td>` and `<hr>`, which task notes keep; `html check` now flags them there. No tag is left `unverified`.
+- 08e643a: Remove the `asana-standup` and `asana-sprint-report` skills, which were stubs that routed to `asana-scrum` since 0.24.0. Use `asana-scrum` (or `/cyber-asana:standup`) for standups and sprint reports.
+
+### Patch Changes
+
+- 5f8c787: Listing a reference interface's implementations works with cyber-agentkit 2.6, which returns a family result for a `<prefix>.*` name. The implementations of each matched interface are listed together.
+
 ## 0.24.0
 
 ### Minor Changes
