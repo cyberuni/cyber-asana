@@ -1,0 +1,25 @@
+packages/cyber-asana/src/allocations/gateway.ts
+  s_7a57d05fb4f9a2::t_0a3c5d87611f25 89-90
+  s_7a57d05fb4f9a2::t_6e3a58fab90889 79-81
+  s_7a57d05fb4f9a2::t_5ff1040fd71658 52-63,67,74-75
+packages/cyber-asana/src/allocations/gateway.test.ts
+  s_7a57d05fb4f9a2::t_560dbb6f7865e8 1-17
+.changeset/allocation-assignee-me.md
+  s_7a57d05fb4f9a2::t_46ec88ac8041df 1-5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "09bdc5681b6f429532d959c520b3bb253844be7b",
+  "prompts": {},
+  "sessions": {
+    "s_7a57d05fb4f9a2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c1fdc096-b779-479f-a403-2f5bcb09f2ed",
+        "model": "claude-sonnet-5-5"
+      },
+      "human_author": "unional <homawong@gmail.com>"
+    }
+  }
+}
