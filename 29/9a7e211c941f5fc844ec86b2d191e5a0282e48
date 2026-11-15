@@ -1,0 +1,26 @@
+packages/cyber-asana/src/testing/system-fixtures.test.ts
+  s_7a57d05fb4f9a2::t_e4fc8f51812386 6-12
+  s_7a57d05fb4f9a2::t_0a7bbfdacfa4ac 4,15,21,72-83,96,178-207,209-221
+  s_7a57d05fb4f9a2::t_c9aae0dc6f60d0 5
+.changeset/goal-time-periods.md
+  s_7a57d05fb4f9a2::t_b999c5a66b32c7 1-5
+packages/cyber-asana/src/testing/system-fixtures.ts
+  s_7a57d05fb4f9a2::t_e4fc8f51812386 4-7
+  s_7a57d05fb4f9a2::t_6cb448b59404df 17-18,30-31,68-85,129-139,155
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "299a7e211c941f5fc844ec86b2d191e5a0282e48",
+  "prompts": {},
+  "sessions": {
+    "s_7a57d05fb4f9a2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c1fdc096-b779-479f-a403-2f5bcb09f2ed",
+        "model": "claude-sonnet-5-5"
+      },
+      "human_author": "unional <homawong@gmail.com>"
+    }
+  }
+}
