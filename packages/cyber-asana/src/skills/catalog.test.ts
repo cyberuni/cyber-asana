@@ -39,11 +39,11 @@ function frontBlock(fields: Record<string, string>): string {
 }
 
 const conforming: Record<string, SkillFixture> = {
-	'asana-standup': { 'SKILL.md': frontBlock({ name: 'asana-standup', description: TRIGGER }) },
+	'asana-scrum': { 'SKILL.md': frontBlock({ name: 'asana-scrum', description: TRIGGER }) },
 }
 
 /** Hands off to a skill the fixture ships, so the default fixture reports nothing. */
-const conformingSetup = '# Setup\n\nThe rest lives in [asana-standup](./skills/asana-standup/SKILL.md).\n'
+const conformingSetup = '# Setup\n\nThe rest lives in [asana-scrum](./skills/asana-scrum/SKILL.md).\n'
 
 const temporary: string[] = []
 
@@ -110,11 +110,11 @@ describe('the shipped catalog', () => {
 		expect(found.map((violation) => violation.message)).toEqual([])
 	})
 
-	it('covers all eight shipped skills', async () => {
+	it('covers all six shipped skills', async () => {
 		// A contract that silently checked nothing would also report no violations.
 		const { skillsRoot } = repoCatalogSources()
 		const entries = await readdir(skillsRoot, { withFileTypes: true })
-		expect(entries.filter((entry) => entry.isDirectory())).toHaveLength(8)
+		expect(entries.filter((entry) => entry.isDirectory())).toHaveLength(6)
 	})
 })
 
@@ -125,26 +125,26 @@ describe('loading a skill', () => {
 
 	it('a SKILL.md with no front block is rejected by skill name', async () => {
 		const found = await violationsFor('front-block', {
-			skills: { 'asana-standup': { 'SKILL.md': '# Asana Standup\n' } },
+			skills: { 'asana-scrum': { 'SKILL.md': '# Asana Standup\n' } },
 		})
 		expect(found).toHaveLength(1)
-		expect(found[0].skill).toBe('asana-standup')
+		expect(found[0].skill).toBe('asana-scrum')
 	})
 
 	it('a skill whose declared name differs from its directory is rejected', async () => {
 		const found = await violationsFor('name-matches-directory', {
-			skills: { 'asana-standup': { 'SKILL.md': frontBlock({ name: 'standup', description: TRIGGER }) } },
+			skills: { 'asana-scrum': { 'SKILL.md': frontBlock({ name: 'standup', description: TRIGGER }) } },
 		})
 		expect(found).toHaveLength(1)
-		expect(found[0].skill).toBe('asana-standup')
+		expect(found[0].skill).toBe('asana-scrum')
 	})
 
 	it('a skill with no description is rejected by skill name', async () => {
 		const found = await violationsFor('description-present', {
-			skills: { 'asana-standup': { 'SKILL.md': frontBlock({ name: 'asana-standup' }) } },
+			skills: { 'asana-scrum': { 'SKILL.md': frontBlock({ name: 'asana-scrum' }) } },
 		})
 		expect(found).toHaveLength(1)
-		expect(found[0].skill).toBe('asana-standup')
+		expect(found[0].skill).toBe('asana-scrum')
 	})
 
 	it('a description that says when the skill applies is accepted', async () => {
@@ -154,16 +154,16 @@ describe('loading a skill', () => {
 	it('a description that never says when to use the skill is rejected', async () => {
 		const found = await violationsFor('description-trigger-language', {
 			skills: {
-				'asana-standup': {
+				'asana-scrum': {
 					'SKILL.md': frontBlock({
-						name: 'asana-standup',
+						name: 'asana-scrum',
 						description: 'A standup update built from recent Asana activity.',
 					}),
 				},
 			},
 		})
 		expect(found).toHaveLength(1)
-		expect(found[0].skill).toBe('asana-standup')
+		expect(found[0].skill).toBe('asana-scrum')
 	})
 
 	it('a description at the 120-character budget is accepted', async () => {
@@ -181,7 +181,7 @@ describe('loading a skill', () => {
 function describedIn(length: number): Record<string, SkillFixture> {
 	const opening = 'Use this skill when '
 	const description = opening + 'x'.repeat(length - opening.length)
-	return { 'asana-standup': { 'SKILL.md': frontBlock({ name: 'asana-standup', description }) } }
+	return { 'asana-scrum': { 'SKILL.md': frontBlock({ name: 'asana-scrum', description }) } }
 }
 
 describe('following a reference', () => {
@@ -216,8 +216,8 @@ describe('running a prescribed command', () => {
 
 	it('an invocation pinned to a version is accepted', async () => {
 		const found = await violationsFor('npx-pinned', {
-			skills: withCommand('asana-standup', {
-				'SKILL.md': skillMd('asana-standup', '\n```sh\nnpx cyber-asana@0.9.0 task list\n```\n'),
+			skills: withCommand('asana-scrum', {
+				'SKILL.md': skillMd('asana-scrum', '\n```sh\nnpx cyber-asana@0.9.0 task list\n```\n'),
 			}),
 		})
 		expect(found).toEqual([])
@@ -225,8 +225,8 @@ describe('running a prescribed command', () => {
 
 	it('an unpinned invocation is rejected by file name', async () => {
 		const found = await violationsFor('npx-pinned', {
-			skills: withCommand('asana-standup', {
-				'SKILL.md': skillMd('asana-standup', '\n```sh\nnpx cyber-asana task list\n```\n'),
+			skills: withCommand('asana-scrum', {
+				'SKILL.md': skillMd('asana-scrum', '\n```sh\nnpx cyber-asana task list\n```\n'),
 			}),
 		})
 		expect(found).toHaveLength(1)
@@ -235,8 +235,8 @@ describe('running a prescribed command', () => {
 
 	it('an unpinned invocation abbreviating --yes to -y is rejected', async () => {
 		const found = await violationsFor('npx-pinned', {
-			skills: withCommand('asana-standup', {
-				'SKILL.md': skillMd('asana-standup', '\n```sh\nnpx -y cyber-asana task list\n```\n'),
+			skills: withCommand('asana-scrum', {
+				'SKILL.md': skillMd('asana-scrum', '\n```sh\nnpx -y cyber-asana task list\n```\n'),
 			}),
 		})
 		expect(found).toHaveLength(1)
@@ -264,7 +264,7 @@ describe('discovering the catalog', () => {
 		const found = await violationsFor('docs-listing', { readmeLists: [] })
 		expect(found).toHaveLength(1)
 		expect(found[0].file).toBe('readme.md')
-		expect(found[0].skill).toBe('asana-standup')
+		expect(found[0].skill).toBe('asana-scrum')
 	})
 
 	it('a skill missing from the docs site index is rejected naming that page', async () => {

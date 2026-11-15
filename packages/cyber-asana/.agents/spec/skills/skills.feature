@@ -12,59 +12,59 @@ Feature: skills
   # ── loading a skill ──
 
   Scenario: a skill whose declared name matches its directory is accepted
-    Given a skill directory "asana-standup"
-    And its SKILL.md front block declares the name "asana-standup"
+    Given a skill directory "asana-scrum"
+    And its SKILL.md front block declares the name "asana-scrum"
     And its front block declares the description "Use this skill when the user wants a standup update from Asana."
     When the catalog contract is checked
     Then no violation is reported
 
   Scenario: a SKILL.md with no front block is rejected by skill name
-    Given a skill directory "asana-standup"
+    Given a skill directory "asana-scrum"
     And its SKILL.md begins with the heading "# Asana Standup"
     When the catalog contract is checked
     Then a violation is reported for the rule "front-block"
-    And that violation names the skill "asana-standup"
+    And that violation names the skill "asana-scrum"
 
   Scenario: a skill whose declared name differs from its directory is rejected
-    Given a skill directory "asana-standup"
+    Given a skill directory "asana-scrum"
     And its SKILL.md front block declares the name "standup"
     And its front block declares the description "Use this skill when the user wants a standup update from Asana."
     When the catalog contract is checked
     Then a violation is reported for the rule "name-matches-directory"
-    And that violation names the skill "asana-standup"
+    And that violation names the skill "asana-scrum"
 
   Scenario: a skill with no description is rejected by skill name
-    Given a skill directory "asana-standup"
-    And its SKILL.md front block declares the name "asana-standup" and no other field
+    Given a skill directory "asana-scrum"
+    And its SKILL.md front block declares the name "asana-scrum" and no other field
     When the catalog contract is checked
     Then a violation is reported for the rule "description-present"
-    And that violation names the skill "asana-standup"
+    And that violation names the skill "asana-scrum"
 
   Scenario: a description that says when the skill applies is accepted
-    Given a skill directory "asana-standup"
-    And its SKILL.md front block declares the name "asana-standup"
+    Given a skill directory "asana-scrum"
+    And its SKILL.md front block declares the name "asana-scrum"
     And its front block declares the description "Use this skill when the user wants a standup update from Asana."
     When the catalog contract is checked
     Then no violation is reported for the rule "description-trigger-language"
 
   Scenario: a description that never says when to use the skill is rejected
-    Given a skill directory "asana-standup"
-    And its SKILL.md front block declares the name "asana-standup"
+    Given a skill directory "asana-scrum"
+    And its SKILL.md front block declares the name "asana-scrum"
     And its front block declares the description "A standup update built from recent Asana activity."
     When the catalog contract is checked
     Then a violation is reported for the rule "description-trigger-language"
-    And that violation names the skill "asana-standup"
+    And that violation names the skill "asana-scrum"
 
   Scenario: a description at the 120-character budget is accepted
-    Given a skill directory "asana-standup"
-    And its SKILL.md front block declares the name "asana-standup"
+    Given a skill directory "asana-scrum"
+    And its SKILL.md front block declares the name "asana-scrum"
     And its front block declares a description of exactly 120 characters opening with "Use this skill when"
     When the catalog contract is checked
     Then no violation is reported for the rule "description-budget"
 
   Scenario: a description over the budget is rejected with its character count
-    Given a skill directory "asana-standup"
-    And its SKILL.md front block declares the name "asana-standup"
+    Given a skill directory "asana-scrum"
+    And its SKILL.md front block declares the name "asana-scrum"
     And its front block declares a description of exactly 121 characters opening with "Use this skill when"
     When the catalog contract is checked
     Then a violation is reported for the rule "description-budget"
@@ -90,20 +90,20 @@ Feature: skills
   # ── running a prescribed command ──
 
   Scenario: an invocation pinned to a version is accepted
-    Given a skill directory "asana-standup"
+    Given a skill directory "asana-scrum"
     And its SKILL.md body contains the command "npx cyber-asana@0.9.0 task list"
     When the catalog contract is checked
     Then no violation is reported for the rule "npx-pinned"
 
   Scenario: an unpinned invocation is rejected by file name
-    Given a skill directory "asana-standup"
+    Given a skill directory "asana-scrum"
     And its SKILL.md body contains the command "npx cyber-asana task list"
     When the catalog contract is checked
     Then a violation is reported for the rule "npx-pinned"
     And that violation names the file "SKILL.md"
 
   Scenario: an unpinned invocation abbreviating --yes to -y is rejected
-    Given a skill directory "asana-standup"
+    Given a skill directory "asana-scrum"
     And its SKILL.md contains the command "npx -y cyber-asana task list"
     When the catalog contract is checked
     Then a violation is reported for the rule "npx-pinned"
@@ -119,23 +119,23 @@ Feature: skills
   # ── discovering the catalog ──
 
   Scenario: a skill listed in both published tables is accepted
-    Given a skill directory "asana-standup"
-    And the readme names "asana-standup"
-    And the docs site skills index names "asana-standup"
+    Given a skill directory "asana-scrum"
+    And the readme names "asana-scrum"
+    And the docs site skills index names "asana-scrum"
     When the catalog contract is checked
     Then no violation is reported for the rule "docs-listing"
 
   Scenario: a skill missing from the readme table is rejected naming the readme
-    Given a skill directory "asana-standup"
+    Given a skill directory "asana-scrum"
     And the readme names no skill
-    And the docs site skills index names "asana-standup"
+    And the docs site skills index names "asana-scrum"
     When the catalog contract is checked
     Then a violation is reported for the rule "docs-listing"
     And that violation names the file "readme.md"
 
   Scenario: a skill missing from the docs site index is rejected naming that page
-    Given a skill directory "asana-standup"
-    And the readme names "asana-standup"
+    Given a skill directory "asana-scrum"
+    And the readme names "asana-scrum"
     And the docs site skills index names no skill
     When the catalog contract is checked
     Then a violation is reported for the rule "docs-listing"
@@ -155,8 +155,8 @@ Feature: skills
     And that violation names the file "SETUP.md"
 
   Scenario: a handoff SETUP.md links to a shipped skill is accepted
-    Given a skill directory "asana-standup"
-    And a SETUP.md linking to "./skills/asana-standup/SKILL.md"
+    Given a skill directory "asana-scrum"
+    And a SETUP.md linking to "./skills/asana-scrum/SKILL.md"
     When the catalog contract is checked
     Then no violation is reported for the rule "setup-link-resolves"
 
