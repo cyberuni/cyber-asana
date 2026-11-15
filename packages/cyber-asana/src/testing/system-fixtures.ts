@@ -1,7 +1,10 @@
 import type { RuntimeContext } from '../composition.js'
 import { listItems } from '../platform/pagination.js'
 
-export type FixtureContext = Pick<RuntimeContext, 'projects' | 'sections' | 'tasks' | 'stories' | 'attachments'>
+export type FixtureContext = Pick<
+	RuntimeContext,
+	'projects' | 'sections' | 'tasks' | 'stories' | 'attachments' | 'goals'
+>
 
 export type SystemFixtures = {
 	workspaceGid: string
@@ -11,6 +14,8 @@ export type SystemFixtures = {
 	secondTaskGid: string
 	/** The project's team; unset when the workspace has no teams (the team suites then skip). */
 	teamGid?: string
+	/** The `cyber-asana system test` goal; unset where goals need a plan the workspace lacks. */
+	goalGid?: string
 }
 
 const PROJECT_NAME = 'cyber-asana system test'
@@ -21,6 +26,8 @@ const ATTACHMENTS = [
 	{ name: 'System test link 1', url: 'https://example.com/system-test-1' },
 	{ name: 'System test link 2', url: 'https://example.com/system-test-2' },
 ]
+
+const GOAL_NAME = 'cyber-asana system test'
 
 const ALL = { fetchAll: true, limit: 100 } as const
 
@@ -56,6 +63,24 @@ async function resolveProject(
 	)
 	const { team } = (await context.projects.getProject(project.gid, { optFields: 'team.gid' })) as WithTeam
 	return { projectGid: project.gid, workspaceGid: target.workspaceGid, teamGid: team?.gid }
+}
+
+/** Finds or creates the system-test goal; undefined when Asana answers Payment Required (free plan). */
+async function ensureGoal(context: FixtureContext, workspaceGid: string): Promise<string | undefined> {
+	try {
+		const goals = listItems<Named>(await context.goals.listGoals(workspaceGid, { ...ALL, optFields: 'name' }))
+		const found = goals.find((goal) => goal.name === GOAL_NAME)
+		if (found) return found.gid
+		// Asana requires a time period on creation; any one satisfies it.
+		const [period] = listItems<Named>(await context.goals.listTimePeriods(workspaceGid, { limit: 1 }))
+		const created = await context.goals.createGoal(workspaceGid, GOAL_NAME, {
+			...(period ? { time_period: period.gid } : {}),
+		})
+		return created.gid
+	} catch (error) {
+		if ((error as { status?: number }).status === 402) return undefined
+		throw error
+	}
 }
 
 /**
@@ -101,7 +126,17 @@ export async function ensureSystemFixtures(context: FixtureContext, target: Fixt
 		}
 	}
 
-	return { workspaceGid, projectGid, sectionGid, taskGid, secondTaskGid: taskGids[1]!, ...(teamGid ? { teamGid } : {}) }
+	const goalGid = await ensureGoal(context, workspaceGid)
+
+	return {
+		workspaceGid,
+		projectGid,
+		sectionGid,
+		taskGid,
+		secondTaskGid: taskGids[1]!,
+		...(teamGid ? { teamGid } : {}),
+		...(goalGid ? { goalGid } : {}),
+	}
 }
 
 /**
@@ -117,5 +152,6 @@ export function formatFixtureEnv(fixtures: SystemFixtures): string {
 		`ASANA_SYSTEM_TEST_SECOND_TASK_GID=${fixtures.secondTaskGid}`,
 	]
 	if (fixtures.teamGid) lines.push(`ASANA_SYSTEM_TEST_TEAM_GID=${fixtures.teamGid}`)
+	if (fixtures.goalGid) lines.push(`ASANA_SYSTEM_TEST_GOAL_GID=${fixtures.goalGid}`)
 	return lines.join('\n')
 }

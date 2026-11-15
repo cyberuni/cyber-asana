@@ -35,6 +35,7 @@ describe('goals/cli', () => {
 				createGoal: vi.fn(),
 				updateGoal: vi.fn(),
 				deleteGoal: vi.fn(),
+				listTimePeriods: vi.fn(),
 			}),
 		)
 
@@ -57,6 +58,7 @@ describe('goals/cli', () => {
 				createGoal: vi.fn(),
 				updateGoal: vi.fn(),
 				deleteGoal: vi.fn(),
+				listTimePeriods: vi.fn(),
 			}),
 		)
 
@@ -78,6 +80,7 @@ describe('goals/cli', () => {
 				createGoal: vi.fn(),
 				updateGoal: vi.fn(),
 				deleteGoal: vi.fn().mockResolvedValue(undefined),
+				listTimePeriods: vi.fn(),
 			}),
 		)
 
@@ -134,6 +137,7 @@ describe('goals/cli', () => {
 				createGoal: injectedCreateGoal,
 				updateGoal: vi.fn(),
 				deleteGoal: vi.fn(),
+				listTimePeriods: vi.fn(),
 			}),
 		)
 
