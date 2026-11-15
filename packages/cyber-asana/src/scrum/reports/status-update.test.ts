@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { findHtmlSubsetProblems, findStatusHtmlProblems } from '../../platform/html-subset.js'
+import { checkHtml } from '../../asana-html/api.js'
 import { parseStatusTemplate, renderStatusUpdate, statusParentFor } from './status-update.js'
 
 const CONTENT = [
@@ -123,8 +123,7 @@ describe('renderStatusUpdate', () => {
 	it('fills scalars and keeps the output inside the HTML subset', () => {
 		expect(out.html_text).toContain('<li><strong>0 errors</strong>, 2 warnings</li>')
 		expect(out.html_text).toContain('<li>Committed 5 tasks, completed 3 (60% by count)</li>')
-		expect(findHtmlSubsetProblems(out.html_text)).toEqual([])
-		expect(findStatusHtmlProblems(out.html_text)).toEqual([])
+		expect(checkHtml(out.html_text, 'status-update')).toEqual([])
 	})
 
 	it('omits a line whose data was not computed, and a heading left with no lines', () => {

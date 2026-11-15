@@ -149,6 +149,7 @@ Default: if both can do the job, prefer **official for discovery and previews** 
 | `membership` | `asana_membership_list`, `asana_membership_get`, `asana_membership_create`, `asana_membership_update`, `asana_membership_delete` |
 | `search` | `asana_search_objects` (typeahead; one `resource_type` per call, single capped page, not exhaustive) |
 | `url` | `asana_url_parse` (no API call; extracts GIDs from Asana app URLs) |
+| `html` | `asana_html_check`, `asana_html_fix`, `asana_html_rules` (no API call; Asana's rich-text rules per surface: `task-notes`, `status-update`) |
 
 List tools accept `limit`, `offset`, `opt_fields`, `fetch_all`, and `max_pages` where Asana supports them.
 Single-resource reads (`asana_<resource>_get` and `asana_user_me`) accept `opt_fields` too; leaving it out returns the same fields as before. `asana_membership_get` is the exception, because Asana's endpoint takes no `opt_fields`.
@@ -177,4 +178,5 @@ Single-resource reads (`asana_<resource>_get` and `asana_user_me`) accept `opt_f
 - `asana_story_update` / `asana_story_delete` (and the `comment` aliases) — take `story_gid`; only comment stories you authored can be changed, and a refusal is a `403` carrying that as a hint
 - `asana_search_objects` — `resource_type` (one per call), `query`, `count` (1–100, default 20), `opt_fields`. Turns a name into a GID; not paginated and not exhaustive
 - `asana_url_parse` — local URL parsing; use `workspace_gid` + `project_gid` for create; `list_view_gid` is not a section GID
+- `asana_html_check` / `asana_html_fix` — `html` and `surface` (`task-notes` or `status-update`); check returns `ok` and `problems`, fix returns the fixed `html` and what it could not repair. `asana_html_rules` — optional `surface`; returns the allowed and rejected tags, the evidence, and what is unverified
 - `asana_event_list` — `resource_gid` (task, project, or goal), `sync`, `opt_fields`. Omit `sync` on the first call: the response carries a fresh token, `sync_reset: true`, and no events. Pass the returned token back next time, and poll again immediately while `has_more` is true — Asana caps one token at 100 events

@@ -69,6 +69,10 @@ The conventions decide which optional fields to fill. Their flags are `--notes`,
 is given, and to the repo config's default project when no project is given — both come from the
 same registry as `--assignee` and `--project`.
 
+For `--html-notes`, write the body to a file and run `cyber-asana html fix <file> --surface task-notes`
+first, then `cyber-asana html check` on the result. The [`tidy-description`](tidy-description.md)
+reference has the rest of Asana's rich-text rules.
+
 ## 3. Resolve the project
 
 Pick the first applicable source:

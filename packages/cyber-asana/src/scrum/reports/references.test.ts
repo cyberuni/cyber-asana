@@ -84,7 +84,7 @@ describe('the shipped cyber-asana.dashboard status update template', () => {
 	it('renders to a body inside the HTML subset for a full dashboard', async () => {
 		const { loadStatusTemplate } = await import('./dashboard.js')
 		const { renderStatusUpdate } = await import('./status-update.js')
-		const { findHtmlSubsetProblems, findStatusHtmlProblems } = await import('../../platform/html-subset.js')
+		const { checkHtml } = await import('../../asana-html/api.js')
 		const empty = mkdtempSync(join(tmpdir(), 'dash-tpl-'))
 		const template = await loadStatusTemplate({ root: empty, home: empty, env: {} })
 		const out = renderStatusUpdate(template, {
@@ -132,8 +132,7 @@ describe('the shipped cyber-asana.dashboard status update template', () => {
 			],
 		} as never)
 		expect(out.title).toBe('Sprint 3 — Off track')
-		expect(findHtmlSubsetProblems(out.html_text)).toEqual([])
-		expect(findStatusHtmlProblems(out.html_text)).toEqual([])
+		expect(checkHtml(out.html_text, 'status-update')).toEqual([])
 		for (const h of ['Health', 'Sprint', 'Workload', 'Velocity'])
 			expect(out.html_text).toContain(`<strong>${h}</strong>`)
 		expect(out.html_text).toContain('Mean of the last 3 sprints: 6 story points, 2 task points')

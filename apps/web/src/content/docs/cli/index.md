@@ -49,7 +49,7 @@ help text. Every resource group's `--help` ends with worked examples.
 | [Out of office](/cyber-asana/cli/ooo/) | `list`, `get`, `create`, `update`, `delete` |
 | [AI Studio](/cyber-asana/cli/ai-studio/) | `runs`, `seats` (credit usage and seats; service accounts only) |
 | [Search](/cyber-asana/cli/search/) | `objects` (typeahead; turn a name into a GID) |
-| [Utilities](/cyber-asana/cli/utilities/) | `url parse`, `task scan-todos`, `setup hook`, `mcp` |
+| [Utilities](/cyber-asana/cli/utilities/) | `url parse`, `html check` / `fix` / `rules`, `task scan-todos`, `setup hook`, `mcp` |
 
 ## Global options
 

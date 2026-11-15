@@ -46,6 +46,6 @@ Follows [`references/link-pr.md`](https://github.com/cyberuni/cyber-asana/blob/m
 
 ## Tidy a description
 
-Follows [`references/tidy-description.md`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana/references/tidy-description.md), the one home of description tidying and of Asana's accepted HTML subset. It is also the fix when `html_notes` fails with `XML is invalid`. Templates live in [`tidy-description-templates.md`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana/references/tidy-description-templates.md). The `/cyber-asana:tidy-description` command routes here too.
+Follows [`references/tidy-description.md`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana/references/tidy-description.md), the one home of description tidying. It reads the tags Asana accepts from `cyber-asana html rules` and checks the body with `html check` and `html fix` before writing it. It is also the fix when `html_notes` fails with `XML is invalid`. Templates live in [`tidy-description-templates.md`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana/references/tidy-description-templates.md). The `/cyber-asana:tidy-description` command routes here too.
 
 See [Agent skills](/cyber-asana/skills/) for the commands and an overview of every skill.
