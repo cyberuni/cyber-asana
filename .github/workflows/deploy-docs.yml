@@ -3,8 +3,8 @@ on:
   push:
     branches: [main]
     paths:
-      - 'apps/web/**'
-      - '.github/workflows/deploy-docs.yml'
+      - "apps/web/**"
+      - ".github/workflows/deploy-docs.yml"
   workflow_dispatch:
 
 permissions:

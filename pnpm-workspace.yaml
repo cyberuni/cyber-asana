@@ -16,7 +16,7 @@ onlyBuiltDependencies:
 # Drop this override once the SDK depends on a patched hono itself.
 # GHSA-f23p-vx2j-j53r, GHSA-79qm-7rj5-m7r9, GHSA-54fx-42gc-7vw4, GHSA-8j4g-w8fx-2239
 overrides:
-  hono: '>=4.12.34'
+  hono: ">=4.12.34"
 
 # Supply-chain soak: no dependency may be installed until it has been on the registry
 # for 24h. This is the control that stops a compromised release from being pulled into
@@ -39,13 +39,13 @@ minimumReleaseAgeStrict: true
 minimumReleaseAgeExclude:
   # First-party (cyberuni). cyber-agentkit 1.0.0 replaces @cyberuni/agent-harness;
   # published 2026-10-21T07:31Z, removable 2026-10-22T07:31Z.
-  - 'cyber-agentkit@1.0.0'
+  - "cyber-agentkit@1.0.0"
   # First-party (unional). type-plus 8.0.0 is the fleet-wide sweep target;
   # published 2026-10-11T03:41Z, removable 2026-10-12T03:41Z.
-  - 'type-plus@8.0.0'
+  - "type-plus@8.0.0"
   # First-party (cyberuni). universal-plugin 0.14.0 is the first release that compiles skill
   # script entries (universal-plugin#177/#181); published 2026-10-12T01:25Z, removable 2026-10-13T01:25Z.
-  - 'universal-plugin@0.14.0'
+  - "universal-plugin@0.14.0"
   # First-party (cyberuni). cyber-agentkit 2.0.0 is the reference-stack release (cyber-agentkit#101);
   # published 2026-11-04T04:01Z, removable 2026-11-05T04:01Z.
-  - 'cyber-agentkit@2.0.0'
+  - "cyber-agentkit@2.0.0"
