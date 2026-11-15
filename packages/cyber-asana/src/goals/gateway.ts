@@ -13,6 +13,8 @@ export type CreateGoalFields = {
 	html_notes?: string
 	due_on?: string
 	start_on?: string
+	/** Asana requires one on creation. */
+	time_period?: string
 }
 
 /**
@@ -34,10 +36,12 @@ export type GoalGateway = {
 	createGoal(workspaceGid: string, name: string, opts?: CreateGoalFields): Promise<Asana.Goal>
 	updateGoal(goalGid: string, fields: UpdateGoalFields): Promise<Asana.Goal>
 	deleteGoal(goalGid: string): Promise<void>
+	listTimePeriods(workspaceGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.TimePeriod>>
 }
 
 export function createAsanaGoalGateway(client: Asana.ApiClient): GoalGateway {
 	const goalsApi = new Asana.GoalsApi(client)
+	const timePeriodsApi = new Asana.TimePeriodsApi(client)
 
 	return {
 		async listGoals(workspaceGid, opts) {
@@ -58,6 +62,10 @@ export function createAsanaGoalGateway(client: Asana.ApiClient): GoalGateway {
 		},
 		async deleteGoal(goalGid) {
 			await goalsApi.deleteGoal(goalGid)
+		},
+		async listTimePeriods(workspaceGid, opts) {
+			const res = await timePeriodsApi.getTimePeriods(workspaceGid, toAsanaPaginationOptions(opts))
+			return await collectListResponse(res, opts)
 		},
 	}
 }

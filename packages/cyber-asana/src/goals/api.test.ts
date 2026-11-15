@@ -12,11 +12,28 @@ describe('createGoalApi', () => {
 			createGoal: vi.fn(),
 			updateGoal: vi.fn(),
 			deleteGoal: vi.fn(),
+			listTimePeriods: vi.fn(),
 		})
 
 		const result = await api.listGoals('ws1')
 
 		expect(result).toEqual({ data: [mockGoal], next_page: null, limit: 100 })
 		expect(mockListGoals).toHaveBeenCalledWith('ws1', undefined)
+	})
+
+	it('uses the provided gateway for listTimePeriods', async () => {
+		const periods = { data: [{ gid: 'tp1' }], next_page: null, limit: 1 }
+		const listTimePeriods = vi.fn().mockResolvedValue(periods)
+		const api = createGoalApi({
+			listGoals: vi.fn(),
+			getGoal: vi.fn(),
+			createGoal: vi.fn(),
+			updateGoal: vi.fn(),
+			deleteGoal: vi.fn(),
+			listTimePeriods,
+		})
+
+		expect(await api.listTimePeriods('ws1', { limit: 1 })).toEqual(periods)
+		expect(listTimePeriods).toHaveBeenCalledWith('ws1', { limit: 1 })
 	})
 })

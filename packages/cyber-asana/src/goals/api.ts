@@ -23,5 +23,8 @@ export function createGoalApi(gateway: GoalGateway) {
 		deleteGoal(goalGid: string) {
 			return gateway.deleteGoal(goalGid)
 		},
+		listTimePeriods(workspaceGid: string, opts?: PaginationOptions) {
+			return gateway.listTimePeriods(workspaceGid, opts)
+		},
 	}
 }

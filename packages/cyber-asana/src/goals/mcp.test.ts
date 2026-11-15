@@ -71,6 +71,7 @@ describe('goals/mcp', () => {
 			createGoal: injectedCreateGoal,
 			updateGoal: vi.fn(),
 			deleteGoal: vi.fn(),
+			listTimePeriods: vi.fn(),
 		})
 
 		await server.handlers.get('asana_goal_create')?.({

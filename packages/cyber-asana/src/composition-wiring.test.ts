@@ -84,6 +84,7 @@ function mockRuntimeContext(): RuntimeContext {
 			createGoal: vi.fn(),
 			updateGoal: vi.fn(),
 			deleteGoal: vi.fn(),
+			listTimePeriods: vi.fn(),
 		},
 		tags: {
 			listTags: vi.fn(),

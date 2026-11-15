@@ -27,3 +27,7 @@ export async function updateGoal(goalGid: string, fields: UpdateGoalFields) {
 export async function deleteGoal(goalGid: string) {
 	return defaultGoalApi().deleteGoal(goalGid)
 }
+
+export async function listTimePeriods(workspaceGid: string, opts?: PaginationOptions) {
+	return defaultGoalApi().listTimePeriods(workspaceGid, opts)
+}
