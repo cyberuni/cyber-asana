@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { createClient } from '../../platform/client.js'
-import { findHtmlSubsetProblems } from '../../platform/html-subset.js'
+import { findStatusHtmlProblems } from '../../platform/html-subset.js'
 import { createAsanaStatusGateway } from '../../status/gateway.js'
 import { isSystemTestEnabled, systemEnv } from '../../testing/system.js'
 import { loadStatusTemplate } from './dashboard.js'
@@ -75,7 +75,7 @@ describe.skipIf(!enabled)('dashboard status update (system)', () => {
 				},
 			],
 		})
-		expect(findHtmlSubsetProblems(rendered.html_text)).toEqual([])
+		expect(findStatusHtmlProblems(rendered.html_text)).toEqual([])
 
 		const gateway = createAsanaStatusGateway(createClient())
 		const created = await gateway.createStatus(projectGid as string, {
@@ -87,7 +87,8 @@ describe.skipIf(!enabled)('dashboard status update (system)', () => {
 			expect(created.gid).toBeTruthy()
 			expect(created.status_type).toBe('at_risk')
 			const read = await gateway.getStatus(created.gid, { optFields: 'gid,title,status_type,html_text' })
-			expect(read.html_text).toContain('<h2>')
+			expect(read.html_text).toContain('<strong>Health</strong>')
+			expect(read.html_text).not.toContain('&lt;body&gt;')
 		} finally {
 			await gateway.deleteStatus(created.gid)
 		}

@@ -14,10 +14,16 @@ function getApi() {
 	return runtimeContext.allocations
 }
 
+/** The allocations endpoints do not take the `me` alias (404 "Not a recognized ID: me"), so the token's own GID stands in. */
+async function currentUserGid() {
+	getApi()
+	return (await (runtimeContext as RuntimeContext).users.getUser('me', { optFields: 'gid' })).gid as string
+}
+
 /** A 402 means the workspace's plan has no resource management; the suites below cannot run there. */
-async function planIncludesAllocations() {
+async function planIncludesAllocations(assignee: string) {
 	try {
-		await getApi().listAllocations({ assignee: 'me', workspace: workspaceGid!, limit: 1 })
+		await getApi().listAllocations({ assignee, workspace: workspaceGid!, limit: 1 })
 		return true
 	} catch (error) {
 		if ((error as { response?: { status?: number } }).response?.status === 402) return false
@@ -26,13 +32,14 @@ async function planIncludesAllocations() {
 }
 
 describe.skipIf(!systemEnabled)('allocations/api system', async () => {
-	const available = await planIncludesAllocations()
+	const meGid = await currentUserGid()
+	const available = await planIncludesAllocations(meGid)
 
 	describe.skipIf(!available)(
 		'list pagination',
 		defineAllocationListPaginationAcceptanceSpecs({
 			getApi,
-			filters: { assignee: 'me', workspace: workspaceGid! },
+			filters: { assignee: meGid, workspace: workspaceGid! },
 			includeFetchAll: false,
 		}),
 	)
@@ -43,7 +50,7 @@ describe.skipIf(!systemEnabled)('allocations/api system', async () => {
 		it('creates, reads back, updates, and deletes an allocation', async () => {
 			const api = getApi()
 			const created = (await api.createAllocation({
-				assignee: 'me',
+				assignee: meGid,
 				parent: projectGid!,
 				start_date: '2030-01-07',
 				end_date: '2030-01-18',

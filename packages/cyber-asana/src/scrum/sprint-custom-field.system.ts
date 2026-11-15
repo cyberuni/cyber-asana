@@ -71,6 +71,8 @@ describe.skipIf(!enabled)('scrum/sprint custom-field system', () => {
 			workspace: workspaceGid as string,
 			name: `cyber-asana sprint probe ${Date.now()}`,
 			resourceSubtype: 'enum',
+			// Asana rejects an enum field created without options (400 "enum_options: Missing input").
+			enumOptions: [{ name: 'probe seed' }],
 		})
 		fieldGid = field.gid
 		await createAsanaCustomFieldGateway(client).addCustomFieldToProject(projectGid as string, field.gid)

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { findHtmlSubsetProblems } from '../../platform/html-subset.js'
+import { findHtmlSubsetProblems, findStatusHtmlProblems } from '../../platform/html-subset.js'
 import { parseStatusTemplate, renderStatusUpdate, statusParentFor } from './status-update.js'
 
 const CONTENT = [
@@ -12,17 +12,17 @@ const CONTENT = [
 	'Title: `{sprint} — {status}`',
 	'',
 	'```html',
-	'<body><h2>Health</h2>',
+	'<body><strong>Health</strong>',
 	'<ul>',
 	'<li><strong>{errors} errors</strong>, {warnings} warnings</li>',
 	'<li>{finding}</li>',
 	'</ul>',
-	'<h2>Sprint</h2>',
+	'<strong>Sprint</strong>',
 	'<ul>',
 	'<li>Committed {committed_tasks} tasks, completed {completed_tasks} ({completion_rate} by count)</li>',
 	'<li>Story points: {story_completed} of {story_committed}</li>',
 	'</ul>',
-	'<h2>Workload</h2>',
+	'<strong>Workload</strong>',
 	'<ul>',
 	'<li>{person}: {load} of {capacity} ({flag})</li>',
 	'</ul>',
@@ -124,11 +124,13 @@ describe('renderStatusUpdate', () => {
 		expect(out.html_text).toContain('<li><strong>0 errors</strong>, 2 warnings</li>')
 		expect(out.html_text).toContain('<li>Committed 5 tasks, completed 3 (60% by count)</li>')
 		expect(findHtmlSubsetProblems(out.html_text)).toEqual([])
+		expect(findStatusHtmlProblems(out.html_text)).toEqual([])
 	})
 
 	it('omits a line whose data was not computed, and a heading left with no lines', () => {
 		const bare = renderStatusUpdate(parseStatusTemplate(CONTENT), { ...(dashboard as object), reports: [] } as never)
-		expect(bare.html_text).not.toContain('<h2>')
+		expect(bare.html_text).not.toContain('<strong>Sprint</strong>')
+		expect(bare.html_text).not.toContain('<strong>Health</strong>')
 		expect(bare.title).toBe('web — At risk')
 	})
 
