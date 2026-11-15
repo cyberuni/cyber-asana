@@ -49,5 +49,5 @@ with `reference customize <name> --extends <pick>`.
 [scrum](../../scrum/README.md) node. Whether the narrative is a good standup is a graded judgment on
 generated prose, ACED's, not this corpus'.
 
-**Predecessors.** [asana-standup](../asana-standup/README.md) is a stub that routes here for one minor
-release (D7); [asana-sprint-report](../asana-sprint-report/README.md) is the same stub since U7.
+**Predecessors.** The `asana-standup` and `asana-sprint-report` stubs routed here for one minor
+release (D7) and have been removed; this skill covers standups and sprint reports.

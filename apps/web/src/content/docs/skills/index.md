@@ -29,8 +29,6 @@ Set [authentication](/cyber-asana/getting-started/#authentication) before runnin
 | [`init-asana-scrum`](/cyber-asana/skills/init-asana-scrum/) | Scrum setup — scope, `sections` sprint model, fields, backlog, current sprint, policy |
 | [`config-asana`](/cyber-asana/skills/config-asana/) | Add, remove, refresh, and show Asana projects and users in the repo config or the personal global registry |
 | [`asana-scrum`](/cyber-asana/skills/asana-scrum/) | Scrum work — the standup, sprint planning, the review, the retro, velocity, and the dashboard, computed by the CLI; sprint housekeeping |
-| [`asana-standup`](/cyber-asana/skills/asana-standup/) | Moved into `asana-scrum`; a stub that routes there for one minor release |
-| [`asana-sprint-report`](/cyber-asana/skills/asana-sprint-report/) | Moved into `asana-scrum`; a stub that routes there for one minor release |
 | [`sync-asana-project`](/cyber-asana/skills/sync-asana-project/) (alpha) | Pull project tasks into local markdown for planning |
 
 To create a task explicitly, run the **`/cyber-asana:create-task`** command (plugin installs). It and the `asana` skill share one procedure, [`skills/asana/references/create-task.md`](https://github.com/cyberuni/cyber-asana/blob/main/packages/cyber-asana/skills/asana/references/create-task.md), so prefer either over ad-hoc task creation: agents then resolve workspace, project, and URL fields consistently.
