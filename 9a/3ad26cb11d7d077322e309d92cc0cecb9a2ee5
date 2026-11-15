@@ -1,0 +1,44 @@
+packages/cyber-asana/src/asana-html/cli.test.ts
+  s_c596fda3da83f6::t_3c8bde94f337ff 69-74,78
+packages/cyber-asana/src/asana-html/mcp.test.ts
+  s_c596fda3da83f6::t_767ea4b5bc3cc0 42
+packages/cyber-asana/src/testing/system-suites.ts
+  s_c596fda3da83f6::t_d1d5404f620c38 24
+packages/cyber-asana/src/asana-html/rules.test.ts
+  s_c596fda3da83f6::t_3c8bde94f337ff 6-7,27-34,37-45
+.agents/skills/run-system-tests/SKILL.md
+  s_c596fda3da83f6::t_ba186c5fff4433 77
+packages/cyber-asana/src/asana-html/surfaces.ts
+  s_c596fda3da83f6::t_5a76e13d70ae34 7-8,40-42,57-60,71-88,91-92,96
+  s_c596fda3da83f6::t_3c8bde94f337ff 95
+.changeset/html-surface-probes.md
+  s_c596fda3da83f6::t_7dbff81141c6b0 1-5
+packages/cyber-asana/src/asana-html/probe-samples.ts
+  s_c596fda3da83f6::t_d1d5404f620c38 44
+  s_c596fda3da83f6::t_763c9135d57e8c 1-43,45-55
+packages/cyber-asana/src/asana-html/surfaces.system.ts
+  s_c596fda3da83f6::t_f5c4431a6f86f4 1-9,11-17,20-52,55-95,97-100,106-112,114-137
+  s_c596fda3da83f6::t_d1d5404f620c38 10,18-19,53-54,96,101-105,113
+packages/cyber-asana/skills/asana/references/tidy-description.md
+  s_c596fda3da83f6::t_ba186c5fff4433 98-106
+packages/cyber-asana/src/skills/html-subset.system.ts
+  s_c596fda3da83f6::t_763c9135d57e8c 2
+packages/cyber-asana/src/asana-html/api.test.ts
+  s_c596fda3da83f6::t_3c8bde94f337ff 26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "9a3ad26cb11d7d077322e309d92cc0cecb9a2ee5",
+  "prompts": {},
+  "sessions": {
+    "s_c596fda3da83f6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f82c9eda-6802-4087-83f5-65b21b307ed3",
+        "model": "claude-sonnet-5-5"
+      },
+      "human_author": "unional <homawong@gmail.com>"
+    }
+  }
+}
