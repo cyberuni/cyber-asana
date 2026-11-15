@@ -95,10 +95,15 @@ cyber-asana html rules --surface task-notes --json
 ```
 
 `allowed` and `rejected` list the tags, `evidence` names the probe and its date, and `unverified`
-lists any tag not yet probed on that surface. A `<li>` is refused outside a `<ul>` or `<ol>`.
-`<span>` is accepted but silently stripped to its text. A status update (`--surface
-status-update`) takes no headings: Asana accepts one, then stores the whole body escaped as literal
-text, so a heading there is a `<strong>` line.
+lists any tag not yet probed on that surface. The surfaces are `task-notes`, `comment`,
+`project-brief` and `status-update`; a live probe of each ran on 2026-11-15. A `<li>` is refused
+outside a `<ul>` or `<ol>`. `<span>` is accepted but silently stripped to its text.
+
+Comments and project briefs keep every tag task notes keep, and refuse the same ones. They refuse
+differently: a brief fails with *"XML is invalid"*, but a comment posts and stores the markup as
+literal text. A status update (`--surface status-update`) keeps less: it takes no headings, tables or
+`<hr>`. Asana accepts them, then stores the whole body escaped as literal text, so a heading there
+is a `<strong>` line and a table is a list.
 
 The rules below are not tags, so `html check` does not catch them. Mind them by hand.
 

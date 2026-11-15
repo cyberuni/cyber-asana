@@ -3,8 +3,8 @@ import { htmlRules } from './rules.js'
 import { SURFACES } from './surfaces.js'
 
 describe('htmlRules', () => {
-	it('ships the first cut: task notes and status updates', () => {
-		expect(SURFACES).toEqual(['task-notes', 'status-update'])
+	it('covers the four surfaces that have a live probe', () => {
+		expect(SURFACES).toEqual(['task-notes', 'comment', 'project-brief', 'status-update'])
 	})
 
 	it('describes task notes from the live probe in tidy-description', () => {
@@ -24,13 +24,25 @@ describe('htmlRules', () => {
 		expect(rules.evidence).toContain('2026-11-14')
 	})
 
-	it('names the tags a status update inherits without a live probe', () => {
-		expect(htmlRules('status-update').unverified).toEqual(expect.arrayContaining(['table', 'blockquote', 'ol']))
+	it('refuses tables and rules on status updates, which task notes keep', () => {
+		const rules = htmlRules('status-update')
+		expect(rules.rejected).toEqual(expect.arrayContaining(['table', 'tr', 'td', 'hr']))
+		expect(rules.allowed).toEqual(expect.arrayContaining(['blockquote', 'ol', 'pre', 'u', 's', 'mark']))
 	})
 
-	it('marks the refusals a status update inherits from task notes as unverified', () => {
-		expect(htmlRules('status-update').unverified).toEqual(expect.arrayContaining(['p', 'br', 'div']))
-		expect(htmlRules('status-update').unverified).not.toContain('h1')
+	it('leaves nothing unverified on any surface', () => {
+		for (const surface of SURFACES) expect(htmlRules(surface).unverified).toEqual([])
+	})
+
+	it('keeps every task-notes tag on comments and project briefs, dated by the probe', () => {
+		const notes = htmlRules('task-notes')
+		for (const surface of ['comment', 'project-brief'] as const) {
+			const rules = htmlRules(surface)
+			expect(rules.allowed).toEqual(notes.allowed)
+			expect(rules.rejected).toEqual(notes.rejected)
+			expect(rules.evidence).toContain('surfaces.system.ts')
+			expect(rules.evidence).toContain('2026-11-15')
+		}
 	})
 
 	it('cites every source behind the status-update claims', () => {

@@ -4,8 +4,8 @@
  * claim with no probe behind it is listed in `unverified`, never stated as a rule.
  */
 
-/** Surfaces in the first cut. Comments and project briefs wait for a live probe (issue #349). */
-export const SURFACES = ['task-notes', 'status-update'] as const
+/** Surfaces with a live probe behind their rules (`surfaces.system.ts`). */
+export const SURFACES = ['task-notes', 'comment', 'project-brief', 'status-update'] as const
 export type Surface = (typeof SURFACES)[number]
 
 /** Every tag Asana keeps in `html_notes`, without brackets. */
@@ -37,6 +37,9 @@ export const KNOWN_REJECTED_TAGS = ['p', 'br', 'div', 'h4', 'h5', 'h6', 'img', '
 
 const HEADING_TAGS = ['h1', 'h2', 'h3'] as const
 
+/** Tags a status update escapes, together with the whole body, although task notes keep them. */
+const STATUS_ESCAPED_TAGS = [...HEADING_TAGS, 'table', 'tr', 'td', 'hr'] as const
+
 export interface SurfaceRule {
 	readonly surface: Surface
 	/** Tags Asana keeps on this surface. Any other tag is a problem. */
@@ -51,8 +54,10 @@ export interface SurfaceRule {
 	readonly unverified: readonly string[]
 }
 
-const statusHeadingMessage = (tag: string) =>
-	`<${tag}> is not supported in a status update (Asana escapes the whole body); use <strong> for a heading`
+const statusEscapedMessage = (tag: string) =>
+	(HEADING_TAGS as readonly string[]).includes(tag)
+		? `<${tag}> is not supported in a status update (Asana escapes the whole body); use <strong> for a heading`
+		: `<${tag}> is not supported in a status update (Asana escapes the whole body)`
 
 export const SURFACE_RULES: Readonly<Record<Surface, SurfaceRule>> = {
 	'task-notes': {
@@ -63,16 +68,31 @@ export const SURFACE_RULES: Readonly<Record<Surface, SurfaceRule>> = {
 		evidence: 'tidy-description.md, live PUT /tasks/{gid}, 2026-08',
 		unverified: [],
 	},
+	comment: {
+		surface: 'comment',
+		allowed: TASK_NOTES_TAGS,
+		messages: {},
+		headingFallback: 'h3',
+		evidence:
+			'surfaces.system.ts, live POST /tasks/{gid}/stories, 2026-11-15: every task-notes tag is kept; the refused tags are stored as literal text, so the comment posts but shows its markup',
+		unverified: [],
+	},
+	'project-brief': {
+		surface: 'project-brief',
+		allowed: TASK_NOTES_TAGS,
+		messages: {},
+		headingFallback: 'h3',
+		evidence:
+			'surfaces.system.ts, live POST and PUT /project_briefs, 2026-11-15: every task-notes tag is kept and every refused tag fails with "XML is invalid"',
+		unverified: [],
+	},
 	'status-update': {
 		surface: 'status-update',
-		allowed: TASK_NOTES_TAGS.filter((tag) => !(HEADING_TAGS as readonly string[]).includes(tag)),
-		messages: Object.fromEntries(HEADING_TAGS.map((tag) => [tag, statusHeadingMessage(tag)])),
+		allowed: TASK_NOTES_TAGS.filter((tag) => !(STATUS_ESCAPED_TAGS as readonly string[]).includes(tag)),
+		messages: Object.fromEntries(STATUS_ESCAPED_TAGS.map((tag) => [tag, statusEscapedMessage(tag)])),
 		headingFallback: 'strong',
 		evidence:
-			'scrum-system.md §9.9 (live run 2026-11-14): h1-h3 make Asana escape the whole body; tidy-description.md (live, 2026-11): strong, ul/li, a and plain text keep their markup, and a body without <body> is refused; status-post.system.ts posts the shipped template (strong, ul/li, escaped text)',
-		unverified: [
-			...['blockquote', 'code', 'em', 'hr', 'mark', 'ol', 'pre', 's', 'table', 'td', 'tr', 'u'],
-			...KNOWN_REJECTED_TAGS,
-		],
+			'surfaces.system.ts, live POST /status_updates on a project, 2026-11-15: strong, em, u, s, code, pre, ul, ol, li, a, blockquote and mark keep their markup; h1-h3, table, tr, td and hr make Asana escape the whole body, as do the tags task notes refuse; scrum-system.md §9.9 (2026-11-14) first found the heading failure, and tidy-description.md (2026-11) the <body> requirement; status-post.system.ts posts the shipped template (strong, ul/li, escaped text)',
+		unverified: [],
 	},
 }
