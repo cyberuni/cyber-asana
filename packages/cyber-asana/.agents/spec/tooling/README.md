@@ -40,7 +40,7 @@ exported, `.` and `./mcp`, plus the `cyber-asana` binary.
 ## CI
 
 - **`pull-request.yml`** — on every PR. Delegates the main check to the shared org workflow
-  `cyberuni/.github/.github/workflows/pnpm-verify.yml@main` rather than re-declaring the matrix
+  `repobuddy/.github/.github/workflows/pnpm-verify.yml@v2` rather than re-declaring the matrix
   locally, and adds one repo-specific job: a gap-analysis check over the MCP catalog.
 - **`release.yml`** — changesets. `pnpm version` applies pending changesets, `pnpm release` publishes.
 - **`dependabot-autofix.yml`** / **`dependabot-automerge.yml`** — dependency PR handling.
