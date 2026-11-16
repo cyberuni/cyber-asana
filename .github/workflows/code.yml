@@ -15,7 +15,7 @@ on:
 
 jobs:
   verify:
-    uses: cyberuni/.github/.github/workflows/pnpm-verify.yml@main
+    uses: repobuddy/.github/.github/workflows/pnpm-verify.yml@v2
     permissions:
       contents: read
     with:
