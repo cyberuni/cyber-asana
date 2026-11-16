@@ -6,27 +6,6 @@
 			"description": "Auto-merge non-major updates. Majors stay manual.",
 			"matchUpdateTypes": ["minor", "patch", "pin", "digest"],
 			"automerge": true
-		},
-		{
-			"description": "@types/node tracks the supported Node range, so bumps are a deliberate call.",
-			"matchPackageNames": ["@types/node"],
-			"automerge": false
-		},
-		{
-			"description": "Runtime deps ship to consumers, so their bumps need a changeset. Renovate already knows the update type; label it and let renovate-changeset.yml write the matching bump.",
-			"matchDepTypes": ["dependencies"],
-			"matchUpdateTypes": ["patch"],
-			"addLabels": ["changeset:patch"]
-		},
-		{
-			"matchDepTypes": ["dependencies"],
-			"matchUpdateTypes": ["minor"],
-			"addLabels": ["changeset:minor"]
-		},
-		{
-			"matchDepTypes": ["dependencies"],
-			"matchUpdateTypes": ["major"],
-			"addLabels": ["changeset:major"]
 		}
 	]
 }
