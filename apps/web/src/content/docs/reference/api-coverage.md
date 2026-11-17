@@ -49,8 +49,8 @@ operations such as project export and TODO scanning are described separately bel
 | Jobs | ✅ | 1 / 1 | `job` | Complete; reads the async jobs other operations return |
 | Project templates | 🟡 | 4 / 5 | `project-template` | List, get, and instantiate; no template deletion |
 | Sections | ✅ | 7 / 7 | `section` | Complete, including section reordering, section-scoped task placement, and listing a section's tasks |
-| Portfolios | 🟡 | 8 / 13 | `portfolio` | CRUD, item listing, item add and remove; members are managed under `membership` |
-| Projects | 🟡 | 9 / 20 | `project` | CRUD, counts, search, duplicate, and the projects a task belongs to (`task project list`). Templates have their own row; members are managed under `membership` |
+| Portfolios | 🟡 | 8 / 13 | `portfolio` | CRUD, item listing, item add and remove; members are managed under `membership` (`addMembers` and `removeMembers` are not wrapped separately: `membership create` and `delete` do the same job) |
+| Projects | 🟡 | 11 / 20 | `project` | CRUD, counts, search, duplicate, follower add and remove (`project follower`), and the projects a task belongs to (`task project list`). Templates have their own row; members are managed under `membership` |
 | Goals | 🟡 | 5 / 12 | `goal` | CRUD only; no metrics or followers |
 | Users | 🟡 | 3 / 8 | `user` | Read-only |
 | Teams | 🟡 | 2 / 7 | `team` | Read-only; also a team's projects, which `team projects` lists |

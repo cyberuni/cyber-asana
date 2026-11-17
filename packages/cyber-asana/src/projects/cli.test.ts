@@ -45,6 +45,8 @@ describe('projects/cli', () => {
 			searchProjects: vi.fn(),
 			exportProject: vi.fn(),
 			duplicateProject: vi.fn(),
+			addFollowersToProject: vi.fn(),
+			removeFollowersFromProject: vi.fn(),
 			duplicateProjectAndWait: vi.fn(),
 		}
 
@@ -77,6 +79,8 @@ describe('projects/cli', () => {
 				searchProjects: vi.fn(),
 				exportProject: vi.fn(),
 				duplicateProject: vi.fn(),
+				addFollowersToProject: vi.fn(),
+				removeFollowersFromProject: vi.fn(),
 				duplicateProjectAndWait: vi.fn(),
 			}),
 		)
@@ -101,6 +105,8 @@ describe('projects/cli', () => {
 			searchProjects: vi.fn(),
 			exportProject: vi.fn(),
 			duplicateProject: vi.fn(),
+			addFollowersToProject: vi.fn(),
+			removeFollowersFromProject: vi.fn(),
 			duplicateProjectAndWait: vi.fn(),
 		}
 
@@ -148,6 +154,8 @@ describe('projects/cli', () => {
 				searchProjects: vi.fn(),
 				exportProject: vi.fn(),
 				duplicateProject: vi.fn(),
+				addFollowersToProject: vi.fn(),
+				removeFollowersFromProject: vi.fn(),
 				duplicateProjectAndWait: vi.fn(),
 			}),
 		)
@@ -340,6 +348,8 @@ describe('projects/cli', () => {
 				searchProjects: vi.fn(),
 				exportProject: vi.fn(),
 				duplicateProject: vi.fn(),
+				addFollowersToProject: vi.fn(),
+				removeFollowersFromProject: vi.fn(),
 				duplicateProjectAndWait: vi.fn(),
 			}),
 		)
@@ -364,6 +374,8 @@ describe('projects/cli', () => {
 			searchProjects: vi.fn(),
 			exportProject: vi.fn(),
 			duplicateProject: vi.fn(),
+			addFollowersToProject: vi.fn(),
+			removeFollowersFromProject: vi.fn(),
 			duplicateProjectAndWait: vi.fn(),
 		}
 
@@ -394,6 +406,8 @@ describe('projects/cli', () => {
 					searchProjects: vi.fn(),
 					exportProject: vi.fn(),
 					duplicateProject: vi.fn(),
+					addFollowersToProject: vi.fn(),
+					removeFollowersFromProject: vi.fn(),
 					duplicateProjectAndWait: vi.fn(),
 				}),
 			)
@@ -418,6 +432,8 @@ describe('projects/cli', () => {
 					searchProjects: vi.fn(),
 					exportProject: vi.fn(),
 					duplicateProject: vi.fn(),
+					addFollowersToProject: vi.fn(),
+					removeFollowersFromProject: vi.fn(),
 					duplicateProjectAndWait: vi.fn(),
 				}),
 			)

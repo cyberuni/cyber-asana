@@ -49,6 +49,14 @@ export async function exportProject(projectGid: string): Promise<ProjectExport> 
 	return defaultProjectApi().exportProject(projectGid)
 }
 
+export async function addFollowersToProject(projectGid: string, followerGids: string[]) {
+	return defaultProjectApi().addFollowersToProject(projectGid, followerGids)
+}
+
+export async function removeFollowersFromProject(projectGid: string, followerGids: string[]) {
+	return defaultProjectApi().removeFollowersFromProject(projectGid, followerGids)
+}
+
 export async function duplicateProject(projectGid: string, fields: DuplicateProjectFields) {
 	return defaultProjectApi().duplicateProject(projectGid, fields)
 }

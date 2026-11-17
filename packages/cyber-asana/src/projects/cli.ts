@@ -26,6 +26,7 @@ import { isFull, truncate } from '../platform/truncate.js'
 import { newProjectOf } from '../project-templates/api.js'
 import { DEFAULT_DUPLICATE_TIMEOUT_SECONDS, type ProjectApi, renderProjectMarkdown } from './api.js'
 import {
+	addFollowersToProject,
 	createProject,
 	deleteProject,
 	duplicateProject,
@@ -34,6 +35,7 @@ import {
 	getProject,
 	getProjectTaskCounts,
 	listProjects,
+	removeFollowersFromProject,
 	searchProjects,
 	updateProject,
 } from './default.js'
@@ -49,6 +51,8 @@ function resolveProjectApi(api?: ProjectApi | (() => ProjectApi)): ProjectApi {
 			createProject,
 			updateProject,
 			deleteProject,
+			addFollowersToProject,
+			removeFollowersFromProject,
 			searchProjects,
 			exportProject,
 			duplicateProject,
@@ -482,6 +486,28 @@ export function projectCommand(api?: ProjectApi | (() => ProjectApi)) {
 				})
 			},
 		)
+
+	const followerCmd = cmd.command('follower').description('Manage the followers of a project')
+
+	followerCmd
+		.command('add <project-gid> <follower-gids...>')
+		.description('Add followers to a project')
+		.action(async (projectGid: string, followerGids: string[]) => {
+			await resolveProjectApi(api).addFollowersToProject(projectGid, followerGids)
+			output({ project: projectGid, followers: followerGids, status: 'added' }, () =>
+				console.log(`Added ${followerGids.length} follower(s) to project ${projectGid}`),
+			)
+		})
+
+	followerCmd
+		.command('remove <project-gid> <follower-gids...>')
+		.description('Remove followers from a project')
+		.action(async (projectGid: string, followerGids: string[]) => {
+			await resolveProjectApi(api).removeFollowersFromProject(projectGid, followerGids)
+			output({ project: projectGid, followers: followerGids, status: 'removed' }, () =>
+				console.log(`Removed ${followerGids.length} follower(s) from project ${projectGid}`),
+			)
+		})
 
 	return cmd
 }
