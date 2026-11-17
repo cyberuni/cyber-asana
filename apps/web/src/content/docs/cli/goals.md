@@ -34,7 +34,20 @@ in the same invocation is a usage error, caught before any request is sent.
 `--notes` and `--html-notes` are alternative ways to write a goal's description — plain text
 or Asana rich-text HTML. Naming both is a usage error, also caught locally.
 
-Goal metrics, followers, and parent-goal relationships are not wrapped — see
+## Metrics
+
+```sh
+cyber-asana goal metric set <gid> --unit percentage --initial 0 --target 100
+cyber-asana goal metric set-current <gid> 42.5
+```
+
+`metric set` defines a goal's metric: `--unit` (`none`, `currency`, or `percentage`), `--precision`,
+`--currency-code`, `--initial`, `--target`, `--current`, and `--progress-source`. `metric set-current`
+records the current value. Both need a paid workspace, and the request bodies come from Asana's
+docs and have not been confirmed against a live workspace. The MCP tools are
+`asana_goal_metric_set` and `asana_goal_metric_set_current_value`.
+
+Goal followers and parent-goal relationships are not wrapped — see
 [API coverage](/cyber-asana/reference/api-coverage/).
 
 Goals can carry status updates. Pass a goal GID as the parent:

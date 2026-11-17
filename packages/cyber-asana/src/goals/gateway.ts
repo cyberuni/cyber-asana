@@ -30,6 +30,32 @@ export type UpdateGoalFields = {
 	start_on?: string | null
 }
 
+/** The metric object Asana returns, as far as cyber-asana reads it. */
+export type GoalMetric = {
+	gid?: string
+	unit?: string
+	current_number_value?: number
+	target_number_value?: number
+	[key: string]: unknown
+}
+
+/** Request body of `setMetric`, from developers.asana.com; unverified against a live paid workspace. */
+export type GoalMetricInput = {
+	unit?: 'none' | 'currency' | 'percentage'
+	precision?: number
+	currencyCode?: string
+	initialNumberValue?: number
+	targetNumberValue?: number
+	currentNumberValue?: number
+	progressSource?:
+		| 'manual'
+		| 'subgoal_progress'
+		| 'project_task_completion'
+		| 'project_milestone_completion'
+		| 'task_completion'
+		| 'external'
+}
+
 export type GoalGateway = {
 	listGoals(workspaceGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.Goal>>
 	getGoal(goalGid: string, opts?: ReadOptions): Promise<Asana.Goal>
@@ -37,6 +63,8 @@ export type GoalGateway = {
 	updateGoal(goalGid: string, fields: UpdateGoalFields): Promise<Asana.Goal>
 	deleteGoal(goalGid: string): Promise<void>
 	listTimePeriods(workspaceGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.TimePeriod>>
+	setGoalMetric(goalGid: string, metric: GoalMetricInput): Promise<GoalMetric>
+	setGoalMetricCurrentValue(goalGid: string, currentNumberValue: number): Promise<GoalMetric>
 }
 
 export function createAsanaGoalGateway(client: Asana.ApiClient): GoalGateway {
@@ -66,6 +94,28 @@ export function createAsanaGoalGateway(client: Asana.ApiClient): GoalGateway {
 		async listTimePeriods(workspaceGid, opts) {
 			const res = await timePeriodsApi.getTimePeriods(workspaceGid, toAsanaPaginationOptions(opts))
 			return await collectListResponse(res, opts)
+		},
+		async setGoalMetric(goalGid, metric) {
+			const res = await goalsApi.createGoalMetric(
+				{
+					data: {
+						...(metric.unit !== undefined && { unit: metric.unit }),
+						...(metric.precision !== undefined && { precision: metric.precision }),
+						...(metric.currencyCode !== undefined && { currency_code: metric.currencyCode }),
+						...(metric.initialNumberValue !== undefined && { initial_number_value: metric.initialNumberValue }),
+						...(metric.targetNumberValue !== undefined && { target_number_value: metric.targetNumberValue }),
+						...(metric.currentNumberValue !== undefined && { current_number_value: metric.currentNumberValue }),
+						...(metric.progressSource !== undefined && { progress_source: metric.progressSource }),
+					},
+				},
+				goalGid,
+				{},
+			)
+			return res.data
+		},
+		async setGoalMetricCurrentValue(goalGid, currentNumberValue) {
+			const res = await goalsApi.updateGoalMetric({ data: { current_number_value: currentNumberValue } }, goalGid, {})
+			return res.data
 		},
 	}
 }

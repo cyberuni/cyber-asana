@@ -1,8 +1,17 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import { paginationOptions, paginationParams, readOptions, readParams } from '../platform/mcp/options.js'
-import type { GoalApi } from './api.js'
-import { createGoal, deleteGoal, getGoal, listGoals, listTimePeriods, updateGoal } from './default.js'
+import type { GoalApi, GoalMetricInput } from './api.js'
+import {
+	createGoal,
+	deleteGoal,
+	getGoal,
+	listGoals,
+	listTimePeriods,
+	setGoalMetric,
+	setGoalMetricCurrentValue,
+	updateGoal,
+} from './default.js'
 import { buildGoalCreateFields, buildGoalUpdateFields } from './write-options.js'
 
 function resolveGoalApi(api?: GoalApi | (() => GoalApi)): GoalApi {
@@ -15,6 +24,8 @@ function resolveGoalApi(api?: GoalApi | (() => GoalApi)): GoalApi {
 			updateGoal,
 			deleteGoal,
 			listTimePeriods,
+			setGoalMetric,
+			setGoalMetricCurrentValue,
 		}
 	)
 }
@@ -116,5 +127,66 @@ export function registerGoalTools(server: McpServer, api?: GoalApi | (() => Goal
 			await resolveGoalApi(api).deleteGoal(goal_gid)
 			return { content: [{ type: 'text', text: `Deleted goal ${goal_gid}` }] }
 		},
+	)
+
+	server.tool(
+		'asana_goal_metric_set',
+		'Set the metric of an Asana goal: unit, precision, and initial, target, and current values (paid plan)',
+		{
+			goal_gid: z.string().describe('Goal GID'),
+			unit: z.enum(['none', 'currency', 'percentage']).optional().describe('Metric unit'),
+			precision: z.number().optional().describe('Decimal places'),
+			currency_code: z.string().optional().describe('ISO 4217 currency code, for unit currency'),
+			initial_number_value: z.number().optional().describe('Initial value'),
+			target_number_value: z.number().optional().describe('Target value'),
+			current_number_value: z.number().optional().describe('Current value'),
+			progress_source: z.string().optional().describe('Where progress comes from, such as manual'),
+		},
+		async ({
+			goal_gid,
+			unit,
+			precision,
+			currency_code,
+			initial_number_value,
+			target_number_value,
+			current_number_value,
+			progress_source,
+		}) => ({
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(
+						await resolveGoalApi(api).setGoalMetric(goal_gid, {
+							...(unit !== undefined && { unit }),
+							...(precision !== undefined && { precision }),
+							...(currency_code !== undefined && { currencyCode: currency_code }),
+							...(initial_number_value !== undefined && { initialNumberValue: initial_number_value }),
+							...(target_number_value !== undefined && { targetNumberValue: target_number_value }),
+							...(current_number_value !== undefined && { currentNumberValue: current_number_value }),
+							...(progress_source !== undefined && {
+								progressSource: progress_source as GoalMetricInput['progressSource'],
+							}),
+						}),
+					),
+				},
+			],
+		}),
+	)
+
+	server.tool(
+		'asana_goal_metric_set_current_value',
+		"Record the current value of an Asana goal's metric (paid plan)",
+		{
+			goal_gid: z.string().describe('Goal GID'),
+			current_number_value: z.number().describe('Current value'),
+		},
+		async ({ goal_gid, current_number_value }) => ({
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(await resolveGoalApi(api).setGoalMetricCurrentValue(goal_gid, current_number_value)),
+				},
+			],
+		}),
 	)
 }

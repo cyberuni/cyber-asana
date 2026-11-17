@@ -1,8 +1,8 @@
 import type { PaginationOptions } from '../platform/pagination.js'
 import type { ReadOptions } from '../platform/read-options.js'
-import type { CreateGoalFields, GoalGateway, UpdateGoalFields } from './gateway.js'
+import type { CreateGoalFields, GoalGateway, GoalMetricInput, UpdateGoalFields } from './gateway.js'
 
-export type { CreateGoalFields, UpdateGoalFields } from './gateway.js'
+export type { CreateGoalFields, GoalMetricInput, UpdateGoalFields } from './gateway.js'
 
 export type GoalApi = ReturnType<typeof createGoalApi>
 
@@ -25,6 +25,12 @@ export function createGoalApi(gateway: GoalGateway) {
 		},
 		listTimePeriods(workspaceGid: string, opts?: PaginationOptions) {
 			return gateway.listTimePeriods(workspaceGid, opts)
+		},
+		setGoalMetric(goalGid: string, metric: GoalMetricInput) {
+			return gateway.setGoalMetric(goalGid, metric)
+		},
+		setGoalMetricCurrentValue(goalGid: string, currentNumberValue: number) {
+			return gateway.setGoalMetricCurrentValue(goalGid, currentNumberValue)
 		},
 	}
 }

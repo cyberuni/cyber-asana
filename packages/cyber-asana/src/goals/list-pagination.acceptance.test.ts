@@ -15,6 +15,8 @@ function createPaginatingGoalGateway(): GoalGateway {
 		updateGoal: vi.fn(),
 		deleteGoal: vi.fn(),
 		listTimePeriods: vi.fn(),
+		setGoalMetric: vi.fn(),
+		setGoalMetricCurrentValue: vi.fn(),
 	}
 }
 

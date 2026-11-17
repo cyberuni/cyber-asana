@@ -51,7 +51,7 @@ operations such as project export and TODO scanning are described separately bel
 | Sections | ✅ | 7 / 7 | `section` | Complete, including section reordering, section-scoped task placement, and listing a section's tasks |
 | Portfolios | 🟡 | 10 / 13 | `portfolio` | CRUD, item listing, item add and remove, custom field add and remove (`custom-field attach-portfolio`); members are managed under `membership` (`addMembers` and `removeMembers` are not wrapped separately: `membership create` and `delete` do the same job) |
 | Projects | 🟡 | 11 / 20 | `project` | CRUD, counts, search, duplicate, follower add and remove (`project follower`), and the projects a task belongs to (`task project list`). Templates have their own row; members are managed under `membership` |
-| Goals | 🟡 | 5 / 12 | `goal` | CRUD only; no metrics or followers |
+| Goals | 🟡 | 7 / 12 | `goal` | CRUD and metrics (`goal metric set\|set-current`, paid plan); no followers |
 | Users | 🟡 | 3 / 8 | `user` | Read-only |
 | Teams | 🟡 | 2 / 7 | `team` | Read-only; also a team's projects, which `team projects` lists |
 | Workspaces | 🟡 | 2 / 6 | `workspace` | Read-only |
@@ -158,7 +158,7 @@ using one.
 | --- | --- | --- |
 | Sections | `section list\|get\|create\|update\|move\|delete`, `section tasks`, `section task add` | `asana_section_*` |
 | Tags | `tag list\|get\|create\|update\|delete`, `tag task list\|add\|remove`, `tag tasks` | `asana_tag_*` |
-| Goals | `goal list\|get\|create\|update\|delete` | `asana_goal_*` |
+| Goals | `goal list\|get\|create\|update\|delete`, `goal metric set\|set-current` | `asana_goal_*` |
 | Portfolios | `portfolio list\|items\|get\|create\|update\|delete`, `portfolio item add\|remove` | `asana_portfolio_*` |
 | Status updates | `status list\|get\|create\|delete` | `asana_status_*` |
 | Stories / comments | `story list\|get\|create\|update\|delete`, same under `comment` | `asana_story_*`, `asana_comment_*` |

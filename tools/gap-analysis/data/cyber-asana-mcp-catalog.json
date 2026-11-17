@@ -41,6 +41,8 @@
 		"asana_goal_delete",
 		"asana_goal_get",
 		"asana_goal_list",
+		"asana_goal_metric_set",
+		"asana_goal_metric_set_current_value",
 		"asana_goal_update",
 		"asana_html_check",
 		"asana_html_fix",

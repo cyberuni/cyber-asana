@@ -36,6 +36,8 @@ describe('goals/cli', () => {
 				updateGoal: vi.fn(),
 				deleteGoal: vi.fn(),
 				listTimePeriods: vi.fn(),
+				setGoalMetric: vi.fn(),
+				setGoalMetricCurrentValue: vi.fn(),
 			}),
 		)
 
@@ -59,6 +61,8 @@ describe('goals/cli', () => {
 				updateGoal: vi.fn(),
 				deleteGoal: vi.fn(),
 				listTimePeriods: vi.fn(),
+				setGoalMetric: vi.fn(),
+				setGoalMetricCurrentValue: vi.fn(),
 			}),
 		)
 
@@ -81,6 +85,8 @@ describe('goals/cli', () => {
 				updateGoal: vi.fn(),
 				deleteGoal: vi.fn().mockResolvedValue(undefined),
 				listTimePeriods: vi.fn(),
+				setGoalMetric: vi.fn(),
+				setGoalMetricCurrentValue: vi.fn(),
 			}),
 		)
 
@@ -138,6 +144,8 @@ describe('goals/cli', () => {
 				updateGoal: vi.fn(),
 				deleteGoal: vi.fn(),
 				listTimePeriods: vi.fn(),
+				setGoalMetric: vi.fn(),
+				setGoalMetricCurrentValue: vi.fn(),
 			}),
 		)
 
