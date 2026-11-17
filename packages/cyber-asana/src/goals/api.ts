@@ -44,5 +44,11 @@ export function createGoalApi(gateway: GoalGateway) {
 		removeSupportingRelationship(goalGid: string, supportingResourceGid: string) {
 			return gateway.removeSupportingRelationship(goalGid, supportingResourceGid)
 		},
+		addGoalFollowers(goalGid: string, followerGids: string[]) {
+			return gateway.addGoalFollowers(goalGid, followerGids)
+		},
+		removeGoalFollowers(goalGid: string, followerGids: string[]) {
+			return gateway.removeGoalFollowers(goalGid, followerGids)
+		},
 	}
 }

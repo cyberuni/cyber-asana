@@ -57,3 +57,11 @@ export async function addSupportingRelationship(
 export async function removeSupportingRelationship(goalGid: string, supportingResourceGid: string) {
 	return defaultGoalApi().removeSupportingRelationship(goalGid, supportingResourceGid)
 }
+
+export async function addGoalFollowers(goalGid: string, followerGids: string[]) {
+	return defaultGoalApi().addGoalFollowers(goalGid, followerGids)
+}
+
+export async function removeGoalFollowers(goalGid: string, followerGids: string[]) {
+	return defaultGoalApi().removeGoalFollowers(goalGid, followerGids)
+}

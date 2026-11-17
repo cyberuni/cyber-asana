@@ -3,12 +3,14 @@ import { z } from 'zod'
 import { paginationOptions, paginationParams, readOptions, readParams } from '../platform/mcp/options.js'
 import type { GoalApi, GoalMetricInput } from './api.js'
 import {
+	addGoalFollowers,
 	addSupportingRelationship,
 	createGoal,
 	deleteGoal,
 	getGoal,
 	listGoals,
 	listTimePeriods,
+	removeGoalFollowers,
 	removeSupportingRelationship,
 	setGoalMetric,
 	setGoalMetricCurrentValue,
@@ -30,6 +32,8 @@ function resolveGoalApi(api?: GoalApi | (() => GoalApi)): GoalApi {
 			setGoalMetricCurrentValue,
 			addSupportingRelationship,
 			removeSupportingRelationship,
+			addGoalFollowers,
+			removeGoalFollowers,
 		}
 	)
 }
@@ -234,6 +238,32 @@ export function registerGoalTools(server: McpServer, api?: GoalApi | (() => Goal
 					{ type: 'text', text: `Removed supporting resource ${supporting_resource_gid} from goal ${goal_gid}` },
 				],
 			}
+		},
+	)
+
+	server.tool(
+		'asana_goal_follower_add',
+		'Add followers to an Asana goal (paid plan)',
+		{
+			goal_gid: z.string().describe('Goal GID'),
+			follower_gids: z.array(z.string()).describe('GIDs of users to add as followers'),
+		},
+		async ({ goal_gid, follower_gids }) => {
+			await resolveGoalApi(api).addGoalFollowers(goal_gid, follower_gids)
+			return { content: [{ type: 'text', text: `Added ${follower_gids.length} follower(s) to goal ${goal_gid}` }] }
+		},
+	)
+
+	server.tool(
+		'asana_goal_follower_remove',
+		'Remove followers from an Asana goal (paid plan)',
+		{
+			goal_gid: z.string().describe('Goal GID'),
+			follower_gids: z.array(z.string()).describe('GIDs of users to remove as followers'),
+		},
+		async ({ goal_gid, follower_gids }) => {
+			await resolveGoalApi(api).removeGoalFollowers(goal_gid, follower_gids)
+			return { content: [{ type: 'text', text: `Removed ${follower_gids.length} follower(s) from goal ${goal_gid}` }] }
 		},
 	)
 }

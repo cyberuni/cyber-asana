@@ -13,12 +13,14 @@ import { output, printCountSummary, printFields, printNextSteps, printTable } fr
 import { deleteIdempotently, deleteMessage } from '../platform/idempotent-delete.js'
 import type { GoalApi, GoalMetricInput } from './api.js'
 import {
+	addGoalFollowers,
 	addSupportingRelationship,
 	createGoal,
 	deleteGoal,
 	getGoal,
 	listGoals,
 	listTimePeriods,
+	removeGoalFollowers,
 	removeSupportingRelationship,
 	setGoalMetric,
 	setGoalMetricCurrentValue,
@@ -60,6 +62,8 @@ function resolveGoalApi(api?: GoalApi | (() => GoalApi)): GoalApi {
 			setGoalMetricCurrentValue,
 			addSupportingRelationship,
 			removeSupportingRelationship,
+			addGoalFollowers,
+			removeGoalFollowers,
 		}
 	)
 }
@@ -273,6 +277,28 @@ export function goalCommand(api?: GoalApi | (() => GoalApi)) {
 			await resolveGoalApi(api).removeSupportingRelationship(goalGid, supportingGid)
 			output({ goal: goalGid, supporting_resource: supportingGid, status: 'removed' }, () =>
 				console.log(`Removed supporting resource ${supportingGid} from goal ${goalGid}`),
+			)
+		})
+
+	const followerCmd = cmd.command('follower').description('Manage the followers of a goal (paid plan)')
+
+	followerCmd
+		.command('add <goal-gid> <follower-gids...>')
+		.description('Add followers to a goal')
+		.action(async (goalGid: string, followerGids: string[]) => {
+			await resolveGoalApi(api).addGoalFollowers(goalGid, followerGids)
+			output({ goal: goalGid, followers: followerGids, status: 'added' }, () =>
+				console.log(`Added ${followerGids.length} follower(s) to goal ${goalGid}`),
+			)
+		})
+
+	followerCmd
+		.command('remove <goal-gid> <follower-gids...>')
+		.description('Remove followers from a goal')
+		.action(async (goalGid: string, followerGids: string[]) => {
+			await resolveGoalApi(api).removeGoalFollowers(goalGid, followerGids)
+			output({ goal: goalGid, followers: followerGids, status: 'removed' }, () =>
+				console.log(`Removed ${followerGids.length} follower(s) from goal ${goalGid}`),
 			)
 		})
 

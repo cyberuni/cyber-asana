@@ -79,6 +79,8 @@ export type GoalGateway = {
 		opts?: SupportingRelationshipOptions,
 	): Promise<{ gid?: string; [key: string]: unknown }>
 	removeSupportingRelationship(goalGid: string, supportingResourceGid: string): Promise<void>
+	addGoalFollowers(goalGid: string, followerGids: string[]): Promise<Asana.Goal>
+	removeGoalFollowers(goalGid: string, followerGids: string[]): Promise<Asana.Goal>
 }
 
 export function createAsanaGoalGateway(client: Asana.ApiClient): GoalGateway {
@@ -152,6 +154,14 @@ export function createAsanaGoalGateway(client: Asana.ApiClient): GoalGateway {
 				{ data: { supporting_resource: supportingResourceGid } },
 				goalGid,
 			)
+		},
+		async addGoalFollowers(goalGid, followerGids) {
+			const res = await goalsApi.addFollowers({ data: { followers: followerGids } }, goalGid, {})
+			return res.data
+		},
+		async removeGoalFollowers(goalGid, followerGids) {
+			const res = await goalsApi.removeFollowers({ data: { followers: followerGids } }, goalGid, {})
+			return res.data
 		},
 	}
 }

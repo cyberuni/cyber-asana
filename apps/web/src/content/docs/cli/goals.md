@@ -60,7 +60,17 @@ paid workspace; the MCP tools are `asana_goal_supporting_add` and `asana_goal_su
 The request bodies come from Asana's docs and have not been confirmed against a live workspace.
 Reading and updating a relationship by its own GID is not wrapped.
 
-Goal followers and parent-goal relationships are not wrapped — see
+## Followers
+
+```sh
+cyber-asana goal follower add <goal-gid> <user-gid> [<user-gid>...]
+cyber-asana goal follower remove <goal-gid> <user-gid> [<user-gid>...]
+```
+
+Followers get notifications about the goal. Both commands need a paid workspace; the MCP tools
+are `asana_goal_follower_add` and `asana_goal_follower_remove`.
+
+Parent-goal relationships beyond supporting add and remove are not wrapped — see
 [API coverage](/cyber-asana/reference/api-coverage/).
 
 Goals can carry status updates. Pass a goal GID as the parent:

@@ -17,6 +17,8 @@ describe('createGoalApi', () => {
 			setGoalMetricCurrentValue: vi.fn(),
 			addSupportingRelationship: vi.fn(),
 			removeSupportingRelationship: vi.fn(),
+			addGoalFollowers: vi.fn(),
+			removeGoalFollowers: vi.fn(),
 		})
 
 		const result = await api.listGoals('ws1')
@@ -39,6 +41,8 @@ describe('createGoalApi', () => {
 			setGoalMetricCurrentValue: vi.fn(),
 			addSupportingRelationship: vi.fn(),
 			removeSupportingRelationship: vi.fn(),
+			addGoalFollowers: vi.fn(),
+			removeGoalFollowers: vi.fn(),
 		})
 
 		expect(await api.listTimePeriods('ws1', { limit: 1 })).toEqual(periods)

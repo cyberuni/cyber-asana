@@ -1,7 +1,7 @@
 {
 	"source": "src/**/mcp.ts",
 	"fetched_at": "2026-11-15",
-	"tool_count": 178,
+	"tool_count": 180,
 	"tools": [
 		"asana_ai_studio_run_list",
 		"asana_ai_studio_seat_list",
@@ -39,6 +39,8 @@
 		"asana_event_list",
 		"asana_goal_create",
 		"asana_goal_delete",
+		"asana_goal_follower_add",
+		"asana_goal_follower_remove",
 		"asana_goal_get",
 		"asana_goal_list",
 		"asana_goal_metric_set",
