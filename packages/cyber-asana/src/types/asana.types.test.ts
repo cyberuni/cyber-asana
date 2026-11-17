@@ -282,6 +282,10 @@ describe('asana type augmentation', () => {
 		testType.equal<R<Asana.ProjectBriefsApi, 'updateProjectBrief'>, Asana.AsanaResponse<Asana.ProjectBrief>>(true)
 		testType.equal<R<Asana.ProjectBriefsApi, 'deleteProjectBrief'>, Asana.EmptyResponse>(true)
 		testType.equal<Asana.ProjectBrief['resource_type'], 'project_brief' | undefined>(true)
+		testType.equal<R<Asana.NotificationsApi, 'getNotificationsForUser'>, Asana.AsanaCollection<Asana.Notification>>(
+			true,
+		)
+		testType.equal<Asana.Notification['resource_type'], 'notification' | undefined>(true)
 		testType.equal<Asana.OooEntry['resource_type'], 'ooo_entry' | undefined>(true)
 		testType.equal<Asana.StatusUpdate['resource_type'], 'status_update' | undefined>(true)
 		testType.equal<Asana.Membership['resource_type'], 'membership' | undefined>(true)

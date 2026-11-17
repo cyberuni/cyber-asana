@@ -37,6 +37,10 @@ import { createMembershipApi, type MembershipApi } from './memberships/api.js'
 import { membershipCommand } from './memberships/cli.js'
 import { createAsanaMembershipGateway } from './memberships/gateway.js'
 import { registerMembershipTools } from './memberships/mcp.js'
+import { createNotificationApi, type NotificationApi } from './notifications/api.js'
+import { notificationCommand } from './notifications/cli.js'
+import { createAsanaNotificationGateway } from './notifications/gateway.js'
+import { registerNotificationTools } from './notifications/mcp.js'
 import { createOooApi, type OooApi } from './ooo/api.js'
 import { oooCommand } from './ooo/cli.js'
 import { createAsanaOooGateway } from './ooo/gateway.js'
@@ -122,6 +126,7 @@ export type RuntimeContext = {
 	events: EventApi
 	goals: GoalApi
 	memberships: MembershipApi
+	notifications: NotificationApi
 	ooo: OooApi
 	jobs: JobApi
 	portfolios: PortfolioApi
@@ -163,6 +168,7 @@ export function createRuntimeContext(): RuntimeContext {
 		events: createEventApi(createAsanaEventGateway(client)),
 		goals: createGoalApi(createAsanaGoalGateway(client)),
 		memberships: createMembershipApi(createAsanaMembershipGateway(client)),
+		notifications: createNotificationApi(createAsanaNotificationGateway(client)),
 		ooo: createOooApi(oooGateway),
 		jobs: createJobApi(jobGateway),
 		portfolios: createPortfolioApi(portfolioGateway),
@@ -233,6 +239,7 @@ export function registerCliCommands(program: Command, getContext: () => RuntimeC
 	program.addCommand(membershipCommand(() => getContext().memberships))
 	program.addCommand(tagCommand(() => getContext().tags))
 	program.addCommand(customFieldCommand(() => getContext().customFields))
+	program.addCommand(notificationCommand(() => getContext().notifications))
 	program.addCommand(oooCommand(() => getContext().ooo))
 	program.addCommand(allocationCommand(() => getContext().allocations))
 	program.addCommand(attachmentCommand(() => getContext().attachments))
@@ -282,6 +289,7 @@ export function registerMcpTools(server: McpServer, getContext: () => RuntimeCon
 	registerMembershipTools(server, () => getContext().memberships)
 	registerTagTools(server, () => getContext().tags)
 	registerCustomFieldTools(server, () => getContext().customFields)
+	registerNotificationTools(server, () => getContext().notifications)
 	registerOooTools(server, () => getContext().ooo)
 	registerAllocationTools(server, () => getContext().allocations)
 	registerAttachmentTools(server, () => getContext().attachments)

@@ -58,6 +58,7 @@ operations such as project export and TODO scanning are described separately bel
 | Stories | 🟡 | 5 / 7 | `story`, `comment` | Full comment lifecycle on tasks; no goal stories |
 | Custom fields | ✅ | 8 / 8 | `custom-field` | Discovery, create, update, delete, and enum-option create, insert, and update |
 | Project briefs | ✅ | 4 / 4 | `project-brief` | Get, create, update, delete; `html_text` is checked against the `project-brief` rules first |
+| Notifications | ✅ | 3 / 3 | `notification` | List, mark read, mark unread. Beta Asana endpoints that may change; only the caller's own inbox is readable |
 | Custom field settings | ✅ | 4 / 4 | `custom-field` | All four reads; project attach and detach are `custom-field attach\|detach` |
 | User task lists | 🟡 | — | `task my-tasks` | Only the "My Tasks" read path |
 | Batch API | 🟡 | — | `task get-many` | Used internally, not exposed generically |
@@ -162,6 +163,7 @@ using one.
 | Status updates | `status list\|get\|create\|delete` | `asana_status_*` |
 | Stories / comments | `story list\|get\|create\|update\|delete`, same under `comment` | `asana_story_*`, `asana_comment_*` |
 | Memberships | `membership list\|get\|create\|update\|delete` | `asana_membership_*` |
+| Notifications (beta) | `notification list\|mark-read\|mark-unread` | `asana_notification_*` |
 | Project briefs | `project-brief get\|create\|update\|delete` | `asana_project_brief_*` |
 | Ooo entries | `ooo list\|get\|create\|update\|delete` | `asana_ooo_*` |
 | AI Studio usage | `ai-studio runs\|seats` | `asana_ai_studio_*` |

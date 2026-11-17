@@ -512,6 +512,36 @@ declare module 'asana' {
 		deleteProjectBrief(project_brief_gid: string): Promise<EmptyResponse>
 	}
 
+	/** An Inbox notification (beta endpoint). */
+	interface Notification {
+		gid: string
+		resource_type?: 'notification' | undefined
+		priority_classification?: string | undefined
+		story_resource_subtype?: string | undefined
+		work_objects?: AsanaResource[] | undefined
+		created_by?: AsanaResource | null | undefined
+		created_at?: string | undefined
+		is_read?: boolean | undefined
+	}
+
+	interface NotificationsApi {
+		getNotificationsForUser(
+			user_gid: string,
+			workspace: string,
+			opts?: PaginationOptions,
+		): Promise<AsanaCollection<Notification>>
+		markNotificationsReadForUser(
+			body: { data: { workspace: string; notification_gids: string[] } },
+			user_gid: string,
+			opts?: OptionalFields,
+		): Promise<AsanaResponse<{ failed_gids: string[] }>>
+		markNotificationsUnreadForUser(
+			body: { data: { workspace: string; notification_gids: string[] } },
+			user_gid: string,
+			opts?: OptionalFields,
+		): Promise<AsanaResponse<{ failed_gids: string[] }>>
+	}
+
 	interface BatchAction {
 		method: 'get' | 'post' | 'put' | 'delete' | 'patch' | 'head'
 		relative_path: string
