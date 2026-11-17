@@ -11,6 +11,7 @@ export type AuthoringAcceptanceDeps = {
 		| 'insertEnumOption'
 		| 'updateEnumOption'
 		| 'updateCustomField'
+		| 'deleteCustomField'
 		| 'attachCustomField'
 		| 'detachCustomField'
 		| 'listCustomFieldSettingsForProject'
@@ -103,6 +104,17 @@ export function defineCustomFieldAuthoringAcceptanceSpecs(deps: AuthoringAccepta
 			} finally {
 				await deps.deleteField(field.gid)
 			}
+		})
+
+		it('deletes a field so it can no longer be read', async () => {
+			const api = deps.getApi()
+			const field = await api.createCustomField({
+				workspace: deps.workspaceGid,
+				name: deps.uniqueName(),
+				resourceSubtype: 'text',
+			})
+			await api.deleteCustomField(field.gid)
+			await expect(api.getCustomField(field.gid)).rejects.toThrow()
 		})
 	}
 }

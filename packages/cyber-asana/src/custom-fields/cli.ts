@@ -10,12 +10,14 @@ import {
 	requiredGid,
 } from '../platform/cli/options.js'
 import { output, printCountSummary, printFields, printNextSteps, printTable } from '../platform/cli/output.js'
+import { deleteIdempotently, deleteMessage } from '../platform/idempotent-delete.js'
 import { isFull, truncate } from '../platform/truncate.js'
 import type { CreateCustomFieldInput, CustomFieldApi, UpdateCustomFieldInput } from './api.js'
 import {
 	attachCustomField,
 	createCustomField,
 	createEnumOption,
+	deleteCustomField,
 	detachCustomField,
 	getCustomField,
 	insertEnumOption,
@@ -58,6 +60,7 @@ function resolveCustomFieldApi(api?: CustomFieldApi | (() => CustomFieldApi)): C
 			insertEnumOption,
 			updateEnumOption,
 			updateCustomField,
+			deleteCustomField,
 			attachCustomField,
 			detachCustomField,
 		}
@@ -326,6 +329,16 @@ export function customFieldCommand(api?: CustomFieldApi | (() => CustomFieldApi)
 				output(updated, () => console.log(`Updated custom field ${updated.name ?? gid} (${gid})`))
 			},
 		)
+
+	cmd
+		.command('delete <gid>')
+		.description('Delete a custom field from its workspace (succeeds when it is already gone)')
+		.action(async (gid: string) => {
+			const result = await deleteIdempotently('custom_field', gid, () =>
+				resolveCustomFieldApi(api).deleteCustomField(gid),
+			)
+			output(result, () => console.log(deleteMessage(result, 'Custom field')))
+		})
 
 	const enumOption = cmd.command('enum-option').description("Manage a custom field's enum options")
 

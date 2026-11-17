@@ -58,6 +58,9 @@ export function createCustomFieldApi(gateway: CustomFieldGateway) {
 		updateCustomField(customFieldGid: string, input: UpdateCustomFieldInput) {
 			return gateway.updateCustomField(customFieldGid, input)
 		},
+		deleteCustomField(customFieldGid: string) {
+			return gateway.deleteCustomField(customFieldGid)
+		},
 		createEnumOption(customFieldGid: string, input: CreateEnumOptionInput) {
 			return gateway.createEnumOption(customFieldGid, input)
 		},

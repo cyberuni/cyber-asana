@@ -122,6 +122,7 @@ describe('custom-fields/cli', () => {
 				insertEnumOption: vi.fn(),
 				updateEnumOption: vi.fn(),
 				updateCustomField: vi.fn(),
+				deleteCustomField: vi.fn(),
 				attachCustomField: vi.fn(),
 				detachCustomField: vi.fn(),
 				getCustomField: injectedGetCustomField,
@@ -146,6 +147,7 @@ function settingsApiStub() {
 		insertEnumOption: vi.fn(),
 		updateEnumOption: vi.fn(),
 		updateCustomField: vi.fn(),
+		deleteCustomField: vi.fn(),
 		attachCustomField: vi.fn(),
 		detachCustomField: vi.fn(),
 		getCustomField: vi.fn(),
@@ -420,6 +422,27 @@ describe('custom-fields/cli writes', () => {
 			'mutually exclusive',
 		)
 		expect(updateCustomField).not.toHaveBeenCalled()
+	})
+
+	it('delete removes the field and reports through output()', async () => {
+		const deleteCustomField = vi.fn().mockResolvedValue(undefined)
+		const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+		await run(writeApi({ deleteCustomField }), 'delete', 'cf1')
+
+		expect(deleteCustomField).toHaveBeenCalledWith('cf1')
+		expect(log.mock.calls.map((c) => String(c[0])).join('\n')).toContain('Deleted custom field cf1')
+	})
+
+	it('delete of an already-deleted field succeeds and says so', async () => {
+		const deleteCustomField = vi
+			.fn()
+			.mockRejectedValue({ response: { status: 404, body: { errors: [{ message: 'Not Found' }] } } })
+		const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+		await run(writeApi({ deleteCustomField }), 'delete', 'cf1')
+
+		expect(log.mock.calls.map((c) => String(c[0])).join('\n')).toContain('already deleted')
 	})
 
 	it('attach and detach report an idempotent status', async () => {

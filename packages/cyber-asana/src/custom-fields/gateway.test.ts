@@ -81,6 +81,14 @@ describe('custom-fields/gateway writes', () => {
 		})
 	})
 
+	it('deleteCustomField deletes the field by GID', async () => {
+		const spy = vi.spyOn(Asana.CustomFieldsApi.prototype, 'deleteCustomField').mockResolvedValue({ data: {} } as never)
+
+		await createAsanaCustomFieldGateway(client).deleteCustomField('cf1')
+
+		expect(spy).toHaveBeenCalledWith('cf1')
+	})
+
 	it('addCustomFieldToProject creates the setting with the field GID', async () => {
 		const spy = vi
 			.spyOn(Asana.ProjectsApi.prototype, 'addCustomFieldSettingForProject')

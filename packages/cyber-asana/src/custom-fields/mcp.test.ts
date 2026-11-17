@@ -89,6 +89,7 @@ describe('custom-fields/mcp', () => {
 			insertEnumOption: vi.fn(),
 			updateEnumOption: vi.fn(),
 			updateCustomField: vi.fn(),
+			deleteCustomField: vi.fn(),
 			attachCustomField: vi.fn(),
 			detachCustomField: vi.fn(),
 			getCustomField: injectedGetCustomField,
@@ -165,6 +166,7 @@ describe('custom-fields/mcp custom field settings', () => {
 			insertEnumOption: vi.fn(),
 			updateEnumOption: vi.fn(),
 			updateCustomField: vi.fn(),
+			deleteCustomField: vi.fn(),
 			attachCustomField: vi.fn(),
 			detachCustomField: vi.fn(),
 			getCustomField: vi.fn(),
@@ -194,6 +196,7 @@ describe('custom-fields/mcp writes', () => {
 			insertEnumOption: vi.fn(),
 			updateEnumOption: vi.fn(),
 			updateCustomField: vi.fn(),
+			deleteCustomField: vi.fn(),
 			attachCustomField: vi.fn(),
 			detachCustomField: vi.fn(),
 			...over,
@@ -261,6 +264,20 @@ describe('custom-fields/mcp writes', () => {
 		await expect(server.handlers.get('asana_custom_field_update')?.({ custom_field_gid: 'cf1' })).rejects.toThrow(
 			'Nothing to update',
 		)
+	})
+
+	it('asana_custom_field_delete deletes idempotently and reports already_absent for a missing field', async () => {
+		const deleteCustomField = vi
+			.fn()
+			.mockResolvedValueOnce(undefined)
+			.mockRejectedValueOnce({ response: { status: 404, body: { errors: [{ message: 'Not Found' }] } } })
+		const server = setup({ deleteCustomField })
+
+		const first = await server.handlers.get('asana_custom_field_delete')?.({ custom_field_gid: 'cf1' })
+		const second = await server.handlers.get('asana_custom_field_delete')?.({ custom_field_gid: 'cf1' })
+
+		expect(JSON.parse(first.content[0].text)).toMatchObject({ deleted: true, gid: 'cf1', already_absent: false })
+		expect(JSON.parse(second.content[0].text)).toMatchObject({ deleted: true, gid: 'cf1', already_absent: true })
 	})
 
 	it('attach and detach tools return the idempotent status', async () => {

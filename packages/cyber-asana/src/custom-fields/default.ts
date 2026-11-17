@@ -48,6 +48,10 @@ export async function updateCustomField(customFieldGid: string, input: UpdateCus
 	return defaultCustomFieldApi().updateCustomField(customFieldGid, input)
 }
 
+export async function deleteCustomField(customFieldGid: string) {
+	return defaultCustomFieldApi().deleteCustomField(customFieldGid)
+}
+
 export async function createEnumOption(customFieldGid: string, input: CreateEnumOptionInput) {
 	return defaultCustomFieldApi().createEnumOption(customFieldGid, input)
 }

@@ -63,6 +63,7 @@ export type CustomFieldGateway = {
 	): Promise<ListResult<Asana.CustomFieldSetting>>
 	createCustomField(input: CreateCustomFieldInput): Promise<Asana.CustomField>
 	updateCustomField(customFieldGid: string, input: UpdateCustomFieldInput): Promise<Asana.CustomField>
+	deleteCustomField(customFieldGid: string): Promise<void>
 	createEnumOption(customFieldGid: string, input: CreateEnumOptionInput): Promise<EnumOption>
 	insertEnumOption(customFieldGid: string, input: InsertEnumOptionInput): Promise<EnumOption>
 	updateEnumOption(enumOptionGid: string, input: UpdateEnumOptionInput): Promise<EnumOption>
@@ -136,6 +137,9 @@ export function createAsanaCustomFieldGateway(client: Asana.ApiClient): CustomFi
 				},
 			})
 			return res.data
+		},
+		async deleteCustomField(customFieldGid) {
+			await customFieldsApi.deleteCustomField(customFieldGid)
 		},
 		async createEnumOption(customFieldGid, input) {
 			const res = await customFieldsApi.createEnumOptionForCustomField(customFieldGid, {

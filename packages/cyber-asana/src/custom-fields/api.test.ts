@@ -28,6 +28,7 @@ describe('createCustomFieldApi', () => {
 			insertEnumOption: vi.fn(),
 			updateEnumOption: vi.fn(),
 			updateCustomField: vi.fn(),
+			deleteCustomField: vi.fn(),
 			addCustomFieldToProject: vi.fn(),
 			removeCustomFieldFromProject: vi.fn(),
 			listCustomFieldSettingsForTeam: vi.fn(),
@@ -52,6 +53,7 @@ describe('createCustomFieldApi', () => {
 			insertEnumOption: vi.fn(),
 			updateEnumOption: vi.fn(),
 			updateCustomField: vi.fn(),
+			deleteCustomField: vi.fn(),
 			addCustomFieldToProject: vi.fn(),
 			removeCustomFieldFromProject: vi.fn(),
 			listCustomFieldSettingsForTeam: vi.fn(),
@@ -81,6 +83,7 @@ function settingsGatewayStub() {
 		insertEnumOption: vi.fn(),
 		updateEnumOption: vi.fn(),
 		updateCustomField: vi.fn(),
+		deleteCustomField: vi.fn(),
 		addCustomFieldToProject: vi.fn(),
 		removeCustomFieldFromProject: vi.fn(),
 		listCustomFieldSettingsForTeam: vi.fn(),
@@ -245,5 +248,14 @@ describe('custom-fields/api writes', () => {
 
 		await expect(api.updateCustomField('cf1', { name: 'Cost' })).resolves.toEqual({ gid: 'cf1', name: 'Cost' })
 		expect(updateCustomField).toHaveBeenCalledWith('cf1', { name: 'Cost' })
+	})
+
+	it('deleteCustomField forwards the gid to the gateway', async () => {
+		const deleteCustomField = vi.fn().mockResolvedValue(undefined)
+		const api = createCustomFieldApi({ deleteCustomField } as never)
+
+		await api.deleteCustomField('cf1')
+
+		expect(deleteCustomField).toHaveBeenCalledWith('cf1')
 	})
 })

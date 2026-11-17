@@ -1,11 +1,13 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
+import { deleteIdempotently } from '../platform/idempotent-delete.js'
 import { paginationOptions, paginationParams, readOptions, readParams } from '../platform/mcp/options.js'
 import type { CustomFieldApi } from './api.js'
 import {
 	attachCustomField,
 	createCustomField,
 	createEnumOption,
+	deleteCustomField,
 	detachCustomField,
 	getCustomField,
 	insertEnumOption,
@@ -33,6 +35,7 @@ function resolveCustomFieldApi(api?: CustomFieldApi | (() => CustomFieldApi)): C
 			insertEnumOption,
 			updateEnumOption,
 			updateCustomField,
+			deleteCustomField,
 			attachCustomField,
 			detachCustomField,
 		}
@@ -204,6 +207,18 @@ export function registerCustomFieldTools(server: McpServer, api?: CustomFieldApi
 			if (Object.keys(changes).length === 0) throw new Error('Nothing to update: give at least one property to change')
 			return json(await resolveCustomFieldApi(api).updateCustomField(custom_field_gid, changes))
 		},
+	)
+
+	server.tool(
+		'asana_custom_field_delete',
+		'Delete a custom field from its workspace, removing it from every project and task that uses it. Idempotent: already_absent is true when the field was already gone',
+		{ custom_field_gid: z.string().describe('Custom field GID') },
+		async ({ custom_field_gid }) =>
+			json(
+				await deleteIdempotently('custom_field', custom_field_gid, () =>
+					resolveCustomFieldApi(api).deleteCustomField(custom_field_gid),
+				),
+			),
 	)
 
 	server.tool(

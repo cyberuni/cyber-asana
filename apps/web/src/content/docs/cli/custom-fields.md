@@ -9,9 +9,9 @@ Asana keys custom field writes by GID — `task create` and `task update` take
 `--custom-field <gid>=<value>` and `--custom-fields-json '{"<gid>":"<value>"}'`. This group
 is how you find those GIDs without leaving the CLI.
 
-Creating a field, editing it, managing its enum options, and attaching it to a project are
-covered below. Deleting a field is not wrapped — see
-[API coverage](/cyber-asana/reference/api-coverage/).
+Creating, editing, and deleting a field, managing its enum options, and attaching it to a
+project are covered below. See [API coverage](/cyber-asana/reference/api-coverage/) for what the
+group does not wrap.
 
 ## Commands
 
@@ -26,6 +26,7 @@ cyber-asana custom-field get <gid>
 | `get` | `<gid>` | — |
 | `create` | `<name>` | `--workspace-gid <gid>`, `--type <text\|enum\|multi_enum\|number\|date\|people>` (default `text`), `--description`, `--option <name>` (repeatable, enum types), `--precision` |
 | `update` | `<gid>` | `--name`, `--description`, `--precision`, `--format <currency\|identifier\|percentage\|custom\|duration\|none>`, `--currency-code`, `--custom-label`, `--custom-label-position <prefix\|suffix>`, `--disabled`, `--enabled`. Give at least one; the field's type cannot change |
+| `delete` | `<gid>` | — (succeeds with `already_absent` when the field is gone; removes the field from every project and task) |
 | `enum-option add` | `<field-gid> <name>` | `--color`, `--insert-before <option-gid>`, `--insert-after <option-gid>` |
 | `enum-option move` | `<field-gid> <option-gid>` | exactly one of `--before <option-gid>`, `--after <option-gid>` |
 | `enum-option update` | `<option-gid>` | `--name`, `--color`, `--disabled`, `--enabled` |

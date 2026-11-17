@@ -61,6 +61,7 @@ function mockRuntimeContext(): RuntimeContext {
 			insertEnumOption: vi.fn(),
 			updateEnumOption: vi.fn(),
 			updateCustomField: vi.fn(),
+			deleteCustomField: vi.fn(),
 			attachCustomField: vi.fn(),
 			detachCustomField: vi.fn(),
 			getCustomField: vi.fn(),

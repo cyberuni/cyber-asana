@@ -47,6 +47,9 @@ function createAuthoringGateway() {
 				enum_options: field.options.map((o) => ({ ...o })),
 			}
 		},
+		deleteCustomField: async (gid) => {
+			fields.delete(gid)
+		},
 		updateCustomField: async (gid, input) => {
 			const field = fields.get(gid)
 			if (!field) throw Object.assign(new Error('Not Found'), { status: 404 })
