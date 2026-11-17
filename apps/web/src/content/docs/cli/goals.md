@@ -70,6 +70,19 @@ cyber-asana goal follower remove <goal-gid> <user-gid> [<user-gid>...]
 Followers get notifications about the goal. Both commands need a paid workspace; the MCP tools
 are `asana_goal_follower_add` and `asana_goal_follower_remove`.
 
+## Time periods
+
+```sh
+cyber-asana goal time-period list --workspace-gid <gid>
+cyber-asana goal time-period get <gid>
+```
+
+A goal belongs to a time period, so these commands show the time period GID to look up before
+creating one. `list` takes the usual pagination options and returns each period's name, GID, start
+and end dates; `get` also shows the period type. The MCP tools are `asana_time_period_list` and
+`asana_time_period_get`. Goals are a paid-plan feature; whether time periods work on a free plan is
+not verified, and the requests have not been confirmed against a live workspace.
+
 Parent-goal relationships beyond supporting add and remove are not wrapped — see
 [API coverage](/cyber-asana/reference/api-coverage/).
 

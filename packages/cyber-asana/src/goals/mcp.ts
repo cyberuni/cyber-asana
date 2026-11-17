@@ -8,6 +8,7 @@ import {
 	createGoal,
 	deleteGoal,
 	getGoal,
+	getTimePeriod,
 	listGoals,
 	listTimePeriods,
 	removeGoalFollowers,
@@ -28,6 +29,7 @@ function resolveGoalApi(api?: GoalApi | (() => GoalApi)): GoalApi {
 			updateGoal,
 			deleteGoal,
 			listTimePeriods,
+			getTimePeriod,
 			setGoalMetric,
 			setGoalMetricCurrentValue,
 			addSupportingRelationship,
@@ -48,6 +50,34 @@ export function registerGoalTools(server: McpServer, api?: GoalApi | (() => Goal
 				{
 					type: 'text',
 					text: JSON.stringify(await resolveGoalApi(api).listGoals(workspace_gid, paginationOptions(params))),
+				},
+			],
+		}),
+	)
+
+	server.tool(
+		'asana_time_period_list',
+		'List the time periods of a workspace; a goal belongs to one (paid plan)',
+		{ workspace_gid: z.string().describe('Workspace GID'), ...paginationParams },
+		async ({ workspace_gid, ...params }) => ({
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(await resolveGoalApi(api).listTimePeriods(workspace_gid, paginationOptions(params))),
+				},
+			],
+		}),
+	)
+
+	server.tool(
+		'asana_time_period_get',
+		'Get an Asana time period by GID',
+		{ time_period_gid: z.string().describe('Time period GID'), ...readParams },
+		async ({ time_period_gid, ...params }) => ({
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(await resolveGoalApi(api).getTimePeriod(time_period_gid, readOptions(params))),
 				},
 			],
 		}),

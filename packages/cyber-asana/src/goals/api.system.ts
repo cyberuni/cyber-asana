@@ -1,7 +1,10 @@
 import { describe } from 'vitest'
 import { createRuntimeContext, type RuntimeContext } from '../composition.js'
 import { isPaidPlan, isSystemTestEnabled, systemEnv } from '../testing/system.js'
-import { defineGoalListPaginationAcceptanceSpecs } from './list-pagination.acceptance.js'
+import {
+	defineGoalListPaginationAcceptanceSpecs,
+	defineTimePeriodListPaginationAcceptanceSpecs,
+} from './list-pagination.acceptance.js'
 
 const workspaceGid = systemEnv('ASANA_WORKSPACE_GID')
 // Asana answers Payment Required to this resource on a free plan.
@@ -17,6 +20,15 @@ function getGoalApi() {
 describe.skipIf(!systemEnabled)(
 	'goals/api list pagination system',
 	defineGoalListPaginationAcceptanceSpecs({
+		getApi: getGoalApi,
+		workspaceGid: workspaceGid!,
+		includeFetchAll: false,
+	}),
+)
+
+describe.skipIf(!systemEnabled)(
+	'goals/api time period list pagination system',
+	defineTimePeriodListPaginationAcceptanceSpecs({
 		getApi: getGoalApi,
 		workspaceGid: workspaceGid!,
 		includeFetchAll: false,

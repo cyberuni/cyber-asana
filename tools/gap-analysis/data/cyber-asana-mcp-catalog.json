@@ -1,7 +1,7 @@
 {
 	"source": "src/**/mcp.ts",
-	"fetched_at": "2026-11-15",
-	"tool_count": 181,
+	"fetched_at": "2026-11-17",
+	"tool_count": 183,
 	"tools": [
 		"asana_ai_studio_run_list",
 		"asana_ai_studio_seat_list",
@@ -178,6 +178,8 @@
 		"asana_time_entry_list",
 		"asana_time_entry_list_for_task",
 		"asana_time_entry_update",
+		"asana_time_period_get",
+		"asana_time_period_list",
 		"asana_url_parse",
 		"asana_user_get",
 		"asana_user_list",

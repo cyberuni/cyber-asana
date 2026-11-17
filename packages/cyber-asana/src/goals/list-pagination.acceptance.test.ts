@@ -2,7 +2,10 @@ import { describe, expect, it, vi } from 'vitest'
 import { createPaginatingScopedListMock } from '../testing/paginating-gateway.js'
 import { createGoalApi } from './api.js'
 import type { GoalGateway } from './gateway.js'
-import { defineGoalListPaginationAcceptanceSpecs } from './list-pagination.acceptance.js'
+import {
+	defineGoalListPaginationAcceptanceSpecs,
+	defineTimePeriodListPaginationAcceptanceSpecs,
+} from './list-pagination.acceptance.js'
 
 const workspaceGid = 'ws-test'
 const pages = [[{ gid: 'goal1', name: 'Q1' }], [{ gid: 'goal2', name: 'Q2' }], [{ gid: 'goal3', name: 'Q3' }]]
@@ -14,7 +17,8 @@ function createPaginatingGoalGateway(): GoalGateway {
 		createGoal: vi.fn(),
 		updateGoal: vi.fn(),
 		deleteGoal: vi.fn(),
-		listTimePeriods: vi.fn(),
+		listTimePeriods: createPaginatingScopedListMock(pages),
+		getTimePeriod: vi.fn(),
 		setGoalMetric: vi.fn(),
 		setGoalMetricCurrentValue: vi.fn(),
 		addSupportingRelationship: vi.fn(),
@@ -27,6 +31,14 @@ function createPaginatingGoalGateway(): GoalGateway {
 describe(
 	'goals/list pagination acceptance',
 	defineGoalListPaginationAcceptanceSpecs({
+		getApi: () => createGoalApi(createPaginatingGoalGateway()),
+		workspaceGid,
+	}),
+)
+
+describe(
+	'goals/time-period list pagination acceptance',
+	defineTimePeriodListPaginationAcceptanceSpecs({
 		getApi: () => createGoalApi(createPaginatingGoalGateway()),
 		workspaceGid,
 	}),

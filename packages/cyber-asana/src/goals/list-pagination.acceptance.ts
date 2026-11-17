@@ -7,6 +7,19 @@ export type GoalListPaginationAcceptanceDeps = {
 	includeFetchAll?: boolean
 }
 
+export type TimePeriodListPaginationAcceptanceDeps = {
+	getApi: () => Pick<GoalApi, 'listTimePeriods'>
+	workspaceGid: string
+	includeFetchAll?: boolean
+}
+
+export function defineTimePeriodListPaginationAcceptanceSpecs(deps: TimePeriodListPaginationAcceptanceDeps) {
+	return defineListPaginationAcceptanceSpecs({
+		list: (opts) => deps.getApi().listTimePeriods(deps.workspaceGid, opts),
+		includeFetchAll: deps.includeFetchAll,
+	})
+}
+
 export function defineGoalListPaginationAcceptanceSpecs(deps: GoalListPaginationAcceptanceDeps) {
 	return defineListPaginationAcceptanceSpecs({
 		list: (opts) => deps.getApi().listGoals(deps.workspaceGid, opts),

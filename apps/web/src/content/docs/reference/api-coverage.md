@@ -14,16 +14,19 @@ same core, so nothing is CLI-only or MCP-only. For how the MCP server compares t
 own, see [cyber-asana vs official Asana MCP](/cyber-asana/reference/mcp-comparison/).
 
 :::note
-Coverage is measured against the `asana` npm SDK v3.2.0, which is generated from the
-public REST API spec. Counts exclude duplicate SDK aliases (e.g. `createTag` vs
-`createTagForWorkspace`).
+Coverage is measured against the `asana` npm SDK v3.4.0, which is generated from the
+public REST API spec. Operations are the distinct `operationId`s in
+[`asana-rest-baseline.json`](https://github.com/cyberuni/cyber-asana/blob/main/tools/gap-analysis/data/asana-rest-baseline.json),
+so an operation counts once however many CLI commands or MCP tools reach it. `getTags` is left
+out because it duplicates `getTagsForWorkspace`.
 :::
 
 ## Coverage at a glance
 
-Asana documents **49 resource groups**. cyber-asana wraps **25** of them. A resource is
-fully covered only when every distinct REST operation in its SDK group is available; helper
-operations such as project export and TODO scanning are described separately below.
+Asana documents **52 resource groups**. cyber-asana wraps **32** of them, **18** fully, and
+leaves **20** unwrapped. A resource is fully covered only when every distinct REST operation in
+its SDK group is available; helper operations such as project export and TODO scanning are
+described separately below.
 
 | Legend | Meaning |
 | --- | --- |
@@ -35,12 +38,12 @@ operations such as project export and TODO scanning are described separately bel
 
 | Resource | Status | Ops | CLI namespace | Notes |
 | --- | --- | --- | --- | --- |
-| Tasks | 🟡 | 26 / 27 | `task` | Missing custom-ID lookup |
+| Tasks | 🟡 | 26 / 28 | `task` | Missing custom-ID lookup and the task rollup |
 | Status updates | ✅ | 4 / 4 | `status` | Complete |
 | Rules | ✅ | 1 / 1 | `rule` | Complete — the whole Rules API is one trigger method (beta) |
 | Events | ✅ | 1 / 1 | `event` | Complete; sync-token change feed, not paginated |
 | Typeahead | ✅ | 1 / 1 | `search` | Complete; one resource type per call, single capped page |
-| Tags | ✅ | 6 / 6 | `tag` | Complete, including task↔tag links |
+| Tags | ✅ | 7 / 7 | `tag` | Complete, including task↔tag links |
 | Task templates | 🟡 | 3 / 4 | `task-template` | Read plus instantiate; no template deletion |
 | Attachments | ✅ | 4 / 4 | `attachment` | List, get, upload (file or external URL), and delete |
 | Memberships | ✅ | 5 / 5 | `membership` | Complete; the unified endpoint covering project, portfolio, and goal memberships |
@@ -49,37 +52,39 @@ operations such as project export and TODO scanning are described separately bel
 | Jobs | ✅ | 1 / 1 | `job` | Complete; reads the async jobs other operations return |
 | Project templates | 🟡 | 4 / 5 | `project-template` | List, get, and instantiate; no template deletion |
 | Sections | ✅ | 7 / 7 | `section` | Complete, including section reordering, section-scoped task placement, and listing a section's tasks |
-| Portfolios | 🟡 | 10 / 13 | `portfolio` | CRUD, item listing, item add and remove, custom field add and remove (`custom-field attach-portfolio`); members are managed under `membership` (`addMembers` and `removeMembers` are not wrapped separately: `membership create` and `delete` do the same job) |
-| Projects | 🟡 | 11 / 20 | `project` | CRUD, counts, search, duplicate, follower add and remove (`project follower`), and the projects a task belongs to (`task project list`). Templates have their own row; members are managed under `membership` |
-| Goals | 🟡 | 11 / 12 | `goal` | CRUD, metrics (`goal metric set\|set-current`), supporting relationships (`goal supporting add\|remove`), and followers (`goal follower add\|remove`), paid plan |
-| Users | 🟡 | 3 / 8 | `user` | Read-only |
-| Teams | 🟡 | 3 / 7 | `team` | Read-only; also a team's projects (`team projects`) and a user's teams (`team for-user`) |
+| Portfolios | 🟡 | 10 / 13 | `portfolio` | CRUD, item listing, item add and remove, custom field add and remove (`custom-field attach-portfolio`); members are managed under `membership` (`addMembers` and `removeMembers` are not wrapped separately: `membership create` and `delete` do the same job); portfolio duplication is not wrapped |
+| Projects | 🟡 | 15 / 21 | `project` | CRUD, counts, search, duplicate, follower add and remove (`project follower`), custom field attach and detach (`custom-field attach\|detach`), the projects a task belongs to (`task project list`), and a team's projects (`team projects`). Templates have their own row; members are managed under `membership`. Not wrapped: save as template, rollup, and the workspace- and team-scoped create variants |
+| Goals | 🟡 | 9 / 12 | `goal` | CRUD, metrics (`goal metric set\|set-current`), and followers (`goal follower add\|remove`), paid plan. Supporting relationships are under Goal relationships; time periods have their own row. Not wrapped: a goal's custom field settings and parent goals |
+| Goal relationships | 🟡 | 2 / 5 | `goal supporting` | Add and remove a supporting relationship (`goal supporting add\|remove`), paid plan. Reading and updating a relationship by its own GID are not wrapped |
+| Time periods | ✅ | 2 / 2 | `goal time-period` | List and get; a goal belongs to a time period (paid plan; free-plan availability unverified) |
+| Allocations | ✅ | 5 / 5 | `allocation` | List, get, create, update, delete |
+| Users | 🟡 | 2 / 8 | `user` | Read-only: list and get (`user me` is a get of `me`) |
+| Teams | 🟡 | 3 / 7 | `team` | Read-only: list, get, and a user's teams (`team for-user`) |
+| Team memberships | 🟡 | 1 / 4 | `team members` | Only the read of one team's members, for the `team` scrum scope. See † below |
 | Workspaces | 🟡 | 2 / 6 | `workspace` | Read-only |
-| Stories | ✅ | 7 / 7 | `story`, `comment` | Full comment lifecycle on tasks, and goal comments (`story list-goal\|create-goal`, paid plan) |
+| Stories | 🟡 | 7 / 9 | `story`, `comment` | Full comment lifecycle on tasks, and goal comments (`story list-goal\|create-goal`, paid plan). The two Records variants are not wrapped |
 | Custom fields | ✅ | 8 / 8 | `custom-field` | Discovery, create, update, delete, and enum-option create, insert, and update |
 | Project briefs | ✅ | 4 / 4 | `project-brief` | Get, create, update, delete; `html_text` is checked against the `project-brief` rules first |
 | Time tracking entries | ✅ | 6 / 6 | `time-entry` | List (all, or one task's), get, create, update, delete (paid plan). Categories, timesheets, rates, and budgets are not wrapped |
 | Notifications | ✅ | 3 / 3 | `notification` | List, mark read, mark unread. Beta Asana endpoints that may change; only the caller's own inbox is readable |
 | Custom field settings | ✅ | 4 / 4 | `custom-field` | All four reads; project attach and detach are `custom-field attach\|detach`, portfolio attach and detach are `custom-field attach-portfolio\|detach-portfolio` (paid plan) |
-| User task lists | 🟡 | — | `task my-tasks` | Only the "My Tasks" read path |
-| Batch API | 🟡 | — | `task get-many` | Used internally, not exposed generically |
+| User task lists | 🟡 | 1 / 2 | `task my-tasks` | Only the "My Tasks" read path: a user's list, not a list by its own GID |
+| Batch API | 🟡 | 1 / 1 | `task get-many` | Used internally, not exposed generically |
 
 ### Not wrapped
 
-Access requests, Agents, Allocations, Audit log, Budgets, Custom types,
-Exports, Goal relationships (only add and remove supporting relationship are wrapped), Organization exports,
-Project portfolio settings, Project statuses (superseded by Status updates),
-Rates, Reactions, Roles, Team memberships†, Time periods, Time tracking
-categories, Timesheet approval statuses, Webhooks,
-Workspace memberships.
+Access requests, Agents, Audit log, Budgets, Custom types, Exports, Organization exports,
+Portfolio memberships, Project memberships, Project portfolio settings, Project statuses
+(superseded by Status updates), Rates, Reactions, Records, Roles, Tables, Time tracking
+categories, Timesheet approval statuses, Webhooks, Workspace memberships.
 
-† **Team memberships** — who belongs to a team — stay on this list apart from the read
+† **Team memberships** — who belongs to a team — are wrapped only for the read
 `team members <gid>`, which lists a team's members for the `team` scrum scope. Asana's unified
 Memberships endpoint, which `membership` wraps, takes projects, portfolios, goals, custom
 types, and custom fields as the parent; a team can be a *member* there, but team rosters
 themselves are a separate resource.
 
-For anything on this list, call the Asana API directly — cyber-asana does not proxy
+For anything on this list, and for the operations the tables above mark as not wrapped, call the Asana API directly — cyber-asana does not proxy
 arbitrary endpoints.
 
 ## Operation-level mapping
@@ -104,7 +109,7 @@ arbitrary endpoints.
 | List / add / remove dependencies | `task dependency list\|add\|remove` | `asana_task_dependency_*` |
 | List / add / remove dependents | `task dependent list\|add\|remove` | `asana_task_dependent_*` |
 
-Not covered: `POST /tasks/{gid}/duplicate`, `GET /tasks/custom_id/{id}`.
+Not covered: `GET /tasks/custom_id/{id}` and the task rollup.
 
 ### Task templates
 
@@ -130,10 +135,13 @@ managing them.
 | Task counts | `project counts <gid>` | `asana_project_counts` |
 | Search projects | `project search [text]` | `asana_project_search` |
 | Create / update / delete | `project create\|update\|delete` | `asana_project_create` / `_update` / `_delete` |
+| Duplicate a project (async job) | `project duplicate <gid>` | `asana_project_duplicate` |
+| Add / remove followers | `project follower add\|remove` | `asana_project_follower_add` / `_remove` |
+| List a team's projects | `team projects <gid>` | `asana_team_projects` |
 
-Not covered: members, followers, attaching or detaching a custom field,
-save-as-template, and the team-scoped create/list variants. Reading a project's attached
-custom fields is covered — see `custom-field project` below.
+Not covered: members (use `membership`), save-as-template, rollup, and the workspace- and
+team-scoped create variants. Attaching, detaching, and reading a project's custom fields are
+covered — see `custom-field` below.
 
 ### Project templates and jobs
 
@@ -153,17 +161,20 @@ error rather than a success with no project.
 Not covered: `DELETE /project_templates/{gid}` — managing templates is a different act from
 using one.
 
-### Sections, tags, goals, portfolios, status updates, comments, memberships, out-of-office entries
+### Sections, tags, goals, portfolios, status updates, comments, memberships, and other resources
 
 | Resource | CLI | MCP tools |
 | --- | --- | --- |
 | Sections | `section list\|get\|create\|update\|move\|delete`, `section tasks`, `section task add` | `asana_section_*` |
 | Tags | `tag list\|get\|create\|update\|delete`, `tag task list\|add\|remove`, `tag tasks` | `asana_tag_*` |
 | Goals | `goal list\|get\|create\|update\|delete`, `goal metric set\|set-current`, `goal supporting add\|remove`, `goal follower add\|remove` | `asana_goal_*` |
+| Time periods | `goal time-period list\|get` | `asana_time_period_*` |
+| Allocations | `allocation list\|get\|create\|update\|delete` | `asana_allocation_*` |
 | Portfolios | `portfolio list\|items\|get\|create\|update\|delete`, `portfolio item add\|remove` | `asana_portfolio_*` |
 | Status updates | `status list\|get\|create\|delete` | `asana_status_*` |
 | Stories / comments | `story list\|get\|create\|update\|delete`, same under `comment`; `story list-goal\|create-goal` | `asana_story_*`, `asana_comment_*`, `asana_story_goal_*` |
 | Memberships | `membership list\|get\|create\|update\|delete` | `asana_membership_*` |
+| Team members | `team members <gid>` | `asana_team_members` |
 | Notifications (beta) | `notification list\|mark-read\|mark-unread` | `asana_notification_*` |
 | Project briefs | `project-brief get\|create\|update\|delete` | `asana_project_brief_*` |
 | Time tracking entries | `time-entry list\|for-task\|get\|create\|update\|delete` | `asana_time_entry_*` |
@@ -202,7 +213,7 @@ fresh token and `sync_reset: true` instead of events — Asana's documented "sta
 handshake, surfaced as a normal result rather than a `412`. See
 [Events](/cyber-asana/cli/events/).
 
-### Read-only resources
+### Users, teams, workspaces, attachments, and custom fields
 
 | Resource | CLI | MCP tools |
 | --- | --- | --- |
@@ -215,8 +226,8 @@ handshake, surfaced as a normal result rather than a `412`. See
 
 `custom-field list` and `custom-field get` make discoverable the GIDs that `task create` /
 `task update` require in `--custom-field` and `--custom-fields-json` — `get` returns the
-field's `enum_options` and their GIDs. `create` and `enum-option` author a field and its
-options; updating a field's other properties and deleting a field are not wrapped.
+field's `enum_options` and their GIDs. `create`, `update`, `delete`, and `enum-option` author a field and its
+options.
 
 `custom-field project <gid>` is the narrower half of the same question: the fields
 actually attached to that project, with their enum options, which is what Asana will
@@ -255,7 +266,7 @@ These have no REST equivalent — they exist only in cyber-asana:
 
 ## Requesting coverage
 
-If you need a resource from the "not wrapped" list, open an issue on
+If you need a resource or operation that is not wrapped, open an issue on
 [GitHub](https://github.com/cyberuni/cyber-asana/issues) describing the workflow — the
 wrapper is intentionally curated, so new surfaces are added when there is a concrete use
 case behind them.
