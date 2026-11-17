@@ -196,6 +196,27 @@ describe('tasks/cli', () => {
 		})
 	})
 
+	it('task create --custom-type sends custom_type', async () => {
+		createTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
+		const program = new Command().addCommand(taskCommand())
+
+		await program.parseAsync(
+			['node', 'test', 'task', 'create', 'Task', '--workspace-gid', 'ws1', '--custom-type', 'ct1'],
+			{ from: 'node' },
+		)
+
+		expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { custom_type: 'ct1' })
+	})
+
+	it('task update --custom-type sends custom_type', async () => {
+		updateTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
+		const program = new Command().addCommand(taskCommand())
+
+		await program.parseAsync(['node', 'test', 'task', 'update', '123', '--custom-type', 'ct1'], { from: 'node' })
+
+		expect(updateTaskMock).toHaveBeenCalledWith('123', { custom_type: 'ct1' })
+	})
+
 	it('task update --no-completed sends completed false', async () => {
 		updateTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
 		const program = new Command().addCommand(taskCommand())

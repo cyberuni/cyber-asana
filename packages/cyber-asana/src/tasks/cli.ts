@@ -406,6 +406,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 		.option('--start-on <date>', 'Start date (YYYY-MM-DD)')
 		.option('--start-at <datetime>', 'Start date and time (ISO 8601 UTC); Asana requires a due time alongside it')
 		.option('--resource-subtype <subtype>', 'Task resource subtype (e.g. default_task, milestone)')
+		.option('--custom-type <gid>', 'Custom type GID (e.g. an Epic or Initiative type)')
 		.option('--follower <gid[,gid...]>', 'Follower user GIDs')
 		.option('--tag <gid[,gid...]>', 'Tag GIDs to apply')
 		.option('--custom-fields-json <json>', 'Custom field values as a JSON object')
@@ -431,6 +432,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 					startOn?: string
 					startAt?: string
 					resourceSubtype?: string
+					customType?: string
 					follower?: string
 					tag?: string
 					customFieldsJson?: string
@@ -457,6 +459,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 						startAt: opts.startAt,
 						parent: normalizedGid(opts, 'parent'),
 						resourceSubtype: opts.resourceSubtype,
+						customType: opts.customType,
 						customFieldsJson: opts.customFieldsJson,
 						customFieldEntries: opts.customField,
 					}),
@@ -495,6 +498,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 				.option('--clear-assignee', 'Unassign the task')
 				.option('--clear-parent', 'Remove the parent task relationship')
 				.option('--resource-subtype <subtype>', 'Task resource subtype (e.g. default_task, milestone)')
+				.option('--custom-type <gid>', 'Custom type GID (e.g. an Epic or Initiative type)')
 				.option('--custom-fields-json <json>', 'Custom field values as a JSON object')
 				.option('--custom-field <gid=value>', 'Custom field value override', collectOption, []),
 			'parent',
@@ -520,6 +524,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 				parentGid?: string
 				clearParent?: boolean
 				resourceSubtype?: string
+				customType?: string
 				customFieldsJson?: string
 				customField: string[]
 				assignee?: string
@@ -547,6 +552,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 					parent: normalizedGid(opts, 'parent'),
 					clearParent: opts.clearParent,
 					resourceSubtype: opts.resourceSubtype,
+					customType: opts.customType,
 					customFieldsJson: opts.customFieldsJson,
 					customFieldEntries: opts.customField,
 				}),

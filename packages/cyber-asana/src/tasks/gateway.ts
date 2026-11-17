@@ -33,6 +33,8 @@ export type CreateTaskFields = {
 	start_at?: string
 	parent?: string
 	resource_subtype?: string
+	/** Custom type GID. */
+	custom_type?: string
 	custom_fields?: TaskCustomFields
 	followers?: string[]
 	tags?: string[]
@@ -51,6 +53,8 @@ export type UpdateTaskFields = {
 	parent?: string
 	clear_parent?: boolean
 	resource_subtype?: string
+	/** Custom type GID. */
+	custom_type?: string
 	custom_fields?: TaskCustomFields
 }
 

@@ -162,4 +162,9 @@ describe('tasks/write-options', () => {
 	it('placeInSection leaves the fields alone without a placement', () => {
 		expect(placeInSection({ projects: ['p1'] }, undefined)).toEqual({ projects: ['p1'] })
 	})
+
+	it('buildTaskCreateFields and buildTaskUpdateFields send custom_type', () => {
+		expect(buildTaskCreateFields({ customType: 'ct1' })).toEqual({ custom_type: 'ct1' })
+		expect(buildTaskUpdateFields({ customType: 'ct1' })).toEqual({ custom_type: 'ct1' })
+	})
 })

@@ -231,6 +231,19 @@ describe('tasks/mcp', () => {
 		})
 	})
 
+	it('asana_task_create and asana_task_update forward custom_type', async () => {
+		createTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
+		updateTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
+		const server = createServer()
+		registerTaskTools(server as any)
+
+		await server.handlers.get('asana_task_create')?.({ workspace_gid: 'ws1', name: 'Task', custom_type: 'ct1' })
+		await server.handlers.get('asana_task_update')?.({ task_gid: '123', custom_type: 'ct1' })
+
+		expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { custom_type: 'ct1' })
+		expect(updateTaskMock).toHaveBeenCalledWith('123', { custom_type: 'ct1' })
+	})
+
 	it('asana_task_update maps clear due flag to due_on null', async () => {
 		updateTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
 		const server = createServer()

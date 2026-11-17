@@ -439,6 +439,7 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 				.describe('Start date and time (ISO 8601 UTC); Asana requires a due time alongside it'),
 			parent_gid: z.string().optional().describe('Parent task GID'),
 			resource_subtype: z.string().optional().describe('Task resource subtype'),
+			custom_type: z.string().optional().describe('Custom type GID (e.g. an Epic or Initiative type)'),
 			custom_fields: z.record(z.string(), z.unknown()).optional().describe('Custom field values keyed by GID'),
 			default_section: z
 				.boolean()
@@ -466,6 +467,7 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 			start_at,
 			parent_gid,
 			resource_subtype,
+			custom_type,
 			custom_fields,
 			default_section,
 		}) => {
@@ -486,6 +488,7 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 					startAt: start_at,
 					parent: parent_gid,
 					resourceSubtype: resource_subtype,
+					customType: custom_type,
 					customFields: custom_fields,
 				}),
 				conventions,
@@ -544,6 +547,7 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 			parent_gid: z.string().optional().describe('Parent task GID'),
 			clear_parent: z.boolean().optional().describe('Remove the parent task relationship'),
 			resource_subtype: z.string().optional().describe('Task resource subtype'),
+			custom_type: z.string().optional().describe('Custom type GID (e.g. an Epic or Initiative type)'),
 			custom_fields: z.record(z.string(), z.unknown()).optional().describe('Custom field values keyed by GID'),
 		},
 		async ({
@@ -566,6 +570,7 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 			parent_gid,
 			clear_parent,
 			resource_subtype,
+			custom_type,
 			custom_fields,
 		}) => ({
 			content: [
@@ -592,6 +597,7 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 								parent: parent_gid,
 								clearParent: clear_parent,
 								resourceSubtype: resource_subtype,
+								customType: custom_type,
 								customFields: custom_fields,
 							}),
 						),
