@@ -38,6 +38,10 @@ export async function listTimePeriods(workspaceGid: string, opts?: PaginationOpt
 	return defaultGoalApi().listTimePeriods(workspaceGid, opts)
 }
 
+export async function getTimePeriod(timePeriodGid: string, opts?: ReadOptions) {
+	return defaultGoalApi().getTimePeriod(timePeriodGid, opts)
+}
+
 export async function setGoalMetric(goalGid: string, metric: GoalMetricInput) {
 	return defaultGoalApi().setGoalMetric(goalGid, metric)
 }

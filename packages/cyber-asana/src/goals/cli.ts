@@ -18,6 +18,7 @@ import {
 	createGoal,
 	deleteGoal,
 	getGoal,
+	getTimePeriod,
 	listGoals,
 	listTimePeriods,
 	removeGoalFollowers,
@@ -58,6 +59,7 @@ function resolveGoalApi(api?: GoalApi | (() => GoalApi)): GoalApi {
 			updateGoal,
 			deleteGoal,
 			listTimePeriods,
+			getTimePeriod,
 			setGoalMetric,
 			setGoalMetricCurrentValue,
 			addSupportingRelationship,
@@ -67,6 +69,15 @@ function resolveGoalApi(api?: GoalApi | (() => GoalApi)): GoalApi {
 		}
 	)
 }
+
+type TimePeriod = { gid: string; display_name?: string; start_on?: string; end_on?: string; period?: string }
+
+const TIME_PERIOD_LIST_FIELDS = 'gid,display_name,start_on,end_on'
+
+const TIME_PERIOD_LIST_NEXT_STEPS = [
+	'cyber-asana goal time-period get <gid> — view a time period',
+	'cyber-asana goal create <name> --workspace-gid <gid> — create a goal',
+]
 
 // Minimal default schema for goal lists — principle 2.
 const GOAL_LIST_FIELDS = 'gid,name,due_on'
@@ -279,6 +290,64 @@ export function goalCommand(api?: GoalApi | (() => GoalApi)) {
 				console.log(`Removed supporting resource ${supportingGid} from goal ${goalGid}`),
 			)
 		})
+
+	const timePeriodCmd = cmd
+		.command('time-period')
+		.description('Find the time period GID a goal belongs to (paid plan; free-plan availability unverified)')
+
+	addPaginationOptions(
+		addGidOption(
+			timePeriodCmd.command('list').description('List time periods in a workspace'),
+			'workspace',
+			'Workspace GID',
+		),
+	).action(
+		async (opts: {
+			workspace?: string
+			workspaceGid?: string
+			limit?: number
+			offset?: string
+			optFields?: string
+		}) => {
+			const pagination = paginationOptionsFromCli(opts)
+			pagination.optFields ??= TIME_PERIOD_LIST_FIELDS
+			const data = await resolveGoalApi(api).listTimePeriods(
+				requiredGid(opts, 'workspace', 'Workspace GID'),
+				pagination,
+			)
+			output(data, () => {
+				const items = itemsForOutput(data)
+				printTable(
+					items,
+					[
+						{ label: 'Name', get: (p: TimePeriod) => p.display_name ?? '' },
+						{ label: 'ID', get: (p: TimePeriod) => p.gid },
+						{ label: 'Start', get: (p: TimePeriod) => p.start_on ?? '' },
+						{ label: 'End', get: (p: TimePeriod) => p.end_on ?? '' },
+					],
+					{ entity: 'time periods' },
+				)
+				printCountSummary(items.length, 'time period(s)')
+				printNextPageHint(data)
+				printNextSteps(TIME_PERIOD_LIST_NEXT_STEPS)
+			})
+		},
+	)
+
+	addReadOptions(timePeriodCmd.command('get <gid>').description('Get a time period by GID')).action(
+		async (gid: string, opts: { optFields?: string }) => {
+			const data = await resolveGoalApi(api).getTimePeriod(gid, readOptionsFromCli(opts))
+			output(data, () =>
+				printFields({
+					Name: data.display_name ?? null,
+					ID: data.gid,
+					Period: data.period ?? null,
+					Start: data.start_on ?? null,
+					End: data.end_on ?? null,
+				}),
+			)
+		},
+	)
 
 	const followerCmd = cmd.command('follower').description('Manage the followers of a goal (paid plan)')
 

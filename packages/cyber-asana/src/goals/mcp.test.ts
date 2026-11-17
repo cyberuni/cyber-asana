@@ -72,6 +72,7 @@ describe('goals/mcp', () => {
 			updateGoal: vi.fn(),
 			deleteGoal: vi.fn(),
 			listTimePeriods: vi.fn(),
+			getTimePeriod: vi.fn(),
 			setGoalMetric: vi.fn(),
 			setGoalMetricCurrentValue: vi.fn(),
 			addSupportingRelationship: vi.fn(),

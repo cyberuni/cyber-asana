@@ -32,6 +32,9 @@ export function createGoalApi(gateway: GoalGateway) {
 		listTimePeriods(workspaceGid: string, opts?: PaginationOptions) {
 			return gateway.listTimePeriods(workspaceGid, opts)
 		},
+		getTimePeriod(timePeriodGid: string, opts?: ReadOptions) {
+			return gateway.getTimePeriod(timePeriodGid, opts)
+		},
 		setGoalMetric(goalGid: string, metric: GoalMetricInput) {
 			return gateway.setGoalMetric(goalGid, metric)
 		},

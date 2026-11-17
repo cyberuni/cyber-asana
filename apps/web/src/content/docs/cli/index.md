@@ -30,7 +30,7 @@ help text. Every resource group's `--help` ends with worked examples.
 | [Sections](/cyber-asana/cli/sections/) | `list`, `get`, `create`, `update`, `delete` |
 | [Comments](/cyber-asana/cli/comments/) | `list`, `get`, `create`, `update`, `delete` (as `story` or `comment`) |
 | [Tags](/cyber-asana/cli/tags/) | `list`, `get`, `create`, `update`, `delete`, `tasks`, `task list/add/remove` |
-| [Goals](/cyber-asana/cli/goals/) | `list`, `get`, `create`, `update`, `delete` |
+| [Goals](/cyber-asana/cli/goals/) | `list`, `get`, `create`, `update`, `delete`, `time-period list`, `time-period get` |
 | [Portfolios](/cyber-asana/cli/portfolios/) | `list`, `items`, `get`, `create`, `update`, `delete` |
 | [Status updates](/cyber-asana/cli/status-updates/) | `list`, `get`, `create`, `delete` |
 | [Attachments](/cyber-asana/cli/attachments/) | `list`, `get`, `create`, `delete` |

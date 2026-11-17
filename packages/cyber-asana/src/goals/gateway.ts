@@ -71,6 +71,7 @@ export type GoalGateway = {
 	updateGoal(goalGid: string, fields: UpdateGoalFields): Promise<Asana.Goal>
 	deleteGoal(goalGid: string): Promise<void>
 	listTimePeriods(workspaceGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.TimePeriod>>
+	getTimePeriod(timePeriodGid: string, opts?: ReadOptions): Promise<Asana.TimePeriod>
 	setGoalMetric(goalGid: string, metric: GoalMetricInput): Promise<GoalMetric>
 	setGoalMetricCurrentValue(goalGid: string, currentNumberValue: number): Promise<GoalMetric>
 	addSupportingRelationship(
@@ -111,6 +112,10 @@ export function createAsanaGoalGateway(client: Asana.ApiClient): GoalGateway {
 		async listTimePeriods(workspaceGid, opts) {
 			const res = await timePeriodsApi.getTimePeriods(workspaceGid, toAsanaPaginationOptions(opts))
 			return await collectListResponse(res, opts)
+		},
+		async getTimePeriod(timePeriodGid, opts) {
+			const res = await timePeriodsApi.getTimePeriod(timePeriodGid, toAsanaReadOptions(opts))
+			return res.data
 		},
 		async setGoalMetric(goalGid, metric) {
 			const res = await goalsApi.createGoalMetric(
