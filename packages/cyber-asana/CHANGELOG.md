@@ -1,5 +1,29 @@
 # cyber-asana
 
+## 0.26.0
+
+### Minor Changes
+
+- f9eb9d3: Add `custom-field delete <gid>` and the `asana_custom_field_delete` MCP tool. Deleting a field that is already gone succeeds and reports `already_absent`.
+- e9d77a1: Add `custom-field update <gid>` and the `asana_custom_field_update` MCP tool to edit a custom field's name, description, number precision and format, currency code, label, or enabled state. A field's type cannot be changed.
+- 4928798: Add `goal follower add|remove <goal-gid> <user-gid...>` and the `asana_goal_follower_add` / `asana_goal_follower_remove` MCP tools (paid plan).
+- 045a0a8: Add `goal metric set` and `goal metric set-current` and the `asana_goal_metric_set` / `asana_goal_metric_set_current_value` MCP tools (paid plan).
+- 11b3aae: Add `story list-goal` and `story create-goal` and the `asana_story_goal_list` / `asana_story_goal_create` MCP tools to read and post goal comments (paid plan).
+- 3aa2689: Add `goal supporting add|remove` and the `asana_goal_supporting_add` / `asana_goal_supporting_remove` MCP tools to link goals, projects, and portfolios that support a goal (paid plan).
+- cb0e093: Add `goal time-period list|get` and the `asana_time_period_list` / `asana_time_period_get` MCP tools, so a goal's time period GID can be found before creating a goal (paid plan; request shapes unverified against a live workspace).
+- 5a8d137: Add `notification list|mark-read|mark-unread` and the `asana_notification_*` MCP tools for the Asana inbox. These wrap Asana's beta endpoints, which may change; the help says so.
+- b0b732e: Add `custom-field attach-portfolio|detach-portfolio <portfolio-gid> <field-gid>` and the `asana_custom_field_attach_portfolio` / `asana_custom_field_detach_portfolio` MCP tools (paid plan). Both are idempotent.
+- 75d9aef: Add `project-brief get | create | update | delete` and the `asana_project_brief_*` MCP tools. Rich text is checked against the `project-brief` HTML rules before it is sent.
+- a1c72c8: Add `project follower add|remove <project-gid> <user-gid...>` and the `asana_project_follower_add` / `asana_project_follower_remove` MCP tools. Project members stay under `membership create` / `delete`.
+- c666dcd: Add `task duplicate <task-gid> --name <name>` and the `asana_task_duplicate` MCP tool. Asana builds the copy asynchronously, so both return a job; read it with `job get` / `asana_job_get`.
+- 0c3ce6d: Add `task project list <task-gid>` and the `asana_task_project_list` MCP tool, which list the projects a task belongs to (paginated).
+- 094383b: Add `team for-user <user-gid> --workspace-gid <gid>` and the `asana_team_list_for_user` MCP tool to list the teams a user belongs to.
+- fc864e8: Add `time-entry list|for-task|get|create|update|delete` and the `asana_time_entry_*` MCP tools to log and review time on tasks (paid plan). Categories, timesheets, rates, and budgets are not wrapped.
+
+### Patch Changes
+
+- e992033: Fix a polynomial regular expression in the HTML check that could run slowly on long input starting with a tag name.
+
 ## 0.25.0
 
 ### Minor Changes
