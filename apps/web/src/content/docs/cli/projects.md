@@ -89,6 +89,16 @@ project GID. `--no-wait` returns the job instead, which `cyber-asana job get <gi
 error. `--include` names the elements to copy, as Asana lists them. The MCP tool is
 `asana_project_duplicate`.
 
+## Followers
+
+```sh
+cyber-asana project follower add <project-gid> <user-gid> [<user-gid>...]
+cyber-asana project follower remove <project-gid> <user-gid> [<user-gid>...]
+```
+
+Followers get notifications about the project. Project members are not managed here: add or
+remove them with [`membership create` and `membership delete`](/cyber-asana/cli/memberships/).
+
 ## Export
 
 ```sh

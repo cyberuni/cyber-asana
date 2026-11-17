@@ -87,6 +87,8 @@ export type ProjectGateway = {
 	deleteProject(projectGid: string): Promise<void>
 	/** Asana answers with a job that builds the copy; poll it for the new project. */
 	duplicateProject(projectGid: string, fields: DuplicateProjectFields): Promise<Job>
+	addFollowersToProject(projectGid: string, followerGids: string[]): Promise<Asana.Project>
+	removeFollowersFromProject(projectGid: string, followerGids: string[]): Promise<Asana.Project>
 	searchProjects(workspaceGid: string, opts?: SearchProjectsOptions): Promise<Asana.Project[]>
 	listSections(projectGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.Section>>
 	listTasksForSection(sectionGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.Task>>
@@ -146,6 +148,14 @@ export function createAsanaProjectGateway(client: Asana.ApiClient): ProjectGatew
 					},
 				},
 			})
+			return res.data
+		},
+		async addFollowersToProject(projectGid, followerGids) {
+			const res = await projectsApi.addFollowersForProject({ data: { followers: followerGids } }, projectGid, {})
+			return res.data
+		},
+		async removeFollowersFromProject(projectGid, followerGids) {
+			const res = await projectsApi.removeFollowersForProject({ data: { followers: followerGids } }, projectGid, {})
 			return res.data
 		},
 		async searchProjects(workspaceGid, opts) {

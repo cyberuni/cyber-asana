@@ -95,6 +95,12 @@ export function createProjectApi(gateway: ProjectGateway, deps: ProjectDeps = {}
 			const job = await gateway.duplicateProject(projectGid, fields)
 			return assertJobSucceeded(await waitForJob(job, (jobGid) => jobs.getJob(jobGid), opts))
 		},
+		addFollowersToProject(projectGid: string, followerGids: string[]) {
+			return gateway.addFollowersToProject(projectGid, followerGids)
+		},
+		removeFollowersFromProject(projectGid: string, followerGids: string[]) {
+			return gateway.removeFollowersFromProject(projectGid, followerGids)
+		},
 		searchProjects(workspaceGid: string, opts?: SearchProjectsOptions) {
 			return gateway.searchProjects(workspaceGid, opts)
 		},

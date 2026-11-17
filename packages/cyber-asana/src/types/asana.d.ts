@@ -480,6 +480,68 @@ declare module 'asana' {
 		deleteStatus(status_update_gid: string): Promise<EmptyResponse>
 	}
 
+	/** A project's brief: the charter or sprint goal, kept as Asana rich text. */
+	interface ProjectBrief {
+		gid: string
+		resource_type?: 'project_brief' | undefined
+		title?: string | undefined
+		text?: string | undefined
+		html_text?: string | undefined
+		permalink_url?: string | undefined
+		project?: AsanaResource | undefined
+	}
+
+	interface ProjectBriefRequest {
+		title?: string | undefined
+		text?: string | undefined
+		html_text?: string | undefined
+	}
+
+	interface ProjectBriefsApi {
+		getProjectBrief(project_brief_gid: string, opts?: OptionalFields): Promise<AsanaResponse<ProjectBrief>>
+		createProjectBrief(
+			body: { data: ProjectBriefRequest },
+			project_gid: string,
+			opts?: OptionalFields,
+		): Promise<AsanaResponse<ProjectBrief>>
+		updateProjectBrief(
+			body: { data: ProjectBriefRequest },
+			project_brief_gid: string,
+			opts?: OptionalFields,
+		): Promise<AsanaResponse<ProjectBrief>>
+		deleteProjectBrief(project_brief_gid: string): Promise<EmptyResponse>
+	}
+
+	/** An Inbox notification (beta endpoint). */
+	interface Notification {
+		gid: string
+		resource_type?: 'notification' | undefined
+		priority_classification?: string | undefined
+		story_resource_subtype?: string | undefined
+		work_objects?: AsanaResource[] | undefined
+		created_by?: AsanaResource | null | undefined
+		created_at?: string | undefined
+		is_read?: boolean | undefined
+	}
+
+	interface NotificationsApi {
+		getNotificationsForUser(
+			user_gid: string,
+			workspace: string,
+			opts?: PaginationOptions,
+		): Promise<AsanaCollection<Notification>>
+		markNotificationsReadForUser(
+			body: { data: { workspace: string; notification_gids: string[] } },
+			user_gid: string,
+			opts?: OptionalFields,
+		): Promise<AsanaResponse<{ failed_gids: string[] }>>
+		markNotificationsUnreadForUser(
+			body: { data: { workspace: string; notification_gids: string[] } },
+			user_gid: string,
+			opts?: OptionalFields,
+		): Promise<AsanaResponse<{ failed_gids: string[] }>>
+	}
+
 	interface BatchAction {
 		method: 'get' | 'post' | 'put' | 'delete' | 'patch' | 'head'
 		relative_path: string

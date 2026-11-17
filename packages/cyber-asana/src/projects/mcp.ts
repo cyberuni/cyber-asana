@@ -11,6 +11,7 @@ import {
 import { newProjectOf } from '../project-templates/api.js'
 import { DEFAULT_DUPLICATE_TIMEOUT_SECONDS, type ProjectApi, renderProjectMarkdown } from './api.js'
 import {
+	addFollowersToProject,
 	createProject,
 	deleteProject,
 	duplicateProject,
@@ -19,6 +20,7 @@ import {
 	getProject,
 	getProjectTaskCounts,
 	listProjects,
+	removeFollowersFromProject,
 	searchProjects,
 	updateProject,
 } from './default.js'
@@ -34,6 +36,8 @@ function resolveProjectApi(api?: ProjectApi | (() => ProjectApi)): ProjectApi {
 			createProject,
 			updateProject,
 			deleteProject,
+			addFollowersToProject,
+			removeFollowersFromProject,
 			searchProjects,
 			exportProject,
 			duplicateProject,
@@ -361,6 +365,36 @@ export function registerProjectTools(server: McpServer, api?: ProjectApi | (() =
 			const data = await resolveProjectApi(api).exportProject(project_gid)
 			const text = format === 'json' ? JSON.stringify(data) : renderProjectMarkdown(data)
 			return { content: [{ type: 'text', text }] }
+		},
+	)
+
+	server.tool(
+		'asana_project_follower_add',
+		'Add followers to an Asana project. Members are managed with asana_membership_create',
+		{
+			project_gid: z.string().describe('Project GID'),
+			follower_gids: z.array(z.string()).describe('GIDs of users to add as followers'),
+		},
+		async ({ project_gid, follower_gids }) => {
+			await resolveProjectApi(api).addFollowersToProject(project_gid, follower_gids)
+			return {
+				content: [{ type: 'text', text: `Added ${follower_gids.length} follower(s) to project ${project_gid}` }],
+			}
+		},
+	)
+
+	server.tool(
+		'asana_project_follower_remove',
+		'Remove followers from an Asana project',
+		{
+			project_gid: z.string().describe('Project GID'),
+			follower_gids: z.array(z.string()).describe('GIDs of users to remove as followers'),
+		},
+		async ({ project_gid, follower_gids }) => {
+			await resolveProjectApi(api).removeFollowersFromProject(project_gid, follower_gids)
+			return {
+				content: [{ type: 'text', text: `Removed ${follower_gids.length} follower(s) from project ${project_gid}` }],
+			}
 		},
 	)
 

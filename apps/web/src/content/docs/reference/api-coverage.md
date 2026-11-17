@@ -35,7 +35,7 @@ operations such as project export and TODO scanning are described separately bel
 
 | Resource | Status | Ops | CLI namespace | Notes |
 | --- | --- | --- | --- | --- |
-| Tasks | 🟡 | 25 / 27 | `task` | Missing duplicate and custom-ID lookup |
+| Tasks | 🟡 | 26 / 27 | `task` | Missing custom-ID lookup |
 | Status updates | ✅ | 4 / 4 | `status` | Complete |
 | Rules | ✅ | 1 / 1 | `rule` | Complete — the whole Rules API is one trigger method (beta) |
 | Events | ✅ | 1 / 1 | `event` | Complete; sync-token change feed, not paginated |
@@ -49,14 +49,16 @@ operations such as project export and TODO scanning are described separately bel
 | Jobs | ✅ | 1 / 1 | `job` | Complete; reads the async jobs other operations return |
 | Project templates | 🟡 | 4 / 5 | `project-template` | List, get, and instantiate; no template deletion |
 | Sections | ✅ | 7 / 7 | `section` | Complete, including section reordering, section-scoped task placement, and listing a section's tasks |
-| Portfolios | 🟡 | 8 / 13 | `portfolio` | CRUD, item listing, item add and remove; members are managed under `membership` |
-| Projects | 🟡 | 8 / 20 | `project` | CRUD, counts, search, duplicate. Templates have their own row; members are managed under `membership` |
+| Portfolios | 🟡 | 8 / 13 | `portfolio` | CRUD, item listing, item add and remove; members are managed under `membership` (`addMembers` and `removeMembers` are not wrapped separately: `membership create` and `delete` do the same job) |
+| Projects | 🟡 | 11 / 20 | `project` | CRUD, counts, search, duplicate, follower add and remove (`project follower`), and the projects a task belongs to (`task project list`). Templates have their own row; members are managed under `membership` |
 | Goals | 🟡 | 5 / 12 | `goal` | CRUD only; no metrics or followers |
 | Users | 🟡 | 3 / 8 | `user` | Read-only |
 | Teams | 🟡 | 2 / 7 | `team` | Read-only; also a team's projects, which `team projects` lists |
 | Workspaces | 🟡 | 2 / 6 | `workspace` | Read-only |
 | Stories | 🟡 | 5 / 7 | `story`, `comment` | Full comment lifecycle on tasks; no goal stories |
 | Custom fields | ✅ | 8 / 8 | `custom-field` | Discovery, create, update, delete, and enum-option create, insert, and update |
+| Project briefs | ✅ | 4 / 4 | `project-brief` | Get, create, update, delete; `html_text` is checked against the `project-brief` rules first |
+| Notifications | ✅ | 3 / 3 | `notification` | List, mark read, mark unread. Beta Asana endpoints that may change; only the caller's own inbox is readable |
 | Custom field settings | ✅ | 4 / 4 | `custom-field` | All four reads; project attach and detach are `custom-field attach\|detach` |
 | User task lists | 🟡 | — | `task my-tasks` | Only the "My Tasks" read path |
 | Batch API | 🟡 | — | `task get-many` | Used internally, not exposed generically |
@@ -64,7 +66,7 @@ operations such as project export and TODO scanning are described separately bel
 ### Not wrapped
 
 Access requests, Agents, Allocations, Audit log, Budgets, Custom types,
-Exports, Goal relationships, Organization exports, Project briefs,
+Exports, Goal relationships, Organization exports,
 Project portfolio settings, Project statuses (superseded by Status updates),
 Rates, Reactions, Roles, Team memberships†, Time periods, Time tracking
 categories, Time tracking entries, Timesheet approval statuses, Webhooks,
@@ -93,9 +95,10 @@ arbitrary endpoints.
 | Create a task | `task create <name>` | `asana_task_create` |
 | Update a task (incl. reparent) | `task update <gid>` | `asana_task_update` |
 | Delete a task | `task delete <gid>` | `asana_task_delete` |
+| Duplicate a task (async job) | `task duplicate <gid> --name` | `asana_task_duplicate` |
 | List subtasks | `task subtask list <gid>` | `asana_task_subtask_list` |
 | Create a subtask | `task subtask create <gid> <name>` | `asana_task_subtask_create` |
-| Add / remove project | `task project add\|remove` | `asana_task_project_add` / `_remove` |
+| List / add / remove project | `task project list\|add\|remove` | `asana_task_project_list`, `asana_task_project_add` / `_remove` |
 | Add / remove followers | `task follower add\|remove` | `asana_task_follower_add` / `_remove` |
 | List / add / remove dependencies | `task dependency list\|add\|remove` | `asana_task_dependency_*` |
 | List / add / remove dependents | `task dependent list\|add\|remove` | `asana_task_dependent_*` |
@@ -160,6 +163,8 @@ using one.
 | Status updates | `status list\|get\|create\|delete` | `asana_status_*` |
 | Stories / comments | `story list\|get\|create\|update\|delete`, same under `comment` | `asana_story_*`, `asana_comment_*` |
 | Memberships | `membership list\|get\|create\|update\|delete` | `asana_membership_*` |
+| Notifications (beta) | `notification list\|mark-read\|mark-unread` | `asana_notification_*` |
+| Project briefs | `project-brief get\|create\|update\|delete` | `asana_project_brief_*` |
 | Ooo entries | `ooo list\|get\|create\|update\|delete` | `asana_ooo_*` |
 | AI Studio usage | `ai-studio runs\|seats` | `asana_ai_studio_*` |
 

@@ -142,6 +142,8 @@ describe('projects/mcp', () => {
 			searchProjects: vi.fn(),
 			exportProject: vi.fn(),
 			duplicateProject: vi.fn(),
+			addFollowersToProject: vi.fn(),
+			removeFollowersFromProject: vi.fn(),
 			duplicateProjectAndWait: vi.fn(),
 		})
 
@@ -166,6 +168,8 @@ describe('projects/mcp', () => {
 			searchProjects: vi.fn(),
 			exportProject: vi.fn(),
 			duplicateProject: vi.fn(),
+			addFollowersToProject: vi.fn(),
+			removeFollowersFromProject: vi.fn(),
 			duplicateProjectAndWait: vi.fn(),
 		})
 
@@ -188,6 +192,8 @@ describe('projects/mcp', () => {
 			searchProjects: vi.fn(),
 			exportProject: vi.fn(),
 			duplicateProject: vi.fn(),
+			addFollowersToProject: vi.fn(),
+			removeFollowersFromProject: vi.fn(),
 			duplicateProjectAndWait: vi.fn(),
 		})
 
@@ -209,6 +215,8 @@ describe('projects/mcp', () => {
 			searchProjects: vi.fn(),
 			exportProject: vi.fn(),
 			duplicateProject: vi.fn(),
+			addFollowersToProject: vi.fn(),
+			removeFollowersFromProject: vi.fn(),
 			duplicateProjectAndWait: vi.fn(),
 		})
 

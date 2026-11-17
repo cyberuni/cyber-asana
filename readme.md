@@ -476,8 +476,8 @@ Tools are named `asana_<resource>_<action>` (e.g. `asana_task_create`).
 | Resource | Tools |
 | --- | --- |
 | `workspace` | `asana_workspace_list`, `asana_workspace_get` |
-| `project` | `asana_project_list`, `asana_project_get`, `asana_project_counts`, `asana_project_search`, `asana_project_create`, `asana_project_update`, `asana_project_delete`, `asana_project_duplicate`, `asana_project_export` |
-| `task` | `asana_task_list`, `asana_task_my_tasks`, `asana_task_subtask_list`, `asana_task_subtask_create`, `asana_task_get`, `asana_task_get_many`, `asana_task_create`, `asana_task_update`, `asana_task_delete`, `asana_task_search`, `asana_task_follower_add`, `asana_task_follower_remove`, `asana_task_project_add`, `asana_task_project_remove`, `asana_task_dependency_list`, `asana_task_dependency_add`, `asana_task_dependency_remove`, `asana_task_dependent_list`, `asana_task_dependent_add`, `asana_task_dependent_remove`, `asana_task_scan_todos` |
+| `project` | `asana_project_list`, `asana_project_get`, `asana_project_counts`, `asana_project_search`, `asana_project_create`, `asana_project_update`, `asana_project_delete`, `asana_project_follower_add`, `asana_project_follower_remove`, `asana_project_duplicate`, `asana_project_export` |
+| `task` | `asana_task_list`, `asana_task_my_tasks`, `asana_task_subtask_list`, `asana_task_subtask_create`, `asana_task_get`, `asana_task_get_many`, `asana_task_create`, `asana_task_update`, `asana_task_delete`, `asana_task_duplicate`, `asana_task_search`, `asana_task_follower_add`, `asana_task_follower_remove`, `asana_task_project_list`, `asana_task_project_add`, `asana_task_project_remove`, `asana_task_dependency_list`, `asana_task_dependency_add`, `asana_task_dependency_remove`, `asana_task_dependent_list`, `asana_task_dependent_add`, `asana_task_dependent_remove`, `asana_task_scan_todos` |
 | `task-template` | `asana_task_template_list`, `asana_task_template_get`, `asana_task_template_instantiate` |
 | `section` | `asana_section_list`, `asana_section_get`, `asana_section_create`, `asana_section_update`, `asana_section_move`, `asana_section_task_add`, `asana_section_task_list`, `asana_section_delete` |
 | `user` | `asana_user_list`, `asana_user_get`, `asana_user_me` |
@@ -500,6 +500,8 @@ Tools are named `asana_<resource>_<action>` (e.g. `asana_task_create`).
 | `story` | `asana_story_list`, `asana_story_get`, `asana_story_create`, `asana_story_update`, `asana_story_delete` |
 | `comment` | `asana_comment_list`, `asana_comment_get`, `asana_comment_create`, `asana_comment_update`, `asana_comment_delete` (aliases for `story`) |
 | `custom-field` | `asana_custom_field_list`, `asana_custom_field_get` (discover the field and enum-option GIDs that `asana_task_create` / `asana_task_update` expect), `asana_custom_field_list_for_project`, `asana_custom_field_list_for_portfolio`, `asana_custom_field_list_for_goal`, `asana_custom_field_list_for_team`, `asana_custom_field_create`, `asana_custom_field_update`, `asana_custom_field_delete`, `asana_custom_field_enum_option_create`, `asana_custom_field_enum_option_insert`, `asana_custom_field_enum_option_update`, `asana_custom_field_attach`, `asana_custom_field_detach` |
+| `project-brief` | `asana_project_brief_get`, `asana_project_brief_create`, `asana_project_brief_update`, `asana_project_brief_delete` (a project's charter or sprint goal; rich text is checked against the `project-brief` HTML rules) |
+| `notification` | `asana_notification_list`, `asana_notification_mark_read`, `asana_notification_mark_unread` (inbox; **beta** Asana endpoints that may change) |
 | `membership` | `asana_membership_list`, `asana_membership_get`, `asana_membership_create`, `asana_membership_update`, `asana_membership_delete` |
 | `search` | `asana_search_objects` (typeahead; one `resource_type` per call, single capped page, not exhaustive) |
 | `url` | `asana_url_parse` (no API call; extracts GIDs from Asana app URLs) |
@@ -634,7 +636,7 @@ Installing twice is a no-op, and unrelated settings are preserved.
 | Resource | Actions |
 |---|---|
 | `workspace` | `list`, `get` |
-| `project` | `list`, `get`, `counts`, `search`, `create`, `update`, `delete` |
+| `project` | `list`, `get`, `counts`, `search`, `create`, `update`, `delete`, `follower add\|remove` |
 | `task` | `list`, `my-tasks list`, `get`, `create`, `update`, `delete`, `subtask list`, `subtask create`, `search`, `project add/remove`, `follower add/remove`, `dependency list/add/remove`, `dependent list/add/remove` |
 | `task-template` | `list`, `get`, `instantiate` |
 | `section` | `list`, `get`, `create`, `update`, `move`, `delete`, `tasks`, `task add` |
@@ -657,6 +659,8 @@ Installing twice is a no-op, and unrelated settings are preserved.
 | `comment` | `list`, `get`, `create`, `update`, `delete` (alias for `story`) |
 | `custom-field` | `list`, `get`, `project`, `portfolio`, `goal`, `team` |
 | `membership` | `list`, `get`, `create`, `update`, `delete` |
+| `notification` | `list`, `mark-read`, `mark-unread` (beta) |
+| `project-brief` | `get`, `create`, `update`, `delete` |
 | `setup` | `hook` |
 
 ### GID options

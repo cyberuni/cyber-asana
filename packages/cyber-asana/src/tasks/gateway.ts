@@ -1,4 +1,5 @@
 import Asana from 'asana'
+import type { Job } from '../platform/job-polling.js'
 import {
 	collectListResponse,
 	type ListResult,
@@ -138,6 +139,9 @@ export type TaskGatewayListOptions = PaginationOptions & RawCompletionFilter
 /** `customType` filters by custom type GID; an empty string selects tasks with no custom type. */
 export type TaskGatewayProjectListOptions = TaskGatewayListOptions & { customType?: string }
 
+/** What `duplicateTask` names the copy and which elements it carries over (Asana's `include` list). */
+export type DuplicateTaskFields = { name: string; include?: string[] }
+
 export type TaskGateway = {
 	listTasks(projectGid: string, opts?: TaskGatewayProjectListOptions): Promise<ListResult<Asana.Task>>
 	listTasksForSection(sectionGid: string, opts?: TaskGatewayListOptions): Promise<ListResult<Asana.Task>>
@@ -148,6 +152,8 @@ export type TaskGateway = {
 	deleteTask(taskGid: string): Promise<void>
 	getMyTasks(workspaceGid: string, opts?: TaskGatewayListOptions): Promise<ListResult<Asana.Task>>
 	listSubtasks(taskGid: string, opts?: TaskGatewayListOptions): Promise<ListResult<Asana.Task>>
+	listProjectsForTask(taskGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.Project>>
+	duplicateTask(taskGid: string, fields: DuplicateTaskFields): Promise<Job>
 	createSubtask(parentTaskGid: string, name: string, opts?: CreateTaskFields): Promise<Asana.Task>
 	addTaskToProject(
 		taskGid: string,
@@ -193,6 +199,7 @@ const TASK_GET_FIELDS =
 
 export function createAsanaTaskGateway(client: Asana.ApiClient): TaskGateway {
 	const tasksApi = new Asana.TasksApi(client)
+	const projectsApi = new Asana.ProjectsApi(client)
 	const batchApi = new Asana.BatchAPIApi(client)
 	const utlApi = new Asana.UserTaskListsApi(client)
 	// Stories are read through the story gateway so the SDK call lives in one place.
@@ -285,6 +292,23 @@ export function createAsanaTaskGateway(client: Asana.ApiClient): TaskGateway {
 				...toAsanaPaginationOptions(opts),
 			} as Parameters<typeof tasksApi.getSubtasksForTask>[1])
 			return await collectListResponse(res, opts)
+		},
+		async listProjectsForTask(taskGid, opts) {
+			const res = await projectsApi.getProjectsForTask(taskGid, toAsanaPaginationOptions(opts))
+			return await collectListResponse(res, opts)
+		},
+		async duplicateTask(taskGid, fields) {
+			const res = await tasksApi.duplicateTask(
+				{
+					data: {
+						name: fields.name,
+						...(fields.include !== undefined && { include: fields.include.join(',') }),
+					},
+				},
+				taskGid,
+				{},
+			)
+			return res.data
 		},
 		async createSubtask(parentTaskGid, name, opts) {
 			// The create-subtask endpoint takes the same body as create-task, minus the workspace and

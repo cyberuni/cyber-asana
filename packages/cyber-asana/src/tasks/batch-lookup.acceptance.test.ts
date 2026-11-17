@@ -62,6 +62,8 @@ function createBatchLookupGateway(): TaskGateway {
 		deleteTask: vi.fn(),
 		getMyTasks: vi.fn(),
 		listSubtasks: vi.fn(),
+		listProjectsForTask: vi.fn(),
+		duplicateTask: vi.fn(),
 		createSubtask: vi.fn(),
 		addTaskToProject: vi.fn(),
 		removeTaskFromProject: vi.fn(),

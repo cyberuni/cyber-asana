@@ -16,6 +16,8 @@ function mockRuntimeContext(): RuntimeContext {
 			searchProjects: vi.fn(),
 			exportProject: vi.fn(),
 			duplicateProject: vi.fn(),
+			addFollowersToProject: vi.fn(),
+			removeFollowersFromProject: vi.fn(),
 			duplicateProjectAndWait: vi.fn(),
 		},
 		tasks: {
@@ -29,6 +31,8 @@ function mockRuntimeContext(): RuntimeContext {
 			deleteTask: vi.fn(),
 			getMyTasks: vi.fn(),
 			listSubtasks: vi.fn(),
+			listProjectsForTask: vi.fn(),
+			duplicateTask: vi.fn(),
 			createSubtask: vi.fn(),
 			addTaskToProject: vi.fn(),
 			removeTaskFromProject: vi.fn(),
@@ -140,6 +144,13 @@ function mockRuntimeContext(): RuntimeContext {
 			deleteMembership: vi.fn(),
 		},
 		jobs: { getJob: vi.fn() },
+		notifications: { listNotifications: vi.fn(), markNotificationsRead: vi.fn(), markNotificationsUnread: vi.fn() },
+		projectBriefs: {
+			getProjectBrief: vi.fn(),
+			createProjectBrief: vi.fn(),
+			updateProjectBrief: vi.fn(),
+			deleteProjectBrief: vi.fn(),
+		},
 		projectTemplates: {
 			listProjectTemplates: vi.fn(),
 			listProjectTemplatesForTeam: vi.fn(),
@@ -518,6 +529,55 @@ describe('composition wiring', () => {
 		})
 
 		expect(ctx.memberships.createMembership).toHaveBeenCalledWith('proj1', 'u1', { access_level: 'editor' })
+	})
+
+	it('CLI project-brief create uses runtime context projectBriefs api', async () => {
+		const ctx = mockRuntimeContext()
+		ctx.projectBriefs.createProjectBrief = vi.fn().mockResolvedValue({ gid: 'b1' })
+		const program = new Command()
+		registerCliCommands(program, () => ctx)
+
+		await program.parseAsync(
+			['node', 'test', 'project-brief', 'create', '--project-gid', 'proj1', '--title', 'Charter'],
+			{ from: 'node' },
+		)
+
+		expect(ctx.projectBriefs.createProjectBrief).toHaveBeenCalledWith('proj1', { title: 'Charter' })
+	})
+
+	it('MCP asana_project_brief_get uses runtime context projectBriefs api', async () => {
+		const ctx = mockRuntimeContext()
+		ctx.projectBriefs.getProjectBrief = vi.fn().mockResolvedValue({ gid: 'b1' })
+		const server = createMcpServer()
+		registerMcpTools(server as never, () => ctx)
+
+		await server.handlers.get('asana_project_brief_get')?.({ project_brief_gid: 'b1' })
+
+		expect(ctx.projectBriefs.getProjectBrief).toHaveBeenCalledWith('b1', undefined)
+	})
+
+	it('CLI notification mark-read uses runtime context notifications api', async () => {
+		const ctx = mockRuntimeContext()
+		ctx.notifications.markNotificationsRead = vi.fn().mockResolvedValue({ failed_gids: [] })
+		const program = new Command()
+		registerCliCommands(program, () => ctx)
+
+		await program.parseAsync(['node', 'test', 'notification', 'mark-read', 'n1', '--workspace-gid', 'ws1'], {
+			from: 'node',
+		})
+
+		expect(ctx.notifications.markNotificationsRead).toHaveBeenCalledWith('me', 'ws1', ['n1'])
+	})
+
+	it('MCP asana_notification_list uses runtime context notifications api', async () => {
+		const ctx = mockRuntimeContext()
+		ctx.notifications.listNotifications = vi.fn().mockResolvedValue([])
+		const server = createMcpServer()
+		registerMcpTools(server as never, () => ctx)
+
+		await server.handlers.get('asana_notification_list')?.({ workspace_gid: 'ws1' })
+
+		expect(ctx.notifications.listNotifications).toHaveBeenCalledWith('me', 'ws1', expect.any(Object))
 	})
 
 	it('CLI job get uses runtime context jobs api', async () => {

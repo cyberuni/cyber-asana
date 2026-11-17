@@ -85,6 +85,12 @@ const READS: SingularRead[] = [
 		gidParam: 'portfolio_gid',
 		sdk: ['PortfoliosApi', 'getPortfolio'],
 	}),
+	read('project-briefs', 'ProjectBrief', {
+		cliName: 'project-brief',
+		tool: 'asana_project_brief_get',
+		gidParam: 'project_brief_gid',
+		sdk: ['ProjectBriefsApi', 'getProjectBrief'],
+	}),
 	read('project-templates', 'ProjectTemplate', {
 		cliName: 'project-template',
 		tool: 'asana_project_template_get',

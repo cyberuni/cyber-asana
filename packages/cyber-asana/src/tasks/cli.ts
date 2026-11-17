@@ -36,12 +36,14 @@ import {
 	createSubtask,
 	createTask,
 	deleteTask,
+	duplicateTask,
 	getDependencies,
 	getDependents,
 	getMyTasks,
 	getTask,
 	getTasksByGid,
 	getTaskWithStories,
+	listProjectsForTask,
 	listSubtasks,
 	listTasks,
 	listTasksForSection,
@@ -104,6 +106,8 @@ function resolveTaskApi(api?: TaskApi | (() => TaskApi)): TaskApi {
 			deleteTask,
 			getMyTasks,
 			listSubtasks,
+			listProjectsForTask,
+			duplicateTask,
 			createSubtask,
 			addTaskToProject,
 			removeTaskFromProject,
@@ -184,6 +188,7 @@ function printTaskSummary(tasks: Task[]) {
 // Minimal default schema for task lists — principle 2. Just the fields the
 // table renders, instead of Asana's larger default payload.
 export const TASK_LIST_FIELDS = 'gid,name,completed,due_on'
+const TASK_PROJECT_LIST_FIELDS = 'gid,name'
 
 function mergeFields(...fieldSets: string[]) {
 	const fields = fieldSets.flatMap((set) => set.split(',')).filter(Boolean)
@@ -558,6 +563,26 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 			output(result, () => console.log(deleteMessage(result, 'Task')))
 		})
 
+	cmd
+		.command('duplicate <task-gid>')
+		.description('Duplicate a task. Asana builds the copy asynchronously and returns a job; poll it with `job get`')
+		.requiredOption('--name <name>', 'Name for the new task')
+		.option(
+			'--include <elements>',
+			'Elements to copy, comma-separated (assignee, attachments, dates, dependencies, followers, notes, parent, projects, subtasks, tags)',
+			(value: string) => value.split(',').filter(Boolean),
+		)
+		.action(async (taskGid: string, opts: { name: string; include?: string[] }) => {
+			const job = await resolveTaskApi(api).duplicateTask(taskGid, {
+				name: opts.name,
+				...(opts.include !== undefined && { include: opts.include }),
+			})
+			output(job, () => {
+				printFields({ Job: job.gid ?? null, Status: job.status ?? null })
+				printNextSteps([`cyber-asana job get ${job.gid} — poll until the copy is ready`])
+			})
+		})
+
 	const subtaskCmd = cmd.command('subtask').description('Manage subtasks')
 
 	addPaginationOptions(
@@ -874,6 +899,25 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 		)
 
 	const projectCmd = cmd.command('project').description('Manage project membership for a task')
+
+	addPaginationOptions(projectCmd.command('list <task-gid>').description('List the projects a task belongs to')).action(
+		async (taskGid: string, opts: { limit?: number; offset?: string; optFields?: string }) => {
+			const pagination = paginationOptionsFromCli(opts)
+			pagination.optFields = pagination.optFields ?? TASK_PROJECT_LIST_FIELDS
+			const data = await resolveTaskApi(api).listProjectsForTask(taskGid, pagination)
+			output(data, () => {
+				printTable(
+					itemsForOutput(data),
+					[
+						{ label: 'GID', get: (p) => p.gid },
+						{ label: 'Name', get: (p) => p.name ?? '' },
+					],
+					{ entity: 'projects' },
+				)
+				printNextPageHint(data)
+			})
+		},
+	)
 
 	addGidOption(
 		projectCmd

@@ -362,6 +362,8 @@ describe('createProjectApi', () => {
 			listSections: vi.fn(),
 			listTasksForSection: vi.fn(),
 			duplicateProject: vi.fn(),
+			addFollowersToProject: vi.fn(),
+			removeFollowersFromProject: vi.fn(),
 		})
 
 		const result = await api.listProjects('ws1')

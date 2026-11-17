@@ -15,6 +15,7 @@ const getTaskWithStoriesMock = vi.fn()
 const listTasksMock = vi.fn()
 const getMyTasksMock = vi.fn()
 const listSubtasksMock = vi.fn()
+const listProjectsForTaskMock = vi.fn()
 const createSubtaskMock = vi.fn()
 const listTagsMock = vi.fn()
 
@@ -37,6 +38,7 @@ vi.mock('./default.js', async () => {
 		listTasks: listTasksMock,
 		getMyTasks: getMyTasksMock,
 		listSubtasks: listSubtasksMock,
+		listProjectsForTask: listProjectsForTaskMock,
 		createSubtask: createSubtaskMock,
 	}
 })
@@ -488,6 +490,29 @@ describe('tasks/cli', () => {
 		expect(getMyTasksMock).toHaveBeenCalledWith('ws1', expect.objectContaining({ optFields: 'name,notes' }))
 	})
 
+	it('task project list requests a minimal default field set and prints the projects', async () => {
+		listProjectsForTaskMock.mockResolvedValue({
+			data: [{ gid: 'p1', name: 'Sprint 12' }],
+			next_page: null,
+			limit: 100,
+		})
+		const program = new Command().addCommand(taskCommand())
+
+		await program.parseAsync(['node', 'test', 'task', 'project', 'list', '123'], { from: 'node' })
+
+		expect(listProjectsForTaskMock).toHaveBeenCalledWith('123', expect.objectContaining({ optFields: 'gid,name' }))
+		expect(logSpy.mock.calls.map((c) => String(c[0])).join('\n')).toContain('Sprint 12')
+	})
+
+	it('task project list names the empty result', async () => {
+		listProjectsForTaskMock.mockResolvedValue({ data: [], next_page: null, limit: 100 })
+		const program = new Command().addCommand(taskCommand())
+
+		await program.parseAsync(['node', 'test', 'task', 'project', 'list', '123'], { from: 'node' })
+
+		expect(logSpy.mock.calls.map((c) => String(c[0])).join('\n')).toContain('0 projects found')
+	})
+
 	it('task subtask list requests a minimal default field set when none is given', async () => {
 		listSubtasksMock.mockResolvedValue([])
 		const program = new Command().addCommand(taskCommand())
@@ -695,6 +720,8 @@ describe('tasks/cli', () => {
 				deleteTask: vi.fn(),
 				getMyTasks: vi.fn(),
 				listSubtasks: vi.fn(),
+				listProjectsForTask: vi.fn(),
+				duplicateTask: vi.fn(),
 				createSubtask: vi.fn(),
 				addTaskToProject: vi.fn(),
 				removeTaskFromProject: vi.fn(),

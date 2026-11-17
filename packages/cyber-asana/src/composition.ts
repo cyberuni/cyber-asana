@@ -37,6 +37,10 @@ import { createMembershipApi, type MembershipApi } from './memberships/api.js'
 import { membershipCommand } from './memberships/cli.js'
 import { createAsanaMembershipGateway } from './memberships/gateway.js'
 import { registerMembershipTools } from './memberships/mcp.js'
+import { createNotificationApi, type NotificationApi } from './notifications/api.js'
+import { notificationCommand } from './notifications/cli.js'
+import { createAsanaNotificationGateway } from './notifications/gateway.js'
+import { registerNotificationTools } from './notifications/mcp.js'
 import { createOooApi, type OooApi } from './ooo/api.js'
 import { oooCommand } from './ooo/cli.js'
 import { createAsanaOooGateway } from './ooo/gateway.js'
@@ -48,6 +52,10 @@ import { createPortfolioApi, type PortfolioApi } from './portfolios/api.js'
 import { portfolioCommand } from './portfolios/cli.js'
 import { createAsanaPortfolioGateway } from './portfolios/gateway.js'
 import { registerPortfolioTools } from './portfolios/mcp.js'
+import { createProjectBriefApi, type ProjectBriefApi } from './project-briefs/api.js'
+import { projectBriefCommand } from './project-briefs/cli.js'
+import { createAsanaProjectBriefGateway } from './project-briefs/gateway.js'
+import { registerProjectBriefTools } from './project-briefs/mcp.js'
 import { createProjectTemplateApi, newProjectOf, type ProjectTemplateApi } from './project-templates/api.js'
 import { projectTemplateCommand } from './project-templates/cli.js'
 import { createAsanaProjectTemplateGateway } from './project-templates/gateway.js'
@@ -118,10 +126,12 @@ export type RuntimeContext = {
 	events: EventApi
 	goals: GoalApi
 	memberships: MembershipApi
+	notifications: NotificationApi
 	ooo: OooApi
 	jobs: JobApi
 	portfolios: PortfolioApi
 	projects: ProjectApi
+	projectBriefs: ProjectBriefApi
 	projectTemplates: ProjectTemplateApi
 	rules: RuleApi
 	scrum: ScrumApi
@@ -158,10 +168,12 @@ export function createRuntimeContext(): RuntimeContext {
 		events: createEventApi(createAsanaEventGateway(client)),
 		goals: createGoalApi(createAsanaGoalGateway(client)),
 		memberships: createMembershipApi(createAsanaMembershipGateway(client)),
+		notifications: createNotificationApi(createAsanaNotificationGateway(client)),
 		ooo: createOooApi(oooGateway),
 		jobs: createJobApi(jobGateway),
 		portfolios: createPortfolioApi(portfolioGateway),
 		projects: projectApi,
+		projectBriefs: createProjectBriefApi(createAsanaProjectBriefGateway(client)),
 		projectTemplates: createProjectTemplateApi(createAsanaProjectTemplateGateway(client), { jobs: jobGateway }),
 		rules: createRuleApi(createAsanaRuleGateway(client)),
 		scrum: createScrumApi({
@@ -227,9 +239,11 @@ export function registerCliCommands(program: Command, getContext: () => RuntimeC
 	program.addCommand(membershipCommand(() => getContext().memberships))
 	program.addCommand(tagCommand(() => getContext().tags))
 	program.addCommand(customFieldCommand(() => getContext().customFields))
+	program.addCommand(notificationCommand(() => getContext().notifications))
 	program.addCommand(oooCommand(() => getContext().ooo))
 	program.addCommand(allocationCommand(() => getContext().allocations))
 	program.addCommand(attachmentCommand(() => getContext().attachments))
+	program.addCommand(projectBriefCommand(() => getContext().projectBriefs))
 	program.addCommand(projectTemplateCommand(() => getContext().projectTemplates))
 	program.addCommand(jobCommand(() => getContext().jobs))
 	program.addCommand(statusCommand(() => getContext().status))
@@ -275,9 +289,11 @@ export function registerMcpTools(server: McpServer, getContext: () => RuntimeCon
 	registerMembershipTools(server, () => getContext().memberships)
 	registerTagTools(server, () => getContext().tags)
 	registerCustomFieldTools(server, () => getContext().customFields)
+	registerNotificationTools(server, () => getContext().notifications)
 	registerOooTools(server, () => getContext().ooo)
 	registerAllocationTools(server, () => getContext().allocations)
 	registerAttachmentTools(server, () => getContext().attachments)
+	registerProjectBriefTools(server, () => getContext().projectBriefs)
 	registerProjectTemplateTools(server, () => getContext().projectTemplates)
 	registerJobTools(server, () => getContext().jobs)
 	registerStatusTools(server, () => getContext().status)

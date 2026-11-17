@@ -44,6 +44,8 @@ function createPaginatingProjectGateway(): ProjectGateway {
 		updateProject: vi.fn(),
 		deleteProject: vi.fn(),
 		duplicateProject: vi.fn(),
+		addFollowersToProject: vi.fn(),
+		removeFollowersFromProject: vi.fn(),
 		searchProjects: vi.fn(),
 		listSections: vi.fn(),
 		listTasksForSection: vi.fn(),

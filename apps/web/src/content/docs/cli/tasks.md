@@ -107,6 +107,22 @@ additionally requires a due time in the same request when you set or clear `--st
 When both custom-field forms are given, repeated `--custom-field` entries override
 duplicate keys from `--custom-fields-json`.
 
+## Duplicating a task
+
+```sh
+cyber-asana task duplicate <task-gid> --name "Sprint 13: Review PRs"
+cyber-asana task duplicate <task-gid> --name "Copy" --include notes,subtasks,tags
+cyber-asana job get <job-gid>
+```
+
+Asana builds the copy asynchronously, so `task duplicate` returns a job, not the new task. Poll it with
+`job get` until its status is `succeeded`; the new task is on the job as `new_task`.
+
+| Option | Description |
+| --- | --- |
+| `--name <name>` | Name for the new task (required) |
+| `--include <elements>` | Comma-separated elements to copy: `assignee`, `attachments`, `dates`, `dependencies`, `followers`, `notes`, `parent`, `projects`, `subtasks`, `tags` |
+
 ## Subtasks
 
 ```sh
@@ -134,9 +150,10 @@ cyber-asana task subtask list <task-gid> --assignee-email --opt-fields "due_on,n
 
 ## Project membership
 
-A task can belong to several projects at once (multi-homing).
+A task can belong to several projects at once (multi-homing). `project list` shows which ones.
 
 ```sh
+cyber-asana task project list <task-gid>
 cyber-asana task project add <task-gid> <project-gid>
 cyber-asana task project add <task-gid> <project-gid> --section <section-gid>
 cyber-asana task project add <task-gid> <project-gid> --insert-after <other-task-gid>

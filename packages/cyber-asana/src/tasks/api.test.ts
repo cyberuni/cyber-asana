@@ -18,6 +18,7 @@ import {
 	getTask,
 	getTasksByGid,
 	getTaskWithStories,
+	listProjectsForTask,
 	listSubtasks,
 	listTasks,
 	listTasksForSection,
@@ -301,6 +302,18 @@ describe('tasks/api', () => {
 		} as never)
 		await listSubtasks('456')
 		expect(Asana.TasksApi.prototype.getSubtasksForTask).toHaveBeenCalledWith('456', { limit: 100 })
+	})
+
+	it('listProjectsForTask calls getProjectsForTask and paginates', async () => {
+		vi.spyOn(Asana.ProjectsApi.prototype, 'getProjectsForTask').mockResolvedValue({
+			data: [{ gid: 'p1', name: 'Sprint' }],
+		} as never)
+		const result = await listProjectsForTask('456', { limit: 25, optFields: 'gid,name' })
+		expect(result).toEqual({ data: [{ gid: 'p1', name: 'Sprint' }], next_page: null, limit: 25 })
+		expect(Asana.ProjectsApi.prototype.getProjectsForTask).toHaveBeenCalledWith('456', {
+			limit: 25,
+			opt_fields: 'gid,name',
+		})
 	})
 
 	it('createSubtask calls createSubtaskForTask with body', async () => {
@@ -870,6 +883,8 @@ describe('createTaskApi', () => {
 			deleteTask: vi.fn(),
 			getMyTasks: vi.fn(),
 			listSubtasks: vi.fn(),
+			listProjectsForTask: vi.fn(),
+			duplicateTask: vi.fn(),
 			createSubtask: vi.fn(),
 			addTaskToProject: vi.fn(),
 			removeTaskFromProject: vi.fn(),
