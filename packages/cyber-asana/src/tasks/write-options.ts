@@ -13,6 +13,7 @@ type BuildTaskWriteInput = {
 	assignee?: string
 	parent?: string
 	resourceSubtype?: string
+	customType?: string
 	customFieldsJson?: string
 	customFieldEntries?: string[]
 	customFields?: Record<string, unknown>
@@ -108,6 +109,7 @@ export function buildTaskCreateFields(input: BuildTaskCreateInput): CreateTaskFi
 		...(input.startAt !== undefined && { start_at: input.startAt }),
 		...(input.parent !== undefined && { parent: input.parent }),
 		...(input.resourceSubtype !== undefined && { resource_subtype: input.resourceSubtype }),
+		...(input.customType !== undefined && { custom_type: input.customType }),
 		...(projects && { projects }),
 		...(followers && { followers }),
 		...(tags && { tags }),
@@ -187,6 +189,7 @@ export function buildTaskUpdateFields(input: BuildTaskUpdateInput): UpdateTaskFi
 		...(input.parent !== undefined && { parent: input.parent }),
 		...(input.clearParent !== undefined && { clear_parent: input.clearParent }),
 		...(input.resourceSubtype !== undefined && { resource_subtype: input.resourceSubtype }),
+		...(input.customType !== undefined && { custom_type: input.customType }),
 		...(Object.keys(customFields).length > 0 && { custom_fields: customFields }),
 	}
 }

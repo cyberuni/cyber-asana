@@ -526,8 +526,8 @@ Notable parameters:
 - `asana_ai_studio_seat_list` — `workspace_gid`, `state` (`active` or `revoked`), `division_gid`; same access restriction and no `opt_fields`
 - `asana_task_subtask_list` — `assignee_email`, `follower_emails`, `num_subtasks`, `custom_fields` expand returned fields
 - `asana_task_get` — `with_stories: true` adds the task's stories (comments and change history) as a `stories` field, paged internally; `since` keeps stories created at or after an ISO 8601 time (filtered on the client) and implies `with_stories`
-- `asana_task_create` — `project_gid`, `project_gids`, `default_section`, `follower_gids`, `html_notes`, `completed`, `due_on`, `due_at`, `start_on`, `start_at`, `parent_gid`, `resource_subtype`, `custom_fields`
-- `asana_task_update` — `html_notes`, `due_on` / `clear_due_on`, `due_at` / `clear_due_at`, `start_on` / `clear_start_on`, `start_at` / `clear_start_at`, `assignee_gid` / `assignee` (alias, email, or name from the repo registry) / `clear_assignee`, `parent_gid`, `clear_parent`, `resource_subtype`, `custom_fields`
+- `asana_task_create` — `project_gid`, `project_gids`, `default_section`, `follower_gids`, `html_notes`, `completed`, `due_on`, `due_at`, `start_on`, `start_at`, `parent_gid`, `resource_subtype`, `custom_type`, `custom_fields`
+- `asana_task_update` — `html_notes`, `due_on` / `clear_due_on`, `due_at` / `clear_due_at`, `start_on` / `clear_start_on`, `start_at` / `clear_start_at`, `assignee_gid` / `assignee` (alias, email, or name from the repo registry) / `clear_assignee`, `parent_gid`, `clear_parent`, `resource_subtype`, `custom_type`, `custom_fields`
 - `asana_task_subtask_create` — takes the same write fields as `asana_task_create`; the parent and its workspace come from `task_gid`
 - `asana_task_follower_add` / `asana_task_follower_remove` — manage followers on existing tasks
 - `asana_goal_create` — `notes` or `html_notes` (mutually exclusive), `due_on`, `start_on` (Asana requires an accompanying due date)
@@ -789,6 +789,7 @@ cyber-asana task update <task-gid> \
 | `--parent-gid <gid>` / `--parent <gid>` | `task create`, `task update` | Set the task parent |
 | `--clear-parent` | `task update` | Remove the task parent |
 | `--resource-subtype <subtype>` | `task create`, `task update` | Example: `default_task`, `milestone` |
+| `--custom-type <gid>` | `task create`, `task update` | Custom type GID (for example an Epic type). Read it back with `task get --opt-fields custom_type.name` |
 | `--custom-fields-json <json>` | `task create`, `task update` | JSON object keyed by custom field GID |
 | `--custom-field <gid=value>` | `task create`, `task update` | Repeatable convenience override for simple values |
 | `--follower <gid[,gid...]>` | `task create` | Add followers immediately after task creation |
