@@ -7,6 +7,7 @@ import {
 	type CreateEnumOptionInput,
 	createCustomFieldApi,
 	type InsertEnumOptionInput,
+	type UpdateCustomFieldInput,
 	type UpdateEnumOptionInput,
 } from './api.js'
 import { createAsanaCustomFieldGateway } from './gateway.js'
@@ -41,6 +42,10 @@ export async function listCustomFieldSettingsForTeam(teamGid: string, opts?: Pag
 
 export async function createCustomField(input: CreateCustomFieldInput) {
 	return defaultCustomFieldApi().createCustomField(input)
+}
+
+export async function updateCustomField(customFieldGid: string, input: UpdateCustomFieldInput) {
+	return defaultCustomFieldApi().updateCustomField(customFieldGid, input)
 }
 
 export async function createEnumOption(customFieldGid: string, input: CreateEnumOptionInput) {

@@ -11,7 +11,7 @@ import {
 } from '../platform/cli/options.js'
 import { output, printCountSummary, printFields, printNextSteps, printTable } from '../platform/cli/output.js'
 import { isFull, truncate } from '../platform/truncate.js'
-import type { CreateCustomFieldInput, CustomFieldApi } from './api.js'
+import type { CreateCustomFieldInput, CustomFieldApi, UpdateCustomFieldInput } from './api.js'
 import {
 	attachCustomField,
 	createCustomField,
@@ -24,6 +24,7 @@ import {
 	listCustomFieldSettingsForProject,
 	listCustomFieldSettingsForTeam,
 	listCustomFields,
+	updateCustomField,
 	updateEnumOption,
 } from './default.js'
 
@@ -37,6 +38,8 @@ type CustomField = {
 }
 
 const FIELD_TYPES = ['text', 'enum', 'multi_enum', 'number', 'date', 'people']
+
+const FIELD_FORMATS = ['currency', 'identifier', 'percentage', 'custom', 'duration', 'none']
 
 const collect = (value: string, previous: string[]) => [...previous, value]
 
@@ -54,6 +57,7 @@ function resolveCustomFieldApi(api?: CustomFieldApi | (() => CustomFieldApi)): C
 			createEnumOption,
 			insertEnumOption,
 			updateEnumOption,
+			updateCustomField,
 			attachCustomField,
 			detachCustomField,
 		}
@@ -268,6 +272,60 @@ export function customFieldCommand(api?: CustomFieldApi | (() => CustomFieldApi)
 			})
 		},
 	)
+
+	cmd
+		.command('update <gid>')
+		.description("Edit a custom field's name, description, number format, or enabled state (its type cannot change)")
+		.option('--name <name>', 'New name')
+		.option('--description <text>', 'New description')
+		.option('--precision <digits>', 'Decimal places; number type only', (v) => Number(v))
+		.addOption(new Option('--format <format>', 'Number format; number type only').choices(FIELD_FORMATS))
+		.option('--currency-code <code>', 'ISO 4217 code, such as USD; currency format only')
+		.option('--custom-label <label>', 'Label shown with the value; custom format only')
+		.addOption(
+			new Option('--custom-label-position <position>', 'Where the label goes; custom format only').choices([
+				'prefix',
+				'suffix',
+			]),
+		)
+		.option('--disabled', 'Disable the field')
+		.option('--enabled', 'Enable the field')
+		.action(
+			async (
+				gid: string,
+				opts: {
+					name?: string
+					description?: string
+					precision?: number
+					format?: UpdateCustomFieldInput['format']
+					currencyCode?: string
+					customLabel?: string
+					customLabelPosition?: UpdateCustomFieldInput['customLabelPosition']
+					disabled?: boolean
+					enabled?: boolean
+				},
+			) => {
+				if (opts.disabled && opts.enabled) throw new Error('--disabled and --enabled are mutually exclusive')
+				const changes: UpdateCustomFieldInput = {
+					...(opts.name !== undefined && { name: opts.name }),
+					...(opts.description !== undefined && { description: opts.description }),
+					...(opts.precision !== undefined && { precision: opts.precision }),
+					...(opts.format !== undefined && { format: opts.format }),
+					...(opts.currencyCode !== undefined && { currencyCode: opts.currencyCode }),
+					...(opts.customLabel !== undefined && { customLabel: opts.customLabel }),
+					...(opts.customLabelPosition !== undefined && { customLabelPosition: opts.customLabelPosition }),
+					...(opts.disabled && { enabled: false }),
+					...(opts.enabled && { enabled: true }),
+				}
+				if (Object.keys(changes).length === 0) {
+					throw new Error(
+						'Nothing to update: give --name, --description, --precision, --format, --currency-code, --custom-label, --custom-label-position, --disabled, or --enabled',
+					)
+				}
+				const updated = (await resolveCustomFieldApi(api).updateCustomField(gid, changes)) as CustomField
+				output(updated, () => console.log(`Updated custom field ${updated.name ?? gid} (${gid})`))
+			},
+		)
 
 	const enumOption = cmd.command('enum-option').description("Manage a custom field's enum options")
 

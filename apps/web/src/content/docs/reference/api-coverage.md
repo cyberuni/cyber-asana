@@ -56,7 +56,7 @@ operations such as project export and TODO scanning are described separately bel
 | Teams | 🟡 | 2 / 7 | `team` | Read-only; also a team's projects, which `team projects` lists |
 | Workspaces | 🟡 | 2 / 6 | `workspace` | Read-only |
 | Stories | 🟡 | 5 / 7 | `story`, `comment` | Full comment lifecycle on tasks; no goal stories |
-| Custom fields | 🟡 | 6 / 8 | `custom-field` | Discovery, create, and enum-option create, insert, and update; no field update or delete |
+| Custom fields | 🟡 | 7 / 8 | `custom-field` | Discovery, create, update, and enum-option create, insert, and update; no field delete |
 | Custom field settings | ✅ | 4 / 4 | `custom-field` | All four reads; project attach and detach are `custom-field attach\|detach` |
 | User task lists | 🟡 | — | `task my-tasks` | Only the "My Tasks" read path |
 | Batch API | 🟡 | — | `task get-many` | Used internally, not exposed generically |
@@ -203,7 +203,7 @@ handshake, surfaced as a normal result rather than a `412`. See
 | Teams | `team list\|get\|members\|projects` | `asana_team_list`, `asana_team_get`, `asana_team_members`, `asana_team_projects` |
 | Workspaces | `workspace list\|get` | `asana_workspace_list`, `asana_workspace_get` |
 | Attachments | `attachment list\|get\|create\|delete` | `asana_attachment_list`, `asana_attachment_get`, `asana_attachment_create`, `asana_attachment_delete` |
-| Custom fields | `custom-field list\|get\|create`, `custom-field enum-option add\|move\|update` | `asana_custom_field_list`, `asana_custom_field_get`, `asana_custom_field_create`, `asana_custom_field_enum_option_create\|insert\|update` |
+| Custom fields | `custom-field list\|get\|create\|update`, `custom-field enum-option add\|move\|update` | `asana_custom_field_list`, `asana_custom_field_get`, `asana_custom_field_create`, `asana_custom_field_update`, `asana_custom_field_enum_option_create\|insert\|update` |
 | Custom field settings | `custom-field project\|portfolio\|goal\|team`, `custom-field attach\|detach` | `asana_custom_field_list_for_*`, `asana_custom_field_attach`, `asana_custom_field_detach` |
 
 `custom-field list` and `custom-field get` make discoverable the GIDs that `task create` /

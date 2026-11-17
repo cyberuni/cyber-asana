@@ -88,6 +88,7 @@ describe('custom-fields/mcp', () => {
 			createEnumOption: vi.fn(),
 			insertEnumOption: vi.fn(),
 			updateEnumOption: vi.fn(),
+			updateCustomField: vi.fn(),
 			attachCustomField: vi.fn(),
 			detachCustomField: vi.fn(),
 			getCustomField: injectedGetCustomField,
@@ -163,6 +164,7 @@ describe('custom-fields/mcp custom field settings', () => {
 			createEnumOption: vi.fn(),
 			insertEnumOption: vi.fn(),
 			updateEnumOption: vi.fn(),
+			updateCustomField: vi.fn(),
 			attachCustomField: vi.fn(),
 			detachCustomField: vi.fn(),
 			getCustomField: vi.fn(),
@@ -191,6 +193,7 @@ describe('custom-fields/mcp writes', () => {
 			createEnumOption: vi.fn(),
 			insertEnumOption: vi.fn(),
 			updateEnumOption: vi.fn(),
+			updateCustomField: vi.fn(),
 			attachCustomField: vi.fn(),
 			detachCustomField: vi.fn(),
 			...over,
@@ -241,6 +244,23 @@ describe('custom-fields/mcp writes', () => {
 		expect(createEnumOption).toHaveBeenCalledWith('cf1', { name: 'S2', insertAfter: 'o0' })
 		expect(insertEnumOption).toHaveBeenCalledWith('cf1', { enumOption: 'o1', beforeEnumOption: 'o0' })
 		expect(updateEnumOption).toHaveBeenCalledWith('o1', { enabled: false })
+	})
+
+	it('asana_custom_field_update maps snake_case params to the api and rejects an empty change set', async () => {
+		const updateCustomField = vi.fn().mockResolvedValue({ gid: 'cf1' })
+		const server = setup({ updateCustomField })
+
+		await server.handlers.get('asana_custom_field_update')?.({
+			custom_field_gid: 'cf1',
+			name: 'Cost',
+			currency_code: 'USD',
+			enabled: false,
+		})
+		expect(updateCustomField).toHaveBeenCalledWith('cf1', { name: 'Cost', currencyCode: 'USD', enabled: false })
+
+		await expect(server.handlers.get('asana_custom_field_update')?.({ custom_field_gid: 'cf1' })).rejects.toThrow(
+			'Nothing to update',
+		)
 	})
 
 	it('attach and detach tools return the idempotent status', async () => {

@@ -33,6 +33,7 @@ function createPaginatingCustomFieldGateway(): CustomFieldGateway {
 		createEnumOption: vi.fn(),
 		insertEnumOption: vi.fn(),
 		updateEnumOption: vi.fn(),
+		updateCustomField: vi.fn(),
 		addCustomFieldToProject: vi.fn(),
 		removeCustomFieldFromProject: vi.fn(),
 	}

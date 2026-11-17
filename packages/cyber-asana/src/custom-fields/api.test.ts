@@ -27,6 +27,7 @@ describe('createCustomFieldApi', () => {
 			createEnumOption: vi.fn(),
 			insertEnumOption: vi.fn(),
 			updateEnumOption: vi.fn(),
+			updateCustomField: vi.fn(),
 			addCustomFieldToProject: vi.fn(),
 			removeCustomFieldFromProject: vi.fn(),
 			listCustomFieldSettingsForTeam: vi.fn(),
@@ -50,6 +51,7 @@ describe('createCustomFieldApi', () => {
 			createEnumOption: vi.fn(),
 			insertEnumOption: vi.fn(),
 			updateEnumOption: vi.fn(),
+			updateCustomField: vi.fn(),
 			addCustomFieldToProject: vi.fn(),
 			removeCustomFieldFromProject: vi.fn(),
 			listCustomFieldSettingsForTeam: vi.fn(),
@@ -78,6 +80,7 @@ function settingsGatewayStub() {
 		createEnumOption: vi.fn(),
 		insertEnumOption: vi.fn(),
 		updateEnumOption: vi.fn(),
+		updateCustomField: vi.fn(),
 		addCustomFieldToProject: vi.fn(),
 		removeCustomFieldFromProject: vi.fn(),
 		listCustomFieldSettingsForTeam: vi.fn(),
@@ -234,5 +237,13 @@ describe('custom-fields/api writes', () => {
 		expect(g.createEnumOption).toHaveBeenCalledWith('cf1', { name: 'Sprint 1' })
 		expect(g.insertEnumOption).toHaveBeenCalledWith('cf1', { enumOption: 'o1', afterEnumOption: 'o0' })
 		expect(g.updateEnumOption).toHaveBeenCalledWith('o1', { enabled: false })
+	})
+
+	it('updateCustomField forwards the gid and changes to the gateway', async () => {
+		const updateCustomField = vi.fn().mockResolvedValue({ gid: 'cf1', name: 'Cost' })
+		const api = createCustomFieldApi({ updateCustomField } as never)
+
+		await expect(api.updateCustomField('cf1', { name: 'Cost' })).resolves.toEqual({ gid: 'cf1', name: 'Cost' })
+		expect(updateCustomField).toHaveBeenCalledWith('cf1', { name: 'Cost' })
 	})
 })
