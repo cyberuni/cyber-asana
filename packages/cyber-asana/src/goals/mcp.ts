@@ -3,11 +3,13 @@ import { z } from 'zod'
 import { paginationOptions, paginationParams, readOptions, readParams } from '../platform/mcp/options.js'
 import type { GoalApi, GoalMetricInput } from './api.js'
 import {
+	addSupportingRelationship,
 	createGoal,
 	deleteGoal,
 	getGoal,
 	listGoals,
 	listTimePeriods,
+	removeSupportingRelationship,
 	setGoalMetric,
 	setGoalMetricCurrentValue,
 	updateGoal,
@@ -26,6 +28,8 @@ function resolveGoalApi(api?: GoalApi | (() => GoalApi)): GoalApi {
 			listTimePeriods,
 			setGoalMetric,
 			setGoalMetricCurrentValue,
+			addSupportingRelationship,
+			removeSupportingRelationship,
 		}
 	)
 }
@@ -188,5 +192,48 @@ export function registerGoalTools(server: McpServer, api?: GoalApi | (() => Goal
 				},
 			],
 		}),
+	)
+
+	server.tool(
+		'asana_goal_supporting_add',
+		'Make an Asana goal, project, or portfolio support a goal (paid plan)',
+		{
+			goal_gid: z.string().describe('Goal GID being supported'),
+			supporting_resource_gid: z.string().describe('GID of the supporting goal, project, or portfolio'),
+			contribution_weight: z.number().min(0).max(1).optional().describe("Weight in the goal's progress, 0 to 1"),
+			insert_before: z.string().optional().describe('Place it before this supporting resource GID'),
+			insert_after: z.string().optional().describe('Place it after this supporting resource GID'),
+		},
+		async ({ goal_gid, supporting_resource_gid, contribution_weight, insert_before, insert_after }) => ({
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(
+						await resolveGoalApi(api).addSupportingRelationship(goal_gid, supporting_resource_gid, {
+							...(contribution_weight !== undefined && { contributionWeight: contribution_weight }),
+							...(insert_before !== undefined && { insertBefore: insert_before }),
+							...(insert_after !== undefined && { insertAfter: insert_after }),
+						}),
+					),
+				},
+			],
+		}),
+	)
+
+	server.tool(
+		'asana_goal_supporting_remove',
+		'Stop an Asana goal, project, or portfolio supporting a goal (paid plan)',
+		{
+			goal_gid: z.string().describe('Goal GID being supported'),
+			supporting_resource_gid: z.string().describe('GID of the supporting goal, project, or portfolio'),
+		},
+		async ({ goal_gid, supporting_resource_gid }) => {
+			await resolveGoalApi(api).removeSupportingRelationship(goal_gid, supporting_resource_gid)
+			return {
+				content: [
+					{ type: 'text', text: `Removed supporting resource ${supporting_resource_gid} from goal ${goal_gid}` },
+				],
+			}
+		},
 	)
 }

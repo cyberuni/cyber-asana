@@ -95,6 +95,8 @@ function mockRuntimeContext(): RuntimeContext {
 			listTimePeriods: vi.fn(),
 			setGoalMetric: vi.fn(),
 			setGoalMetricCurrentValue: vi.fn(),
+			addSupportingRelationship: vi.fn(),
+			removeSupportingRelationship: vi.fn(),
 		},
 		tags: {
 			listTags: vi.fn(),

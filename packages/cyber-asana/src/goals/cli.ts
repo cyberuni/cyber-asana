@@ -13,11 +13,13 @@ import { output, printCountSummary, printFields, printNextSteps, printTable } fr
 import { deleteIdempotently, deleteMessage } from '../platform/idempotent-delete.js'
 import type { GoalApi, GoalMetricInput } from './api.js'
 import {
+	addSupportingRelationship,
 	createGoal,
 	deleteGoal,
 	getGoal,
 	listGoals,
 	listTimePeriods,
+	removeSupportingRelationship,
 	setGoalMetric,
 	setGoalMetricCurrentValue,
 	updateGoal,
@@ -56,6 +58,8 @@ function resolveGoalApi(api?: GoalApi | (() => GoalApi)): GoalApi {
 			listTimePeriods,
 			setGoalMetric,
 			setGoalMetricCurrentValue,
+			addSupportingRelationship,
+			removeSupportingRelationship,
 		}
 	)
 }
@@ -235,6 +239,41 @@ export function goalCommand(api?: GoalApi | (() => GoalApi)) {
 		.action(async (gid: string, value: string) => {
 			const data = await resolveGoalApi(api).setGoalMetricCurrentValue(gid, parseNumber('<value>')(value))
 			output(data, () => console.log(`Set the current value of goal ${gid} to ${value}`))
+		})
+
+	const supportingCmd = cmd
+		.command('supporting')
+		.description('Link goals, projects, or portfolios that support a goal (paid plan)')
+
+	supportingCmd
+		.command('add <goal-gid> <supporting-gid>')
+		.description('Make a goal, project, or portfolio support a goal')
+		.option('--weight <n>', "Contribution weight in the goal's progress, 0 to 1", parseNumber('--weight'))
+		.option('--insert-before <gid>', 'Place it before this supporting resource')
+		.option('--insert-after <gid>', 'Place it after this supporting resource')
+		.action(
+			async (
+				goalGid: string,
+				supportingGid: string,
+				opts: { weight?: number; insertBefore?: string; insertAfter?: string },
+			) => {
+				const data = await resolveGoalApi(api).addSupportingRelationship(goalGid, supportingGid, {
+					...(opts.weight !== undefined && { contributionWeight: opts.weight }),
+					...(opts.insertBefore !== undefined && { insertBefore: opts.insertBefore }),
+					...(opts.insertAfter !== undefined && { insertAfter: opts.insertAfter }),
+				})
+				output(data, () => console.log(`Added supporting resource ${supportingGid} to goal ${goalGid}`))
+			},
+		)
+
+	supportingCmd
+		.command('remove <goal-gid> <supporting-gid>')
+		.description('Stop a goal, project, or portfolio supporting a goal')
+		.action(async (goalGid: string, supportingGid: string) => {
+			await resolveGoalApi(api).removeSupportingRelationship(goalGid, supportingGid)
+			output({ goal: goalGid, supporting_resource: supportingGid, status: 'removed' }, () =>
+				console.log(`Removed supporting resource ${supportingGid} from goal ${goalGid}`),
+			)
 		})
 
 	return cmd

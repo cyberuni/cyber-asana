@@ -56,6 +56,14 @@ export type GoalMetricInput = {
 		| 'external'
 }
 
+/** Options of `addSupportingRelationship`, from developers.asana.com; unverified against a live paid workspace. */
+export type SupportingRelationshipOptions = {
+	/** A supporting goal's weight in the parent's progress, 0 to 1. */
+	contributionWeight?: number
+	insertBefore?: string
+	insertAfter?: string
+}
+
 export type GoalGateway = {
 	listGoals(workspaceGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.Goal>>
 	getGoal(goalGid: string, opts?: ReadOptions): Promise<Asana.Goal>
@@ -65,11 +73,18 @@ export type GoalGateway = {
 	listTimePeriods(workspaceGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.TimePeriod>>
 	setGoalMetric(goalGid: string, metric: GoalMetricInput): Promise<GoalMetric>
 	setGoalMetricCurrentValue(goalGid: string, currentNumberValue: number): Promise<GoalMetric>
+	addSupportingRelationship(
+		goalGid: string,
+		supportingResourceGid: string,
+		opts?: SupportingRelationshipOptions,
+	): Promise<{ gid?: string; [key: string]: unknown }>
+	removeSupportingRelationship(goalGid: string, supportingResourceGid: string): Promise<void>
 }
 
 export function createAsanaGoalGateway(client: Asana.ApiClient): GoalGateway {
 	const goalsApi = new Asana.GoalsApi(client)
 	const timePeriodsApi = new Asana.TimePeriodsApi(client)
+	const relationshipsApi = new Asana.GoalRelationshipsApi(client)
 
 	return {
 		async listGoals(workspaceGid, opts) {
@@ -116,6 +131,27 @@ export function createAsanaGoalGateway(client: Asana.ApiClient): GoalGateway {
 		async setGoalMetricCurrentValue(goalGid, currentNumberValue) {
 			const res = await goalsApi.updateGoalMetric({ data: { current_number_value: currentNumberValue } }, goalGid, {})
 			return res.data
+		},
+		async addSupportingRelationship(goalGid, supportingResourceGid, opts) {
+			const res = await relationshipsApi.addSupportingRelationship(
+				{
+					data: {
+						supporting_resource: supportingResourceGid,
+						...(opts?.contributionWeight !== undefined && { contribution_weight: opts.contributionWeight }),
+						...(opts?.insertBefore !== undefined && { insert_before: opts.insertBefore }),
+						...(opts?.insertAfter !== undefined && { insert_after: opts.insertAfter }),
+					},
+				},
+				goalGid,
+				{},
+			)
+			return res.data
+		},
+		async removeSupportingRelationship(goalGid, supportingResourceGid) {
+			await relationshipsApi.removeSupportingRelationship(
+				{ data: { supporting_resource: supportingResourceGid } },
+				goalGid,
+			)
 		},
 	}
 }

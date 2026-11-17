@@ -47,6 +47,19 @@ records the current value. Both need a paid workspace, and the request bodies co
 docs and have not been confirmed against a live workspace. The MCP tools are
 `asana_goal_metric_set` and `asana_goal_metric_set_current_value`.
 
+## Supporting relationships
+
+```sh
+cyber-asana goal supporting add <goal-gid> <supporting-gid> --weight 0.5
+cyber-asana goal supporting remove <goal-gid> <supporting-gid>
+```
+
+A supporting resource is a goal, project, or portfolio whose progress feeds the goal. `add` also
+takes `--insert-before` and `--insert-after` to place it among the others. Both commands need a
+paid workspace; the MCP tools are `asana_goal_supporting_add` and `asana_goal_supporting_remove`.
+The request bodies come from Asana's docs and have not been confirmed against a live workspace.
+Reading and updating a relationship by its own GID is not wrapped.
+
 Goal followers and parent-goal relationships are not wrapped — see
 [API coverage](/cyber-asana/reference/api-coverage/).
 

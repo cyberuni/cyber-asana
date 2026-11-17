@@ -6,6 +6,7 @@ import {
 	type CreateGoalFields,
 	createAsanaGoalGateway,
 	type GoalMetricInput,
+	type SupportingRelationshipOptions,
 	type UpdateGoalFields,
 } from './gateway.js'
 
@@ -43,4 +44,16 @@ export async function setGoalMetric(goalGid: string, metric: GoalMetricInput) {
 
 export async function setGoalMetricCurrentValue(goalGid: string, currentNumberValue: number) {
 	return defaultGoalApi().setGoalMetricCurrentValue(goalGid, currentNumberValue)
+}
+
+export async function addSupportingRelationship(
+	goalGid: string,
+	supportingResourceGid: string,
+	opts?: SupportingRelationshipOptions,
+) {
+	return defaultGoalApi().addSupportingRelationship(goalGid, supportingResourceGid, opts)
+}
+
+export async function removeSupportingRelationship(goalGid: string, supportingResourceGid: string) {
+	return defaultGoalApi().removeSupportingRelationship(goalGid, supportingResourceGid)
 }
