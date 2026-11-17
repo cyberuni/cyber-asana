@@ -1,7 +1,7 @@
 {
 	"source": "src/**/mcp.ts",
 	"fetched_at": "2026-11-15",
-	"tool_count": 174,
+	"tool_count": 176,
 	"tools": [
 		"asana_ai_studio_run_list",
 		"asana_ai_studio_seat_list",
@@ -124,6 +124,8 @@
 		"asana_story_create",
 		"asana_story_delete",
 		"asana_story_get",
+		"asana_story_goal_create",
+		"asana_story_goal_list",
 		"asana_story_list",
 		"asana_story_update",
 		"asana_tag_add_to_task",

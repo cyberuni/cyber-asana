@@ -497,7 +497,7 @@ Tools are named `asana_<resource>_<action>` (e.g. `asana_task_create`).
 | `status` | `asana_status_overview`, `asana_status_list`, `asana_status_get`, `asana_status_create`, `asana_status_delete` |
 | `rule` | `asana_rule_trigger` (fires an Asana automation rule; the rule must use an "incoming web request" trigger) |
 | `event` | `asana_event_list` (change feed; sync-token cursored, not paginated) |
-| `story` | `asana_story_list`, `asana_story_get`, `asana_story_create`, `asana_story_update`, `asana_story_delete` |
+| `story` | `asana_story_list`, `asana_story_get`, `asana_story_create`, `asana_story_update`, `asana_story_delete`, `asana_story_goal_list`, `asana_story_goal_create` (a goal's comments; paid plan) |
 | `comment` | `asana_comment_list`, `asana_comment_get`, `asana_comment_create`, `asana_comment_update`, `asana_comment_delete` (aliases for `story`) |
 | `custom-field` | `asana_custom_field_list`, `asana_custom_field_get` (discover the field and enum-option GIDs that `asana_task_create` / `asana_task_update` expect), `asana_custom_field_list_for_project`, `asana_custom_field_list_for_portfolio`, `asana_custom_field_list_for_goal`, `asana_custom_field_list_for_team`, `asana_custom_field_create`, `asana_custom_field_update`, `asana_custom_field_delete`, `asana_custom_field_enum_option_create`, `asana_custom_field_enum_option_insert`, `asana_custom_field_enum_option_update`, `asana_custom_field_attach`, `asana_custom_field_detach`, `asana_custom_field_attach_portfolio`, `asana_custom_field_detach_portfolio` |
 | `time-entry` | `asana_time_entry_list`, `asana_time_entry_list_for_task`, `asana_time_entry_get`, `asana_time_entry_create`, `asana_time_entry_update`, `asana_time_entry_delete` (paid plan; log and review time on tasks) |
@@ -656,7 +656,7 @@ Installing twice is a no-op, and unrelated settings are preserved.
 | `job` | `get` |
 | `status` | `list`, `get`, `create`, `delete` |
 | `event` | `list` |
-| `story` | `list`, `get`, `create`, `update`, `delete` |
+| `story` | `list`, `get`, `create`, `update`, `delete`, `list-goal`, `create-goal` |
 | `comment` | `list`, `get`, `create`, `update`, `delete` (alias for `story`) |
 | `custom-field` | `list`, `get`, `project`, `portfolio`, `goal`, `team` |
 | `membership` | `list`, `get`, `create`, `update`, `delete` |

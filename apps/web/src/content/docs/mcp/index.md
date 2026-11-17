@@ -144,7 +144,7 @@ Default: if both can do the job, prefer **official for discovery and previews** 
 | `custom-field` | `asana_custom_field_list`, `asana_custom_field_get`, `asana_custom_field_list_for_project`, `asana_custom_field_list_for_portfolio`, `asana_custom_field_list_for_goal`, `asana_custom_field_list_for_team`, `asana_custom_field_create`, `asana_custom_field_update`, `asana_custom_field_delete`, `asana_custom_field_enum_option_create`, `asana_custom_field_enum_option_insert`, `asana_custom_field_enum_option_update`, `asana_custom_field_attach`, `asana_custom_field_detach`, `asana_custom_field_attach_portfolio`, `asana_custom_field_detach_portfolio` |
 | `status` | `asana_status_list`, `asana_status_get`, `asana_status_create`, `asana_status_delete` |
 | `event` | `asana_event_list` (change feed; sync-token cursored, not paginated) |
-| `story` | `asana_story_list`, `asana_story_get`, `asana_story_create`, `asana_story_update`, `asana_story_delete` |
+| `story` | `asana_story_list`, `asana_story_get`, `asana_story_create`, `asana_story_update`, `asana_story_delete`, `asana_story_goal_list`, `asana_story_goal_create` (a goal's comments; paid plan) |
 | `comment` | `asana_comment_list`, `asana_comment_get`, `asana_comment_create`, `asana_comment_update`, `asana_comment_delete` (aliases for `story`) |
 | `time-entry` | `asana_time_entry_list`, `asana_time_entry_list_for_task`, `asana_time_entry_get`, `asana_time_entry_create`, `asana_time_entry_update`, `asana_time_entry_delete` (paid plan; log and review time on tasks) |
 | `project-brief` | `asana_project_brief_get`, `asana_project_brief_create`, `asana_project_brief_update`, `asana_project_brief_delete` (a project's charter or sprint goal; rich text is checked against the `project-brief` HTML rules) |

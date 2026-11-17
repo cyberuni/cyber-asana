@@ -55,7 +55,7 @@ operations such as project export and TODO scanning are described separately bel
 | Users | 🟡 | 3 / 8 | `user` | Read-only |
 | Teams | 🟡 | 2 / 7 | `team` | Read-only; also a team's projects, which `team projects` lists |
 | Workspaces | 🟡 | 2 / 6 | `workspace` | Read-only |
-| Stories | 🟡 | 5 / 7 | `story`, `comment` | Full comment lifecycle on tasks; no goal stories |
+| Stories | ✅ | 7 / 7 | `story`, `comment` | Full comment lifecycle on tasks, and goal comments (`story list-goal\|create-goal`, paid plan) |
 | Custom fields | ✅ | 8 / 8 | `custom-field` | Discovery, create, update, delete, and enum-option create, insert, and update |
 | Project briefs | ✅ | 4 / 4 | `project-brief` | Get, create, update, delete; `html_text` is checked against the `project-brief` rules first |
 | Time tracking entries | ✅ | 6 / 6 | `time-entry` | List (all, or one task's), get, create, update, delete (paid plan). Categories, timesheets, rates, and budgets are not wrapped |
@@ -162,7 +162,7 @@ using one.
 | Goals | `goal list\|get\|create\|update\|delete`, `goal metric set\|set-current` | `asana_goal_*` |
 | Portfolios | `portfolio list\|items\|get\|create\|update\|delete`, `portfolio item add\|remove` | `asana_portfolio_*` |
 | Status updates | `status list\|get\|create\|delete` | `asana_status_*` |
-| Stories / comments | `story list\|get\|create\|update\|delete`, same under `comment` | `asana_story_*`, `asana_comment_*` |
+| Stories / comments | `story list\|get\|create\|update\|delete`, same under `comment`; `story list-goal\|create-goal` | `asana_story_*`, `asana_comment_*`, `asana_story_goal_*` |
 | Memberships | `membership list\|get\|create\|update\|delete` | `asana_membership_*` |
 | Notifications (beta) | `notification list\|mark-read\|mark-unread` | `asana_notification_*` |
 | Project briefs | `project-brief get\|create\|update\|delete` | `asana_project_brief_*` |

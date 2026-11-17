@@ -19,6 +19,8 @@ function createPaginatingStoryGateway(): StoryGateway {
 		updateStory: vi.fn(),
 		deleteStory: vi.fn(),
 		getTaskTemplateData: vi.fn(),
+		listGoalStories: vi.fn(),
+		createGoalStory: vi.fn(),
 	}
 }
 

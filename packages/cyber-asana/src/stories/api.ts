@@ -91,5 +91,21 @@ export function createStoryApi(gateway: StoryGateway) {
 		getTaskTemplateData(taskGid: string) {
 			return gateway.getTaskTemplateData(taskGid)
 		},
+		listGoalStories(goalGid: string, opts?: PaginationOptions) {
+			return gateway.listGoalStories(goalGid, opts)
+		},
+		async createGoalStory(goalGid: string, fields: StoryCreateFields) {
+			const payload = buildStoryCreateFields({
+				text: fields.text,
+				htmlText: fields.html_text,
+				isPinned: fields.is_pinned,
+				stickerName: fields.sticker_name,
+			})
+			try {
+				return await gateway.createGoalStory(goalGid, payload)
+			} catch (error) {
+				normalizeStoryCreateError(error)
+			}
+		},
 	}
 }

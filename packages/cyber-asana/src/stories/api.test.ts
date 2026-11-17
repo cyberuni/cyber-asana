@@ -162,6 +162,8 @@ describe('createStoryApi', () => {
 			updateStory: vi.fn(),
 			deleteStory: vi.fn(),
 			getTaskTemplateData: vi.fn(),
+			listGoalStories: vi.fn(),
+			createGoalStory: vi.fn(),
 		})
 
 		const result = await api.createStory('task1', { text: 'A comment' })

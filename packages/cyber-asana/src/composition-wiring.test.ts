@@ -134,6 +134,8 @@ function mockRuntimeContext(): RuntimeContext {
 			updateStory: vi.fn(),
 			deleteStory: vi.fn(),
 			getTaskTemplateData: vi.fn(),
+			listGoalStories: vi.fn(),
+			createGoalStory: vi.fn(),
 		},
 		taskTemplates: {
 			listTaskTemplates: vi.fn(),

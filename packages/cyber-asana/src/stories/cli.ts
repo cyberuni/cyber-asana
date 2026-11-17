@@ -14,7 +14,16 @@ import { deleteIdempotently, deleteMessage } from '../platform/idempotent-delete
 import { isFull, truncate } from '../platform/truncate.js'
 import type { StoryApi } from './api.js'
 import { interpolateTemplate } from './api.js'
-import { createStory, deleteStory, getStory, getTaskTemplateData, listStories, updateStory } from './default.js'
+import {
+	createGoalStory,
+	createStory,
+	deleteStory,
+	getStory,
+	getTaskTemplateData,
+	listGoalStories,
+	listStories,
+	updateStory,
+} from './default.js'
 import { STICKER_NAMES } from './write-options.js'
 
 const TEXT_COLUMN_LIMIT = 60
@@ -42,7 +51,18 @@ function pinnedFromCli(opts: { pin?: boolean; unpin?: boolean }) {
 
 function resolveStoryApi(api?: StoryApi | (() => StoryApi)): StoryApi {
 	if (typeof api === 'function') return api()
-	return api ?? { listStories, createStory, getStory, updateStory, deleteStory, getTaskTemplateData }
+	return (
+		api ?? {
+			listStories,
+			createStory,
+			getStory,
+			updateStory,
+			deleteStory,
+			getTaskTemplateData,
+			listGoalStories,
+			createGoalStory,
+		}
+	)
 }
 
 // Minimal default schema for story lists — principle 2. Just the fields the
@@ -179,6 +199,53 @@ export function storyCommand(name = 'story', api?: StoryApi | (() => StoryApi)) 
 			const result = await deleteIdempotently('story', gid, () => resolveStoryApi(api).deleteStory(gid))
 			output(result, () => console.log(deleteMessage(result, 'Comment')))
 		})
+
+	addPaginationOptions(cmd.command('list-goal <goal-gid>').description("List a goal's stories (paid plan)")).action(
+		async (goalGid: string, opts: { limit?: number; offset?: string; optFields?: string }) => {
+			const pagination = paginationOptionsFromCli(opts)
+			pagination.optFields ??= STORY_LIST_FIELDS
+			const data = await resolveStoryApi(api).listGoalStories(goalGid, pagination)
+			output(data, () => {
+				const items = itemsForOutput(data)
+				printTable(
+					items,
+					[
+						{ label: 'ID', get: (s: Story) => s.gid },
+						{ label: 'Type', get: (s: Story) => s.type ?? '' },
+						{ label: 'By', get: (s: Story) => s.created_by?.name ?? '' },
+						{ label: 'Text', get: (s: Story) => truncate(s.text, { limit: TEXT_COLUMN_LIMIT, full: isFull() }) },
+					],
+					{ entity: 'stories' },
+				)
+				printCountSummary(items.length, 'story(s)')
+				printNextPageHint(data)
+				printNextSteps([`cyber-asana ${name} create-goal ${goalGid} "<text>" — post a progress note`])
+			})
+		},
+	)
+
+	cmd
+		.command('create-goal <goal-gid> [text]')
+		.description('Post a comment on a goal (paid plan)')
+		.option('--html-text <html>', 'Comment rich text as Asana HTML')
+		.option('--pin', 'Pin the new comment on the goal')
+		.option('--sticker <name>', `Sticker to attach (${STICKER_NAMES.join(', ')})`)
+		.action(
+			async (
+				goalGid: string,
+				text: string | undefined,
+				opts: { htmlText?: string; pin?: boolean; sticker?: string },
+			) => {
+				const isPinned = pinnedFromCli(opts)
+				const data = await resolveStoryApi(api).createGoalStory(goalGid, {
+					...(text !== undefined && { text }),
+					...(opts.htmlText !== undefined && { html_text: opts.htmlText }),
+					...(isPinned !== undefined && { is_pinned: isPinned }),
+					...(opts.sticker !== undefined && { sticker_name: opts.sticker }),
+				})
+				output(data, () => fmtStory(data))
+			},
+		)
 
 	return cmd
 }
