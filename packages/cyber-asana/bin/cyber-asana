@@ -1,0 +1,8 @@
+#!/usr/bin/env node
+// Plugin-local `cyber-asana`. Claude Code puts a plugin's `bin/` on PATH while the plugin is enabled, so
+// skills and agents run this name instead of fetching the package at call time. It imports the `dist/cli.js` that
+// ships in the same package as this file, so the CLI is always the plugin's own version and nothing is
+// fetched from a registry at call time.
+import { pathToFileURL } from 'node:url'
+
+await import(pathToFileURL(new URL('../dist/cli.js', import.meta.url).pathname).href)

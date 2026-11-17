@@ -25,8 +25,7 @@ project from the registry", "this repo's config is stale", "what does `--assigne
 resolve to", "I want this pinned personally, don't commit it", "set up cyber-asana.json".
 
 Requires `ASANA_ACCESS_TOKEN` and `ASANA_WORKSPACE_GID` (see **init-asana**).
-When using npx, pin `<exact>` with
-`npm view cyber-asana version` (same rule as **init-asana**).
+Run the CLI through the plugin launcher, never `npx` (see **init-asana**).
 
 ## Repo config vs. global registry
 
