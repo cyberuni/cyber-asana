@@ -48,6 +48,10 @@ import { createPortfolioApi, type PortfolioApi } from './portfolios/api.js'
 import { portfolioCommand } from './portfolios/cli.js'
 import { createAsanaPortfolioGateway } from './portfolios/gateway.js'
 import { registerPortfolioTools } from './portfolios/mcp.js'
+import { createProjectBriefApi, type ProjectBriefApi } from './project-briefs/api.js'
+import { projectBriefCommand } from './project-briefs/cli.js'
+import { createAsanaProjectBriefGateway } from './project-briefs/gateway.js'
+import { registerProjectBriefTools } from './project-briefs/mcp.js'
 import { createProjectTemplateApi, newProjectOf, type ProjectTemplateApi } from './project-templates/api.js'
 import { projectTemplateCommand } from './project-templates/cli.js'
 import { createAsanaProjectTemplateGateway } from './project-templates/gateway.js'
@@ -122,6 +126,7 @@ export type RuntimeContext = {
 	jobs: JobApi
 	portfolios: PortfolioApi
 	projects: ProjectApi
+	projectBriefs: ProjectBriefApi
 	projectTemplates: ProjectTemplateApi
 	rules: RuleApi
 	scrum: ScrumApi
@@ -162,6 +167,7 @@ export function createRuntimeContext(): RuntimeContext {
 		jobs: createJobApi(jobGateway),
 		portfolios: createPortfolioApi(portfolioGateway),
 		projects: projectApi,
+		projectBriefs: createProjectBriefApi(createAsanaProjectBriefGateway(client)),
 		projectTemplates: createProjectTemplateApi(createAsanaProjectTemplateGateway(client), { jobs: jobGateway }),
 		rules: createRuleApi(createAsanaRuleGateway(client)),
 		scrum: createScrumApi({
@@ -230,6 +236,7 @@ export function registerCliCommands(program: Command, getContext: () => RuntimeC
 	program.addCommand(oooCommand(() => getContext().ooo))
 	program.addCommand(allocationCommand(() => getContext().allocations))
 	program.addCommand(attachmentCommand(() => getContext().attachments))
+	program.addCommand(projectBriefCommand(() => getContext().projectBriefs))
 	program.addCommand(projectTemplateCommand(() => getContext().projectTemplates))
 	program.addCommand(jobCommand(() => getContext().jobs))
 	program.addCommand(statusCommand(() => getContext().status))
@@ -278,6 +285,7 @@ export function registerMcpTools(server: McpServer, getContext: () => RuntimeCon
 	registerOooTools(server, () => getContext().ooo)
 	registerAllocationTools(server, () => getContext().allocations)
 	registerAttachmentTools(server, () => getContext().attachments)
+	registerProjectBriefTools(server, () => getContext().projectBriefs)
 	registerProjectTemplateTools(server, () => getContext().projectTemplates)
 	registerJobTools(server, () => getContext().jobs)
 	registerStatusTools(server, () => getContext().status)

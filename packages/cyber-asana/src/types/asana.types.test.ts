@@ -257,7 +257,7 @@ describe('asana type augmentation', () => {
 		testType.equal<Asana.Team['resource_type'], 'team' | undefined>(true)
 	})
 
-	it('types MembershipsApi, OooEntriesApi and StatusUpdatesApi', () => {
+	it('types MembershipsApi, OooEntriesApi, ProjectBriefsApi and StatusUpdatesApi', () => {
 		type R<A, K extends keyof A> = A[K] extends (...args: any) => infer Ret ? Awaited<Ret> : never
 
 		testType.false<IsAny<R<Asana.MembershipsApi, 'getMembership'>>>(true)
@@ -277,6 +277,11 @@ describe('asana type augmentation', () => {
 		testType.equal<R<Asana.StatusUpdatesApi, 'createStatusForObject'>, Asana.AsanaResponse<Asana.StatusUpdate>>(true)
 		testType.equal<R<Asana.StatusUpdatesApi, 'deleteStatus'>, Asana.EmptyResponse>(true)
 		testType.equal<R<Asana.StatusUpdatesApi, 'getStatusesForObject'>, Asana.AsanaCollection<Asana.StatusUpdate>>(true)
+		testType.equal<R<Asana.ProjectBriefsApi, 'getProjectBrief'>, Asana.AsanaResponse<Asana.ProjectBrief>>(true)
+		testType.equal<R<Asana.ProjectBriefsApi, 'createProjectBrief'>, Asana.AsanaResponse<Asana.ProjectBrief>>(true)
+		testType.equal<R<Asana.ProjectBriefsApi, 'updateProjectBrief'>, Asana.AsanaResponse<Asana.ProjectBrief>>(true)
+		testType.equal<R<Asana.ProjectBriefsApi, 'deleteProjectBrief'>, Asana.EmptyResponse>(true)
+		testType.equal<Asana.ProjectBrief['resource_type'], 'project_brief' | undefined>(true)
 		testType.equal<Asana.OooEntry['resource_type'], 'ooo_entry' | undefined>(true)
 		testType.equal<Asana.StatusUpdate['resource_type'], 'status_update' | undefined>(true)
 		testType.equal<Asana.Membership['resource_type'], 'membership' | undefined>(true)

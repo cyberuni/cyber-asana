@@ -480,6 +480,38 @@ declare module 'asana' {
 		deleteStatus(status_update_gid: string): Promise<EmptyResponse>
 	}
 
+	/** A project's brief: the charter or sprint goal, kept as Asana rich text. */
+	interface ProjectBrief {
+		gid: string
+		resource_type?: 'project_brief' | undefined
+		title?: string | undefined
+		text?: string | undefined
+		html_text?: string | undefined
+		permalink_url?: string | undefined
+		project?: AsanaResource | undefined
+	}
+
+	interface ProjectBriefRequest {
+		title?: string | undefined
+		text?: string | undefined
+		html_text?: string | undefined
+	}
+
+	interface ProjectBriefsApi {
+		getProjectBrief(project_brief_gid: string, opts?: OptionalFields): Promise<AsanaResponse<ProjectBrief>>
+		createProjectBrief(
+			body: { data: ProjectBriefRequest },
+			project_gid: string,
+			opts?: OptionalFields,
+		): Promise<AsanaResponse<ProjectBrief>>
+		updateProjectBrief(
+			body: { data: ProjectBriefRequest },
+			project_brief_gid: string,
+			opts?: OptionalFields,
+		): Promise<AsanaResponse<ProjectBrief>>
+		deleteProjectBrief(project_brief_gid: string): Promise<EmptyResponse>
+	}
+
 	interface BatchAction {
 		method: 'get' | 'post' | 'put' | 'delete' | 'patch' | 'head'
 		relative_path: string
