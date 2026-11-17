@@ -31,6 +31,8 @@ describe('createCustomFieldApi', () => {
 			deleteCustomField: vi.fn(),
 			addCustomFieldToProject: vi.fn(),
 			removeCustomFieldFromProject: vi.fn(),
+			addCustomFieldToPortfolio: vi.fn(),
+			removeCustomFieldFromPortfolio: vi.fn(),
 			listCustomFieldSettingsForTeam: vi.fn(),
 		})
 
@@ -56,6 +58,8 @@ describe('createCustomFieldApi', () => {
 			deleteCustomField: vi.fn(),
 			addCustomFieldToProject: vi.fn(),
 			removeCustomFieldFromProject: vi.fn(),
+			addCustomFieldToPortfolio: vi.fn(),
+			removeCustomFieldFromPortfolio: vi.fn(),
 			listCustomFieldSettingsForTeam: vi.fn(),
 		})
 
@@ -86,6 +90,8 @@ function settingsGatewayStub() {
 		deleteCustomField: vi.fn(),
 		addCustomFieldToProject: vi.fn(),
 		removeCustomFieldFromProject: vi.fn(),
+		addCustomFieldToPortfolio: vi.fn(),
+		removeCustomFieldFromPortfolio: vi.fn(),
 		listCustomFieldSettingsForTeam: vi.fn(),
 	}
 }
@@ -220,6 +226,44 @@ describe('custom-fields/api writes', () => {
 
 		expect((await api.detachCustomField('p1', 'cf1')).status).toBe('detached')
 		expect(remove).toHaveBeenCalledWith('p1', 'cf1')
+	})
+
+	it('attachCustomFieldToPortfolio attaches a field the portfolio lacks, and is a no-op when present', async () => {
+		const add = vi.fn().mockResolvedValue({ gid: 's1' })
+		const list = vi
+			.fn()
+			.mockResolvedValueOnce([])
+			.mockResolvedValueOnce([{ custom_field: { gid: 'cf1' } }])
+		const api = createCustomFieldApi(
+			gateway({ listCustomFieldSettingsForPortfolio: list, addCustomFieldToPortfolio: add }),
+		)
+
+		const first = await api.attachCustomFieldToPortfolio('pf1', 'cf1', { isImportant: true })
+		const second = await api.attachCustomFieldToPortfolio('pf1', 'cf1')
+
+		expect(first).toEqual({ portfolio: 'pf1', custom_field: 'cf1', status: 'attached' })
+		expect(second).toEqual({ portfolio: 'pf1', custom_field: 'cf1', status: 'already_attached' })
+		expect(add).toHaveBeenCalledTimes(1)
+		expect(add).toHaveBeenCalledWith('pf1', 'cf1', { isImportant: true })
+	})
+
+	it('detachCustomFieldFromPortfolio removes an attached field, and is a no-op when absent', async () => {
+		const remove = vi.fn().mockResolvedValue(undefined)
+		const list = vi
+			.fn()
+			.mockResolvedValueOnce([{ custom_field: { gid: 'cf1' } }])
+			.mockResolvedValueOnce([])
+		const api = createCustomFieldApi(
+			gateway({ listCustomFieldSettingsForPortfolio: list, removeCustomFieldFromPortfolio: remove }),
+		)
+
+		const first = await api.detachCustomFieldFromPortfolio('pf1', 'cf1')
+		const second = await api.detachCustomFieldFromPortfolio('pf1', 'cf1')
+
+		expect(first).toEqual({ portfolio: 'pf1', custom_field: 'cf1', status: 'detached' })
+		expect(second).toEqual({ portfolio: 'pf1', custom_field: 'cf1', status: 'already_detached' })
+		expect(remove).toHaveBeenCalledTimes(1)
+		expect(remove).toHaveBeenCalledWith('pf1', 'cf1')
 	})
 
 	it('passes field and enum-option writes through to the gateway', async () => {

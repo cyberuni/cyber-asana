@@ -15,10 +15,12 @@ import { isFull, truncate } from '../platform/truncate.js'
 import type { CreateCustomFieldInput, CustomFieldApi, UpdateCustomFieldInput } from './api.js'
 import {
 	attachCustomField,
+	attachCustomFieldToPortfolio,
 	createCustomField,
 	createEnumOption,
 	deleteCustomField,
 	detachCustomField,
+	detachCustomFieldFromPortfolio,
 	getCustomField,
 	insertEnumOption,
 	listCustomFieldSettingsForGoal,
@@ -62,7 +64,9 @@ function resolveCustomFieldApi(api?: CustomFieldApi | (() => CustomFieldApi)): C
 			updateCustomField,
 			deleteCustomField,
 			attachCustomField,
+			attachCustomFieldToPortfolio,
 			detachCustomField,
+			detachCustomFieldFromPortfolio,
 		}
 	)
 }
@@ -432,6 +436,37 @@ export function customFieldCommand(api?: CustomFieldApi | (() => CustomFieldApi)
 					result.status === 'detached'
 						? `Detached custom field ${fieldGid} from project ${projectGid}`
 						: `Custom field ${fieldGid} was already detached from project ${projectGid}`,
+				),
+			)
+		})
+
+	cmd
+		.command('attach-portfolio <portfolio-gid> <field-gid>')
+		.description('Attach a custom field to a portfolio (no-op when it already is)')
+		.option('--important', 'Show the field on the portfolio list by default')
+		.action(async (portfolioGid: string, fieldGid: string, opts: { important?: boolean }) => {
+			const result = await resolveCustomFieldApi(api).attachCustomFieldToPortfolio(portfolioGid, fieldGid, {
+				...(opts.important && { isImportant: true }),
+			})
+			output(result, () =>
+				console.log(
+					result.status === 'attached'
+						? `Attached custom field ${fieldGid} to portfolio ${portfolioGid}`
+						: `Custom field ${fieldGid} was already attached to portfolio ${portfolioGid}`,
+				),
+			)
+		})
+
+	cmd
+		.command('detach-portfolio <portfolio-gid> <field-gid>')
+		.description('Detach a custom field from a portfolio (no-op when it is not attached)')
+		.action(async (portfolioGid: string, fieldGid: string) => {
+			const result = await resolveCustomFieldApi(api).detachCustomFieldFromPortfolio(portfolioGid, fieldGid)
+			output(result, () =>
+				console.log(
+					result.status === 'detached'
+						? `Detached custom field ${fieldGid} from portfolio ${portfolioGid}`
+						: `Custom field ${fieldGid} was already detached from portfolio ${portfolioGid}`,
 				),
 			)
 		})

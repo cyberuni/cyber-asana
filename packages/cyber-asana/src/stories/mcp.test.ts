@@ -23,6 +23,8 @@ function storyDeps(overrides: Partial<StoryApi> = {}): StoryApi {
 		updateStory: vi.fn(),
 		deleteStory: vi.fn(),
 		getTaskTemplateData: vi.fn(),
+		listGoalStories: vi.fn(),
+		createGoalStory: vi.fn(),
 		...overrides,
 	}
 }

@@ -481,12 +481,12 @@ Tools are named `asana_<resource>_<action>` (e.g. `asana_task_create`).
 | `task-template` | `asana_task_template_list`, `asana_task_template_get`, `asana_task_template_instantiate` |
 | `section` | `asana_section_list`, `asana_section_get`, `asana_section_create`, `asana_section_update`, `asana_section_move`, `asana_section_task_add`, `asana_section_task_list`, `asana_section_delete` |
 | `user` | `asana_user_list`, `asana_user_get`, `asana_user_me` |
-| `team` | `asana_team_list`, `asana_team_get`, `asana_team_members`, `asana_team_projects` |
+| `team` | `asana_team_list`, `asana_team_get`, `asana_team_members`, `asana_team_projects`, `asana_team_list_for_user` |
 | `scope` | `asana_scope_list`, `asana_scope_add`, `asana_scope_remove`, `asana_scope_resolve` (scrum scopes: the projects a scrum team works in) |
 | `sprint` | `asana_sprint_current`, `asana_sprint_list`, `asana_sprint_tasks`, `asana_sprint_add`, `asana_sprint_start`, `asana_sprint_close`, `asana_sprint_plan` (the planning arithmetic: velocity, capacity, the backlog top that fits, totals of a pick), `asana_backlog_list` (computed sprints and the backlog; the `sections` model) |
 | `report` | `asana_report_standup` (a member's standup: done, today, blocked; story and task points apart), `asana_report_health` (sprint health checks H1–H11, each finding with a fix command), `asana_report_workload` (per person load vs Allocations capacity, over/under flags, team total), `asana_report_sprint` (the sprint review: committed vs completed vs added vs removed, burndown, demo list), `asana_report_retro` (carry-over, scope change, blocked time, cycle time, estimate vs actual), `asana_report_velocity` (points per closed sprint and the mean), `asana_report_dashboard` (the reports `cyber-asana.dashboard` lists, in one result, with a status from the health findings), `asana_report_dashboard_post` (posts that dashboard as a status update on the project or portfolio; `dry_run` previews it) |
 | `portfolio` | `asana_portfolio_list`, `asana_portfolio_item_list`, `asana_portfolio_item_add`, `asana_portfolio_item_remove`, `asana_portfolio_get`, `asana_portfolio_create`, `asana_portfolio_update`, `asana_portfolio_delete` |
-| `goal` | `asana_goal_list`, `asana_goal_get`, `asana_goal_create`, `asana_goal_update`, `asana_goal_delete` |
+| `goal` | `asana_goal_list`, `asana_goal_get`, `asana_goal_create`, `asana_goal_update`, `asana_goal_delete`, `asana_goal_metric_set`, `asana_goal_metric_set_current_value`, `asana_goal_supporting_add`, `asana_goal_supporting_remove`, `asana_goal_follower_add`, `asana_goal_follower_remove` |
 | `tag` | `asana_tag_list`, `asana_tag_get`, `asana_tag_create`, `asana_tag_update`, `asana_tag_delete`, `asana_tag_list_for_task`, `asana_tag_list_tasks`, `asana_tag_add_to_task`, `asana_tag_remove_from_task` |
 | `ooo` | `asana_ooo_list`, `asana_ooo_get`, `asana_ooo_create`, `asana_ooo_update`, `asana_ooo_delete` |
 | `allocation` | `asana_allocation_list`, `asana_allocation_get`, `asana_allocation_create`, `asana_allocation_update`, `asana_allocation_delete` (resource-management allocations; plan-limited, 402 without it) |
@@ -497,9 +497,10 @@ Tools are named `asana_<resource>_<action>` (e.g. `asana_task_create`).
 | `status` | `asana_status_overview`, `asana_status_list`, `asana_status_get`, `asana_status_create`, `asana_status_delete` |
 | `rule` | `asana_rule_trigger` (fires an Asana automation rule; the rule must use an "incoming web request" trigger) |
 | `event` | `asana_event_list` (change feed; sync-token cursored, not paginated) |
-| `story` | `asana_story_list`, `asana_story_get`, `asana_story_create`, `asana_story_update`, `asana_story_delete` |
+| `story` | `asana_story_list`, `asana_story_get`, `asana_story_create`, `asana_story_update`, `asana_story_delete`, `asana_story_goal_list`, `asana_story_goal_create` (a goal's comments; paid plan) |
 | `comment` | `asana_comment_list`, `asana_comment_get`, `asana_comment_create`, `asana_comment_update`, `asana_comment_delete` (aliases for `story`) |
-| `custom-field` | `asana_custom_field_list`, `asana_custom_field_get` (discover the field and enum-option GIDs that `asana_task_create` / `asana_task_update` expect), `asana_custom_field_list_for_project`, `asana_custom_field_list_for_portfolio`, `asana_custom_field_list_for_goal`, `asana_custom_field_list_for_team`, `asana_custom_field_create`, `asana_custom_field_update`, `asana_custom_field_delete`, `asana_custom_field_enum_option_create`, `asana_custom_field_enum_option_insert`, `asana_custom_field_enum_option_update`, `asana_custom_field_attach`, `asana_custom_field_detach` |
+| `custom-field` | `asana_custom_field_list`, `asana_custom_field_get` (discover the field and enum-option GIDs that `asana_task_create` / `asana_task_update` expect), `asana_custom_field_list_for_project`, `asana_custom_field_list_for_portfolio`, `asana_custom_field_list_for_goal`, `asana_custom_field_list_for_team`, `asana_custom_field_create`, `asana_custom_field_update`, `asana_custom_field_delete`, `asana_custom_field_enum_option_create`, `asana_custom_field_enum_option_insert`, `asana_custom_field_enum_option_update`, `asana_custom_field_attach`, `asana_custom_field_detach`, `asana_custom_field_attach_portfolio`, `asana_custom_field_detach_portfolio` |
+| `time-entry` | `asana_time_entry_list`, `asana_time_entry_list_for_task`, `asana_time_entry_get`, `asana_time_entry_create`, `asana_time_entry_update`, `asana_time_entry_delete` (paid plan; log and review time on tasks) |
 | `project-brief` | `asana_project_brief_get`, `asana_project_brief_create`, `asana_project_brief_update`, `asana_project_brief_delete` (a project's charter or sprint goal; rich text is checked against the `project-brief` HTML rules) |
 | `notification` | `asana_notification_list`, `asana_notification_mark_read`, `asana_notification_mark_unread` (inbox; **beta** Asana endpoints that may change) |
 | `membership` | `asana_membership_list`, `asana_membership_get`, `asana_membership_create`, `asana_membership_update`, `asana_membership_delete` |
@@ -641,9 +642,9 @@ Installing twice is a no-op, and unrelated settings are preserved.
 | `task-template` | `list`, `get`, `instantiate` |
 | `section` | `list`, `get`, `create`, `update`, `move`, `delete`, `tasks`, `task add` |
 | `user` | `list`, `get`, `me` |
-| `team` | `list`, `get`, `members`, `projects` |
+| `team` | `list`, `get`, `members`, `projects`, `for-user` |
 | `portfolio` | `list`, `items`, `get`, `create`, `update`, `delete` |
-| `goal` | `list`, `get`, `create`, `update`, `delete` |
+| `goal` | `list`, `get`, `create`, `update`, `delete`, `metric set`, `metric set-current`, `supporting add`, `supporting remove`, `follower add`, `follower remove` |
 | `tag` | `list`, `get`, `create`, `update`, `delete`, `tasks`, `task list/add/remove` |
 | `ooo` | `list`, `get`, `create`, `update`, `delete` |
 | `allocation` | `list`, `get`, `create`, `update`, `delete` (resource management; see [Allocations](https://cyberuni.github.io/cyber-asana/cli/allocations/)) |
@@ -655,11 +656,12 @@ Installing twice is a no-op, and unrelated settings are preserved.
 | `job` | `get` |
 | `status` | `list`, `get`, `create`, `delete` |
 | `event` | `list` |
-| `story` | `list`, `get`, `create`, `update`, `delete` |
+| `story` | `list`, `get`, `create`, `update`, `delete`, `list-goal`, `create-goal` |
 | `comment` | `list`, `get`, `create`, `update`, `delete` (alias for `story`) |
 | `custom-field` | `list`, `get`, `project`, `portfolio`, `goal`, `team` |
 | `membership` | `list`, `get`, `create`, `update`, `delete` |
 | `notification` | `list`, `mark-read`, `mark-unread` (beta) |
+| `time-entry` | `list`, `for-task`, `get`, `create`, `update`, `delete` |
 | `project-brief` | `get`, `create`, `update`, `delete` |
 | `setup` | `hook` |
 

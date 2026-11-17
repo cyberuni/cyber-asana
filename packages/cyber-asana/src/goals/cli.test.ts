@@ -36,6 +36,12 @@ describe('goals/cli', () => {
 				updateGoal: vi.fn(),
 				deleteGoal: vi.fn(),
 				listTimePeriods: vi.fn(),
+				setGoalMetric: vi.fn(),
+				setGoalMetricCurrentValue: vi.fn(),
+				addSupportingRelationship: vi.fn(),
+				removeSupportingRelationship: vi.fn(),
+				addGoalFollowers: vi.fn(),
+				removeGoalFollowers: vi.fn(),
 			}),
 		)
 
@@ -59,6 +65,12 @@ describe('goals/cli', () => {
 				updateGoal: vi.fn(),
 				deleteGoal: vi.fn(),
 				listTimePeriods: vi.fn(),
+				setGoalMetric: vi.fn(),
+				setGoalMetricCurrentValue: vi.fn(),
+				addSupportingRelationship: vi.fn(),
+				removeSupportingRelationship: vi.fn(),
+				addGoalFollowers: vi.fn(),
+				removeGoalFollowers: vi.fn(),
 			}),
 		)
 
@@ -81,6 +93,12 @@ describe('goals/cli', () => {
 				updateGoal: vi.fn(),
 				deleteGoal: vi.fn().mockResolvedValue(undefined),
 				listTimePeriods: vi.fn(),
+				setGoalMetric: vi.fn(),
+				setGoalMetricCurrentValue: vi.fn(),
+				addSupportingRelationship: vi.fn(),
+				removeSupportingRelationship: vi.fn(),
+				addGoalFollowers: vi.fn(),
+				removeGoalFollowers: vi.fn(),
 			}),
 		)
 
@@ -138,6 +156,12 @@ describe('goals/cli', () => {
 				updateGoal: vi.fn(),
 				deleteGoal: vi.fn(),
 				listTimePeriods: vi.fn(),
+				setGoalMetric: vi.fn(),
+				setGoalMetricCurrentValue: vi.fn(),
+				addSupportingRelationship: vi.fn(),
+				removeSupportingRelationship: vi.fn(),
+				addGoalFollowers: vi.fn(),
+				removeGoalFollowers: vi.fn(),
 			}),
 		)
 

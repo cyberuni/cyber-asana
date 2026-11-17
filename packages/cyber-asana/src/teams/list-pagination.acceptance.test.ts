@@ -25,6 +25,7 @@ function createPaginatingTeamGateway(): TeamGateway {
 			[{ gid: 'p2', name: 'api' }],
 			[{ gid: 'p3', name: 'ops' }],
 		]),
+		listTeamsForUser: vi.fn().mockResolvedValue([]),
 	}
 }
 

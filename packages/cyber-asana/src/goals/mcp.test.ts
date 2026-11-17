@@ -72,6 +72,12 @@ describe('goals/mcp', () => {
 			updateGoal: vi.fn(),
 			deleteGoal: vi.fn(),
 			listTimePeriods: vi.fn(),
+			setGoalMetric: vi.fn(),
+			setGoalMetricCurrentValue: vi.fn(),
+			addSupportingRelationship: vi.fn(),
+			removeSupportingRelationship: vi.fn(),
+			addGoalFollowers: vi.fn(),
+			removeGoalFollowers: vi.fn(),
 		})
 
 		await server.handlers.get('asana_goal_create')?.({

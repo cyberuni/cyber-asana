@@ -1,8 +1,14 @@
 import type { PaginationOptions } from '../platform/pagination.js'
 import type { ReadOptions } from '../platform/read-options.js'
-import type { CreateGoalFields, GoalGateway, UpdateGoalFields } from './gateway.js'
+import type {
+	CreateGoalFields,
+	GoalGateway,
+	GoalMetricInput,
+	SupportingRelationshipOptions,
+	UpdateGoalFields,
+} from './gateway.js'
 
-export type { CreateGoalFields, UpdateGoalFields } from './gateway.js'
+export type { CreateGoalFields, GoalMetricInput, SupportingRelationshipOptions, UpdateGoalFields } from './gateway.js'
 
 export type GoalApi = ReturnType<typeof createGoalApi>
 
@@ -25,6 +31,24 @@ export function createGoalApi(gateway: GoalGateway) {
 		},
 		listTimePeriods(workspaceGid: string, opts?: PaginationOptions) {
 			return gateway.listTimePeriods(workspaceGid, opts)
+		},
+		setGoalMetric(goalGid: string, metric: GoalMetricInput) {
+			return gateway.setGoalMetric(goalGid, metric)
+		},
+		setGoalMetricCurrentValue(goalGid: string, currentNumberValue: number) {
+			return gateway.setGoalMetricCurrentValue(goalGid, currentNumberValue)
+		},
+		addSupportingRelationship(goalGid: string, supportingResourceGid: string, opts?: SupportingRelationshipOptions) {
+			return gateway.addSupportingRelationship(goalGid, supportingResourceGid, opts)
+		},
+		removeSupportingRelationship(goalGid: string, supportingResourceGid: string) {
+			return gateway.removeSupportingRelationship(goalGid, supportingResourceGid)
+		},
+		addGoalFollowers(goalGid: string, followerGids: string[]) {
+			return gateway.addGoalFollowers(goalGid, followerGids)
+		},
+		removeGoalFollowers(goalGid: string, followerGids: string[]) {
+			return gateway.removeGoalFollowers(goalGid, followerGids)
 		},
 	}
 }

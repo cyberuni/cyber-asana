@@ -28,6 +28,19 @@ cyber-asana story create "Great work!" --task <gid>
 Comment bodies are truncated in list output with a size hint; pass `--full` for the
 complete text.
 
+## Goal comments
+
+```sh
+cyber-asana story list-goal <goal-gid>
+cyber-asana story create-goal <goal-gid> "On track: 3 of 5 milestones done" --pin
+```
+
+Goals carry comments too, which suits progress notes. `create-goal` takes the same `--html-text`,
+`--pin`, and `--sticker` options as `create`; there is no `--template`. Goals are a paid feature.
+The MCP tools are `asana_story_goal_list` and `asana_story_goal_create`. Edit or delete a goal
+comment with `update` and `delete`, which take the story GID. The request shapes come from Asana's
+docs and have not been confirmed against a live paid workspace.
+
 ## Correcting or withdrawing a comment
 
 `list` returns each comment's story GID; `get`, `update`, and `delete` take it.

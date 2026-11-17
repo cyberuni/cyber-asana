@@ -18,5 +18,8 @@ export function createTeamApi(gateway: TeamGateway) {
 		listTeamProjects(teamGid: string, opts?: TeamProjectListOptions) {
 			return gateway.listTeamProjects(teamGid, opts)
 		},
+		listTeamsForUser(userGid: string, workspaceGid: string, opts?: PaginationOptions) {
+			return gateway.listTeamsForUser(userGid, workspaceGid, opts)
+		},
 	}
 }

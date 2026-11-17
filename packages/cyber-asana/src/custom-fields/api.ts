@@ -23,15 +23,20 @@ export type {
 export type CustomFieldApi = ReturnType<typeof createCustomFieldApi>
 
 export function createCustomFieldApi(gateway: CustomFieldGateway) {
-	async function isAttached(projectGid: string, customFieldGid: string) {
-		const settings = (await gateway.listCustomFieldSettingsForProject(projectGid, {
-			fetchAll: true,
-			optFields: 'custom_field.gid',
-		})) as never
+	async function hasField(
+		list: (gid: string, opts: PaginationOptions) => ReturnType<CustomFieldGateway['listCustomFieldSettingsForProject']>,
+		ownerGid: string,
+		customFieldGid: string,
+	) {
+		const settings = (await list(ownerGid, { fetchAll: true, optFields: 'custom_field.gid' })) as never
 		return (listItems(settings) as Array<{ custom_field?: { gid?: string } | null }>).some(
 			(s) => s.custom_field?.gid === customFieldGid,
 		)
 	}
+	const isAttached = (projectGid: string, customFieldGid: string) =>
+		hasField((g, o) => gateway.listCustomFieldSettingsForProject(g, o), projectGid, customFieldGid)
+	const isAttachedToPortfolio = (portfolioGid: string, customFieldGid: string) =>
+		hasField((g, o) => gateway.listCustomFieldSettingsForPortfolio(g, o), portfolioGid, customFieldGid)
 
 	return {
 		listCustomFields(workspaceGid: string, opts?: PaginationOptions) {
@@ -85,6 +90,26 @@ export function createCustomFieldApi(gateway: CustomFieldGateway) {
 			}
 			await gateway.removeCustomFieldFromProject(projectGid, customFieldGid)
 			return { project: projectGid, custom_field: customFieldGid, status: 'detached' as const }
+		},
+		/** Attaching a field the portfolio already has succeeds with `already_attached` and writes nothing. */
+		async attachCustomFieldToPortfolio(
+			portfolioGid: string,
+			customFieldGid: string,
+			opts?: AddCustomFieldToProjectOptions,
+		) {
+			if (await isAttachedToPortfolio(portfolioGid, customFieldGid)) {
+				return { portfolio: portfolioGid, custom_field: customFieldGid, status: 'already_attached' as const }
+			}
+			await gateway.addCustomFieldToPortfolio(portfolioGid, customFieldGid, opts)
+			return { portfolio: portfolioGid, custom_field: customFieldGid, status: 'attached' as const }
+		},
+		/** Detaching a field the portfolio does not have succeeds with `already_detached` and writes nothing. */
+		async detachCustomFieldFromPortfolio(portfolioGid: string, customFieldGid: string) {
+			if (!(await isAttachedToPortfolio(portfolioGid, customFieldGid))) {
+				return { portfolio: portfolioGid, custom_field: customFieldGid, status: 'already_detached' as const }
+			}
+			await gateway.removeCustomFieldFromPortfolio(portfolioGid, customFieldGid)
+			return { portfolio: portfolioGid, custom_field: customFieldGid, status: 'detached' as const }
 		},
 	}
 }

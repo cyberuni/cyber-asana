@@ -92,6 +92,8 @@ describe('custom-fields/mcp', () => {
 			deleteCustomField: vi.fn(),
 			attachCustomField: vi.fn(),
 			detachCustomField: vi.fn(),
+			attachCustomFieldToPortfolio: vi.fn(),
+			detachCustomFieldFromPortfolio: vi.fn(),
 			getCustomField: injectedGetCustomField,
 			listCustomFieldSettingsForProject: vi.fn(),
 			listCustomFieldSettingsForPortfolio: vi.fn(),
@@ -169,6 +171,8 @@ describe('custom-fields/mcp custom field settings', () => {
 			deleteCustomField: vi.fn(),
 			attachCustomField: vi.fn(),
 			detachCustomField: vi.fn(),
+			attachCustomFieldToPortfolio: vi.fn(),
+			detachCustomFieldFromPortfolio: vi.fn(),
 			getCustomField: vi.fn(),
 			listCustomFieldSettingsForProject: injected,
 			listCustomFieldSettingsForPortfolio: vi.fn(),
@@ -199,6 +203,8 @@ describe('custom-fields/mcp writes', () => {
 			deleteCustomField: vi.fn(),
 			attachCustomField: vi.fn(),
 			detachCustomField: vi.fn(),
+			attachCustomFieldToPortfolio: vi.fn(),
+			detachCustomFieldFromPortfolio: vi.fn(),
 			...over,
 		}
 		const server = createServer()
@@ -278,6 +284,26 @@ describe('custom-fields/mcp writes', () => {
 
 		expect(JSON.parse(first.content[0].text)).toMatchObject({ deleted: true, gid: 'cf1', already_absent: false })
 		expect(JSON.parse(second.content[0].text)).toMatchObject({ deleted: true, gid: 'cf1', already_absent: true })
+	})
+
+	it('portfolio attach and detach tools return the idempotent status', async () => {
+		const attachCustomFieldToPortfolio = vi.fn().mockResolvedValue({ status: 'attached' })
+		const detachCustomFieldFromPortfolio = vi.fn().mockResolvedValue({ status: 'already_detached' })
+		const server = setup({ attachCustomFieldToPortfolio, detachCustomFieldFromPortfolio })
+
+		await server.handlers.get('asana_custom_field_attach_portfolio')?.({
+			portfolio_gid: 'pf1',
+			custom_field_gid: 'cf1',
+			is_important: true,
+		})
+		const detached = await server.handlers.get('asana_custom_field_detach_portfolio')?.({
+			portfolio_gid: 'pf1',
+			custom_field_gid: 'cf1',
+		})
+
+		expect(attachCustomFieldToPortfolio).toHaveBeenCalledWith('pf1', 'cf1', { isImportant: true })
+		expect(detachCustomFieldFromPortfolio).toHaveBeenCalledWith('pf1', 'cf1')
+		expect(JSON.parse(detached.content[0].text).status).toBe('already_detached')
 	})
 
 	it('attach and detach tools return the idempotent status', async () => {

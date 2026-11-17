@@ -1,4 +1,4 @@
-import { Command } from 'commander'
+import { Command, InvalidArgumentError } from 'commander'
 import {
 	addGidOption,
 	addPaginationOptions,
@@ -11,8 +11,21 @@ import {
 } from '../platform/cli/options.js'
 import { output, printCountSummary, printFields, printNextSteps, printTable } from '../platform/cli/output.js'
 import { deleteIdempotently, deleteMessage } from '../platform/idempotent-delete.js'
-import type { GoalApi } from './api.js'
-import { createGoal, deleteGoal, getGoal, listGoals, listTimePeriods, updateGoal } from './default.js'
+import type { GoalApi, GoalMetricInput } from './api.js'
+import {
+	addGoalFollowers,
+	addSupportingRelationship,
+	createGoal,
+	deleteGoal,
+	getGoal,
+	listGoals,
+	listTimePeriods,
+	removeGoalFollowers,
+	removeSupportingRelationship,
+	setGoalMetric,
+	setGoalMetricCurrentValue,
+	updateGoal,
+} from './default.js'
 import { buildGoalCreateFields, buildGoalUpdateFields } from './write-options.js'
 
 type Goal = { gid: string; name?: string; permalink_url?: string; due_on?: string | null; status?: string | null }
@@ -27,6 +40,14 @@ function fmtGoal(g: Goal) {
 	})
 }
 
+function parseNumber(name: string) {
+	return (value: string) => {
+		const n = Number(value)
+		if (value.trim() === '' || Number.isNaN(n)) throw new InvalidArgumentError(`${name} must be a number`)
+		return n
+	}
+}
+
 function resolveGoalApi(api?: GoalApi | (() => GoalApi)): GoalApi {
 	if (typeof api === 'function') return api()
 	return (
@@ -37,6 +58,12 @@ function resolveGoalApi(api?: GoalApi | (() => GoalApi)): GoalApi {
 			updateGoal,
 			deleteGoal,
 			listTimePeriods,
+			setGoalMetric,
+			setGoalMetricCurrentValue,
+			addSupportingRelationship,
+			removeSupportingRelationship,
+			addGoalFollowers,
+			removeGoalFollowers,
 		}
 	)
 }
@@ -170,6 +197,109 @@ export function goalCommand(api?: GoalApi | (() => GoalApi)) {
 		.action(async (gid: string) => {
 			const result = await deleteIdempotently('goal', gid, () => resolveGoalApi(api).deleteGoal(gid))
 			output(result, () => console.log(deleteMessage(result, 'Goal')))
+		})
+
+	const metricCmd = cmd.command('metric').description('Define a goal metric and record its progress (paid plan)')
+
+	metricCmd
+		.command('set <goal-gid>')
+		.description("Set a goal's metric: unit, precision, and initial, target, and current values")
+		.option('--unit <unit>', 'none, currency, or percentage')
+		.option('--precision <n>', 'Decimal places', parseNumber('--precision'))
+		.option('--currency-code <code>', 'ISO 4217 code, for --unit currency')
+		.option('--initial <n>', 'Initial value', parseNumber('--initial'))
+		.option('--target <n>', 'Target value', parseNumber('--target'))
+		.option('--current <n>', 'Current value', parseNumber('--current'))
+		.option('--progress-source <source>', 'manual, subgoal_progress, project_task_completion, ...')
+		.action(
+			async (
+				gid: string,
+				opts: {
+					unit?: GoalMetricInput['unit']
+					precision?: number
+					currencyCode?: string
+					initial?: number
+					target?: number
+					current?: number
+					progressSource?: GoalMetricInput['progressSource']
+				},
+			) => {
+				const data = await resolveGoalApi(api).setGoalMetric(gid, {
+					...(opts.unit !== undefined && { unit: opts.unit }),
+					...(opts.precision !== undefined && { precision: opts.precision }),
+					...(opts.currencyCode !== undefined && { currencyCode: opts.currencyCode }),
+					...(opts.initial !== undefined && { initialNumberValue: opts.initial }),
+					...(opts.target !== undefined && { targetNumberValue: opts.target }),
+					...(opts.current !== undefined && { currentNumberValue: opts.current }),
+					...(opts.progressSource !== undefined && { progressSource: opts.progressSource }),
+				})
+				output(data, () => console.log(`Set the metric of goal ${gid}`))
+			},
+		)
+
+	metricCmd
+		.command('set-current <goal-gid> <value>')
+		.description("Record a goal metric's current value")
+		.action(async (gid: string, value: string) => {
+			const data = await resolveGoalApi(api).setGoalMetricCurrentValue(gid, parseNumber('<value>')(value))
+			output(data, () => console.log(`Set the current value of goal ${gid} to ${value}`))
+		})
+
+	const supportingCmd = cmd
+		.command('supporting')
+		.description('Link goals, projects, or portfolios that support a goal (paid plan)')
+
+	supportingCmd
+		.command('add <goal-gid> <supporting-gid>')
+		.description('Make a goal, project, or portfolio support a goal')
+		.option('--weight <n>', "Contribution weight in the goal's progress, 0 to 1", parseNumber('--weight'))
+		.option('--insert-before <gid>', 'Place it before this supporting resource')
+		.option('--insert-after <gid>', 'Place it after this supporting resource')
+		.action(
+			async (
+				goalGid: string,
+				supportingGid: string,
+				opts: { weight?: number; insertBefore?: string; insertAfter?: string },
+			) => {
+				const data = await resolveGoalApi(api).addSupportingRelationship(goalGid, supportingGid, {
+					...(opts.weight !== undefined && { contributionWeight: opts.weight }),
+					...(opts.insertBefore !== undefined && { insertBefore: opts.insertBefore }),
+					...(opts.insertAfter !== undefined && { insertAfter: opts.insertAfter }),
+				})
+				output(data, () => console.log(`Added supporting resource ${supportingGid} to goal ${goalGid}`))
+			},
+		)
+
+	supportingCmd
+		.command('remove <goal-gid> <supporting-gid>')
+		.description('Stop a goal, project, or portfolio supporting a goal')
+		.action(async (goalGid: string, supportingGid: string) => {
+			await resolveGoalApi(api).removeSupportingRelationship(goalGid, supportingGid)
+			output({ goal: goalGid, supporting_resource: supportingGid, status: 'removed' }, () =>
+				console.log(`Removed supporting resource ${supportingGid} from goal ${goalGid}`),
+			)
+		})
+
+	const followerCmd = cmd.command('follower').description('Manage the followers of a goal (paid plan)')
+
+	followerCmd
+		.command('add <goal-gid> <follower-gids...>')
+		.description('Add followers to a goal')
+		.action(async (goalGid: string, followerGids: string[]) => {
+			await resolveGoalApi(api).addGoalFollowers(goalGid, followerGids)
+			output({ goal: goalGid, followers: followerGids, status: 'added' }, () =>
+				console.log(`Added ${followerGids.length} follower(s) to goal ${goalGid}`),
+			)
+		})
+
+	followerCmd
+		.command('remove <goal-gid> <follower-gids...>')
+		.description('Remove followers from a goal')
+		.action(async (goalGid: string, followerGids: string[]) => {
+			await resolveGoalApi(api).removeGoalFollowers(goalGid, followerGids)
+			output({ goal: goalGid, followers: followerGids, status: 'removed' }, () =>
+				console.log(`Removed ${followerGids.length} follower(s) from goal ${goalGid}`),
+			)
 		})
 
 	return cmd

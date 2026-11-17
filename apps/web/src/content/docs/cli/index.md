@@ -43,6 +43,7 @@ help text. Every resource group's `--help` ends with worked examples.
 | [Reports](/cyber-asana/cli/reports/) | `report standup`, `report sprint`, `report retro`, `report velocity`, `report dashboard` |
 | [Memberships](/cyber-asana/cli/memberships/) | `list`, `get`, `create`, `update`, `delete` |
 | [Notifications](/cyber-asana/cli/notifications/) | `list`, `mark-read`, `mark-unread` (beta) |
+| [Time tracking](/cyber-asana/cli/time-tracking/) | `time-entry list`, `for-task`, `get`, `create`, `update`, `delete` (paid plan) |
 | [Project briefs](/cyber-asana/cli/project-briefs/) | `get`, `create`, `update`, `delete` |
 | [Task templates](/cyber-asana/cli/task-templates/) | `list`, `get`, `instantiate` |
 | [Project templates](/cyber-asana/cli/project-templates/) | `list`, `get`, `instantiate` |

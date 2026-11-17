@@ -19,6 +19,8 @@ export type TeamGateway = {
 	/** The team's memberships, each carrying its `user`. */
 	listTeamMembers(teamGid: string, opts?: PaginationOptions): Promise<ListResult<TeamMember>>
 	listTeamProjects(teamGid: string, opts?: TeamProjectListOptions): Promise<ListResult<Asana.Project>>
+	/** The teams a user belongs to within one organization (workspace). */
+	listTeamsForUser(userGid: string, workspaceGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.Team>>
 }
 
 export function createAsanaTeamGateway(client: Asana.ApiClient): TeamGateway {
@@ -44,6 +46,10 @@ export function createAsanaTeamGateway(client: Asana.ApiClient): TeamGateway {
 				...(opts?.archived !== undefined && { archived: opts.archived }),
 				...toAsanaPaginationOptions(opts),
 			})
+			return await collectListResponse(res, opts)
+		},
+		async listTeamsForUser(userGid, workspaceGid, opts) {
+			const res = await teamsApi.getTeamsForUser(userGid, workspaceGid, toAsanaPaginationOptions(opts))
 			return await collectListResponse(res, opts)
 		},
 	}

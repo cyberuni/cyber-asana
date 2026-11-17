@@ -37,6 +37,7 @@ cyber-asana team list
 cyber-asana team get <gid>
 cyber-asana team members <gid>
 cyber-asana team projects <gid>
+cyber-asana team for-user <user-gid> --workspace-gid <gid>
 ```
 
 | Command | Arguments | Options |
@@ -44,6 +45,7 @@ cyber-asana team projects <gid>
 | `list` | — | `--workspace-gid <gid>` / `--workspace <gid>`, [pagination](/cyber-asana/cli/#pagination) |
 | `get` | `<gid>` | — |
 | `members` | `<gid>` | [pagination](/cyber-asana/cli/#pagination); lists each member's user GID and name, including people with no task yet |
+| `for-user` | `<user-gid>` | `--workspace-gid <gid>` / `--workspace <gid>` (the organization), [pagination](/cyber-asana/cli/#pagination); the teams the user belongs to. Works on a free plan |
 | `projects` | `<gid>` | `--archived` (only archived projects; default both), [pagination](/cyber-asana/cli/#pagination) |
 
 The `team` [scrum scope](/cyber-asana/cli/repo-config/#scrum-scopes) reads these two lists to learn which projects and which people

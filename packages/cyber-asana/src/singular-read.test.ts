@@ -158,6 +158,12 @@ const READS: SingularRead[] = [
 		mcp: {},
 		sdk: ['UsersApi', 'getUser'],
 	}),
+	read('time-tracking', 'TimeTrackingEntry', {
+		cliName: 'time-entry',
+		tool: 'asana_time_entry_get',
+		gidParam: 'time_entry_gid',
+		sdk: ['TimeTrackingEntriesApi', 'getTimeTrackingEntry'],
+	}),
 	read('workspaces', 'Workspace', {
 		cliName: 'workspace',
 		tool: 'asana_workspace_get',

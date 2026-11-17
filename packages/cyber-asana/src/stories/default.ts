@@ -32,3 +32,11 @@ export async function deleteStory(storyGid: string) {
 export async function getTaskTemplateData(taskGid: string) {
 	return defaultStoryApi().getTaskTemplateData(taskGid)
 }
+
+export async function listGoalStories(goalGid: string, opts?: PaginationOptions) {
+	return defaultStoryApi().listGoalStories(goalGid, opts)
+}
+
+export async function createGoalStory(goalGid: string, fields: StoryCreateFields) {
+	return defaultStoryApi().createGoalStory(goalGid, fields)
+}

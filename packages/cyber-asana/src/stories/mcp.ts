@@ -4,12 +4,32 @@ import { deleteIdempotently } from '../platform/idempotent-delete.js'
 import { paginationOptions, paginationParams, readOptions, readParams } from '../platform/mcp/options.js'
 import type { StoryApi } from './api.js'
 import { interpolateTemplate } from './api.js'
-import { createStory, deleteStory, getStory, getTaskTemplateData, listStories, updateStory } from './default.js'
+import {
+	createGoalStory,
+	createStory,
+	deleteStory,
+	getStory,
+	getTaskTemplateData,
+	listGoalStories,
+	listStories,
+	updateStory,
+} from './default.js'
 import { STICKER_NAMES } from './write-options.js'
 
 function resolveStoryApi(api?: StoryApi | (() => StoryApi)): StoryApi {
 	if (typeof api === 'function') return api()
-	return api ?? { listStories, createStory, getStory, updateStory, deleteStory, getTaskTemplateData }
+	return (
+		api ?? {
+			listStories,
+			createStory,
+			getStory,
+			updateStory,
+			deleteStory,
+			getTaskTemplateData,
+			listGoalStories,
+			createGoalStory,
+		}
+	)
 }
 
 const EDITABLE_STORY_NOTE =
@@ -129,7 +149,51 @@ function registerStoryToolsWithPrefix(
 	)
 }
 
+function registerGoalStoryTools(server: McpServer, api?: StoryApi | (() => StoryApi)) {
+	server.tool(
+		'asana_story_goal_list',
+		"List an Asana goal's stories (comments), such as progress notes (paid plan)",
+		{ goal_gid: z.string().describe('Goal GID'), ...paginationParams },
+		async ({ goal_gid, ...params }) => ({
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(await resolveStoryApi(api).listGoalStories(goal_gid, paginationOptions(params))),
+				},
+			],
+		}),
+	)
+
+	server.tool(
+		'asana_story_goal_create',
+		'Post a comment on an Asana goal (paid plan)',
+		{
+			goal_gid: z.string().describe('Goal GID'),
+			text: z.string().optional().describe('Comment text'),
+			html_text: z.string().optional().describe('Comment rich text as Asana HTML'),
+			is_pinned: z.boolean().optional().describe('Pin the new comment on the goal'),
+			sticker_name: z.enum(STICKER_NAMES).optional().describe('Sticker to attach to the comment'),
+		},
+		async ({ goal_gid, text, html_text, is_pinned, sticker_name }) => ({
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(
+						await resolveStoryApi(api).createGoalStory(goal_gid, {
+							...(text !== undefined && { text }),
+							...(html_text !== undefined && { html_text }),
+							...(is_pinned !== undefined && { is_pinned }),
+							...(sticker_name !== undefined && { sticker_name }),
+						}),
+					),
+				},
+			],
+		}),
+	)
+}
+
 export function registerStoryTools(server: McpServer, api?: StoryApi | (() => StoryApi)) {
+	registerGoalStoryTools(server, api)
 	registerStoryToolsWithPrefix(server, 'story', api)
 	registerStoryToolsWithPrefix(server, 'comment', api)
 }
