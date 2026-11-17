@@ -9,7 +9,7 @@ export function checkHtml(html: string, surface: Surface): string[] {
 	const allowed = new Set(rule.allowed)
 	const problems: string[] = []
 	const seen = new Set<string>()
-	for (const match of html.matchAll(/<\/?([a-zA-Z][a-zA-Z0-9]*)[^>]*>/g)) {
+	for (const match of html.matchAll(/<\/?([a-zA-Z][a-zA-Z0-9]*)(?=[\s/>])[^>]*>/g)) {
 		const tag = (match[1] as string).toLowerCase()
 		if (allowed.has(tag) || seen.has(tag)) continue
 		seen.add(tag)

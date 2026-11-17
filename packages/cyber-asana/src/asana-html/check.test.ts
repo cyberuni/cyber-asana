@@ -50,4 +50,12 @@ describe('checkHtml on status-update', () => {
 	it('still reports what the general subset rejects', () => {
 		expect(checkHtml('<p>x</p>', 'status-update')).toContain("<p> is not in Asana's HTML subset")
 	})
+
+	it('reads a long run of tag-name characters without backtracking', () => {
+		const started = Date.now()
+
+		checkHtml(`<a${'0'.repeat(50_000)}`, 'project-brief')
+
+		expect(Date.now() - started).toBeLessThan(500)
+	})
 })
