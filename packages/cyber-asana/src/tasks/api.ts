@@ -5,6 +5,7 @@ import type { ReadOptions } from '../platform/read-options.js'
 import { type CompletionFilter, listWithCompletionFilter } from './completion-filter.js'
 import type {
 	CreateTaskFields,
+	DuplicateTaskFields,
 	SearchTasksOptions,
 	TaskBatchLookupResult,
 	TaskGateway,
@@ -144,6 +145,9 @@ export function createTaskApi(gateway: TaskGateway) {
 		},
 		listProjectsForTask(taskGid: string, opts?: PaginationOptions) {
 			return gateway.listProjectsForTask(taskGid, opts)
+		},
+		duplicateTask(taskGid: string, fields: DuplicateTaskFields) {
+			return gateway.duplicateTask(taskGid, fields)
 		},
 		createSubtask(parentTaskGid: string, name: string, opts?: CreateTaskFields) {
 			return gateway.createSubtask(parentTaskGid, name, opts)

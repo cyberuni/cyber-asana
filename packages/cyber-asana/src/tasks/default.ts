@@ -5,6 +5,7 @@ import { createTaskApi, type TaskCollectionOptions, type TaskListOptions, type T
 import {
 	type CreateTaskFields,
 	createAsanaTaskGateway,
+	type DuplicateTaskFields,
 	type SearchTasksOptions,
 	type TaskBatchLookupResult,
 	type UpdateTaskFields,
@@ -59,6 +60,10 @@ export async function listSubtasks(taskGid: string, opts?: TaskCollectionOptions
 
 export async function listProjectsForTask(taskGid: string, opts?: PaginationOptions) {
 	return defaultTaskApi().listProjectsForTask(taskGid, opts)
+}
+
+export async function duplicateTask(taskGid: string, fields: DuplicateTaskFields) {
+	return defaultTaskApi().duplicateTask(taskGid, fields)
 }
 
 export async function createSubtask(parentTaskGid: string, name: string, opts?: CreateTaskFields) {

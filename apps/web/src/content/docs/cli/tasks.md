@@ -107,6 +107,22 @@ additionally requires a due time in the same request when you set or clear `--st
 When both custom-field forms are given, repeated `--custom-field` entries override
 duplicate keys from `--custom-fields-json`.
 
+## Duplicating a task
+
+```sh
+cyber-asana task duplicate <task-gid> --name "Sprint 13: Review PRs"
+cyber-asana task duplicate <task-gid> --name "Copy" --include notes,subtasks,tags
+cyber-asana job get <job-gid>
+```
+
+Asana builds the copy asynchronously, so `task duplicate` returns a job, not the new task. Poll it with
+`job get` until its status is `succeeded`; the new task is on the job as `new_task`.
+
+| Option | Description |
+| --- | --- |
+| `--name <name>` | Name for the new task (required) |
+| `--include <elements>` | Comma-separated elements to copy: `assignee`, `attachments`, `dates`, `dependencies`, `followers`, `notes`, `parent`, `projects`, `subtasks`, `tags` |
+
 ## Subtasks
 
 ```sh

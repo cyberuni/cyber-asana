@@ -21,6 +21,7 @@ import {
 	createSubtask,
 	createTask,
 	deleteTask,
+	duplicateTask,
 	getDependencies,
 	getDependents,
 	getMyTasks,
@@ -92,6 +93,7 @@ function resolveTaskApi(api?: TaskApi | (() => TaskApi)): TaskApi {
 			getMyTasks,
 			listSubtasks,
 			listProjectsForTask,
+			duplicateTask,
 			createSubtask,
 			addTaskToProject,
 			removeTaskFromProject,
@@ -181,6 +183,31 @@ export function registerTaskTools(server: McpServer, api?: TaskApi | (() => Task
 							...completionFilter({ completed_since, incomplete, incomplete_or_completed_since }),
 							...paginationOptions(params),
 						}),
+					),
+				},
+			],
+		}),
+	)
+
+	server.tool(
+		'asana_task_duplicate',
+		'Duplicate an Asana task. Asana builds the copy asynchronously and returns a job; read it with asana_job_get until its status is succeeded (the new task is on the job as new_task)',
+		{
+			task_gid: z.string().describe('GID of the task to copy'),
+			name: z.string().describe('Name for the new task'),
+			include: z
+				.array(z.string())
+				.optional()
+				.describe(
+					'Elements to copy: assignee, attachments, dates, dependencies, followers, notes, parent, projects, subtasks, tags',
+				),
+		},
+		async ({ task_gid, name, include }) => ({
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(
+						await resolveTaskApi(api).duplicateTask(task_gid, { name, ...(include !== undefined && { include }) }),
 					),
 				},
 			],

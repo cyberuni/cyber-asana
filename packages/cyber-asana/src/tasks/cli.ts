@@ -36,6 +36,7 @@ import {
 	createSubtask,
 	createTask,
 	deleteTask,
+	duplicateTask,
 	getDependencies,
 	getDependents,
 	getMyTasks,
@@ -106,6 +107,7 @@ function resolveTaskApi(api?: TaskApi | (() => TaskApi)): TaskApi {
 			getMyTasks,
 			listSubtasks,
 			listProjectsForTask,
+			duplicateTask,
 			createSubtask,
 			addTaskToProject,
 			removeTaskFromProject,
@@ -559,6 +561,26 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 		.action(async (gid: string) => {
 			const result = await deleteIdempotently('task', gid, () => resolveTaskApi(api).deleteTask(gid))
 			output(result, () => console.log(deleteMessage(result, 'Task')))
+		})
+
+	cmd
+		.command('duplicate <task-gid>')
+		.description('Duplicate a task. Asana builds the copy asynchronously and returns a job; poll it with `job get`')
+		.requiredOption('--name <name>', 'Name for the new task')
+		.option(
+			'--include <elements>',
+			'Elements to copy, comma-separated (assignee, attachments, dates, dependencies, followers, notes, parent, projects, subtasks, tags)',
+			(value: string) => value.split(',').filter(Boolean),
+		)
+		.action(async (taskGid: string, opts: { name: string; include?: string[] }) => {
+			const job = await resolveTaskApi(api).duplicateTask(taskGid, {
+				name: opts.name,
+				...(opts.include !== undefined && { include: opts.include }),
+			})
+			output(job, () => {
+				printFields({ Job: job.gid ?? null, Status: job.status ?? null })
+				printNextSteps([`cyber-asana job get ${job.gid} — poll until the copy is ready`])
+			})
 		})
 
 	const subtaskCmd = cmd.command('subtask').description('Manage subtasks')

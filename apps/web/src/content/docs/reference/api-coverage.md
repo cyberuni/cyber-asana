@@ -35,7 +35,7 @@ operations such as project export and TODO scanning are described separately bel
 
 | Resource | Status | Ops | CLI namespace | Notes |
 | --- | --- | --- | --- | --- |
-| Tasks | 🟡 | 25 / 27 | `task` | Missing duplicate and custom-ID lookup |
+| Tasks | 🟡 | 26 / 27 | `task` | Missing custom-ID lookup |
 | Status updates | ✅ | 4 / 4 | `status` | Complete |
 | Rules | ✅ | 1 / 1 | `rule` | Complete — the whole Rules API is one trigger method (beta) |
 | Events | ✅ | 1 / 1 | `event` | Complete; sync-token change feed, not paginated |
@@ -93,6 +93,7 @@ arbitrary endpoints.
 | Create a task | `task create <name>` | `asana_task_create` |
 | Update a task (incl. reparent) | `task update <gid>` | `asana_task_update` |
 | Delete a task | `task delete <gid>` | `asana_task_delete` |
+| Duplicate a task (async job) | `task duplicate <gid> --name` | `asana_task_duplicate` |
 | List subtasks | `task subtask list <gid>` | `asana_task_subtask_list` |
 | Create a subtask | `task subtask create <gid> <name>` | `asana_task_subtask_create` |
 | List / add / remove project | `task project list\|add\|remove` | `asana_task_project_list`, `asana_task_project_add` / `_remove` |
