@@ -10,6 +10,8 @@ export type AuthoringAcceptanceDeps = {
 		| 'createEnumOption'
 		| 'insertEnumOption'
 		| 'updateEnumOption'
+		| 'updateCustomField'
+		| 'deleteCustomField'
 		| 'attachCustomField'
 		| 'detachCustomField'
 		| 'listCustomFieldSettingsForProject'
@@ -75,6 +77,44 @@ export function defineCustomFieldAuthoringAcceptanceSpecs(deps: AuthoringAccepta
 			} finally {
 				await deps.deleteField(field.gid)
 			}
+		})
+
+		it('updates a field in place and keeps its type', async () => {
+			const api = deps.getApi()
+			const field = await api.createCustomField({
+				workspace: deps.workspaceGid,
+				name: deps.uniqueName(),
+				resourceSubtype: 'number',
+				precision: 0,
+			})
+			try {
+				const updated = await api.updateCustomField(field.gid, {
+					name: `${deps.uniqueName()} renamed`,
+					description: 'edited',
+					precision: 2,
+				})
+				expect(updated.gid).toBe(field.gid)
+				const read = (await api.getCustomField(field.gid, {
+					optFields: 'name,description,precision,resource_subtype',
+				})) as { name?: string; description?: string; precision?: number; resource_subtype?: string }
+				expect(read.name).toMatch(/renamed$/)
+				expect(read.description).toBe('edited')
+				expect(read.precision).toBe(2)
+				expect(read.resource_subtype).toBe('number')
+			} finally {
+				await deps.deleteField(field.gid)
+			}
+		})
+
+		it('deletes a field so it can no longer be read', async () => {
+			const api = deps.getApi()
+			const field = await api.createCustomField({
+				workspace: deps.workspaceGid,
+				name: deps.uniqueName(),
+				resourceSubtype: 'text',
+			})
+			await api.deleteCustomField(field.gid)
+			await expect(api.getCustomField(field.gid)).rejects.toThrow()
 		})
 	}
 }

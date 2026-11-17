@@ -63,6 +63,32 @@ describe('custom-fields/gateway writes', () => {
 		expect(spy).toHaveBeenCalledWith('o1', { body: { data: { enabled: false } } })
 	})
 
+	it('updateCustomField sends only the changed properties, mapped to Asana names', async () => {
+		const spy = vi
+			.spyOn(Asana.CustomFieldsApi.prototype, 'updateCustomField')
+			.mockResolvedValue({ data: { gid: 'cf1' } } as never)
+
+		const result = await createAsanaCustomFieldGateway(client).updateCustomField('cf1', {
+			name: 'Cost',
+			precision: 2,
+			currencyCode: 'USD',
+			enabled: false,
+		})
+
+		expect(result).toEqual({ gid: 'cf1' })
+		expect(spy).toHaveBeenCalledWith('cf1', {
+			body: { data: { name: 'Cost', precision: 2, currency_code: 'USD', enabled: false } },
+		})
+	})
+
+	it('deleteCustomField deletes the field by GID', async () => {
+		const spy = vi.spyOn(Asana.CustomFieldsApi.prototype, 'deleteCustomField').mockResolvedValue({ data: {} } as never)
+
+		await createAsanaCustomFieldGateway(client).deleteCustomField('cf1')
+
+		expect(spy).toHaveBeenCalledWith('cf1')
+	})
+
 	it('addCustomFieldToProject creates the setting with the field GID', async () => {
 		const spy = vi
 			.spyOn(Asana.ProjectsApi.prototype, 'addCustomFieldSettingForProject')

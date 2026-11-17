@@ -8,7 +8,10 @@ type Option = { gid: string; name: string; enabled: boolean }
 /** A gateway double that keeps one workspace's fields, their ordered options, and one project's settings. */
 function createAuthoringGateway() {
 	let next = 1
-	const fields = new Map<string, { gid: string; name: string; options: Option[] }>()
+	const fields = new Map<
+		string,
+		{ gid: string; name: string; description?: string; precision?: number; subtype?: string; options: Option[] }
+	>()
 	const attached = new Set<string>()
 	const move = (list: Option[], gid: string, to: number) => {
 		const from = list.findIndex((o) => o.gid === gid)
@@ -22,6 +25,8 @@ function createAuthoringGateway() {
 			fields.set(gid, {
 				gid,
 				name: input.name,
+				precision: input.precision,
+				subtype: input.resourceSubtype,
 				options: (input.enumOptions ?? []).map((o: { name: string }) => ({
 					gid: `o${next++}`,
 					name: o.name,
@@ -32,8 +37,30 @@ function createAuthoringGateway() {
 		},
 		getCustomField: async (gid) => {
 			const field = fields.get(gid)
-			return { gid, name: field?.name, enum_options: field?.options.map((o) => ({ ...o })) }
+			if (!field) throw Object.assign(new Error('Not Found'), { status: 404 })
+			return {
+				gid,
+				name: field.name,
+				description: field.description,
+				precision: field.precision,
+				resource_subtype: field.subtype,
+				enum_options: field.options.map((o) => ({ ...o })),
+			}
 		},
+		deleteCustomField: async (gid) => {
+			fields.delete(gid)
+		},
+		updateCustomField: async (gid, input) => {
+			const field = fields.get(gid)
+			if (!field) throw Object.assign(new Error('Not Found'), { status: 404 })
+			Object.assign(field, {
+				...(input.name !== undefined && { name: input.name }),
+				...(input.description !== undefined && { description: input.description }),
+				...(input.precision !== undefined && { precision: input.precision }),
+			})
+			return { gid, name: field.name }
+		},
+
 		createEnumOption: async (fieldGid, input) => {
 			const field = fields.get(fieldGid)
 			const option = { gid: `o${next++}`, name: input.name, enabled: true }

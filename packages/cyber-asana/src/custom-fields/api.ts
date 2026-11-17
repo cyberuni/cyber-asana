@@ -7,6 +7,7 @@ import type {
 	CreateEnumOptionInput,
 	CustomFieldGateway,
 	InsertEnumOptionInput,
+	UpdateCustomFieldInput,
 	UpdateEnumOptionInput,
 } from './gateway.js'
 
@@ -15,6 +16,7 @@ export type {
 	CreateCustomFieldInput,
 	CreateEnumOptionInput,
 	InsertEnumOptionInput,
+	UpdateCustomFieldInput,
 	UpdateEnumOptionInput,
 }
 
@@ -52,6 +54,12 @@ export function createCustomFieldApi(gateway: CustomFieldGateway) {
 		},
 		createCustomField(input: CreateCustomFieldInput) {
 			return gateway.createCustomField(input)
+		},
+		updateCustomField(customFieldGid: string, input: UpdateCustomFieldInput) {
+			return gateway.updateCustomField(customFieldGid, input)
+		},
+		deleteCustomField(customFieldGid: string) {
+			return gateway.deleteCustomField(customFieldGid)
 		},
 		createEnumOption(customFieldGid: string, input: CreateEnumOptionInput) {
 			return gateway.createEnumOption(customFieldGid, input)

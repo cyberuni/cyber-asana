@@ -1,11 +1,13 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
+import { deleteIdempotently } from '../platform/idempotent-delete.js'
 import { paginationOptions, paginationParams, readOptions, readParams } from '../platform/mcp/options.js'
 import type { CustomFieldApi } from './api.js'
 import {
 	attachCustomField,
 	createCustomField,
 	createEnumOption,
+	deleteCustomField,
 	detachCustomField,
 	getCustomField,
 	insertEnumOption,
@@ -14,6 +16,7 @@ import {
 	listCustomFieldSettingsForProject,
 	listCustomFieldSettingsForTeam,
 	listCustomFields,
+	updateCustomField,
 	updateEnumOption,
 } from './default.js'
 
@@ -31,6 +34,8 @@ function resolveCustomFieldApi(api?: CustomFieldApi | (() => CustomFieldApi)): C
 			createEnumOption,
 			insertEnumOption,
 			updateEnumOption,
+			updateCustomField,
+			deleteCustomField,
 			attachCustomField,
 			detachCustomField,
 		}
@@ -158,6 +163,61 @@ export function registerCustomFieldTools(server: McpServer, api?: CustomFieldApi
 					...(precision !== undefined && { precision }),
 					...(enum_options !== undefined && { enumOptions: enum_options.map((o) => ({ name: o })) }),
 				}),
+			),
+	)
+
+	server.tool(
+		'asana_custom_field_update',
+		"Edit a custom field: name, description, number precision or format, currency code, label, or enabled state. The field's type (resource_subtype) cannot be changed. Give at least one property",
+		{
+			custom_field_gid: z.string().describe('Custom field GID'),
+			name: z.string().optional().describe('New name'),
+			description: z.string().optional().describe('New description'),
+			precision: z.number().int().optional().describe('Decimal places; number type only'),
+			format: z
+				.enum(['currency', 'identifier', 'percentage', 'custom', 'duration', 'none'])
+				.optional()
+				.describe('Number format; number type only'),
+			currency_code: z.string().optional().describe('ISO 4217 code, such as USD; currency format only'),
+			custom_label: z.string().optional().describe('Label shown with the value; custom format only'),
+			custom_label_position: z.enum(['prefix', 'suffix']).optional().describe('Where the label goes'),
+			enabled: z.boolean().optional().describe('false disables the field, true re-enables it'),
+		},
+		async ({
+			custom_field_gid,
+			name,
+			description,
+			precision,
+			format,
+			currency_code,
+			custom_label,
+			custom_label_position,
+			enabled,
+		}) => {
+			const changes = {
+				...(name !== undefined && { name }),
+				...(description !== undefined && { description }),
+				...(precision !== undefined && { precision }),
+				...(format !== undefined && { format }),
+				...(currency_code !== undefined && { currencyCode: currency_code }),
+				...(custom_label !== undefined && { customLabel: custom_label }),
+				...(custom_label_position !== undefined && { customLabelPosition: custom_label_position }),
+				...(enabled !== undefined && { enabled }),
+			}
+			if (Object.keys(changes).length === 0) throw new Error('Nothing to update: give at least one property to change')
+			return json(await resolveCustomFieldApi(api).updateCustomField(custom_field_gid, changes))
+		},
+	)
+
+	server.tool(
+		'asana_custom_field_delete',
+		'Delete a custom field from its workspace, removing it from every project and task that uses it. Idempotent: already_absent is true when the field was already gone',
+		{ custom_field_gid: z.string().describe('Custom field GID') },
+		async ({ custom_field_gid }) =>
+			json(
+				await deleteIdempotently('custom_field', custom_field_gid, () =>
+					resolveCustomFieldApi(api).deleteCustomField(custom_field_gid),
+				),
 			),
 	)
 

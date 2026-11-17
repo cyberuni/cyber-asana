@@ -22,6 +22,18 @@ export type CreateCustomFieldInput = {
 	precision?: number
 }
 
+/** Every field is optional; `resource_subtype` is absent because Asana cannot change a field's type. */
+export type UpdateCustomFieldInput = {
+	name?: string
+	description?: string
+	precision?: number
+	format?: 'currency' | 'identifier' | 'percentage' | 'custom' | 'duration' | 'none'
+	currencyCode?: string
+	customLabel?: string
+	customLabelPosition?: 'prefix' | 'suffix'
+	enabled?: boolean
+}
+
 export type CreateEnumOptionInput = EnumOptionInput & { insertBefore?: string; insertAfter?: string }
 
 export type InsertEnumOptionInput = { enumOption: string; beforeEnumOption?: string; afterEnumOption?: string }
@@ -50,6 +62,8 @@ export type CustomFieldGateway = {
 		opts?: PaginationOptions,
 	): Promise<ListResult<Asana.CustomFieldSetting>>
 	createCustomField(input: CreateCustomFieldInput): Promise<Asana.CustomField>
+	updateCustomField(customFieldGid: string, input: UpdateCustomFieldInput): Promise<Asana.CustomField>
+	deleteCustomField(customFieldGid: string): Promise<void>
 	createEnumOption(customFieldGid: string, input: CreateEnumOptionInput): Promise<EnumOption>
 	insertEnumOption(customFieldGid: string, input: InsertEnumOptionInput): Promise<EnumOption>
 	updateEnumOption(enumOptionGid: string, input: UpdateEnumOptionInput): Promise<EnumOption>
@@ -106,6 +120,26 @@ export function createAsanaCustomFieldGateway(client: Asana.ApiClient): CustomFi
 				{},
 			)
 			return res.data
+		},
+		async updateCustomField(customFieldGid, input) {
+			const res = await customFieldsApi.updateCustomField(customFieldGid, {
+				body: {
+					data: {
+						...(input.name !== undefined && { name: input.name }),
+						...(input.description !== undefined && { description: input.description }),
+						...(input.precision !== undefined && { precision: input.precision }),
+						...(input.format !== undefined && { format: input.format }),
+						...(input.currencyCode !== undefined && { currency_code: input.currencyCode }),
+						...(input.customLabel !== undefined && { custom_label: input.customLabel }),
+						...(input.customLabelPosition !== undefined && { custom_label_position: input.customLabelPosition }),
+						...(input.enabled !== undefined && { enabled: input.enabled }),
+					},
+				},
+			})
+			return res.data
+		},
+		async deleteCustomField(customFieldGid) {
+			await customFieldsApi.deleteCustomField(customFieldGid)
 		},
 		async createEnumOption(customFieldGid, input) {
 			const res = await customFieldsApi.createEnumOptionForCustomField(customFieldGid, {
