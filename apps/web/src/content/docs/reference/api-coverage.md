@@ -53,7 +53,7 @@ operations such as project export and TODO scanning are described separately bel
 | Projects | 🟡 | 11 / 20 | `project` | CRUD, counts, search, duplicate, follower add and remove (`project follower`), and the projects a task belongs to (`task project list`). Templates have their own row; members are managed under `membership` |
 | Goals | 🟡 | 11 / 12 | `goal` | CRUD, metrics (`goal metric set\|set-current`), supporting relationships (`goal supporting add\|remove`), and followers (`goal follower add\|remove`), paid plan |
 | Users | 🟡 | 3 / 8 | `user` | Read-only |
-| Teams | 🟡 | 2 / 7 | `team` | Read-only; also a team's projects, which `team projects` lists |
+| Teams | 🟡 | 3 / 7 | `team` | Read-only; also a team's projects (`team projects`) and a user's teams (`team for-user`) |
 | Workspaces | 🟡 | 2 / 6 | `workspace` | Read-only |
 | Stories | ✅ | 7 / 7 | `story`, `comment` | Full comment lifecycle on tasks, and goal comments (`story list-goal\|create-goal`, paid plan) |
 | Custom fields | ✅ | 8 / 8 | `custom-field` | Discovery, create, update, delete, and enum-option create, insert, and update |
@@ -207,7 +207,7 @@ handshake, surfaced as a normal result rather than a `412`. See
 | Resource | CLI | MCP tools |
 | --- | --- | --- |
 | Users | `user list\|get\|me` | `asana_user_list`, `asana_user_get`, `asana_user_me` |
-| Teams | `team list\|get\|members\|projects` | `asana_team_list`, `asana_team_get`, `asana_team_members`, `asana_team_projects` |
+| Teams | `team list\|get\|members\|projects\|for-user` | `asana_team_list`, `asana_team_get`, `asana_team_members`, `asana_team_projects`, `asana_team_list_for_user` |
 | Workspaces | `workspace list\|get` | `asana_workspace_list`, `asana_workspace_get` |
 | Attachments | `attachment list\|get\|create\|delete` | `asana_attachment_list`, `asana_attachment_get`, `asana_attachment_create`, `asana_attachment_delete` |
 | Custom fields | `custom-field list\|get\|create\|update\|delete`, `custom-field enum-option add\|move\|update` | `asana_custom_field_list`, `asana_custom_field_get`, `asana_custom_field_create`, `asana_custom_field_update`, `asana_custom_field_delete`, `asana_custom_field_enum_option_create\|insert\|update` |

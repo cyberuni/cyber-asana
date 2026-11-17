@@ -11,7 +11,7 @@ import {
 } from '../platform/cli/options.js'
 import { output, printCountSummary, printFields, printNextSteps, printTable } from '../platform/cli/output.js'
 import type { TeamApi } from './api.js'
-import { getTeam, listTeamMembers, listTeamProjects, listTeams } from './default.js'
+import { getTeam, listTeamMembers, listTeamProjects, listTeams, listTeamsForUser } from './default.js'
 
 type Team = { gid: string; name?: string }
 type Member = { gid: string; user?: { gid?: string; name?: string } }
@@ -25,6 +25,7 @@ function resolveTeamApi(api?: TeamApi | (() => TeamApi)): TeamApi {
 			getTeam,
 			listTeamMembers,
 			listTeamProjects,
+			listTeamsForUser,
 		}
 	)
 }
@@ -85,6 +86,41 @@ export function teamCommand(api?: TeamApi | (() => TeamApi)) {
 		async (gid: string, opts: { optFields?: string }) => {
 			const data = await resolveTeamApi(api).getTeam(gid, readOptionsFromCli(opts))
 			output(data, () => printFields({ Name: (data as Team).name, ID: (data as Team).gid }))
+		},
+	)
+
+	addPaginationOptions(
+		addGidOption(
+			cmd.command('for-user <user-gid>').description('List the teams a user belongs to in a workspace'),
+			'workspace',
+			'Workspace (organization) GID',
+		),
+	).action(
+		async (
+			userGid: string,
+			opts: { workspace?: string; workspaceGid?: string; limit?: number; offset?: string; optFields?: string },
+		) => {
+			const pagination = paginationOptionsFromCli(opts)
+			pagination.optFields ??= TEAM_LIST_FIELDS
+			const data = await resolveTeamApi(api).listTeamsForUser(
+				userGid,
+				requiredGid(opts, 'workspace', 'Workspace GID'),
+				pagination,
+			)
+			output(data, () => {
+				const items = itemsForOutput(data)
+				printTable(
+					items,
+					[
+						{ label: 'Name', get: (t: Team) => t.name ?? '' },
+						{ label: 'ID', get: (t: Team) => t.gid },
+					],
+					{ entity: 'teams' },
+				)
+				printCountSummary(items.length, 'team(s)')
+				printNextPageHint(data)
+				printNextSteps(['cyber-asana team members <gid> — the members of a team'])
+			})
 		},
 	)
 

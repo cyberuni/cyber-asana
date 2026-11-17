@@ -70,6 +70,7 @@ describe('teams/cli', () => {
 				getTeam: injectedGetTeam,
 				listTeamMembers: vi.fn(),
 				listTeamProjects: vi.fn(),
+				listTeamsForUser: vi.fn(),
 			}),
 		)
 

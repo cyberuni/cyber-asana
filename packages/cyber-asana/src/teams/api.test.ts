@@ -11,6 +11,7 @@ describe('createTeamApi', () => {
 			getTeam: vi.fn(),
 			listTeamMembers: vi.fn(),
 			listTeamProjects: vi.fn(),
+			listTeamsForUser: vi.fn(),
 		})
 
 		const result = await api.listTeams('ws1')
@@ -22,7 +23,13 @@ describe('createTeamApi', () => {
 	it("lists a team's members and projects through the gateway", async () => {
 		const listTeamMembers = vi.fn().mockResolvedValue({ data: [], next_page: null, limit: 100 })
 		const listTeamProjects = vi.fn().mockResolvedValue({ data: [], next_page: null, limit: 100 })
-		const api = createTeamApi({ listTeams: vi.fn(), getTeam: vi.fn(), listTeamMembers, listTeamProjects })
+		const api = createTeamApi({
+			listTeams: vi.fn(),
+			getTeam: vi.fn(),
+			listTeamMembers,
+			listTeamProjects,
+			listTeamsForUser: vi.fn(),
+		})
 
 		await api.listTeamMembers('team1', { limit: 5 })
 		await api.listTeamProjects('team1', { archived: false })

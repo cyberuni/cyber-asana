@@ -2,7 +2,7 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import { paginationOptions, paginationParams, readOptions, readParams } from '../platform/mcp/options.js'
 import type { TeamApi } from './api.js'
-import { getTeam, listTeamMembers, listTeamProjects, listTeams } from './default.js'
+import { getTeam, listTeamMembers, listTeamProjects, listTeams, listTeamsForUser } from './default.js'
 
 function resolveTeamApi(api?: TeamApi | (() => TeamApi)): TeamApi {
 	if (typeof api === 'function') return api()
@@ -12,6 +12,7 @@ function resolveTeamApi(api?: TeamApi | (() => TeamApi)): TeamApi {
 			getTeam,
 			listTeamMembers,
 			listTeamProjects,
+			listTeamsForUser,
 		}
 	)
 }
@@ -26,6 +27,26 @@ export function registerTeamTools(server: McpServer, api?: TeamApi | (() => Team
 				{
 					type: 'text',
 					text: JSON.stringify(await resolveTeamApi(api).listTeams(workspace_gid, paginationOptions(params))),
+				},
+			],
+		}),
+	)
+
+	server.tool(
+		'asana_team_list_for_user',
+		'List the Asana teams a user belongs to in a workspace (organization)',
+		{
+			user_gid: z.string().describe('User GID, or me'),
+			workspace_gid: z.string().describe('Workspace (organization) GID'),
+			...paginationParams,
+		},
+		async ({ user_gid, workspace_gid, ...params }) => ({
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(
+						await resolveTeamApi(api).listTeamsForUser(user_gid, workspace_gid, paginationOptions(params)),
+					),
 				},
 			],
 		}),

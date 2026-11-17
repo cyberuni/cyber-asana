@@ -23,3 +23,7 @@ export async function listTeamMembers(teamGid: string, opts?: PaginationOptions)
 export async function listTeamProjects(teamGid: string, opts?: TeamProjectListOptions) {
 	return defaultTeamApi().listTeamProjects(teamGid, opts)
 }
+
+export async function listTeamsForUser(userGid: string, workspaceGid: string, opts?: PaginationOptions) {
+	return defaultTeamApi().listTeamsForUser(userGid, workspaceGid, opts)
+}

@@ -57,7 +57,13 @@ function mockRuntimeContext(): RuntimeContext {
 			addTaskToSection: vi.fn(),
 		},
 		users: { listUsers: vi.fn(), getUser: vi.fn(), getMe: vi.fn() },
-		teams: { listTeams: vi.fn(), getTeam: vi.fn(), listTeamMembers: vi.fn(), listTeamProjects: vi.fn() },
+		teams: {
+			listTeams: vi.fn(),
+			getTeam: vi.fn(),
+			listTeamMembers: vi.fn(),
+			listTeamProjects: vi.fn(),
+			listTeamsForUser: vi.fn(),
+		},
 		customFields: {
 			listCustomFields: vi.fn(),
 			createCustomField: vi.fn(),

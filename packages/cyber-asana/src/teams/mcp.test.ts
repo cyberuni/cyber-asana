@@ -70,6 +70,7 @@ describe('teams/mcp', () => {
 			getTeam: injectedGetTeam,
 			listTeamMembers: vi.fn(),
 			listTeamProjects: vi.fn(),
+			listTeamsForUser: vi.fn(),
 		})
 
 		await server.handlers.get('asana_team_get')?.({ team_gid: 'team1' })
