@@ -125,6 +125,8 @@ describe('custom-fields/cli', () => {
 				deleteCustomField: vi.fn(),
 				attachCustomField: vi.fn(),
 				detachCustomField: vi.fn(),
+				attachCustomFieldToPortfolio: vi.fn(),
+				detachCustomFieldFromPortfolio: vi.fn(),
 				getCustomField: injectedGetCustomField,
 				listCustomFieldSettingsForProject: vi.fn(),
 				listCustomFieldSettingsForPortfolio: vi.fn(),
@@ -150,6 +152,8 @@ function settingsApiStub() {
 		deleteCustomField: vi.fn(),
 		attachCustomField: vi.fn(),
 		detachCustomField: vi.fn(),
+		attachCustomFieldToPortfolio: vi.fn(),
+		detachCustomFieldFromPortfolio: vi.fn(),
 		getCustomField: vi.fn(),
 		listCustomFieldSettingsForProject: vi.fn(),
 		listCustomFieldSettingsForPortfolio: vi.fn(),
@@ -443,6 +447,26 @@ describe('custom-fields/cli writes', () => {
 		await run(writeApi({ deleteCustomField }), 'delete', 'cf1')
 
 		expect(log.mock.calls.map((c) => String(c[0])).join('\n')).toContain('already deleted')
+	})
+
+	it('attach-portfolio and detach-portfolio report an idempotent status', async () => {
+		const attachCustomFieldToPortfolio = vi
+			.fn()
+			.mockResolvedValue({ portfolio: 'pf1', custom_field: 'cf1', status: 'already_attached' })
+		const detachCustomFieldFromPortfolio = vi
+			.fn()
+			.mockResolvedValue({ portfolio: 'pf1', custom_field: 'cf1', status: 'detached' })
+		const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+		const api = writeApi({ attachCustomFieldToPortfolio, detachCustomFieldFromPortfolio })
+
+		await run(api, 'attach-portfolio', 'pf1', 'cf1', '--important')
+		await run(api, 'detach-portfolio', 'pf1', 'cf1')
+
+		expect(attachCustomFieldToPortfolio).toHaveBeenCalledWith('pf1', 'cf1', { isImportant: true })
+		expect(detachCustomFieldFromPortfolio).toHaveBeenCalledWith('pf1', 'cf1')
+		const logged = log.mock.calls.map((c) => String(c[0])).join('\n')
+		expect(logged).toContain('already attached to portfolio pf1')
+		expect(logged).toContain('Detached custom field cf1 from portfolio pf1')
 	})
 
 	it('attach and detach report an idempotent status', async () => {

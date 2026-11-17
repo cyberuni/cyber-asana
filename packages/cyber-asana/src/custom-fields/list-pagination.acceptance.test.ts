@@ -37,6 +37,8 @@ function createPaginatingCustomFieldGateway(): CustomFieldGateway {
 		deleteCustomField: vi.fn(),
 		addCustomFieldToProject: vi.fn(),
 		removeCustomFieldFromProject: vi.fn(),
+		addCustomFieldToPortfolio: vi.fn(),
+		removeCustomFieldFromPortfolio: vi.fn(),
 	}
 }
 

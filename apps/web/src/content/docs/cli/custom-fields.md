@@ -86,11 +86,15 @@ cyber-asana custom-field attach <project-gid> <field-gid>
 cyber-asana custom-field enum-option add <field-gid> "Sprint 2" --insert-after <option-gid>
 ```
 
-`attach` and `detach` are idempotent: attaching a field the project already has, or detaching
+Portfolios take the same two commands, `attach-portfolio <portfolio-gid> <field-gid>` and
+`detach-portfolio <portfolio-gid> <field-gid>` (paid plan).
+
+`attach`, `detach`, and their portfolio forms are idempotent: attaching a field the project already has, or detaching
 one it does not have, exits `0` with status `already_attached` or `already_detached` and
 writes nothing. The `custom_fields` payload of a task write works only for fields attached to
 one of the task's projects.
 
 The matching MCP tools are `asana_custom_field_create`, `asana_custom_field_enum_option_create`,
 `asana_custom_field_enum_option_insert`, `asana_custom_field_enum_option_update`,
-`asana_custom_field_attach`, and `asana_custom_field_detach`.
+`asana_custom_field_attach`, `asana_custom_field_detach`, `asana_custom_field_attach_portfolio`, and
+`asana_custom_field_detach_portfolio`.

@@ -75,3 +75,15 @@ export async function attachCustomField(
 export async function detachCustomField(projectGid: string, customFieldGid: string) {
 	return defaultCustomFieldApi().detachCustomField(projectGid, customFieldGid)
 }
+
+export async function attachCustomFieldToPortfolio(
+	portfolioGid: string,
+	customFieldGid: string,
+	opts?: AddCustomFieldToProjectOptions,
+) {
+	return defaultCustomFieldApi().attachCustomFieldToPortfolio(portfolioGid, customFieldGid, opts)
+}
+
+export async function detachCustomFieldFromPortfolio(portfolioGid: string, customFieldGid: string) {
+	return defaultCustomFieldApi().detachCustomFieldFromPortfolio(portfolioGid, customFieldGid)
+}

@@ -5,10 +5,12 @@ import { paginationOptions, paginationParams, readOptions, readParams } from '..
 import type { CustomFieldApi } from './api.js'
 import {
 	attachCustomField,
+	attachCustomFieldToPortfolio,
 	createCustomField,
 	createEnumOption,
 	deleteCustomField,
 	detachCustomField,
+	detachCustomFieldFromPortfolio,
 	getCustomField,
 	insertEnumOption,
 	listCustomFieldSettingsForGoal,
@@ -37,7 +39,9 @@ function resolveCustomFieldApi(api?: CustomFieldApi | (() => CustomFieldApi)): C
 			updateCustomField,
 			deleteCustomField,
 			attachCustomField,
+			attachCustomFieldToPortfolio,
 			detachCustomField,
+			detachCustomFieldFromPortfolio,
 		}
 	)
 }
@@ -305,5 +309,32 @@ export function registerCustomFieldTools(server: McpServer, api?: CustomFieldApi
 		},
 		async ({ project_gid, custom_field_gid }) =>
 			json(await resolveCustomFieldApi(api).detachCustomField(project_gid, custom_field_gid)),
+	)
+
+	server.tool(
+		'asana_custom_field_attach_portfolio',
+		'Attach a custom field to a portfolio (paid plan). Idempotent: status is attached, or already_attached with nothing written',
+		{
+			portfolio_gid: z.string().describe('Portfolio GID'),
+			custom_field_gid: z.string().describe('Custom field GID'),
+			is_important: z.boolean().optional().describe('Show the field on the portfolio list by default'),
+		},
+		async ({ portfolio_gid, custom_field_gid, is_important }) =>
+			json(
+				await resolveCustomFieldApi(api).attachCustomFieldToPortfolio(portfolio_gid, custom_field_gid, {
+					...(is_important !== undefined && { isImportant: is_important }),
+				}),
+			),
+	)
+
+	server.tool(
+		'asana_custom_field_detach_portfolio',
+		'Detach a custom field from a portfolio (paid plan). Idempotent: status is detached, or already_detached with nothing written',
+		{
+			portfolio_gid: z.string().describe('Portfolio GID'),
+			custom_field_gid: z.string().describe('Custom field GID'),
+		},
+		async ({ portfolio_gid, custom_field_gid }) =>
+			json(await resolveCustomFieldApi(api).detachCustomFieldFromPortfolio(portfolio_gid, custom_field_gid)),
 	)
 }

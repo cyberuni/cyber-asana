@@ -68,6 +68,8 @@ function mockRuntimeContext(): RuntimeContext {
 			deleteCustomField: vi.fn(),
 			attachCustomField: vi.fn(),
 			detachCustomField: vi.fn(),
+			attachCustomFieldToPortfolio: vi.fn(),
+			detachCustomFieldFromPortfolio: vi.fn(),
 			getCustomField: vi.fn(),
 			listCustomFieldSettingsForProject: vi.fn(),
 			listCustomFieldSettingsForPortfolio: vi.fn(),

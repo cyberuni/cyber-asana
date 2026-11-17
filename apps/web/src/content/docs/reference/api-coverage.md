@@ -49,7 +49,7 @@ operations such as project export and TODO scanning are described separately bel
 | Jobs | ✅ | 1 / 1 | `job` | Complete; reads the async jobs other operations return |
 | Project templates | 🟡 | 4 / 5 | `project-template` | List, get, and instantiate; no template deletion |
 | Sections | ✅ | 7 / 7 | `section` | Complete, including section reordering, section-scoped task placement, and listing a section's tasks |
-| Portfolios | 🟡 | 8 / 13 | `portfolio` | CRUD, item listing, item add and remove; members are managed under `membership` (`addMembers` and `removeMembers` are not wrapped separately: `membership create` and `delete` do the same job) |
+| Portfolios | 🟡 | 10 / 13 | `portfolio` | CRUD, item listing, item add and remove, custom field add and remove (`custom-field attach-portfolio`); members are managed under `membership` (`addMembers` and `removeMembers` are not wrapped separately: `membership create` and `delete` do the same job) |
 | Projects | 🟡 | 11 / 20 | `project` | CRUD, counts, search, duplicate, follower add and remove (`project follower`), and the projects a task belongs to (`task project list`). Templates have their own row; members are managed under `membership` |
 | Goals | 🟡 | 5 / 12 | `goal` | CRUD only; no metrics or followers |
 | Users | 🟡 | 3 / 8 | `user` | Read-only |
@@ -59,7 +59,7 @@ operations such as project export and TODO scanning are described separately bel
 | Custom fields | ✅ | 8 / 8 | `custom-field` | Discovery, create, update, delete, and enum-option create, insert, and update |
 | Project briefs | ✅ | 4 / 4 | `project-brief` | Get, create, update, delete; `html_text` is checked against the `project-brief` rules first |
 | Notifications | ✅ | 3 / 3 | `notification` | List, mark read, mark unread. Beta Asana endpoints that may change; only the caller's own inbox is readable |
-| Custom field settings | ✅ | 4 / 4 | `custom-field` | All four reads; project attach and detach are `custom-field attach\|detach` |
+| Custom field settings | ✅ | 4 / 4 | `custom-field` | All four reads; project attach and detach are `custom-field attach\|detach`, portfolio attach and detach are `custom-field attach-portfolio\|detach-portfolio` (paid plan) |
 | User task lists | 🟡 | — | `task my-tasks` | Only the "My Tasks" read path |
 | Batch API | 🟡 | — | `task get-many` | Used internally, not exposed generically |
 
@@ -209,7 +209,7 @@ handshake, surfaced as a normal result rather than a `412`. See
 | Workspaces | `workspace list\|get` | `asana_workspace_list`, `asana_workspace_get` |
 | Attachments | `attachment list\|get\|create\|delete` | `asana_attachment_list`, `asana_attachment_get`, `asana_attachment_create`, `asana_attachment_delete` |
 | Custom fields | `custom-field list\|get\|create\|update\|delete`, `custom-field enum-option add\|move\|update` | `asana_custom_field_list`, `asana_custom_field_get`, `asana_custom_field_create`, `asana_custom_field_update`, `asana_custom_field_delete`, `asana_custom_field_enum_option_create\|insert\|update` |
-| Custom field settings | `custom-field project\|portfolio\|goal\|team`, `custom-field attach\|detach` | `asana_custom_field_list_for_*`, `asana_custom_field_attach`, `asana_custom_field_detach` |
+| Custom field settings | `custom-field project\|portfolio\|goal\|team`, `custom-field attach\|detach\|attach-portfolio\|detach-portfolio` | `asana_custom_field_list_for_*`, `asana_custom_field_attach`, `asana_custom_field_detach`, `asana_custom_field_attach_portfolio`, `asana_custom_field_detach_portfolio` |
 
 `custom-field list` and `custom-field get` make discoverable the GIDs that `task create` /
 `task update` require in `--custom-field` and `--custom-fields-json` — `get` returns the

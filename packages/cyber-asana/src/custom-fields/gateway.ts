@@ -73,12 +73,19 @@ export type CustomFieldGateway = {
 		opts?: AddCustomFieldToProjectOptions,
 	): Promise<Asana.CustomFieldSetting>
 	removeCustomFieldFromProject(projectGid: string, customFieldGid: string): Promise<void>
+	addCustomFieldToPortfolio(
+		portfolioGid: string,
+		customFieldGid: string,
+		opts?: AddCustomFieldToProjectOptions,
+	): Promise<Asana.CustomFieldSetting>
+	removeCustomFieldFromPortfolio(portfolioGid: string, customFieldGid: string): Promise<void>
 }
 
 export function createAsanaCustomFieldGateway(client: Asana.ApiClient): CustomFieldGateway {
 	const customFieldsApi = new Asana.CustomFieldsApi(client)
 	const settingsApi = new Asana.CustomFieldSettingsApi(client)
 	const projectsApi = new Asana.ProjectsApi(client)
+	const portfoliosApi = new Asana.PortfoliosApi(client)
 
 	return {
 		async listCustomFields(workspaceGid, opts) {
@@ -195,6 +202,24 @@ export function createAsanaCustomFieldGateway(client: Asana.ApiClient): CustomFi
 		},
 		async removeCustomFieldFromProject(projectGid, customFieldGid) {
 			await projectsApi.removeCustomFieldSettingForProject({ data: { custom_field: customFieldGid } }, projectGid)
+		},
+		// Request body taken from developers.asana.com; unverified against a live paid workspace.
+		async addCustomFieldToPortfolio(portfolioGid, customFieldGid, opts) {
+			const res = await portfoliosApi.addCustomFieldSettingForPortfolio(
+				{
+					data: {
+						custom_field: customFieldGid,
+						...(opts?.isImportant !== undefined && { is_important: opts.isImportant }),
+						...(opts?.insertBefore !== undefined && { insert_before: opts.insertBefore }),
+						...(opts?.insertAfter !== undefined && { insert_after: opts.insertAfter }),
+					},
+				},
+				portfolioGid,
+			)
+			return res.data
+		},
+		async removeCustomFieldFromPortfolio(portfolioGid, customFieldGid) {
+			await portfoliosApi.removeCustomFieldSettingForPortfolio({ data: { custom_field: customFieldGid } }, portfolioGid)
 		},
 	}
 }
