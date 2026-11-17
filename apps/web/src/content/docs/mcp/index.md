@@ -146,6 +146,7 @@ Default: if both can do the job, prefer **official for discovery and previews** 
 | `event` | `asana_event_list` (change feed; sync-token cursored, not paginated) |
 | `story` | `asana_story_list`, `asana_story_get`, `asana_story_create`, `asana_story_update`, `asana_story_delete` |
 | `comment` | `asana_comment_list`, `asana_comment_get`, `asana_comment_create`, `asana_comment_update`, `asana_comment_delete` (aliases for `story`) |
+| `time-entry` | `asana_time_entry_list`, `asana_time_entry_list_for_task`, `asana_time_entry_get`, `asana_time_entry_create`, `asana_time_entry_update`, `asana_time_entry_delete` (paid plan; log and review time on tasks) |
 | `project-brief` | `asana_project_brief_get`, `asana_project_brief_create`, `asana_project_brief_update`, `asana_project_brief_delete` (a project's charter or sprint goal; rich text is checked against the `project-brief` HTML rules) |
 | `notification` | `asana_notification_list`, `asana_notification_mark_read`, `asana_notification_mark_unread` (inbox; **beta** Asana endpoints that may change) |
 | `membership` | `asana_membership_list`, `asana_membership_get`, `asana_membership_create`, `asana_membership_update`, `asana_membership_delete` |

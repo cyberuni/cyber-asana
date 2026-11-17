@@ -149,6 +149,14 @@ function mockRuntimeContext(): RuntimeContext {
 		},
 		jobs: { getJob: vi.fn() },
 		notifications: { listNotifications: vi.fn(), markNotificationsRead: vi.fn(), markNotificationsUnread: vi.fn() },
+		timeTracking: {
+			listTimeTrackingEntries: vi.fn(),
+			listTimeTrackingEntriesForTask: vi.fn(),
+			getTimeTrackingEntry: vi.fn(),
+			createTimeTrackingEntry: vi.fn(),
+			updateTimeTrackingEntry: vi.fn(),
+			deleteTimeTrackingEntry: vi.fn(),
+		},
 		projectBriefs: {
 			getProjectBrief: vi.fn(),
 			createProjectBrief: vi.fn(),

@@ -58,6 +58,7 @@ operations such as project export and TODO scanning are described separately bel
 | Stories | 🟡 | 5 / 7 | `story`, `comment` | Full comment lifecycle on tasks; no goal stories |
 | Custom fields | ✅ | 8 / 8 | `custom-field` | Discovery, create, update, delete, and enum-option create, insert, and update |
 | Project briefs | ✅ | 4 / 4 | `project-brief` | Get, create, update, delete; `html_text` is checked against the `project-brief` rules first |
+| Time tracking entries | ✅ | 6 / 6 | `time-entry` | List (all, or one task's), get, create, update, delete (paid plan). Categories, timesheets, rates, and budgets are not wrapped |
 | Notifications | ✅ | 3 / 3 | `notification` | List, mark read, mark unread. Beta Asana endpoints that may change; only the caller's own inbox is readable |
 | Custom field settings | ✅ | 4 / 4 | `custom-field` | All four reads; project attach and detach are `custom-field attach\|detach`, portfolio attach and detach are `custom-field attach-portfolio\|detach-portfolio` (paid plan) |
 | User task lists | 🟡 | — | `task my-tasks` | Only the "My Tasks" read path |
@@ -69,7 +70,7 @@ Access requests, Agents, Allocations, Audit log, Budgets, Custom types,
 Exports, Goal relationships, Organization exports,
 Project portfolio settings, Project statuses (superseded by Status updates),
 Rates, Reactions, Roles, Team memberships†, Time periods, Time tracking
-categories, Time tracking entries, Timesheet approval statuses, Webhooks,
+categories, Timesheet approval statuses, Webhooks,
 Workspace memberships.
 
 † **Team memberships** — who belongs to a team — stay on this list apart from the read
@@ -165,6 +166,7 @@ using one.
 | Memberships | `membership list\|get\|create\|update\|delete` | `asana_membership_*` |
 | Notifications (beta) | `notification list\|mark-read\|mark-unread` | `asana_notification_*` |
 | Project briefs | `project-brief get\|create\|update\|delete` | `asana_project_brief_*` |
+| Time tracking entries | `time-entry list\|for-task\|get\|create\|update\|delete` | `asana_time_entry_*` |
 | Ooo entries | `ooo list\|get\|create\|update\|delete` | `asana_ooo_*` |
 | AI Studio usage | `ai-studio runs\|seats` | `asana_ai_studio_*` |
 

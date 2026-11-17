@@ -63,6 +63,7 @@ The table lives in `SYSTEM_SUITES` in `packages/cyber-asana/src/testing/system-s
 | `custom-fields/api` | workspace, project (fixture); also covers field create, enum options, and project attach | paid |
 | `goals/api` | workspace | paid |
 | `memberships/api` | project (fixture) | any |
+| `time-tracking/api` | task (fixture); logs and deletes one entry | paid |
 | `project-briefs/api` | project (fixture; must hold no brief) | any |
 | `ooo/api` | workspace | any |
 | `portfolios/api` | workspace, project (item add/remove) | paid |

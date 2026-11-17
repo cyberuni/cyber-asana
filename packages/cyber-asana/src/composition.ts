@@ -107,6 +107,10 @@ import { createTeamApi, type TeamApi } from './teams/api.js'
 import { teamCommand } from './teams/cli.js'
 import { createAsanaTeamGateway } from './teams/gateway.js'
 import { registerTeamTools } from './teams/mcp.js'
+import { createTimeTrackingEntryApi, type TimeTrackingEntryApi } from './time-tracking/api.js'
+import { timeTrackingEntryCommand } from './time-tracking/cli.js'
+import { createAsanaTimeTrackingEntryGateway } from './time-tracking/gateway.js'
+import { registerTimeTrackingEntryTools } from './time-tracking/mcp.js'
 import { urlCommand } from './url/cli.js'
 import { registerUrlTools } from './url/mcp.js'
 import { createUserApi, type UserApi } from './users/api.js'
@@ -143,6 +147,7 @@ export type RuntimeContext = {
 	tasks: TaskApi
 	taskTemplates: TaskTemplateApi
 	teams: TeamApi
+	timeTracking: TimeTrackingEntryApi
 	users: UserApi
 	workspaces: WorkspaceApi
 }
@@ -215,6 +220,7 @@ export function createRuntimeContext(): RuntimeContext {
 		tasks: createTaskApi(taskGateway),
 		taskTemplates: createTaskTemplateApi(createAsanaTaskTemplateGateway(client)),
 		teams: createTeamApi(teamGateway),
+		timeTracking: createTimeTrackingEntryApi(createAsanaTimeTrackingEntryGateway(client)),
 		users: createUserApi(createAsanaUserGateway(client)),
 		workspaces: createWorkspaceApi(createAsanaWorkspaceGateway(client)),
 	}
@@ -244,6 +250,7 @@ export function registerCliCommands(program: Command, getContext: () => RuntimeC
 	program.addCommand(allocationCommand(() => getContext().allocations))
 	program.addCommand(attachmentCommand(() => getContext().attachments))
 	program.addCommand(projectBriefCommand(() => getContext().projectBriefs))
+	program.addCommand(timeTrackingEntryCommand(() => getContext().timeTracking))
 	program.addCommand(projectTemplateCommand(() => getContext().projectTemplates))
 	program.addCommand(jobCommand(() => getContext().jobs))
 	program.addCommand(statusCommand(() => getContext().status))
@@ -294,6 +301,7 @@ export function registerMcpTools(server: McpServer, getContext: () => RuntimeCon
 	registerAllocationTools(server, () => getContext().allocations)
 	registerAttachmentTools(server, () => getContext().attachments)
 	registerProjectBriefTools(server, () => getContext().projectBriefs)
+	registerTimeTrackingEntryTools(server, () => getContext().timeTracking)
 	registerProjectTemplateTools(server, () => getContext().projectTemplates)
 	registerJobTools(server, () => getContext().jobs)
 	registerStatusTools(server, () => getContext().status)
