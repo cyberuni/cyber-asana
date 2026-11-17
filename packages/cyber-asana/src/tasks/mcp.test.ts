@@ -12,6 +12,7 @@ const getTasksByGidMock = vi.fn()
 const getTaskMock = vi.fn()
 const getTaskWithStoriesMock = vi.fn()
 const createSubtaskMock = vi.fn()
+const listProjectsForTaskMock = vi.fn()
 const listTagsMock = vi.fn()
 
 vi.mock('../tags/default.js', async () => {
@@ -31,6 +32,7 @@ vi.mock('./default.js', async () => {
 		getTask: getTaskMock,
 		getTaskWithStories: getTaskWithStoriesMock,
 		createSubtask: createSubtaskMock,
+		listProjectsForTask: listProjectsForTaskMock,
 	}
 })
 
@@ -51,6 +53,24 @@ function createServer() {
 describe('tasks/mcp', () => {
 	afterEach(() => {
 		vi.clearAllMocks()
+	})
+
+	it('asana_task_project_list lists the projects of a task with pagination', async () => {
+		listProjectsForTaskMock.mockResolvedValue({ data: [{ gid: 'p1' }], next_page: null, limit: 50 })
+		const server = createServer()
+		registerTaskTools(server as any)
+
+		const result = await server.handlers.get('asana_task_project_list')?.({
+			task_gid: '123',
+			limit: 50,
+			opt_fields: 'gid,name',
+		})
+
+		expect(listProjectsForTaskMock).toHaveBeenCalledWith(
+			'123',
+			expect.objectContaining({ limit: 50, optFields: 'gid,name' }),
+		)
+		expect(JSON.parse(result.content[0].text)).toEqual({ data: [{ gid: 'p1' }], next_page: null, limit: 50 })
 	})
 
 	it('asana_task_create normalizes project aliases, followers, and custom fields', async () => {
@@ -345,6 +365,7 @@ describe('tasks/mcp', () => {
 			deleteTask: vi.fn(),
 			getMyTasks: vi.fn(),
 			listSubtasks: vi.fn(),
+			listProjectsForTask: vi.fn(),
 			createSubtask: vi.fn(),
 			addTaskToProject: vi.fn(),
 			removeTaskFromProject: vi.fn(),

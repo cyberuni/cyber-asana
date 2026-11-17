@@ -148,6 +148,7 @@ export type TaskGateway = {
 	deleteTask(taskGid: string): Promise<void>
 	getMyTasks(workspaceGid: string, opts?: TaskGatewayListOptions): Promise<ListResult<Asana.Task>>
 	listSubtasks(taskGid: string, opts?: TaskGatewayListOptions): Promise<ListResult<Asana.Task>>
+	listProjectsForTask(taskGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.Project>>
 	createSubtask(parentTaskGid: string, name: string, opts?: CreateTaskFields): Promise<Asana.Task>
 	addTaskToProject(
 		taskGid: string,
@@ -193,6 +194,7 @@ const TASK_GET_FIELDS =
 
 export function createAsanaTaskGateway(client: Asana.ApiClient): TaskGateway {
 	const tasksApi = new Asana.TasksApi(client)
+	const projectsApi = new Asana.ProjectsApi(client)
 	const batchApi = new Asana.BatchAPIApi(client)
 	const utlApi = new Asana.UserTaskListsApi(client)
 	// Stories are read through the story gateway so the SDK call lives in one place.
@@ -284,6 +286,10 @@ export function createAsanaTaskGateway(client: Asana.ApiClient): TaskGateway {
 				...(opts?.incompleteOrCompletedSince && { completed_since: opts.incompleteOrCompletedSince }),
 				...toAsanaPaginationOptions(opts),
 			} as Parameters<typeof tasksApi.getSubtasksForTask>[1])
+			return await collectListResponse(res, opts)
+		},
+		async listProjectsForTask(taskGid, opts) {
+			const res = await projectsApi.getProjectsForTask(taskGid, toAsanaPaginationOptions(opts))
 			return await collectListResponse(res, opts)
 		},
 		async createSubtask(parentTaskGid, name, opts) {

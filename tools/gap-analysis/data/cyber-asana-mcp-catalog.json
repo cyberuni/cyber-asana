@@ -1,7 +1,7 @@
 {
 	"source": "src/**/mcp.ts",
 	"fetched_at": "2026-11-15",
-	"tool_count": 153,
+	"tool_count": 154,
 	"tools": [
 		"asana_ai_studio_run_list",
 		"asana_ai_studio_seat_list",
@@ -137,6 +137,7 @@
 		"asana_task_list",
 		"asana_task_my_tasks",
 		"asana_task_project_add",
+		"asana_task_project_list",
 		"asana_task_project_remove",
 		"asana_task_scan_todos",
 		"asana_task_search",

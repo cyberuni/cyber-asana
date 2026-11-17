@@ -134,9 +134,10 @@ cyber-asana task subtask list <task-gid> --assignee-email --opt-fields "due_on,n
 
 ## Project membership
 
-A task can belong to several projects at once (multi-homing).
+A task can belong to several projects at once (multi-homing). `project list` shows which ones.
 
 ```sh
+cyber-asana task project list <task-gid>
 cyber-asana task project add <task-gid> <project-gid>
 cyber-asana task project add <task-gid> <project-gid> --section <section-gid>
 cyber-asana task project add <task-gid> <project-gid> --insert-after <other-task-gid>

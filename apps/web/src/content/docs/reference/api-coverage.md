@@ -50,7 +50,7 @@ operations such as project export and TODO scanning are described separately bel
 | Project templates | 🟡 | 4 / 5 | `project-template` | List, get, and instantiate; no template deletion |
 | Sections | ✅ | 7 / 7 | `section` | Complete, including section reordering, section-scoped task placement, and listing a section's tasks |
 | Portfolios | 🟡 | 8 / 13 | `portfolio` | CRUD, item listing, item add and remove; members are managed under `membership` |
-| Projects | 🟡 | 8 / 20 | `project` | CRUD, counts, search, duplicate. Templates have their own row; members are managed under `membership` |
+| Projects | 🟡 | 9 / 20 | `project` | CRUD, counts, search, duplicate, and the projects a task belongs to (`task project list`). Templates have their own row; members are managed under `membership` |
 | Goals | 🟡 | 5 / 12 | `goal` | CRUD only; no metrics or followers |
 | Users | 🟡 | 3 / 8 | `user` | Read-only |
 | Teams | 🟡 | 2 / 7 | `team` | Read-only; also a team's projects, which `team projects` lists |
@@ -95,7 +95,7 @@ arbitrary endpoints.
 | Delete a task | `task delete <gid>` | `asana_task_delete` |
 | List subtasks | `task subtask list <gid>` | `asana_task_subtask_list` |
 | Create a subtask | `task subtask create <gid> <name>` | `asana_task_subtask_create` |
-| Add / remove project | `task project add\|remove` | `asana_task_project_add` / `_remove` |
+| List / add / remove project | `task project list\|add\|remove` | `asana_task_project_list`, `asana_task_project_add` / `_remove` |
 | Add / remove followers | `task follower add\|remove` | `asana_task_follower_add` / `_remove` |
 | List / add / remove dependencies | `task dependency list\|add\|remove` | `asana_task_dependency_*` |
 | List / add / remove dependents | `task dependent list\|add\|remove` | `asana_task_dependent_*` |

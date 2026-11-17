@@ -142,6 +142,9 @@ export function createTaskApi(gateway: TaskGateway) {
 		listSubtasks(taskGid: string, opts?: TaskCollectionOptions) {
 			return listWithCompletionFilter(opts, (o) => gateway.listSubtasks(taskGid, o))
 		},
+		listProjectsForTask(taskGid: string, opts?: PaginationOptions) {
+			return gateway.listProjectsForTask(taskGid, opts)
+		},
 		createSubtask(parentTaskGid: string, name: string, opts?: CreateTaskFields) {
 			return gateway.createSubtask(parentTaskGid, name, opts)
 		},

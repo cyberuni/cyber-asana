@@ -27,6 +27,7 @@ import {
 	getTask,
 	getTasksByGid,
 	getTaskWithStories,
+	listProjectsForTask,
 	listSubtasks,
 	listTasks,
 	listTasksForSection,
@@ -90,6 +91,7 @@ function resolveTaskApi(api?: TaskApi | (() => TaskApi)): TaskApi {
 			deleteTask,
 			getMyTasks,
 			listSubtasks,
+			listProjectsForTask,
 			createSubtask,
 			addTaskToProject,
 			removeTaskFromProject,
@@ -803,6 +805,23 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 				content: [{ type: 'text', text: `Removed ${follower_gids.length} follower(s) from task ${task_gid}` }],
 			}
 		},
+	)
+
+	server.tool(
+		'asana_task_project_list',
+		'List the projects an Asana task belongs to (paginated)',
+		{
+			task_gid: z.string().describe('Task GID'),
+			...paginationParams,
+		},
+		async ({ task_gid, ...params }) => ({
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(await resolveTaskApi(api).listProjectsForTask(task_gid, paginationOptions(params))),
+				},
+			],
+		}),
 	)
 
 	server.tool(
