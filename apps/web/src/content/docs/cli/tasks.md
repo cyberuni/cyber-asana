@@ -95,7 +95,7 @@ cyber-asana task delete <task-gid>
 | `--completed` | `create`, `update` | Mark as completed — on `create`, the task is created already closed |
 | `--no-completed` | `update` | Mark as incomplete, reopening a completed task. With neither flag, completion is left as it is |
 | `--resource-subtype <subtype>` | `create`, `update` | e.g. `default_task`, `milestone` |
-| `--custom-type <gid>` | `create`, `update` | Custom type GID (for example an Epic type). Read it back with `task get --opt-fields custom_type.name` |
+| `--custom-type <gid>` | `create`, `update` | Custom type GID (for example an Epic type). Read it back with `task get --opt-fields custom_type.name`. On an existing default task, `task update` needs `--resource-subtype custom` too, or Asana rejects the call |
 | `--follower <gid[,gid...]>` | `create` | Add followers right after creation |
 | `--tag <gid-or-name[,...]>` | `create` | Tags to apply, each a GID or a tag name resolved in the workspace. With none given, the `default_tags` [task convention](/cyber-asana/cli/repo-config/#task-conventions) is used |
 | `--custom-fields-json <json>` | `create`, `update` | JSON object keyed by custom field GID |

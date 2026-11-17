@@ -2,8 +2,8 @@
 
 ## Enable the MCP server
 
-Used by step 7 of [SKILL.md](./SKILL.md). `<exact>` is the version resolved in **Ensure cyber-asana
-CLI**. Each client below is configured its own way; check for an existing `cyber-asana` entry first.
+Used by step 7 of [SKILL.md](./SKILL.md). `<exact>` is the version the plugin launcher prints for
+`--version`. Each client below is configured its own way; check for an existing `cyber-asana` entry first.
 
 ### Claude Code
 

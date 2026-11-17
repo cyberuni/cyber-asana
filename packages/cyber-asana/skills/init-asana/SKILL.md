@@ -15,25 +15,11 @@ When the user is setting up `cyber-asana` for the first time, or when commands f
 
 Before running any `cyber-asana` command, settle how to invoke it — once, in this order. Whichever form resolves is what every `cyber-asana <subcommand>` in this skill and all other cyber-asana skills means.
 
-1. **Direct dependency.** When the consumer's `package.json` lists `cyber-asana` in `dependencies` or `devDependencies`, run it through the package manager:
+1. **Plugin launcher.** The plugin ships `bin/cyber-asana`, which runs the CLI of the same version as the plugin; Claude Code puts it on PATH while the plugin is enabled. Check with `cyber-asana --version`. If that prints a version, use the bare `cyber-asana` spelling and skip the rest of this section.
+2. **Launcher by path.** On a harness that does not put plugin `bin/` on PATH, run the same file from this skill's own directory: `node ../../bin/cyber-asana --version`. If that prints a version, use `node <skill dir>/../../bin/cyber-asana` wherever a skill says `cyber-asana`.
+3. **Direct dependency.** When the consumer's `package.json` lists `cyber-asana` in `dependencies` or `devDependencies`, `pnpm exec cyber-asana --version` also works; prefer the launcher, because it is pinned to the plugin.
 
-   ```bash
-   pnpm exec cyber-asana --version
-   ```
-
-   If that prints a version, use `pnpm exec cyber-asana` for every later command and skip the rest of this section.
-2. **Global install** — `cyber-asana --version`. If that succeeds, use the bare `cyber-asana` spelling.
-3. **npx fallback** — resolve the latest published semver with `npm view cyber-asana version` and use it as `<exact>` for every `npx cyber-asana@<exact>` (never `@latest`, never a literal placeholder). Check with `npx cyber-asana@<exact> --version`.
-
-The CLI bundles the Asana SDK, which does not tree-shake, so no skill ships it as a script; the skill folder stays self-contained and the CLI comes from npm.
-
-If only the npx path is left and it fails (install prompt, `command not found`, or other non-zero exit):
-
-1. Tell the user the workflow needs to download `cyber-asana` from npm (no `package.json` change).
-2. **Ask** whether to install.
-3. After yes, run the one-time install only: `npx --yes cyber-asana@<exact> --version`
-4. For all later commands, use `npx cyber-asana@<exact> <subcommand>` (no `--yes`) or `cyber-asana` if globally installed.
-5. If the user declines npx, ask whether to add `cyber-asana` as a devDependency instead. Note drawbacks: it modifies `package.json` and may need ignoring in unused-dependency tools (e.g. `knip`). If they decline both, skip CLI steps.
+Never run the CLI through `npx`: it downloads code at call time that the user has not reviewed, and a permission rule written for `cyber-asana ...` does not match an `npx ...` command. If none of the forms above resolves, tell the user the plugin install is incomplete (reinstall or update the plugin) and skip the CLI steps.
 
 ## Instructions
 
@@ -61,8 +47,6 @@ Ensure the CLI is available first (see **Ensure cyber-asana CLI**), then run:
 
 ```bash
 cyber-asana workspace list --toon
-# or, if using npx without global install:
-npx cyber-asana@<exact> workspace list --toon
 ```
 
 If it fails, the token is invalid or not set. Fix credentials and retry.
@@ -83,8 +67,6 @@ This avoids passing `--workspace` on every command. Keep workspace GID in env �
 
 ```bash
 cyber-asana --version
-# or, if using npx without global install:
-npx cyber-asana@<exact> --version
 ```
 
 A successful version print confirms the CLI runs with credentials loaded. If workspace-scoped commands still fail, recheck `ASANA_WORKSPACE_GID` from step 4.
@@ -115,8 +97,9 @@ do not set it up as part of this step. On yes:
 3. **Check for an existing `cyber-asana` entry** in that client and scope. If one exists, show it and
    ask before changing it; if it already runs `cyber-asana@<exact>`, report it and stop.
 4. **Write the entry the client's own way**, from [reference.md — Enable the MCP server](./reference.md#enable-the-mcp-server).
-   The command is always `npx -y cyber-asana@<exact> mcp`, with `<exact>` resolved as in
-   **Ensure cyber-asana CLI**. Let the server inherit `ASANA_ACCESS_TOKEN` and `ASANA_WORKSPACE_GID`
+   The command is always `npx -y cyber-asana@<exact> mcp`, with `<exact>` the output of the
+   launcher's `--version` (the plugin's own version, so the server matches the CLI the skills run).
+   The MCP entry lives in the client's config, outside the plugin, so it cannot use the plugin's path. Let the server inherit `ASANA_ACCESS_TOKEN` and `ASANA_WORKSPACE_GID`
    from the environment where the client allows it. Never write a literal `"${VAR}"` value for a client
    that does not expand it. Never write a token into a project-scoped file.
 5. **Tell the user to restart or reload the client**, then confirm the `asana_*` tools are listed.

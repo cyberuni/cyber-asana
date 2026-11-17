@@ -789,7 +789,7 @@ cyber-asana task update <task-gid> \
 | `--parent-gid <gid>` / `--parent <gid>` | `task create`, `task update` | Set the task parent |
 | `--clear-parent` | `task update` | Remove the task parent |
 | `--resource-subtype <subtype>` | `task create`, `task update` | Example: `default_task`, `milestone` |
-| `--custom-type <gid>` | `task create`, `task update` | Custom type GID (for example an Epic type). Read it back with `task get --opt-fields custom_type.name` |
+| `--custom-type <gid>` | `task create`, `task update` | Custom type GID (for example an Epic type). Read it back with `task get --opt-fields custom_type.name`. On an existing default task, `task update` needs `--resource-subtype custom` too, or Asana rejects the call |
 | `--custom-fields-json <json>` | `task create`, `task update` | JSON object keyed by custom field GID |
 | `--custom-field <gid=value>` | `task create`, `task update` | Repeatable convenience override for simple values |
 | `--follower <gid[,gid...]>` | `task create` | Add followers immediately after task creation |
