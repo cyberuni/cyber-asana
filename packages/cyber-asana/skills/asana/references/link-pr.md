@@ -10,7 +10,7 @@ works on GitHub (including Enterprise), GitLab (including self-hosted), Bitbucke
 Center, Azure DevOps, Gitea, and Forgejo (including Codeberg). The host table in step 1 is the only
 host-specific part; everything after it is the same on every host.
 
-Credentials and the CLI form come from the `init-asana` skill (**Ensure cyber-asana CLI**). The
+Credentials come from the `init-asana` skill (**Ensure cyber-asana CLI**). The
 cyber-asana MCP server is opt-in; the `asana_*` tool names in parentheses apply only when it is
 enabled.
 
@@ -31,8 +31,7 @@ git branch --show-current
 ```
 
 Recognize the host from the remote's hostname. The host kinds match those of repobuddy's
-`init-buddy` skill, so the two agree. When repobuddy is installed, `repobuddy env --json` (or
-`npx -y repobuddy@2.2.0 env --json`) reports the same kind as `hosts[].kind`; add `--probe` for a
+`init-buddy` skill, so the two agree. `node <this skill's folder>/scripts/repobuddy.mjs env --json` reports the same kind as `hosts[].kind`; add `--probe` for a
 self-hosted host it reports as `unknown`. Without repobuddy, a self-hosted hostname that does not
 name its product is unknown: ask the user which host it is.
 
@@ -60,14 +59,14 @@ paste the pull request URL. Never ask the user to paste a token into the chat.
 
 Look for the task in this order and stop at the first match:
 
-1. A task GID or Asana URL the user mentioned. Read a URL with `cyber-asana url parse <url>`
+1. A task GID or Asana URL the user mentioned. Read a URL with `node <this skill's folder>/scripts/cyber-asana.mjs url parse <url>`
    (MCP, if enabled: `asana_url_parse`).
 2. The branch name: an Asana GID (a long run of digits, as in `feat/1209876543210987-login`) or a
    task name pattern.
 3. The pull request's title and description: an Asana task URL or GID.
 
 These three are host-agnostic: the same search works on any host. Check a GID with
-`cyber-asana task get <gid> --opt-fields name,permalink_url` (MCP, if enabled: `asana_task_get`)
+`node <this skill's folder>/scripts/cyber-asana.mjs task get <gid> --opt-fields name,permalink_url` (MCP, if enabled: `asana_task_get`)
 before using it.
 
 When none of them names a task, look the work up the way
@@ -84,7 +83,7 @@ Follow the **Comments** section of the `cyber-asana.task-conventions` reference 
 comment, and never rewrite the task's description to do it.
 
 ```sh
-cyber-asana comment create "PR: <pr-url>" --task-gid <task-gid>
+node <this skill's folder>/scripts/cyber-asana.mjs comment create "PR: <pr-url>" --task-gid <task-gid>
 ```
 
 (`story create` is an alias. MCP, if enabled: `asana_comment_create`.)

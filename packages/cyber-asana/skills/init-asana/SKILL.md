@@ -13,13 +13,13 @@ When the user is setting up `cyber-asana` for the first time, or when commands f
 
 ## Ensure cyber-asana CLI
 
-Before running any `cyber-asana` command, settle how to invoke it — once, in this order. Whichever form resolves is what every `cyber-asana <subcommand>` in this skill and all other cyber-asana skills means.
+Each cyber-asana skill runs the CLI through the forwarder in its own folder:
 
-1. **Plugin launcher.** The plugin ships `bin/cyber-asana`, which runs the CLI of the same version as the plugin; Claude Code puts it on PATH while the plugin is enabled. Check with `cyber-asana --version`. If that prints a version, use the bare `cyber-asana` spelling and skip the rest of this section.
-2. **Launcher by path.** On a harness that does not put plugin `bin/` on PATH, run the same file from this skill's own directory: `node ../../bin/cyber-asana --version`. If that prints a version, use `node <skill dir>/../../bin/cyber-asana` wherever a skill says `cyber-asana`.
-3. **Direct dependency.** When the consumer's `package.json` lists `cyber-asana` in `dependencies` or `devDependencies`, `pnpm exec cyber-asana --version` also works; prefer the launcher, because it is pinned to the plugin.
+```bash
+node <this skill's folder>/scripts/cyber-asana.mjs --version
+```
 
-Never run the CLI through `npx`: it downloads code at call time that the user has not reviewed, and a permission rule written for `cyber-asana ...` does not match an `npx ...` command. If none of the forms above resolves, tell the user the plugin install is incomplete (reinstall or update the plugin) and skip the CLI steps.
+The forwarder runs the CLI of the plugin's own version on every install route, and the local build in a cyber-asana checkout. Run every command exactly as a skill writes it, with no `npx`, `pnpm exec`, or bare `cyber-asana` call in its place. If `--version` prints no version, tell the user the plugin install is incomplete (reinstall or update the plugin) and skip the CLI steps.
 
 ## Instructions
 
@@ -46,7 +46,7 @@ Or pass per-command with `--token <pat>`.
 Ensure the CLI is available first (see **Ensure cyber-asana CLI**), then run:
 
 ```bash
-cyber-asana workspace list --toon
+node <this skill's folder>/scripts/cyber-asana.mjs workspace list --toon
 ```
 
 If it fails, the token is invalid or not set. Fix credentials and retry.
@@ -66,7 +66,7 @@ This avoids passing `--workspace` on every command. Keep workspace GID in env �
 ### 5. Confirm setup
 
 ```bash
-cyber-asana --version
+node <this skill's folder>/scripts/cyber-asana.mjs --version
 ```
 
 A successful version print confirms the CLI runs with credentials loaded. If workspace-scoped commands still fail, recheck `ASANA_WORKSPACE_GID` from step 4.
@@ -98,7 +98,7 @@ do not set it up as part of this step. On yes:
    ask before changing it; if it already runs `cyber-asana@<exact>`, report it and stop.
 4. **Write the entry the client's own way**, from [reference.md — Enable the MCP server](./reference.md#enable-the-mcp-server).
    The command is always `npx -y cyber-asana@<exact> mcp`, with `<exact>` the output of the
-   launcher's `--version` (the plugin's own version, so the server matches the CLI the skills run).
+   forwarder's `--version` (the plugin's own version, so the server matches the CLI the skills run).
    The MCP entry lives in the client's config, outside the plugin, so it cannot use the plugin's path. Let the server inherit `ASANA_ACCESS_TOKEN` and `ASANA_WORKSPACE_GID`
    from the environment where the client allows it. Never write a literal `"${VAR}"` value for a client
    that does not expand it. Never write a token into a project-scoped file.

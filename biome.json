@@ -11,7 +11,9 @@
 			"!.agents",
 			"!**/.astro",
 			"!.cyberfleet",
-			"!**/.claude/worktrees"
+			"!**/.claude/worktrees",
+			"!.github/scripts/min-release-age.mjs",
+			"!packages/cyber-asana/skills/*/scripts/*.mjs"
 		]
 	},
 	"overrides": [

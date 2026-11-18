@@ -17,8 +17,8 @@ If a name is ambiguous, settle it as the review procedure's step 1 says.
 ## 2. Run the report
 
 ```bash
-cyber-asana report retro --json                    # the current sprint
-cyber-asana report retro --sprint previous --json  # the one that just ended
+node <this skill's folder>/scripts/cyber-asana.mjs report retro --json                    # the current sprint
+node <this skill's folder>/scripts/cyber-asana.mjs report retro --sprint previous --json  # the one that just ended
 ```
 
 Add `--scope <name>` when the user names a scope. Failures are handled as in the review procedure (`scope-missing`, `scope-unknown`, `sprint-none`, `model-unsupported`, `reference-ambiguous`).
@@ -37,4 +37,4 @@ For each agreed action, once the user says yes, create a task through the `asana
 
 ## 5. Offer to close the sprint
 
-End by offering `cyber-asana sprint close --sprint <ref>`. The policy's `carry_over` decides what it does (`move` puts the open tasks in the next sprint's section, creating it when missing; `leave` keeps them). Say which it is and how many tasks it affects (`carry_over` in the report), and run it only on the user's yes.
+End by offering `node <this skill's folder>/scripts/cyber-asana.mjs sprint close --sprint <ref>`. The policy's `carry_over` decides what it does (`move` puts the open tasks in the next sprint's section, creating it when missing; `leave` keeps them). Say which it is and how many tasks it affects (`carry_over` in the report), and run it only on the user's yes.

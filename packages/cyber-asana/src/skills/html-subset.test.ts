@@ -8,14 +8,14 @@ describe('the tag subset', () => {
 	// read them; the reference sends the agent there instead of carrying its own copy.
 	it('sends the agent to the rule table instead of listing tags', () => {
 		const content = readSubsetSkill()
-		expect(content).toContain('cyber-asana html rules --surface task-notes')
+		expect(content).toContain('cyber-asana.mjs html rules --surface task-notes')
 		expect(content).not.toContain('**Supported**')
 	})
 
 	it('checks and fixes the body before writing it back', () => {
 		const content = readSubsetSkill()
-		expect(content).toContain('cyber-asana html fix')
-		expect(content).toContain('cyber-asana html check')
+		expect(content).toContain('cyber-asana.mjs html fix')
+		expect(content).toContain('cyber-asana.mjs html check')
 	})
 })
 
@@ -90,7 +90,7 @@ describe('where the procedure lives', () => {
 describe('other skills that write rich text', () => {
 	it('create-task fixes --html-notes for task notes', () => {
 		const content = readFileSync(path.join(skillsRoot, 'asana', 'references', 'create-task.md'), 'utf8')
-		expect(content).toContain('cyber-asana html fix')
+		expect(content).toContain('cyber-asana.mjs html fix')
 	})
 
 	it('the dashboard reference names the status-update rules', () => {

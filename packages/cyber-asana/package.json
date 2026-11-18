@@ -12,7 +12,6 @@
 		"dist",
 		"!dist/**/*.test.*",
 		"!dist/**/*.system.*",
-		"bin",
 		"skills",
 		"commands",
 		"references",

@@ -15,29 +15,29 @@ It covers the `project`, `projects`, `portfolio`, and `team` scopes and the `sec
 
 - **Idempotent.** Re-running shows the current setup and changes only what the user picks. Start every run by reading what exists, and report each step as `done`, `missing`, or `changed`.
 - **Ask before writing.** Create nothing in Asana and write nothing to the repo until the user approves that exact change. Show the command or the file first.
-- **CLI form.** Use the invocation `init-asana` settled. Every `cyber-asana` below means that form, pinned as `init-asana` says.
+- **CLI form.** Run each command as written, through this skill's forwarder (see **Ensure cyber-asana CLI** in `init-asana`).
 - **Commit** the repo files this skill writes (`.agents/cyber-asana.json`, `.agents/references/cyber-asana.scrum.md`) only when the user asks.
 
 ## Steps
 
 ### 1. Prerequisites
 
-Run `cyber-asana workspace list --toon`. If it fails because of the token or workspace, run the `init-asana` skill and stop; resume here afterwards.
+Run `node <this skill's folder>/scripts/cyber-asana.mjs workspace list --toon`. If it fails because of the token or workspace, run the `init-asana` skill and stop; resume here afterwards.
 
 ### 2. Scope
 
-Show `cyber-asana config scope list`. If a scope exists, ask whether to keep it or add another.
+Show `node <this skill's folder>/scripts/cyber-asana.mjs config scope list`. If a scope exists, ask whether to keep it or add another.
 
-To add one, ask the kind: `project` (one project), `projects` (several; a task in two of them counts once), `portfolio` (every project in a portfolio, nested portfolios included), or `team` (every unarchived project and every member of one Asana team; find it with `cyber-asana team list`). A `team` scope needs the `custom-field` or `project` sprint model: the `sections` model stops with `model-unsupported` for it, so recommend `custom-field` in step 3.
+To add one, ask the kind: `project` (one project), `projects` (several; a task in two of them counts once), `portfolio` (every project in a portfolio, nested portfolios included), or `team` (every unarchived project and every member of one Asana team; find it with `node <this skill's folder>/scripts/cyber-asana.mjs team list`). A `team` scope needs the `custom-field` or `project` sprint model: the `sections` model stops with `model-unsupported` for it, so recommend `custom-field` in step 3.
 
-Find the projects with `cyber-asana project search <keyword>` (or the registry through `cyber-asana config list`) and portfolios with `cyber-asana portfolio list`, confirm the picks, then, on approval:
+Find the projects with `node <this skill's folder>/scripts/cyber-asana.mjs project search <keyword>` (or the registry through `node <this skill's folder>/scripts/cyber-asana.mjs config list`) and portfolios with `node <this skill's folder>/scripts/cyber-asana.mjs portfolio list`, confirm the picks, then, on approval:
 
 ```bash
-cyber-asana config scope add <name> --kind project --project <gid-or-alias> --default
-cyber-asana config scope add <name> --kind projects --project <gid>,<gid>
-cyber-asana config scope add <name> --kind portfolio --portfolio <gid>
-cyber-asana config scope add <name> --kind team --team <team-gid>
-cyber-asana scrum scope resolve --scope <name>
+node <this skill's folder>/scripts/cyber-asana.mjs config scope add <name> --kind project --project <gid-or-alias> --default
+node <this skill's folder>/scripts/cyber-asana.mjs config scope add <name> --kind projects --project <gid>,<gid>
+node <this skill's folder>/scripts/cyber-asana.mjs config scope add <name> --kind portfolio --portfolio <gid>
+node <this skill's folder>/scripts/cyber-asana.mjs config scope add <name> --kind team --team <team-gid>
+node <this skill's folder>/scripts/cyber-asana.mjs scrum scope resolve --scope <name>
 ```
 
 Step 3 may add `--sprint-model custom-field` to the scope. Do it in the same command if the model is already decided.
@@ -56,43 +56,43 @@ Load the implementations of the `cyber-asana.sprint-model` interface with the `r
 
 Load the chosen model's reference (`cyber-asana.sprint-model.sections`, `.custom-field`, or `.project`) and show its `## Requirements`. `sections` cannot also use sections as workflow states, so the policy's `state_carrier` must stay `none` or `field` with it; `custom-field` and `project` also allow `sections`, though reports do not read sections as states and say so. Save the choice on approval: for one scope, `--sprint-model <key>` on `config scope add`; for every scope, `sprint_model` in the policy (step 6).
 
-For `project`, also ask for the **backlog project** (a `project` scope's own project, else pick one), the **sprint portfolio** (find it with `cyber-asana portfolio list`, or on approval make one with `cyber-asana portfolio create "<team> sprints" --workspace-gid <gid>`), and optionally a **template project** the CLI duplicates for each sprint (a project with the sections and fields every sprint should start with). Save them on the scope on approval:
+For `project`, also ask for the **backlog project** (a `project` scope's own project, else pick one), the **sprint portfolio** (find it with `node <this skill's folder>/scripts/cyber-asana.mjs portfolio list`, or on approval make one with `node <this skill's folder>/scripts/cyber-asana.mjs portfolio create "<team> sprints" --workspace-gid <gid>`), and optionally a **template project** the CLI duplicates for each sprint (a project with the sections and fields every sprint should start with). Save them on the scope on approval:
 
 ```bash
-cyber-asana config scope add <name> --kind project --project <backlog-gid> --sprint-model project --sprint-portfolio <portfolio-gid> [--sprint-template <template-gid>] --default
+node <this skill's folder>/scripts/cyber-asana.mjs config scope add <name> --kind project --project <backlog-gid> --sprint-model project --sprint-portfolio <portfolio-gid> [--sprint-template <template-gid>] --default
 ```
 
 A `scope-incomplete` status (exit 2) means one of the two is missing from the scope.
 
 ### 4. Fields
 
-For each project in the scope run `cyber-asana config discover-fields <project>` and show the roles it found: `story_points`, `task_points`, `sprint`, `status`. Then offer to create what is missing, each only on the user's approval and after showing the command:
+For each project in the scope run `node <this skill's folder>/scripts/cyber-asana.mjs config discover-fields <project>` and show the roles it found: `story_points`, `task_points`, `sprint`, `status`. Then offer to create what is missing, each only on the user's approval and after showing the command:
 
 - **Sprint field.** Needed only by the `custom-field` model (the `sections` and `project` models need none). If no project has one, create it once for the workspace and attach it to every project of the scope:
 
   ```bash
-  cyber-asana custom-field create Sprint --type enum --workspace-gid <gid>
-  cyber-asana custom-field attach <project-gid> <field-gid>
+  node <this skill's folder>/scripts/cyber-asana.mjs custom-field create Sprint --type enum --workspace-gid <gid>
+  node <this skill's folder>/scripts/cyber-asana.mjs custom-field attach <project-gid> <field-gid>
   ```
 
-  Use `cyber-asana custom-field list --workspace-gid <gid>` first: a `Sprint` field may already exist in the workspace and only need attaching. A scope shares exactly one Sprint field; two different ones stop the model with `sprint-field-ambiguous`. `attach` is safe to repeat.
+  Use `node <this skill's folder>/scripts/cyber-asana.mjs custom-field list --workspace-gid <gid>` first: a `Sprint` field may already exist in the workspace and only need attaching. A scope shares exactly one Sprint field; two different ones stop the model with `sprint-field-ambiguous`. `attach` is safe to repeat.
 - **Status field.** Needed only with `state_carrier: field`. Create it from the policy's `workflow_states` (default `Backlog`, `Ready`, `In Progress`, `Review`, `Done`) and attach it the same way:
 
   ```bash
-  cyber-asana custom-field create Status --type enum --option "Backlog" --option "Ready" --option "In Progress" --option "Review" --option "Done" --workspace-gid <gid>
-  cyber-asana custom-field attach <project-gid> <field-gid>
+  node <this skill's folder>/scripts/cyber-asana.mjs custom-field create Status --type enum --option "Backlog" --option "Ready" --option "In Progress" --option "Review" --option "Done" --workspace-gid <gid>
+  node <this skill's folder>/scripts/cyber-asana.mjs custom-field attach <project-gid> <field-gid>
   ```
 
 - **Points fields.** Do not create them: the `cyber-asana.task-conventions` reference owns what points mean. For a missing `story_points` or `task_points`, tell the user to add a number field in Asana, attach it with `custom-field attach`, and rerun discovery.
 
-After creating or attaching anything, run `cyber-asana config discover-fields <project>` again for each project so the roles are saved. Report each role as `done`, `missing`, or `changed`.
+After creating or attaching anything, run `node <this skill's folder>/scripts/cyber-asana.mjs config discover-fields <project>` again for each project so the roles are saved. Report each role as `done`, `missing`, or `changed`.
 
 ### 5. Structure
 
-Check each project: `cyber-asana section list --project-gid <gid>`.
+Check each project: `node <this skill's folder>/scripts/cyber-asana.mjs section list --project-gid <gid>`.
 
-- **Backlog.** Only for `sections`: if the policy's `backlog_section` (default `Backlog`) is missing, offer `cyber-asana section create "Backlog" --project-gid <gid>`. The `custom-field` model has no backlog section: its backlog is the tasks with no Sprint value. The `project` model has none either: its backlog is the backlog project's tasks that no sprint project holds.
-- **Current sprint.** Needs the policy's `sprint_anchor_date` (step 6), so do step 6 first if it is unset. Then show `cyber-asana sprint current --scope <name>`. If it stops with `sprint-none`, offer `cyber-asana sprint start --scope <name>`, which creates the sprint's section (or its Sprint option, or its project, added to the portfolio) where missing and changes nothing when it exists. `sprint-field-missing` means step 4 is unfinished, and `scope-incomplete` means step 3 is.
+- **Backlog.** Only for `sections`: if the policy's `backlog_section` (default `Backlog`) is missing, offer `node <this skill's folder>/scripts/cyber-asana.mjs section create "Backlog" --project-gid <gid>`. The `custom-field` model has no backlog section: its backlog is the tasks with no Sprint value. The `project` model has none either: its backlog is the backlog project's tasks that no sprint project holds.
+- **Current sprint.** Needs the policy's `sprint_anchor_date` (step 6), so do step 6 first if it is unset. Then show `node <this skill's folder>/scripts/cyber-asana.mjs sprint current --scope <name>`. If it stops with `sprint-none`, offer `node <this skill's folder>/scripts/cyber-asana.mjs sprint start --scope <name>`, which creates the sprint's section (or its Sprint option, or its project, added to the portfolio) where missing and changes nothing when it exists. `sprint-field-missing` means step 4 is unfinished, and `scope-incomplete` means step 3 is.
 
 ### 6. Policy
 
@@ -107,25 +107,25 @@ If the anchor date is the only difference, that is the only key written.
 Capacity comes only from Asana Allocations (there is none in config). Probe it:
 
 ```bash
-cyber-asana allocation list --assignee me --workspace <gid>
+node <this skill's folder>/scripts/cyber-asana.mjs allocation list --assignee me --workspace <gid>
 ```
 
 Report one of three results, and change nothing:
 
 - **Available**: the list returns allocations. `report workload` and health check H8 will use them.
 - **Plan does not include it**: the command fails with a 402 (exit 7). Say the workspace plan has no resource management, so `report workload` shows each person's load without capacity, and H8 is skipped with that reason.
-- **No allocations yet**: the list is empty (`0 allocations found`). Say workload shows load without capacity until allocations exist, and that `cyber-asana allocation create` records one on the user's yes.
+- **No allocations yet**: the list is empty (`0 allocations found`). Say workload shows load without capacity until allocations exist, and that `node <this skill's folder>/scripts/cyber-asana.mjs allocation create` records one on the user's yes.
 
 Explain that capacity is never taken from config or from out-of-office entries, which workload only notes beside it.
 
 ### 8. Verify
 
 ```bash
-cyber-asana report health --scope <name>
+node <this skill's folder>/scripts/cyber-asana.mjs report health --scope <name>
 ```
 
 Show the findings and the next steps it prints. This one command covers the structure: a missing current-sprint section is finding H9, with `sprint start` as its fix. Exit 2 means a step above is unfinished; read `error.code`: `sprint-field-missing` (step 4), `policy-incomplete` (no `sprint_anchor_date`: step 6) or `sprint-none` (today is before the anchor date, so no sprint has begun; wait or move the anchor). Warnings on a brand-new sprint (no estimates yet, unassigned tasks) are not setup failures, and H8 is skipped, with its reason, when step 7 found no usable capacity; say so.
 
-Finish with a summary of each step (`done`, `missing`, `changed`) and the next steps: `cyber-asana sprint add <task-gid>... --sprint current` to commit work, `cyber-asana sprint tasks`, `cyber-asana report health` as the sprint runs, and `cyber-asana sprint close` at the end of the sprint.
+Finish with a summary of each step (`done`, `missing`, `changed`) and the next steps: `node <this skill's folder>/scripts/cyber-asana.mjs sprint add <task-gid>... --sprint current` to commit work, `node <this skill's folder>/scripts/cyber-asana.mjs sprint tasks`, `node <this skill's folder>/scripts/cyber-asana.mjs report health` as the sprint runs, and `node <this skill's folder>/scripts/cyber-asana.mjs sprint close` at the end of the sprint.
 
 A `premium-required` status (exit 7) means the `custom-field` model needs a premium workspace; offer the `sections` model for a `project` or `projects` scope. A paid-plan error from a portfolio call (the `project` model) is the same limit: offer `sections` there too.

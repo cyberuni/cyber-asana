@@ -2,7 +2,7 @@
 
 ## Enable the MCP server
 
-Used by step 7 of [SKILL.md](./SKILL.md). `<exact>` is the version the plugin launcher prints for
+Used by step 7 of [SKILL.md](./SKILL.md). `<exact>` is the version the plugin's forwarder prints for
 `--version`. Each client below is configured its own way; check for an existing `cyber-asana` entry first.
 
 ### Claude Code
@@ -99,15 +99,15 @@ Run the [official Asana MCP](https://developers.asana.com/docs/mcp-tools-referen
 | Server | Config key | Auth | Env vars |
 | --- | --- | --- | --- |
 | Official Asana MCP | `asana` | OAuth 2.0 (hosted, **MCP app** you register) | `ASANA_CLIENT_ID`, `ASANA_CLIENT_SECRET` (Asana's documented names) |
-| cyber-asana | `cyber-asana` | Personal access token, or OAuth 2.0 + PKCE via `cyber-asana auth login` (your own **API app**) | `ASANA_ACCESS_TOKEN`, optional `ASANA_WORKSPACE_GID`; for OAuth, `ASANA_API_CLIENT_ID` / `ASANA_API_CLIENT_SECRET` |
+| cyber-asana | `cyber-asana` | Personal access token, or OAuth 2.0 + PKCE via `node <this skill's folder>/scripts/cyber-asana.mjs auth login` (your own **API app**) | `ASANA_ACCESS_TOKEN`, optional `ASANA_WORKSPACE_GID`; for OAuth, `ASANA_API_CLIENT_ID` / `ASANA_API_CLIENT_SECRET` |
 
 **Credentials are not interchangeable — neither the tokens nor the app registrations.**
 
 Asana's hosted MCP server does not support dynamic client registration, so you pre-register an app of type **MCP app** ([integrating](https://developers.asana.com/docs/integrating-with-asanas-mcp-server), [connecting](https://developers.asana.com/docs/connecting-mcp-clients-to-asanas-v2-server)). Asana states that tokens issued for MCP apps only work with the MCP server, and that standard API requests need a separate **API app**.
 
 - **Tokens** — MCP OAuth tokens from the official server cannot be used as `ASANA_ACCESS_TOKEN`. PATs cannot substitute for official MCP OAuth.
-- **Client ids and secrets** — an MCP app's pair cannot drive `cyber-asana auth login`, which needs an API app's. Asana documents the MCP app's pair under `ASANA_CLIENT_ID` / `ASANA_CLIENT_SECRET`, so one exported pair cannot serve both. Give cyber-asana its API app through `ASANA_API_CLIENT_ID` / `ASANA_API_CLIENT_SECRET` (names cyber-asana defines) or `~/.config/cyber-asana/settings.json`, and keep the official server's pair in the host config's `auth` block.
-- **Verifying which one won** — `cyber-asana auth status` reports the app registration alongside the token credential: an `App` line with the masked client id and its source, and `App ignored` for the registrations it shadows (`app.client_id_masked` / `app.source` / `app.shadowed` under `--json`). Check it whenever both pairs are exported. A wrong registration that reaches Asana fails with `invalid_client`, and the CLI appends a hint about the API-app / MCP-app distinction.
+- **Client ids and secrets** — an MCP app's pair cannot drive `node <this skill's folder>/scripts/cyber-asana.mjs auth login`, which needs an API app's. Asana documents the MCP app's pair under `ASANA_CLIENT_ID` / `ASANA_CLIENT_SECRET`, so one exported pair cannot serve both. Give cyber-asana its API app through `ASANA_API_CLIENT_ID` / `ASANA_API_CLIENT_SECRET` (names cyber-asana defines) or `~/.config/cyber-asana/settings.json`, and keep the official server's pair in the host config's `auth` block.
+- **Verifying which one won** — `node <this skill's folder>/scripts/cyber-asana.mjs auth status` reports the app registration alongside the token credential: an `App` line with the masked client id and its source, and `App ignored` for the registrations it shadows (`app.client_id_masked` / `app.source` / `app.shadowed` under `--json`). Check it whenever both pairs are exported. A wrong registration that reaches Asana fails with `invalid_client`, and the CLI appends a hint about the API-app / MCP-app distinction.
 
 Dual-config example (Cursor `mcp.json`):
 

@@ -8,7 +8,7 @@ changed on the way. The CLI computes; you present it and add judgment.
 Load these with the `reference` skill of `cyber-agentkit`, never by reading tier folders:
 
 1. `cyber-asana.scrum`: follow its `## Review` section.
-2. `cyber-asana.sprint-model.<key>`: `<key>` is the `sprint_model` the scope uses. Find it with `cyber-asana scrum scope resolve --scope <name> --json` (the `sprint.sprint_model` field), or `sections` when no scope is named.
+2. `cyber-asana.sprint-model.<key>`: `<key>` is the `sprint_model` the scope uses. Find it with `node <this skill's folder>/scripts/cyber-asana.mjs scrum scope resolve --scope <name> --json` (the `sprint.sprint_model` field), or `sections` when no scope is named.
 3. `cyber-asana.report.sprint`: its `## Layout`, `## Judgment`, and `## Follow-up` shape the answer.
 
 If a name is ambiguous (two plugins ship it), the `reference` skill lists the options with `default`. Ask which to build on and whether that is for the repository or only the user, then save the pick with `reference customize <name> --extends <pick>`.
@@ -16,16 +16,16 @@ If a name is ambiguous (two plugins ship it), the `reference` skill lists the op
 ## 2. Run the report
 
 ```bash
-cyber-asana report sprint --json                    # the current sprint
-cyber-asana report sprint --sprint previous --json  # the one that just ended
+node <this skill's folder>/scripts/cyber-asana.mjs report sprint --json                    # the current sprint
+node <this skill's folder>/scripts/cyber-asana.mjs report sprint --sprint previous --json  # the one that just ended
 ```
 
 Add `--scope <name>` when the user names a scope. A review is usually of the sprint that just ended, so ask which sprint when the user does not say and the current one has not ended.
 
 If the command fails, read `error.code`:
 
-- `scope-missing` or `scope-unknown`: run `cyber-asana config scope list` and ask which scope, or offer `init-asana-scrum`.
-- `sprint-none`: the sprint has no section. Offer `cyber-asana sprint start --sprint <ref>` only if the user wants to plan it; otherwise ask which sprint they meant.
+- `scope-missing` or `scope-unknown`: run `node <this skill's folder>/scripts/cyber-asana.mjs config scope list` and ask which scope, or offer `init-asana-scrum`.
+- `sprint-none`: the sprint has no section. Offer `node <this skill's folder>/scripts/cyber-asana.mjs sprint start --sprint <ref>` only if the user wants to plan it; otherwise ask which sprint they meant.
 - `model-unsupported`: the scope's sprint model is not built into the CLI; follow its reference's primitive commands instead.
 - `reference-ambiguous` (exit 8): settle it as in step 1, then run again.
 

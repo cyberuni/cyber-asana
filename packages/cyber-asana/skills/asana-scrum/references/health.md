@@ -8,7 +8,7 @@ finding and its fix; you present them and help act on them.
 Load these with the `reference` skill of `cyber-agentkit`, never by reading tier folders:
 
 1. `cyber-asana.scrum`: the policy the checks read (`state_carrier`, `workflow_states`, `blocked_signals`).
-2. `cyber-asana.sprint-model.<key>`: `<key>` is the `sprint_model` the scope uses. Find it with `cyber-asana scrum scope resolve --scope <name> --json` (the `sprint.sprint_model` field), or `sections` when no scope is named.
+2. `cyber-asana.sprint-model.<key>`: `<key>` is the `sprint_model` the scope uses. Find it with `node <this skill's folder>/scripts/cyber-asana.mjs scrum scope resolve --scope <name> --json` (the `sprint.sprint_model` field), or `sections` when no scope is named.
 3. `cyber-asana.report.health`: its `## Layout`, `## Judgment`, and `## Follow-up` shape the answer. Its frontmatter sets which checks run and the thresholds; the CLI reads them, so do not apply them yourself.
 
 If a name is ambiguous (two plugins ship it), the `reference` skill lists the options with `default`. Ask which to build on and whether that is for the repository or only the user, then save the pick with `reference customize <name> --extends <pick>`.
@@ -16,15 +16,15 @@ If a name is ambiguous (two plugins ship it), the `reference` skill lists the op
 ## 2. Run the report
 
 ```bash
-cyber-asana report health --json
+node <this skill's folder>/scripts/cyber-asana.mjs report health --json
 ```
 
 Add `--scope <name>` when the user names a scope, and `--sprint <ref>` for a sprint other than the current one.
 
 If the command fails, read `error.code`:
 
-- `scope-missing` or `scope-unknown`: run `cyber-asana config scope list` and ask which scope, or offer `init-asana-scrum`.
-- `sprint-none`: no sprint to check (today is before `sprint_anchor_date`, or the sprint has no section and H9 is turned off). Offer `cyber-asana sprint start --scope <name>` (add `--sprint <n>` for a later sprint); for a date before the anchor, say sprint 1 begins on the anchor date.
+- `scope-missing` or `scope-unknown`: run `node <this skill's folder>/scripts/cyber-asana.mjs config scope list` and ask which scope, or offer `init-asana-scrum`.
+- `sprint-none`: no sprint to check (today is before `sprint_anchor_date`, or the sprint has no section and H9 is turned off). Offer `node <this skill's folder>/scripts/cyber-asana.mjs sprint start --scope <name>` (add `--sprint <n>` for a later sprint); for a date before the anchor, say sprint 1 begins on the anchor date.
 - `policy-incomplete`: the policy has no `sprint_anchor_date`; offer `init-asana-scrum`.
 - `model-unsupported`: the scope's sprint model is not built into the CLI; follow its reference's primitive commands instead.
 - `reference-ambiguous` (exit 8): settle it as in step 1, then run again.
@@ -40,4 +40,4 @@ Fill `cyber-asana.report.health`'s `## Layout` from the JSON. Use `counts` and `
 
 ## 4. Follow up
 
-Present the report, then offer what `cyber-asana.report.health`'s `## Follow-up` lists: run a finding's `fix` command, start or close a sprint, or file a task for a blocker nobody owns (through the `asana` skill's create-task procedure). Run a fix only after the user says yes to that command, and run `cyber-asana report health` again afterwards.
+Present the report, then offer what `cyber-asana.report.health`'s `## Follow-up` lists: run a finding's `fix` command, start or close a sprint, or file a task for a blocker nobody owns (through the `asana` skill's create-task procedure). Run a fix only after the user says yes to that command, and run `node <this skill's folder>/scripts/cyber-asana.mjs report health` again afterwards.

@@ -12,7 +12,7 @@ does (its **Grouping** and **Tracking session work** sections). It does not crea
 every creation goes through [`create-task.md`](create-task.md), entered past its plan step.
 
 The input is either the user's description of the work, or the session itself when the user asks
-to track it. Credentials and the CLI form come from the `init-asana` skill (**Ensure cyber-asana
+to track it. Credentials come from the `init-asana` skill (**Ensure cyber-asana
 CLI**). The cyber-asana MCP server is opt-in; the `asana_*` tool names in parentheses apply only
 when it is enabled.
 
@@ -55,9 +55,9 @@ outcome the units share:
 
 | Look in | Command |
 | --- | --- |
-| the project's incomplete tasks | `cyber-asana task search "<text>" --project <project-gid> --no-completed` |
-| the user's incomplete tasks | `cyber-asana task my-tasks list --incomplete` |
-| tasks completed recently, in the project | `cyber-asana task search "<text>" --project <project-gid> --completed-on-after <date>` |
+| the project's incomplete tasks | `node <this skill's folder>/scripts/cyber-asana.mjs task search "<text>" --project <project-gid> --no-completed` |
+| the user's incomplete tasks | `node <this skill's folder>/scripts/cyber-asana.mjs task my-tasks list --incomplete` |
+| tasks completed recently, in the project | `node <this skill's folder>/scripts/cyber-asana.mjs task search "<text>" --project <project-gid> --completed-on-after <date>` |
 
 (MCP, if enabled: `asana_task_search`, `asana_task_my_tasks`.) For "recently", use the date the
 branch's first commit was made, or 30 days ago when there is no branch.
@@ -104,12 +104,12 @@ Work in this order, so every reference points at a task that exists:
    with the project from step 3. Its conventions are already loaded.
 2. **Create each unit's task** the same way. For a subtask, pass the parent's GID as
    `--parent-gid`.
-3. **Add dependencies:** `cyber-asana task dependency add <task-gid> <blocking-task-gid>`
+3. **Add dependencies:** `node <this skill's folder>/scripts/cyber-asana.mjs task dependency add <task-gid> <blocking-task-gid>`
    (MCP, if enabled: `asana_task_dependency_add`).
 4. **Comment on each reused task** with the branch and any pull request:
-   `cyber-asana comment create "<text>" --task-gid <gid>` (MCP, if enabled:
+   `node <this skill's folder>/scripts/cyber-asana.mjs comment create "<text>" --task-gid <gid>` (MCP, if enabled:
    `asana_comment_create`). Never rewrite its description.
-5. **Mark complete** each confirmed row: `cyber-asana task update <gid> --completed`
+5. **Mark complete** each confirmed row: `node <this skill's folder>/scripts/cyber-asana.mjs task update <gid> --completed`
    (MCP, if enabled: `asana_task_update`).
 
 ## 8. Report

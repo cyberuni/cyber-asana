@@ -20,13 +20,13 @@ If the user hasn't specified a project GID, search for it (requires `ASANA_WORKS
 If they gave a project name or fragment:
 
 ```bash
-cyber-asana project search "<name or fragment>" --toon
+node <this skill's folder>/scripts/cyber-asana.mjs project search "<name or fragment>" --toon
 ```
 
 Otherwise search active projects:
 
 ```bash
-cyber-asana project search --no-completed --toon
+node <this skill's folder>/scripts/cyber-asana.mjs project search --no-completed --toon
 ```
 
 Read the output and ask the user to pick one. (`--toon` is the token-efficient format; use `--json` for raw JSON.)
@@ -34,7 +34,7 @@ Read the output and ask the user to pick one. (`--toon` is the token-efficient f
 ### 2. Export to markdown
 
 ```bash
-cyber-asana project export <project-gid> --output <path>
+node <this skill's folder>/scripts/cyber-asana.mjs project export <project-gid> --output <path>
 ```
 
 For example: `--output docs/sprint.md` or `--output TASKS.md`.
