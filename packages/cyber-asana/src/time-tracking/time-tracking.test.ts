@@ -1,6 +1,6 @@
 import Asana from 'asana'
 import { Command } from 'commander'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createTimeTrackingEntryApi } from './api.js'
 import { timeTrackingEntryCommand } from './cli.js'
 import { createAsanaTimeTrackingEntryGateway } from './gateway.js'
@@ -106,7 +106,11 @@ describe('time-tracking/api', () => {
 })
 
 describe('time-tracking/cli', () => {
-	afterEach(() => vi.restoreAllMocks())
+	beforeEach(() => vi.stubEnv('ASANA_WORKSPACE_GID', ''))
+	afterEach(() => {
+		vi.restoreAllMocks()
+		vi.unstubAllEnvs()
+	})
 
 	async function run(api: Record<string, unknown>, ...argv: string[]) {
 		const program = new Command().addCommand(timeTrackingEntryCommand(api as never))
