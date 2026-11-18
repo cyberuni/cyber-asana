@@ -46,6 +46,7 @@ Root `plugin.json` is the **only** manifest anyone authors. Every vendor's form 
 | `.cursor-plugin/plugin.json` | Cursor | derived |
 | `.codex-plugin/plugin.json` | Codex | derived |
 | `com.github.copilot/commands/` | Copilot CLI, which reads native components only from here once `plugin.json` declares the spec `$schema` | derived (copied from `commands/`) |
+| `skills/<name>/scripts/cyber-asana.mjs` | Each skill that runs the CLI, as `node <this skill's folder>/scripts/cyber-asana.mjs <args>`. It runs the checkout's `dist/cli.js` in development, else `npx -y cyber-asana@<plugin version>` | derived (declared under `scripts` in `plugin.json`) |
 | `skills/<name>/SKILL.md`, `commands/<name>.md` | All of them | yes |
 
 There is no `.plugin/plugin.json`: it would outrank root in Copilot CLI's search order and shadow the canonical manifest.
@@ -53,6 +54,8 @@ There is no `.plugin/plugin.json`: it would outrank root in Copilot CLI's search
 After editing `plugin.json`, `skills/`, or `commands/`, run `pnpm plugin:build` and commit the derived files with the change. `pnpm plugin:check` (also run by `pnpm verify`, and so in PR CI) runs `plugin build --check`: it writes nothing and fails when a vendor manifest, the catalog, or a skill forwarder is missing or stale.
 
 `.claude-plugin/marketplace.json` at the **repo root** lists the plugin with an `npm` source; the build refreshes its entry from `plugin.json`. Versions flow from `packages/cyber-asana/package.json` on `pnpm version`: `changeset version`, then `universal-plugin publish sync-version` carries the number into `plugin.json`, then `pnpm plugin:build` re-derives every manifest and the catalog. Never hand-edit a `version` field.
+
+A skill never writes a bare `cyber-asana`, `npx` or `pnpm exec` call; `src/plugin-forwarders.test.ts` guards this.
 
 The plugin declares **no MCP server** — no `mcp.json`, no `.mcp.json`, no `mcpServers` in any manifest; `src/plugin-manifests.test.ts` guards this. The skills drive the CLI. The MCP server is opt-in: the `init-asana` skill writes it into the client's own MCP config when the user asks (see [Why CLI + skills](apps/web/src/content/docs/reference/cli-vs-mcp.md)).
 
