@@ -3,7 +3,7 @@ import { listItems } from '../platform/pagination.js'
 
 export type FixtureContext = Pick<
 	RuntimeContext,
-	'projects' | 'sections' | 'tasks' | 'stories' | 'attachments' | 'goals'
+	'projects' | 'sections' | 'tasks' | 'stories' | 'attachments' | 'goals' | 'tables' | 'records'
 >
 
 export type SystemFixtures = {
@@ -16,6 +16,10 @@ export type SystemFixtures = {
 	teamGid?: string
 	/** The `cyber-asana system test` goal; unset where goals need a plan the workspace lacks. */
 	goalGid?: string
+	/** The `cyber-asana system test` table; unset where tables need a plan the workspace lacks. */
+	tableGid?: string
+	/** The table's first record, which holds the stories; unset with the table. */
+	recordGid?: string
 }
 
 const PROJECT_NAME = 'cyber-asana system test'
@@ -28,6 +32,10 @@ const ATTACHMENTS = [
 ]
 
 const GOAL_NAME = 'cyber-asana system test'
+
+const TABLE_NAME = 'cyber-asana system test'
+const RECORD_NAMES = ['System test record 1', 'System test record 2'] as const
+const RECORD_COMMENTS = ['System test record comment 1', 'System test record comment 2']
 
 const ALL = { fetchAll: true, limit: 100 } as const
 
@@ -84,6 +92,39 @@ async function ensureGoal(context: FixtureContext, workspaceGid: string): Promis
 }
 
 /**
+ * Finds or creates the system-test table with two records, and two comments on the first.
+ * Undefined when Asana answers Payment Required (tables need an Advanced or higher plan).
+ */
+async function ensureTable(
+	context: FixtureContext,
+	workspaceGid: string,
+): Promise<{ tableGid: string; recordGid: string } | undefined> {
+	try {
+		const tables = [...listItems<Named>(await context.tables.listTables(workspaceGid, { ...ALL, optFields: 'name' }))]
+		const table = await findOrCreate(tables, TABLE_NAME, () => context.tables.createTable(workspaceGid, TABLE_NAME))
+		const records = [
+			...listItems<Named>(await context.records.listRecords(table.gid, {}, { ...ALL, optFields: 'name' })),
+		]
+		const recordGids: string[] = []
+		for (const name of RECORD_NAMES) {
+			const record = await findOrCreate(records, name, () => context.records.createRecord(table.gid, name))
+			recordGids.push(record.gid)
+		}
+		const recordGid = recordGids[0]!
+		const stories = listItems<{ text?: string }>(
+			await context.records.listRecordStories(recordGid, {}, { ...ALL, optFields: 'text,type' }),
+		)
+		for (const text of RECORD_COMMENTS) {
+			if (!stories.some((story) => story.text === text)) await context.records.createRecordStory(recordGid, { text })
+		}
+		return { tableGid: table.gid, recordGid }
+	} catch (error) {
+		if ((error as { status?: number }).status === 402) return undefined
+		throw error
+	}
+}
+
+/**
  * Makes the project hold what the system and learning tests page over: two sections,
  * two tasks in the first, and on the first task two comments and two link attachments.
  * It also reports the project's team, which the team suites read.
@@ -127,6 +168,7 @@ export async function ensureSystemFixtures(context: FixtureContext, target: Fixt
 	}
 
 	const goalGid = await ensureGoal(context, workspaceGid)
+	const table = await ensureTable(context, workspaceGid)
 
 	return {
 		workspaceGid,
@@ -136,6 +178,7 @@ export async function ensureSystemFixtures(context: FixtureContext, target: Fixt
 		secondTaskGid: taskGids[1]!,
 		...(teamGid ? { teamGid } : {}),
 		...(goalGid ? { goalGid } : {}),
+		...(table ?? {}),
 	}
 }
 
@@ -153,5 +196,7 @@ export function formatFixtureEnv(fixtures: SystemFixtures): string {
 	]
 	if (fixtures.teamGid) lines.push(`ASANA_SYSTEM_TEST_TEAM_GID=${fixtures.teamGid}`)
 	if (fixtures.goalGid) lines.push(`ASANA_SYSTEM_TEST_GOAL_GID=${fixtures.goalGid}`)
+	if (fixtures.tableGid) lines.push(`ASANA_SYSTEM_TEST_TABLE_GID=${fixtures.tableGid}`)
+	if (fixtures.recordGid) lines.push(`ASANA_SYSTEM_TEST_RECORD_GID=${fixtures.recordGid}`)
 	return lines.join('\n')
 }
