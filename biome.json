@@ -11,7 +11,8 @@
 			"!.agents",
 			"!**/.astro",
 			"!.cyberfleet",
-			"!**/.claude/worktrees"
+			"!**/.claude/worktrees",
+			"!.github/scripts/min-release-age.mjs"
 		]
 	},
 	"overrides": [
