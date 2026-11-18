@@ -30,14 +30,19 @@ function filters(params: { parent_gid?: string; member_gid?: string; resource_su
 export function registerMembershipTools(server: McpServer, api?: MembershipApi | (() => MembershipApi)) {
 	server.tool(
 		'asana_membership_list',
-		'List Asana memberships for a parent (project, portfolio, goal, custom type, or custom field) and/or a member (user or team). Pass resource_subtype when parent_gid is omitted.',
+		'List Asana memberships for a parent (project, portfolio, goal, custom type, custom field, table, or record) and/or a member (user or team). Pass resource_subtype when parent_gid is omitted.',
 		{
-			parent_gid: z.string().optional().describe('Parent GID — project, portfolio, goal, custom type, or custom field'),
+			parent_gid: z
+				.string()
+				.optional()
+				.describe('Parent GID — project, portfolio, goal, custom type, custom field, table, or record'),
 			member_gid: z.string().optional().describe('Member GID — user or team'),
 			resource_subtype: z
 				.string()
 				.optional()
-				.describe('Membership type to return, e.g. project_membership; required when parent_gid is omitted'),
+				.describe(
+					'Membership type to return, e.g. project_membership, table_membership, record_membership; required when parent_gid is omitted',
+				),
 			...paginationParams,
 		},
 		async ({ parent_gid, member_gid, resource_subtype, ...params }) => ({
@@ -66,9 +71,11 @@ export function registerMembershipTools(server: McpServer, api?: MembershipApi |
 
 	server.tool(
 		'asana_membership_create',
-		'Add a member (user or team) to an Asana project, portfolio, or goal',
+		'Add a member (user or team) to an Asana project, portfolio, goal, table, or record',
 		{
-			parent_gid: z.string().describe('Parent GID — project, portfolio, goal, custom type, or custom field'),
+			parent_gid: z
+				.string()
+				.describe('Parent GID — project, portfolio, goal, custom type, custom field, table, or record'),
 			member_gid: z.string().describe('Member GID — user or team'),
 			access_level: z
 				.string()

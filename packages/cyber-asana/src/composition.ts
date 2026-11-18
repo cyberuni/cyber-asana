@@ -64,6 +64,10 @@ import { createProjectApi, type ProjectApi } from './projects/api.js'
 import { projectCommand } from './projects/cli.js'
 import { createAsanaProjectGateway } from './projects/gateway.js'
 import { registerProjectTools } from './projects/mcp.js'
+import { createRecordApi, type RecordApi } from './records/api.js'
+import { recordCommand } from './records/cli.js'
+import { createAsanaRecordGateway } from './records/gateway.js'
+import { registerRecordTools } from './records/mcp.js'
 import { createRuleApi, type RuleApi } from './rules/api.js'
 import { ruleCommand } from './rules/cli.js'
 import { createAsanaRuleGateway } from './rules/gateway.js'
@@ -91,6 +95,10 @@ import { createStoryApi, type StoryApi } from './stories/api.js'
 import { storyCommand } from './stories/cli.js'
 import { createAsanaStoryGateway } from './stories/gateway.js'
 import { registerStoryTools } from './stories/mcp.js'
+import { createTableApi, type TableApi } from './tables/api.js'
+import { tableCommand } from './tables/cli.js'
+import { createAsanaTableGateway } from './tables/gateway.js'
+import { registerTableTools } from './tables/mcp.js'
 import { createTagApi, type TagApi } from './tags/api.js'
 import { tagCommand } from './tags/cli.js'
 import { createAsanaTagGateway } from './tags/gateway.js'
@@ -137,12 +145,14 @@ export type RuntimeContext = {
 	projects: ProjectApi
 	projectBriefs: ProjectBriefApi
 	projectTemplates: ProjectTemplateApi
+	records: RecordApi
 	rules: RuleApi
 	scrum: ScrumApi
 	search: SearchApi
 	sections: SectionApi
 	status: StatusApi
 	stories: StoryApi
+	tables: TableApi
 	tags: TagApi
 	tasks: TaskApi
 	taskTemplates: TaskTemplateApi
@@ -180,6 +190,7 @@ export function createRuntimeContext(): RuntimeContext {
 		projects: projectApi,
 		projectBriefs: createProjectBriefApi(createAsanaProjectBriefGateway(client)),
 		projectTemplates: createProjectTemplateApi(createAsanaProjectTemplateGateway(client), { jobs: jobGateway }),
+		records: createRecordApi(createAsanaRecordGateway(client)),
 		rules: createRuleApi(createAsanaRuleGateway(client)),
 		scrum: createScrumApi({
 			store: createFileScopeStore,
@@ -216,6 +227,7 @@ export function createRuntimeContext(): RuntimeContext {
 			goals: createAsanaGoalGateway(client),
 		}),
 		stories: createStoryApi(createAsanaStoryGateway(client)),
+		tables: createTableApi(createAsanaTableGateway(client)),
 		tags: createTagApi(createAsanaTagGateway(client)),
 		tasks: createTaskApi(taskGateway),
 		taskTemplates: createTaskTemplateApi(createAsanaTaskTemplateGateway(client)),
@@ -243,6 +255,8 @@ export function registerCliCommands(program: Command, getContext: () => RuntimeC
 	program.addCommand(portfolioCommand(() => getContext().portfolios))
 	program.addCommand(goalCommand(() => getContext().goals))
 	program.addCommand(membershipCommand(() => getContext().memberships))
+	program.addCommand(tableCommand(() => getContext().tables))
+	program.addCommand(recordCommand(() => getContext().records))
 	program.addCommand(tagCommand(() => getContext().tags))
 	program.addCommand(customFieldCommand(() => getContext().customFields))
 	program.addCommand(notificationCommand(() => getContext().notifications))
@@ -294,6 +308,8 @@ export function registerMcpTools(server: McpServer, getContext: () => RuntimeCon
 	registerPortfolioTools(server, () => getContext().portfolios)
 	registerGoalTools(server, () => getContext().goals)
 	registerMembershipTools(server, () => getContext().memberships)
+	registerTableTools(server, () => getContext().tables)
+	registerRecordTools(server, () => getContext().records)
 	registerTagTools(server, () => getContext().tags)
 	registerCustomFieldTools(server, () => getContext().customFields)
 	registerNotificationTools(server, () => getContext().notifications)
