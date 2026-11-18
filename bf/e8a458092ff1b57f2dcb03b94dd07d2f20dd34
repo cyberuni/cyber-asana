@@ -1,0 +1,27 @@
+packages/cyber-asana/src/testing/system-fixtures.ts
+  s_08f31bd2a582a9::t_67e0007d10617a 6,19-22,36-39,94-126,171,181,199-200
+.agents/skills/run-system-tests/SKILL.md
+  s_08f31bd2a582a9::t_1d84b30dbd5b0c 83
+AGENTS.md
+  s_08f31bd2a582a9::t_b7a53a3c9baf50 108,123-124
+packages/cyber-asana/src/testing/system-fixtures.test.ts
+  s_08f31bd2a582a9::t_b8e6b438f34d9a 12-13,24-26,89-115,128,240-271
+  s_08f31bd2a582a9::t_67e0007d10617a 272,289-302
+  s_08f31bd2a582a9::t_6d66c22e683210 273-274
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "bfe8a458092ff1b57f2dcb03b94dd07d2f20dd34",
+  "prompts": {},
+  "sessions": {
+    "s_08f31bd2a582a9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2c8ba296-8d94-4a10-9adc-c8affe3cb68e",
+        "model": "claude-sonnet-5-5"
+      },
+      "human_author": "unional <homawong@gmail.com>"
+    }
+  }
+}
