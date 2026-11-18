@@ -1,0 +1,19 @@
+packages/cyber-asana/src/time-tracking/time-tracking.test.ts
+  s_27b102cc61c533::t_165365ad193c84 3,109-113
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "f28568be24c6989aa8b0b36bb59e61f6619fc570",
+  "prompts": {},
+  "sessions": {
+    "s_27b102cc61c533": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e4616a39-70c9-417a-9b07-866663c800c4",
+        "model": "claude-sonnet-5-5"
+      },
+      "human_author": "unional <homawong@gmail.com>"
+    }
+  }
+}
