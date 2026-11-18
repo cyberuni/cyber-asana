@@ -503,6 +503,8 @@ Tools are named `asana_<resource>_<action>` (e.g. `asana_task_create`).
 | `time-entry` | `asana_time_entry_list`, `asana_time_entry_list_for_task`, `asana_time_entry_get`, `asana_time_entry_create`, `asana_time_entry_update`, `asana_time_entry_delete` (paid plan; log and review time on tasks) |
 | `project-brief` | `asana_project_brief_get`, `asana_project_brief_create`, `asana_project_brief_update`, `asana_project_brief_delete` (a project's charter or sprint goal; rich text is checked against the `project-brief` HTML rules) |
 | `notification` | `asana_notification_list`, `asana_notification_mark_read`, `asana_notification_mark_unread` (inbox; **beta** Asana endpoints that may change) |
+| `table` | `asana_table_list`, `asana_table_get`, `asana_table_create`, `asana_table_update`, `asana_table_delete`, `asana_table_fields_list`, `asana_table_add_field`, `asana_table_remove_field` (Asana Tables; Advanced, Enterprise, and Enterprise+ plans) |
+| `record` | `asana_record_list`, `asana_record_search` (paid plan), `asana_record_get`, `asana_record_create`, `asana_record_update`, `asana_record_delete`, `asana_record_story_list`, `asana_record_story_create` (the rows of a table) |
 | `membership` | `asana_membership_list`, `asana_membership_get`, `asana_membership_create`, `asana_membership_update`, `asana_membership_delete` |
 | `search` | `asana_search_objects` (typeahead; one `resource_type` per call, single capped page, not exhaustive) |
 | `url` | `asana_url_parse` (no API call; extracts GIDs from Asana app URLs) |
@@ -543,7 +545,12 @@ Notable parameters:
 - `asana_story_create` / `asana_story_update` (and the `comment` aliases) — `is_pinned` pins the comment to the top of its task; `sticker_name` attaches one of Asana's stickers
 - `asana_story_update` / `asana_story_delete` (and the `comment` aliases) — `story_gid`; only comment stories you authored can be changed, and a refusal comes back as a `403` with a hint saying so
 - `asana_portfolio_list` — `owner_gid` filters the listing to the portfolios one user owns. Asana honors it for service-account tokens only; a regular PAT can list just its own portfolios either way
-- `asana_membership_list` — `parent_gid` (project, portfolio, goal, custom type, or custom field), `member_gid` (user or team), `resource_subtype`; pass `resource_subtype` when `parent_gid` is omitted
+- `asana_table_add_field` — `custom_field_gid` must name a custom field that is global to the workspace (Asana answers 403 to a non-global one); `is_important`, `insert_before` or `insert_after` (a custom field setting GID, not both); a table holds up to 150 fields. Table tools need an Advanced, Enterprise, or Enterprise+ plan
+- `asana_record_list` — reads one table; `sort_by` accepts only `created_at` here, `modified_since` is an ISO 8601 date-time. Read your own write through this tool, not search
+- `asana_record_search` — paid plan (402 otherwise). `text`, `tables_any`, `tables_all`, `tables_not`, `teams_any`, `followers_any`, `followers_not`, `created_on`, `created_on_before`, `created_on_after`, `created_at_before`, `created_at_after`, `sort_by` (`created_at` or `modified_at`), `sort_ascending`, `limit`, `opt_fields`. One unstable page with no offset, and the index lags writes by 10 to 60 seconds
+- `asana_record_create` — `custom_fields` is an object keyed by custom field GID, and only fields already on the table can be written; `unique_fingerprint` makes a duplicate in the same table fail with 409 instead of creating a second record
+- `asana_record_story_create` — Asana creates only comment stories on a record
+- `asana_membership_list` — `parent_gid` (project, portfolio, goal, custom type, custom field, table, or record), `member_gid` (user or team), `resource_subtype`; pass `resource_subtype` when `parent_gid` is omitted
 - `asana_search_objects` — `resource_type` (one of `actor`, `agent`, `custom_field`, `goal`, `portfolio`, `project`, `project_template`, `tag`, `task`, `team`, `user`), `query`, `count` (1–100, default 20), `opt_fields`. Turns a name into a GID; not paginated and not exhaustive
 - `asana_custom_field_list_for_project` — the fields actually attached to one project, with their enum options. Narrower than `asana_custom_field_list`, and the right lookup before writing `custom_fields`: Asana rejects a payload naming a field the project does not have. Same shape for `_for_portfolio`, `_for_goal`, `_for_team`
 - `asana_url_parse` — local URL parsing; use `workspace_gid` + `project_gid` for create; `list_view_gid` is not a section GID
@@ -659,6 +666,8 @@ Installing twice is a no-op, and unrelated settings are preserved.
 | `story` | `list`, `get`, `create`, `update`, `delete`, `list-goal`, `create-goal` |
 | `comment` | `list`, `get`, `create`, `update`, `delete` (alias for `story`) |
 | `custom-field` | `list`, `get`, `project`, `portfolio`, `goal`, `team` |
+| `table` | `list`, `get`, `create`, `update`, `delete`, `fields`, `add-field`, `remove-field` |
+| `record` | `list`, `search`, `get`, `create`, `update`, `delete`, `stories list`, `stories create` |
 | `membership` | `list`, `get`, `create`, `update`, `delete` |
 | `notification` | `list`, `mark-read`, `mark-unread` (beta) |
 | `time-entry` | `list`, `for-task`, `get`, `create`, `update`, `delete` |

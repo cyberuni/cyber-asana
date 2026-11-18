@@ -1,12 +1,12 @@
 ---
 title: Memberships
-description: See who has access to a project, portfolio, or goal — and change it.
+description: See who has access to a project, portfolio, goal, table, or record — and change it.
 sidebar:
   order: 18
 ---
 
 A membership links a **member** (a user or a team) to a **parent** (a project, portfolio,
-goal, custom type, or custom field) at an **access level**. This is how you answer "who is
+goal, custom type, custom field, table, or record) at an **access level**. This is how you answer "who is
 on this project?", check an assignment is sane before making it, or add someone during
 onboarding.
 

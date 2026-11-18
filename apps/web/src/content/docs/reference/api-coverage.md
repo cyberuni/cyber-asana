@@ -23,8 +23,8 @@ out because it duplicates `getTagsForWorkspace`.
 
 ## Coverage at a glance
 
-Asana documents **52 resource groups**. cyber-asana wraps **32** of them, **18** fully, and
-leaves **20** unwrapped. A resource is fully covered only when every distinct REST operation in
+Asana documents **52 resource groups**. cyber-asana wraps **34** of them, **20** fully, and
+leaves **18** unwrapped. A resource is fully covered only when every distinct REST operation in
 its SDK group is available; helper operations such as project export and TODO scanning are
 described separately below.
 
@@ -46,7 +46,9 @@ described separately below.
 | Tags | ✅ | 7 / 7 | `tag` | Complete, including task↔tag links |
 | Task templates | 🟡 | 3 / 4 | `task-template` | Read plus instantiate; no template deletion |
 | Attachments | ✅ | 4 / 4 | `attachment` | List, get, upload (file or external URL), and delete |
-| Memberships | ✅ | 5 / 5 | `membership` | Complete; the unified endpoint covering project, portfolio, and goal memberships |
+| Memberships | ✅ | 5 / 5 | `membership` | Complete; the unified endpoint covering project, portfolio, goal, table, and record memberships |
+| Tables | 🟡 | 8 / 9 | `table` | List, get, create, update, delete, and the custom field settings (`table fields\|add-field\|remove-field`). The deprecated legacy field-settings read is not wrapped. Advanced, Enterprise, and Enterprise+ plans |
+| Records | ✅ | 6 / 6 | `record` | List a table's records, search a workspace (paid plan), get, create, update, delete. Comments on a record are under Stories |
 | Ooo entries | ✅ | 5 / 5 | `ooo` | Complete |
 | AI Studio usage | ✅ | 2 / 2 | `ai-studio` | Runs and seats; Asana limits both to service accounts in AI Studio-licensed organizations |
 | Jobs | ✅ | 1 / 1 | `job` | Complete; reads the async jobs other operations return |
@@ -62,7 +64,7 @@ described separately below.
 | Teams | 🟡 | 3 / 7 | `team` | Read-only: list, get, and a user's teams (`team for-user`) |
 | Team memberships | 🟡 | 1 / 4 | `team members` | Only the read of one team's members, for the `team` scrum scope. See † below |
 | Workspaces | 🟡 | 2 / 6 | `workspace` | Read-only |
-| Stories | 🟡 | 7 / 9 | `story`, `comment` | Full comment lifecycle on tasks, and goal comments (`story list-goal\|create-goal`, paid plan). The two Records variants are not wrapped |
+| Stories | ✅ | 9 / 9 | `story`, `comment`, `record stories` | Full comment lifecycle on tasks, goal comments (`story list-goal\|create-goal`, paid plan), and record comments (`record stories list\|create`) |
 | Custom fields | ✅ | 8 / 8 | `custom-field` | Discovery, create, update, delete, and enum-option create, insert, and update |
 | Project briefs | ✅ | 4 / 4 | `project-brief` | Get, create, update, delete; `html_text` is checked against the `project-brief` rules first |
 | Time tracking entries | ✅ | 6 / 6 | `time-entry` | List (all, or one task's), get, create, update, delete (paid plan). Categories, timesheets, rates, and budgets are not wrapped |
@@ -75,13 +77,13 @@ described separately below.
 
 Access requests, Agents, Audit log, Budgets, Custom types, Exports, Organization exports,
 Portfolio memberships, Project memberships, Project portfolio settings, Project statuses
-(superseded by Status updates), Rates, Reactions, Records, Roles, Tables, Time tracking
+(superseded by Status updates), Rates, Reactions, Roles, Time tracking
 categories, Timesheet approval statuses, Webhooks, Workspace memberships.
 
 † **Team memberships** — who belongs to a team — are wrapped only for the read
 `team members <gid>`, which lists a team's members for the `team` scrum scope. Asana's unified
 Memberships endpoint, which `membership` wraps, takes projects, portfolios, goals, custom
-types, and custom fields as the parent; a team can be a *member* there, but team rosters
+types, custom fields, tables, and records as the parent; a team can be a *member* there, but team rosters
 themselves are a separate resource.
 
 For anything on this list, and for the operations the tables above mark as not wrapped, call the Asana API directly — cyber-asana does not proxy
@@ -173,6 +175,8 @@ using one.
 | Portfolios | `portfolio list\|items\|get\|create\|update\|delete`, `portfolio item add\|remove` | `asana_portfolio_*` |
 | Status updates | `status list\|get\|create\|delete` | `asana_status_*` |
 | Stories / comments | `story list\|get\|create\|update\|delete`, same under `comment`; `story list-goal\|create-goal` | `asana_story_*`, `asana_comment_*`, `asana_story_goal_*` |
+| Tables | `table list\|get\|create\|update\|delete`, `table fields\|add-field\|remove-field` | `asana_table_*` |
+| Records | `record list\|search\|get\|create\|update\|delete`, `record stories list\|create` | `asana_record_*` |
 | Memberships | `membership list\|get\|create\|update\|delete` | `asana_membership_*` |
 | Team members | `team members <gid>` | `asana_team_members` |
 | Notifications (beta) | `notification list\|mark-read\|mark-unread` | `asana_notification_*` |

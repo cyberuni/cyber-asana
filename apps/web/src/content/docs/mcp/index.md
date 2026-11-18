@@ -149,6 +149,8 @@ Default: if both can do the job, prefer **official for discovery and previews** 
 | `time-entry` | `asana_time_entry_list`, `asana_time_entry_list_for_task`, `asana_time_entry_get`, `asana_time_entry_create`, `asana_time_entry_update`, `asana_time_entry_delete` (paid plan; log and review time on tasks) |
 | `project-brief` | `asana_project_brief_get`, `asana_project_brief_create`, `asana_project_brief_update`, `asana_project_brief_delete` (a project's charter or sprint goal; rich text is checked against the `project-brief` HTML rules) |
 | `notification` | `asana_notification_list`, `asana_notification_mark_read`, `asana_notification_mark_unread` (inbox; **beta** Asana endpoints that may change) |
+| `table` | `asana_table_list`, `asana_table_get`, `asana_table_create`, `asana_table_update`, `asana_table_delete`, `asana_table_fields_list`, `asana_table_add_field`, `asana_table_remove_field` (Asana Tables; Advanced, Enterprise, and Enterprise+ plans) |
+| `record` | `asana_record_list`, `asana_record_search` (paid plan), `asana_record_get`, `asana_record_create`, `asana_record_update`, `asana_record_delete`, `asana_record_story_list`, `asana_record_story_create` (the rows of a table) |
 | `membership` | `asana_membership_list`, `asana_membership_get`, `asana_membership_create`, `asana_membership_update`, `asana_membership_delete` |
 | `search` | `asana_search_objects` (typeahead; one `resource_type` per call, single capped page, not exhaustive) |
 | `url` | `asana_url_parse` (no API call; extracts GIDs from Asana app URLs) |
