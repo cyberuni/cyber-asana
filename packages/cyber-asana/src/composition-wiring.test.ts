@@ -107,6 +107,16 @@ function mockRuntimeContext(): RuntimeContext {
 			addGoalFollowers: vi.fn(),
 			removeGoalFollowers: vi.fn(),
 		},
+		tables: {
+			listTables: vi.fn(),
+			getTable: vi.fn(),
+			createTable: vi.fn(),
+			updateTable: vi.fn(),
+			deleteTable: vi.fn(),
+			listTableFields: vi.fn(),
+			addTableField: vi.fn(),
+			removeTableField: vi.fn(),
+		},
 		tags: {
 			listTags: vi.fn(),
 			getTag: vi.fn(),

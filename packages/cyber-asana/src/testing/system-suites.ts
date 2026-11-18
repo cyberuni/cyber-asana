@@ -61,6 +61,7 @@ export const SYSTEM_SUITES: SystemSuite[] = [
 	{ file: 'src/sections/api.system.ts', env: ['ASANA_SYSTEM_TEST_PROJECT_GID'] },
 	{ file: 'src/skills/html-subset.system.ts', env: ['ASANA_WORKSPACE_GID'] },
 	{ file: 'src/stories/api.system.ts', env: ['ASANA_SYSTEM_TEST_TASK_GID'] },
+	{ file: 'src/tables/api.system.ts', env: ['ASANA_WORKSPACE_GID'], paid: true },
 	{ file: 'src/tags/api.system.ts', env: ['ASANA_WORKSPACE_GID'] },
 	{
 		file: 'src/tasks/api.system.ts',
