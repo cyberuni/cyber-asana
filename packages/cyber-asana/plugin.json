@@ -14,6 +14,15 @@
 		"org.cyberuni.universal-plugin": {
 			"skills": "./skills/",
 			"commands": "./commands/",
+			"scripts": {
+				"skills/asana/scripts/cyber-asana.mjs": { "forward": "cyber-asana" },
+				"skills/asana-scrum/scripts/cyber-asana.mjs": { "forward": "cyber-asana" },
+				"skills/config-asana/scripts/cyber-asana.mjs": { "forward": "cyber-asana" },
+				"skills/init-asana/scripts/cyber-asana.mjs": { "forward": "cyber-asana" },
+				"skills/init-asana-scrum/scripts/cyber-asana.mjs": { "forward": "cyber-asana" },
+				"skills/sync-asana-project/scripts/cyber-asana.mjs": { "forward": "cyber-asana" },
+				"skills/asana/scripts/repobuddy.mjs": { "forward": "repobuddy", "package": "repobuddy", "version": "2.2.0" }
+			},
 			"vendors": ["claude-code", "cursor", "codex", "copilot-cli"],
 			"harnesses": {
 				"claude-code": {

@@ -20,7 +20,7 @@ Plain prose with no formatting needs no HTML — use `--notes` / `notes` instead
 ### 1. Read the current description
 
 ```sh
-cyber-asana task get <gid> --json
+node <this skill's folder>/scripts/cyber-asana.mjs task get <gid> --json
 ```
 
 Always edit from `html_notes`. `task get` returns it unconditionally — an empty description comes back as `<body></body>`, never absent — so there is no case where you need the plain-text `notes` projection, which drops every link and list.
@@ -72,9 +72,9 @@ Wrap the whole document in a bare `<body>` — required, and it must carry no at
 file, normalize it, and check what is left before sending it:
 
 ```sh
-cyber-asana html fix body.html --surface task-notes > fixed.html
-cyber-asana html check fixed.html --surface task-notes --json
-cyber-asana task update <gid> --html-notes "$(cat fixed.html)"
+node <this skill's folder>/scripts/cyber-asana.mjs html fix body.html --surface task-notes > fixed.html
+node <this skill's folder>/scripts/cyber-asana.mjs html check fixed.html --surface task-notes --json
+node <this skill's folder>/scripts/cyber-asana.mjs task update <gid> --html-notes "$(cat fixed.html)"
 ```
 
 `html fix` writes the bare `<body>`, `<b>`/`<i>` as `<strong>`/`<em>`, `<p>`/`<br>` as newlines, and
@@ -91,7 +91,7 @@ The tags each surface accepts live in one rule table, with the live probe behind
 them rather than recalling them:
 
 ```sh
-cyber-asana html rules --surface task-notes --json
+node <this skill's folder>/scripts/cyber-asana.mjs html rules --surface task-notes --json
 ```
 
 `allowed` and `rejected` list the tags, `evidence` names the probe and its date, and `unverified`
@@ -123,7 +123,7 @@ Second paragraph.</body>
 For multi-line content from a POSIX shell, use a quoted heredoc so the newlines survive (the MCP `html_notes` parameter, if enabled, avoids shell quoting entirely):
 
 ```sh
-cyber-asana task update <gid> --html-notes "$(cat <<'HTML'
+node <this skill's folder>/scripts/cyber-asana.mjs task update <gid> --html-notes "$(cat <<'HTML'
 <body><h1>Summary</h1>
 Ship the thing.
 </body>

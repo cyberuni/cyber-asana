@@ -25,7 +25,7 @@ project from the registry", "this repo's config is stale", "what does `--assigne
 resolve to", "I want this pinned personally, don't commit it", "set up cyber-asana.json".
 
 Requires `ASANA_ACCESS_TOKEN` and `ASANA_WORKSPACE_GID` (see **init-asana**).
-Run the CLI through the plugin launcher, never `npx` (see **init-asana**).
+Run the CLI only as written below, through this skill's forwarder (see **init-asana**).
 
 ## Repo config vs. global registry
 
@@ -59,8 +59,8 @@ registry** (repo config vs. `--global`) whenever it isn't already clear — see 
 2. **Search.** For each keyword (requires `ASANA_WORKSPACE_GID` or `--workspace-gid`):
 
    ```bash
-   cyber-asana project search "<keyword>" --toon
-   cyber-asana project search "<keyword>" --no-completed --toon   # skip archived work
+   node <this skill's folder>/scripts/cyber-asana.mjs project search "<keyword>" --toon
+   node <this skill's folder>/scripts/cyber-asana.mjs project search "<keyword>" --no-completed --toon   # skip archived work
    ```
 
    Read the `{ gid, name }` rows (`--toon` is token-efficient; `--json` for raw JSON). Deduplicate
@@ -71,11 +71,11 @@ registry** (repo config vs. `--global`) whenever it isn't already clear — see 
 4. **Add** (fetches the canonical name from Asana; creates the file/entry if it doesn't exist yet):
 
    ```bash
-   cyber-asana config add <project-gid>                    # repo config
-   cyber-asana config add <project-gid> --alias <alias>[,<alias>...] --purpose "<one line>"
-   cyber-asana config add <project-gid> --default          # the fallback project (repo config only)
-   cyber-asana config add <project-gid> --global            # personal registry, this repo
-   cyber-asana config add <project-gid> --global --repo <key>  # a repo you're not currently in
+   node <this skill's folder>/scripts/cyber-asana.mjs config add <project-gid>                    # repo config
+   node <this skill's folder>/scripts/cyber-asana.mjs config add <project-gid> --alias <alias>[,<alias>...] --purpose "<one line>"
+   node <this skill's folder>/scripts/cyber-asana.mjs config add <project-gid> --default          # the fallback project (repo config only)
+   node <this skill's folder>/scripts/cyber-asana.mjs config add <project-gid> --global            # personal registry, this repo
+   node <this skill's folder>/scripts/cyber-asana.mjs config add <project-gid> --global --repo <key>  # a repo you're not currently in
    ```
 
    `--alias` registers keyword(s) that resolve to the project ahead of its display name;
@@ -83,21 +83,21 @@ registry** (repo config vs. `--global`) whenever it isn't already clear — see 
    commands fall back to when none is given (at most one project, and not available with
    `--global`). Ask the user for aliases, a purpose, and whether the project should be the
    default before adding, rather than guessing.
-5. **Verify:** `cyber-asana config show --json` (or `--global`, or `--merged`).
+5. **Verify:** `node <this skill's folder>/scripts/cyber-asana.mjs config show --json` (or `--global`, or `--merged`).
 6. If it was the repo config, tell the user to commit `.agents/cyber-asana.json`. `--global` has
    nothing to commit.
 
 ### B. Add / register a user
 
-1. **Find the GID**, if not given: `cyber-asana config add-user --search "<query>" --alias <alias>`
+1. **Find the GID**, if not given: `node <this skill's folder>/scripts/cyber-asana.mjs config add-user --search "<query>" --alias <alias>`
    uses Asana's typeahead search — see **Finding a user** below for how ties are broken.
 2. **Add** (fetches name and email from Asana; aliases accumulate on repeat calls):
 
    ```bash
-   cyber-asana config add-user <user-gid> --alias <alias>            # repo config
-   cyber-asana config add-user <user-gid> --global --alias <alias>   # personal registry (no --repo — flat)
+   node <this skill's folder>/scripts/cyber-asana.mjs config add-user <user-gid> --alias <alias>            # repo config
+   node <this skill's folder>/scripts/cyber-asana.mjs config add-user <user-gid> --global --alias <alias>   # personal registry (no --repo — flat)
    ```
-3. **Verify:** `cyber-asana config resolve-user <alias> --json` (add `--global` or `--merged` to
+3. **Verify:** `node <this skill's folder>/scripts/cyber-asana.mjs config resolve-user <alias> --json` (add `--global` or `--merged` to
    match).
 
 #### Finding a user
@@ -112,15 +112,15 @@ Typeahead is fuzzy, so `add-user --search` only picks a match automatically when
 ### C. Remove a project
 
 ```bash
-cyber-asana config remove <gid-or-name>                       # repo config
-cyber-asana config remove <gid-or-name> --global --repo <key> # personal registry
+node <this skill's folder>/scripts/cyber-asana.mjs config remove <gid-or-name>                       # repo config
+node <this skill's folder>/scripts/cyber-asana.mjs config remove <gid-or-name> --global --repo <key> # personal registry
 ```
 
 ### D. Remove a user or an alias
 
 ```bash
-cyber-asana config remove-user <gid-alias-email-or-name>              # drop the whole user
-cyber-asana config remove-alias <alias>[,<alias>...]                  # drop aliases, keep the user
+node <this skill's folder>/scripts/cyber-asana.mjs config remove-user <gid-alias-email-or-name>              # drop the whole user
+node <this skill's folder>/scripts/cyber-asana.mjs config remove-alias <alias>[,<alias>...]                  # drop aliases, keep the user
 ```
 
 Add `--global` to either for the personal registry (no `--repo` — flat, like all user verbs).
@@ -129,9 +129,9 @@ Add `--global` to either for the personal registry (no `--repo` — flat, like a
 ### E. Refresh stale names
 
 ```bash
-cyber-asana config sync            # repo config: projects and users
-cyber-asana config sync --global   # personal registry: every repo's projects, and every user
-cyber-asana config sync --global --repo <key>   # scope the *project* refresh to one repo (users always refresh)
+node <this skill's folder>/scripts/cyber-asana.mjs config sync            # repo config: projects and users
+node <this skill's folder>/scripts/cyber-asana.mjs config sync --global   # personal registry: every repo's projects, and every user
+node <this skill's folder>/scripts/cyber-asana.mjs config sync --global --repo <key>   # scope the *project* refresh to one repo (users always refresh)
 ```
 
 Run this after a batch of renames in Asana. `add`, `add-user`, `sync`, `discover-fields`, and
@@ -142,11 +142,11 @@ opportunistically refresh a registered project's cached name.
 ### F. Show / verify what's registered
 
 ```bash
-cyber-asana config show               # repo config
-cyber-asana config show --global      # personal registry, this repo (or --repo <key>)
-cyber-asana config show --merged      # both, combined — what a skill script actually sees
-cyber-asana config list-users [--global|--merged]
-cyber-asana config path [--global]    # where the file lives
+node <this skill's folder>/scripts/cyber-asana.mjs config show               # repo config
+node <this skill's folder>/scripts/cyber-asana.mjs config show --global      # personal registry, this repo (or --repo <key>)
+node <this skill's folder>/scripts/cyber-asana.mjs config show --merged      # both, combined — what a skill script actually sees
+node <this skill's folder>/scripts/cyber-asana.mjs config list-users [--global|--merged]
+node <this skill's folder>/scripts/cyber-asana.mjs config path [--global]    # where the file lives
 ```
 
 ### G. Project custom fields
@@ -155,9 +155,9 @@ A convention can name a field by role, such as story points, because field GIDs 
 workspace and project. A project entry records them under `fields`:
 
 ```bash
-cyber-asana config discover-fields <gid-name-or-alias>   # find by name, save to the project entry
-cyber-asana config set-field story_points <field-gid> --project <gid-name-or-alias>   # pick one by hand
-cyber-asana config unset-field story_points --project <gid-name-or-alias>
+node <this skill's folder>/scripts/cyber-asana.mjs config discover-fields <gid-name-or-alias>   # find by name, save to the project entry
+node <this skill's folder>/scripts/cyber-asana.mjs config set-field story_points <field-gid> --project <gid-name-or-alias>   # pick one by hand
+node <this skill's folder>/scripts/cyber-asana.mjs config unset-field story_points --project <gid-name-or-alias>
 ```
 
 The roles are `story_points` (user-story work), `task_points` (chore work), `sprint`, and `status`.
@@ -179,14 +179,14 @@ registry), never in the `cyber-asana.scrum` reference, which holds policy only. 
 scope upgrades the file to `schema_version: 3`.
 
 ```bash
-cyber-asana config scope add web --kind project --project <gid-or-alias> --default
-cyber-asana config scope add platform --kind projects --project <gid>,<gid> --sprint-length-days 7
-cyber-asana config scope add growth --kind portfolio --portfolio <gid>
-cyber-asana config scope add web-team --kind team --team <gid>
-cyber-asana config scope add mine --kind projects --project <gid>,<gid> --global   # personal registry
-cyber-asana config scope list                          # both registries; source and default shown
-cyber-asana config scope remove platform [--global]
-cyber-asana scrum scope resolve [--scope <name>] [--tasks]   # check what a scope covers
+node <this skill's folder>/scripts/cyber-asana.mjs config scope add web --kind project --project <gid-or-alias> --default
+node <this skill's folder>/scripts/cyber-asana.mjs config scope add platform --kind projects --project <gid>,<gid> --sprint-length-days 7
+node <this skill's folder>/scripts/cyber-asana.mjs config scope add growth --kind portfolio --portfolio <gid>
+node <this skill's folder>/scripts/cyber-asana.mjs config scope add web-team --kind team --team <gid>
+node <this skill's folder>/scripts/cyber-asana.mjs config scope add mine --kind projects --project <gid>,<gid> --global   # personal registry
+node <this skill's folder>/scripts/cyber-asana.mjs config scope list                          # both registries; source and default shown
+node <this skill's folder>/scripts/cyber-asana.mjs config scope remove platform [--global]
+node <this skill's folder>/scripts/cyber-asana.mjs scrum scope resolve [--scope <name>] [--tasks]   # check what a scope covers
 ```
 
 - **Kinds.** `project` takes exactly one project, `projects` takes several, `portfolio` takes a

@@ -24,7 +24,7 @@ far harder to undo than declining to.
 ## 1. Scan the codebase
 
 ```sh
-cyber-asana task scan-todos [dir] --toon
+node <this skill's folder>/scripts/cyber-asana.mjs task scan-todos [dir] --toon
 ```
 
 Omit `[dir]` to scan the current working directory. Pass `--ext` or `--exclude` to narrow the
@@ -48,7 +48,7 @@ From the scan results, sort each row into one of two groups:
 Check the actionable rows against the project's existing tasks to avoid duplicates:
 
 ```sh
-cyber-asana task list --project-gid <project-gid> --toon
+node <this skill's folder>/scripts/cyber-asana.mjs task list --project-gid <project-gid> --toon
 ```
 
 (MCP, if enabled: `asana_task_list` with `project_gid` returns the same list.)

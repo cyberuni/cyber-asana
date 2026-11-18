@@ -7,7 +7,7 @@ a section. When it carries no subject, ask what the task is for.
 This file is the one home of the task-creation procedure. The `asana` skill routes here for a
 model-triggered "create a task", and the `/cyber-asana:create-task` command routes here for an
 explicit one, so both paths resolve context the same way. Prefer it over ad-hoc
-`cyber-asana task create` calls.
+`node <this skill's folder>/scripts/cyber-asana.mjs task create` calls.
 
 **What the task looks like** is decided by the `cyber-asana.task-conventions` reference: task,
 subtask, or dependency; name; description; assignee; due date; tags; section; custom fields and
@@ -21,9 +21,8 @@ twice, groups them, and confirms the plan. It hands each task to create back her
 `plan-work.md` or from [`import-todos.md`](import-todos.md), which has its own lookup and
 confirmation, the plan is done: start at § 1.
 
-Credentials and the optional repo project registry are set up by the `init-asana` skill; it also
-says how to invoke the CLI (**Ensure cyber-asana CLI**). Every `cyber-asana` command below means
-that form. The cyber-asana MCP server is opt-in; the `asana_*` tool names given in parentheses apply
+Credentials and the optional repo project registry are set up by the `init-asana` skill; each
+command below runs the CLI through this skill's forwarder (**Ensure cyber-asana CLI**). The cyber-asana MCP server is opt-in; the `asana_*` tool names given in parentheses apply
 only when it is enabled.
 
 ## 1. Load the task conventions
@@ -33,7 +32,7 @@ in the `cyber-agentkit` plugin. It is merged from the repo copy (`.agents/refere
 user copy, and the copy cyber-asana ships. Follow its body for the shape of the work:
 
 - **Choosing the object** — whether this is a task, a subtask (`--parent-gid`), or a dependency
-  between tasks (`cyber-asana task dependency add`).
+  between tasks (`node <this skill's folder>/scripts/cyber-asana.mjs task dependency add`).
 - **Task** / **Subtask** — name, description, assignee, due date, tags, and section.
 - **Custom fields** and **Story points and task points** — which fields to set, which points field to estimate in, and how.
 - **Comments** — when a comment is the right place instead of the description.
@@ -55,7 +54,7 @@ and lists the same options; settle it the same way, then run the command again.
 
 ## 2. Gather required fields
 
-All three are required before `cyber-asana task create`. Infer when possible; ask if any are missing.
+All three are required before `node <this skill's folder>/scripts/cyber-asana.mjs task create`. Infer when possible; ask if any are missing.
 
 | Field | Sources |
 | --- | --- |
@@ -69,18 +68,18 @@ The conventions decide which optional fields to fill. Their flags are `--notes`,
 is given, and to the repo config's default project when no project is given — both come from the
 same registry as `--assignee` and `--project`.
 
-For `--html-notes`, write the body to a file and run `cyber-asana html fix <file> --surface task-notes`
-first, then `cyber-asana html check` on the result. The [`tidy-description`](tidy-description.md)
+For `--html-notes`, write the body to a file and run `node <this skill's folder>/scripts/cyber-asana.mjs html fix <file> --surface task-notes`
+first, then `node <this skill's folder>/scripts/cyber-asana.mjs html check` on the result. The [`tidy-description`](tidy-description.md)
 reference has the rest of Asana's rich-text rules.
 
 ## 3. Resolve the project
 
 Pick the first applicable source:
 
-1. **Asana URL** — `cyber-asana url parse '<url>' --json` (MCP, if enabled: `asana_url_parse`) → use `workspace_gid` and `project_gid`
+1. **Asana URL** — `node <this skill's folder>/scripts/cyber-asana.mjs url parse '<url>' --json` (MCP, if enabled: `asana_url_parse`) → use `workspace_gid` and `project_gid`
 2. **Explicit GID** from the user
-3. **Repo config** — read `.agents/cyber-asana.json` or `cyber-asana config resolve-project "<name>" --json` (no API call; resolves a name or alias)
-4. **`cyber-asana project search "<text>"`** (MCP, if enabled: `asana_project_search`) in the workspace (requires `ASANA_WORKSPACE_GID` or resolved `workspace_gid`)
+3. **Repo config** — read `.agents/cyber-asana.json` or `node <this skill's folder>/scripts/cyber-asana.mjs config resolve-project "<name>" --json` (no API call; resolves a name or alias)
+4. **`node <this skill's folder>/scripts/cyber-asana.mjs project search "<text>"`** (MCP, if enabled: `asana_project_search`) in the workspace (requires `ASANA_WORKSPACE_GID` or resolved `workspace_gid`)
 5. **Repo config default** — the project marked `default: true`, if one is registered and nothing else applies (CLI: `task create` falls back to it automatically)
 6. Ask the user
 
@@ -93,16 +92,16 @@ If `kind` is `unknown` or GIDs are missing, fall back to other resolution paths.
 ### Repo config name refresh
 
 - **Lazy:** when an API result already includes `{ gid, name }` for a project in the registry, the CLI may update the cached name automatically.
-- **Explicit:** `cyber-asana config sync` reconciles all cached names with Asana.
+- **Explicit:** `node <this skill's folder>/scripts/cyber-asana.mjs config sync` reconciles all cached names with Asana.
 
 ### Assignee named by a person
 
-When the user names an assignee ("assign it to Ali"), pass the name as `--assignee` — it resolves against the repo user registry with no API call. Use `--assignee-gid` only for a literal GID. If the name is not registered, the call fails and names the fix: `cyber-asana config add-user --search "<name or email>" --alias <alias>`, which registers the person only when typeahead finds a clear match. If it lists several candidates, or the registry matches more than one user, ask which one rather than guessing.
+When the user names an assignee ("assign it to Ali"), pass the name as `--assignee` — it resolves against the repo user registry with no API call. Use `--assignee-gid` only for a literal GID. If the name is not registered, the call fails and names the fix: `node <this skill's folder>/scripts/cyber-asana.mjs config add-user --search "<name or email>" --alias <alias>`, which registers the person only when typeahead finds a clear match. If it lists several candidates, or the registry matches more than one user, ask which one rather than guessing.
 
 ## 4. Create the task
 
 ```sh
-cyber-asana task create "<name>" \
+node <this skill's folder>/scripts/cyber-asana.mjs task create "<name>" \
   --workspace-gid <workspace_gid> \
   --project-gid <project_gid> \
   --notes "<description, when the conventions call for one>"
@@ -120,16 +119,16 @@ asks to leave the task out of it.
 For a section the user named, place the task after creating it (pass `--no-default-section` so it
 does not land in the default section first):
 
-1. `cyber-asana section list --project-gid <project_gid>` (MCP, if enabled: `asana_section_list`)
+1. `node <this skill's folder>/scripts/cyber-asana.mjs section list --project-gid <project_gid>` (MCP, if enabled: `asana_section_list`)
 2. Match the section by name
-3. `cyber-asana task project add <task-gid> <project-gid> --section-gid <section_gid>` (MCP: `asana_task_project_add`)
+3. `node <this skill's folder>/scripts/cyber-asana.mjs task project add <task-gid> <project-gid> --section-gid <section_gid>` (MCP: `asana_task_project_add`)
 
 ### When the official Asana MCP is also connected
 
-- Default: `cyber-asana task create` (rich fields, repo config, URL parse workflow).
+- Default: `node <this skill's folder>/scripts/cyber-asana.mjs task create` (rich fields, repo config, URL parse workflow).
 - Official `create_tasks` / `create_task_preview` only when the user wants an interactive preview or cyber-asana is unavailable.
 - Never use the official MCP OAuth token as `ASANA_ACCESS_TOKEN` for CLI or cyber-asana.
 
 ## 5. Confirm
 
-Return the task `permalink_url` from the create response (or `cyber-asana task get <gid> --opt-fields permalink_url`).
+Return the task `permalink_url` from the create response (or `node <this skill's folder>/scripts/cyber-asana.mjs task get <gid> --opt-fields permalink_url`).

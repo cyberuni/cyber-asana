@@ -13,7 +13,7 @@ Use it when setting up cyber-asana (token, workspace GID, connection check, opti
 
 Ask your agent to set up cyber-asana. The skill works in steps:
 
-1. **Ensure the CLI.** It settles once how to invoke `cyber-asana`, in this order: a direct dependency run through the package manager, a global install, then `npx cyber-asana@<exact>` with the exact version from `npm view cyber-asana version`. If only npx is left and it fails, it asks before downloading anything.
+1. **Ensure the CLI.** Every cyber-asana skill runs the CLI as `node <this skill's folder>/scripts/cyber-asana.mjs <args>`. That forwarder runs the plugin's own version on every install route, and the local build in a cyber-asana checkout. If `--version` prints nothing, the plugin install is incomplete.
 2. **Check credentials.** It reports whether `ASANA_ACCESS_TOKEN` and `ASANA_WORKSPACE_GID` are set, and tells you to rename the retired `ASANA_TOKEN` and `ASANA_WORKSPACE`.
 3. **Set the token** by guiding you to create a personal access token. See [Authentication](/cyber-asana/getting-started/#authentication) for where to keep it.
 4. **Verify the connection** with `cyber-asana workspace list`, then ask which workspace to use and set `ASANA_WORKSPACE_GID`. The workspace stays in the environment, not in committed repo config.

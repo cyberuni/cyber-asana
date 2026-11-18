@@ -9,7 +9,7 @@ ready and write the goal. Never add points or hours yourself.
 Load these with the `reference` skill of `cyber-agentkit`, never by reading tier folders:
 
 1. `cyber-asana.scrum`: follow its `## Planning` section, and read `## Definition of ready` to judge the tasks you propose.
-2. `cyber-asana.sprint-model.<key>`: `<key>` is the `sprint_model` the scope uses. Find it with `cyber-asana scrum scope resolve --scope <name> --json` (the `sprint.sprint_model` field), or `sections` when no scope is named.
+2. `cyber-asana.sprint-model.<key>`: `<key>` is the `sprint_model` the scope uses. Find it with `node <this skill's folder>/scripts/cyber-asana.mjs scrum scope resolve --scope <name> --json` (the `sprint.sprint_model` field), or `sections` when no scope is named.
 3. `cyber-asana.report.velocity`: its `## Layout` and `## Judgment` shape how you say the velocity.
 
 If a name is ambiguous (two plugins ship it), the `reference` skill lists the options with `default`. Ask which to build on and whether that is for the repository or only the user, then save the pick with `reference customize <name> --extends <pick>`.
@@ -17,7 +17,7 @@ If a name is ambiguous (two plugins ship it), the `reference` skill lists the op
 ## 2. Get the numbers
 
 ```bash
-cyber-asana sprint plan --json
+node <this skill's folder>/scripts/cyber-asana.mjs sprint plan --json
 ```
 
 It plans the next sprint. Add `--sprint current` when the sprint has begun and is still being filled, and `--scope <name>` when the user names a scope. It reads and writes nothing. The JSON holds:
@@ -31,7 +31,7 @@ It plans the next sprint. Add `--sprint current` when the sprint has begun and i
 
 If the command fails, read `error.code`:
 
-- `scope-missing` or `scope-unknown`: run `cyber-asana config scope list` and ask which scope, or offer `init-asana-scrum`.
+- `scope-missing` or `scope-unknown`: run `node <this skill's folder>/scripts/cyber-asana.mjs config scope list` and ask which scope, or offer `init-asana-scrum`.
 - `policy-incomplete`: the policy has no `sprint_anchor_date`; offer `init-asana-scrum`.
 - `model-unsupported`: the scope's sprint model is not built into the CLI; follow its reference's primitive commands instead.
 - `reference-ambiguous` (exit 8): settle it as in step 1, then run again.
@@ -51,7 +51,7 @@ Present, from the JSON as given:
 The user adds, removes, or swaps tasks. After each change, total the picked tasks with the CLI, not by hand:
 
 ```bash
-cyber-asana sprint plan --tasks <gid>,<gid>,<gid> --json
+node <this skill's folder>/scripts/cyber-asana.mjs sprint plan --tasks <gid>,<gid>,<gid> --json
 ```
 
 Read `selection`: `totals`, `against` each limit, `fits`, and `not_in_backlog` (a GID that is not in the backlog). Say plainly when the pick is over a limit and by how much; the user may commit to it anyway, so do not refuse. Repeat until the user agrees.
@@ -60,12 +60,12 @@ Read `selection`: `totals`, `against` each limit, `fits`, and `not_in_backlog` (
 
 Ask before each of these, and say what it does. Each is safe to repeat.
 
-1. `cyber-asana sprint start --sprint <n>`: creates the sprint's section (or option) where it is missing. Nothing changes when it exists.
-2. `cyber-asana sprint add <gid> <gid> --sprint <n>`: puts the agreed tasks in the sprint. A task already there is left alone; read `outside_scope` and `missing` in the result and tell the user.
-3. `cyber-asana sprint start --sprint <n> --snapshot`: records the commitment as a status update on each project in the scope. Tell the user it cannot be edited and is posted once per sprint. Run it only once the sprint holds the agreed tasks.
+1. `node <this skill's folder>/scripts/cyber-asana.mjs sprint start --sprint <n>`: creates the sprint's section (or option) where it is missing. Nothing changes when it exists.
+2. `node <this skill's folder>/scripts/cyber-asana.mjs sprint add <gid> <gid> --sprint <n>`: puts the agreed tasks in the sprint. A task already there is left alone; read `outside_scope` and `missing` in the result and tell the user.
+3. `node <this skill's folder>/scripts/cyber-asana.mjs sprint start --sprint <n> --snapshot`: records the commitment as a status update on each project in the scope. Tell the user it cannot be edited and is posted once per sprint. Run it only once the sprint holds the agreed tasks.
 
 If the user stops after any step, say what is done and what is not.
 
 ## 6. Follow up
 
-Offer to open the board for the sprint with `cyber-asana report health --sprint <n>`, which catches unestimated or unassigned committed tasks, and to run the standup route once the sprint is under way.
+Offer to open the board for the sprint with `node <this skill's folder>/scripts/cyber-asana.mjs report health --sprint <n>`, which catches unestimated or unassigned committed tasks, and to run the standup route once the sprint is under way.

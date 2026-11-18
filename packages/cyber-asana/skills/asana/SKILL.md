@@ -28,11 +28,11 @@ PR), run them in order.
 | pull a project's tasks into local markdown | `sync-asana-project` skill |
 
 Anything else — a single read or update of one Asana object — needs no procedure: run the
-matching `cyber-asana <resource> <action>` command directly (see **Ensure cyber-asana CLI** in the
-`init-asana` skill for how to invoke it). The cyber-asana MCP server is opt-in; when it is enabled,
+matching `node <this skill's folder>/scripts/cyber-asana.mjs <resource> <action>` command directly (see **Ensure cyber-asana CLI** in the
+`init-asana` skill). The cyber-asana MCP server is opt-in; when it is enabled,
 its `asana_<resource>_<action>` tools are equivalent.
 To read a task together with its comments and change history, run
-`cyber-asana task get <gid> --with-stories [--since <iso-time>] --json` — one call instead of
+`node <this skill's folder>/scripts/cyber-asana.mjs task get <gid> --with-stories [--since <iso-time>] --json` — one call instead of
 `task get` plus `story list`.
 
 ## Create a task
@@ -60,7 +60,7 @@ input. It is the one home of the PR-linking procedure, for every major git host;
 
 Read [`references/tidy-description.md`](references/tidy-description.md) and follow it, with the
 user's request as its input. It is the one home of the description-tidying procedure; the tags Asana
-accepts come from `cyber-asana html rules`. The `/cyber-asana:tidy-description` command routes here too.
+accepts come from `node <this skill's folder>/scripts/cyber-asana.mjs html rules`. The `/cyber-asana:tidy-description` command routes here too.
 
 ## Track session work
 

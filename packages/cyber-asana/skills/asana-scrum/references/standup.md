@@ -8,7 +8,7 @@ blocked; you present it.
 Load these with the `reference` skill of `cyber-agentkit`, never by reading tier folders:
 
 1. `cyber-asana.scrum`: follow its `## Standup` section.
-2. `cyber-asana.sprint-model.<key>`: `<key>` is the `sprint_model` the scope uses. Find it with `cyber-asana scrum scope resolve --scope <name> --json` (the `sprint.sprint_model` field), or `sections` when no scope is named.
+2. `cyber-asana.sprint-model.<key>`: `<key>` is the `sprint_model` the scope uses. Find it with `node <this skill's folder>/scripts/cyber-asana.mjs scrum scope resolve --scope <name> --json` (the `sprint.sprint_model` field), or `sections` when no scope is named.
 3. `cyber-asana.report.standup`: its `## Layout`, `## Judgment`, and `## Follow-up` shape the answer.
 
 If a name is ambiguous (two plugins ship it), the `reference` skill lists the options with `default`. Ask which to build on and whether that is for the repository or only the user, then save the pick with `reference customize <name> --extends <pick>`.
@@ -16,17 +16,17 @@ If a name is ambiguous (two plugins ship it), the `reference` skill lists the op
 ## 2. Run the report
 
 ```bash
-cyber-asana report standup --json                              # the user
-cyber-asana report standup --member <gid-or-email> --json      # a teammate
-cyber-asana report standup --team --json                       # everyone, grouped by person
+node <this skill's folder>/scripts/cyber-asana.mjs report standup --json                              # the user
+node <this skill's folder>/scripts/cyber-asana.mjs report standup --member <gid-or-email> --json      # a teammate
+node <this skill's folder>/scripts/cyber-asana.mjs report standup --team --json                       # everyone, grouped by person
 ```
 
 Add `--scope <name>` when the user names a scope, and `--sprint <ref>` for a sprint other than the current one. Use `--team` for "the team's standup" or "everyone's": it groups the scope's people (a `team` scope's members, else the assignees seen), so no member needs naming. `--team` cannot be combined with `--member`.
 
 If the command fails, read `error.code`:
 
-- `scope-missing` or `scope-unknown`: run `cyber-asana config scope list` and ask which scope, or offer `init-asana-scrum`.
-- `sprint-none` (for a sprint the user named): offer `cyber-asana sprint start --sprint <ref>`.
+- `scope-missing` or `scope-unknown`: run `node <this skill's folder>/scripts/cyber-asana.mjs config scope list` and ask which scope, or offer `init-asana-scrum`.
+- `sprint-none` (for a sprint the user named): offer `node <this skill's folder>/scripts/cyber-asana.mjs sprint start --sprint <ref>`.
 - `model-unsupported`: the scope's sprint model is not built into the CLI, or the scope kind does not suit it (the `sections` model does not support `portfolio` or `team` scopes); follow its reference's primitive commands, or use a project or projects scope.
 - `reference-ambiguous` (exit 8): settle it as in step 1, then run again.
 
