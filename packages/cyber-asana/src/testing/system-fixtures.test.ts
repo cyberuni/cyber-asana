@@ -9,6 +9,8 @@ function createFakeContext(seed?: {
 	team?: string
 	goals?: string[]
 	goalsPaymentRequired?: boolean
+	tables?: string[]
+	tablesPaymentRequired?: boolean
 }) {
 	let nextGid = 1000
 	const gid = () => String(nextGid++)
@@ -19,6 +21,9 @@ function createFakeContext(seed?: {
 	const stories: Array<{ gid: string; task: string; text: string; type: string }> = []
 	const attachments: Array<{ gid: string; parent: string; name: string }> = []
 	const goals = (seed?.goals ?? []).map((name) => ({ gid: gid(), name }))
+	const tables = (seed?.tables ?? []).map((name) => ({ gid: gid(), name }))
+	const records: Array<{ gid: string; table: string; name: string }> = []
+	const recordStories: Array<{ gid: string; record: string; text: string }> = []
 	const page = <T>(data: T[]) => ({ data, next_page: null })
 
 	const context: FixtureContext = {
@@ -81,6 +86,33 @@ function createFakeContext(seed?: {
 				return goal
 			},
 		},
+		tables: {
+			listTables: async () => {
+				if (seed?.tablesPaymentRequired) throw Object.assign(new Error('Payment Required'), { status: 402 })
+				return page(tables)
+			},
+			createTable: async (_workspaceGid: string, name: string) => {
+				const table = { gid: gid(), name }
+				tables.push(table)
+				return table
+			},
+		},
+		records: {
+			listRecords: async (tableGid: string) =>
+				page(records.filter((r) => r.table === tableGid).map(({ gid, name }) => ({ gid, name }))),
+			createRecord: async (tableGid: string, name: string) => {
+				const record = { gid: gid(), table: tableGid, name }
+				records.push(record)
+				return record
+			},
+			listRecordStories: async (recordGid: string) =>
+				page(recordStories.filter((s) => s.record === recordGid).map(({ gid, text }) => ({ gid, text }))),
+			createRecordStory: async (recordGid: string, fields: { text?: string }) => {
+				const story = { gid: gid(), record: recordGid, text: fields.text ?? '' }
+				recordStories.push(story)
+				return story
+			},
+		},
 		attachments: {
 			listAttachments: async (parentGid: string) =>
 				page(attachments.filter((a) => a.parent === parentGid).map(({ gid, name }) => ({ gid, name }))),
@@ -93,7 +125,7 @@ function createFakeContext(seed?: {
 		},
 	} as unknown as FixtureContext
 
-	return { context, created, goals, projects, sections, tasks, stories, attachments }
+	return { context, created, tables, records, recordStories, goals, projects, sections, tasks, stories, attachments }
 }
 
 describe('ensureSystemFixtures', () => {
@@ -205,6 +237,41 @@ describe('ensureSystemFixtures goal', () => {
 	})
 })
 
+describe('ensureSystemFixtures table and records', () => {
+	it('creates a table with two records and two stories on the first, and reports their GIDs', async () => {
+		const fake = createFakeContext()
+
+		const fixtures = await ensureSystemFixtures(fake.context, { projectGid: 'project-1' })
+
+		expect(fake.tables.map((t) => t.name)).toEqual(['cyber-asana system test'])
+		expect(fixtures.tableGid).toBe(fake.tables[0]?.gid)
+		expect(fake.records.map((r) => r.name)).toEqual(['System test record 1', 'System test record 2'])
+		expect(fixtures.recordGid).toBe(fake.records[0]?.gid)
+		expect(fake.recordStories.map((s) => s.record)).toEqual([fixtures.recordGid, fixtures.recordGid])
+	})
+
+	it('creates nothing on a second run', async () => {
+		const fake = createFakeContext({ tables: ['Someone else'] })
+		const first = await ensureSystemFixtures(fake.context, { projectGid: 'project-1' })
+
+		const second = await ensureSystemFixtures(fake.context, { projectGid: 'project-1' })
+
+		expect(fake.tables).toHaveLength(2)
+		expect(fake.records).toHaveLength(2)
+		expect(fake.recordStories).toHaveLength(2)
+		expect(second).toEqual(first)
+	})
+
+	it('leaves the table and record GIDs unset where Asana answers Payment Required', async () => {
+		const fixtures = await ensureSystemFixtures(createFakeContext({ tablesPaymentRequired: true }).context, {
+			projectGid: 'project-1',
+		})
+
+		expect(fixtures.tableGid).toBeUndefined()
+		expect(fixtures.recordGid).toBeUndefined()
+	})
+})
+
 describe('formatFixtureEnv', () => {
 	it('adds the goal line when there is a goal', () => {
 		const lines = formatFixtureEnv({
@@ -217,6 +284,20 @@ describe('formatFixtureEnv', () => {
 		}).split('\n')
 
 		expect(lines.at(-1)).toBe('ASANA_SYSTEM_TEST_GOAL_GID=g-1')
+	})
+
+	it('adds the table and record lines when there are any', () => {
+		const lines = formatFixtureEnv({
+			workspaceGid: 'ws-1',
+			projectGid: 'p-1',
+			sectionGid: 's-1',
+			taskGid: 't-1',
+			secondTaskGid: 't-2',
+			tableGid: 'tb-1',
+			recordGid: 'r-1',
+		}).split('\n')
+
+		expect(lines.slice(-2)).toEqual(['ASANA_SYSTEM_TEST_TABLE_GID=tb-1', 'ASANA_SYSTEM_TEST_RECORD_GID=r-1'])
 	})
 
 	it('adds the team line when there is a team', () => {
