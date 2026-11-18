@@ -10,12 +10,13 @@
 		"knip": "knip",
 		"plugin:build": "universal-plugin plugin build --root packages/cyber-asana && biome check --write packages/cyber-asana/plugin.json packages/cyber-asana/.claude-plugin packages/cyber-asana/.cursor-plugin packages/cyber-asana/.codex-plugin packages/cyber-asana/com.github.copilot .claude-plugin/marketplace.json",
 		"plugin:check": "node scripts/check-plugin-build.mjs",
+		"plugin:check-version": "universal-plugin publish check-version --root packages/cyber-asana",
 		"prepare": "husky",
 		"release": "changeset publish",
 		"test": "turbo run test",
 		"typecheck": "turbo run typecheck",
-		"verify": "pnpm check && pnpm plugin:check && turbo run build typecheck test && pnpm knip",
-		"version": "changeset version && universal-plugin publish sync-version --root packages/cyber-asana && pnpm plugin:build",
+		"verify": "pnpm check && pnpm plugin:check && pnpm plugin:check-version && turbo run build typecheck test && pnpm knip",
+		"version": "changeset version && universal-plugin plugin version --from-package --no-build --root packages/cyber-asana && pnpm plugin:build",
 		"web": "turbo run --filter=@cyberuni/web"
 	},
 	"devDependencies": {
@@ -27,7 +28,7 @@
 		"husky": "^9.1.7",
 		"knip": "^6.40.0",
 		"turbo": "^2.11.7",
-		"universal-plugin": "^0.20.0"
+		"universal-plugin": "^0.22.0"
 	},
 	"packageManager": "pnpm@12.21.0+sha512.66fd8278ee28935ce951792d34367ff3af5c432a2756445823029533835b8da529bbe0be5130afd56ed0713fb8789e47bad82d93bd5ae2fe54b15562d6276ef0",
 	"engines": {
