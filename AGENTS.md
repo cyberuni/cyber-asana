@@ -50,7 +50,7 @@ Root `plugin.json` is the **only** manifest anyone authors. Every vendor's form 
 
 There is no `.plugin/plugin.json`: it would outrank root in Copilot CLI's search order and shadow the canonical manifest.
 
-After editing `plugin.json`, `skills/`, or `commands/`, run `pnpm plugin:build` and commit the derived files with the change. `pnpm plugin:check` (also run by `pnpm verify`) rebuilds and fails if a derived file drifted.
+After editing `plugin.json`, `skills/`, or `commands/`, run `pnpm plugin:build` and commit the derived files with the change. `pnpm plugin:check` (also run by `pnpm verify`, and so in PR CI) runs `plugin build --check`: it writes nothing and fails when a vendor manifest, the catalog, or a skill forwarder is missing or stale.
 
 `.claude-plugin/marketplace.json` at the **repo root** lists the plugin with an `npm` source; the build refreshes its entry from `plugin.json`. Versions flow from `packages/cyber-asana/package.json` on `pnpm version`: `changeset version`, then `universal-plugin publish sync-version` carries the number into `plugin.json`, then `pnpm plugin:build` re-derives every manifest and the catalog. Never hand-edit a `version` field.
 

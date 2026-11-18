@@ -32,7 +32,7 @@ After changing `plugin.json`, a skill, or a command:
 
 ```sh
 pnpm plugin:build   # regenerate every derived manifest, then format them
-pnpm plugin:check   # rebuild and fail on drift (pnpm verify runs this)
+pnpm plugin:check   # fail on drift without writing (pnpm verify runs this)
 ```
 
 Commit the derived files together with the change that caused them. Do not edit a `version` field; `pnpm version` moves it. See [AGENTS.md](AGENTS.md#plugin-layout) for the layout.
