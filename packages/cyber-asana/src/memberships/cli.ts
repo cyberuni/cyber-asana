@@ -86,7 +86,7 @@ export function membershipCommand(api?: MembershipApi | (() => MembershipApi)) {
 		[
 			'',
 			'A membership links a member (user or team) to a parent (project, portfolio, goal,',
-			'custom type, or custom field) at an access level.',
+			'custom type, custom field, table, or record) at an access level.',
 			'',
 			'Examples:',
 			'  cyber-asana membership list --parent-gid <project-gid>',
@@ -105,7 +105,7 @@ export function membershipCommand(api?: MembershipApi | (() => MembershipApi)) {
 		addGidOption(
 			cmd.command('list').description('List memberships for a parent and/or a member'),
 			'parent',
-			'Parent GID (project, portfolio, goal, custom type, or custom field)',
+			'Parent GID (project, portfolio, goal, custom type, custom field, table, or record)',
 		),
 		'member',
 		'Member GID (user or team)',
@@ -156,9 +156,9 @@ export function membershipCommand(api?: MembershipApi | (() => MembershipApi)) {
 
 	const createCmd = addGidOption(
 		addGidOption(
-			cmd.command('create').description('Add a member to a project, portfolio, or goal'),
+			cmd.command('create').description('Add a member to a project, portfolio, goal, table, or record'),
 			'parent',
-			'Parent GID (project, portfolio, goal, custom type, or custom field)',
+			'Parent GID (project, portfolio, goal, custom type, custom field, table, or record)',
 		),
 		'member',
 		'Member GID (user or team)',
