@@ -49,6 +49,7 @@ minimumReleaseAgeExclude:
   # First-party (cyberuni). cyber-agentkit 2.0.0 is the reference-stack release (cyber-agentkit#101);
   # published 2026-11-04T04:01Z, removable 2026-11-05T04:01Z.
   - "cyber-agentkit@2.0.0"
-  # First-party (cyberuni). universal-plugin 0.22.0 is the fleet-wide plugin upgrade target;
-  # published 2026-11-18T08:51Z, removable 2026-11-19T08:51Z.
-  - "universal-plugin@0.22.0"
+  # First-party (cyberuni). universal-plugin 0.23.0 ships CLI forwarders (universal-plugin#287);
+  # published 2026-11-18T17:20Z, removable after 2026-11-19T17:20Z.
+  # min-release-age: lift universal-plugin@0.23.0 until 2026-11-19T18:00:00Z
+  - "universal-plugin@0.23.0"
