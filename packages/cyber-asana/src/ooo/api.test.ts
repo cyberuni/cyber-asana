@@ -70,14 +70,17 @@ describe('ooo/api', () => {
 		})
 
 		expect(result).toEqual(mockEntry)
-		expect(Asana.OooEntriesApi.prototype.createOooEntry).toHaveBeenCalledWith({
-			data: {
-				user: 'user1',
-				workspace: 'ws1',
-				start_date: '2026-01-01',
-				end_date: '2026-01-15',
+		expect(Asana.OooEntriesApi.prototype.createOooEntry).toHaveBeenCalledWith(
+			{
+				data: {
+					user: 'user1',
+					workspace: 'ws1',
+					start_date: '2026-01-01',
+					end_date: '2026-01-15',
+				},
 			},
-		})
+			{},
+		)
 	})
 
 	it('updateOooEntry forwards the mutable date fields', async () => {

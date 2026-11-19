@@ -129,8 +129,8 @@ describe('notifications/cli', () => {
 			from: 'node',
 		})
 
-		expect(markNotificationsRead).toHaveBeenCalledWith('me', 'ws1', ['n1', 'n2'])
-		expect(markNotificationsUnread).toHaveBeenCalledWith('me', 'ws1', ['n1'])
+		expect(markNotificationsRead).toHaveBeenCalledWith('me', 'ws1', ['n1', 'n2'], undefined)
+		expect(markNotificationsUnread).toHaveBeenCalledWith('me', 'ws1', ['n1'], undefined)
 		const text = log.mock.calls.map((c) => String(c[0])).join('\n')
 		expect(text).toContain('Marked 1 of 2 notification(s) read')
 		expect(text).toContain('n2')
@@ -168,8 +168,8 @@ describe('notifications/mcp', () => {
 		})
 
 		expect(listNotifications).toHaveBeenCalledWith('me', 'ws1', expect.objectContaining({ unread: true, limit: 10 }))
-		expect(markNotificationsRead).toHaveBeenCalledWith('me', 'ws1', ['n1'])
-		expect(markNotificationsUnread).toHaveBeenCalledWith('u1', 'ws1', ['n9'])
+		expect(markNotificationsRead).toHaveBeenCalledWith('me', 'ws1', ['n1'], undefined)
+		expect(markNotificationsUnread).toHaveBeenCalledWith('u1', 'ws1', ['n9'], undefined)
 		expect(JSON.parse(read.content[0].text)).toEqual({ failed_gids: [] })
 		expect(JSON.parse(unread.content[0].text)).toEqual({ failed_gids: ['n9'] })
 		for (const d of descriptions.values()) expect(d).toMatch(/beta/i)

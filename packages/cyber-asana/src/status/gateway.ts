@@ -26,7 +26,7 @@ export type StatusListOptions = PaginationOptions & {
 export type StatusGateway = {
 	listStatuses(parentGid: string, opts?: StatusListOptions): Promise<ListResult<Asana.StatusUpdate>>
 	getStatus(statusGid: string, opts?: ReadOptions): Promise<Asana.StatusUpdate>
-	createStatus(parentGid: string, fields: StatusCreateFields): Promise<Asana.StatusUpdate>
+	createStatus(parentGid: string, fields: StatusCreateFields, opts?: ReadOptions): Promise<Asana.StatusUpdate>
 	deleteStatus(statusGid: string): Promise<void>
 }
 
@@ -45,8 +45,11 @@ export function createAsanaStatusGateway(client: Asana.ApiClient): StatusGateway
 			const res = await statusUpdatesApi.getStatus(statusGid, toAsanaReadOptions(opts))
 			return res.data
 		},
-		async createStatus(parentGid, fields) {
-			const res = await statusUpdatesApi.createStatusForObject({ data: { parent: parentGid, ...fields } }, {})
+		async createStatus(parentGid, fields, opts) {
+			const res = await statusUpdatesApi.createStatusForObject(
+				{ data: { parent: parentGid, ...fields } },
+				toAsanaReadOptions(opts),
+			)
 			return res.data
 		},
 		async deleteStatus(statusGid) {

@@ -91,14 +91,19 @@ describe('tasks/mcp', () => {
 			custom_fields: { cf1: 'json' },
 		})
 
-		expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', {
-			projects: ['p1', 'p2'],
-			followers: ['u1', 'u2'],
-			html_notes: '<body>Hi</body>',
-			parent: 'parent1',
-			resource_subtype: 'milestone',
-			custom_fields: { cf1: 'json' },
-		})
+		expect(createTaskMock).toHaveBeenCalledWith(
+			'ws1',
+			'Task',
+			{
+				projects: ['p1', 'p2'],
+				followers: ['u1', 'u2'],
+				html_notes: '<body>Hi</body>',
+				parent: 'parent1',
+				resource_subtype: 'milestone',
+				custom_fields: { cf1: 'json' },
+			},
+			undefined,
+		)
 	})
 
 	it('asana_task_create passes start_on through', async () => {
@@ -113,10 +118,15 @@ describe('tasks/mcp', () => {
 			due_on: '2026-10-31',
 		})
 
-		expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', {
-			start_on: '2026-09-01',
-			due_on: '2026-10-31',
-		})
+		expect(createTaskMock).toHaveBeenCalledWith(
+			'ws1',
+			'Task',
+			{
+				start_on: '2026-09-01',
+				due_on: '2026-10-31',
+			},
+			undefined,
+		)
 	})
 
 	it('asana_task_create passes due_at and start_at through', async () => {
@@ -131,10 +141,15 @@ describe('tasks/mcp', () => {
 			due_at: '2026-10-31T17:00:00.000Z',
 		})
 
-		expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', {
-			start_at: '2026-09-01T09:00:00.000Z',
-			due_at: '2026-10-31T17:00:00.000Z',
-		})
+		expect(createTaskMock).toHaveBeenCalledWith(
+			'ws1',
+			'Task',
+			{
+				start_at: '2026-09-01T09:00:00.000Z',
+				due_at: '2026-10-31T17:00:00.000Z',
+			},
+			undefined,
+		)
 	})
 
 	it('asana_task_update maps the clear date-time flags to null', async () => {
@@ -148,10 +163,14 @@ describe('tasks/mcp', () => {
 			clear_start_at: true,
 		})
 
-		expect(updateTaskMock).toHaveBeenCalledWith('123', {
-			due_at: null,
-			start_at: null,
-		})
+		expect(updateTaskMock).toHaveBeenCalledWith(
+			'123',
+			{
+				due_at: null,
+				start_at: null,
+			},
+			undefined,
+		)
 	})
 
 	it('asana_task_update sends completed false to uncomplete a task', async () => {
@@ -161,7 +180,7 @@ describe('tasks/mcp', () => {
 
 		await server.handlers.get('asana_task_update')?.({ task_gid: '123', completed: false })
 
-		expect(updateTaskMock).toHaveBeenCalledWith('123', { completed: false })
+		expect(updateTaskMock).toHaveBeenCalledWith('123', { completed: false }, undefined)
 	})
 
 	it('asana_task_update maps clear assignee flag to assignee null', async () => {
@@ -171,9 +190,13 @@ describe('tasks/mcp', () => {
 
 		await server.handlers.get('asana_task_update')?.({ task_gid: '123', clear_assignee: true })
 
-		expect(updateTaskMock).toHaveBeenCalledWith('123', {
-			assignee: null,
-		})
+		expect(updateTaskMock).toHaveBeenCalledWith(
+			'123',
+			{
+				assignee: null,
+			},
+			undefined,
+		)
 	})
 
 	it('asana_task_create passes completed through', async () => {
@@ -183,7 +206,7 @@ describe('tasks/mcp', () => {
 
 		await server.handlers.get('asana_task_create')?.({ workspace_gid: 'ws1', name: 'Task', completed: true })
 
-		expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { completed: true })
+		expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { completed: true }, undefined)
 	})
 
 	it('asana_task_subtask_create forwards the same write fields as asana_task_create', async () => {
@@ -202,14 +225,19 @@ describe('tasks/mcp', () => {
 			follower_gids: ['u1'],
 		})
 
-		expect(createSubtaskMock).toHaveBeenCalledWith('123', 'Sub Task', {
-			html_notes: '<body>Sub</body>',
-			start_on: '2026-05-01',
-			due_on: '2026-06-01',
-			resource_subtype: 'milestone',
-			custom_fields: { cf1: 'value' },
-			followers: ['u1'],
-		})
+		expect(createSubtaskMock).toHaveBeenCalledWith(
+			'123',
+			'Sub Task',
+			{
+				html_notes: '<body>Sub</body>',
+				start_on: '2026-05-01',
+				due_on: '2026-06-01',
+				resource_subtype: 'milestone',
+				custom_fields: { cf1: 'value' },
+				followers: ['u1'],
+			},
+			undefined,
+		)
 	})
 
 	it('asana_task_update forwards html notes, clear parent, and custom fields', async () => {
@@ -225,12 +253,16 @@ describe('tasks/mcp', () => {
 			custom_fields: { cf2: 'value' },
 		})
 
-		expect(updateTaskMock).toHaveBeenCalledWith('123', {
-			html_notes: '<body>Updated</body>',
-			clear_parent: true,
-			resource_subtype: 'milestone',
-			custom_fields: { cf2: 'value' },
-		})
+		expect(updateTaskMock).toHaveBeenCalledWith(
+			'123',
+			{
+				html_notes: '<body>Updated</body>',
+				clear_parent: true,
+				resource_subtype: 'milestone',
+				custom_fields: { cf2: 'value' },
+			},
+			undefined,
+		)
 	})
 
 	it('asana_task_update forwards a position with the parent', async () => {
@@ -240,7 +272,7 @@ describe('tasks/mcp', () => {
 
 		await server.handlers.get('asana_task_update')?.({ task_gid: '123', parent_gid: 'p1', insert_before: 's1' })
 
-		expect(updateTaskMock).toHaveBeenCalledWith('123', { parent: 'p1', insert_before: 's1' })
+		expect(updateTaskMock).toHaveBeenCalledWith('123', { parent: 'p1', insert_before: 's1' }, undefined)
 	})
 
 	it('asana_task_reorder moves a subtask within its current parent', async () => {
@@ -250,7 +282,7 @@ describe('tasks/mcp', () => {
 
 		const result = await server.handlers.get('asana_task_reorder')?.({ task_gid: '123', insert_after: 's1' })
 
-		expect(reorderSubtaskMock).toHaveBeenCalledWith('123', { insertAfter: 's1' })
+		expect(reorderSubtaskMock).toHaveBeenCalledWith('123', { insertAfter: 's1' }, undefined)
 		expect(JSON.parse(result.content[0].text)).toEqual({ gid: '123', name: 'Task' })
 	})
 
@@ -263,8 +295,8 @@ describe('tasks/mcp', () => {
 		await server.handlers.get('asana_task_create')?.({ workspace_gid: 'ws1', name: 'Task', custom_type: 'ct1' })
 		await server.handlers.get('asana_task_update')?.({ task_gid: '123', custom_type: 'ct1' })
 
-		expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { custom_type: 'ct1' })
-		expect(updateTaskMock).toHaveBeenCalledWith('123', { custom_type: 'ct1' })
+		expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { custom_type: 'ct1' }, undefined)
+		expect(updateTaskMock).toHaveBeenCalledWith('123', { custom_type: 'ct1' }, undefined)
 	})
 
 	it('asana_task_update maps clear due flag to due_on null', async () => {
@@ -277,9 +309,13 @@ describe('tasks/mcp', () => {
 			clear_due_on: true,
 		})
 
-		expect(updateTaskMock).toHaveBeenCalledWith('123', {
-			due_on: null,
-		})
+		expect(updateTaskMock).toHaveBeenCalledWith(
+			'123',
+			{
+				due_on: null,
+			},
+			undefined,
+		)
 	})
 
 	it('asana_task_update passes start_on through', async () => {
@@ -292,9 +328,13 @@ describe('tasks/mcp', () => {
 			start_on: '2026-09-01',
 		})
 
-		expect(updateTaskMock).toHaveBeenCalledWith('123', {
-			start_on: '2026-09-01',
-		})
+		expect(updateTaskMock).toHaveBeenCalledWith(
+			'123',
+			{
+				start_on: '2026-09-01',
+			},
+			undefined,
+		)
 	})
 
 	it('asana_task_update maps clear start flag to start_on null', async () => {
@@ -307,9 +347,13 @@ describe('tasks/mcp', () => {
 			clear_start_on: true,
 		})
 
-		expect(updateTaskMock).toHaveBeenCalledWith('123', {
-			start_on: null,
-		})
+		expect(updateTaskMock).toHaveBeenCalledWith(
+			'123',
+			{
+				start_on: null,
+			},
+			undefined,
+		)
 	})
 
 	it('asana_task_follower_remove calls follower removal helper', async () => {
@@ -423,7 +467,7 @@ describe('tasks/mcp', () => {
 			name: 'New Task',
 		})
 
-		expect(injectedCreateTask).toHaveBeenCalledWith('ws1', 'New Task', {})
+		expect(injectedCreateTask).toHaveBeenCalledWith('ws1', 'New Task', {}, undefined)
 	})
 
 	it('asana_task_search maps custom_field_filters to custom field filters', async () => {
@@ -494,7 +538,7 @@ describe('tasks/mcp', () => {
 
 			await server.handlers.get('asana_task_create')?.({ workspace_gid: 'ws1', name: 'Task', assignee: 'ali' })
 
-			expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { assignee: '100' })
+			expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { assignee: '100' }, undefined)
 		})
 
 		it('asana_task_update resolves an email', async () => {
@@ -505,7 +549,7 @@ describe('tasks/mcp', () => {
 
 			await server.handlers.get('asana_task_update')?.({ task_gid: '123', assignee: 'alice@example.com' })
 
-			expect(updateTaskMock).toHaveBeenCalledWith('123', { assignee: '100' })
+			expect(updateTaskMock).toHaveBeenCalledWith('123', { assignee: '100' }, undefined)
 		})
 
 		it('asana_task_subtask_create resolves a name', async () => {
@@ -520,7 +564,7 @@ describe('tasks/mcp', () => {
 				assignee: 'Alice Anderson',
 			})
 
-			expect(createSubtaskMock).toHaveBeenCalledWith('1', 'Sub', { assignee: '100' })
+			expect(createSubtaskMock).toHaveBeenCalledWith('1', 'Sub', { assignee: '100' }, undefined)
 		})
 
 		it('assignee_gid wins over assignee and skips the registry', async () => {
@@ -535,7 +579,7 @@ describe('tasks/mcp', () => {
 				assignee: 'not-registered',
 			})
 
-			expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { assignee: '555' })
+			expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { assignee: '555' }, undefined)
 		})
 	})
 	describe('asana_task_create resolves through the repo project registry', () => {
@@ -579,7 +623,7 @@ describe('tasks/mcp', () => {
 
 			await server.handlers.get('asana_task_create')?.({ workspace_gid: 'ws1', name: 'Task', tag_gids: ['900'] })
 
-			expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { tags: ['900'] })
+			expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { tags: ['900'] }, undefined)
 		})
 
 		it('resolves a tag name against the workspace', async () => {
@@ -592,7 +636,7 @@ describe('tasks/mcp', () => {
 
 			await server.handlers.get('asana_task_create')?.({ workspace_gid: 'ws1', name: 'Task' })
 
-			expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { tags: ['900'] })
+			expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { tags: ['900'] }, undefined)
 		})
 
 		it('applies conventions.default_tags and description_template', async () => {
@@ -604,7 +648,7 @@ describe('tasks/mcp', () => {
 
 			await server.handlers.get('asana_task_create')?.({ workspace_gid: 'ws1', name: 'Task' })
 
-			expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { notes: '## Problem', tags: ['900'] })
+			expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { notes: '## Problem', tags: ['900'] }, undefined)
 		})
 
 		it('leaves conventions out when the call gives its own notes and tags', async () => {
@@ -621,7 +665,7 @@ describe('tasks/mcp', () => {
 				tag_gids: ['909'],
 			})
 
-			expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { notes: 'Mine', tags: ['909'] })
+			expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { notes: 'Mine', tags: ['909'] }, undefined)
 		})
 
 		it('resolves a project alias', async () => {
@@ -632,7 +676,7 @@ describe('tasks/mcp', () => {
 
 			await server.handlers.get('asana_task_create')?.({ workspace_gid: 'ws1', name: 'Task', project: 'api' })
 
-			expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { projects: ['999'] })
+			expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { projects: ['999'] }, undefined)
 		})
 
 		it('falls back to the project marked default when none is given', async () => {
@@ -646,7 +690,7 @@ describe('tasks/mcp', () => {
 
 			await server.handlers.get('asana_task_create')?.({ workspace_gid: 'ws1', name: 'Task' })
 
-			expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { projects: ['999'] })
+			expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { projects: ['999'] }, undefined)
 		})
 
 		it('prefers an explicit project_gid over the default', async () => {
@@ -660,7 +704,7 @@ describe('tasks/mcp', () => {
 
 			await server.handlers.get('asana_task_create')?.({ workspace_gid: 'ws1', name: 'Task', project_gid: '777' })
 
-			expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { projects: ['777'] })
+			expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { projects: ['777'] }, undefined)
 		})
 
 		describe('defaults.section', () => {
@@ -681,9 +725,14 @@ describe('tasks/mcp', () => {
 
 				await server.handlers.get('asana_task_create')?.({ workspace_gid: 'ws1', name: 'Task' })
 
-				expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', {
-					memberships: [{ project: '999', section: '800' }],
-				})
+				expect(createTaskMock).toHaveBeenCalledWith(
+					'ws1',
+					'Task',
+					{
+						memberships: [{ project: '999', section: '800' }],
+					},
+					undefined,
+				)
 			})
 
 			it('leaves a task in another project out of defaults.section', async () => {
@@ -694,7 +743,7 @@ describe('tasks/mcp', () => {
 
 				await server.handlers.get('asana_task_create')?.({ workspace_gid: 'ws1', name: 'Task', project_gid: '111' })
 
-				expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { projects: ['111'] })
+				expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { projects: ['111'] }, undefined)
 			})
 
 			it('skips defaults.section when default_section is false', async () => {
@@ -705,7 +754,7 @@ describe('tasks/mcp', () => {
 
 				await server.handlers.get('asana_task_create')?.({ workspace_gid: 'ws1', name: 'Task', default_section: false })
 
-				expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { projects: ['999'] })
+				expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { projects: ['999'] }, undefined)
 			})
 		})
 
@@ -722,7 +771,7 @@ describe('tasks/mcp', () => {
 
 			await server.handlers.get('asana_task_create')?.({ workspace_gid: 'ws1', name: 'Task' })
 
-			expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { assignee: '100' })
+			expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { assignee: '100' }, undefined)
 		})
 
 		it('leaves asana_task_update alone when only defaults.assignee is set', async () => {
@@ -738,7 +787,7 @@ describe('tasks/mcp', () => {
 
 			await server.handlers.get('asana_task_update')?.({ task_gid: '123', name: 'Renamed' })
 
-			expect(updateTaskMock).toHaveBeenCalledWith('123', { name: 'Renamed' })
+			expect(updateTaskMock).toHaveBeenCalledWith('123', { name: 'Renamed' }, undefined)
 		})
 	})
 })

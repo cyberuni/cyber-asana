@@ -16,12 +16,12 @@ export async function getTable(tableGid: string, opts?: ReadOptions) {
 	return defaultTableApi().getTable(tableGid, opts)
 }
 
-export async function createTable(workspaceGid: string, name: string) {
-	return defaultTableApi().createTable(workspaceGid, name)
+export async function createTable(workspaceGid: string, name: string, opts?: ReadOptions) {
+	return defaultTableApi().createTable(workspaceGid, name, opts)
 }
 
-export async function updateTable(tableGid: string, fields: UpdateTableFields) {
-	return defaultTableApi().updateTable(tableGid, fields)
+export async function updateTable(tableGid: string, fields: UpdateTableFields, opts?: ReadOptions) {
+	return defaultTableApi().updateTable(tableGid, fields, opts)
 }
 
 export async function deleteTable(tableGid: string) {
@@ -32,8 +32,13 @@ export async function listTableFields(tableGid: string, opts?: PaginationOptions
 	return defaultTableApi().listTableFields(tableGid, opts)
 }
 
-export async function addTableField(tableGid: string, customFieldGid: string, opts?: AddTableFieldOptions) {
-	return defaultTableApi().addTableField(tableGid, customFieldGid, opts)
+export async function addTableField(
+	tableGid: string,
+	customFieldGid: string,
+	opts?: AddTableFieldOptions,
+	readOpts?: ReadOptions,
+) {
+	return defaultTableApi().addTableField(tableGid, customFieldGid, opts, readOpts)
 }
 
 export async function removeTableField(tableGid: string, customFieldGid: string) {

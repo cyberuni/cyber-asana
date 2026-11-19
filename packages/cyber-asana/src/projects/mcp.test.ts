@@ -103,13 +103,18 @@ describe('projects/mcp', () => {
 			start_on: '2026-06-01',
 		})
 
-		expect(createProjectMock).toHaveBeenCalledWith('ws1', 'Launch', {
-			html_notes: '<body>Brief</body>',
-			privacy_setting: 'private',
-			default_view: 'board',
-			due_on: '2026-06-10',
-			start_on: '2026-06-01',
-		})
+		expect(createProjectMock).toHaveBeenCalledWith(
+			'ws1',
+			'Launch',
+			{
+				html_notes: '<body>Brief</body>',
+				privacy_setting: 'private',
+				default_view: 'board',
+				due_on: '2026-06-10',
+				start_on: '2026-06-01',
+			},
+			undefined,
+		)
 	})
 
 	it('asana_project_update maps clear start flag to start_on null', async () => {
@@ -123,10 +128,14 @@ describe('projects/mcp', () => {
 			clear_start_on: true,
 		})
 
-		expect(updateProjectMock).toHaveBeenCalledWith('123', {
-			due_on: '2026-06-10',
-			start_on: null,
-		})
+		expect(updateProjectMock).toHaveBeenCalledWith(
+			'123',
+			{
+				due_on: '2026-06-10',
+				start_on: null,
+			},
+			undefined,
+		)
 	})
 
 	it('project tools can use injected dependencies', async () => {
@@ -152,7 +161,7 @@ describe('projects/mcp', () => {
 			name: 'Launch',
 		})
 
-		expect(injectedCreateProject).toHaveBeenCalledWith('ws1', 'Launch', {})
+		expect(injectedCreateProject).toHaveBeenCalledWith('ws1', 'Launch', {}, undefined)
 	})
 
 	it('asana_project_list forwards the archived filter', async () => {
@@ -232,7 +241,7 @@ describe('projects/mcp', () => {
 
 		await server.handlers.get('asana_project_update')?.({ project_gid: '123', archived: true })
 
-		expect(updateProjectMock).toHaveBeenCalledWith('123', { archived: true })
+		expect(updateProjectMock).toHaveBeenCalledWith('123', { archived: true }, undefined)
 	})
 
 	it('asana_project_create forwards the archived flag', async () => {
@@ -242,7 +251,7 @@ describe('projects/mcp', () => {
 
 		await server.handlers.get('asana_project_create')?.({ workspace_gid: 'ws1', name: 'Launch', archived: true })
 
-		expect(createProjectMock).toHaveBeenCalledWith('ws1', 'Launch', { archived: true })
+		expect(createProjectMock).toHaveBeenCalledWith('ws1', 'Launch', { archived: true }, undefined)
 	})
 
 	it('asana_project_create and asana_project_update forward the owner', async () => {
@@ -252,10 +261,10 @@ describe('projects/mcp', () => {
 		registerProjectTools(server as any)
 
 		await server.handlers.get('asana_project_create')?.({ workspace_gid: 'ws1', name: 'Launch', owner: 'me' })
-		expect(createProjectMock).toHaveBeenCalledWith('ws1', 'Launch', { owner: 'me' })
+		expect(createProjectMock).toHaveBeenCalledWith('ws1', 'Launch', { owner: 'me' }, undefined)
 
 		await server.handlers.get('asana_project_update')?.({ project_gid: '123', clear_owner: true })
-		expect(updateProjectMock).toHaveBeenCalledWith('123', { owner: null })
+		expect(updateProjectMock).toHaveBeenCalledWith('123', { owner: null }, undefined)
 	})
 
 	it('asana_project_create and asana_project_update forward the default access level', async () => {
@@ -269,9 +278,9 @@ describe('projects/mcp', () => {
 			name: 'Launch',
 			default_access_level: 'editor',
 		})
-		expect(createProjectMock).toHaveBeenCalledWith('ws1', 'Launch', { default_access_level: 'editor' })
+		expect(createProjectMock).toHaveBeenCalledWith('ws1', 'Launch', { default_access_level: 'editor' }, undefined)
 
 		await server.handlers.get('asana_project_update')?.({ project_gid: '123', default_access_level: 'viewer' })
-		expect(updateProjectMock).toHaveBeenCalledWith('123', { default_access_level: 'viewer' })
+		expect(updateProjectMock).toHaveBeenCalledWith('123', { default_access_level: 'viewer' }, undefined)
 	})
 })

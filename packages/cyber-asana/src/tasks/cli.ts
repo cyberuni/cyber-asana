@@ -392,7 +392,11 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 	addAssigneeOptions(
 		addGidOption(
 			addGidOption(
-				addGidOption(cmd.command('create <name>').description('Create a new task'), 'workspace', 'Workspace GID'),
+				addGidOption(
+					addReadOptions(cmd.command('create <name>').description('Create a new task')),
+					'workspace',
+					'Workspace GID',
+				),
 				'project',
 				'Project GID',
 			),
@@ -440,6 +444,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 					customFieldsJson?: string
 					customField: string[]
 					defaultSection: boolean
+					optFields?: string
 				},
 			) => {
 				const workspaceGid = requiredGid(opts, 'workspace', 'Workspace GID')
@@ -468,7 +473,12 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 					conventions,
 				)
 				const placement = opts.defaultSection ? await resolveSectionPlacement(fields.projects) : undefined
-				const data = await resolveTaskApi(api).createTask(workspaceGid, name, placeInSection(fields, placement))
+				const data = await resolveTaskApi(api).createTask(
+					workspaceGid,
+					name,
+					placeInSection(fields, placement),
+					readOptionsFromCli(opts),
+				)
 				output(data, () => {
 					fmtTask(data)
 					printNextSteps([
@@ -481,9 +491,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 
 	addAssigneeOptions(
 		addGidOption(
-			cmd
-				.command('update <gid>')
-				.description('Update a task')
+			addReadOptions(cmd.command('update <gid>').description('Update a task'))
 				.option('--name <name>', 'New name')
 				.option('--notes <text>', 'New notes')
 				.option('--html-notes <html>', 'New notes as HTML')
@@ -536,6 +544,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 				assignee?: string
 				assigneeGid?: string
 				clearAssignee?: boolean
+				optFields?: string
 			},
 		) => {
 			const data = await resolveTaskApi(api).updateTask(
@@ -564,21 +573,26 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 					customFieldsJson: opts.customFieldsJson,
 					customFieldEntries: opts.customField,
 				}),
+				readOptionsFromCli(opts),
 			)
 			output(data, () => (data ? fmtTask(data) : console.log('No changes to apply')))
 		},
 	)
 
-	cmd
-		.command('reorder <gid>')
-		.description('Move a subtask before or after a sibling, keeping its parent')
+	addReadOptions(
+		cmd.command('reorder <gid>').description('Move a subtask before or after a sibling, keeping its parent'),
+	)
 		.option('--insert-before <gid>', 'Place the task before this sibling subtask')
 		.option('--insert-after <gid>', 'Place the task after this sibling subtask')
-		.action(async (gid: string, opts: { insertBefore?: string; insertAfter?: string }) => {
-			const data = await resolveTaskApi(api).reorderSubtask(gid, {
-				...(opts.insertBefore !== undefined && { insertBefore: opts.insertBefore }),
-				...(opts.insertAfter !== undefined && { insertAfter: opts.insertAfter }),
-			})
+		.action(async (gid: string, opts: { insertBefore?: string; insertAfter?: string; optFields?: string }) => {
+			const data = await resolveTaskApi(api).reorderSubtask(
+				gid,
+				{
+					...(opts.insertBefore !== undefined && { insertBefore: opts.insertBefore }),
+					...(opts.insertAfter !== undefined && { insertAfter: opts.insertAfter }),
+				},
+				readOptionsFromCli(opts),
+			)
 			output(data, () => (data ? fmtTask(data) : console.log(`Moved task ${gid}`)))
 		})
 
@@ -590,20 +604,26 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 			output(result, () => console.log(deleteMessage(result, 'Task')))
 		})
 
-	cmd
-		.command('duplicate <task-gid>')
-		.description('Duplicate a task. Asana builds the copy asynchronously and returns a job; poll it with `job get`')
+	addReadOptions(
+		cmd
+			.command('duplicate <task-gid>')
+			.description('Duplicate a task. Asana builds the copy asynchronously and returns a job; poll it with `job get`'),
+	)
 		.requiredOption('--name <name>', 'Name for the new task')
 		.option(
 			'--include <elements>',
 			'Elements to copy, comma-separated (assignee, attachments, dates, dependencies, followers, notes, parent, projects, subtasks, tags)',
 			(value: string) => value.split(',').filter(Boolean),
 		)
-		.action(async (taskGid: string, opts: { name: string; include?: string[] }) => {
-			const job = await resolveTaskApi(api).duplicateTask(taskGid, {
-				name: opts.name,
-				...(opts.include !== undefined && { include: opts.include }),
-			})
+		.action(async (taskGid: string, opts: { name: string; include?: string[]; optFields?: string }) => {
+			const job = await resolveTaskApi(api).duplicateTask(
+				taskGid,
+				{
+					name: opts.name,
+					...(opts.include !== undefined && { include: opts.include }),
+				},
+				readOptionsFromCli(opts),
+			)
 			output(job, () => {
 				printFields({ Job: job.gid ?? null, Status: job.status ?? null })
 				printNextSteps([`cyber-asana job get ${job.gid} — poll until the copy is ready`])
@@ -659,9 +679,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 	)
 
 	addAssigneeOptions(
-		subtaskCmd
-			.command('create <task-gid> <name>')
-			.description('Create a subtask under a task')
+		addReadOptions(subtaskCmd.command('create <task-gid> <name>').description('Create a subtask under a task'))
 			.option('--notes <text>', 'Task notes')
 			.option('--html-notes <html>', 'Task notes as HTML')
 			.option('--completed', 'Create the subtask already marked complete')
@@ -691,6 +709,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 				customField: string[]
 				assignee?: string
 				assigneeGid?: string
+				optFields?: string
 			},
 		) => {
 			const data = await resolveTaskApi(api).createSubtask(
@@ -710,6 +729,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 					customFieldsJson: opts.customFieldsJson,
 					customFieldEntries: opts.customField,
 				}),
+				readOptionsFromCli(opts),
 			)
 			output(data, () => fmtTask(data))
 		},

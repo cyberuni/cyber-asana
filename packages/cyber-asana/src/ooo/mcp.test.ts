@@ -91,10 +91,15 @@ describe('ooo/mcp', () => {
 			end_date: '2026-01-15',
 		})
 
-		expect(createOooEntryMock).toHaveBeenCalledWith('me', 'ws1', {
-			start_date: '2026-01-01',
-			end_date: '2026-01-15',
-		})
+		expect(createOooEntryMock).toHaveBeenCalledWith(
+			'me',
+			'ws1',
+			{
+				start_date: '2026-01-01',
+				end_date: '2026-01-15',
+			},
+			undefined,
+		)
 	})
 
 	it('asana_ooo_update forwards only the fields given', async () => {
@@ -104,7 +109,7 @@ describe('ooo/mcp', () => {
 
 		await server.handlers.get('asana_ooo_update')?.({ ooo_entry_gid: 'ooo1', end_date: '2026-01-20' })
 
-		expect(updateOooEntryMock).toHaveBeenCalledWith('ooo1', { end_date: '2026-01-20' })
+		expect(updateOooEntryMock).toHaveBeenCalledWith('ooo1', { end_date: '2026-01-20' }, undefined)
 	})
 
 	it('asana_ooo_delete removes an entry', async () => {

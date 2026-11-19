@@ -148,16 +148,21 @@ export function allocationCommand(api?: AllocationApi | (() => AllocationApi)) {
 		.requiredOption('--parent <gid>', 'Project GID the allocation is on')
 		.requiredOption('--start-date <date>', 'First day (YYYY-MM-DD)')
 		.requiredOption('--end-date <date>', 'Last day (YYYY-MM-DD)')
-	effortOptions(createCmd).action(
-		async (opts: Dates & { assignee: string; parent: string; percent?: number; hours?: number }) => {
+	addReadOptions(effortOptions(createCmd)).action(
+		async (
+			opts: Dates & { assignee: string; parent: string; percent?: number; hours?: number; optFields?: string },
+		) => {
 			const effort = effortFromCli(opts)
-			const data = await resolveAllocationApi(api).createAllocation({
-				assignee: opts.assignee,
-				parent: opts.parent,
-				start_date: opts.startDate as string,
-				end_date: opts.endDate as string,
-				...(effort && { effort }),
-			})
+			const data = await resolveAllocationApi(api).createAllocation(
+				{
+					assignee: opts.assignee,
+					parent: opts.parent,
+					start_date: opts.startDate as string,
+					end_date: opts.endDate as string,
+					...(effort && { effort }),
+				},
+				readOptionsFromCli(opts),
+			)
 			output(data, () => fmtAllocation(data))
 		},
 	)
@@ -167,15 +172,21 @@ export function allocationCommand(api?: AllocationApi | (() => AllocationApi)) {
 		.description('Update an allocation')
 		.option('--start-date <date>', 'New first day (YYYY-MM-DD)')
 		.option('--end-date <date>', 'New last day (YYYY-MM-DD)')
-	effortOptions(updateCmd).action(async (gid: string, opts: Dates & { percent?: number; hours?: number }) => {
-		const effort = effortFromCli(opts)
-		const data = await resolveAllocationApi(api).updateAllocation(gid, {
-			...(opts.startDate !== undefined && { start_date: opts.startDate }),
-			...(opts.endDate !== undefined && { end_date: opts.endDate }),
-			...(effort && { effort }),
-		})
-		output(data, () => fmtAllocation(data))
-	})
+	addReadOptions(effortOptions(updateCmd)).action(
+		async (gid: string, opts: Dates & { percent?: number; hours?: number; optFields?: string }) => {
+			const effort = effortFromCli(opts)
+			const data = await resolveAllocationApi(api).updateAllocation(
+				gid,
+				{
+					...(opts.startDate !== undefined && { start_date: opts.startDate }),
+					...(opts.endDate !== undefined && { end_date: opts.endDate }),
+					...(effort && { effort }),
+				},
+				readOptionsFromCli(opts),
+			)
+			output(data, () => fmtAllocation(data))
+		},
+	)
 
 	cmd
 		.command('delete <gid>')

@@ -167,6 +167,7 @@ export function oooCommand(api?: OooApi | (() => OooApi)) {
 	createCmd
 		.option('--start-date <date>', 'First day out of office (YYYY-MM-DD)')
 		.option('--end-date <date>', 'Last day out of office (YYYY-MM-DD)')
+		.option('--opt-fields <fields>', 'Comma-separated optional Asana fields to include')
 	createCmd.action(
 		async (opts: {
 			user?: string
@@ -175,6 +176,7 @@ export function oooCommand(api?: OooApi | (() => OooApi)) {
 			workspaceGid?: string
 			startDate?: string
 			endDate?: string
+			optFields?: string
 		}) => {
 			const data = await resolveOooApi(api).createOooEntry(
 				userGidOrMe(opts),
@@ -183,6 +185,7 @@ export function oooCommand(api?: OooApi | (() => OooApi)) {
 					start_date: requiredDate(opts.startDate, '--start-date'),
 					end_date: requiredDate(opts.endDate, '--end-date'),
 				},
+				readOptionsFromCli(opts),
 			)
 			output(data, () => fmtEntry(data))
 		},
@@ -193,11 +196,16 @@ export function oooCommand(api?: OooApi | (() => OooApi)) {
 		.description('Update an out-of-office entry')
 		.option('--start-date <date>', 'New first day out of office (YYYY-MM-DD)')
 		.option('--end-date <date>', 'New last day out of office (YYYY-MM-DD)')
-		.action(async (gid: string, opts: { startDate?: string; endDate?: string }) => {
-			const data = await resolveOooApi(api).updateOooEntry(gid, {
-				...(opts.startDate !== undefined && { start_date: opts.startDate }),
-				...(opts.endDate !== undefined && { end_date: opts.endDate }),
-			})
+		.option('--opt-fields <fields>', 'Comma-separated optional Asana fields to include')
+		.action(async (gid: string, opts: { startDate?: string; endDate?: string; optFields?: string }) => {
+			const data = await resolveOooApi(api).updateOooEntry(
+				gid,
+				{
+					...(opts.startDate !== undefined && { start_date: opts.startDate }),
+					...(opts.endDate !== undefined && { end_date: opts.endDate }),
+				},
+				readOptionsFromCli(opts),
+			)
 			output(data, () => fmtEntry(data))
 		})
 

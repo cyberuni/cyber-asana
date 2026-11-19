@@ -78,8 +78,17 @@ describe('records/mcp', () => {
 			default_access_level: 'editor',
 		})
 
-		expect(createRecord).toHaveBeenCalledWith('t1', 'Q3', { customFields: { cf1: 'a' }, uniqueFingerprint: 'fp' })
-		expect(updateRecord).toHaveBeenCalledWith('r1', { custom_fields: { cf1: 'b' }, default_access_level: 'editor' })
+		expect(createRecord).toHaveBeenCalledWith(
+			't1',
+			'Q3',
+			{ customFields: { cf1: 'a' }, uniqueFingerprint: 'fp' },
+			undefined,
+		)
+		expect(updateRecord).toHaveBeenCalledWith(
+			'r1',
+			{ custom_fields: { cf1: 'b' }, default_access_level: 'editor' },
+			undefined,
+		)
 	})
 
 	it('asana_record_delete is idempotent', async () => {
@@ -107,6 +116,6 @@ describe('records/mcp', () => {
 			{ commentsOnly: true, sortAscending: false },
 			expect.any(Object),
 		)
-		expect(createRecordStory).toHaveBeenCalledWith('r1', { text: 'hi' })
+		expect(createRecordStory).toHaveBeenCalledWith('r1', { text: 'hi' }, undefined)
 	})
 })

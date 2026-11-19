@@ -216,6 +216,7 @@ export function registerProjectTools(server: McpServer, api?: ProjectApi | (() =
 		{
 			workspace_gid: z.string().describe('Workspace GID'),
 			name: z.string().describe('Project name'),
+			...readParams,
 			archived: z.boolean().optional().describe('Create the project already archived'),
 			owner: z.string().optional().describe('Project owner — a user GID, an email, or "me"'),
 			notes: z.string().optional().describe('Project notes'),
@@ -246,6 +247,7 @@ export function registerProjectTools(server: McpServer, api?: ProjectApi | (() =
 			default_access_level,
 			due_on,
 			start_on,
+			opt_fields,
 		}) => ({
 			content: [
 				{
@@ -266,6 +268,7 @@ export function registerProjectTools(server: McpServer, api?: ProjectApi | (() =
 								dueOn: due_on,
 								startOn: start_on,
 							}),
+							readOptions({ opt_fields }),
 						),
 					),
 				},
@@ -278,6 +281,7 @@ export function registerProjectTools(server: McpServer, api?: ProjectApi | (() =
 		'Update an Asana project',
 		{
 			project_gid: z.string().describe('Project GID'),
+			...readParams,
 			name: z.string().optional().describe('New name'),
 			archived: z.boolean().optional().describe('Archive (true) or unarchive (false) the project'),
 			owner: z.string().optional().describe('New owner — a user GID, an email, or "me"'),
@@ -315,29 +319,34 @@ export function registerProjectTools(server: McpServer, api?: ProjectApi | (() =
 			start_on,
 			clear_due_on,
 			clear_start_on,
+			opt_fields,
 		}) => ({
 			content: [
 				{
 					type: 'text',
 					text: JSON.stringify(
-						await resolveProjectApi(api).updateProject(project_gid, {
-							...(name !== undefined && { name }),
-							...buildProjectUpdateFields({
-								archived,
-								owner,
-								clearOwner: clear_owner,
-								notes,
-								htmlNotes: html_notes,
-								color,
-								privacySetting: privacy_setting,
-								defaultView: default_view,
-								defaultAccessLevel: default_access_level,
-								dueOn: due_on,
-								startOn: start_on,
-								clearDueOn: clear_due_on,
-								clearStartOn: clear_start_on,
-							}),
-						}),
+						await resolveProjectApi(api).updateProject(
+							project_gid,
+							{
+								...(name !== undefined && { name }),
+								...buildProjectUpdateFields({
+									archived,
+									owner,
+									clearOwner: clear_owner,
+									notes,
+									htmlNotes: html_notes,
+									color,
+									privacySetting: privacy_setting,
+									defaultView: default_view,
+									defaultAccessLevel: default_access_level,
+									dueOn: due_on,
+									startOn: start_on,
+									clearDueOn: clear_due_on,
+									clearStartOn: clear_start_on,
+								}),
+							},
+							readOptions({ opt_fields }),
+						),
 					),
 				},
 			],

@@ -38,7 +38,7 @@ describe('task duplicate: gateway and api', () => {
 		const api = createTaskApi({ duplicateTask } as unknown as TaskGateway)
 
 		await expect(api.duplicateTask('t1', { name: 'Copy' })).resolves.toEqual({ gid: 'j1', status: 'in_progress' })
-		expect(duplicateTask).toHaveBeenCalledWith('t1', { name: 'Copy' })
+		expect(duplicateTask).toHaveBeenCalledWith('t1', { name: 'Copy' }, undefined)
 	})
 })
 
@@ -55,7 +55,7 @@ describe('task duplicate: cli and mcp', () => {
 			{ from: 'node' },
 		)
 
-		expect(duplicateTask).toHaveBeenCalledWith('t1', { name: 'Copy', include: ['notes', 'subtasks'] })
+		expect(duplicateTask).toHaveBeenCalledWith('t1', { name: 'Copy', include: ['notes', 'subtasks'] }, undefined)
 		expect(logSpy.mock.calls.map((c) => String(c[0])).join('\n')).toContain('cyber-asana job get j1')
 	})
 
@@ -74,7 +74,7 @@ describe('task duplicate: cli and mcp', () => {
 
 		const res = await handlers.get('asana_task_duplicate')?.({ task_gid: 't1', name: 'Copy', include: ['notes'] })
 
-		expect(duplicateTask).toHaveBeenCalledWith('t1', { name: 'Copy', include: ['notes'] })
+		expect(duplicateTask).toHaveBeenCalledWith('t1', { name: 'Copy', include: ['notes'] }, undefined)
 		expect(JSON.parse(res.content[0].text)).toEqual({ gid: 'j1', status: 'in_progress' })
 	})
 })

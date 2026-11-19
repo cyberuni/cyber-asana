@@ -30,12 +30,15 @@ describe('createAttachmentApi', () => {
 
 		await api.createAttachment('task1', { url: 'https://example.com/design', connectToApp: true })
 
-		expect(createAttachment).toHaveBeenCalledWith({
-			parent: 'task1',
-			url: 'https://example.com/design',
-			name: 'https://example.com/design',
-			resourceSubtype: 'external',
-			connectToApp: true,
-		})
+		expect(createAttachment).toHaveBeenCalledWith(
+			{
+				parent: 'task1',
+				url: 'https://example.com/design',
+				name: 'https://example.com/design',
+				resourceSubtype: 'external',
+				connectToApp: true,
+			},
+			undefined,
+		)
 	})
 })

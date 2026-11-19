@@ -82,8 +82,13 @@ export type ProjectGateway = {
 	listProjects(workspaceGid: string, opts?: ProjectListOptions): Promise<ListResult<Asana.Project>>
 	getProject(projectGid: string, opts?: ReadOptions): Promise<Asana.Project>
 	getProjectTaskCounts(projectGid: string, opts?: { optFields?: string }): Promise<Asana.TaskCounts>
-	createProject(workspaceGid: string, name: string, opts?: CreateProjectFields): Promise<Asana.Project>
-	updateProject(projectGid: string, fields: UpdateProjectFields): Promise<Asana.Project>
+	createProject(
+		workspaceGid: string,
+		name: string,
+		opts?: CreateProjectFields,
+		readOpts?: ReadOptions,
+	): Promise<Asana.Project>
+	updateProject(projectGid: string, fields: UpdateProjectFields, opts?: ReadOptions): Promise<Asana.Project>
 	deleteProject(projectGid: string): Promise<void>
 	/** Asana answers with a job that builds the copy; poll it for the new project. */
 	duplicateProject(projectGid: string, fields: DuplicateProjectFields): Promise<Job>
@@ -127,12 +132,15 @@ export function createAsanaProjectGateway(client: Asana.ApiClient): ProjectGatew
 			})
 			return res.data
 		},
-		async createProject(workspaceGid, name, opts) {
-			const res = await projectsApi.createProject({ data: { name, workspace: workspaceGid, ...opts } })
+		async createProject(workspaceGid, name, opts, readOpts) {
+			const res = await projectsApi.createProject(
+				{ data: { name, workspace: workspaceGid, ...opts } },
+				toAsanaReadOptions(readOpts),
+			)
 			return res.data
 		},
-		async updateProject(projectGid, fields) {
-			const res = await projectsApi.updateProject({ data: fields }, projectGid, {})
+		async updateProject(projectGid, fields, opts) {
+			const res = await projectsApi.updateProject({ data: fields }, projectGid, toAsanaReadOptions(opts))
 			return res.data
 		},
 		async deleteProject(projectGid) {

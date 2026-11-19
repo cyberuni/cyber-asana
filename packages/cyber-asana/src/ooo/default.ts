@@ -19,12 +19,13 @@ export async function createOooEntry(
 	userGid: string,
 	workspaceGid: string,
 	fields: { start_date: string; end_date: string },
+	opts?: ReadOptions,
 ) {
-	return defaultOooApi().createOooEntry(userGid, workspaceGid, fields)
+	return defaultOooApi().createOooEntry(userGid, workspaceGid, fields, opts)
 }
 
-export async function updateOooEntry(oooEntryGid: string, fields: OooEntryWriteFields) {
-	return defaultOooApi().updateOooEntry(oooEntryGid, fields)
+export async function updateOooEntry(oooEntryGid: string, fields: OooEntryWriteFields, opts?: ReadOptions) {
+	return defaultOooApi().updateOooEntry(oooEntryGid, fields, opts)
 }
 
 export async function deleteOooEntry(oooEntryGid: string) {

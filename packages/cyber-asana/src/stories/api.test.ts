@@ -169,7 +169,7 @@ describe('createStoryApi', () => {
 		const result = await api.createStory('task1', { text: 'A comment' })
 
 		expect(result).toEqual(mockStory)
-		expect(gatewayCreateStory).toHaveBeenCalledWith('task1', { text: 'A comment' })
+		expect(gatewayCreateStory).toHaveBeenCalledWith('task1', { text: 'A comment' }, undefined)
 	})
 })
 

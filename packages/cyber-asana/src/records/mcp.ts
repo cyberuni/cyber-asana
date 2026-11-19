@@ -125,13 +125,19 @@ export function registerRecordTools(server: McpServer, api?: RecordApi | (() => 
 				.describe(
 					'Client-chosen identifier: a duplicate in the same table fails with 409 instead of creating a second record',
 				),
+			...readParams,
 		},
-		async ({ table_gid, name, custom_fields, unique_fingerprint }) =>
+		async ({ table_gid, name, custom_fields, unique_fingerprint, ...params }) =>
 			json(
-				await resolveRecordApi(api).createRecord(table_gid, name, {
-					...(custom_fields !== undefined && { customFields: custom_fields }),
-					...(unique_fingerprint !== undefined && { uniqueFingerprint: unique_fingerprint }),
-				}),
+				await resolveRecordApi(api).createRecord(
+					table_gid,
+					name,
+					{
+						...(custom_fields !== undefined && { customFields: custom_fields }),
+						...(unique_fingerprint !== undefined && { uniqueFingerprint: unique_fingerprint }),
+					},
+					readOptions(params),
+				),
 			),
 	)
 
@@ -143,14 +149,19 @@ export function registerRecordTools(server: McpServer, api?: RecordApi | (() => 
 			name: z.string().optional().describe('New name'),
 			custom_fields: customFields.optional(),
 			default_access_level: z.enum(ACCESS_LEVELS).optional().describe('Default access level for new members'),
+			...readParams,
 		},
-		async ({ record_gid, name, custom_fields, default_access_level }) =>
+		async ({ record_gid, name, custom_fields, default_access_level, ...params }) =>
 			json(
-				await resolveRecordApi(api).updateRecord(record_gid, {
-					...(name !== undefined && { name }),
-					...(custom_fields !== undefined && { custom_fields }),
-					...(default_access_level !== undefined && { default_access_level }),
-				}),
+				await resolveRecordApi(api).updateRecord(
+					record_gid,
+					{
+						...(name !== undefined && { name }),
+						...(custom_fields !== undefined && { custom_fields }),
+						...(default_access_level !== undefined && { default_access_level }),
+					},
+					readOptions(params),
+				),
 			),
 	)
 
@@ -193,13 +204,18 @@ export function registerRecordTools(server: McpServer, api?: RecordApi | (() => 
 			record_gid: z.string().describe('Record GID'),
 			text: z.string().optional().describe('Comment text'),
 			html_text: z.string().optional().describe('Comment as Asana rich text HTML'),
+			...readParams,
 		},
-		async ({ record_gid, text, html_text }) =>
+		async ({ record_gid, text, html_text, ...params }) =>
 			json(
-				await resolveRecordApi(api).createRecordStory(record_gid, {
-					...(text !== undefined && { text }),
-					...(html_text !== undefined && { html_text }),
-				}),
+				await resolveRecordApi(api).createRecordStory(
+					record_gid,
+					{
+						...(text !== undefined && { text }),
+						...(html_text !== undefined && { html_text }),
+					},
+					readOptions(params),
+				),
 			),
 	)
 }

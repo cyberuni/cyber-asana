@@ -170,6 +170,7 @@ describe('tasks/api', () => {
 		expect(result).toEqual(mockTask)
 		expect(Asana.TasksApi.prototype.createTask).toHaveBeenCalledWith(
 			expect.objectContaining({ data: expect.objectContaining({ name: 'Test Task' }) }),
+			{},
 		)
 	})
 
@@ -184,17 +185,20 @@ describe('tasks/api', () => {
 			projects: ['proj1', 'proj2'],
 		})
 
-		expect(Asana.TasksApi.prototype.createTask).toHaveBeenCalledWith({
-			data: {
-				name: 'Test Task',
-				workspace: 'ws1',
-				html_notes: '<body>Hi</body>',
-				parent: 'parent1',
-				resource_subtype: 'milestone',
-				custom_fields: { cf1: 'value', cf2: 2 },
-				projects: ['proj1', 'proj2'],
+		expect(Asana.TasksApi.prototype.createTask).toHaveBeenCalledWith(
+			{
+				data: {
+					name: 'Test Task',
+					workspace: 'ws1',
+					html_notes: '<body>Hi</body>',
+					parent: 'parent1',
+					resource_subtype: 'milestone',
+					custom_fields: { cf1: 'value', cf2: 2 },
+					projects: ['proj1', 'proj2'],
+				},
 			},
-		})
+			{},
+		)
 	})
 
 	it('createTask carries followers on the create body without a second follower request', async () => {
@@ -205,9 +209,12 @@ describe('tasks/api', () => {
 
 		const result = await createTask('ws1', 'Test Task', { followers: ['u1', 'u2'] })
 
-		expect(Asana.TasksApi.prototype.createTask).toHaveBeenCalledWith({
-			data: { name: 'Test Task', workspace: 'ws1', followers: ['u1', 'u2'] },
-		})
+		expect(Asana.TasksApi.prototype.createTask).toHaveBeenCalledWith(
+			{
+				data: { name: 'Test Task', workspace: 'ws1', followers: ['u1', 'u2'] },
+			},
+			{},
+		)
 		expect(Asana.TasksApi.prototype.addFollowersForTask).not.toHaveBeenCalled()
 		expect(result).toEqual(mockTask)
 	})

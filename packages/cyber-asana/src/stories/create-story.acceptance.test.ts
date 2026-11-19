@@ -33,9 +33,13 @@ describe('stories/create acceptance gateway double', () => {
 
 		await api.createStory(taskGid, { html_text: '<body><strong>Ship it</strong></body>' })
 
-		expect(gateway.createStory).toHaveBeenCalledWith(taskGid, {
-			html_text: '<body><strong>Ship it</strong></body>',
-		})
+		expect(gateway.createStory).toHaveBeenCalledWith(
+			taskGid,
+			{
+				html_text: '<body><strong>Ship it</strong></body>',
+			},
+			undefined,
+		)
 	})
 
 	it('does not call the gateway when html_text validation fails', async () => {

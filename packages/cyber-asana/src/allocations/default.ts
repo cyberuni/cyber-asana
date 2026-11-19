@@ -22,12 +22,12 @@ export async function getAllocation(allocationGid: string, opts?: ReadOptions) {
 	return defaultAllocationApi().getAllocation(allocationGid, opts)
 }
 
-export async function createAllocation(fields: AllocationCreateFields) {
-	return defaultAllocationApi().createAllocation(fields)
+export async function createAllocation(fields: AllocationCreateFields, opts?: ReadOptions) {
+	return defaultAllocationApi().createAllocation(fields, opts)
 }
 
-export async function updateAllocation(allocationGid: string, fields: AllocationUpdateFields) {
-	return defaultAllocationApi().updateAllocation(allocationGid, fields)
+export async function updateAllocation(allocationGid: string, fields: AllocationUpdateFields, opts?: ReadOptions) {
+	return defaultAllocationApi().updateAllocation(allocationGid, fields, opts)
 }
 
 export async function deleteAllocation(allocationGid: string) {

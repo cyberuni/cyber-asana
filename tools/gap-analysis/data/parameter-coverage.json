@@ -45,9 +45,8 @@
 					"mcp": "project_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "gateway sends no opt_fields; CLI has no flag; MCP has none"
+					"status": "skipped",
+					"reason": "attachCustomField discards the setting and returns its own acknowledgement (and skips the write when the field is already attached)."
 				},
 				"custom_field": {
 					"status": "covered",
@@ -81,9 +80,9 @@
 					"mcp": "table_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"custom_field": {
 					"status": "covered",
@@ -149,9 +148,8 @@
 					"mcp": "goal_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object"
+					"status": "skipped",
+					"reason": "The CLI and MCP discard the response and print only an acknowledgement, so the caller never sees its fields."
 				},
 				"followers": {
 					"status": "covered",
@@ -170,9 +168,8 @@
 					"mcp": "project_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "gateway passes an empty opts object; CLI has no flag; MCP has none"
+					"status": "skipped",
+					"reason": "The CLI and MCP discard the response and print only an acknowledgement, so the caller never sees its fields."
 				},
 				"followers": {
 					"status": "covered",
@@ -191,9 +188,8 @@
 					"mcp": "task_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "Gateway sends no opt_fields; no CLI flag and no MCP field"
+					"status": "skipped",
+					"reason": "The CLI and MCP discard the returned task and print their own acknowledgement, so the caller never sees its fields."
 				},
 				"followers": {
 					"status": "covered",
@@ -269,9 +265,9 @@
 					"mcp": "goal_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"contribution_weight": {
 					"status": "covered",
@@ -342,9 +338,9 @@
 			"mcp": ["asana_allocation_create"],
 			"parameters": {
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"assignee": {
 					"status": "covered",
@@ -378,9 +374,9 @@
 			"mcp": ["asana_attachment_create"],
 			"parameters": {
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"connect_to_app": {
 					"status": "covered",
@@ -418,9 +414,8 @@
 			"mcp": ["asana_task_get_many"],
 			"parameters": {
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "Not sent on the batch call itself (fields go into each action's options.fields instead); no CLI flag or MCP field for the batch-level opt_fields"
+					"status": "skipped",
+					"reason": "--opt-fields already goes into each action's options.fields; the batch-level opt_fields would only shape the batch envelope, which the command does not return."
 				},
 				"actions": {
 					"status": "covered",
@@ -435,9 +430,9 @@
 			"mcp": ["asana_custom_field_create"],
 			"parameters": {
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"currency_code": {
 					"status": "gap",
@@ -561,9 +556,9 @@
 					"mcp": "custom_field_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"color": {
 					"status": "covered",
@@ -597,9 +592,9 @@
 			"mcp": ["asana_goal_create"],
 			"parameters": {
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"due_on": {
 					"status": "covered",
@@ -673,9 +668,9 @@
 					"mcp": "goal_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"currency_code": {
 					"status": "covered",
@@ -750,9 +745,9 @@
 			"mcp": ["asana_ooo_create"],
 			"parameters": {
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"end_date": {
 					"status": "covered",
@@ -781,9 +776,9 @@
 			"mcp": ["asana_portfolio_create"],
 			"parameters": {
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"archived": {
 					"status": "gap",
@@ -842,9 +837,9 @@
 			"mcp": ["asana_project_create"],
 			"parameters": {
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "gateway sends no opt_fields on create; CLI has no flag; MCP has none"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"archived": {
 					"status": "covered",
@@ -978,9 +973,9 @@
 					"mcp": "project_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "gateway passes an empty opts object; CLI has no flag; MCP has none"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"html_text": {
 					"status": "covered",
@@ -1004,9 +999,9 @@
 			"mcp": ["asana_record_create"],
 			"parameters": {
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"custom_fields": {
 					"status": "covered",
@@ -1045,9 +1040,9 @@
 					"mcp": "project_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "gateway sends no opt_fields; CLI has no flag; MCP has none"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"insert_after": {
 					"status": "covered",
@@ -1071,9 +1066,9 @@
 			"mcp": ["asana_status_create"],
 			"parameters": {
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"html_text": {
 					"status": "covered",
@@ -1112,9 +1107,9 @@
 					"mcp": "goal_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"html_text": {
 					"status": "covered",
@@ -1148,9 +1143,9 @@
 					"mcp": "record_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"html_text": {
 					"status": "covered",
@@ -1184,9 +1179,9 @@
 					"mcp": "task_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"html_text": {
 					"status": "covered",
@@ -1225,9 +1220,9 @@
 					"mcp": "task_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "Gateway sends no opt_fields; no CLI flag and no MCP field"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"approval_status": {
 					"status": "gap",
@@ -1364,9 +1359,9 @@
 			"mcp": ["asana_table_create"],
 			"parameters": {
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"name": {
 					"status": "covered",
@@ -1390,9 +1385,9 @@
 					"mcp": "workspace_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"color": {
 					"status": "covered",
@@ -1421,9 +1416,9 @@
 			"mcp": ["asana_task_create"],
 			"parameters": {
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "Gateway sends no opt_fields; no CLI flag and no MCP field"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"approval_status": {
 					"status": "gap",
@@ -1567,9 +1562,9 @@
 					"mcp": "task_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"assignee": {
 					"status": "gap",
@@ -1806,9 +1801,8 @@
 					"mcp": "project_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "gateway sends no opt_fields; CLI has no flag; MCP has none"
+					"status": "skipped",
+					"reason": "The default path polls the job and returns the polled job, replacing the response opt_fields would shape."
 				},
 				"include": {
 					"status": "covered",
@@ -1838,9 +1832,9 @@
 					"mcp": "task_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "Gateway sends no opt_fields; no CLI flag and no MCP field"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"include": {
 					"status": "covered",
@@ -3754,9 +3748,8 @@
 					"reason": "Always \"me\": the command lists the authenticated user's My Tasks"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "Gateway passes no options; no CLI flag and no MCP field for this lookup"
+					"status": "skipped",
+					"reason": "An internal lookup of the user task list GID; the command returns the tasks list, where --opt-fields already applies."
 				},
 				"workspace": {
 					"status": "covered",
@@ -3843,9 +3836,8 @@
 					"mcp": "custom_field_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object"
+					"status": "skipped",
+					"reason": "A reorder: the CLI prints its own moved acknowledgement, and the only result that matters is the option's new position, which custom-field get shows"
 				},
 				"after_enum_option": {
 					"status": "covered",
@@ -3900,9 +3892,8 @@
 					"mcp": "project_template_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "gateway sends no opt_fields; CLI has no flag; MCP has none"
+					"status": "skipped",
+					"reason": "The default path polls the job and returns the polled job, replacing the response opt_fields would shape."
 				},
 				"is_strict": {
 					"status": "covered",
@@ -3952,9 +3943,8 @@
 					"mcp": "task_template_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "Neither CLI nor MCP sends it: the gateway passes only the body"
+					"status": "skipped",
+					"reason": "The default path polls the job and returns the polled job, replacing the response opt_fields would shape."
 				},
 				"name": {
 					"status": "covered",
@@ -3973,9 +3963,9 @@
 					"mcp": "user_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"notification_gids": {
 					"status": "covered",
@@ -3999,9 +3989,9 @@
 					"mcp": "user_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"notification_gids": {
 					"status": "covered",
@@ -4105,9 +4095,8 @@
 					"mcp": "task_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "Gateway sends no opt_fields; no CLI flag and no MCP field"
+					"status": "skipped",
+					"reason": "The CLI and MCP discard the returned task and print their own acknowledgement, so the caller never sees its fields."
 				},
 				"followers": {
 					"status": "covered",
@@ -4126,9 +4115,8 @@
 					"mcp": "goal_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object"
+					"status": "skipped",
+					"reason": "The CLI and MCP discard the response and print only an acknowledgement, so the caller never sees its fields."
 				},
 				"followers": {
 					"status": "covered",
@@ -4147,9 +4135,8 @@
 					"mcp": "project_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "gateway passes an empty opts object; CLI has no flag; MCP has none"
+					"status": "skipped",
+					"reason": "The CLI and MCP discard the response and print only an acknowledgement, so the caller never sees its fields."
 				},
 				"followers": {
 					"status": "covered",
@@ -4765,9 +4752,9 @@
 					"mcp": "task_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "Gateway sends no opt_fields; no CLI flag and no MCP field"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"insert_after": {
 					"status": "covered",
@@ -4853,9 +4840,9 @@
 					"mcp": "allocation_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"assignee": {
 					"status": "gap",
@@ -4894,9 +4881,9 @@
 					"mcp": "custom_field_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"currency_code": {
 					"status": "covered",
@@ -5013,9 +5000,9 @@
 					"mcp": "enum_option_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"color": {
 					"status": "covered",
@@ -5044,9 +5031,9 @@
 					"mcp": "goal_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"custom_fields": {
 					"status": "gap",
@@ -5132,9 +5119,9 @@
 					"mcp": "goal_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"current_number_value": {
 					"status": "covered",
@@ -5169,9 +5156,9 @@
 					"mcp": "ooo_entry_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"end_date": {
 					"status": "covered",
@@ -5195,9 +5182,9 @@
 					"mcp": "portfolio_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"archived": {
 					"status": "gap",
@@ -5266,9 +5253,9 @@
 					"mcp": "project_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "gateway passes an empty opts object; CLI has no flag; MCP has none"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"archived": {
 					"status": "covered",
@@ -5397,9 +5384,9 @@
 					"mcp": "project_brief_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "gateway passes an empty opts object; CLI has no flag; MCP has none"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"html_text": {
 					"status": "covered",
@@ -5428,9 +5415,9 @@
 					"mcp": "record_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"custom_fields": {
 					"status": "covered",
@@ -5459,9 +5446,9 @@
 					"mcp": "section_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "gateway sends no opt_fields; CLI has no flag; MCP has none"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"insert_after": {
 					"status": "skipped",
@@ -5488,9 +5475,9 @@
 					"mcp": "story_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"html_text": {
 					"status": "covered",
@@ -5524,9 +5511,9 @@
 					"mcp": "table_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"default_access_level": {
 					"status": "covered",
@@ -5550,9 +5537,9 @@
 					"mcp": "tag_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"color": {
 					"status": "covered",
@@ -5582,9 +5569,9 @@
 					"mcp": "task_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "Gateway sends no opt_fields; no CLI flag and no MCP field"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"approval_status": {
 					"status": "gap",
@@ -5711,9 +5698,9 @@
 					"mcp": "time_entry_gid"
 				},
 				"opt_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
-					"note": "opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it"
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
 				},
 				"assignee": {
 					"status": "gap",

@@ -59,7 +59,7 @@ describe('project-briefs/cli', () => {
 			{ from: 'node' },
 		)
 
-		expect(createProjectBrief).toHaveBeenCalledWith('p1', { title: 'Charter', html_text: '<body>x</body>' })
+		expect(createProjectBrief).toHaveBeenCalledWith('p1', { title: 'Charter', html_text: '<body>x</body>' }, undefined)
 		expect(printed(log)).toContain('b1')
 	})
 
@@ -69,7 +69,7 @@ describe('project-briefs/cli', () => {
 		const program = new Command().addCommand(projectBriefCommand(stubApi({ updateProjectBrief })))
 
 		await program.parseAsync(['node', 'test', 'project-brief', 'update', 'b1', '--text', 'New goal'], { from: 'node' })
-		expect(updateProjectBrief).toHaveBeenCalledWith('b1', { text: 'New goal' })
+		expect(updateProjectBrief).toHaveBeenCalledWith('b1', { text: 'New goal' }, undefined)
 
 		await expect(
 			new Command()

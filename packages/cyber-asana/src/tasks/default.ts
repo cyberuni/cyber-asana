@@ -44,12 +44,12 @@ export async function getTasksByGid(
 	return defaultTaskApi().getTasksByGid(taskGids, opts)
 }
 
-export async function createTask(workspaceGid: string, name: string, opts?: CreateTaskFields) {
-	return defaultTaskApi().createTask(workspaceGid, name, opts)
+export async function createTask(workspaceGid: string, name: string, fields?: CreateTaskFields, opts?: ReadOptions) {
+	return defaultTaskApi().createTask(workspaceGid, name, fields, opts)
 }
 
-export async function updateTask(taskGid: string, fields: UpdateTaskFields) {
-	return defaultTaskApi().updateTask(taskGid, fields)
+export async function updateTask(taskGid: string, fields: UpdateTaskFields, opts?: ReadOptions) {
+	return defaultTaskApi().updateTask(taskGid, fields, opts)
 }
 
 export async function deleteTask(taskGid: string) {
@@ -68,16 +68,21 @@ export async function listProjectsForTask(taskGid: string, opts?: PaginationOpti
 	return defaultTaskApi().listProjectsForTask(taskGid, opts)
 }
 
-export async function duplicateTask(taskGid: string, fields: DuplicateTaskFields) {
-	return defaultTaskApi().duplicateTask(taskGid, fields)
+export async function duplicateTask(taskGid: string, fields: DuplicateTaskFields, opts?: ReadOptions) {
+	return defaultTaskApi().duplicateTask(taskGid, fields, opts)
 }
 
-export async function reorderSubtask(taskGid: string, position: SubtaskPosition) {
-	return defaultTaskApi().reorderSubtask(taskGid, position)
+export async function reorderSubtask(taskGid: string, position: SubtaskPosition, opts?: ReadOptions) {
+	return defaultTaskApi().reorderSubtask(taskGid, position, opts)
 }
 
-export async function createSubtask(parentTaskGid: string, name: string, opts?: CreateTaskFields) {
-	return defaultTaskApi().createSubtask(parentTaskGid, name, opts)
+export async function createSubtask(
+	parentTaskGid: string,
+	name: string,
+	fields?: CreateTaskFields,
+	opts?: ReadOptions,
+) {
+	return defaultTaskApi().createSubtask(parentTaskGid, name, fields, opts)
 }
 
 export async function addTaskToProject(

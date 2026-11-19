@@ -24,22 +24,28 @@ export function createAttachmentApi(gateway: AttachmentGateway) {
 		},
 		// async so a local validation or filesystem error surfaces as a rejected
 		// promise, like every other failure a caller of this facade awaits.
-		async createAttachment(parentGid: string, fields: AttachmentCreateFields) {
+		async createAttachment(parentGid: string, fields: AttachmentCreateFields, opts?: ReadOptions) {
 			const input = buildAttachmentCreateInput(fields)
 			if (input.kind === 'url') {
-				return gateway.createAttachment({
-					parent: parentGid,
-					url: input.url,
-					name: input.name,
-					resourceSubtype: 'external',
-					...(input.connectToApp !== undefined && { connectToApp: input.connectToApp }),
-				})
+				return gateway.createAttachment(
+					{
+						parent: parentGid,
+						url: input.url,
+						name: input.name,
+						resourceSubtype: 'external',
+						...(input.connectToApp !== undefined && { connectToApp: input.connectToApp }),
+					},
+					opts,
+				)
 			}
-			return gateway.createAttachment({
-				parent: parentGid,
-				file: openFileForUpload(input.path),
-				name: input.name,
-			})
+			return gateway.createAttachment(
+				{
+					parent: parentGid,
+					file: openFileForUpload(input.path),
+					name: input.name,
+				},
+				opts,
+			)
 		},
 		deleteAttachment(attachmentGid: string) {
 			return gateway.deleteAttachment(attachmentGid)

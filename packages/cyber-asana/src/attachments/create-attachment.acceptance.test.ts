@@ -45,6 +45,7 @@ describe('attachments/create acceptance gateway double', () => {
 
 		expect(gateway.createAttachment).toHaveBeenCalledWith(
 			expect.objectContaining({ parent: parentGid, name: 'sprint.md' }),
+			undefined,
 		)
 		const [{ file }] = vi.mocked(gateway.createAttachment).mock.calls[0]!
 		expect(await readStream(file as NodeJS.ReadableStream)).toBe('# Sprint report\n')
@@ -56,12 +57,15 @@ describe('attachments/create acceptance gateway double', () => {
 
 		await api.createAttachment(parentGid, { url: 'https://example.com/design', name: 'Design doc' })
 
-		expect(gateway.createAttachment).toHaveBeenCalledWith({
-			parent: parentGid,
-			url: 'https://example.com/design',
-			name: 'Design doc',
-			resourceSubtype: 'external',
-		})
+		expect(gateway.createAttachment).toHaveBeenCalledWith(
+			{
+				parent: parentGid,
+				url: 'https://example.com/design',
+				name: 'Design doc',
+				resourceSubtype: 'external',
+			},
+			undefined,
+		)
 	})
 
 	it('does not call the gateway when the input names both a file and a url', async () => {

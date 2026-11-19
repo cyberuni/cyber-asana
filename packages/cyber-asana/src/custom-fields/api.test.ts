@@ -299,10 +299,13 @@ describe('custom-fields/api writes', () => {
 		await api.insertEnumOption('cf1', { enumOption: 'o1', afterEnumOption: 'o0' })
 		await api.updateEnumOption('o1', { enabled: false })
 
-		expect(g.createCustomField).toHaveBeenCalledWith({ workspace: 'ws', name: 'Sprint', resourceSubtype: 'enum' })
-		expect(g.createEnumOption).toHaveBeenCalledWith('cf1', { name: 'Sprint 1' })
+		expect(g.createCustomField).toHaveBeenCalledWith(
+			{ workspace: 'ws', name: 'Sprint', resourceSubtype: 'enum' },
+			undefined,
+		)
+		expect(g.createEnumOption).toHaveBeenCalledWith('cf1', { name: 'Sprint 1' }, undefined)
 		expect(g.insertEnumOption).toHaveBeenCalledWith('cf1', { enumOption: 'o1', afterEnumOption: 'o0' })
-		expect(g.updateEnumOption).toHaveBeenCalledWith('o1', { enabled: false })
+		expect(g.updateEnumOption).toHaveBeenCalledWith('o1', { enabled: false }, undefined)
 	})
 
 	it('updateCustomField forwards the gid and changes to the gateway', async () => {
@@ -310,7 +313,7 @@ describe('custom-fields/api writes', () => {
 		const api = createCustomFieldApi({ updateCustomField } as never)
 
 		await expect(api.updateCustomField('cf1', { name: 'Cost' })).resolves.toEqual({ gid: 'cf1', name: 'Cost' })
-		expect(updateCustomField).toHaveBeenCalledWith('cf1', { name: 'Cost' })
+		expect(updateCustomField).toHaveBeenCalledWith('cf1', { name: 'Cost' }, undefined)
 	})
 
 	it('deleteCustomField forwards the gid to the gateway', async () => {

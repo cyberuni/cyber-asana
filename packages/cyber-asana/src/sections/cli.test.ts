@@ -124,10 +124,15 @@ describe('sections/cli', () => {
 			from: 'node',
 		})
 
-		expect(createSectionMock).toHaveBeenCalledWith('proj1', 'In Progress', {
-			insertBefore: undefined,
-			insertAfter: undefined,
-		})
+		expect(createSectionMock).toHaveBeenCalledWith(
+			'proj1',
+			'In Progress',
+			{
+				insertBefore: undefined,
+				insertAfter: undefined,
+			},
+			undefined,
+		)
 	})
 
 	it('section create places the new section before an existing one', async () => {
@@ -139,10 +144,15 @@ describe('sections/cli', () => {
 			{ from: 'node' },
 		)
 
-		expect(createSection).toHaveBeenCalledWith('proj1', 'In Progress', {
-			insertBefore: 'sec2',
-			insertAfter: undefined,
-		})
+		expect(createSection).toHaveBeenCalledWith(
+			'proj1',
+			'In Progress',
+			{
+				insertBefore: 'sec2',
+				insertAfter: undefined,
+			},
+			undefined,
+		)
 	})
 
 	it('section create places the new section after an existing one', async () => {
@@ -154,10 +164,15 @@ describe('sections/cli', () => {
 			{ from: 'node' },
 		)
 
-		expect(createSection).toHaveBeenCalledWith('proj1', 'In Progress', {
-			insertBefore: undefined,
-			insertAfter: 'sec2',
-		})
+		expect(createSection).toHaveBeenCalledWith(
+			'proj1',
+			'In Progress',
+			{
+				insertBefore: undefined,
+				insertAfter: 'sec2',
+			},
+			undefined,
+		)
 	})
 
 	it('section create rejects passing both --insert-before and --insert-after', async () => {
@@ -191,7 +206,7 @@ describe('sections/cli', () => {
 
 		await program.parseAsync(['node', 'test', 'section', 'update', 'sec1', '--name', 'Done'], { from: 'node' })
 
-		expect(updateSectionMock).toHaveBeenCalledWith('sec1', 'Done')
+		expect(updateSectionMock).toHaveBeenCalledWith('sec1', 'Done', undefined)
 	})
 
 	it('section command can use injected dependencies', async () => {
@@ -202,10 +217,15 @@ describe('sections/cli', () => {
 			from: 'node',
 		})
 
-		expect(injectedCreateSection).toHaveBeenCalledWith('proj1', 'In Progress', {
-			insertBefore: undefined,
-			insertAfter: undefined,
-		})
+		expect(injectedCreateSection).toHaveBeenCalledWith(
+			'proj1',
+			'In Progress',
+			{
+				insertBefore: undefined,
+				insertAfter: undefined,
+			},
+			undefined,
+		)
 	})
 
 	it('section move places a section before another one', async () => {

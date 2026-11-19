@@ -17,8 +17,8 @@ export async function getAttachment(attachmentGid: string, opts?: ReadOptions) {
 	return defaultAttachmentApi().getAttachment(attachmentGid, opts)
 }
 
-export async function createAttachment(parentGid: string, fields: AttachmentCreateFields) {
-	return defaultAttachmentApi().createAttachment(parentGid, fields)
+export async function createAttachment(parentGid: string, fields: AttachmentCreateFields, opts?: ReadOptions) {
+	return defaultAttachmentApi().createAttachment(parentGid, fields, opts)
 }
 
 export async function deleteAttachment(attachmentGid: string) {

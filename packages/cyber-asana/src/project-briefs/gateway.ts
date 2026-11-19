@@ -10,8 +10,12 @@ export type ProjectBriefFields = {
 
 export type ProjectBriefGateway = {
 	getProjectBrief(projectBriefGid: string, opts?: ReadOptions): Promise<Asana.ProjectBrief>
-	createProjectBrief(projectGid: string, fields: ProjectBriefFields): Promise<Asana.ProjectBrief>
-	updateProjectBrief(projectBriefGid: string, fields: ProjectBriefFields): Promise<Asana.ProjectBrief>
+	createProjectBrief(projectGid: string, fields: ProjectBriefFields, opts?: ReadOptions): Promise<Asana.ProjectBrief>
+	updateProjectBrief(
+		projectBriefGid: string,
+		fields: ProjectBriefFields,
+		opts?: ReadOptions,
+	): Promise<Asana.ProjectBrief>
 	deleteProjectBrief(projectBriefGid: string): Promise<void>
 }
 
@@ -23,12 +27,12 @@ export function createAsanaProjectBriefGateway(client: Asana.ApiClient): Project
 			const res = await briefsApi.getProjectBrief(projectBriefGid, toAsanaReadOptions(opts))
 			return res.data
 		},
-		async createProjectBrief(projectGid, fields) {
-			const res = await briefsApi.createProjectBrief({ data: fields }, projectGid, {})
+		async createProjectBrief(projectGid, fields, opts) {
+			const res = await briefsApi.createProjectBrief({ data: fields }, projectGid, toAsanaReadOptions(opts))
 			return res.data
 		},
-		async updateProjectBrief(projectBriefGid, fields) {
-			const res = await briefsApi.updateProjectBrief({ data: fields }, projectBriefGid, {})
+		async updateProjectBrief(projectBriefGid, fields, opts) {
+			const res = await briefsApi.updateProjectBrief({ data: fields }, projectBriefGid, toAsanaReadOptions(opts))
 			return res.data
 		},
 		async deleteProjectBrief(projectBriefGid) {

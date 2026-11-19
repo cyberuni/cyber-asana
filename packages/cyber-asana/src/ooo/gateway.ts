@@ -26,8 +26,9 @@ export type OooGateway = {
 		userGid: string,
 		workspaceGid: string,
 		fields: { start_date: string; end_date: string },
+		opts?: ReadOptions,
 	): Promise<Asana.OooEntry>
-	updateOooEntry(oooEntryGid: string, fields: OooEntryWriteFields): Promise<Asana.OooEntry>
+	updateOooEntry(oooEntryGid: string, fields: OooEntryWriteFields, opts?: ReadOptions): Promise<Asana.OooEntry>
 	deleteOooEntry(oooEntryGid: string): Promise<void>
 }
 
@@ -51,14 +52,15 @@ export function createAsanaOooGateway(client: Asana.ApiClient): OooGateway {
 			const res = await oooEntriesApi.getOooEntry(oooEntryGid, toAsanaReadOptions(opts))
 			return res.data
 		},
-		async createOooEntry(userGid, workspaceGid, fields) {
-			const res = await oooEntriesApi.createOooEntry({
-				data: { user: userGid, workspace: workspaceGid, ...fields },
-			})
+		async createOooEntry(userGid, workspaceGid, fields, opts) {
+			const res = await oooEntriesApi.createOooEntry(
+				{ data: { user: userGid, workspace: workspaceGid, ...fields } },
+				toAsanaReadOptions(opts),
+			)
 			return res.data
 		},
-		async updateOooEntry(oooEntryGid, fields) {
-			const res = await oooEntriesApi.updateOooEntry({ data: fields }, oooEntryGid, {})
+		async updateOooEntry(oooEntryGid, fields, opts) {
+			const res = await oooEntriesApi.updateOooEntry({ data: fields }, oooEntryGid, toAsanaReadOptions(opts))
 			return res.data
 		},
 		async deleteOooEntry(oooEntryGid) {

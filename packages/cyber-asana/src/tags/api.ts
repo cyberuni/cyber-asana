@@ -13,11 +13,11 @@ export function createTagApi(gateway: TagGateway) {
 		getTag(tagGid: string, opts?: ReadOptions) {
 			return gateway.getTag(tagGid, opts)
 		},
-		createTag(workspaceGid: string, name: string, fields?: TagCreateFields) {
-			return gateway.createTag(workspaceGid, name, fields)
+		createTag(workspaceGid: string, name: string, fields?: TagCreateFields, opts?: ReadOptions) {
+			return gateway.createTag(workspaceGid, name, fields, opts)
 		},
-		updateTag(tagGid: string, fields: TagWriteFields) {
-			return gateway.updateTag(tagGid, fields)
+		updateTag(tagGid: string, fields: TagWriteFields, opts?: ReadOptions) {
+			return gateway.updateTag(tagGid, fields, opts)
 		},
 		deleteTag(tagGid: string) {
 			return gateway.deleteTag(tagGid)

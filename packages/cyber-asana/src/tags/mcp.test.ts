@@ -53,10 +53,15 @@ describe('tags/mcp', () => {
 			notes: 'Act fast',
 		})
 
-		expect(createTagMock).toHaveBeenCalledWith('ws1', 'Urgent', {
-			color: 'red',
-			notes: 'Act fast',
-		})
+		expect(createTagMock).toHaveBeenCalledWith(
+			'ws1',
+			'Urgent',
+			{
+				color: 'red',
+				notes: 'Act fast',
+			},
+			undefined,
+		)
 	})
 
 	it('asana_tag_update forwards mutable tag fields', async () => {
@@ -71,11 +76,15 @@ describe('tags/mcp', () => {
 			notes: 'Act fast',
 		})
 
-		expect(updateTagMock).toHaveBeenCalledWith('tag1', {
-			name: 'Urgent',
-			color: 'red',
-			notes: 'Act fast',
-		})
+		expect(updateTagMock).toHaveBeenCalledWith(
+			'tag1',
+			{
+				name: 'Urgent',
+				color: 'red',
+				notes: 'Act fast',
+			},
+			undefined,
+		)
 	})
 
 	it('asana_tag_delete removes a tag', async () => {
@@ -176,7 +185,11 @@ describe('tags/mcp', () => {
 			name: 'Urgent',
 		})
 
-		expect(injectedUpdateTag).toHaveBeenCalledWith('tag1', { name: 'Urgent', color: undefined, notes: undefined })
+		expect(injectedUpdateTag).toHaveBeenCalledWith(
+			'tag1',
+			{ name: 'Urgent', color: undefined, notes: undefined },
+			undefined,
+		)
 	})
 
 	it('asana_tag_create forwards follower_gids', async () => {
@@ -190,7 +203,7 @@ describe('tags/mcp', () => {
 			follower_gids: ['u1', 'u2'],
 		})
 
-		expect(createTagMock).toHaveBeenCalledWith('ws1', 'Urgent', { followers: ['u1', 'u2'] })
+		expect(createTagMock).toHaveBeenCalledWith('ws1', 'Urgent', { followers: ['u1', 'u2'] }, undefined)
 	})
 
 	it('asana_tag_create accepts follower_gids as a comma-separated string', async () => {
@@ -204,7 +217,7 @@ describe('tags/mcp', () => {
 			follower_gids: 'u1,u2',
 		})
 
-		expect(createTagMock).toHaveBeenCalledWith('ws1', 'Urgent', { followers: ['u1', 'u2'] })
+		expect(createTagMock).toHaveBeenCalledWith('ws1', 'Urgent', { followers: ['u1', 'u2'] }, undefined)
 	})
 
 	it('asana_tag_update clears the colour with clear_color', async () => {
@@ -214,7 +227,7 @@ describe('tags/mcp', () => {
 
 		await server.handlers.get('asana_tag_update')?.({ tag_gid: 'tag1', clear_color: true })
 
-		expect(updateTagMock).toHaveBeenCalledWith('tag1', { color: null })
+		expect(updateTagMock).toHaveBeenCalledWith('tag1', { color: null }, undefined)
 	})
 
 	it('asana_tag_delete succeeds when the tag is already gone', async () => {

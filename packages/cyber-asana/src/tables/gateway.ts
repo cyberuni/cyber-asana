@@ -47,11 +47,16 @@ export type AddTableFieldOptions = {
 export type TableGateway = {
 	listTables(workspaceGid: string, opts?: PaginationOptions): Promise<ListResult<Table>>
 	getTable(tableGid: string, opts?: ReadOptions): Promise<Table>
-	createTable(workspaceGid: string, name: string): Promise<Table>
-	updateTable(tableGid: string, fields: UpdateTableFields): Promise<Table>
+	createTable(workspaceGid: string, name: string, opts?: ReadOptions): Promise<Table>
+	updateTable(tableGid: string, fields: UpdateTableFields, opts?: ReadOptions): Promise<Table>
 	deleteTable(tableGid: string): Promise<void>
 	listTableFields(tableGid: string, opts?: PaginationOptions): Promise<ListResult<TableFieldSetting>>
-	addTableField(tableGid: string, customFieldGid: string, opts?: AddTableFieldOptions): Promise<TableFieldSetting>
+	addTableField(
+		tableGid: string,
+		customFieldGid: string,
+		opts?: AddTableFieldOptions,
+		readOpts?: ReadOptions,
+	): Promise<TableFieldSetting>
 	removeTableField(tableGid: string, customFieldGid: string): Promise<void>
 }
 
@@ -67,12 +72,12 @@ export function createAsanaTableGateway(client: Asana.ApiClient): TableGateway {
 			const res = await tablesApi.getTable(tableGid, toAsanaReadOptions(opts))
 			return res.data
 		},
-		async createTable(workspaceGid, name) {
-			const res = await tablesApi.createTable({ data: { name, workspace: workspaceGid } }, {})
+		async createTable(workspaceGid, name, opts) {
+			const res = await tablesApi.createTable({ data: { name, workspace: workspaceGid } }, toAsanaReadOptions(opts))
 			return res.data
 		},
-		async updateTable(tableGid, fields) {
-			const res = await tablesApi.updateTable({ data: fields }, tableGid, {})
+		async updateTable(tableGid, fields, opts) {
+			const res = await tablesApi.updateTable({ data: fields }, tableGid, toAsanaReadOptions(opts))
 			return res.data
 		},
 		async deleteTable(tableGid) {
@@ -82,7 +87,7 @@ export function createAsanaTableGateway(client: Asana.ApiClient): TableGateway {
 			const res = await tablesApi.getCustomFieldSettingsForTable(tableGid, toAsanaPaginationOptions(opts))
 			return await collectListResponse(res, opts)
 		},
-		async addTableField(tableGid, customFieldGid, opts) {
+		async addTableField(tableGid, customFieldGid, opts, readOpts) {
 			const res = await tablesApi.addCustomFieldSettingForTable(
 				{
 					data: {
@@ -93,7 +98,7 @@ export function createAsanaTableGateway(client: Asana.ApiClient): TableGateway {
 					},
 				},
 				tableGid,
-				{},
+				toAsanaReadOptions(readOpts),
 			)
 			return res.data
 		},

@@ -12,11 +12,11 @@ export function createSectionApi(gateway: SectionGateway) {
 		getSection(sectionGid: string, opts?: ReadOptions) {
 			return gateway.getSection(sectionGid, opts)
 		},
-		createSection(projectGid: string, name: string, opts?: SectionPlacement) {
-			return gateway.createSection(projectGid, name, opts)
+		createSection(projectGid: string, name: string, opts?: SectionPlacement, readOpts?: ReadOptions) {
+			return gateway.createSection(projectGid, name, opts, readOpts)
 		},
-		updateSection(sectionGid: string, name: string) {
-			return gateway.updateSection(sectionGid, name)
+		updateSection(sectionGid: string, name: string, opts?: ReadOptions) {
+			return gateway.updateSection(sectionGid, name, opts)
 		},
 		deleteSection(sectionGid: string) {
 			return gateway.deleteSection(sectionGid)

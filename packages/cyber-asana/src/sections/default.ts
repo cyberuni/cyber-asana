@@ -16,12 +16,12 @@ export async function getSection(sectionGid: string, opts?: ReadOptions) {
 	return defaultSectionApi().getSection(sectionGid, opts)
 }
 
-export async function createSection(projectGid: string, name: string, opts?: SectionPlacement) {
-	return defaultSectionApi().createSection(projectGid, name, opts)
+export async function createSection(projectGid: string, name: string, opts?: SectionPlacement, readOpts?: ReadOptions) {
+	return defaultSectionApi().createSection(projectGid, name, opts, readOpts)
 }
 
-export async function updateSection(sectionGid: string, name: string) {
-	return defaultSectionApi().updateSection(sectionGid, name)
+export async function updateSection(sectionGid: string, name: string, opts?: ReadOptions) {
+	return defaultSectionApi().updateSection(sectionGid, name, opts)
 }
 
 export async function deleteSection(sectionGid: string) {

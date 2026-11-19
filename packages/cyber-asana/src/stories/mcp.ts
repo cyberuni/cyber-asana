@@ -77,22 +77,27 @@ function registerStoryToolsWithPrefix(
 				.boolean()
 				.optional()
 				.describe('Treat text as a template and interpolate task variables before posting'),
+			...readParams,
 		},
-		async ({ task_gid, text, html_text, is_pinned, sticker_name, template }) => {
+		async ({ task_gid, text, html_text, is_pinned, sticker_name, template, ...params }) => {
 			const task = template ? await resolveStoryApi(api).getTaskTemplateData(task_gid) : undefined
 			return {
 				content: [
 					{
 						type: 'text',
 						text: JSON.stringify(
-							await resolveStoryApi(api).createStory(task_gid, {
-								...(text !== undefined && { text: task ? interpolateTemplate(text, task) : text }),
-								...(html_text !== undefined && {
-									html_text: task ? interpolateTemplate(html_text, task) : html_text,
-								}),
-								...(is_pinned !== undefined && { is_pinned }),
-								...(sticker_name !== undefined && { sticker_name }),
-							}),
+							await resolveStoryApi(api).createStory(
+								task_gid,
+								{
+									...(text !== undefined && { text: task ? interpolateTemplate(text, task) : text }),
+									...(html_text !== undefined && {
+										html_text: task ? interpolateTemplate(html_text, task) : html_text,
+									}),
+									...(is_pinned !== undefined && { is_pinned }),
+									...(sticker_name !== undefined && { sticker_name }),
+								},
+								readOptions(params),
+							),
 						),
 					},
 				],
@@ -120,18 +125,23 @@ function registerStoryToolsWithPrefix(
 			html_text: z.string().optional().describe('Replacement comment rich text as Asana HTML'),
 			is_pinned: z.boolean().optional().describe('Pin (true) or unpin (false) the comment on its task'),
 			sticker_name: z.enum(STICKER_NAMES).optional().describe('Sticker to attach to the comment'),
+			...readParams,
 		},
-		async ({ story_gid, text, html_text, is_pinned, sticker_name }) => ({
+		async ({ story_gid, text, html_text, is_pinned, sticker_name, ...params }) => ({
 			content: [
 				{
 					type: 'text',
 					text: JSON.stringify(
-						await resolveStoryApi(api).updateStory(story_gid, {
-							...(text !== undefined && { text }),
-							...(html_text !== undefined && { html_text }),
-							...(is_pinned !== undefined && { is_pinned }),
-							...(sticker_name !== undefined && { sticker_name }),
-						}),
+						await resolveStoryApi(api).updateStory(
+							story_gid,
+							{
+								...(text !== undefined && { text }),
+								...(html_text !== undefined && { html_text }),
+								...(is_pinned !== undefined && { is_pinned }),
+								...(sticker_name !== undefined && { sticker_name }),
+							},
+							readOptions(params),
+						),
 					),
 				},
 			],
@@ -173,18 +183,23 @@ function registerGoalStoryTools(server: McpServer, api?: StoryApi | (() => Story
 			html_text: z.string().optional().describe('Comment rich text as Asana HTML'),
 			is_pinned: z.boolean().optional().describe('Pin the new comment on the goal'),
 			sticker_name: z.enum(STICKER_NAMES).optional().describe('Sticker to attach to the comment'),
+			...readParams,
 		},
-		async ({ goal_gid, text, html_text, is_pinned, sticker_name }) => ({
+		async ({ goal_gid, text, html_text, is_pinned, sticker_name, ...params }) => ({
 			content: [
 				{
 					type: 'text',
 					text: JSON.stringify(
-						await resolveStoryApi(api).createGoalStory(goal_gid, {
-							...(text !== undefined && { text }),
-							...(html_text !== undefined && { html_text }),
-							...(is_pinned !== undefined && { is_pinned }),
-							...(sticker_name !== undefined && { sticker_name }),
-						}),
+						await resolveStoryApi(api).createGoalStory(
+							goal_gid,
+							{
+								...(text !== undefined && { text }),
+								...(html_text !== undefined && { html_text }),
+								...(is_pinned !== undefined && { is_pinned }),
+								...(sticker_name !== undefined && { sticker_name }),
+							},
+							readOptions(params),
+						),
 					),
 				},
 			],

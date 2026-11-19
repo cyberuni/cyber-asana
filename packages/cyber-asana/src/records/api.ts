@@ -36,11 +36,11 @@ export function createRecordApi(gateway: RecordGateway) {
 		getRecord(recordGid: string, opts?: ReadOptions) {
 			return gateway.getRecord(recordGid, opts)
 		},
-		createRecord(tableGid: string, name: string, opts?: CreateRecordOptions) {
-			return gateway.createRecord(tableGid, name, opts)
+		createRecord(tableGid: string, name: string, opts?: CreateRecordOptions, readOpts?: ReadOptions) {
+			return gateway.createRecord(tableGid, name, opts, readOpts)
 		},
-		updateRecord(recordGid: string, fields: UpdateRecordFields) {
-			return gateway.updateRecord(recordGid, fields)
+		updateRecord(recordGid: string, fields: UpdateRecordFields, opts?: ReadOptions) {
+			return gateway.updateRecord(recordGid, fields, opts)
 		},
 		deleteRecord(recordGid: string) {
 			return gateway.deleteRecord(recordGid)
@@ -48,8 +48,8 @@ export function createRecordApi(gateway: RecordGateway) {
 		listRecordStories(recordGid: string, filters?: RecordStoryFilters, opts?: PaginationOptions) {
 			return gateway.listRecordStories(recordGid, filters, opts)
 		},
-		createRecordStory(recordGid: string, fields: RecordStoryFields) {
-			return gateway.createRecordStory(recordGid, fields)
+		createRecordStory(recordGid: string, fields: RecordStoryFields, opts?: ReadOptions) {
+			return gateway.createRecordStory(recordGid, fields, opts)
 		},
 	}
 }

@@ -19,7 +19,7 @@ export type StatusOverviewGateways = Pick<StatusOverviewDeps, 'portfolios' | 'pr
 }
 
 export type { StatusParentType } from './status-type.js'
-export type CreateStatusOptions = {
+export type CreateStatusOptions = ReadOptions & {
 	/** Skips parent detection, saving up to three calls. */
 	parentType?: StatusParentType
 }
@@ -47,7 +47,11 @@ export function createStatusApi(gateway: StatusGateway, overviewGateways: Status
 					if (detected) assertStatusType(fields.status_type, detected)
 				}
 			}
-			return gateway.createStatus(parentGid, fields)
+			return gateway.createStatus(
+				parentGid,
+				fields,
+				opts?.optFields === undefined ? undefined : { optFields: opts.optFields },
+			)
 		},
 		deleteStatus(statusGid: string) {
 			return gateway.deleteStatus(statusGid)

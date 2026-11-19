@@ -132,35 +132,40 @@ export function sectionCommand(
 	)
 
 	addGidOption(
-		cmd
-			.command('create <name>')
-			.description('Create a section in a project')
-			.option('--insert-before <gid>', 'Insert before this section GID')
-			.option('--insert-after <gid>', 'Insert after this section GID'),
+		addReadOptions(
+			cmd
+				.command('create <name>')
+				.description('Create a section in a project')
+				.option('--insert-before <gid>', 'Insert before this section GID')
+				.option('--insert-after <gid>', 'Insert after this section GID'),
+		),
 		'project',
 		'Project GID',
 	).action(
 		async (
 			name: string,
-			opts: { project?: string; projectGid?: string; insertBefore?: string; insertAfter?: string },
+			opts: { project?: string; projectGid?: string; insertBefore?: string; insertAfter?: string; optFields?: string },
 		) => {
 			assertSinglePlacement(opts)
-			const data = await resolveSectionApi(api).createSection(requiredGid(opts, 'project', 'Project GID'), name, {
-				insertBefore: opts.insertBefore,
-				insertAfter: opts.insertAfter,
-			})
+			const data = await resolveSectionApi(api).createSection(
+				requiredGid(opts, 'project', 'Project GID'),
+				name,
+				{
+					insertBefore: opts.insertBefore,
+					insertAfter: opts.insertAfter,
+				},
+				readOptionsFromCli(opts),
+			)
 			output(data, () => fmtSection(data))
 		},
 	)
 
-	cmd
-		.command('update <gid>')
-		.description('Update a section')
-		.requiredOption('--name <name>', 'New name')
-		.action(async (gid: string, opts: { name: string }) => {
-			const data = await resolveSectionApi(api).updateSection(gid, opts.name)
-			output(data, () => fmtSection(data))
-		})
+	addReadOptions(
+		cmd.command('update <gid>').description('Update a section').requiredOption('--name <name>', 'New name'),
+	).action(async (gid: string, opts: { name: string; optFields?: string }) => {
+		const data = await resolveSectionApi(api).updateSection(gid, opts.name, readOptionsFromCli(opts))
+		output(data, () => fmtSection(data))
+	})
 
 	addGidOption(
 		cmd

@@ -40,28 +40,28 @@ export async function listCustomFieldSettingsForTeam(teamGid: string, opts?: Pag
 	return defaultCustomFieldApi().listCustomFieldSettingsForTeam(teamGid, opts)
 }
 
-export async function createCustomField(input: CreateCustomFieldInput) {
-	return defaultCustomFieldApi().createCustomField(input)
+export async function createCustomField(input: CreateCustomFieldInput, opts?: ReadOptions) {
+	return defaultCustomFieldApi().createCustomField(input, opts)
 }
 
-export async function updateCustomField(customFieldGid: string, input: UpdateCustomFieldInput) {
-	return defaultCustomFieldApi().updateCustomField(customFieldGid, input)
+export async function updateCustomField(customFieldGid: string, input: UpdateCustomFieldInput, opts?: ReadOptions) {
+	return defaultCustomFieldApi().updateCustomField(customFieldGid, input, opts)
 }
 
 export async function deleteCustomField(customFieldGid: string) {
 	return defaultCustomFieldApi().deleteCustomField(customFieldGid)
 }
 
-export async function createEnumOption(customFieldGid: string, input: CreateEnumOptionInput) {
-	return defaultCustomFieldApi().createEnumOption(customFieldGid, input)
+export async function createEnumOption(customFieldGid: string, input: CreateEnumOptionInput, opts?: ReadOptions) {
+	return defaultCustomFieldApi().createEnumOption(customFieldGid, input, opts)
 }
 
 export async function insertEnumOption(customFieldGid: string, input: InsertEnumOptionInput) {
 	return defaultCustomFieldApi().insertEnumOption(customFieldGid, input)
 }
 
-export async function updateEnumOption(enumOptionGid: string, input: UpdateEnumOptionInput) {
-	return defaultCustomFieldApi().updateEnumOption(enumOptionGid, input)
+export async function updateEnumOption(enumOptionGid: string, input: UpdateEnumOptionInput, opts?: ReadOptions) {
+	return defaultCustomFieldApi().updateEnumOption(enumOptionGid, input, opts)
 }
 
 export async function attachCustomField(

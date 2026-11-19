@@ -8,7 +8,7 @@ description: Every request parameter of each Asana API operation cyber-asana wra
 For each of the **171** Asana REST operations cyber-asana wraps, this page lists
 every path, query, and top-level body parameter in the
 [Asana OpenAPI definition](https://raw.githubusercontent.com/Asana/openapi/master/defs/asana_oas.yaml) (fetched 2026-11-19) and how cyber-asana sends it.
-Of **946** parameters, **704** are covered, **33** are skipped on purpose, and **209** are open gaps.
+Of **946** parameters, **747** are covered, **46** are skipped on purpose, and **153** are open gaps.
 Header parameters are left out: an API client sets them once, not per command.
 
 | Status | Meaning |
@@ -28,16 +28,6 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 
 | Endpoint | Parameter | In | CLI | MCP | Status |
 | --- | --- | --- | --- | --- | --- |
-| `addCustomFieldSettingForProject` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) gateway sends no opt_fields; CLI has no flag; MCP has none |
-| `addCustomFieldSettingForTable` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
-| `addFollowers` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object |
-| `addFollowersForProject` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) gateway passes an empty opts object; CLI has no flag; MCP has none |
-| `addFollowersForTask` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) Gateway sends no opt_fields; no CLI flag and no MCP field |
-| `addSupportingRelationship` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object |
-| `createAllocation` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
-| `createAttachmentForObject` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
-| `createBatchRequest` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) Not sent on the batch call itself (fields go into each action's options.fields instead); no CLI flag or MCP field for the batch-level opt_fields |
-| `createCustomField` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object |
 | `createCustomField` | `currency_code` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
 | `createCustomField` | `custom_label` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
 | `createCustomField` | `custom_label_position` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
@@ -48,20 +38,15 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `createCustomField` | `is_formula_field` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it (likely a read-only value field on the custom field object; unverified) |
 | `createCustomField` | `is_lookup_field` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it (likely a read-only value field on the custom field object; unverified) |
 | `createCustomField` | `owned_by_app` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it (likely a read-only value field on the custom field object; unverified) |
-| `createEnumOptionForCustomField` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object |
 | `createEnumOptionForCustomField` | `enabled` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends enabled on create (only enum-option update does) |
-| `createGoal` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object |
 | `createGoal` | `followers` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
 | `createGoal` | `is_workspace_level` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
 | `createGoal` | `liked` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
 | `createGoal` | `owner` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
 | `createGoal` | `team` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
 | `createGoal` | `time_period` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) the gateway type accepts time_period (Asana requires one on creation) but the CLI has no flag and MCP has no field |
-| `createGoalMetric` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object |
 | `createGoalMetric` | `is_custom_weight` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
 | `createMembership` | `role` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
-| `createOooEntry` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
-| `createPortfolio` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object |
 | `createPortfolio` | `archived` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
 | `createPortfolio` | `color` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
 | `createPortfolio` | `custom_type` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
@@ -70,7 +55,6 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `createPortfolio` | `public` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
 | `createPortfolio` | `resource_subtype` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
 | `createPortfolio` | `start_on` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
-| `createProject` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) gateway sends no opt_fields on create; CLI has no flag; MCP has none |
 | `createProject` | `custom_fields` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none (CLI and MCP only attach fields through custom-field attach) |
 | `createProject` | `custom_type` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
 | `createProject` | `followers` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag on project create; MCP has none (followers are managed through project follower add/remove) |
@@ -79,18 +63,10 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `createProject` | `minimum_access_level_for_customization` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
 | `createProject` | `minimum_access_level_for_sharing` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
 | `createProject` | `resource_subtype` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
-| `createProjectBrief` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) gateway passes an empty opts object; CLI has no flag; MCP has none |
-| `createRecord` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
 | `createRecord` | `default_access_level` | body | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Not sent on create: createRecord body carries only name, table, custom_fields and unique_fingerprint; neither CLI nor MCP exposes it on create (update has it) |
-| `createSectionForProject` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) gateway sends no opt_fields; CLI has no flag; MCP has none |
-| `createStatusForObject` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object |
-| `createStoryForGoal` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
-| `createStoryForRecord` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
 | `createStoryForRecord` | `is_pinned` | body | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: RecordStoryFields carries only text and html_text |
 | `createStoryForRecord` | `sticker_name` | body | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: RecordStoryFields carries only text and html_text |
-| `createStoryForTask` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
 | `createStoryForTask` | `parent_comment` | body | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: StoryCreateFields has no parent_comment |
-| `createSubtaskForTask` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) Gateway sends no opt_fields; no CLI flag and no MCP field |
 | `createSubtaskForTask` | `approval_status` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
 | `createSubtaskForTask` | `assigned_by` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
 | `createSubtaskForTask` | `assignee_section` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
@@ -103,9 +79,6 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `createSubtaskForTask` | `liked` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
 | `createSubtaskForTask` | `projects` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Subtask create has no flag and no MCP field for projects (task create has both) |
 | `createSubtaskForTask` | `tags` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Subtask create has no flag and no MCP field for tags (task create has both) |
-| `createTable` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
-| `createTagForWorkspace` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object |
-| `createTask` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) Gateway sends no opt_fields; no CLI flag and no MCP field |
 | `createTask` | `approval_status` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
 | `createTask` | `assigned_by` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
 | `createTask` | `assignee_section` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
@@ -115,15 +88,12 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `createTask` | `external` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
 | `createTask` | `html_custom_fields` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
 | `createTask` | `liked` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
-| `createTimeTrackingEntry` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
 | `createTimeTrackingEntry` | `assignee` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `createTimeTrackingEntry` | `attributable_to` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `createTimeTrackingEntry` | `billable_status` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `createTimeTrackingEntry` | `categories` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `createTimeTrackingEntry` | `description` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
-| `duplicateProject` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) gateway sends no opt_fields; CLI has no flag; MCP has none |
 | `duplicateProject` | `schedule_dates` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
-| `duplicateTask` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) Gateway sends no opt_fields; no CLI flag and no MCP field |
 | `getDependenciesForTask` | `limit` | query | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway sends only opt_fields; no --limit and no MCP limit |
 | `getDependenciesForTask` | `offset` | query | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway sends only opt_fields; no --offset and no MCP offset |
 | `getDependentsForTask` | `limit` | query | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway sends only opt_fields; no --limit and no MCP limit |
@@ -152,16 +122,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `getTimeTrackingEntries` | `attributable_to` | query | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it |
 | `getTimeTrackingEntries` | `timesheet_approval_status` | query | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it |
 | `getUser` | `workspace` | query | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) gateway sends no workspace; CLI has no flag; MCP has none |
-| `getUserTaskListForUser` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) Gateway passes no options; no CLI flag and no MCP field for this lookup |
 | `getUsers` | `team` | query | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) gateway sends no team filter; CLI has no flag; MCP has none |
-| `insertEnumOptionForCustomField` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object |
-| `instantiateProject` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) gateway sends no opt_fields; CLI has no flag; MCP has none |
-| `instantiateTask` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) Neither CLI nor MCP sends it: the gateway passes only the body |
-| `markNotificationsReadForUser` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
-| `markNotificationsUnreadForUser` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
-| `removeFollowerForTask` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) Gateway sends no opt_fields; no CLI flag and no MCP field |
-| `removeFollowers` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object |
-| `removeFollowersForProject` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) gateway passes an empty opts object; CLI has no flag; MCP has none |
 | `searchProjectsForWorkspace` | `limit` | query | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) searchProjects sends no limit; CLI has no --limit on project search; MCP has none |
 | `searchRecordsForWorkspace` | `created_on` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) CLI has no flag; MCP sends it (created_on) |
 | `searchRecordsForWorkspace` | `created_on.after` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) CLI has no flag; MCP sends it (created_on_after) |
@@ -169,11 +130,8 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `searchRecordsForWorkspace` | `followers.not` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) CLI has no flag; MCP sends it (followers_not) |
 | `searchRecordsForWorkspace` | `tables.all` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) CLI has no flag; MCP sends it (tables_all) |
 | `searchTasksForWorkspace` | `limit` | query | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) searchTasks sends no limit; no CLI --limit and no MCP limit (--all/fetch_all pages instead) |
-| `setParentForTask` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) Gateway sends no opt_fields; no CLI flag and no MCP field |
-| `updateAllocation` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
 | `updateAllocation` | `assignee` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: AllocationUpdateFields omits assignee |
 | `updateAllocation` | `parent` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: AllocationUpdateFields omits parent |
-| `updateCustomField` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object |
 | `updateCustomField` | `enum_options` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
 | `updateCustomField` | `has_notifications_enabled` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
 | `updateCustomField` | `id_prefix` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
@@ -182,8 +140,6 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `updateCustomField` | `is_lookup_field` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it (likely a read-only value field on the custom field object; unverified) |
 | `updateCustomField` | `owned_by_app` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it (likely a read-only value field on the custom field object; unverified) |
 | `updateCustomField` | `workspace` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
-| `updateEnumOption` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object |
-| `updateGoal` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object |
 | `updateGoal` | `custom_fields` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
 | `updateGoal` | `html_custom_fields` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
 | `updateGoal` | `is_workspace_level` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
@@ -193,9 +149,6 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `updateGoal` | `team` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
 | `updateGoal` | `time_period` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
 | `updateGoal` | `workspace` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
-| `updateGoalMetric` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object |
-| `updateOooEntry` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
-| `updatePortfolio` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object |
 | `updatePortfolio` | `archived` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
 | `updatePortfolio` | `color` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
 | `updatePortfolio` | `custom_fields` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
@@ -206,7 +159,6 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `updatePortfolio` | `public` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
 | `updatePortfolio` | `resource_subtype` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
 | `updatePortfolio` | `start_on` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
-| `updateProject` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) gateway passes an empty opts object; CLI has no flag; MCP has none |
 | `updateProject` | `custom_fields` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none (CLI and MCP only attach fields through custom-field attach) |
 | `updateProject` | `custom_type` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
 | `updateProject` | `followers` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag on project update; MCP has none (followers are managed through project follower add/remove) |
@@ -215,13 +167,6 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `updateProject` | `minimum_access_level_for_customization` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
 | `updateProject` | `minimum_access_level_for_sharing` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
 | `updateProject` | `resource_subtype` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
-| `updateProjectBrief` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) gateway passes an empty opts object; CLI has no flag; MCP has none |
-| `updateRecord` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
-| `updateSection` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) gateway sends no opt_fields; CLI has no flag; MCP has none |
-| `updateStory` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
-| `updateTable` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
-| `updateTag` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object |
-| `updateTask` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) Gateway sends no opt_fields; no CLI flag and no MCP field |
 | `updateTask` | `approval_status` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
 | `updateTask` | `assigned_by` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
 | `updateTask` | `assignee_section` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
@@ -231,7 +176,6 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `updateTask` | `external` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
 | `updateTask` | `html_custom_fields` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
 | `updateTask` | `liked` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
-| `updateTimeTrackingEntry` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
 | `updateTimeTrackingEntry` | `assignee` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `updateTimeTrackingEntry` | `attributable_to` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `updateTimeTrackingEntry` | `billable_status` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
@@ -258,7 +202,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 
 | Endpoint | Parameter | In | CLI | MCP | Status |
 | --- | --- | --- | --- | --- | --- |
-| `createAllocation` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
+| `createAllocation` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `createAllocation` | `assignee` | body | `--assignee` | `assignee_gid` | ✅ |
 | `createAllocation` | `effort` | body | `--percent / --hours` | `effort_type + effort_value` | ✅ |
 | `createAllocation` | `end_date` | body | `--end-date` | `end_date` | ✅ |
@@ -274,7 +218,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `getAllocations` | `parent` | query | `--parent` | `parent_gid` | ✅ |
 | `getAllocations` | `workspace` | query | `--workspace-gid (or ASANA_WORKSPACE_GID)` | `workspace_gid` | ✅ |
 | `updateAllocation` | `allocation_gid` | path | `<gid>` | `allocation_gid` | ✅ |
-| `updateAllocation` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
+| `updateAllocation` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `updateAllocation` | `assignee` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: AllocationUpdateFields omits assignee |
 | `updateAllocation` | `effort` | body | `--percent / --hours` | `effort_type + effort_value` | ✅ |
 | `updateAllocation` | `end_date` | body | `--end-date` | `end_date` | ✅ |
@@ -285,7 +229,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 
 | Endpoint | Parameter | In | CLI | MCP | Status |
 | --- | --- | --- | --- | --- | --- |
-| `createAttachmentForObject` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
+| `createAttachmentForObject` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `createAttachmentForObject` | `connect_to_app` | body | `--connect-to-app` | `connect_to_app` | ✅ |
 | `createAttachmentForObject` | `file` | body | `[file]` | `file` | ✅ |
 | `createAttachmentForObject` | `name` | body | `--name` | `name` | ✅ |
@@ -304,7 +248,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 
 | Endpoint | Parameter | In | CLI | MCP | Status |
 | --- | --- | --- | --- | --- | --- |
-| `createBatchRequest` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) Not sent on the batch call itself (fields go into each action's options.fields instead); no CLI flag or MCP field for the batch-level opt_fields |
+| `createBatchRequest` | `opt_fields` | query | — | — | ➖ --opt-fields already goes into each action's options.fields; the batch-level opt_fields would only shape the batch envelope, which the command does not return. |
 | `createBatchRequest` | `actions` | body | `<gids...> (with --opt-fields)` | `task_gids (with opt_fields)` | ✅ Only GET /tasks/{gid} actions are built, from task GIDs and opt_fields; arbitrary batch actions are not exposed |
 
 ## Custom field settings
@@ -330,7 +274,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 
 | Endpoint | Parameter | In | CLI | MCP | Status |
 | --- | --- | --- | --- | --- | --- |
-| `createCustomField` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object |
+| `createCustomField` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `createCustomField` | `currency_code` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
 | `createCustomField` | `custom_label` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
 | `createCustomField` | `custom_label_position` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
@@ -355,7 +299,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `createCustomField` | `text_value` | body | — | — | ➖ A value the field holds on a task or project, set there through custom_fields; it is not part of the field definition |
 | `createCustomField` | `workspace` | body | `--workspace-gid (or ASANA_WORKSPACE_GID)` | `workspace_gid` | ✅ |
 | `createEnumOptionForCustomField` | `custom_field_gid` | path | `<field-gid>` | `custom_field_gid` | ✅ |
-| `createEnumOptionForCustomField` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object |
+| `createEnumOptionForCustomField` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `createEnumOptionForCustomField` | `color` | body | `--color` | `color` | ✅ |
 | `createEnumOptionForCustomField` | `enabled` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends enabled on create (only enum-option update does) |
 | `createEnumOptionForCustomField` | `insert_after` | body | `--insert-after` | `insert_after` | ✅ |
@@ -369,12 +313,12 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `getCustomFieldsForWorkspace` | `offset` | query | `--offset` | `offset` | ✅ |
 | `getCustomFieldsForWorkspace` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `insertEnumOptionForCustomField` | `custom_field_gid` | path | `<field-gid>` | `custom_field_gid` | ✅ |
-| `insertEnumOptionForCustomField` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object |
+| `insertEnumOptionForCustomField` | `opt_fields` | query | — | — | ➖ A reorder: the CLI prints its own moved acknowledgement, and the only result that matters is the option's new position, which custom-field get shows |
 | `insertEnumOptionForCustomField` | `after_enum_option` | body | `--after` | `after_enum_option_gid` | ✅ |
 | `insertEnumOptionForCustomField` | `before_enum_option` | body | `--before` | `before_enum_option_gid` | ✅ |
 | `insertEnumOptionForCustomField` | `enum_option` | body | `<option-gid>` | `enum_option_gid` | ✅ |
 | `updateCustomField` | `custom_field_gid` | path | `<gid>` | `custom_field_gid` | ✅ |
-| `updateCustomField` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object |
+| `updateCustomField` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `updateCustomField` | `currency_code` | body | `--currency-code` | `currency_code` | ✅ |
 | `updateCustomField` | `custom_label` | body | `--custom-label` | `custom_label` | ✅ |
 | `updateCustomField` | `custom_label_position` | body | `--custom-label-position` | `custom_label_position` | ✅ |
@@ -398,7 +342,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `updateCustomField` | `text_value` | body | — | — | ➖ A value the field holds on a task or project, set there through custom_fields; it is not part of the field definition |
 | `updateCustomField` | `workspace` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
 | `updateEnumOption` | `enum_option_gid` | path | `<option-gid>` | `enum_option_gid` | ✅ |
-| `updateEnumOption` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object |
+| `updateEnumOption` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `updateEnumOption` | `color` | body | `--color` | `color` | ✅ |
 | `updateEnumOption` | `enabled` | body | `--enabled / --disabled` | `enabled` | ✅ |
 | `updateEnumOption` | `name` | body | `--name` | `name` | ✅ |
@@ -416,7 +360,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | Endpoint | Parameter | In | CLI | MCP | Status |
 | --- | --- | --- | --- | --- | --- |
 | `addSupportingRelationship` | `goal_gid` | path | `<goal-gid>` | `goal_gid` | ✅ |
-| `addSupportingRelationship` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object |
+| `addSupportingRelationship` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `addSupportingRelationship` | `contribution_weight` | body | `--weight` | `contribution_weight` | ✅ |
 | `addSupportingRelationship` | `insert_after` | body | `--insert-after` | `insert_after` | ✅ |
 | `addSupportingRelationship` | `insert_before` | body | `--insert-before` | `insert_before` | ✅ |
@@ -429,9 +373,9 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | Endpoint | Parameter | In | CLI | MCP | Status |
 | --- | --- | --- | --- | --- | --- |
 | `addFollowers` | `goal_gid` | path | `<goal-gid>` | `goal_gid` | ✅ |
-| `addFollowers` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object |
+| `addFollowers` | `opt_fields` | query | — | — | ➖ The CLI and MCP discard the response and print only an acknowledgement, so the caller never sees its fields. |
 | `addFollowers` | `followers` | body | `<follower-gids...>` | `follower_gids` | ✅ |
-| `createGoal` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object |
+| `createGoal` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `createGoal` | `due_on` | body | `--due-on` | `due_on` | ✅ |
 | `createGoal` | `followers` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
 | `createGoal` | `html_notes` | body | `--html-notes` | `html_notes` | ✅ |
@@ -445,7 +389,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `createGoal` | `time_period` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) the gateway type accepts time_period (Asana requires one on creation) but the CLI has no flag and MCP has no field |
 | `createGoal` | `workspace` | body | `--workspace-gid (or ASANA_WORKSPACE_GID)` | `workspace_gid` | ✅ |
 | `createGoalMetric` | `goal_gid` | path | `<goal-gid>` | `goal_gid` | ✅ |
-| `createGoalMetric` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object |
+| `createGoalMetric` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `createGoalMetric` | `currency_code` | body | `--currency-code` | `currency_code` | ✅ |
 | `createGoalMetric` | `current_number_value` | body | `--current` | `current_number_value` | ✅ |
 | `createGoalMetric` | `initial_number_value` | body | `--initial` | `initial_number_value` | ✅ |
@@ -468,10 +412,10 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `getGoals` | `time_periods` | query | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) list filter: neither the CLI nor MCP sends it |
 | `getGoals` | `workspace` | query | `--workspace-gid (or ASANA_WORKSPACE_GID)` | `workspace_gid` | ✅ |
 | `removeFollowers` | `goal_gid` | path | `<goal-gid>` | `goal_gid` | ✅ |
-| `removeFollowers` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object |
+| `removeFollowers` | `opt_fields` | query | — | — | ➖ The CLI and MCP discard the response and print only an acknowledgement, so the caller never sees its fields. |
 | `removeFollowers` | `followers` | body | `<follower-gids...>` | `follower_gids` | ✅ |
 | `updateGoal` | `goal_gid` | path | `<gid>` | `goal_gid` | ✅ |
-| `updateGoal` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object |
+| `updateGoal` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `updateGoal` | `custom_fields` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
 | `updateGoal` | `due_on` | body | `--due-on` | `due_on` | ✅ sent as null by --clear-due-on / clear_due_on |
 | `updateGoal` | `html_custom_fields` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
@@ -487,7 +431,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `updateGoal` | `time_period` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
 | `updateGoal` | `workspace` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
 | `updateGoalMetric` | `goal_gid` | path | `<goal-gid>` | `goal_gid` | ✅ |
-| `updateGoalMetric` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object |
+| `updateGoalMetric` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `updateGoalMetric` | `current_number_value` | body | `<value>` | `current_number_value` | ✅ |
 
 ## Jobs
@@ -526,11 +470,11 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `getNotificationsForUser` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `getNotificationsForUser` | `workspace` | query | `--workspace-gid (or ASANA_WORKSPACE_GID)` | `workspace_gid` | ✅ |
 | `markNotificationsReadForUser` | `user_gid` | path | `--user-gid (default: me)` | `user_gid` | ✅ |
-| `markNotificationsReadForUser` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
+| `markNotificationsReadForUser` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `markNotificationsReadForUser` | `notification_gids` | body | `<notification-gids...>` | `notification_gids` | ✅ |
 | `markNotificationsReadForUser` | `workspace` | body | `--workspace-gid (or ASANA_WORKSPACE_GID)` | `workspace_gid` | ✅ |
 | `markNotificationsUnreadForUser` | `user_gid` | path | `--user-gid (default: me)` | `user_gid` | ✅ |
-| `markNotificationsUnreadForUser` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
+| `markNotificationsUnreadForUser` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `markNotificationsUnreadForUser` | `notification_gids` | body | `<notification-gids...>` | `notification_gids` | ✅ |
 | `markNotificationsUnreadForUser` | `workspace` | body | `--workspace-gid (or ASANA_WORKSPACE_GID)` | `workspace_gid` | ✅ |
 
@@ -538,7 +482,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 
 | Endpoint | Parameter | In | CLI | MCP | Status |
 | --- | --- | --- | --- | --- | --- |
-| `createOooEntry` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
+| `createOooEntry` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `createOooEntry` | `end_date` | body | `--end-date` | `end_date` | ✅ |
 | `createOooEntry` | `start_date` | body | `--start-date` | `start_date` | ✅ |
 | `createOooEntry` | `user` | body | `--user-gid (default: me)` | `user_gid` | ✅ |
@@ -554,7 +498,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `getOooEntry` | `ooo_entry_gid` | path | `<gid>` | `ooo_entry_gid` | ✅ |
 | `getOooEntry` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `updateOooEntry` | `ooo_entry_gid` | path | `<gid>` | `ooo_entry_gid` | ✅ |
-| `updateOooEntry` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
+| `updateOooEntry` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `updateOooEntry` | `end_date` | body | `--end-date` | `end_date` | ✅ |
 | `updateOooEntry` | `start_date` | body | `--start-date` | `start_date` | ✅ |
 
@@ -571,7 +515,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `addItemForPortfolio` | `insert_after` | body | `--insert-after` | `insert_after` | ✅ |
 | `addItemForPortfolio` | `insert_before` | body | `--insert-before` | `insert_before` | ✅ |
 | `addItemForPortfolio` | `item` | body | `<item-gid>` | `item_gid` | ✅ |
-| `createPortfolio` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object |
+| `createPortfolio` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `createPortfolio` | `archived` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
 | `createPortfolio` | `color` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
 | `createPortfolio` | `custom_type` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
@@ -600,7 +544,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `removeItemForPortfolio` | `portfolio_gid` | path | `<portfolio-gid>` | `portfolio_gid` | ✅ |
 | `removeItemForPortfolio` | `item` | body | `<item-gid>` | `item_gid` | ✅ |
 | `updatePortfolio` | `portfolio_gid` | path | `<gid>` | `portfolio_gid` | ✅ |
-| `updatePortfolio` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object |
+| `updatePortfolio` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `updatePortfolio` | `archived` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
 | `updatePortfolio` | `color` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
 | `updatePortfolio` | `custom_fields` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
@@ -618,7 +562,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | Endpoint | Parameter | In | CLI | MCP | Status |
 | --- | --- | --- | --- | --- | --- |
 | `createProjectBrief` | `project_gid` | path | `--project-gid` | `project_gid` | ✅ |
-| `createProjectBrief` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) gateway passes an empty opts object; CLI has no flag; MCP has none |
+| `createProjectBrief` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `createProjectBrief` | `html_text` | body | `--html-text` | `html_text` | ✅ |
 | `createProjectBrief` | `text` | body | `--text` | `text` | ✅ |
 | `createProjectBrief` | `title` | body | `--title` | `title` | ✅ |
@@ -626,7 +570,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `getProjectBrief` | `project_brief_gid` | path | `<gid>` | `project_brief_gid` | ✅ |
 | `getProjectBrief` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `updateProjectBrief` | `project_brief_gid` | path | `<gid>` | `project_brief_gid` | ✅ |
-| `updateProjectBrief` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) gateway passes an empty opts object; CLI has no flag; MCP has none |
+| `updateProjectBrief` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `updateProjectBrief` | `html_text` | body | `--html-text` | `html_text` | ✅ |
 | `updateProjectBrief` | `text` | body | `--text` | `text` | ✅ |
 | `updateProjectBrief` | `title` | body | `--title` | `title` | ✅ |
@@ -647,7 +591,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `getProjectTemplatesForTeam` | `offset` | query | `--offset` | `offset` | ✅ |
 | `getProjectTemplatesForTeam` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `instantiateProject` | `project_template_gid` | path | `<gid>` | `project_template_gid` | ✅ |
-| `instantiateProject` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) gateway sends no opt_fields; CLI has no flag; MCP has none |
+| `instantiateProject` | `opt_fields` | query | — | — | ➖ The default path polls the job and returns the polled job, replacing the response opt_fields would shape. |
 | `instantiateProject` | `is_strict` | body | `--strict-dates` | `is_strict` | ✅ |
 | `instantiateProject` | `name` | body | `--name` | `name` | ✅ |
 | `instantiateProject` | `privacy_setting` | body | `--privacy-setting` | `privacy_setting` | ✅ |
@@ -661,15 +605,15 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | Endpoint | Parameter | In | CLI | MCP | Status |
 | --- | --- | --- | --- | --- | --- |
 | `addCustomFieldSettingForProject` | `project_gid` | path | `<project-gid>` | `project_gid` | ✅ |
-| `addCustomFieldSettingForProject` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) gateway sends no opt_fields; CLI has no flag; MCP has none |
+| `addCustomFieldSettingForProject` | `opt_fields` | query | — | — | ➖ attachCustomField discards the setting and returns its own acknowledgement (and skips the write when the field is already attached). |
 | `addCustomFieldSettingForProject` | `custom_field` | body | `<field-gid>` | `custom_field_gid` | ✅ |
 | `addCustomFieldSettingForProject` | `insert_after` | body | `--insert-after` | `insert_after` | ✅ |
 | `addCustomFieldSettingForProject` | `insert_before` | body | `--insert-before` | `insert_before` | ✅ |
 | `addCustomFieldSettingForProject` | `is_important` | body | `--important` | `is_important` | ✅ |
 | `addFollowersForProject` | `project_gid` | path | `<project-gid>` | `project_gid` | ✅ |
-| `addFollowersForProject` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) gateway passes an empty opts object; CLI has no flag; MCP has none |
+| `addFollowersForProject` | `opt_fields` | query | — | — | ➖ The CLI and MCP discard the response and print only an acknowledgement, so the caller never sees its fields. |
 | `addFollowersForProject` | `followers` | body | `<follower-gids...>` | `follower_gids` | ✅ |
-| `createProject` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) gateway sends no opt_fields on create; CLI has no flag; MCP has none |
+| `createProject` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `createProject` | `archived` | body | `--archived` | `archived` | ✅ |
 | `createProject` | `color` | body | `--color` | `color` | ✅ |
 | `createProject` | `current_status` | body | — | — | ➖ Deprecated by Asana (see Asana API reference; the SDK comment does not mark it); cyber-asana never sends it: use status updates |
@@ -697,7 +641,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `createProject` | `workspace` | body | `--workspace-gid (or ASANA_WORKSPACE_GID)` | `workspace_gid` | ✅ |
 | `deleteProject` | `project_gid` | path | `<gid>` | `project_gid` | ✅ |
 | `duplicateProject` | `project_gid` | path | `<gid>` | `project_gid` | ✅ |
-| `duplicateProject` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) gateway sends no opt_fields; CLI has no flag; MCP has none |
+| `duplicateProject` | `opt_fields` | query | — | — | ➖ The default path polls the job and returns the polled job, replacing the response opt_fields would shape. |
 | `duplicateProject` | `include` | body | `--include` | `include` | ✅ comma list joined for Asana |
 | `duplicateProject` | `name` | body | `--name` | `name` | ✅ |
 | `duplicateProject` | `schedule_dates` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
@@ -730,7 +674,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `removeCustomFieldSettingForProject` | `project_gid` | path | `<project-gid>` | `project_gid` | ✅ |
 | `removeCustomFieldSettingForProject` | `custom_field` | body | `<field-gid>` | `custom_field_gid` | ✅ |
 | `removeFollowersForProject` | `project_gid` | path | `<project-gid>` | `project_gid` | ✅ |
-| `removeFollowersForProject` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) gateway passes an empty opts object; CLI has no flag; MCP has none |
+| `removeFollowersForProject` | `opt_fields` | query | — | — | ➖ The CLI and MCP discard the response and print only an acknowledgement, so the caller never sees its fields. |
 | `removeFollowersForProject` | `followers` | body | `<follower-gids...>` | `follower_gids` | ✅ |
 | `searchProjectsForWorkspace` | `workspace_gid` | path | `--workspace-gid (or ASANA_WORKSPACE_GID)` | `workspace_gid` | ✅ |
 | `searchProjectsForWorkspace` | `completed` | query | `--completed / --no-completed` | `completed` | ✅ |
@@ -763,7 +707,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `searchProjectsForWorkspace` | `teams.any` | query | `--team` | `teams_any` | ✅ |
 | `searchProjectsForWorkspace` | `text` | query | `[text] positional` | `text` | ✅ |
 | `updateProject` | `project_gid` | path | `<gid>` | `project_gid` | ✅ |
-| `updateProject` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) gateway passes an empty opts object; CLI has no flag; MCP has none |
+| `updateProject` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `updateProject` | `archived` | body | `--archived / --no-archived` | `archived` | ✅ |
 | `updateProject` | `color` | body | `--color` | `color` | ✅ |
 | `updateProject` | `current_status` | body | — | — | ➖ Deprecated by Asana (see Asana API reference; the SDK comment does not mark it); cyber-asana never sends it: use status updates |
@@ -793,7 +737,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 
 | Endpoint | Parameter | In | CLI | MCP | Status |
 | --- | --- | --- | --- | --- | --- |
-| `createRecord` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
+| `createRecord` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `createRecord` | `custom_fields` | body | `--field <gid=value> / --fields-json` | `custom_fields` | ✅ |
 | `createRecord` | `default_access_level` | body | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Not sent on create: createRecord body carries only name, table, custom_fields and unique_fingerprint; neither CLI nor MCP exposes it on create (update has it) |
 | `createRecord` | `name` | body | `<name>` | `name` | ✅ |
@@ -826,7 +770,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `searchRecordsForWorkspace` | `teams.any` | query | `--team` | `teams_any` | ✅ |
 | `searchRecordsForWorkspace` | `text` | query | `--text` | `text` | ✅ |
 | `updateRecord` | `record_gid` | path | `<gid>` | `record_gid` | ✅ |
-| `updateRecord` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
+| `updateRecord` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `updateRecord` | `custom_fields` | body | `--field <gid=value> / --fields-json` | `custom_fields` | ✅ |
 | `updateRecord` | `default_access_level` | body | `--default-access-level` | `default_access_level` | ✅ |
 | `updateRecord` | `name` | body | `--name` | `name` | ✅ |
@@ -848,7 +792,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `addTaskForSection` | `insert_before` | body | `--insert-before` | `insert_before` | ✅ |
 | `addTaskForSection` | `task` | body | `<task-gid>` | `task_gid` | ✅ |
 | `createSectionForProject` | `project_gid` | path | `--project-gid` | `project_gid` | ✅ |
-| `createSectionForProject` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) gateway sends no opt_fields; CLI has no flag; MCP has none |
+| `createSectionForProject` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `createSectionForProject` | `insert_after` | body | `--insert-after` | `insert_after` | ✅ |
 | `createSectionForProject` | `insert_before` | body | `--insert-before` | `insert_before` | ✅ |
 | `createSectionForProject` | `name` | body | `<name>` | `name` | ✅ |
@@ -864,7 +808,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `insertSectionForProject` | `before_section` | body | `--insert-before` | `insert_before` | ✅ |
 | `insertSectionForProject` | `section` | body | `<gid>` | `section_gid` | ✅ |
 | `updateSection` | `section_gid` | path | `<gid>` | `section_gid` | ✅ |
-| `updateSection` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) gateway sends no opt_fields; CLI has no flag; MCP has none |
+| `updateSection` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `updateSection` | `insert_after` | body | — | — | ➖ Asana documents name as the only field updateSection changes; the insert fields come from the SectionRequest schema it shares with createSection. Reposition a section with section move (insertSectionForProject) |
 | `updateSection` | `insert_before` | body | — | — | ➖ Asana documents name as the only field updateSection changes; the insert fields come from the SectionRequest schema it shares with createSection. Reposition a section with section move (insertSectionForProject) |
 | `updateSection` | `name` | body | `--name` | `name` | ✅ |
@@ -873,7 +817,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 
 | Endpoint | Parameter | In | CLI | MCP | Status |
 | --- | --- | --- | --- | --- | --- |
-| `createStatusForObject` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object |
+| `createStatusForObject` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `createStatusForObject` | `html_text` | body | `--html-text` | `html_text` | ✅ |
 | `createStatusForObject` | `parent` | body | `--parent-gid (or --parent)` | `parent_gid` | ✅ |
 | `createStatusForObject` | `status_type` | body | `--status-type` | `status_type` | ✅ |
@@ -893,19 +837,19 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | Endpoint | Parameter | In | CLI | MCP | Status |
 | --- | --- | --- | --- | --- | --- |
 | `createStoryForGoal` | `goal_gid` | path | `<goal-gid>` | `goal_gid` | ✅ |
-| `createStoryForGoal` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
+| `createStoryForGoal` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `createStoryForGoal` | `html_text` | body | `--html-text` | `html_text` | ✅ |
 | `createStoryForGoal` | `is_pinned` | body | `--pin` | `is_pinned` | ✅ |
 | `createStoryForGoal` | `sticker_name` | body | `--sticker` | `sticker_name` | ✅ |
 | `createStoryForGoal` | `text` | body | `[text]` | `text` | ✅ |
 | `createStoryForRecord` | `record_gid` | path | `<record-gid>` | `record_gid` | ✅ |
-| `createStoryForRecord` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
+| `createStoryForRecord` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `createStoryForRecord` | `html_text` | body | `--html-text` | `html_text` | ✅ |
 | `createStoryForRecord` | `is_pinned` | body | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: RecordStoryFields carries only text and html_text |
 | `createStoryForRecord` | `sticker_name` | body | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: RecordStoryFields carries only text and html_text |
 | `createStoryForRecord` | `text` | body | `--text` | `text` | ✅ |
 | `createStoryForTask` | `task_gid` | path | `--task-gid` | `task_gid` | ✅ |
-| `createStoryForTask` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
+| `createStoryForTask` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `createStoryForTask` | `html_text` | body | `--html-text` | `html_text` | ✅ |
 | `createStoryForTask` | `is_pinned` | body | `--pin` | `is_pinned` | ✅ |
 | `createStoryForTask` | `parent_comment` | body | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: StoryCreateFields has no parent_comment |
@@ -936,7 +880,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `getStory` | `story_gid` | path | `<gid>` | `story_gid` | ✅ |
 | `getStory` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `updateStory` | `story_gid` | path | `<gid>` | `story_gid` | ✅ |
-| `updateStory` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
+| `updateStory` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `updateStory` | `html_text` | body | `--html-text` | `html_text` | ✅ |
 | `updateStory` | `is_pinned` | body | `--pin / --unpin` | `is_pinned` | ✅ |
 | `updateStory` | `sticker_name` | body | `--sticker` | `sticker_name` | ✅ |
@@ -947,12 +891,12 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | Endpoint | Parameter | In | CLI | MCP | Status |
 | --- | --- | --- | --- | --- | --- |
 | `addCustomFieldSettingForTable` | `table_gid` | path | `<gid>` | `table_gid` | ✅ |
-| `addCustomFieldSettingForTable` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
+| `addCustomFieldSettingForTable` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `addCustomFieldSettingForTable` | `custom_field` | body | `<custom-field-gid>` | `custom_field_gid` | ✅ |
 | `addCustomFieldSettingForTable` | `insert_after` | body | `--insert-after` | `insert_after` | ✅ |
 | `addCustomFieldSettingForTable` | `insert_before` | body | `--insert-before` | `insert_before` | ✅ |
 | `addCustomFieldSettingForTable` | `is_important` | body | `--important` | `is_important` | ✅ |
-| `createTable` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
+| `createTable` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `createTable` | `name` | body | `<name>` | `name` | ✅ |
 | `createTable` | `workspace` | body | `--workspace-gid (or ASANA_WORKSPACE_GID)` | `workspace_gid` | ✅ |
 | `deleteTable` | `table_gid` | path | `<gid>` | `table_gid` | ✅ |
@@ -969,7 +913,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `removeCustomFieldSettingForTable` | `table_gid` | path | `<gid>` | `table_gid` | ✅ |
 | `removeCustomFieldSettingForTable` | `custom_field` | body | `<custom-field-gid>` | `custom_field_gid` | ✅ |
 | `updateTable` | `table_gid` | path | `<gid>` | `table_gid` | ✅ |
-| `updateTable` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
+| `updateTable` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `updateTable` | `default_access_level` | body | `--default-access-level` | `default_access_level` | ✅ |
 | `updateTable` | `name` | body | `--name` | `name` | ✅ |
 
@@ -978,7 +922,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | Endpoint | Parameter | In | CLI | MCP | Status |
 | --- | --- | --- | --- | --- | --- |
 | `createTagForWorkspace` | `workspace_gid` | path | `--workspace-gid (or ASANA_WORKSPACE_GID)` | `workspace_gid` | ✅ |
-| `createTagForWorkspace` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object |
+| `createTagForWorkspace` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `createTagForWorkspace` | `color` | body | `--color` | `color` | ✅ |
 | `createTagForWorkspace` | `followers` | body | `--follower <gid[,gid...]>` | `follower_gids` | ✅ |
 | `createTagForWorkspace` | `name` | body | `<name>` | `name` | ✅ |
@@ -995,7 +939,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `getTagsForWorkspace` | `offset` | query | `--offset` | `offset` | ✅ |
 | `getTagsForWorkspace` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `updateTag` | `tag_gid` | path | `<gid>` | `tag_gid` | ✅ |
-| `updateTag` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object |
+| `updateTag` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `updateTag` | `color` | body | `--color` | `color` | ✅ sent as null by --clear-color / clear_color |
 | `updateTag` | `name` | body | `--name` | `name` | ✅ |
 | `updateTag` | `notes` | body | `--notes` | `notes` | ✅ |
@@ -1011,7 +955,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `getTaskTemplates` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `getTaskTemplates` | `project` | query | `--project-gid` | `project_gid` | ✅ |
 | `instantiateTask` | `task_template_gid` | path | `<gid>` | `task_template_gid` | ✅ |
-| `instantiateTask` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) Neither CLI nor MCP sends it: the gateway passes only the body |
+| `instantiateTask` | `opt_fields` | query | — | — | ➖ The default path polls the job and returns the polled job, replacing the response opt_fields would shape. |
 | `instantiateTask` | `name` | body | `--name` | `name` | ✅ |
 
 ## Tasks
@@ -1023,7 +967,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `addDependentsForTask` | `task_gid` | path | `<task-gid>` | `task_gid` | ✅ |
 | `addDependentsForTask` | `dependents` | body | `<dep-gids...>` | `dependent_gids` | ✅ |
 | `addFollowersForTask` | `task_gid` | path | `<task-gid>` | `task_gid` | ✅ |
-| `addFollowersForTask` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) Gateway sends no opt_fields; no CLI flag and no MCP field |
+| `addFollowersForTask` | `opt_fields` | query | — | — | ➖ The CLI and MCP discard the returned task and print their own acknowledgement, so the caller never sees its fields. |
 | `addFollowersForTask` | `followers` | body | `<follower-gids...>` | `follower_gids` | ✅ |
 | `addProjectForTask` | `task_gid` | path | `<task-gid>` | `task_gid` | ✅ |
 | `addProjectForTask` | `insert_after` | body | `--insert-after` | `insert_after` | ✅ |
@@ -1033,7 +977,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `addTagForTask` | `task_gid` | path | `<task-gid>` | `task_gid` | ✅ |
 | `addTagForTask` | `tag` | body | `<tag-gid>` | `tag_gid` | ✅ |
 | `createSubtaskForTask` | `task_gid` | path | `<task-gid>` | `task_gid` | ✅ |
-| `createSubtaskForTask` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) Gateway sends no opt_fields; no CLI flag and no MCP field |
+| `createSubtaskForTask` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `createSubtaskForTask` | `approval_status` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
 | `createSubtaskForTask` | `assigned_by` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
 | `createSubtaskForTask` | `assignee` | body | `--assignee-gid / --assignee` | `assignee_gid / assignee` | ✅ |
@@ -1060,7 +1004,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `createSubtaskForTask` | `start_on` | body | `--start-on` | `start_on` | ✅ |
 | `createSubtaskForTask` | `tags` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Subtask create has no flag and no MCP field for tags (task create has both) |
 | `createSubtaskForTask` | `workspace` | body | — | — | ➖ Asana derives the workspace from the parent task in the path; the gateway sends none |
-| `createTask` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) Gateway sends no opt_fields; no CLI flag and no MCP field |
+| `createTask` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `createTask` | `approval_status` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
 | `createTask` | `assigned_by` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
 | `createTask` | `assignee` | body | `--assignee-gid / --assignee` | `assignee_gid / assignee` | ✅ |
@@ -1089,7 +1033,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `createTask` | `workspace` | body | `--workspace-gid (or ASANA_WORKSPACE_GID)` | `workspace_gid` | ✅ |
 | `deleteTask` | `task_gid` | path | `<gid>` | `task_gid` | ✅ |
 | `duplicateTask` | `task_gid` | path | `<task-gid>` | `task_gid` | ✅ |
-| `duplicateTask` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) Gateway sends no opt_fields; no CLI flag and no MCP field |
+| `duplicateTask` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `duplicateTask` | `include` | body | `--include` | `include` | ✅ |
 | `duplicateTask` | `name` | body | `--name` | `name` | ✅ |
 | `getDependenciesForTask` | `task_gid` | path | `<task-gid>` | `task_gid` | ✅ |
@@ -1140,7 +1084,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `removeDependentsForTask` | `task_gid` | path | `<task-gid>` | `task_gid` | ✅ |
 | `removeDependentsForTask` | `dependents` | body | `<dep-gids...>` | `dependent_gids` | ✅ |
 | `removeFollowerForTask` | `task_gid` | path | `<task-gid>` | `task_gid` | ✅ |
-| `removeFollowerForTask` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) Gateway sends no opt_fields; no CLI flag and no MCP field |
+| `removeFollowerForTask` | `opt_fields` | query | — | — | ➖ The CLI and MCP discard the returned task and print their own acknowledgement, so the caller never sees its fields. |
 | `removeFollowerForTask` | `followers` | body | `<follower-gids...>` | `follower_gids` | ✅ |
 | `removeProjectForTask` | `task_gid` | path | `<task-gid>` | `task_gid` | ✅ |
 | `removeProjectForTask` | `project` | body | `<project-gid>` | `project_gid` | ✅ |
@@ -1203,12 +1147,12 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `searchTasksForWorkspace` | `teams.any` | query | `--team` | `teams_any` | ✅ |
 | `searchTasksForWorkspace` | `text` | query | `[text]` | `text` | ✅ |
 | `setParentForTask` | `task_gid` | path | `<gid>` | `task_gid` | ✅ |
-| `setParentForTask` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) Gateway sends no opt_fields; no CLI flag and no MCP field |
+| `setParentForTask` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `setParentForTask` | `insert_after` | body | `--insert-after` | `insert_after` | ✅ |
 | `setParentForTask` | `insert_before` | body | `--insert-before` | `insert_before` | ✅ |
 | `setParentForTask` | `parent` | body | `--parent-gid (or --parent) / --clear-parent` | `parent_gid / clear_parent` | ✅ Sent as null by --clear-parent / clear_parent |
 | `updateTask` | `task_gid` | path | `<gid>` | `task_gid` | ✅ |
-| `updateTask` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) Gateway sends no opt_fields; no CLI flag and no MCP field |
+| `updateTask` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `updateTask` | `approval_status` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
 | `updateTask` | `assigned_by` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
 | `updateTask` | `assignee` | body | `--assignee-gid / --assignee / --clear-assignee` | `assignee_gid / assignee / clear_assignee` | ✅ Sent as null by --clear-assignee |
@@ -1275,7 +1219,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | Endpoint | Parameter | In | CLI | MCP | Status |
 | --- | --- | --- | --- | --- | --- |
 | `createTimeTrackingEntry` | `task_gid` | path | `<task-gid>` | `task_gid` | ✅ |
-| `createTimeTrackingEntry` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
+| `createTimeTrackingEntry` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `createTimeTrackingEntry` | `assignee` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `createTimeTrackingEntry` | `attributable_to` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `createTimeTrackingEntry` | `billable_status` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
@@ -1303,7 +1247,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `getTimeTrackingEntry` | `time_tracking_entry_gid` | path | `<gid>` | `time_entry_gid` | ✅ |
 | `getTimeTrackingEntry` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `updateTimeTrackingEntry` | `time_tracking_entry_gid` | path | `<gid>` | `time_entry_gid` | ✅ |
-| `updateTimeTrackingEntry` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
+| `updateTimeTrackingEntry` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `updateTimeTrackingEntry` | `assignee` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `updateTimeTrackingEntry` | `attributable_to` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `updateTimeTrackingEntry` | `billable_status` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
@@ -1328,7 +1272,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | Endpoint | Parameter | In | CLI | MCP | Status |
 | --- | --- | --- | --- | --- | --- |
 | `getUserTaskListForUser` | `user_gid` | path | — | — | ➖ Always "me": the command lists the authenticated user's My Tasks |
-| `getUserTaskListForUser` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) Gateway passes no options; no CLI flag and no MCP field for this lookup |
+| `getUserTaskListForUser` | `opt_fields` | query | — | — | ➖ An internal lookup of the user task list GID; the command returns the tasks list, where --opt-fields already applies. |
 | `getUserTaskListForUser` | `workspace` | query | `--workspace-gid (or ASANA_WORKSPACE_GID)` | `workspace_gid` | ✅ |
 
 ## Users

@@ -246,6 +246,7 @@ export function recordCommand(api?: RecordApi | (() => RecordApi)) {
 		addGidOption(cmd.command('create <name>').description('Create a record in a table'), 'table', 'Table GID'),
 	)
 		.option('--fingerprint <value>', 'Unique fingerprint: a duplicate in the same table fails with 409')
+		.option('--opt-fields <fields>', 'Comma-separated optional Asana fields to include')
 		.action(
 			async (
 				name: string,
@@ -255,13 +256,19 @@ export function recordCommand(api?: RecordApi | (() => RecordApi)) {
 					field?: Record<string, string>
 					fieldsJson?: string
 					fingerprint?: string
+					optFields?: string
 				},
 			) => {
 				const customFields = customFieldsFromCli(opts)
-				const data = await resolveRecordApi(api).createRecord(requiredGid(opts, 'table', 'Table GID'), name, {
-					...(customFields && { customFields }),
-					...(opts.fingerprint && { uniqueFingerprint: opts.fingerprint }),
-				})
+				const data = await resolveRecordApi(api).createRecord(
+					requiredGid(opts, 'table', 'Table GID'),
+					name,
+					{
+						...(customFields && { customFields }),
+						...(opts.fingerprint && { uniqueFingerprint: opts.fingerprint }),
+					},
+					readOptionsFromCli(opts),
+				)
 				output(data, () => fmtRecord(data))
 			},
 		)
@@ -269,10 +276,17 @@ export function recordCommand(api?: RecordApi | (() => RecordApi)) {
 	addFieldOptions(cmd.command('update <gid>').description('Update a record'))
 		.option('--name <name>', 'New name')
 		.option('--default-access-level <level>', 'Default access for new members: admin, editor, commenter, viewer')
+		.option('--opt-fields <fields>', 'Comma-separated optional Asana fields to include')
 		.action(
 			async (
 				gid: string,
-				opts: { name?: string; field?: Record<string, string>; fieldsJson?: string; defaultAccessLevel?: string },
+				opts: {
+					name?: string
+					field?: Record<string, string>
+					fieldsJson?: string
+					defaultAccessLevel?: string
+					optFields?: string
+				},
 			) => {
 				const customFields = customFieldsFromCli(opts)
 				const fields: UpdateRecordFields = {
@@ -287,7 +301,7 @@ export function recordCommand(api?: RecordApi | (() => RecordApi)) {
 						'nothing to update: pass --name, --field, --fields-json, or --default-access-level',
 					)
 				}
-				const data = await resolveRecordApi(api).updateRecord(gid, fields)
+				const data = await resolveRecordApi(api).updateRecord(gid, fields, readOptionsFromCli(opts))
 				output(data, () => fmtRecord(data))
 			},
 		)
@@ -355,12 +369,17 @@ export function recordCommand(api?: RecordApi | (() => RecordApi)) {
 		.description('Add a comment to a record (Asana allows only comments here)')
 		.option('--text <text>', 'Comment text')
 		.option('--html-text <html>', 'Comment as Asana rich text HTML')
-		.action(async (recordGid: string, opts: { text?: string; htmlText?: string }) => {
+		.option('--opt-fields <fields>', 'Comma-separated optional Asana fields to include')
+		.action(async (recordGid: string, opts: { text?: string; htmlText?: string; optFields?: string }) => {
 			if (!opts.text && !opts.htmlText) throw new InvalidArgumentError('pass --text or --html-text')
-			const data = await resolveRecordApi(api).createRecordStory(recordGid, {
-				...(opts.text && { text: opts.text }),
-				...(opts.htmlText && { html_text: opts.htmlText }),
-			})
+			const data = await resolveRecordApi(api).createRecordStory(
+				recordGid,
+				{
+					...(opts.text && { text: opts.text }),
+					...(opts.htmlText && { html_text: opts.htmlText }),
+				},
+				readOptionsFromCli(opts),
+			)
 			output(data, () => console.log(`Added a comment to record ${recordGid} (story ${data.gid})`))
 		})
 

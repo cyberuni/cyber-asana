@@ -89,21 +89,23 @@ export function registerStatusTools(server: McpServer, api?: StatusApi | (() => 
 			text: z.string().optional().describe('Status update body as plain text'),
 			html_text: z.string().optional().describe('Status update body as Asana rich text HTML'),
 			title: z.string().optional().describe('Status update title'),
+			...readParams,
 		},
-		async ({ parent_gid, status_type, parent_type, text, html_text, title }) => {
+		async ({ parent_gid, status_type, parent_type, text, html_text, title, ...params }) => {
 			const fields = {
 				status_type,
 				...(text !== undefined && { text }),
 				...(html_text !== undefined && { html_text }),
 				...(title !== undefined && { title }),
 			}
+			const createOpts = { ...(parent_type && { parentType: parent_type }), ...readOptions(params) }
 			return {
 				content: [
 					{
 						type: 'text',
 						text: JSON.stringify(
-							await (parent_type
-								? resolveStatusApi(api).createStatus(parent_gid, fields, { parentType: parent_type })
+							await (Object.keys(createOpts).length > 0
+								? resolveStatusApi(api).createStatus(parent_gid, fields, createOpts)
 								: resolveStatusApi(api).createStatus(parent_gid, fields)),
 						),
 					},

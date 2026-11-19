@@ -309,13 +309,18 @@ describe('projects/cli', () => {
 			{ from: 'node' },
 		)
 
-		expect(createProjectMock).toHaveBeenCalledWith('ws1', 'Launch', {
-			html_notes: '<body>Brief</body>',
-			privacy_setting: 'private',
-			default_view: 'board',
-			due_on: '2026-06-10',
-			start_on: '2026-06-01',
-		})
+		expect(createProjectMock).toHaveBeenCalledWith(
+			'ws1',
+			'Launch',
+			{
+				html_notes: '<body>Brief</body>',
+				privacy_setting: 'private',
+				default_view: 'board',
+				due_on: '2026-06-10',
+				start_on: '2026-06-01',
+			},
+			undefined,
+		)
 	})
 
 	it('project update maps clear start flag to start_on null', async () => {
@@ -328,10 +333,14 @@ describe('projects/cli', () => {
 			{ from: 'node' },
 		)
 
-		expect(updateProjectMock).toHaveBeenCalledWith('123', {
-			due_on: '2026-06-10',
-			start_on: null,
-		})
+		expect(updateProjectMock).toHaveBeenCalledWith(
+			'123',
+			{
+				due_on: '2026-06-10',
+				start_on: null,
+			},
+			undefined,
+		)
 	})
 
 	it('project command can use injected dependencies', async () => {
@@ -358,7 +367,7 @@ describe('projects/cli', () => {
 			from: 'node',
 		})
 
-		expect(injectedCreateProject).toHaveBeenCalledWith('ws1', 'Launch', {})
+		expect(injectedCreateProject).toHaveBeenCalledWith('ws1', 'Launch', {}, undefined)
 	})
 
 	it('project list forwards --archived and --no-archived as the archived filter', async () => {
@@ -451,12 +460,12 @@ describe('projects/cli', () => {
 		await new Command()
 			.addCommand(projectCommand())
 			.parseAsync(['node', 'test', 'project', 'update', '123', '--archived'], { from: 'node' })
-		expect(updateProjectMock).toHaveBeenLastCalledWith('123', { archived: true })
+		expect(updateProjectMock).toHaveBeenLastCalledWith('123', { archived: true }, undefined)
 
 		await new Command()
 			.addCommand(projectCommand())
 			.parseAsync(['node', 'test', 'project', 'update', '123', '--no-archived'], { from: 'node' })
-		expect(updateProjectMock).toHaveBeenLastCalledWith('123', { archived: false })
+		expect(updateProjectMock).toHaveBeenLastCalledWith('123', { archived: false }, undefined)
 
 		await new Command()
 			.addCommand(projectCommand())
@@ -474,7 +483,7 @@ describe('projects/cli', () => {
 				from: 'node',
 			})
 
-		expect(createProjectMock).toHaveBeenCalledWith('ws1', 'Launch', { archived: true })
+		expect(createProjectMock).toHaveBeenCalledWith('ws1', 'Launch', { archived: true }, undefined)
 	})
 
 	it('project create and update carry the owner', async () => {
@@ -487,12 +496,12 @@ describe('projects/cli', () => {
 			.parseAsync(['node', 'test', 'project', 'create', 'Launch', '--workspace-gid', 'ws1', '--owner', 'me'], {
 				from: 'node',
 			})
-		expect(createProjectMock).toHaveBeenCalledWith('ws1', 'Launch', { owner: 'me' })
+		expect(createProjectMock).toHaveBeenCalledWith('ws1', 'Launch', { owner: 'me' }, undefined)
 
 		await new Command()
 			.addCommand(projectCommand())
 			.parseAsync(['node', 'test', 'project', 'update', '123', '--owner', '12345'], { from: 'node' })
-		expect(updateProjectMock).toHaveBeenLastCalledWith('123', { owner: '12345' })
+		expect(updateProjectMock).toHaveBeenLastCalledWith('123', { owner: '12345' }, undefined)
 	})
 
 	it('project update maps clear owner to owner null', async () => {
@@ -503,7 +512,7 @@ describe('projects/cli', () => {
 			.addCommand(projectCommand())
 			.parseAsync(['node', 'test', 'project', 'update', '123', '--clear-owner'], { from: 'node' })
 
-		expect(updateProjectMock).toHaveBeenLastCalledWith('123', { owner: null })
+		expect(updateProjectMock).toHaveBeenLastCalledWith('123', { owner: null }, undefined)
 	})
 
 	it('project create and update carry the default access level', async () => {
@@ -517,11 +526,11 @@ describe('projects/cli', () => {
 				['node', 'test', 'project', 'create', 'Launch', '--workspace-gid', 'ws1', '--default-access-level', 'editor'],
 				{ from: 'node' },
 			)
-		expect(createProjectMock).toHaveBeenCalledWith('ws1', 'Launch', { default_access_level: 'editor' })
+		expect(createProjectMock).toHaveBeenCalledWith('ws1', 'Launch', { default_access_level: 'editor' }, undefined)
 
 		await new Command()
 			.addCommand(projectCommand())
 			.parseAsync(['node', 'test', 'project', 'update', '123', '--default-access-level', 'viewer'], { from: 'node' })
-		expect(updateProjectMock).toHaveBeenLastCalledWith('123', { default_access_level: 'viewer' })
+		expect(updateProjectMock).toHaveBeenLastCalledWith('123', { default_access_level: 'viewer' }, undefined)
 	})
 })

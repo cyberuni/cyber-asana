@@ -54,8 +54,9 @@ export function registerTableTools(server: McpServer, api?: TableApi | (() => Ta
 	server.tool(
 		'asana_table_create',
 		'Create an Asana table in a workspace',
-		{ workspace_gid: z.string().describe('Workspace GID'), name: z.string().describe('Table name') },
-		async ({ workspace_gid, name }) => json(await resolveTableApi(api).createTable(workspace_gid, name)),
+		{ workspace_gid: z.string().describe('Workspace GID'), name: z.string().describe('Table name'), ...readParams },
+		async ({ workspace_gid, name, ...params }) =>
+			json(await resolveTableApi(api).createTable(workspace_gid, name, readOptions(params))),
 	)
 
 	server.tool(
@@ -65,13 +66,18 @@ export function registerTableTools(server: McpServer, api?: TableApi | (() => Ta
 			table_gid: z.string().describe('Table GID'),
 			name: z.string().optional().describe('New name'),
 			default_access_level: accessLevel.optional().describe('Default access level for new members'),
+			...readParams,
 		},
-		async ({ table_gid, name, default_access_level }) =>
+		async ({ table_gid, name, default_access_level, ...params }) =>
 			json(
-				await resolveTableApi(api).updateTable(table_gid, {
-					...(name !== undefined && { name }),
-					...(default_access_level !== undefined && { default_access_level }),
-				}),
+				await resolveTableApi(api).updateTable(
+					table_gid,
+					{
+						...(name !== undefined && { name }),
+						...(default_access_level !== undefined && { default_access_level }),
+					},
+					readOptions(params),
+				),
 			),
 	)
 
@@ -100,14 +106,20 @@ export function registerTableTools(server: McpServer, api?: TableApi | (() => Ta
 			is_important: z.boolean().optional().describe('Mark the field important to the table'),
 			insert_before: z.string().optional().describe('Custom field setting GID to place the field before'),
 			insert_after: z.string().optional().describe('Custom field setting GID to place the field after'),
+			...readParams,
 		},
-		async ({ table_gid, custom_field_gid, is_important, insert_before, insert_after }) =>
+		async ({ table_gid, custom_field_gid, is_important, insert_before, insert_after, ...params }) =>
 			json(
-				await resolveTableApi(api).addTableField(table_gid, custom_field_gid, {
-					...(is_important !== undefined && { isImportant: is_important }),
-					...(insert_before !== undefined && { insertBefore: insert_before }),
-					...(insert_after !== undefined && { insertAfter: insert_after }),
-				}),
+				await resolveTableApi(api).addTableField(
+					table_gid,
+					custom_field_gid,
+					{
+						...(is_important !== undefined && { isImportant: is_important }),
+						...(insert_before !== undefined && { insertBefore: insert_before }),
+						...(insert_after !== undefined && { insertAfter: insert_after }),
+					},
+					readOptions(params),
+				),
 			),
 	)
 

@@ -92,16 +92,21 @@ describe('allocations/cli', () => {
 			'20',
 		)
 
-		expect(api.createAllocation).toHaveBeenNthCalledWith(1, {
-			assignee: 'u1',
-			parent: 'p1',
-			start_date: '2026-01-05',
-			end_date: '2026-01-18',
-			effort: { type: 'percent', value: 50 },
-		})
+		expect(api.createAllocation).toHaveBeenNthCalledWith(
+			1,
+			{
+				assignee: 'u1',
+				parent: 'p1',
+				start_date: '2026-01-05',
+				end_date: '2026-01-18',
+				effort: { type: 'percent', value: 50 },
+			},
+			undefined,
+		)
 		expect(api.createAllocation).toHaveBeenNthCalledWith(
 			2,
 			expect.objectContaining({ effort: { type: 'hours', value: 20 } }),
+			undefined,
 		)
 	})
 
@@ -130,10 +135,14 @@ describe('allocations/cli', () => {
 		vi.spyOn(console, 'log').mockImplementation(() => {})
 		const api = apiStub()
 		await run(api, 'update', 'a1', '--end-date', '2026-01-25', '--percent', '75')
-		expect(api.updateAllocation).toHaveBeenCalledWith('a1', {
-			end_date: '2026-01-25',
-			effort: { type: 'percent', value: 75 },
-		})
+		expect(api.updateAllocation).toHaveBeenCalledWith(
+			'a1',
+			{
+				end_date: '2026-01-25',
+				effort: { type: 'percent', value: 75 },
+			},
+			undefined,
+		)
 	})
 
 	it('delete is idempotent: an allocation already gone is not an error', async () => {

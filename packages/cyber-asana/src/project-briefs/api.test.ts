@@ -27,8 +27,8 @@ describe('project-briefs/api', () => {
 		await api.deleteProjectBrief('b1')
 
 		expect(g.getProjectBrief).toHaveBeenCalledWith('b1', { optFields: 'gid' })
-		expect(g.createProjectBrief).toHaveBeenCalledWith('p1', { title: 'T', text: 'plain' })
-		expect(g.updateProjectBrief).toHaveBeenCalledWith('b1', { title: 'U' })
+		expect(g.createProjectBrief).toHaveBeenCalledWith('p1', { title: 'T', text: 'plain' }, undefined)
+		expect(g.updateProjectBrief).toHaveBeenCalledWith('b1', { title: 'U' }, undefined)
 		expect(g.deleteProjectBrief).toHaveBeenCalledWith('b1')
 	})
 

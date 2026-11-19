@@ -117,31 +117,36 @@ export function tableCommand(api?: TableApi | (() => TableApi)) {
 		},
 	)
 
-	addGidOption(cmd.command('create <name>').description('Create a table'), 'workspace', 'Workspace GID').action(
-		async (name: string, opts: { workspace?: string; workspaceGid?: string }) => {
-			const data = await resolveTableApi(api).createTable(requiredGid(opts, 'workspace', 'Workspace GID'), name)
-			output(data, () => fmtTable(data))
-		},
-	)
+	addReadOptions(
+		addGidOption(cmd.command('create <name>').description('Create a table'), 'workspace', 'Workspace GID'),
+	).action(async (name: string, opts: { workspace?: string; workspaceGid?: string; optFields?: string }) => {
+		const data = await resolveTableApi(api).createTable(
+			requiredGid(opts, 'workspace', 'Workspace GID'),
+			name,
+			readOptionsFromCli(opts),
+		)
+		output(data, () => fmtTable(data))
+	})
 
-	cmd
-		.command('update <gid>')
-		.description('Update a table')
-		.option('--name <name>', 'New name')
-		.option('--default-access-level <level>', 'Default access for new members: admin, editor, commenter, viewer')
-		.action(async (gid: string, opts: { name?: string; defaultAccessLevel?: string }) => {
-			const fields = {
-				...(opts.name !== undefined && { name: opts.name }),
-				...(opts.defaultAccessLevel !== undefined && {
-					default_access_level: parseAccessLevel(opts.defaultAccessLevel),
-				}),
-			}
-			if (Object.keys(fields).length === 0) {
-				throw new InvalidArgumentError('nothing to update: pass --name or --default-access-level')
-			}
-			const data = await resolveTableApi(api).updateTable(gid, fields)
-			output(data, () => fmtTable(data))
-		})
+	addReadOptions(
+		cmd
+			.command('update <gid>')
+			.description('Update a table')
+			.option('--name <name>', 'New name')
+			.option('--default-access-level <level>', 'Default access for new members: admin, editor, commenter, viewer'),
+	).action(async (gid: string, opts: { name?: string; defaultAccessLevel?: string; optFields?: string }) => {
+		const fields = {
+			...(opts.name !== undefined && { name: opts.name }),
+			...(opts.defaultAccessLevel !== undefined && {
+				default_access_level: parseAccessLevel(opts.defaultAccessLevel),
+			}),
+		}
+		if (Object.keys(fields).length === 0) {
+			throw new InvalidArgumentError('nothing to update: pass --name or --default-access-level')
+		}
+		const data = await resolveTableApi(api).updateTable(gid, fields, readOptionsFromCli(opts))
+		output(data, () => fmtTable(data))
+	})
 
 	cmd
 		.command('delete <gid>')
@@ -174,29 +179,35 @@ export function tableCommand(api?: TableApi | (() => TableApi)) {
 		})
 	})
 
-	cmd
-		.command('add-field <gid> <custom-field-gid>')
-		.description('Add a workspace-global custom field to a table (a table holds up to 150)')
-		.option('--important', 'Mark the field important to the table')
-		.option('--insert-before <setting-gid>', 'Place before this custom field setting')
-		.option('--insert-after <setting-gid>', 'Place after this custom field setting')
-		.action(
-			async (
-				gid: string,
-				customFieldGid: string,
-				opts: { important?: boolean; insertBefore?: string; insertAfter?: string },
-			) => {
-				if (opts.insertBefore && opts.insertAfter) {
-					throw new InvalidArgumentError('--insert-before and --insert-after cannot be used together')
-				}
-				const data = await resolveTableApi(api).addTableField(gid, customFieldGid, {
+	addReadOptions(
+		cmd
+			.command('add-field <gid> <custom-field-gid>')
+			.description('Add a workspace-global custom field to a table (a table holds up to 150)')
+			.option('--important', 'Mark the field important to the table')
+			.option('--insert-before <setting-gid>', 'Place before this custom field setting')
+			.option('--insert-after <setting-gid>', 'Place after this custom field setting'),
+	).action(
+		async (
+			gid: string,
+			customFieldGid: string,
+			opts: { important?: boolean; insertBefore?: string; insertAfter?: string; optFields?: string },
+		) => {
+			if (opts.insertBefore && opts.insertAfter) {
+				throw new InvalidArgumentError('--insert-before and --insert-after cannot be used together')
+			}
+			const data = await resolveTableApi(api).addTableField(
+				gid,
+				customFieldGid,
+				{
 					...(opts.important && { isImportant: true }),
 					...(opts.insertBefore && { insertBefore: opts.insertBefore }),
 					...(opts.insertAfter && { insertAfter: opts.insertAfter }),
-				})
-				output(data, () => console.log(`Added custom field ${customFieldGid} to table ${gid}`))
-			},
-		)
+				},
+				readOptionsFromCli(opts),
+			)
+			output(data, () => console.log(`Added custom field ${customFieldGid} to table ${gid}`))
+		},
+	)
 
 	cmd
 		.command('remove-field <gid> <custom-field-gid>')

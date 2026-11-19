@@ -29,12 +29,17 @@ export async function getProjectTaskCounts(projectGid: string, opts?: { optField
 	return defaultProjectApi().getProjectTaskCounts(projectGid, opts)
 }
 
-export async function createProject(workspaceGid: string, name: string, opts?: CreateProjectFields) {
-	return defaultProjectApi().createProject(workspaceGid, name, opts)
+export async function createProject(
+	workspaceGid: string,
+	name: string,
+	opts?: CreateProjectFields,
+	readOpts?: ReadOptions,
+) {
+	return defaultProjectApi().createProject(workspaceGid, name, opts, readOpts)
 }
 
-export async function updateProject(projectGid: string, fields: UpdateProjectFields) {
-	return defaultProjectApi().updateProject(projectGid, fields)
+export async function updateProject(projectGid: string, fields: UpdateProjectFields, opts?: ReadOptions) {
+	return defaultProjectApi().updateProject(projectGid, fields, opts)
 }
 
 export async function deleteProject(projectGid: string) {

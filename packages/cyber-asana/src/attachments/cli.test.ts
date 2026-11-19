@@ -83,11 +83,15 @@ describe('attachments/cli', () => {
 			{ from: 'node' },
 		)
 
-		expect(createAttachmentMock).toHaveBeenCalledWith('task1', {
-			file: './sprint.md',
-			url: undefined,
-			name: 'Sprint report',
-		})
+		expect(createAttachmentMock).toHaveBeenCalledWith(
+			'task1',
+			{
+				file: './sprint.md',
+				url: undefined,
+				name: 'Sprint report',
+			},
+			undefined,
+		)
 	})
 
 	it('attachment create forwards an external url instead of a file', async () => {
@@ -99,11 +103,15 @@ describe('attachments/cli', () => {
 			{ from: 'node' },
 		)
 
-		expect(createAttachmentMock).toHaveBeenCalledWith('task1', {
-			file: undefined,
-			url: 'https://example.com/design',
-			name: undefined,
-		})
+		expect(createAttachmentMock).toHaveBeenCalledWith(
+			'task1',
+			{
+				file: undefined,
+				url: 'https://example.com/design',
+				name: undefined,
+			},
+			undefined,
+		)
 	})
 
 	it('attachment delete is idempotent when the attachment is already gone', async () => {
@@ -153,11 +161,15 @@ describe('attachments/cli', () => {
 				{ from: 'node' },
 			)
 
-		expect(createAttachmentMock).toHaveBeenCalledWith('task1', {
-			file: undefined,
-			url: 'https://example.com/design',
-			name: undefined,
-			connectToApp: true,
-		})
+		expect(createAttachmentMock).toHaveBeenCalledWith(
+			'task1',
+			{
+				file: undefined,
+				url: 'https://example.com/design',
+				name: undefined,
+				connectToApp: true,
+			},
+			undefined,
+		)
 	})
 })

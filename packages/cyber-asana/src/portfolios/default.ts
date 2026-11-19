@@ -20,12 +20,12 @@ export async function getPortfolio(portfolioGid: string, opts?: ReadOptions) {
 	return defaultPortfolioApi().getPortfolio(portfolioGid, opts)
 }
 
-export async function createPortfolio(workspaceGid: string, name: string) {
-	return defaultPortfolioApi().createPortfolio(workspaceGid, name)
+export async function createPortfolio(workspaceGid: string, name: string, opts?: ReadOptions) {
+	return defaultPortfolioApi().createPortfolio(workspaceGid, name, opts)
 }
 
-export async function updatePortfolio(portfolioGid: string, fields: { name?: string }) {
-	return defaultPortfolioApi().updatePortfolio(portfolioGid, fields)
+export async function updatePortfolio(portfolioGid: string, fields: { name?: string }, opts?: ReadOptions) {
+	return defaultPortfolioApi().updatePortfolio(portfolioGid, fields, opts)
 }
 
 export async function deletePortfolio(portfolioGid: string) {

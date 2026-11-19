@@ -5,6 +5,7 @@ import {
 	type PaginationOptions,
 	toAsanaPaginationOptions,
 } from '../platform/pagination.js'
+import { type ReadOptions, toAsanaReadOptions } from '../platform/read-options.js'
 
 /** What a mark call answers: the notifications Asana could not update (missing, not the caller's, deleted). */
 export type MarkNotificationsResult = { failed_gids: string[] }
@@ -20,11 +21,13 @@ export type NotificationGateway = {
 		userGid: string,
 		workspaceGid: string,
 		notificationGids: string[],
+		opts?: ReadOptions,
 	): Promise<MarkNotificationsResult>
 	markNotificationsUnread(
 		userGid: string,
 		workspaceGid: string,
 		notificationGids: string[],
+		opts?: ReadOptions,
 	): Promise<MarkNotificationsResult>
 }
 
@@ -36,19 +39,19 @@ export function createAsanaNotificationGateway(client: Asana.ApiClient): Notific
 			const res = await notificationsApi.getNotificationsForUser(userGid, workspaceGid, toAsanaPaginationOptions(opts))
 			return await collectListResponse(res, opts)
 		},
-		async markNotificationsRead(userGid, workspaceGid, notificationGids) {
+		async markNotificationsRead(userGid, workspaceGid, notificationGids, opts) {
 			const res = await notificationsApi.markNotificationsReadForUser(
 				{ data: { workspace: workspaceGid, notification_gids: notificationGids } },
 				userGid,
-				{},
+				toAsanaReadOptions(opts),
 			)
 			return res.data
 		},
-		async markNotificationsUnread(userGid, workspaceGid, notificationGids) {
+		async markNotificationsUnread(userGid, workspaceGid, notificationGids, opts) {
 			const res = await notificationsApi.markNotificationsUnreadForUser(
 				{ data: { workspace: workspaceGid, notification_gids: notificationGids } },
 				userGid,
-				{},
+				toAsanaReadOptions(opts),
 			)
 			return res.data
 		},

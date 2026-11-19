@@ -57,23 +57,23 @@ export function createCustomFieldApi(gateway: CustomFieldGateway) {
 		listCustomFieldSettingsForTeam(teamGid: string, opts?: PaginationOptions) {
 			return gateway.listCustomFieldSettingsForTeam(teamGid, opts)
 		},
-		createCustomField(input: CreateCustomFieldInput) {
-			return gateway.createCustomField(input)
+		createCustomField(input: CreateCustomFieldInput, opts?: ReadOptions) {
+			return gateway.createCustomField(input, opts)
 		},
-		updateCustomField(customFieldGid: string, input: UpdateCustomFieldInput) {
-			return gateway.updateCustomField(customFieldGid, input)
+		updateCustomField(customFieldGid: string, input: UpdateCustomFieldInput, opts?: ReadOptions) {
+			return gateway.updateCustomField(customFieldGid, input, opts)
 		},
 		deleteCustomField(customFieldGid: string) {
 			return gateway.deleteCustomField(customFieldGid)
 		},
-		createEnumOption(customFieldGid: string, input: CreateEnumOptionInput) {
-			return gateway.createEnumOption(customFieldGid, input)
+		createEnumOption(customFieldGid: string, input: CreateEnumOptionInput, opts?: ReadOptions) {
+			return gateway.createEnumOption(customFieldGid, input, opts)
 		},
 		insertEnumOption(customFieldGid: string, input: InsertEnumOptionInput) {
 			return gateway.insertEnumOption(customFieldGid, input)
 		},
-		updateEnumOption(enumOptionGid: string, input: UpdateEnumOptionInput) {
-			return gateway.updateEnumOption(enumOptionGid, input)
+		updateEnumOption(enumOptionGid: string, input: UpdateEnumOptionInput, opts?: ReadOptions) {
+			return gateway.updateEnumOption(enumOptionGid, input, opts)
 		},
 		/** Attaching a field the project already has succeeds with `already_attached` and writes nothing. */
 		async attachCustomField(projectGid: string, customFieldGid: string, opts?: AddCustomFieldToProjectOptions) {

@@ -43,10 +43,15 @@ describe('goals/mcp', () => {
 			due_on: '2026-06-30',
 		})
 
-		expect(createGoalMock).toHaveBeenCalledWith('ws1', 'Ship v1', {
-			notes: 'Q2 target',
-			due_on: '2026-06-30',
-		})
+		expect(createGoalMock).toHaveBeenCalledWith(
+			'ws1',
+			'Ship v1',
+			{
+				notes: 'Q2 target',
+				due_on: '2026-06-30',
+			},
+			undefined,
+		)
 	})
 
 	it('asana_goal_update forwards gid and fields', async () => {
@@ -59,7 +64,7 @@ describe('goals/mcp', () => {
 			name: 'Ship v2',
 		})
 
-		expect(updateGoalMock).toHaveBeenCalledWith('goal1', { name: 'Ship v2' })
+		expect(updateGoalMock).toHaveBeenCalledWith('goal1', { name: 'Ship v2' }, undefined)
 	})
 
 	it('goal tools can use injected dependencies', async () => {
@@ -86,7 +91,7 @@ describe('goals/mcp', () => {
 			name: 'Ship v1',
 		})
 
-		expect(injectedCreateGoal).toHaveBeenCalledWith('ws1', 'Ship v1', {})
+		expect(injectedCreateGoal).toHaveBeenCalledWith('ws1', 'Ship v1', {}, undefined)
 	})
 
 	it('asana_goal_create forwards a start date alongside a due date', async () => {
@@ -101,10 +106,15 @@ describe('goals/mcp', () => {
 			due_on: '2026-06-30',
 		})
 
-		expect(createGoalMock).toHaveBeenCalledWith('ws1', 'Ship v1', {
-			start_on: '2026-01-01',
-			due_on: '2026-06-30',
-		})
+		expect(createGoalMock).toHaveBeenCalledWith(
+			'ws1',
+			'Ship v1',
+			{
+				start_on: '2026-01-01',
+				due_on: '2026-06-30',
+			},
+			undefined,
+		)
 	})
 
 	it('asana_goal_update forwards a start date', async () => {
@@ -114,7 +124,7 @@ describe('goals/mcp', () => {
 
 		await server.handlers.get('asana_goal_update')?.({ goal_gid: 'goal1', start_on: '2026-01-01' })
 
-		expect(updateGoalMock).toHaveBeenCalledWith('goal1', { start_on: '2026-01-01' })
+		expect(updateGoalMock).toHaveBeenCalledWith('goal1', { start_on: '2026-01-01' }, undefined)
 	})
 
 	it('asana_goal_update sends null for a cleared start date', async () => {
@@ -124,7 +134,7 @@ describe('goals/mcp', () => {
 
 		await server.handlers.get('asana_goal_update')?.({ goal_gid: 'goal1', clear_start_on: true })
 
-		expect(updateGoalMock).toHaveBeenCalledWith('goal1', { start_on: null })
+		expect(updateGoalMock).toHaveBeenCalledWith('goal1', { start_on: null }, undefined)
 	})
 
 	it('asana_goal_update sends null for a cleared due date', async () => {
@@ -134,7 +144,7 @@ describe('goals/mcp', () => {
 
 		await server.handlers.get('asana_goal_update')?.({ goal_gid: 'goal1', clear_due_on: true })
 
-		expect(updateGoalMock).toHaveBeenCalledWith('goal1', { due_on: null })
+		expect(updateGoalMock).toHaveBeenCalledWith('goal1', { due_on: null }, undefined)
 	})
 
 	it('asana_goal_update rejects a due date set and cleared at once', async () => {
@@ -158,7 +168,7 @@ describe('goals/mcp', () => {
 			html_notes: '<body>Q2</body>',
 		})
 
-		expect(createGoalMock).toHaveBeenCalledWith('ws1', 'Ship v1', { html_notes: '<body>Q2</body>' })
+		expect(createGoalMock).toHaveBeenCalledWith('ws1', 'Ship v1', { html_notes: '<body>Q2</body>' }, undefined)
 	})
 
 	it('asana_goal_update forwards rich-text notes', async () => {
@@ -168,7 +178,7 @@ describe('goals/mcp', () => {
 
 		await server.handlers.get('asana_goal_update')?.({ goal_gid: 'goal1', html_notes: '<body>Q3</body>' })
 
-		expect(updateGoalMock).toHaveBeenCalledWith('goal1', { html_notes: '<body>Q3</body>' })
+		expect(updateGoalMock).toHaveBeenCalledWith('goal1', { html_notes: '<body>Q3</body>' }, undefined)
 	})
 
 	it('asana_goal_update rejects notes and html_notes at once', async () => {

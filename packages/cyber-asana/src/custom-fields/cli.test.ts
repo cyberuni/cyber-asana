@@ -325,12 +325,15 @@ describe('custom-fields/cli writes', () => {
 			'Sprint 2',
 		)
 
-		expect(createCustomField).toHaveBeenCalledWith({
-			workspace: 'ws1',
-			name: 'Sprint',
-			resourceSubtype: 'enum',
-			enumOptions: [{ name: 'Sprint 1' }, { name: 'Sprint 2' }],
-		})
+		expect(createCustomField).toHaveBeenCalledWith(
+			{
+				workspace: 'ws1',
+				name: 'Sprint',
+				resourceSubtype: 'enum',
+				enumOptions: [{ name: 'Sprint 1' }, { name: 'Sprint 2' }],
+			},
+			undefined,
+		)
 	})
 
 	it('create rejects --option on a non-enum type as a usage error', async () => {
@@ -367,7 +370,11 @@ describe('custom-fields/cli writes', () => {
 			'blue',
 		)
 
-		expect(createEnumOption).toHaveBeenCalledWith('cf1', { name: 'Sprint 2', color: 'blue', insertAfter: 'o1' })
+		expect(createEnumOption).toHaveBeenCalledWith(
+			'cf1',
+			{ name: 'Sprint 2', color: 'blue', insertAfter: 'o1' },
+			undefined,
+		)
 	})
 
 	it('enum-option move reorders an option before another', async () => {
@@ -389,7 +396,7 @@ describe('custom-fields/cli writes', () => {
 
 		await run(writeApi({ updateEnumOption }), 'enum-option', 'update', 'o1', '--name', 'Renamed', '--disabled')
 
-		expect(updateEnumOption).toHaveBeenCalledWith('o1', { name: 'Renamed', enabled: false })
+		expect(updateEnumOption).toHaveBeenCalledWith('o1', { name: 'Renamed', enabled: false }, undefined)
 	})
 
 	it('update sends only the given changes and acknowledges through output()', async () => {
@@ -409,12 +416,16 @@ describe('custom-fields/cli writes', () => {
 			'--disabled',
 		)
 
-		expect(updateCustomField).toHaveBeenCalledWith('cf1', {
-			name: 'Cost',
-			precision: 2,
-			currencyCode: 'USD',
-			enabled: false,
-		})
+		expect(updateCustomField).toHaveBeenCalledWith(
+			'cf1',
+			{
+				name: 'Cost',
+				precision: 2,
+				currencyCode: 'USD',
+				enabled: false,
+			},
+			undefined,
+		)
 		expect(log.mock.calls.map((c) => String(c[0])).join('\n')).toContain('Updated custom field Cost (cf1)')
 	})
 

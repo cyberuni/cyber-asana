@@ -155,14 +155,14 @@ export type TaskGateway = {
 	listTasksForSection(sectionGid: string, opts?: TaskGatewayListOptions): Promise<ListResult<Asana.Task>>
 	getTask(taskGid: string, opts?: ReadOptions): Promise<Asana.Task>
 	getTasksByGid(taskGids: string[], opts?: { optFields?: string }): Promise<TaskBatchLookupResult[]>
-	createTask(workspaceGid: string, name: string, opts?: CreateTaskFields): Promise<Asana.Task>
-	updateTask(taskGid: string, fields: UpdateTaskFields): Promise<Asana.Task | undefined>
+	createTask(workspaceGid: string, name: string, fields?: CreateTaskFields, opts?: ReadOptions): Promise<Asana.Task>
+	updateTask(taskGid: string, fields: UpdateTaskFields, opts?: ReadOptions): Promise<Asana.Task | undefined>
 	deleteTask(taskGid: string): Promise<void>
 	getMyTasks(workspaceGid: string, opts?: TaskGatewayListOptions): Promise<ListResult<Asana.Task>>
 	listSubtasks(taskGid: string, opts?: TaskGatewayListOptions): Promise<ListResult<Asana.Task>>
 	listProjectsForTask(taskGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.Project>>
-	duplicateTask(taskGid: string, fields: DuplicateTaskFields): Promise<Job>
-	createSubtask(parentTaskGid: string, name: string, opts?: CreateTaskFields): Promise<Asana.Task>
+	duplicateTask(taskGid: string, fields: DuplicateTaskFields, opts?: ReadOptions): Promise<Job>
+	createSubtask(parentTaskGid: string, name: string, fields?: CreateTaskFields, opts?: ReadOptions): Promise<Asana.Task>
 	addTaskToProject(
 		taskGid: string,
 		projectGid: string,
@@ -264,16 +264,19 @@ export function createAsanaTaskGateway(client: Asana.ApiClient): TaskGateway {
 			}
 			return results
 		},
-		async createTask(workspaceGid, name, opts) {
+		async createTask(workspaceGid, name, fields, opts) {
 			// followers ride the create body; a separate addFollowers call would repeat the same work
-			const res = await tasksApi.createTask({ data: { name, workspace: workspaceGid, ...opts } })
+			const res = await tasksApi.createTask(
+				{ data: { name, workspace: workspaceGid, ...fields } },
+				toAsanaReadOptions(opts),
+			)
 			return res.data
 		},
-		async updateTask(taskGid, fields) {
+		async updateTask(taskGid, fields, opts) {
 			const { parent, clear_parent, insert_before, insert_after, ...taskFields } = fields
 			let updatedTask: Asana.Task | undefined
 			if (Object.keys(taskFields).length > 0) {
-				const res = await tasksApi.updateTask({ data: taskFields }, taskGid, {})
+				const res = await tasksApi.updateTask({ data: taskFields }, taskGid, toAsanaReadOptions(opts))
 				updatedTask = res.data
 			}
 			if (parent !== undefined || clear_parent) {
@@ -286,7 +289,7 @@ export function createAsanaTaskGateway(client: Asana.ApiClient): TaskGateway {
 						},
 					},
 					taskGid,
-					{},
+					toAsanaReadOptions(opts),
 				)
 				updatedTask = res.data
 			}
@@ -315,7 +318,7 @@ export function createAsanaTaskGateway(client: Asana.ApiClient): TaskGateway {
 			const res = await projectsApi.getProjectsForTask(taskGid, toAsanaPaginationOptions(opts))
 			return await collectListResponse(res, opts)
 		},
-		async duplicateTask(taskGid, fields) {
+		async duplicateTask(taskGid, fields, opts) {
 			const res = await tasksApi.duplicateTask(
 				{
 					data: {
@@ -324,14 +327,18 @@ export function createAsanaTaskGateway(client: Asana.ApiClient): TaskGateway {
 					},
 				},
 				taskGid,
-				{},
+				toAsanaReadOptions(opts),
 			)
 			return res.data
 		},
-		async createSubtask(parentTaskGid, name, opts) {
+		async createSubtask(parentTaskGid, name, fields, opts) {
 			// The create-subtask endpoint takes the same body as create-task, minus the workspace and
 			// parent it already knows from the path, so it gets the same built field set.
-			const res = await tasksApi.createSubtaskForTask({ data: { name, ...opts } }, parentTaskGid, {})
+			const res = await tasksApi.createSubtaskForTask(
+				{ data: { name, ...fields } },
+				parentTaskGid,
+				toAsanaReadOptions(opts),
+			)
 			return res.data
 		},
 		async addTaskToProject(taskGid, projectGid, opts) {

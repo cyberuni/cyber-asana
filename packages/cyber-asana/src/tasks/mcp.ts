@@ -203,13 +203,18 @@ export function registerTaskTools(server: McpServer, api?: TaskApi | (() => Task
 				.describe(
 					'Elements to copy: assignee, attachments, dates, dependencies, followers, notes, parent, projects, subtasks, tags',
 				),
+			...readParams,
 		},
-		async ({ task_gid, name, include }) => ({
+		async ({ task_gid, name, include, ...params }) => ({
 			content: [
 				{
 					type: 'text',
 					text: JSON.stringify(
-						await resolveTaskApi(api).duplicateTask(task_gid, { name, ...(include !== undefined && { include }) }),
+						await resolveTaskApi(api).duplicateTask(
+							task_gid,
+							{ name, ...(include !== undefined && { include }) },
+							readOptions(params),
+						),
 					),
 				},
 			],
@@ -300,6 +305,7 @@ When setting notes, prefer html_notes over notes to preserve rich formatting (he
 				.describe('Follower user GIDs'),
 			resource_subtype: z.string().optional().describe('Task resource subtype'),
 			custom_fields: z.record(z.string(), z.unknown()).optional().describe('Custom field values keyed by GID'),
+			...readParams,
 		},
 		async ({
 			task_gid,
@@ -316,6 +322,7 @@ When setting notes, prefer html_notes over notes to preserve rich formatting (he
 			follower_gids,
 			resource_subtype,
 			custom_fields,
+			...params
 		}) => ({
 			content: [
 				{
@@ -337,6 +344,7 @@ When setting notes, prefer html_notes over notes to preserve rich formatting (he
 								resourceSubtype: resource_subtype,
 								customFields: custom_fields,
 							}),
+							readOptions(params),
 						),
 					),
 				},
@@ -449,6 +457,7 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 				.describe(
 					"When the task lands in the repo config's default project and defaults.section is set, it is created in that section. Set false to skip it.",
 				),
+			...readParams,
 		},
 		async ({
 			workspace_gid,
@@ -472,6 +481,7 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 			custom_type,
 			custom_fields,
 			default_section,
+			...params
 		}) => {
 			const conventions = await loadConventions()
 			const givenTags = typeof tag_gids === 'string' ? parseGidList(tag_gids) : tag_gids
@@ -501,7 +511,12 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 					{
 						type: 'text',
 						text: JSON.stringify(
-							await resolveTaskApi(api).createTask(workspace_gid, name, placeInSection(fields, placement)),
+							await resolveTaskApi(api).createTask(
+								workspace_gid,
+								name,
+								placeInSection(fields, placement),
+								readOptions(params),
+							),
 						),
 					},
 				],
@@ -556,6 +571,7 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 			resource_subtype: z.string().optional().describe('Task resource subtype'),
 			custom_type: z.string().optional().describe('Custom type GID (e.g. an Epic or Initiative type)'),
 			custom_fields: z.record(z.string(), z.unknown()).optional().describe('Custom field values keyed by GID'),
+			...readParams,
 		},
 		async ({
 			task_gid,
@@ -581,6 +597,7 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 			resource_subtype,
 			custom_type,
 			custom_fields,
+			...params
 		}) => ({
 			content: [
 				{
@@ -611,6 +628,7 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 								customType: custom_type,
 								customFields: custom_fields,
 							}),
+							readOptions(params),
 						),
 					),
 				},
@@ -625,16 +643,21 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 			task_gid: z.string().describe('Subtask GID'),
 			insert_before: z.string().optional().describe('Place the task before this sibling subtask'),
 			insert_after: z.string().optional().describe('Place the task after this sibling subtask'),
+			...readParams,
 		},
-		async ({ task_gid, insert_before, insert_after }) => ({
+		async ({ task_gid, insert_before, insert_after, ...params }) => ({
 			content: [
 				{
 					type: 'text',
 					text: JSON.stringify(
-						await resolveTaskApi(api).reorderSubtask(task_gid, {
-							...(insert_before !== undefined && { insertBefore: insert_before }),
-							...(insert_after !== undefined && { insertAfter: insert_after }),
-						}),
+						await resolveTaskApi(api).reorderSubtask(
+							task_gid,
+							{
+								...(insert_before !== undefined && { insertBefore: insert_before }),
+								...(insert_after !== undefined && { insertAfter: insert_after }),
+							},
+							readOptions(params),
+						),
 					),
 				},
 			],

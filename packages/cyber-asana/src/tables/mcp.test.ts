@@ -47,8 +47,8 @@ describe('tables/mcp', () => {
 		await h.get('asana_table_create')!({ workspace_gid: 'ws1', name: 'R' })
 		await h.get('asana_table_update')!({ table_gid: 't1', name: 'N', default_access_level: 'editor' })
 
-		expect(createTable).toHaveBeenCalledWith('ws1', 'R')
-		expect(updateTable).toHaveBeenCalledWith('t1', { name: 'N', default_access_level: 'editor' })
+		expect(createTable).toHaveBeenCalledWith('ws1', 'R', undefined)
+		expect(updateTable).toHaveBeenCalledWith('t1', { name: 'N', default_access_level: 'editor' }, undefined)
 	})
 
 	it('asana_table_delete is idempotent', async () => {
@@ -73,7 +73,7 @@ describe('tables/mcp', () => {
 		await h.get('asana_table_add_field')!({ table_gid: 't1', custom_field_gid: 'cf1', is_important: true })
 		await h.get('asana_table_remove_field')!({ table_gid: 't1', custom_field_gid: 'cf1' })
 
-		expect(addTableField).toHaveBeenCalledWith('t1', 'cf1', { isImportant: true })
+		expect(addTableField).toHaveBeenCalledWith('t1', 'cf1', { isImportant: true }, undefined)
 		expect(removeTableField).toHaveBeenCalledWith('t1', 'cf1')
 	})
 })

@@ -17,11 +17,11 @@ export function createTimeTrackingEntryApi(gateway: TimeTrackingEntryGateway) {
 		getTimeTrackingEntry(entryGid: string, opts?: ReadOptions) {
 			return gateway.getTimeTrackingEntry(entryGid, opts)
 		},
-		createTimeTrackingEntry(taskGid: string, fields: TimeTrackingEntryFields) {
-			return gateway.createTimeTrackingEntry(taskGid, fields)
+		createTimeTrackingEntry(taskGid: string, fields: TimeTrackingEntryFields, opts?: ReadOptions) {
+			return gateway.createTimeTrackingEntry(taskGid, fields, opts)
 		},
-		updateTimeTrackingEntry(entryGid: string, fields: TimeTrackingEntryFields) {
-			return gateway.updateTimeTrackingEntry(entryGid, fields)
+		updateTimeTrackingEntry(entryGid: string, fields: TimeTrackingEntryFields, opts?: ReadOptions) {
+			return gateway.updateTimeTrackingEntry(entryGid, fields, opts)
 		},
 		deleteTimeTrackingEntry(entryGid: string) {
 			return gateway.deleteTimeTrackingEntry(entryGid)

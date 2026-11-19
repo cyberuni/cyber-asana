@@ -69,19 +69,25 @@ export function registerTagTools(server: McpServer, api?: TagApi | (() => TagApi
 				.union([z.array(z.string()), z.string()])
 				.optional()
 				.describe('Follower user GIDs'),
+			...readParams,
 		},
-		async ({ workspace_gid, name, color, notes, follower_gids }) => {
+		async ({ workspace_gid, name, color, notes, follower_gids, opt_fields }) => {
 			const followers = parseFollowerGids(follower_gids)
 			return {
 				content: [
 					{
 						type: 'text',
 						text: JSON.stringify(
-							await resolveTagApi(api).createTag(workspace_gid, name, {
-								...(color !== undefined && { color }),
-								...(notes !== undefined && { notes }),
-								...(followers && { followers }),
-							}),
+							await resolveTagApi(api).createTag(
+								workspace_gid,
+								name,
+								{
+									...(color !== undefined && { color }),
+									...(notes !== undefined && { notes }),
+									...(followers && { followers }),
+								},
+								readOptions({ opt_fields }),
+							),
 						),
 					},
 				],
@@ -98,8 +104,9 @@ export function registerTagTools(server: McpServer, api?: TagApi | (() => TagApi
 			color: z.string().optional().describe('New tag color'),
 			clear_color: z.boolean().optional().describe('Remove the tag color'),
 			notes: z.string().optional().describe('New tag notes'),
+			...readParams,
 		},
-		async ({ tag_gid, name, color, clear_color, notes }) => ({
+		async ({ tag_gid, name, color, clear_color, notes, opt_fields }) => ({
 			content: [
 				{
 					type: 'text',
@@ -107,6 +114,7 @@ export function registerTagTools(server: McpServer, api?: TagApi | (() => TagApi
 						await resolveTagApi(api).updateTag(
 							tag_gid,
 							buildTagUpdateFields({ name, color, clearColor: clear_color, notes }),
+							readOptions({ opt_fields }),
 						),
 					),
 				},

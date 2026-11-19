@@ -60,7 +60,7 @@ describe('tables/cli', () => {
 
 		await run(api, 'create', 'Renewals', '--workspace-gid', 'ws1')
 
-		expect(api.createTable).toHaveBeenCalledWith('ws1', 'Renewals')
+		expect(api.createTable).toHaveBeenCalledWith('ws1', 'Renewals', undefined)
 	})
 
 	it('table update sends name and access level', async () => {
@@ -69,7 +69,7 @@ describe('tables/cli', () => {
 
 		await run(api, 'update', 't1', '--name', 'N', '--default-access-level', 'viewer')
 
-		expect(api.updateTable).toHaveBeenCalledWith('t1', { name: 'N', default_access_level: 'viewer' })
+		expect(api.updateTable).toHaveBeenCalledWith('t1', { name: 'N', default_access_level: 'viewer' }, undefined)
 	})
 
 	it('table update rejects an unknown access level and an empty update', async () => {
@@ -112,7 +112,7 @@ describe('tables/cli', () => {
 		await run(api, 'add-field', 't1', 'cf1', '--important', '--insert-before', 's0')
 		await run(api, 'remove-field', 't1', 'cf1')
 
-		expect(api.addTableField).toHaveBeenCalledWith('t1', 'cf1', { isImportant: true, insertBefore: 's0' })
+		expect(api.addTableField).toHaveBeenCalledWith('t1', 'cf1', { isImportant: true, insertBefore: 's0' }, undefined)
 		expect(api.removeTableField).toHaveBeenCalledWith('t1', 'cf1')
 	})
 })

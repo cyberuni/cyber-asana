@@ -56,9 +56,13 @@ describe('stories/mcp', () => {
 			html_text: '<body><strong>Rich</strong></body>',
 		})
 
-		expect(createStoryMock).toHaveBeenCalledWith('task1', {
-			html_text: '<body><strong>Rich</strong></body>',
-		})
+		expect(createStoryMock).toHaveBeenCalledWith(
+			'task1',
+			{
+				html_text: '<body><strong>Rich</strong></body>',
+			},
+			undefined,
+		)
 	})
 
 	it('asana_comment_create applies templates to html_text', async () => {
@@ -78,9 +82,13 @@ describe('stories/mcp', () => {
 			template: true,
 		})
 
-		expect(createStoryMock).toHaveBeenCalledWith('task1', {
-			html_text: '<body><strong>Fix bug</strong> for Alice</body>',
-		})
+		expect(createStoryMock).toHaveBeenCalledWith(
+			'task1',
+			{
+				html_text: '<body><strong>Fix bug</strong> for Alice</body>',
+			},
+			undefined,
+		)
 	})
 
 	it('asana_story_get reads one story', async () => {
@@ -100,7 +108,7 @@ describe('stories/mcp', () => {
 
 		await server.handlers.get('asana_comment_update')?.({ story_gid: 'story1', text: 'Corrected' })
 
-		expect(updateStory).toHaveBeenCalledWith('story1', { text: 'Corrected' })
+		expect(updateStory).toHaveBeenCalledWith('story1', { text: 'Corrected' }, undefined)
 	})
 
 	it('asana_story_update forwards html_text', async () => {
@@ -113,7 +121,11 @@ describe('stories/mcp', () => {
 			html_text: '<body><strong>Corrected</strong></body>',
 		})
 
-		expect(updateStory).toHaveBeenCalledWith('story1', { html_text: '<body><strong>Corrected</strong></body>' })
+		expect(updateStory).toHaveBeenCalledWith(
+			'story1',
+			{ html_text: '<body><strong>Corrected</strong></body>' },
+			undefined,
+		)
 	})
 
 	it('asana_story_delete removes the comment and reports it', async () => {
@@ -149,7 +161,7 @@ describe('stories/mcp', () => {
 			text: 'Hi',
 		})
 
-		expect(injectedCreateStory).toHaveBeenCalledWith('task1', { text: 'Hi' })
+		expect(injectedCreateStory).toHaveBeenCalledWith('task1', { text: 'Hi' }, undefined)
 	})
 	it('asana_story_create forwards is_pinned', async () => {
 		createStoryMock.mockResolvedValue({ gid: 'story1' })
@@ -158,7 +170,7 @@ describe('stories/mcp', () => {
 
 		await server.handlers.get('asana_story_create')?.({ task_gid: 'task1', text: 'Pin me', is_pinned: true })
 
-		expect(createStoryMock).toHaveBeenCalledWith('task1', { text: 'Pin me', is_pinned: true })
+		expect(createStoryMock).toHaveBeenCalledWith('task1', { text: 'Pin me', is_pinned: true }, undefined)
 	})
 
 	it('asana_story_update forwards is_pinned without a replacement body', async () => {
@@ -168,7 +180,7 @@ describe('stories/mcp', () => {
 
 		await server.handlers.get('asana_story_update')?.({ story_gid: 'story1', is_pinned: false })
 
-		expect(updateStory).toHaveBeenCalledWith('story1', { is_pinned: false })
+		expect(updateStory).toHaveBeenCalledWith('story1', { is_pinned: false }, undefined)
 	})
 	it('asana_story_create forwards sticker_name', async () => {
 		createStoryMock.mockResolvedValue({ gid: 'story1' })
@@ -177,7 +189,7 @@ describe('stories/mcp', () => {
 
 		await server.handlers.get('asana_story_create')?.({ task_gid: 'task1', text: 'Nice', sticker_name: 'trophy' })
 
-		expect(createStoryMock).toHaveBeenCalledWith('task1', { text: 'Nice', sticker_name: 'trophy' })
+		expect(createStoryMock).toHaveBeenCalledWith('task1', { text: 'Nice', sticker_name: 'trophy' }, undefined)
 	})
 
 	it('asana_story_update forwards sticker_name without a replacement body', async () => {
@@ -187,6 +199,6 @@ describe('stories/mcp', () => {
 
 		await server.handlers.get('asana_story_update')?.({ story_gid: 'story1', sticker_name: 'heart' })
 
-		expect(updateStory).toHaveBeenCalledWith('story1', { sticker_name: 'heart' })
+		expect(updateStory).toHaveBeenCalledWith('story1', { sticker_name: 'heart' }, undefined)
 	})
 })

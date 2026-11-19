@@ -21,7 +21,7 @@ export type CreateAttachmentRequest = {
 export type AttachmentGateway = {
 	listAttachments(taskGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.Attachment>>
 	getAttachment(attachmentGid: string, opts?: ReadOptions): Promise<Asana.Attachment>
-	createAttachment(request: CreateAttachmentRequest): Promise<Asana.Attachment>
+	createAttachment(request: CreateAttachmentRequest, opts?: ReadOptions): Promise<Asana.Attachment>
 	deleteAttachment(attachmentGid: string): Promise<void>
 }
 
@@ -37,7 +37,7 @@ export function createAsanaAttachmentGateway(client: Asana.ApiClient): Attachmen
 			const res = await attachmentsApi.getAttachment(attachmentGid, toAsanaReadOptions(opts))
 			return res.data
 		},
-		async createAttachment(request) {
+		async createAttachment(request, opts) {
 			const res = await attachmentsApi.createAttachmentForObject({
 				parent: request.parent,
 				name: request.name,
@@ -48,6 +48,7 @@ export function createAsanaAttachmentGateway(client: Asana.ApiClient): Attachmen
 				...(request.url ? { url: request.url } : {}),
 				...(request.resourceSubtype ? { resource_subtype: request.resourceSubtype } : {}),
 				...(request.connectToApp !== undefined ? { connect_to_app: request.connectToApp } : {}),
+				...toAsanaReadOptions(opts),
 			})
 			return res.data
 		},

@@ -156,17 +156,21 @@ export function registerCustomFieldTools(server: McpServer, api?: CustomFieldApi
 			description: z.string().optional().describe('Field description'),
 			precision: z.number().int().optional().describe('Decimal places; number type only'),
 			enum_options: z.array(z.string()).optional().describe('Option names; enum and multi_enum types only'),
+			...readParams,
 		},
-		async ({ workspace_gid, name, type, description, precision, enum_options }) =>
+		async ({ workspace_gid, name, type, description, precision, enum_options, ...params }) =>
 			json(
-				await resolveCustomFieldApi(api).createCustomField({
-					workspace: workspace_gid,
-					name,
-					resourceSubtype: type,
-					...(description !== undefined && { description }),
-					...(precision !== undefined && { precision }),
-					...(enum_options !== undefined && { enumOptions: enum_options.map((o) => ({ name: o })) }),
-				}),
+				await resolveCustomFieldApi(api).createCustomField(
+					{
+						workspace: workspace_gid,
+						name,
+						resourceSubtype: type,
+						...(description !== undefined && { description }),
+						...(precision !== undefined && { precision }),
+						...(enum_options !== undefined && { enumOptions: enum_options.map((o) => ({ name: o })) }),
+					},
+					readOptions(params),
+				),
 			),
 	)
 
@@ -186,6 +190,7 @@ export function registerCustomFieldTools(server: McpServer, api?: CustomFieldApi
 			custom_label: z.string().optional().describe('Label shown with the value; custom format only'),
 			custom_label_position: z.enum(['prefix', 'suffix']).optional().describe('Where the label goes'),
 			enabled: z.boolean().optional().describe('false disables the field, true re-enables it'),
+			...readParams,
 		},
 		async ({
 			custom_field_gid,
@@ -197,6 +202,7 @@ export function registerCustomFieldTools(server: McpServer, api?: CustomFieldApi
 			custom_label,
 			custom_label_position,
 			enabled,
+			...params
 		}) => {
 			const changes = {
 				...(name !== undefined && { name }),
@@ -209,7 +215,7 @@ export function registerCustomFieldTools(server: McpServer, api?: CustomFieldApi
 				...(enabled !== undefined && { enabled }),
 			}
 			if (Object.keys(changes).length === 0) throw new Error('Nothing to update: give at least one property to change')
-			return json(await resolveCustomFieldApi(api).updateCustomField(custom_field_gid, changes))
+			return json(await resolveCustomFieldApi(api).updateCustomField(custom_field_gid, changes, readOptions(params)))
 		},
 	)
 
@@ -234,15 +240,20 @@ export function registerCustomFieldTools(server: McpServer, api?: CustomFieldApi
 			color: z.string().optional().describe('Option color, such as blue'),
 			insert_before: z.string().optional().describe('Enum option GID to place this one before'),
 			insert_after: z.string().optional().describe('Enum option GID to place this one after'),
+			...readParams,
 		},
-		async ({ custom_field_gid, name, color, insert_before, insert_after }) =>
+		async ({ custom_field_gid, name, color, insert_before, insert_after, ...params }) =>
 			json(
-				await resolveCustomFieldApi(api).createEnumOption(custom_field_gid, {
-					name,
-					...(color !== undefined && { color }),
-					...(insert_before !== undefined && { insertBefore: insert_before }),
-					...(insert_after !== undefined && { insertAfter: insert_after }),
-				}),
+				await resolveCustomFieldApi(api).createEnumOption(
+					custom_field_gid,
+					{
+						name,
+						...(color !== undefined && { color }),
+						...(insert_before !== undefined && { insertBefore: insert_before }),
+						...(insert_after !== undefined && { insertAfter: insert_after }),
+					},
+					readOptions(params),
+				),
 			),
 	)
 
@@ -273,14 +284,19 @@ export function registerCustomFieldTools(server: McpServer, api?: CustomFieldApi
 			name: z.string().optional().describe('New name'),
 			color: z.string().optional().describe('New color'),
 			enabled: z.boolean().optional().describe('false disables the option, true re-enables it'),
+			...readParams,
 		},
-		async ({ enum_option_gid, name, color, enabled }) =>
+		async ({ enum_option_gid, name, color, enabled, ...params }) =>
 			json(
-				await resolveCustomFieldApi(api).updateEnumOption(enum_option_gid, {
-					...(name !== undefined && { name }),
-					...(color !== undefined && { color }),
-					...(enabled !== undefined && { enabled }),
-				}),
+				await resolveCustomFieldApi(api).updateEnumOption(
+					enum_option_gid,
+					{
+						...(name !== undefined && { name }),
+						...(color !== undefined && { color }),
+						...(enabled !== undefined && { enabled }),
+					},
+					readOptions(params),
+				),
 			),
 	)
 

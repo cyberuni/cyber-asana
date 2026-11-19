@@ -1,6 +1,6 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import { paginationOptions, paginationParams } from '../platform/mcp/options.js'
+import { paginationOptions, paginationParams, readOptions, readParams } from '../platform/mcp/options.js'
 import type { NotificationApi } from './api.js'
 import { listNotifications, markNotificationsRead, markNotificationsUnread } from './default.js'
 
@@ -44,18 +44,38 @@ export function registerNotificationTools(server: McpServer, api?: NotificationA
 	server.tool(
 		'asana_notification_mark_read',
 		`Mark 1 to 50 Asana notifications read. Returns failed_gids, the ones Asana could not update. ${BETA}`,
-		{ ...scope, notification_gids: z.array(z.string()).min(1).max(50).describe('Notification GIDs (1 to 50)') },
-		async ({ user_gid, workspace_gid, notification_gids }) =>
-			json(await resolveNotificationApi(api).markNotificationsRead(user_gid ?? 'me', workspace_gid, notification_gids)),
+		{
+			...scope,
+			notification_gids: z.array(z.string()).min(1).max(50).describe('Notification GIDs (1 to 50)'),
+			...readParams,
+		},
+		async ({ user_gid, workspace_gid, notification_gids, ...params }) =>
+			json(
+				await resolveNotificationApi(api).markNotificationsRead(
+					user_gid ?? 'me',
+					workspace_gid,
+					notification_gids,
+					readOptions(params),
+				),
+			),
 	)
 
 	server.tool(
 		'asana_notification_mark_unread',
 		`Mark 1 to 50 Asana notifications unread. Returns failed_gids, the ones Asana could not update. ${BETA}`,
-		{ ...scope, notification_gids: z.array(z.string()).min(1).max(50).describe('Notification GIDs (1 to 50)') },
-		async ({ user_gid, workspace_gid, notification_gids }) =>
+		{
+			...scope,
+			notification_gids: z.array(z.string()).min(1).max(50).describe('Notification GIDs (1 to 50)'),
+			...readParams,
+		},
+		async ({ user_gid, workspace_gid, notification_gids, ...params }) =>
 			json(
-				await resolveNotificationApi(api).markNotificationsUnread(user_gid ?? 'me', workspace_gid, notification_gids),
+				await resolveNotificationApi(api).markNotificationsUnread(
+					user_gid ?? 'me',
+					workspace_gid,
+					notification_gids,
+					readOptions(params),
+				),
 			),
 	)
 }

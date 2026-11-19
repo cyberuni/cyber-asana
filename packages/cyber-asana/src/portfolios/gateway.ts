@@ -14,8 +14,8 @@ export type PortfolioGateway = {
 	listPortfolios(workspaceGid: string, opts?: PortfolioListOptions): Promise<ListResult<Asana.Portfolio>>
 	listPortfolioItems(portfolioGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.AsanaResource>>
 	getPortfolio(portfolioGid: string, opts?: ReadOptions): Promise<Asana.Portfolio>
-	createPortfolio(workspaceGid: string, name: string): Promise<Asana.Portfolio>
-	updatePortfolio(portfolioGid: string, fields: { name?: string }): Promise<Asana.Portfolio>
+	createPortfolio(workspaceGid: string, name: string, opts?: ReadOptions): Promise<Asana.Portfolio>
+	updatePortfolio(portfolioGid: string, fields: { name?: string }, opts?: ReadOptions): Promise<Asana.Portfolio>
 	deletePortfolio(portfolioGid: string): Promise<void>
 	addPortfolioItem(portfolioGid: string, itemGid: string, opts?: PortfolioItemPlacement): Promise<void>
 	removePortfolioItem(portfolioGid: string, itemGid: string): Promise<void>
@@ -44,12 +44,15 @@ export function createAsanaPortfolioGateway(client: Asana.ApiClient): PortfolioG
 			const res = await portfoliosApi.getPortfolio(portfolioGid, toAsanaReadOptions(opts))
 			return res.data
 		},
-		async createPortfolio(workspaceGid, name) {
-			const res = await portfoliosApi.createPortfolio({ data: { name, workspace: workspaceGid } })
+		async createPortfolio(workspaceGid, name, opts) {
+			const res = await portfoliosApi.createPortfolio(
+				{ data: { name, workspace: workspaceGid } },
+				toAsanaReadOptions(opts),
+			)
 			return res.data
 		},
-		async updatePortfolio(portfolioGid, fields) {
-			const res = await portfoliosApi.updatePortfolio({ data: fields }, portfolioGid, {})
+		async updatePortfolio(portfolioGid, fields, opts) {
+			const res = await portfoliosApi.updatePortfolio({ data: fields }, portfolioGid, toAsanaReadOptions(opts))
 			return res.data
 		},
 		async deletePortfolio(portfolioGid) {

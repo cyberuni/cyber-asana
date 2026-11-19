@@ -63,17 +63,21 @@ export function registerAllocationTools(server: McpServer, api?: AllocationApi |
 			start_date: z.string().describe('First day (YYYY-MM-DD)'),
 			end_date: z.string().describe('Last day (YYYY-MM-DD)'),
 			...effortParams,
+			...readParams,
 		},
-		async ({ assignee_gid, parent_gid, start_date, end_date, ...effort }) => {
+		async ({ assignee_gid, parent_gid, start_date, end_date, opt_fields, ...effort }) => {
 			const e = effortOf(effort)
 			return json(
-				await resolveAllocationApi(api).createAllocation({
-					assignee: assignee_gid,
-					parent: parent_gid,
-					start_date,
-					end_date,
-					...(e && { effort: e }),
-				}),
+				await resolveAllocationApi(api).createAllocation(
+					{
+						assignee: assignee_gid,
+						parent: parent_gid,
+						start_date,
+						end_date,
+						...(e && { effort: e }),
+					},
+					readOptions({ opt_fields }),
+				),
 			)
 		},
 	)
@@ -86,15 +90,20 @@ export function registerAllocationTools(server: McpServer, api?: AllocationApi |
 			start_date: z.string().optional().describe('New first day (YYYY-MM-DD)'),
 			end_date: z.string().optional().describe('New last day (YYYY-MM-DD)'),
 			...effortParams,
+			...readParams,
 		},
-		async ({ allocation_gid, start_date, end_date, ...effort }) => {
+		async ({ allocation_gid, start_date, end_date, opt_fields, ...effort }) => {
 			const e = effortOf(effort)
 			return json(
-				await resolveAllocationApi(api).updateAllocation(allocation_gid, {
-					...(start_date !== undefined && { start_date }),
-					...(end_date !== undefined && { end_date }),
-					...(e && { effort: e }),
-				}),
+				await resolveAllocationApi(api).updateAllocation(
+					allocation_gid,
+					{
+						...(start_date !== undefined && { start_date }),
+						...(end_date !== undefined && { end_date }),
+						...(e && { effort: e }),
+					},
+					readOptions({ opt_fields }),
+				),
 			)
 		},
 	)

@@ -41,8 +41,8 @@ describe('allocations/api', () => {
 
 		expect(gateway.listAllocations).toHaveBeenCalledWith({ parent: 'p1', assignee: 'u1', workspace: 'w1', limit: 10 })
 		expect(gateway.getAllocation).toHaveBeenCalledWith('a1', { optFields: 'gid' })
-		expect(gateway.createAllocation).toHaveBeenCalledWith(fields)
-		expect(gateway.updateAllocation).toHaveBeenCalledWith('a1', { end_date: '2026-01-25' })
+		expect(gateway.createAllocation).toHaveBeenCalledWith(fields, undefined)
+		expect(gateway.updateAllocation).toHaveBeenCalledWith('a1', { end_date: '2026-01-25' }, undefined)
 		expect(gateway.deleteAllocation).toHaveBeenCalledWith('a1')
 	})
 
@@ -63,7 +63,7 @@ describe('allocations/api', () => {
 			const gateway = gatewayStub()
 			await createAllocationApi(gateway, { users: usersStub() }).createAllocation(fields)
 
-			expect(gateway.createAllocation).toHaveBeenCalledWith({ ...fields, assignee: 'u-me' })
+			expect(gateway.createAllocation).toHaveBeenCalledWith({ ...fields, assignee: 'u-me' }, undefined)
 		})
 
 		it('passes a real GID through without a lookup', async () => {

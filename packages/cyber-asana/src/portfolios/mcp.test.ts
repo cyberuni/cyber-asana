@@ -46,7 +46,7 @@ describe('portfolios/mcp', () => {
 			name: 'Roadmap',
 		})
 
-		expect(createPortfolioMock).toHaveBeenCalledWith('ws1', 'Roadmap')
+		expect(createPortfolioMock).toHaveBeenCalledWith('ws1', 'Roadmap', undefined)
 	})
 
 	it('asana_portfolio_update forwards gid and fields', async () => {
@@ -59,7 +59,7 @@ describe('portfolios/mcp', () => {
 			name: 'Updated',
 		})
 
-		expect(updatePortfolioMock).toHaveBeenCalledWith('pf1', { name: 'Updated' })
+		expect(updatePortfolioMock).toHaveBeenCalledWith('pf1', { name: 'Updated' }, undefined)
 	})
 
 	it('asana_portfolio_item_list forwards portfolio gid and pagination options', async () => {
@@ -94,7 +94,7 @@ describe('portfolios/mcp', () => {
 			name: 'Roadmap',
 		})
 
-		expect(injectedCreatePortfolio).toHaveBeenCalledWith('ws1', 'Roadmap')
+		expect(injectedCreatePortfolio).toHaveBeenCalledWith('ws1', 'Roadmap', undefined)
 	})
 
 	it('asana_portfolio_list forwards owner_gid as an owner filter', async () => {

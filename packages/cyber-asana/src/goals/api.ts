@@ -20,11 +20,11 @@ export function createGoalApi(gateway: GoalGateway) {
 		getGoal(goalGid: string, opts?: ReadOptions) {
 			return gateway.getGoal(goalGid, opts)
 		},
-		createGoal(workspaceGid: string, name: string, opts?: CreateGoalFields) {
-			return gateway.createGoal(workspaceGid, name, opts)
+		createGoal(workspaceGid: string, name: string, opts?: CreateGoalFields, read?: ReadOptions) {
+			return gateway.createGoal(workspaceGid, name, opts, read)
 		},
-		updateGoal(goalGid: string, fields: UpdateGoalFields) {
-			return gateway.updateGoal(goalGid, fields)
+		updateGoal(goalGid: string, fields: UpdateGoalFields, opts?: ReadOptions) {
+			return gateway.updateGoal(goalGid, fields, opts)
 		},
 		deleteGoal(goalGid: string) {
 			return gateway.deleteGoal(goalGid)
@@ -35,14 +35,19 @@ export function createGoalApi(gateway: GoalGateway) {
 		getTimePeriod(timePeriodGid: string, opts?: ReadOptions) {
 			return gateway.getTimePeriod(timePeriodGid, opts)
 		},
-		setGoalMetric(goalGid: string, metric: GoalMetricInput) {
-			return gateway.setGoalMetric(goalGid, metric)
+		setGoalMetric(goalGid: string, metric: GoalMetricInput, opts?: ReadOptions) {
+			return gateway.setGoalMetric(goalGid, metric, opts)
 		},
-		setGoalMetricCurrentValue(goalGid: string, currentNumberValue: number) {
-			return gateway.setGoalMetricCurrentValue(goalGid, currentNumberValue)
+		setGoalMetricCurrentValue(goalGid: string, currentNumberValue: number, opts?: ReadOptions) {
+			return gateway.setGoalMetricCurrentValue(goalGid, currentNumberValue, opts)
 		},
-		addSupportingRelationship(goalGid: string, supportingResourceGid: string, opts?: SupportingRelationshipOptions) {
-			return gateway.addSupportingRelationship(goalGid, supportingResourceGid, opts)
+		addSupportingRelationship(
+			goalGid: string,
+			supportingResourceGid: string,
+			opts?: SupportingRelationshipOptions,
+			read?: ReadOptions,
+		) {
+			return gateway.addSupportingRelationship(goalGid, supportingResourceGid, opts, read)
 		},
 		removeSupportingRelationship(goalGid: string, supportingResourceGid: string) {
 			return gateway.removeSupportingRelationship(goalGid, supportingResourceGid)
