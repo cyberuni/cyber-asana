@@ -550,6 +550,7 @@ Notable parameters:
 - `asana_project_counts` — `opt_fields` defaults to `num_tasks,num_incomplete_tasks,num_completed_tasks`
 - `asana_project_template_instantiate` — `name`, `team_gid`, `public`, `requested_dates` (`[{gid, value}]` from the template's `requested_dates`), `wait` (default `true`), `timeout_seconds` (default 60). Returns `{ job, project_gid }`; a failed job or an expired wait is an error, never a success with a null `project_gid`
 - `asana_attachment_create` — `connect_to_app` links the authenticated app to an external `url` attachment; Asana honours it only under an OAuth token, and a file upload rejects it locally
+- `asana_custom_field_create` / `asana_custom_field_update` — `format`, `currency_code`, `custom_label`, `custom_label_position` (`prefix` or `suffix`), `has_notifications_enabled`, `id_prefix`, `input_restrictions` (array of `task`, `project`, `portfolio`, `goal`, `team`, `record`); `asana_custom_field_enum_option_create` also takes `enabled`
 - `asana_custom_field_attach` / `asana_custom_field_attach_portfolio` — `is_important`; `insert_before` or `insert_after` (not both) takes a custom field setting GID on the container to place the field next to
 - `asana_tag_create` — `color`, `notes`, `follower_gids` (array or comma-separated); Asana takes followers only at creation, so `asana_tag_update` has no counterpart
 - `asana_tag_update` — `name`, `color`, `clear_color` (Asana's tag colour is nullable), `notes`

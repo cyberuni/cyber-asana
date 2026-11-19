@@ -33,6 +33,69 @@ describe('custom-fields/gateway writes', () => {
 		)
 	})
 
+	it('createCustomField sends the number format, label, notification, id prefix, and input restriction fields', async () => {
+		const spy = vi
+			.spyOn(Asana.CustomFieldsApi.prototype, 'createCustomField')
+			.mockResolvedValue({ data: { gid: 'cf1' } } as never)
+
+		await createAsanaCustomFieldGateway(client).createCustomField({
+			workspace: 'ws1',
+			name: 'Cost',
+			resourceSubtype: 'number',
+			format: 'custom',
+			currencyCode: 'USD',
+			customLabel: 'pts',
+			customLabelPosition: 'suffix',
+			hasNotificationsEnabled: true,
+			idPrefix: 'BUG',
+			inputRestrictions: ['task', 'project'],
+		})
+
+		expect(spy).toHaveBeenCalledWith(
+			{
+				data: {
+					workspace: 'ws1',
+					name: 'Cost',
+					resource_subtype: 'number',
+					format: 'custom',
+					currency_code: 'USD',
+					custom_label: 'pts',
+					custom_label_position: 'suffix',
+					has_notifications_enabled: true,
+					id_prefix: 'BUG',
+					input_restrictions: ['task', 'project'],
+				},
+			},
+			{},
+		)
+	})
+
+	it('updateCustomField sends the notification, id prefix, and input restriction fields', async () => {
+		const spy = vi
+			.spyOn(Asana.CustomFieldsApi.prototype, 'updateCustomField')
+			.mockResolvedValue({ data: { gid: 'cf1' } } as never)
+
+		await createAsanaCustomFieldGateway(client).updateCustomField('cf1', {
+			hasNotificationsEnabled: false,
+			idPrefix: 'ID',
+			inputRestrictions: ['goal'],
+		})
+
+		expect(spy).toHaveBeenCalledWith('cf1', {
+			body: { data: { has_notifications_enabled: false, id_prefix: 'ID', input_restrictions: ['goal'] } },
+		})
+	})
+
+	it('createEnumOption sends enabled', async () => {
+		const spy = vi
+			.spyOn(Asana.CustomFieldsApi.prototype, 'createEnumOptionForCustomField')
+			.mockResolvedValue({ data: { gid: 'o1' } } as never)
+
+		await createAsanaCustomFieldGateway(client).createEnumOption('cf1', { name: 'Old', enabled: false })
+
+		expect(spy).toHaveBeenCalledWith('cf1', { body: { data: { name: 'Old', enabled: false } } })
+	})
+
 	it('createEnumOption sends the option and its placement', async () => {
 		const spy = vi
 			.spyOn(Asana.CustomFieldsApi.prototype, 'createEnumOptionForCustomField')

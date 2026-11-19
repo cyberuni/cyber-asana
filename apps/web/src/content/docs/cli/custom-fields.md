@@ -24,10 +24,10 @@ cyber-asana custom-field get <gid>
 | --- | --- | --- |
 | `list` | — | `--workspace-gid <gid>` / `--workspace <gid>`, [pagination](/cyber-asana/cli/#pagination) |
 | `get` | `<gid>` | — |
-| `create` | `<name>` | `--workspace-gid <gid>`, `--type <text\|enum\|multi_enum\|number\|date\|people>` (default `text`), `--description`, `--option <name>` (repeatable, enum types), `--precision` |
-| `update` | `<gid>` | `--name`, `--description`, `--precision`, `--format <currency\|identifier\|percentage\|custom\|duration\|none>`, `--currency-code`, `--custom-label`, `--custom-label-position <prefix\|suffix>`, `--disabled`, `--enabled`. Give at least one; the field's type cannot change |
+| `create` | `<name>` | `--workspace-gid <gid>`, `--type <text\|enum\|multi_enum\|number\|date\|people>` (default `text`), `--description`, `--option <name>` (repeatable, enum types), `--precision`, `--format <currency\|identifier\|percentage\|custom\|duration\|none>`, `--currency-code`, `--custom-label`, `--custom-label-position <prefix\|suffix>`, `--notifications` / `--no-notifications`, `--id-prefix`, `--input-restriction <task\|project\|portfolio\|goal\|team\|record>` (repeatable or comma-separated) |
+| `update` | `<gid>` | `--name`, `--description`, `--precision`, `--format <currency\|identifier\|percentage\|custom\|duration\|none>`, `--currency-code`, `--custom-label`, `--custom-label-position <prefix\|suffix>`, `--notifications` / `--no-notifications`, `--id-prefix`, `--input-restriction <task\|project\|portfolio\|goal\|team\|record>` (repeatable or comma-separated), `--disabled`, `--enabled`. Give at least one; the field's type cannot change |
 | `delete` | `<gid>` | — (succeeds with `already_absent` when the field is gone; removes the field from every project and task) |
-| `enum-option add` | `<field-gid> <name>` | `--color`, `--insert-before <option-gid>`, `--insert-after <option-gid>` |
+| `enum-option add` | `<field-gid> <name>` | `--color`, `--disabled`, `--enabled`, `--insert-before <option-gid>`, `--insert-after <option-gid>` |
 | `enum-option move` | `<field-gid> <option-gid>` | exactly one of `--before <option-gid>`, `--after <option-gid>` |
 | `enum-option update` | `<option-gid>` | `--name`, `--color`, `--disabled`, `--enabled` |
 | `attach` | `<project-gid> <field-gid>` | `--important`, `--insert-before <setting-gid>` or `--insert-after <setting-gid>` (a custom field setting of the project; default is last) |

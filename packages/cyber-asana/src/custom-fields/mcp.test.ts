@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { z } from 'zod'
 
 const listCustomFieldsMock = vi.fn()
 const getCustomFieldMock = vi.fn()
@@ -26,10 +27,13 @@ type ToolHandler = (params: any) => Promise<any>
 
 function createServer() {
 	const handlers = new Map<string, ToolHandler>()
+	const schemas = new Map<string, unknown>()
 	return {
 		handlers,
-		tool(name: string, _description: string, _schema: unknown, handler: ToolHandler) {
+		schemas,
+		tool(name: string, _description: string, schema: unknown, handler: ToolHandler) {
 			handlers.set(name, handler)
+			schemas.set(name, schema)
 		},
 	}
 }
@@ -233,6 +237,82 @@ describe('custom-fields/mcp writes', () => {
 			undefined,
 		)
 		expect(JSON.parse(result.content[0].text)).toEqual({ gid: 'cf1' })
+	})
+
+	it('asana_custom_field_create maps the format, label, notification, id prefix, and input restriction fields', async () => {
+		const createCustomField = vi.fn().mockResolvedValue({ gid: 'cf1' })
+		const server = setup({ createCustomField })
+
+		await server.handlers.get('asana_custom_field_create')?.({
+			workspace_gid: 'ws1',
+			name: 'Cost',
+			type: 'number',
+			format: 'custom',
+			currency_code: 'USD',
+			custom_label: 'pts',
+			custom_label_position: 'prefix',
+			has_notifications_enabled: false,
+			id_prefix: 'BUG',
+			input_restrictions: ['task', 'portfolio'],
+		})
+
+		expect(createCustomField).toHaveBeenCalledWith(
+			{
+				workspace: 'ws1',
+				name: 'Cost',
+				resourceSubtype: 'number',
+				format: 'custom',
+				currencyCode: 'USD',
+				customLabel: 'pts',
+				customLabelPosition: 'prefix',
+				hasNotificationsEnabled: false,
+				idPrefix: 'BUG',
+				inputRestrictions: ['task', 'portfolio'],
+			},
+			undefined,
+		)
+	})
+
+	it('asana_custom_field_create rejects an unknown format, position, or input restriction in its schema', () => {
+		const server = createServer()
+		registerCustomFieldTools(server as any, {} as any)
+		const schema = z.object(server.schemas.get('asana_custom_field_create') as z.ZodRawShape)
+		const ok = { workspace_gid: 'w', name: 'n', type: 'number' }
+		expect(schema.safeParse({ ...ok, format: 'bogus' }).success).toBe(false)
+		expect(schema.safeParse({ ...ok, custom_label_position: 'middle' }).success).toBe(false)
+		expect(schema.safeParse({ ...ok, input_restrictions: ['bogus'] }).success).toBe(false)
+		expect(schema.safeParse({ ...ok, format: 'currency', input_restrictions: ['task'] }).success).toBe(true)
+	})
+
+	it('asana_custom_field_update maps the notification, id prefix, and input restriction fields', async () => {
+		const updateCustomField = vi.fn().mockResolvedValue({ gid: 'cf1' })
+		const server = setup({ updateCustomField })
+
+		await server.handlers.get('asana_custom_field_update')?.({
+			custom_field_gid: 'cf1',
+			has_notifications_enabled: true,
+			id_prefix: 'ID',
+			input_restrictions: ['goal'],
+		})
+
+		expect(updateCustomField).toHaveBeenCalledWith(
+			'cf1',
+			{ hasNotificationsEnabled: true, idPrefix: 'ID', inputRestrictions: ['goal'] },
+			undefined,
+		)
+	})
+
+	it('asana_custom_field_enum_option_create maps enabled', async () => {
+		const createEnumOption = vi.fn().mockResolvedValue({ gid: 'o1' })
+		const server = setup({ createEnumOption })
+
+		await server.handlers.get('asana_custom_field_enum_option_create')?.({
+			custom_field_gid: 'cf1',
+			name: 'Old',
+			enabled: false,
+		})
+
+		expect(createEnumOption).toHaveBeenCalledWith('cf1', { name: 'Old', enabled: false }, undefined)
 	})
 
 	it('enum option tools map create, insert, and update', async () => {

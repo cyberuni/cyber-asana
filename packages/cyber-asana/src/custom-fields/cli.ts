@@ -1,4 +1,4 @@
-import { Command, Option } from 'commander'
+import { Command, InvalidArgumentError, Option } from 'commander'
 import {
 	addGidOption,
 	addPaginationOptions,
@@ -13,6 +13,14 @@ import { output, printCountSummary, printFields, printNextSteps, printTable } fr
 import { deleteIdempotently, deleteMessage } from '../platform/idempotent-delete.js'
 import { isFull, truncate } from '../platform/truncate.js'
 import type { CreateCustomFieldInput, CustomFieldApi, UpdateCustomFieldInput } from './api.js'
+import {
+	CUSTOM_FIELD_FORMATS,
+	CUSTOM_FIELD_INPUT_RESTRICTIONS,
+	CUSTOM_LABEL_POSITIONS,
+	type CustomFieldFormat,
+	type CustomFieldInputRestriction,
+	type CustomLabelPosition,
+} from './custom-field-enums.js'
 import {
 	attachCustomField,
 	attachCustomFieldToPortfolio,
@@ -43,7 +51,63 @@ type CustomField = {
 
 const FIELD_TYPES = ['text', 'enum', 'multi_enum', 'number', 'date', 'people']
 
-const FIELD_FORMATS = ['currency', 'identifier', 'percentage', 'custom', 'duration', 'none']
+/** Parses one `--input-restriction` value (repeatable, or comma-separated) onto the ones given so far. */
+function collectInputRestriction(value: string, previous: string[] = []) {
+	const kinds = value
+		.split(',')
+		.map((k) => k.trim())
+		.filter(Boolean)
+	for (const kind of kinds) {
+		if (!(CUSTOM_FIELD_INPUT_RESTRICTIONS as readonly string[]).includes(kind)) {
+			throw new InvalidArgumentError(`Allowed choices are ${CUSTOM_FIELD_INPUT_RESTRICTIONS.join(', ')}.`)
+		}
+	}
+	return [...previous, ...kinds]
+}
+
+/** The flags `custom-field create` and `custom-field update` share. */
+function addFieldWriteOptions<T extends Command>(cmd: T) {
+	return cmd
+		.addOption(new Option('--format <format>', 'Number format; number type only').choices(CUSTOM_FIELD_FORMATS))
+		.option('--currency-code <code>', 'ISO 4217 code, such as USD; currency format only')
+		.option('--custom-label <label>', 'Label shown with the value; custom format only')
+		.addOption(
+			new Option('--custom-label-position <position>', 'Where the label goes; custom format only').choices(
+				CUSTOM_LABEL_POSITIONS,
+			),
+		)
+		.option('--notifications', 'Notify people when the field changes on a task')
+		.option('--no-notifications', 'Do not notify people when the field changes on a task')
+		.option('--id-prefix <prefix>', 'Prefix for the generated ids; identifier format only')
+		.option(
+			'--input-restriction <kind>',
+			`Limit the field to a kind of object (${CUSTOM_FIELD_INPUT_RESTRICTIONS.join(', ')}); repeatable or comma-separated`,
+			collectInputRestriction,
+		)
+}
+
+type FieldWriteFlags = {
+	format?: CustomFieldFormat
+	currencyCode?: string
+	customLabel?: string
+	customLabelPosition?: CustomLabelPosition
+	notifications?: boolean
+	idPrefix?: string
+	inputRestriction?: CustomFieldInputRestriction[]
+}
+
+/** The input fields the shared flags set; only the ones the user gave. */
+function fieldWriteInput(opts: FieldWriteFlags) {
+	return {
+		...(opts.format !== undefined && { format: opts.format }),
+		...(opts.currencyCode !== undefined && { currencyCode: opts.currencyCode }),
+		...(opts.customLabel !== undefined && { customLabel: opts.customLabel }),
+		...(opts.customLabelPosition !== undefined && { customLabelPosition: opts.customLabelPosition }),
+		...(opts.notifications !== undefined && { hasNotificationsEnabled: opts.notifications }),
+		...(opts.idPrefix !== undefined && { idPrefix: opts.idPrefix }),
+		...(opts.inputRestriction !== undefined && { inputRestrictions: opts.inputRestriction }),
+	}
+}
 
 const collect = (value: string, previous: string[]) => [...previous, value]
 
@@ -238,18 +302,20 @@ export function customFieldCommand(api?: CustomFieldApi | (() => CustomFieldApi)
 
 	addReadOptions(
 		addGidOption(
-			cmd
-				.command('create <name>')
-				.description('Create a custom field in a workspace')
-				.addOption(new Option('--type <type>', 'Field type').choices(FIELD_TYPES).default('text'))
-				.option('--description <text>', 'Field description')
-				.option(
-					'--option <name>',
-					'An enum option, repeatable; enum and multi_enum types only',
-					collect,
-					[] as string[],
-				)
-				.option('--precision <digits>', 'Decimal places; number type only', (v) => Number(v)),
+			addFieldWriteOptions(
+				cmd
+					.command('create <name>')
+					.description('Create a custom field in a workspace')
+					.addOption(new Option('--type <type>', 'Field type').choices(FIELD_TYPES).default('text'))
+					.option('--description <text>', 'Field description')
+					.option(
+						'--option <name>',
+						'An enum option, repeatable; enum and multi_enum types only',
+						collect,
+						[] as string[],
+					)
+					.option('--precision <digits>', 'Decimal places; number type only', (v) => Number(v)),
+			),
 			'workspace',
 			'Workspace GID',
 		),
@@ -264,7 +330,7 @@ export function customFieldCommand(api?: CustomFieldApi | (() => CustomFieldApi)
 				description?: string
 				option: string[]
 				precision?: number
-			},
+			} & FieldWriteFlags,
 		) => {
 			const isEnum = opts.type === 'enum' || opts.type === 'multi_enum'
 			if (opts.option.length > 0 && !isEnum) {
@@ -277,6 +343,7 @@ export function customFieldCommand(api?: CustomFieldApi | (() => CustomFieldApi)
 					resourceSubtype: opts.type,
 					...(opts.description !== undefined && { description: opts.description }),
 					...(opts.precision !== undefined && { precision: opts.precision }),
+					...fieldWriteInput(opts),
 					...(isEnum && opts.option.length > 0 && { enumOptions: opts.option.map((o) => ({ name: o })) }),
 				},
 				readOptionsFromCli(opts),
@@ -292,21 +359,16 @@ export function customFieldCommand(api?: CustomFieldApi | (() => CustomFieldApi)
 	)
 
 	addReadOptions(
-		cmd
-			.command('update <gid>')
-			.description("Edit a custom field's name, description, number format, or enabled state (its type cannot change)")
-			.option('--name <name>', 'New name')
-			.option('--description <text>', 'New description')
-			.option('--precision <digits>', 'Decimal places; number type only', (v) => Number(v))
-			.addOption(new Option('--format <format>', 'Number format; number type only').choices(FIELD_FORMATS))
-			.option('--currency-code <code>', 'ISO 4217 code, such as USD; currency format only')
-			.option('--custom-label <label>', 'Label shown with the value; custom format only')
-			.addOption(
-				new Option('--custom-label-position <position>', 'Where the label goes; custom format only').choices([
-					'prefix',
-					'suffix',
-				]),
-			)
+		addFieldWriteOptions(
+			cmd
+				.command('update <gid>')
+				.description(
+					"Edit a custom field's name, description, number format, labels, notifications, id prefix, input restrictions, or enabled state (its type cannot change)",
+				)
+				.option('--name <name>', 'New name')
+				.option('--description <text>', 'New description')
+				.option('--precision <digits>', 'Decimal places; number type only', (v) => Number(v)),
+		)
 			.option('--disabled', 'Disable the field')
 			.option('--enabled', 'Enable the field'),
 	).action(
@@ -316,30 +378,23 @@ export function customFieldCommand(api?: CustomFieldApi | (() => CustomFieldApi)
 				name?: string
 				description?: string
 				precision?: number
-				format?: UpdateCustomFieldInput['format']
-				currencyCode?: string
-				customLabel?: string
-				customLabelPosition?: UpdateCustomFieldInput['customLabelPosition']
 				disabled?: boolean
 				enabled?: boolean
 				optFields?: string
-			},
+			} & FieldWriteFlags,
 		) => {
 			if (opts.disabled && opts.enabled) throw new Error('--disabled and --enabled are mutually exclusive')
 			const changes: UpdateCustomFieldInput = {
 				...(opts.name !== undefined && { name: opts.name }),
 				...(opts.description !== undefined && { description: opts.description }),
 				...(opts.precision !== undefined && { precision: opts.precision }),
-				...(opts.format !== undefined && { format: opts.format }),
-				...(opts.currencyCode !== undefined && { currencyCode: opts.currencyCode }),
-				...(opts.customLabel !== undefined && { customLabel: opts.customLabel }),
-				...(opts.customLabelPosition !== undefined && { customLabelPosition: opts.customLabelPosition }),
+				...fieldWriteInput(opts),
 				...(opts.disabled && { enabled: false }),
 				...(opts.enabled && { enabled: true }),
 			}
 			if (Object.keys(changes).length === 0) {
 				throw new Error(
-					'Nothing to update: give --name, --description, --precision, --format, --currency-code, --custom-label, --custom-label-position, --disabled, or --enabled',
+					'Nothing to update: give --name, --description, --precision, --format, --currency-code, --custom-label, --custom-label-position, --notifications, --no-notifications, --id-prefix, --input-restriction, --disabled, or --enabled',
 				)
 			}
 			const updated = (await resolveCustomFieldApi(api).updateCustomField(
@@ -369,13 +424,23 @@ export function customFieldCommand(api?: CustomFieldApi | (() => CustomFieldApi)
 			.description('Add an enum option to a custom field (at the end unless placed)')
 			.option('--color <color>', 'Option color, such as blue or red')
 			.option('--insert-before <option-gid>', 'Place before this option')
-			.option('--insert-after <option-gid>', 'Place after this option'),
+			.option('--insert-after <option-gid>', 'Place after this option')
+			.option('--disabled', 'Add the option disabled')
+			.option('--enabled', 'Add the option enabled (the default)'),
 	).action(
 		async (
 			fieldGid: string,
 			name: string,
-			opts: { color?: string; insertBefore?: string; insertAfter?: string; optFields?: string },
+			opts: {
+				color?: string
+				insertBefore?: string
+				insertAfter?: string
+				disabled?: boolean
+				enabled?: boolean
+				optFields?: string
+			},
 		) => {
+			if (opts.disabled && opts.enabled) throw new Error('--disabled and --enabled are mutually exclusive')
 			if (opts.insertBefore && opts.insertAfter) {
 				throw new Error('--insert-before and --insert-after are mutually exclusive')
 			}
@@ -384,6 +449,8 @@ export function customFieldCommand(api?: CustomFieldApi | (() => CustomFieldApi)
 				{
 					name,
 					...(opts.color !== undefined && { color: opts.color }),
+					...(opts.disabled && { enabled: false }),
+					...(opts.enabled && { enabled: true }),
 					...(opts.insertBefore !== undefined && { insertBefore: opts.insertBefore }),
 					...(opts.insertAfter !== undefined && { insertAfter: opts.insertAfter }),
 				},

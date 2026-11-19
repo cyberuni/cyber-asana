@@ -435,19 +435,19 @@
 					"mcp": "opt_fields"
 				},
 				"currency_code": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
-					"note": "neither the CLI nor MCP sends it"
+					"status": "covered",
+					"cli": "--currency-code",
+					"mcp": "currency_code"
 				},
 				"custom_label": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
-					"note": "neither the CLI nor MCP sends it"
+					"status": "covered",
+					"cli": "--custom-label",
+					"mcp": "custom_label"
 				},
 				"custom_label_position": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
-					"note": "neither the CLI nor MCP sends it"
+					"status": "covered",
+					"cli": "--custom-label-position",
+					"mcp": "custom_label_position"
 				},
 				"date_value": {
 					"status": "skipped",
@@ -469,34 +469,32 @@
 					"reason": "A value the field holds on a task or project, set there through custom_fields; it is not part of the field definition"
 				},
 				"format": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
-					"note": "neither the CLI nor MCP sends it"
+					"status": "covered",
+					"cli": "--format",
+					"mcp": "format"
 				},
 				"has_notifications_enabled": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
-					"note": "neither the CLI nor MCP sends it"
+					"status": "covered",
+					"cli": "--notifications / --no-notifications",
+					"mcp": "has_notifications_enabled"
 				},
 				"id_prefix": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
-					"note": "neither the CLI nor MCP sends it"
+					"status": "covered",
+					"cli": "--id-prefix",
+					"mcp": "id_prefix"
 				},
 				"input_restrictions": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
-					"note": "neither the CLI nor MCP sends it"
+					"status": "covered",
+					"cli": "--input-restriction",
+					"mcp": "input_restrictions"
 				},
 				"is_formula_field": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
-					"note": "neither the CLI nor MCP sends it (likely a read-only value field on the custom field object; unverified)"
+					"status": "skipped",
+					"reason": "Asana documents the flag only as describing a formula/lookup field and offers no way to define the formula or lookup through the API, so sending it alone has no defined effect"
 				},
 				"is_lookup_field": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
-					"note": "neither the CLI nor MCP sends it (likely a read-only value field on the custom field object; unverified)"
+					"status": "skipped",
+					"reason": "Asana documents the flag only as describing a formula/lookup field and offers no way to define the formula or lookup through the API, so sending it alone has no defined effect"
 				},
 				"multi_enum_values": {
 					"status": "skipped",
@@ -512,9 +510,8 @@
 					"reason": "A value the field holds on a task or project, set there through custom_fields; it is not part of the field definition"
 				},
 				"owned_by_app": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
-					"note": "neither the CLI nor MCP sends it (likely a read-only value field on the custom field object; unverified)"
+					"status": "skipped",
+					"reason": "Allow-listed to specific apps; any other caller gets 403 Forbidden"
 				},
 				"people_value": {
 					"status": "skipped",
@@ -566,9 +563,9 @@
 					"mcp": "color"
 				},
 				"enabled": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
-					"note": "neither the CLI nor MCP sends enabled on create (only enum-option update does)"
+					"status": "covered",
+					"cli": "--disabled / --enabled",
+					"mcp": "enabled"
 				},
 				"insert_after": {
 					"status": "covered",
@@ -4902,9 +4899,8 @@
 					"mcp": "description"
 				},
 				"enum_options": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
-					"note": "neither the CLI nor MCP sends it"
+					"status": "skipped",
+					"reason": "Asana directs enum option changes to the enum-option endpoints, covered by custom-field enum-option add/move/update"
 				},
 				"enum_value": {
 					"status": "skipped",
@@ -4916,29 +4912,27 @@
 					"mcp": "format"
 				},
 				"has_notifications_enabled": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
-					"note": "neither the CLI nor MCP sends it"
+					"status": "covered",
+					"cli": "--notifications / --no-notifications",
+					"mcp": "has_notifications_enabled"
 				},
 				"id_prefix": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
-					"note": "neither the CLI nor MCP sends it"
+					"status": "covered",
+					"cli": "--id-prefix",
+					"mcp": "id_prefix"
 				},
 				"input_restrictions": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
-					"note": "neither the CLI nor MCP sends it"
+					"status": "covered",
+					"cli": "--input-restriction",
+					"mcp": "input_restrictions"
 				},
 				"is_formula_field": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
-					"note": "neither the CLI nor MCP sends it (likely a read-only value field on the custom field object; unverified)"
+					"status": "skipped",
+					"reason": "Asana documents the flag only as describing a formula/lookup field and offers no way to define the formula or lookup through the API, so sending it alone has no defined effect"
 				},
 				"is_lookup_field": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
-					"note": "neither the CLI nor MCP sends it (likely a read-only value field on the custom field object; unverified)"
+					"status": "skipped",
+					"reason": "Asana documents the flag only as describing a formula/lookup field and offers no way to define the formula or lookup through the API, so sending it alone has no defined effect"
 				},
 				"multi_enum_values": {
 					"status": "skipped",
@@ -4954,9 +4948,8 @@
 					"reason": "A value the field holds on a task or project, set there through custom_fields; it is not part of the field definition"
 				},
 				"owned_by_app": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
-					"note": "neither the CLI nor MCP sends it (likely a read-only value field on the custom field object; unverified)"
+					"status": "skipped",
+					"reason": "Allow-listed to specific apps; any other caller gets 403 Forbidden"
 				},
 				"people_value": {
 					"status": "skipped",
@@ -4976,9 +4969,8 @@
 					"reason": "A value the field holds on a task or project, set there through custom_fields; it is not part of the field definition"
 				},
 				"workspace": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
-					"note": "neither the CLI nor MCP sends it"
+					"status": "skipped",
+					"reason": "Create-only in Asana; a custom field cannot move between workspaces"
 				}
 			}
 		},

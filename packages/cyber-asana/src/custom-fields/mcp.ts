@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { deleteIdempotently } from '../platform/idempotent-delete.js'
 import { paginationOptions, paginationParams, readOptions, readParams } from '../platform/mcp/options.js'
 import type { CustomFieldApi } from './api.js'
+import { CUSTOM_FIELD_FORMATS, CUSTOM_FIELD_INPUT_RESTRICTIONS, CUSTOM_LABEL_POSITIONS } from './custom-field-enums.js'
 import {
 	attachCustomField,
 	attachCustomFieldToPortfolio,
@@ -144,6 +145,40 @@ export function registerCustomFieldTools(server: McpServer, api?: CustomFieldApi
 		}),
 	)
 
+	/** The parameters `asana_custom_field_create` and `asana_custom_field_update` share. */
+	const fieldWriteParams = {
+		format: z.enum(CUSTOM_FIELD_FORMATS).optional().describe('Number format; number type only'),
+		currency_code: z.string().optional().describe('ISO 4217 code, such as USD; currency format only'),
+		custom_label: z.string().optional().describe('Label shown with the value; custom format only'),
+		custom_label_position: z.enum(CUSTOM_LABEL_POSITIONS).optional().describe('Where the label goes'),
+		has_notifications_enabled: z
+			.boolean()
+			.optional()
+			.describe('Whether people are notified when the field changes on a task'),
+		id_prefix: z.string().optional().describe('Prefix for the generated ids; identifier format only'),
+		input_restrictions: z
+			.array(z.enum(CUSTOM_FIELD_INPUT_RESTRICTIONS))
+			.optional()
+			.describe('Kinds of object the field is limited to'),
+	}
+	const fieldWriteInput = (p: {
+		format?: (typeof CUSTOM_FIELD_FORMATS)[number]
+		currency_code?: string
+		custom_label?: string
+		custom_label_position?: (typeof CUSTOM_LABEL_POSITIONS)[number]
+		has_notifications_enabled?: boolean
+		id_prefix?: string
+		input_restrictions?: Array<(typeof CUSTOM_FIELD_INPUT_RESTRICTIONS)[number]>
+	}) => ({
+		...(p.format !== undefined && { format: p.format }),
+		...(p.currency_code !== undefined && { currencyCode: p.currency_code }),
+		...(p.custom_label !== undefined && { customLabel: p.custom_label }),
+		...(p.custom_label_position !== undefined && { customLabelPosition: p.custom_label_position }),
+		...(p.has_notifications_enabled !== undefined && { hasNotificationsEnabled: p.has_notifications_enabled }),
+		...(p.id_prefix !== undefined && { idPrefix: p.id_prefix }),
+		...(p.input_restrictions !== undefined && { inputRestrictions: p.input_restrictions }),
+	})
+
 	const json = (value: unknown) => ({ content: [{ type: 'text' as const, text: JSON.stringify(value) }] })
 
 	server.tool(
@@ -156,9 +191,25 @@ export function registerCustomFieldTools(server: McpServer, api?: CustomFieldApi
 			description: z.string().optional().describe('Field description'),
 			precision: z.number().int().optional().describe('Decimal places; number type only'),
 			enum_options: z.array(z.string()).optional().describe('Option names; enum and multi_enum types only'),
+			...fieldWriteParams,
 			...readParams,
 		},
-		async ({ workspace_gid, name, type, description, precision, enum_options, ...params }) =>
+		async ({
+			workspace_gid,
+			name,
+			type,
+			description,
+			precision,
+			enum_options,
+			format,
+			currency_code,
+			custom_label,
+			custom_label_position,
+			has_notifications_enabled,
+			id_prefix,
+			input_restrictions,
+			...params
+		}) =>
 			json(
 				await resolveCustomFieldApi(api).createCustomField(
 					{
@@ -167,6 +218,15 @@ export function registerCustomFieldTools(server: McpServer, api?: CustomFieldApi
 						resourceSubtype: type,
 						...(description !== undefined && { description }),
 						...(precision !== undefined && { precision }),
+						...fieldWriteInput({
+							format,
+							currency_code,
+							custom_label,
+							custom_label_position,
+							has_notifications_enabled,
+							id_prefix,
+							input_restrictions,
+						}),
 						...(enum_options !== undefined && { enumOptions: enum_options.map((o) => ({ name: o })) }),
 					},
 					readOptions(params),
@@ -176,19 +236,13 @@ export function registerCustomFieldTools(server: McpServer, api?: CustomFieldApi
 
 	server.tool(
 		'asana_custom_field_update',
-		"Edit a custom field: name, description, number precision or format, currency code, label, or enabled state. The field's type (resource_subtype) cannot be changed. Give at least one property",
+		"Edit a custom field: name, description, number precision or format, currency code, label, notifications, id prefix, input restrictions, or enabled state. The field's type (resource_subtype) cannot be changed. Give at least one property",
 		{
 			custom_field_gid: z.string().describe('Custom field GID'),
 			name: z.string().optional().describe('New name'),
 			description: z.string().optional().describe('New description'),
 			precision: z.number().int().optional().describe('Decimal places; number type only'),
-			format: z
-				.enum(['currency', 'identifier', 'percentage', 'custom', 'duration', 'none'])
-				.optional()
-				.describe('Number format; number type only'),
-			currency_code: z.string().optional().describe('ISO 4217 code, such as USD; currency format only'),
-			custom_label: z.string().optional().describe('Label shown with the value; custom format only'),
-			custom_label_position: z.enum(['prefix', 'suffix']).optional().describe('Where the label goes'),
+			...fieldWriteParams,
 			enabled: z.boolean().optional().describe('false disables the field, true re-enables it'),
 			...readParams,
 		},
@@ -201,6 +255,9 @@ export function registerCustomFieldTools(server: McpServer, api?: CustomFieldApi
 			currency_code,
 			custom_label,
 			custom_label_position,
+			has_notifications_enabled,
+			id_prefix,
+			input_restrictions,
 			enabled,
 			...params
 		}) => {
@@ -208,10 +265,15 @@ export function registerCustomFieldTools(server: McpServer, api?: CustomFieldApi
 				...(name !== undefined && { name }),
 				...(description !== undefined && { description }),
 				...(precision !== undefined && { precision }),
-				...(format !== undefined && { format }),
-				...(currency_code !== undefined && { currencyCode: currency_code }),
-				...(custom_label !== undefined && { customLabel: custom_label }),
-				...(custom_label_position !== undefined && { customLabelPosition: custom_label_position }),
+				...fieldWriteInput({
+					format,
+					currency_code,
+					custom_label,
+					custom_label_position,
+					has_notifications_enabled,
+					id_prefix,
+					input_restrictions,
+				}),
 				...(enabled !== undefined && { enabled }),
 			}
 			if (Object.keys(changes).length === 0) throw new Error('Nothing to update: give at least one property to change')
@@ -238,17 +300,19 @@ export function registerCustomFieldTools(server: McpServer, api?: CustomFieldApi
 			custom_field_gid: z.string().describe('Custom field GID'),
 			name: z.string().describe('Option name'),
 			color: z.string().optional().describe('Option color, such as blue'),
+			enabled: z.boolean().optional().describe('false adds the option disabled; omit for enabled'),
 			insert_before: z.string().optional().describe('Enum option GID to place this one before'),
 			insert_after: z.string().optional().describe('Enum option GID to place this one after'),
 			...readParams,
 		},
-		async ({ custom_field_gid, name, color, insert_before, insert_after, ...params }) =>
+		async ({ custom_field_gid, name, color, enabled, insert_before, insert_after, ...params }) =>
 			json(
 				await resolveCustomFieldApi(api).createEnumOption(
 					custom_field_gid,
 					{
 						name,
 						...(color !== undefined && { color }),
+						...(enabled !== undefined && { enabled }),
 						...(insert_before !== undefined && { insertBefore: insert_before }),
 						...(insert_after !== undefined && { insertAfter: insert_after }),
 					},
