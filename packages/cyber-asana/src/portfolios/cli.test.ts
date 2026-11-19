@@ -129,7 +129,7 @@ describe('portfolios/cli', () => {
 			from: 'node',
 		})
 
-		expect(createPortfolioMock).toHaveBeenCalledWith('ws1', 'Roadmap', undefined)
+		expect(createPortfolioMock).toHaveBeenCalledWith('ws1', 'Roadmap', undefined, undefined)
 	})
 
 	it('portfolio update forwards gid and fields', async () => {
@@ -169,7 +169,7 @@ describe('portfolios/cli', () => {
 			from: 'node',
 		})
 
-		expect(injectedCreatePortfolio).toHaveBeenCalledWith('ws1', 'Roadmap', undefined)
+		expect(injectedCreatePortfolio).toHaveBeenCalledWith('ws1', 'Roadmap', undefined, undefined)
 	})
 
 	it('portfolio list forwards --owner-gid as an owner filter', async () => {

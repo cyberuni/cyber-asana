@@ -780,29 +780,29 @@
 					"mcp": "opt_fields"
 				},
 				"archived": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/411",
-					"note": "neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create)"
+					"status": "covered",
+					"cli": "--archived / --no-archived",
+					"mcp": "archived"
 				},
 				"color": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/411",
-					"note": "neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create)"
+					"status": "covered",
+					"cli": "--color",
+					"mcp": "color"
 				},
 				"custom_type": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/411",
-					"note": "neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create)"
+					"status": "covered",
+					"cli": "--custom-type",
+					"mcp": "custom_type"
 				},
 				"default_access_level": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/411",
-					"note": "neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create)"
+					"status": "covered",
+					"cli": "--default-access-level",
+					"mcp": "default_access_level"
 				},
 				"due_on": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/411",
-					"note": "neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create)"
+					"status": "covered",
+					"cli": "--due-on",
+					"mcp": "due_on"
 				},
 				"name": {
 					"status": "covered",
@@ -810,19 +810,19 @@
 					"mcp": "name"
 				},
 				"public": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/411",
-					"note": "neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create)"
+					"status": "covered",
+					"cli": "--public / --no-public",
+					"mcp": "public"
 				},
 				"resource_subtype": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/411",
-					"note": "neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create)"
+					"status": "covered",
+					"cli": "--resource-subtype",
+					"mcp": "resource_subtype"
 				},
 				"start_on": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/411",
-					"note": "neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create)"
+					"status": "covered",
+					"cli": "--start-on",
+					"mcp": "start_on"
 				},
 				"workspace": {
 					"status": "covered",
@@ -5178,39 +5178,39 @@
 					"mcp": "opt_fields"
 				},
 				"archived": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/411",
-					"note": "neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create)"
+					"status": "covered",
+					"cli": "--archived / --no-archived",
+					"mcp": "archived"
 				},
 				"color": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/411",
-					"note": "neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create)"
+					"status": "covered",
+					"cli": "--color",
+					"mcp": "color"
 				},
 				"custom_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/411",
-					"note": "neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create)"
+					"status": "covered",
+					"cli": "--custom-fields-json / --custom-field",
+					"mcp": "custom_fields"
 				},
 				"custom_type": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/411",
-					"note": "neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create)"
+					"status": "covered",
+					"cli": "--custom-type",
+					"mcp": "custom_type"
 				},
 				"default_access_level": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/411",
-					"note": "neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create)"
+					"status": "covered",
+					"cli": "--default-access-level",
+					"mcp": "default_access_level"
 				},
 				"due_on": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/411",
-					"note": "neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create)"
+					"status": "covered",
+					"cli": "--due-on",
+					"mcp": "due_on"
 				},
 				"html_custom_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/411",
-					"note": "neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create)"
+					"status": "covered",
+					"cli": "--html-custom-fields-json / --html-custom-field",
+					"mcp": "html_custom_fields"
 				},
 				"name": {
 					"status": "covered",
@@ -5218,19 +5218,19 @@
 					"mcp": "name"
 				},
 				"public": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/411",
-					"note": "neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create)"
+					"status": "covered",
+					"cli": "--public / --no-public",
+					"mcp": "public"
 				},
 				"resource_subtype": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/411",
-					"note": "neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create)"
+					"status": "covered",
+					"cli": "--resource-subtype",
+					"mcp": "resource_subtype"
 				},
 				"start_on": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/411",
-					"note": "neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create)"
+					"status": "covered",
+					"cli": "--start-on",
+					"mcp": "start_on"
 				}
 			}
 		},

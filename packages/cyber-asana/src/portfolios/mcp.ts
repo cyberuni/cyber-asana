@@ -19,6 +19,8 @@ import {
 	removePortfolioItem,
 	updatePortfolio,
 } from './default.js'
+import { PORTFOLIO_COLORS, PORTFOLIO_DEFAULT_ACCESS_LEVELS, PORTFOLIO_RESOURCE_SUBTYPES } from './portfolio-enums.js'
+import { buildPortfolioCreateFields, buildPortfolioUpdateFields } from './write-options.js'
 
 function resolvePortfolioApi(api?: PortfolioApi | (() => PortfolioApi)): PortfolioApi {
 	if (typeof api === 'function') return api()
@@ -34,6 +36,44 @@ function resolvePortfolioApi(api?: PortfolioApi | (() => PortfolioApi)): Portfol
 			removePortfolioItem,
 		}
 	)
+}
+
+const portfolioWriteParams = {
+	archived: z.boolean().optional().describe('Archive (true) or unarchive (false) the portfolio'),
+	color: z.enum(PORTFOLIO_COLORS).optional().describe('Portfolio color'),
+	custom_type: z.string().optional().describe('Custom type GID; Asana accepts it only when resource_subtype is custom'),
+	resource_subtype: z.enum(PORTFOLIO_RESOURCE_SUBTYPES).optional().describe('Portfolio resource subtype'),
+	default_access_level: z.enum(PORTFOLIO_DEFAULT_ACCESS_LEVELS).optional().describe('Default access level for members'),
+	public: z.boolean().optional().describe('Public to the workspace when true; new portfolios are private'),
+	due_on: z.string().optional().describe('Due date (YYYY-MM-DD)'),
+	start_on: z
+		.string()
+		.optional()
+		.describe('Start date (YYYY-MM-DD); Asana requires due_on in the same request, and not before it'),
+}
+
+type PortfolioWriteParams = {
+	archived?: boolean
+	color?: string
+	custom_type?: string
+	resource_subtype?: string
+	default_access_level?: string
+	public?: boolean
+	due_on?: string
+	start_on?: string
+}
+
+function portfolioWriteInput(params: PortfolioWriteParams) {
+	return {
+		archived: params.archived,
+		color: params.color,
+		customType: params.custom_type,
+		resourceSubtype: params.resource_subtype,
+		defaultAccessLevel: params.default_access_level,
+		public: params.public,
+		dueOn: params.due_on,
+		startOn: params.start_on,
+	}
 }
 
 export function registerPortfolioTools(server: McpServer, api?: PortfolioApi | (() => PortfolioApi)) {
@@ -101,14 +141,20 @@ export function registerPortfolioTools(server: McpServer, api?: PortfolioApi | (
 		{
 			workspace_gid: z.string().describe('Workspace GID'),
 			name: z.string().describe('Portfolio name'),
+			...portfolioWriteParams,
 			...readParams,
 		},
-		async ({ workspace_gid, name, opt_fields }) => ({
+		async ({ workspace_gid, name, opt_fields, ...fields }) => ({
 			content: [
 				{
 					type: 'text',
 					text: JSON.stringify(
-						await resolvePortfolioApi(api).createPortfolio(workspace_gid, name, readOptions({ opt_fields })),
+						await resolvePortfolioApi(api).createPortfolio(
+							workspace_gid,
+							name,
+							readOptions({ opt_fields }),
+							buildPortfolioCreateFields(portfolioWriteInput(fields)),
+						),
 					),
 				},
 			],
@@ -121,14 +167,29 @@ export function registerPortfolioTools(server: McpServer, api?: PortfolioApi | (
 		{
 			portfolio_gid: z.string().describe('Portfolio GID'),
 			name: z.string().optional().describe('New name'),
+			...portfolioWriteParams,
+			custom_fields: z.record(z.string(), z.unknown()).optional().describe('Custom field values keyed by field GID'),
+			html_custom_fields: z
+				.record(z.string(), z.string())
+				.optional()
+				.describe('Text custom field values as HTML, keyed by field GID: "<body>...</body>"'),
 			...readParams,
 		},
-		async ({ portfolio_gid, name, opt_fields }) => ({
+		async ({ portfolio_gid, name, custom_fields, html_custom_fields, opt_fields, ...fields }) => ({
 			content: [
 				{
 					type: 'text',
 					text: JSON.stringify(
-						await resolvePortfolioApi(api).updatePortfolio(portfolio_gid, { name }, readOptions({ opt_fields })),
+						await resolvePortfolioApi(api).updatePortfolio(
+							portfolio_gid,
+							buildPortfolioUpdateFields({
+								...portfolioWriteInput(fields),
+								name,
+								customFields: custom_fields,
+								htmlCustomFields: html_custom_fields,
+							}),
+							readOptions({ opt_fields }),
+						),
 					),
 				},
 			],
