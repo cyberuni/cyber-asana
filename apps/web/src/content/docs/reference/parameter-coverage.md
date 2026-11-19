@@ -8,7 +8,7 @@ description: Every request parameter of each Asana API operation cyber-asana wra
 For each of the **171** Asana REST operations cyber-asana wraps, this page lists
 every path, query, and top-level body parameter in the
 [Asana OpenAPI definition](https://raw.githubusercontent.com/Asana/openapi/master/defs/asana_oas.yaml) (fetched 2026-11-19) and how cyber-asana sends it.
-Of **946** parameters, **872** are covered, **67** are skipped on purpose, and **7** are open gaps.
+Of **946** parameters, **879** are covered, **67** are skipped on purpose, and **0** are open gaps.
 Header parameters are left out: an API client sets them once, not per command.
 
 | Status | Meaning |
@@ -26,15 +26,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 
 ## Gaps
 
-| Endpoint | Parameter | In | CLI | MCP | Status |
-| --- | --- | --- | --- | --- | --- |
-| `createTimeTrackingEntry` | `billable_status` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
-| `createTimeTrackingEntry` | `categories` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
-| `createTimeTrackingEntry` | `description` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
-| `getTimeTrackingEntries` | `timesheet_approval_status` | query | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it |
-| `updateTimeTrackingEntry` | `billable_status` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
-| `updateTimeTrackingEntry` | `categories` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
-| `updateTimeTrackingEntry` | `description` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
+None.
 
 ## AI Studio usage API
 
@@ -1076,9 +1068,9 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `createTimeTrackingEntry` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `createTimeTrackingEntry` | `assignee` | body | `--assignee` | `assignee_gid` | ✅ |
 | `createTimeTrackingEntry` | `attributable_to` | body | `--attributable-to` | `attributable_to_gid` | ✅ |
-| `createTimeTrackingEntry` | `billable_status` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
-| `createTimeTrackingEntry` | `categories` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
-| `createTimeTrackingEntry` | `description` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
+| `createTimeTrackingEntry` | `billable_status` | body | `--billable-status` | `billable_status` | ✅ |
+| `createTimeTrackingEntry` | `categories` | body | `--category` | `category_gids` | ✅ |
+| `createTimeTrackingEntry` | `description` | body | `--description` | `description` | ✅ |
 | `createTimeTrackingEntry` | `duration_minutes` | body | `--hours / --minutes` | `duration_minutes` | ✅ CLI converts hours to minutes |
 | `createTimeTrackingEntry` | `entered_on` | body | `--entered-on` | `entered_on` | ✅ |
 | `deleteTimeTrackingEntry` | `time_tracking_entry_gid` | path | `<gid>` | `time_entry_gid` | ✅ |
@@ -1091,7 +1083,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `getTimeTrackingEntries` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `getTimeTrackingEntries` | `portfolio` | query | `--portfolio-gid` | `portfolio_gid` | ✅ |
 | `getTimeTrackingEntries` | `task` | query | `--task-gid` | `task_gid` | ✅ |
-| `getTimeTrackingEntries` | `timesheet_approval_status` | query | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it |
+| `getTimeTrackingEntries` | `timesheet_approval_status` | query | `--timesheet-approval-status` | `timesheet_approval_status_gid` | ✅ |
 | `getTimeTrackingEntries` | `user` | query | `--user-gid` | `user_gid` | ✅ |
 | `getTimeTrackingEntries` | `workspace` | query | `--workspace-gid (or ASANA_WORKSPACE_GID)` | `workspace_gid` | ✅ |
 | `getTimeTrackingEntriesForTask` | `task_gid` | path | `<task-gid>` | `task_gid` | ✅ |
@@ -1104,9 +1096,9 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `updateTimeTrackingEntry` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `updateTimeTrackingEntry` | `assignee` | body | `--assignee` | `assignee_gid` | ✅ |
 | `updateTimeTrackingEntry` | `attributable_to` | body | `--attributable-to` | `attributable_to_gid` | ✅ |
-| `updateTimeTrackingEntry` | `billable_status` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
-| `updateTimeTrackingEntry` | `categories` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
-| `updateTimeTrackingEntry` | `description` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
+| `updateTimeTrackingEntry` | `billable_status` | body | `--billable-status` | `billable_status` | ✅ |
+| `updateTimeTrackingEntry` | `categories` | body | `--category` | `category_gids` | ✅ |
+| `updateTimeTrackingEntry` | `description` | body | `--description` | `description` | ✅ |
 | `updateTimeTrackingEntry` | `duration_minutes` | body | `--hours / --minutes` | `duration_minutes` | ✅ CLI converts hours to minutes |
 | `updateTimeTrackingEntry` | `entered_on` | body | `--entered-on` | `entered_on` | ✅ |
 

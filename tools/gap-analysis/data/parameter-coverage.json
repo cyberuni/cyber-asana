@@ -1567,19 +1567,19 @@
 					"mcp": "attributable_to_gid"
 				},
 				"billable_status": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/414",
-					"note": "Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope)"
+					"status": "covered",
+					"cli": "--billable-status",
+					"mcp": "billable_status"
 				},
 				"categories": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/414",
-					"note": "Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope)"
+					"status": "covered",
+					"cli": "--category",
+					"mcp": "category_gids"
 				},
 				"description": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/414",
-					"note": "Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope)"
+					"status": "covered",
+					"cli": "--description",
+					"mcp": "description"
 				},
 				"duration_minutes": {
 					"status": "covered",
@@ -3649,9 +3649,9 @@
 					"mcp": "task_gid"
 				},
 				"timesheet_approval_status": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/414",
-					"note": "Neither CLI nor MCP sends it"
+					"status": "covered",
+					"cli": "--timesheet-approval-status",
+					"mcp": "timesheet_approval_status_gid"
 				},
 				"user": {
 					"status": "covered",
@@ -5692,19 +5692,19 @@
 					"mcp": "attributable_to_gid"
 				},
 				"billable_status": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/414",
-					"note": "Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope)"
+					"status": "covered",
+					"cli": "--billable-status",
+					"mcp": "billable_status"
 				},
 				"categories": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/414",
-					"note": "Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope)"
+					"status": "covered",
+					"cli": "--category",
+					"mcp": "category_gids"
 				},
 				"description": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/414",
-					"note": "Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope)"
+					"status": "covered",
+					"cli": "--description",
+					"mcp": "description"
 				},
 				"duration_minutes": {
 					"status": "covered",

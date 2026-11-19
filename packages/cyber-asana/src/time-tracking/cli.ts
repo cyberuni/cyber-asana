@@ -1,4 +1,4 @@
-import { Command, InvalidArgumentError } from 'commander'
+import { Command, InvalidArgumentError, Option } from 'commander'
 import {
 	addGidOption,
 	addPaginationOptions,
@@ -12,6 +12,7 @@ import {
 import { output, printCountSummary, printFields, printNextSteps, printTable } from '../platform/cli/output.js'
 import { deleteIdempotently, deleteMessage } from '../platform/idempotent-delete.js'
 import type { TimeTrackingEntryApi, TimeTrackingEntryFields } from './api.js'
+import { BILLABLE_STATUSES, type BillableStatus, MAX_CATEGORIES } from './billing.js'
 import {
 	createTimeTrackingEntry,
 	deleteTimeTrackingEntry,
@@ -71,8 +72,13 @@ type WriteOpts = {
 	enteredOn?: string
 	assignee?: string
 	attributableTo?: string
+	billableStatus?: BillableStatus
+	category?: string[]
+	description?: string
 	optFields?: string
 }
+
+const ADD_ON = 'Needs the Timesheets and Budgets add-on (402 Payment Required without it)'
 
 function addWriteOptions<T extends Command>(cmd: T) {
 	return cmd
@@ -84,6 +90,13 @@ function addWriteOptions<T extends Command>(cmd: T) {
 			'User GID the time is attributed to (default: you). Another user only if you are their time reviewer or an admin',
 		)
 		.option('--attributable-to <project-gid>', 'Project GID the time is attributed to')
+		.addOption(new Option('--billable-status <status>', `Billing status. ${ADD_ON}`).choices([...BILLABLE_STATUSES]))
+		.option(
+			'--category <gid>',
+			`Time tracking category GID; replaces existing categories. Asana allows one. ${ADD_ON}`,
+			(value: string, previous: string[] = []) => [...previous, value],
+		)
+		.option('--description <text>', `Note on the entry. ${ADD_ON}`)
 		.option('--opt-fields <fields>', 'Comma-separated optional Asana fields to include')
 }
 
@@ -91,12 +104,18 @@ function fieldsFrom(opts: WriteOpts): TimeTrackingEntryFields {
 	if (opts.hours !== undefined && opts.minutes !== undefined) {
 		throw new Error('--hours and --minutes are mutually exclusive')
 	}
+	if ((opts.category?.length ?? 0) > MAX_CATEGORIES) {
+		throw new Error(`Give at most one --category; Asana allows ${MAX_CATEGORIES} per entry`)
+	}
 	const minutes = opts.minutes ?? (opts.hours !== undefined ? Math.round(opts.hours * 60) : undefined)
 	return {
 		...(minutes !== undefined && { durationMinutes: minutes }),
 		...(opts.enteredOn !== undefined && { enteredOn: opts.enteredOn }),
 		...(opts.assignee !== undefined && { assignee: opts.assignee }),
 		...(opts.attributableTo !== undefined && { attributableTo: opts.attributableTo }),
+		...(opts.billableStatus !== undefined && { billableStatus: opts.billableStatus }),
+		...(opts.category !== undefined && { categories: opts.category }),
+		...(opts.description !== undefined && { description: opts.description }),
 	}
 }
 
@@ -126,6 +145,7 @@ type ListOpts = {
 	assignee?: string
 	assigneeGid?: string
 	attributableTo?: string
+	timesheetApprovalStatus?: string
 	portfolio?: string
 	portfolioGid?: string
 	workspace?: string
@@ -168,6 +188,7 @@ export function timeTrackingEntryCommand(api?: TimeTrackingEntryApi | (() => Tim
 	addPaginationOptions(
 		list
 			.option('--attributable-to <project-gid>', 'Only entries attributed to this project')
+			.option('--timesheet-approval-status <gid>', `Only entries with this timesheet approval status. ${ADD_ON}`)
 			.option('--from <date>', 'Only entries entered on or after this date (YYYY-MM-DD)')
 			.option('--to <date>', 'Only entries entered on or before this date (YYYY-MM-DD)'),
 	).action(async (opts: ListOpts) => {
@@ -179,6 +200,7 @@ export function timeTrackingEntryCommand(api?: TimeTrackingEntryApi | (() => Tim
 				assignee: normalizedGid(opts, 'assignee') ?? normalizedGid(opts, 'user'),
 			}),
 			...(opts.attributableTo !== undefined && { attributableTo: opts.attributableTo }),
+			...(opts.timesheetApprovalStatus !== undefined && { timesheetApprovalStatus: opts.timesheetApprovalStatus }),
 			...(normalizedGid(opts, 'portfolio') && { portfolio: normalizedGid(opts, 'portfolio') }),
 			...(normalizedGid(opts, 'workspace') && { workspace: normalizedGid(opts, 'workspace') }),
 			...(opts.from !== undefined && { enteredOnStart: opts.from }),
@@ -225,7 +247,7 @@ export function timeTrackingEntryCommand(api?: TimeTrackingEntryApi | (() => Tim
 			const fields = fieldsFrom(opts)
 			if (Object.keys(fields).length === 0) {
 				throw new Error(
-					'Nothing to update: give at least one of --hours, --minutes, --entered-on, --assignee, --attributable-to',
+					'Nothing to update: give at least one of --hours, --minutes, --entered-on, --assignee, --attributable-to, --billable-status, --category, --description',
 				)
 			}
 			const data = await resolveTimeTrackingEntryApi(api).updateTimeTrackingEntry(gid, fields, readOptionsFromCli(opts))

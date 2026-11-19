@@ -69,6 +69,45 @@ describe('time-tracking/gateway', () => {
 		expect(spy).toHaveBeenNthCalledWith(2, { assignee: 'u2', limit: 100 })
 	})
 
+	it('create and update send billable_status, categories and description under Asana’s names', async () => {
+		const create = vi
+			.spyOn(Asana.TimeTrackingEntriesApi.prototype, 'createTimeTrackingEntry')
+			.mockResolvedValue({ data: entry } as never)
+		const update = vi
+			.spyOn(Asana.TimeTrackingEntriesApi.prototype, 'updateTimeTrackingEntry')
+			.mockResolvedValue({ data: entry } as never)
+		const gateway = createAsanaTimeTrackingEntryGateway(client)
+
+		await gateway.createTimeTrackingEntry('t1', {
+			durationMinutes: 5,
+			billableStatus: 'nonBillable',
+			categories: ['c1'],
+			description: 'pairing',
+		})
+		await gateway.updateTimeTrackingEntry('e1', { billableStatus: 'billable', categories: [], description: '' })
+
+		expect(create).toHaveBeenCalledWith(
+			{ data: { duration_minutes: 5, billable_status: 'nonBillable', categories: ['c1'], description: 'pairing' } },
+			't1',
+			{},
+		)
+		expect(update).toHaveBeenCalledWith(
+			{ data: { billable_status: 'billable', categories: [], description: '' } },
+			'e1',
+			{},
+		)
+	})
+
+	it('list sends timesheet_approval_status', async () => {
+		const spy = vi
+			.spyOn(Asana.TimeTrackingEntriesApi.prototype, 'getTimeTrackingEntries')
+			.mockResolvedValue({ data: [entry] } as never)
+
+		await createAsanaTimeTrackingEntryGateway(client).listTimeTrackingEntries({ timesheetApprovalStatus: 's1' })
+
+		expect(spy).toHaveBeenCalledWith({ timesheet_approval_status: 's1', limit: 100 })
+	})
+
 	it('delete calls deleteTimeTrackingEntry', async () => {
 		const spy = vi
 			.spyOn(Asana.TimeTrackingEntriesApi.prototype, 'deleteTimeTrackingEntry')
@@ -135,6 +174,18 @@ describe('time-tracking/api', () => {
 		expect(gateway.createTimeTrackingEntry).toHaveBeenCalledWith('t1', { durationMinutes: 5 }, undefined)
 		expect(gateway.updateTimeTrackingEntry).toHaveBeenCalledWith('e1', { durationMinutes: 6 }, undefined)
 		expect(gateway.deleteTimeTrackingEntry).toHaveBeenCalledWith('e1')
+	})
+})
+
+describe('time-tracking/api categories', () => {
+	it('rejects more than one category before calling the gateway', () => {
+		const gateway = { createTimeTrackingEntry: vi.fn(), updateTimeTrackingEntry: vi.fn() }
+		const api = createTimeTrackingEntryApi(gateway as never)
+
+		expect(() => api.createTimeTrackingEntry('t1', { categories: ['a', 'b'] })).toThrow(/at most one/)
+		expect(() => api.updateTimeTrackingEntry('e1', { categories: ['a', 'b'] })).toThrow(/at most one/)
+		expect(gateway.createTimeTrackingEntry).not.toHaveBeenCalled()
+		expect(gateway.updateTimeTrackingEntry).not.toHaveBeenCalled()
 	})
 })
 
@@ -241,6 +292,55 @@ describe('time-tracking/cli', () => {
 		expect(updateTimeTrackingEntry).toHaveBeenNthCalledWith(2, 'e1', { attributableTo: 'p2' }, undefined)
 	})
 
+	it('create and update take --billable-status, --category and --description', async () => {
+		const createTimeTrackingEntry = vi.fn().mockResolvedValue(entry)
+		const updateTimeTrackingEntry = vi.fn().mockResolvedValue(entry)
+		vi.spyOn(console, 'log').mockImplementation(() => {})
+
+		await run(
+			{ createTimeTrackingEntry },
+			'create',
+			't1',
+			'--minutes',
+			'5',
+			'--billable-status',
+			'nonBillable',
+			'--category',
+			'c1',
+			'--description',
+			'pairing',
+		)
+		await run({ updateTimeTrackingEntry }, 'update', 'e1', '--description', 'fixed')
+		await run({ updateTimeTrackingEntry }, 'update', 'e1', '--category', 'c2')
+		await run({ updateTimeTrackingEntry }, 'update', 'e1', '--billable-status', 'billable')
+
+		expect(createTimeTrackingEntry).toHaveBeenCalledWith(
+			't1',
+			{ durationMinutes: 5, billableStatus: 'nonBillable', categories: ['c1'], description: 'pairing' },
+			undefined,
+		)
+		expect(updateTimeTrackingEntry).toHaveBeenNthCalledWith(1, 'e1', { description: 'fixed' }, undefined)
+		expect(updateTimeTrackingEntry).toHaveBeenNthCalledWith(2, 'e1', { categories: ['c2'] }, undefined)
+		expect(updateTimeTrackingEntry).toHaveBeenNthCalledWith(3, 'e1', { billableStatus: 'billable' }, undefined)
+	})
+
+	it('rejects more than one --category before any request', async () => {
+		const createTimeTrackingEntry = vi.fn()
+		await expect(
+			run({ createTimeTrackingEntry }, 'create', 't1', '--minutes', '5', '--category', 'c1', '--category', 'c2'),
+		).rejects.toThrow(/at most one/)
+		expect(createTimeTrackingEntry).not.toHaveBeenCalled()
+	})
+
+	it('list takes --timesheet-approval-status', async () => {
+		const listTimeTrackingEntries = vi.fn().mockResolvedValue([entry])
+		vi.spyOn(console, 'log').mockImplementation(() => {})
+
+		await run({ listTimeTrackingEntries }, 'list', '--timesheet-approval-status', 's1')
+
+		expect(listTimeTrackingEntries).toHaveBeenCalledWith({ timesheetApprovalStatus: 's1' }, expect.anything())
+	})
+
 	it('for-task lists a task’s entries', async () => {
 		const listTimeTrackingEntriesForTask = vi.fn().mockResolvedValue([entry])
 		vi.spyOn(console, 'log').mockImplementation(() => {})
@@ -331,5 +431,34 @@ describe('time-tracking/mcp', () => {
 			undefined,
 		)
 		expect(api.updateTimeTrackingEntry).toHaveBeenCalledWith('e1', { assignee: 'u3' }, undefined)
+	})
+
+	it('billable_status, category_gids, description and timesheet_approval_status_gid reach the api', async () => {
+		const handlers = new Map<string, (p: any) => Promise<any>>()
+		const server = { tool: (n: string, _d: string, _s: unknown, h: (p: any) => Promise<any>) => handlers.set(n, h) }
+		const api = {
+			listTimeTrackingEntries: vi.fn().mockResolvedValue([entry]),
+			createTimeTrackingEntry: vi.fn().mockResolvedValue(entry),
+			updateTimeTrackingEntry: vi.fn().mockResolvedValue(entry),
+		}
+		registerTimeTrackingEntryTools(server as never, api as never)
+
+		await handlers.get('asana_time_entry_list')?.({ timesheet_approval_status_gid: 's1' })
+		await handlers.get('asana_time_entry_create')?.({
+			task_gid: 't1',
+			duration_minutes: 5,
+			billable_status: 'billable',
+			category_gids: ['c1'],
+			description: 'pairing',
+		})
+		await handlers.get('asana_time_entry_update')?.({ time_entry_gid: 'e1', description: 'fixed' })
+
+		expect(api.listTimeTrackingEntries).toHaveBeenCalledWith({ timesheetApprovalStatus: 's1' }, expect.anything())
+		expect(api.createTimeTrackingEntry).toHaveBeenCalledWith(
+			't1',
+			{ durationMinutes: 5, billableStatus: 'billable', categories: ['c1'], description: 'pairing' },
+			undefined,
+		)
+		expect(api.updateTimeTrackingEntry).toHaveBeenCalledWith('e1', { description: 'fixed' }, undefined)
 	})
 })

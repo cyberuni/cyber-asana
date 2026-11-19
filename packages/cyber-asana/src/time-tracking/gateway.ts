@@ -6,6 +6,7 @@ import {
 	toAsanaPaginationOptions,
 } from '../platform/pagination.js'
 import { type ReadOptions, toAsanaReadOptions } from '../platform/read-options.js'
+import type { BillableStatus } from './billing.js'
 
 /** A time tracking entry as Asana returns it, as far as cyber-asana reads it. */
 export type TimeTrackingEntry = {
@@ -32,6 +33,12 @@ export type TimeTrackingEntryFields = {
 	assignee?: string
 	/** Project GID the time is attributed to. */
 	attributableTo?: string
+	/** Needs the Timesheets and Budgets add-on; Asana answers 402 Payment Required without it. */
+	billableStatus?: BillableStatus
+	/** Time tracking category GIDs; replaces any existing ones. At most one. Needs the add-on (402 without it). */
+	categories?: string[]
+	/** Free-text note on the entry. Needs the add-on (402 without it). */
+	description?: string
 }
 
 /** The filters of the workspace-wide list; every one is optional and maps to a query parameter. */
@@ -43,6 +50,8 @@ export type TimeTrackingEntryFilters = {
 	user?: string
 	/** Project GID the time is attributed to. */
 	attributableTo?: string
+	/** Timesheet approval status GID. Needs the Timesheets and Budgets add-on (402 without it). */
+	timesheetApprovalStatus?: string
 	portfolio?: string
 	workspace?: string
 	enteredOnStart?: string
@@ -76,6 +85,9 @@ function bodyOf(fields: TimeTrackingEntryFields) {
 			...(fields.enteredOn !== undefined && { entered_on: fields.enteredOn }),
 			...(fields.assignee !== undefined && { assignee: fields.assignee }),
 			...(fields.attributableTo !== undefined && { attributable_to: fields.attributableTo }),
+			...(fields.billableStatus !== undefined && { billable_status: fields.billableStatus }),
+			...(fields.categories !== undefined && { categories: fields.categories }),
+			...(fields.description !== undefined && { description: fields.description }),
 		},
 	}
 }
@@ -90,6 +102,9 @@ export function createAsanaTimeTrackingEntryGateway(client: Asana.ApiClient): Ti
 				...(filters?.task !== undefined && { task: filters.task }),
 				...(assignee !== undefined && { assignee }),
 				...(filters?.attributableTo !== undefined && { attributable_to: filters.attributableTo }),
+				...(filters?.timesheetApprovalStatus !== undefined && {
+					timesheet_approval_status: filters.timesheetApprovalStatus,
+				}),
 				...(filters?.portfolio !== undefined && { portfolio: filters.portfolio }),
 				...(filters?.workspace !== undefined && { workspace: filters.workspace }),
 				...(filters?.enteredOnStart !== undefined && { entered_on_start_date: filters.enteredOnStart }),
