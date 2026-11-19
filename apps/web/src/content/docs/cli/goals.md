@@ -19,10 +19,10 @@ cyber-asana goal delete <gid>
 
 | Command | Arguments | Options |
 | --- | --- | --- |
-| `list` | — | `--workspace-gid <gid>` / `--workspace <gid>`, [pagination](/cyber-asana/cli/#pagination) |
+| `list` | — | `--workspace-gid <gid>` / `--workspace <gid>`, `--portfolio <gid>`, `--project <gid>`, `--task <gid>`, `--team <gid>`, `--workspace-level` / `--no-workspace-level`, `--time-period <gid[,gid...]>` (repeatable), [pagination](/cyber-asana/cli/#pagination) |
 | `get` | `<gid>` | — |
-| `create` | `<name>` | `--workspace-gid <gid>`, `--notes <text>`, `--html-notes <html>`, `--due-on <date>`, `--start-on <date>` |
-| `update` | `<gid>` | `--name <name>`, `--notes <text>`, `--html-notes <html>`, `--due-on <date>`, `--clear-due-on`, `--start-on <date>`, `--clear-start-on` |
+| `create` | `<name>` | `--workspace-gid <gid>`, `--notes <text>`, `--html-notes <html>`, `--due-on <date>`, `--start-on <date>`, `--time-period <gid>`, `--owner <gid>`, `--team <gid>`, `--workspace-level` / `--no-workspace-level`, `--liked` / `--no-liked`, `--follower <user[,user...]>` |
+| `update` | `<gid>` | `--name <name>`, `--notes <text>`, `--html-notes <html>`, `--due-on <date>`, `--clear-due-on`, `--start-on <date>`, `--clear-start-on`, `--time-period <gid>`, `--owner <gid>`, `--team <gid>`, `--workspace-level` / `--no-workspace-level`, `--liked` / `--no-liked`, `--status <status>`, `--custom-fields-json <json>`, `--custom-field <gid=value>`, `--html-custom-fields-json <json>`, `--html-custom-field <gid=html>` |
 | `delete` | `<gid>` | — |
 
 Dates use `YYYY-MM-DD`. Asana will not accept a start date without an accompanying due date.
@@ -34,6 +34,22 @@ in the same invocation is a usage error, caught before any request is sent.
 `--notes` and `--html-notes` are alternative ways to write a goal's description — plain text
 or Asana rich-text HTML. Naming both is a usage error, also caught locally.
 
+`--owner` and `--team` also accept `--owner-gid` and `--team-gid`. `--team` and
+`--workspace-level` / `--no-workspace-level` take effect only in an organization: a goal that is
+not workspace-level is a team goal. `--follower` takes users as GIDs, emails, or `me`, on create
+only; later changes go through `goal follower add`. A goal's workspace is fixed at creation, so
+`update` has no workspace option.
+
+`update --status` takes `green`, `yellow` or `red` while a goal is open, and `missed`, `achieved`,
+`partial` or `dropped` once it is closed. Asana accepts a status only on a goal that has a metric,
+and cyber-asana does not check that beforehand. A value outside the list is a usage error, caught
+locally. Custom field values follow the same flags as `task update`.
+
+`list` needs a scope: the workspace, or one of `--portfolio`, `--project`, `--task` or `--team`.
+Giving one of those drops the `ASANA_WORKSPACE_GID` default, so the request names a single scope;
+pass `--workspace-gid` explicitly to keep it. `--workspace-level` needs the workspace and is
+refused locally without one. `--time-period` may repeat or take a comma-separated list.
+
 ## Metrics
 
 ```sh
@@ -42,7 +58,9 @@ cyber-asana goal metric set-current <gid> 42.5
 ```
 
 `metric set` defines a goal's metric: `--unit` (`none`, `currency`, or `percentage`), `--precision`,
-`--currency-code`, `--initial`, `--target`, `--current`, and `--progress-source`. `metric set-current`
+`--currency-code`, `--initial`, `--target`, `--current`, `--progress-source`, and `--custom-weight` / `--no-custom-weight`. The weight flag
+matters only for the `subgoal_progress`, `project_task_completion`, `project_milestone_completion`
+and `task_completion` progress sources, and is not checked against the source. `metric set-current`
 records the current value. Both need a paid workspace, and the request bodies come from Asana's
 docs and have not been confirmed against a live workspace. The MCP tools are
 `asana_goal_metric_set` and `asana_goal_metric_set_current_value`.
@@ -78,7 +96,8 @@ cyber-asana goal time-period get <gid>
 ```
 
 A goal belongs to a time period, so these commands show the time period GID to look up before
-creating one. `list` takes the usual pagination options and returns each period's name, GID, start
+creating one. `list` takes the usual pagination options, plus `--start-on` and `--end-on`
+(`YYYY-MM-DD`, checked locally) to narrow the periods, and returns each period's name, GID, start
 and end dates; `get` also shows the period type. The MCP tools are `asana_time_period_list` and
 `asana_time_period_get`. Goals are a paid-plan feature; whether time periods work on a free plan is
 not verified, and the requests have not been confirmed against a live workspace.

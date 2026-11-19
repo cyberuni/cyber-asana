@@ -8,7 +8,7 @@ description: Every request parameter of each Asana API operation cyber-asana wra
 For each of the **171** Asana REST operations cyber-asana wraps, this page lists
 every path, query, and top-level body parameter in the
 [Asana OpenAPI definition](https://raw.githubusercontent.com/Asana/openapi/master/defs/asana_oas.yaml) (fetched 2026-11-19) and how cyber-asana sends it.
-Of **946** parameters, **797** are covered, **58** are skipped on purpose, and **91** are open gaps.
+Of **946** parameters, **820** are covered, **59** are skipped on purpose, and **67** are open gaps.
 Header parameters are left out: an API client sets them once, not per command.
 
 | Status | Meaning |
@@ -39,13 +39,6 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `createCustomField` | `is_lookup_field` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it (likely a read-only value field on the custom field object; unverified) |
 | `createCustomField` | `owned_by_app` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it (likely a read-only value field on the custom field object; unverified) |
 | `createEnumOptionForCustomField` | `enabled` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends enabled on create (only enum-option update does) |
-| `createGoal` | `followers` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
-| `createGoal` | `is_workspace_level` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
-| `createGoal` | `liked` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
-| `createGoal` | `owner` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
-| `createGoal` | `team` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
-| `createGoal` | `time_period` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) the gateway type accepts time_period (Asana requires one on creation) but the CLI has no flag and MCP has no field |
-| `createGoalMetric` | `is_custom_weight` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
 | `createPortfolio` | `archived` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
 | `createPortfolio` | `color` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
 | `createPortfolio` | `custom_type` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
@@ -63,20 +56,12 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `createTimeTrackingEntry` | `billable_status` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `createTimeTrackingEntry` | `categories` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `createTimeTrackingEntry` | `description` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
-| `getGoals` | `is_workspace_level` | query | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) list filter: neither the CLI nor MCP sends it |
-| `getGoals` | `portfolio` | query | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) list filter: neither the CLI nor MCP sends it |
-| `getGoals` | `project` | query | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) list filter: neither the CLI nor MCP sends it |
-| `getGoals` | `task` | query | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) list filter: neither the CLI nor MCP sends it |
-| `getGoals` | `team` | query | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) list filter: neither the CLI nor MCP sends it |
-| `getGoals` | `time_periods` | query | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) list filter: neither the CLI nor MCP sends it |
 | `getStoriesForGoal` | `created_after` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: only pagination params reach the call |
 | `getStoriesForGoal` | `resource_subtype` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: only pagination params reach the call |
 | `getStoriesForGoal` | `sort_ascending` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: only pagination params reach the call |
 | `getStoriesForTask` | `created_after` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: only pagination params reach the call |
 | `getStoriesForTask` | `resource_subtype` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: only pagination params reach the call |
 | `getStoriesForTask` | `sort_ascending` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: only pagination params reach the call |
-| `getTimePeriods` | `end_on` | query | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) list filter: neither the CLI nor MCP sends it |
-| `getTimePeriods` | `start_on` | query | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) list filter: neither the CLI nor MCP sends it |
 | `getTimeTrackingEntries` | `assignee` | query | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: the filters are task, user, portfolio, workspace and the date range |
 | `getTimeTrackingEntries` | `attributable_to` | query | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it |
 | `getTimeTrackingEntries` | `timesheet_approval_status` | query | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it |
@@ -95,15 +80,6 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `updateCustomField` | `is_lookup_field` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it (likely a read-only value field on the custom field object; unverified) |
 | `updateCustomField` | `owned_by_app` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it (likely a read-only value field on the custom field object; unverified) |
 | `updateCustomField` | `workspace` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
-| `updateGoal` | `custom_fields` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
-| `updateGoal` | `html_custom_fields` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
-| `updateGoal` | `is_workspace_level` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
-| `updateGoal` | `liked` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
-| `updateGoal` | `owner` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
-| `updateGoal` | `status` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
-| `updateGoal` | `team` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
-| `updateGoal` | `time_period` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
-| `updateGoal` | `workspace` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
 | `updatePortfolio` | `archived` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
 | `updatePortfolio` | `color` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
 | `updatePortfolio` | `custom_fields` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
@@ -315,23 +291,23 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `addFollowers` | `followers` | body | `<follower-gids...>` | `follower_gids` | ✅ |
 | `createGoal` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `createGoal` | `due_on` | body | `--due-on` | `due_on` | ✅ |
-| `createGoal` | `followers` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
+| `createGoal` | `followers` | body | `--follower` | `follower_gids` | ✅ |
 | `createGoal` | `html_notes` | body | `--html-notes` | `html_notes` | ✅ |
-| `createGoal` | `is_workspace_level` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
-| `createGoal` | `liked` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
+| `createGoal` | `is_workspace_level` | body | `--workspace-level / --no-workspace-level` | `is_workspace_level` | ✅ |
+| `createGoal` | `liked` | body | `--liked / --no-liked` | `liked` | ✅ |
 | `createGoal` | `name` | body | `<name>` | `name` | ✅ |
 | `createGoal` | `notes` | body | `--notes` | `notes` | ✅ |
-| `createGoal` | `owner` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
+| `createGoal` | `owner` | body | `--owner` | `owner_gid` | ✅ |
 | `createGoal` | `start_on` | body | `--start-on` | `start_on` | ✅ |
-| `createGoal` | `team` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
-| `createGoal` | `time_period` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) the gateway type accepts time_period (Asana requires one on creation) but the CLI has no flag and MCP has no field |
+| `createGoal` | `team` | body | `--team` | `team_gid` | ✅ |
+| `createGoal` | `time_period` | body | `--time-period` | `time_period_gid` | ✅ |
 | `createGoal` | `workspace` | body | `--workspace-gid (or ASANA_WORKSPACE_GID)` | `workspace_gid` | ✅ |
 | `createGoalMetric` | `goal_gid` | path | `<goal-gid>` | `goal_gid` | ✅ |
 | `createGoalMetric` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `createGoalMetric` | `currency_code` | body | `--currency-code` | `currency_code` | ✅ |
 | `createGoalMetric` | `current_number_value` | body | `--current` | `current_number_value` | ✅ |
 | `createGoalMetric` | `initial_number_value` | body | `--initial` | `initial_number_value` | ✅ |
-| `createGoalMetric` | `is_custom_weight` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
+| `createGoalMetric` | `is_custom_weight` | body | `--custom-weight / --no-custom-weight` | `is_custom_weight` | ✅ |
 | `createGoalMetric` | `precision` | body | `--precision` | `precision` | ✅ |
 | `createGoalMetric` | `progress_source` | body | `--progress-source` | `progress_source` | ✅ |
 | `createGoalMetric` | `target_number_value` | body | `--target` | `target_number_value` | ✅ |
@@ -339,35 +315,35 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `deleteGoal` | `goal_gid` | path | `<gid>` | `goal_gid` | ✅ |
 | `getGoal` | `goal_gid` | path | `<gid>` | `goal_gid` | ✅ |
 | `getGoal` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
-| `getGoals` | `is_workspace_level` | query | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) list filter: neither the CLI nor MCP sends it |
+| `getGoals` | `is_workspace_level` | query | `--workspace-level / --no-workspace-level` | `is_workspace_level` | ✅ |
 | `getGoals` | `limit` | query | `--limit` | `limit` | ✅ |
 | `getGoals` | `offset` | query | `--offset` | `offset` | ✅ |
 | `getGoals` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
-| `getGoals` | `portfolio` | query | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) list filter: neither the CLI nor MCP sends it |
-| `getGoals` | `project` | query | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) list filter: neither the CLI nor MCP sends it |
-| `getGoals` | `task` | query | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) list filter: neither the CLI nor MCP sends it |
-| `getGoals` | `team` | query | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) list filter: neither the CLI nor MCP sends it |
-| `getGoals` | `time_periods` | query | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) list filter: neither the CLI nor MCP sends it |
+| `getGoals` | `portfolio` | query | `--portfolio` | `portfolio_gid` | ✅ |
+| `getGoals` | `project` | query | `--project` | `project_gid` | ✅ |
+| `getGoals` | `task` | query | `--task` | `task_gid` | ✅ |
+| `getGoals` | `team` | query | `--team` | `team_gid` | ✅ |
+| `getGoals` | `time_periods` | query | `--time-period` | `time_period_gids` | ✅ |
 | `getGoals` | `workspace` | query | `--workspace-gid (or ASANA_WORKSPACE_GID)` | `workspace_gid` | ✅ |
 | `removeFollowers` | `goal_gid` | path | `<goal-gid>` | `goal_gid` | ✅ |
 | `removeFollowers` | `opt_fields` | query | — | — | ➖ The CLI and MCP discard the response and print only an acknowledgement, so the caller never sees its fields. |
 | `removeFollowers` | `followers` | body | `<follower-gids...>` | `follower_gids` | ✅ |
 | `updateGoal` | `goal_gid` | path | `<gid>` | `goal_gid` | ✅ |
 | `updateGoal` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
-| `updateGoal` | `custom_fields` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
+| `updateGoal` | `custom_fields` | body | `--custom-fields-json / --custom-field` | `custom_fields` | ✅ |
 | `updateGoal` | `due_on` | body | `--due-on` | `due_on` | ✅ sent as null by --clear-due-on / clear_due_on |
-| `updateGoal` | `html_custom_fields` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
+| `updateGoal` | `html_custom_fields` | body | `--html-custom-fields-json / --html-custom-field` | `html_custom_fields` | ✅ |
 | `updateGoal` | `html_notes` | body | `--html-notes` | `html_notes` | ✅ |
-| `updateGoal` | `is_workspace_level` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
-| `updateGoal` | `liked` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
+| `updateGoal` | `is_workspace_level` | body | `--workspace-level / --no-workspace-level` | `is_workspace_level` | ✅ |
+| `updateGoal` | `liked` | body | `--liked / --no-liked` | `liked` | ✅ |
 | `updateGoal` | `name` | body | `--name` | `name` | ✅ |
 | `updateGoal` | `notes` | body | `--notes` | `notes` | ✅ |
-| `updateGoal` | `owner` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
+| `updateGoal` | `owner` | body | `--owner` | `owner_gid` | ✅ |
 | `updateGoal` | `start_on` | body | `--start-on` | `start_on` | ✅ sent as null by --clear-start-on / clear_start_on |
-| `updateGoal` | `status` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
-| `updateGoal` | `team` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
-| `updateGoal` | `time_period` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
-| `updateGoal` | `workspace` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
+| `updateGoal` | `status` | body | `--status` | `status` | ✅ |
+| `updateGoal` | `team` | body | `--team` | `team_gid` | ✅ |
+| `updateGoal` | `time_period` | body | `--time-period` | `time_period_gid` | ✅ |
+| `updateGoal` | `workspace` | body | — | — | ➖ A goal's workspace is fixed at creation; the field is in the update body only because GoalUpdateRequest extends the shared GoalRequestBase. |
 | `updateGoalMetric` | `goal_gid` | path | `<goal-gid>` | `goal_gid` | ✅ |
 | `updateGoalMetric` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `updateGoalMetric` | `current_number_value` | body | `<value>` | `current_number_value` | ✅ |
@@ -1145,11 +1121,11 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | --- | --- | --- | --- | --- | --- |
 | `getTimePeriod` | `time_period_gid` | path | `<gid>` | `time_period_gid` | ✅ |
 | `getTimePeriod` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
-| `getTimePeriods` | `end_on` | query | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) list filter: neither the CLI nor MCP sends it |
+| `getTimePeriods` | `end_on` | query | `--end-on` | `end_on` | ✅ |
 | `getTimePeriods` | `limit` | query | `--limit` | `limit` | ✅ |
 | `getTimePeriods` | `offset` | query | `--offset` | `offset` | ✅ |
 | `getTimePeriods` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
-| `getTimePeriods` | `start_on` | query | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) list filter: neither the CLI nor MCP sends it |
+| `getTimePeriods` | `start_on` | query | `--start-on` | `start_on` | ✅ |
 | `getTimePeriods` | `workspace` | query | `--workspace-gid (or ASANA_WORKSPACE_GID)` | `workspace_gid` | ✅ |
 
 ## Time tracking entries

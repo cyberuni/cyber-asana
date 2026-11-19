@@ -602,9 +602,9 @@
 					"mcp": "due_on"
 				},
 				"followers": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
-					"note": "neither the CLI nor MCP sends it"
+					"status": "covered",
+					"cli": "--follower",
+					"mcp": "follower_gids"
 				},
 				"html_notes": {
 					"status": "covered",
@@ -612,14 +612,14 @@
 					"mcp": "html_notes"
 				},
 				"is_workspace_level": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
-					"note": "neither the CLI nor MCP sends it"
+					"status": "covered",
+					"cli": "--workspace-level / --no-workspace-level",
+					"mcp": "is_workspace_level"
 				},
 				"liked": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
-					"note": "neither the CLI nor MCP sends it"
+					"status": "covered",
+					"cli": "--liked / --no-liked",
+					"mcp": "liked"
 				},
 				"name": {
 					"status": "covered",
@@ -632,9 +632,9 @@
 					"mcp": "notes"
 				},
 				"owner": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
-					"note": "neither the CLI nor MCP sends it"
+					"status": "covered",
+					"cli": "--owner",
+					"mcp": "owner_gid"
 				},
 				"start_on": {
 					"status": "covered",
@@ -642,14 +642,14 @@
 					"mcp": "start_on"
 				},
 				"team": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
-					"note": "neither the CLI nor MCP sends it"
+					"status": "covered",
+					"cli": "--team",
+					"mcp": "team_gid"
 				},
 				"time_period": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
-					"note": "the gateway type accepts time_period (Asana requires one on creation) but the CLI has no flag and MCP has no field"
+					"status": "covered",
+					"cli": "--time-period",
+					"mcp": "time_period_gid"
 				},
 				"workspace": {
 					"status": "covered",
@@ -688,9 +688,9 @@
 					"mcp": "initial_number_value"
 				},
 				"is_custom_weight": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
-					"note": "neither the CLI nor MCP sends it"
+					"status": "covered",
+					"cli": "--custom-weight / --no-custom-weight",
+					"mcp": "is_custom_weight"
 				},
 				"precision": {
 					"status": "covered",
@@ -2260,9 +2260,9 @@
 			"mcp": ["asana_goal_list"],
 			"parameters": {
 				"is_workspace_level": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
-					"note": "list filter: neither the CLI nor MCP sends it"
+					"status": "covered",
+					"cli": "--workspace-level / --no-workspace-level",
+					"mcp": "is_workspace_level"
 				},
 				"limit": {
 					"status": "covered",
@@ -2280,29 +2280,29 @@
 					"mcp": "opt_fields"
 				},
 				"portfolio": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
-					"note": "list filter: neither the CLI nor MCP sends it"
+					"status": "covered",
+					"cli": "--portfolio",
+					"mcp": "portfolio_gid"
 				},
 				"project": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
-					"note": "list filter: neither the CLI nor MCP sends it"
+					"status": "covered",
+					"cli": "--project",
+					"mcp": "project_gid"
 				},
 				"task": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
-					"note": "list filter: neither the CLI nor MCP sends it"
+					"status": "covered",
+					"cli": "--task",
+					"mcp": "task_gid"
 				},
 				"team": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
-					"note": "list filter: neither the CLI nor MCP sends it"
+					"status": "covered",
+					"cli": "--team",
+					"mcp": "team_gid"
 				},
 				"time_periods": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
-					"note": "list filter: neither the CLI nor MCP sends it"
+					"status": "covered",
+					"cli": "--time-period",
+					"mcp": "time_period_gids"
 				},
 				"workspace": {
 					"status": "covered",
@@ -3571,9 +3571,9 @@
 			"mcp": ["asana_time_period_list"],
 			"parameters": {
 				"end_on": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
-					"note": "list filter: neither the CLI nor MCP sends it"
+					"status": "covered",
+					"cli": "--end-on",
+					"mcp": "end_on"
 				},
 				"limit": {
 					"status": "covered",
@@ -3591,9 +3591,9 @@
 					"mcp": "opt_fields"
 				},
 				"start_on": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
-					"note": "list filter: neither the CLI nor MCP sends it"
+					"status": "covered",
+					"cli": "--start-on",
+					"mcp": "start_on"
 				},
 				"workspace": {
 					"status": "covered",
@@ -5028,9 +5028,9 @@
 					"mcp": "opt_fields"
 				},
 				"custom_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
-					"note": "neither the CLI nor MCP sends it"
+					"status": "covered",
+					"cli": "--custom-fields-json / --custom-field",
+					"mcp": "custom_fields"
 				},
 				"due_on": {
 					"status": "covered",
@@ -5039,9 +5039,9 @@
 					"note": "sent as null by --clear-due-on / clear_due_on"
 				},
 				"html_custom_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
-					"note": "neither the CLI nor MCP sends it"
+					"status": "covered",
+					"cli": "--html-custom-fields-json / --html-custom-field",
+					"mcp": "html_custom_fields"
 				},
 				"html_notes": {
 					"status": "covered",
@@ -5049,14 +5049,14 @@
 					"mcp": "html_notes"
 				},
 				"is_workspace_level": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
-					"note": "neither the CLI nor MCP sends it"
+					"status": "covered",
+					"cli": "--workspace-level / --no-workspace-level",
+					"mcp": "is_workspace_level"
 				},
 				"liked": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
-					"note": "neither the CLI nor MCP sends it"
+					"status": "covered",
+					"cli": "--liked / --no-liked",
+					"mcp": "liked"
 				},
 				"name": {
 					"status": "covered",
@@ -5069,9 +5069,9 @@
 					"mcp": "notes"
 				},
 				"owner": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
-					"note": "neither the CLI nor MCP sends it"
+					"status": "covered",
+					"cli": "--owner",
+					"mcp": "owner_gid"
 				},
 				"start_on": {
 					"status": "covered",
@@ -5080,24 +5080,23 @@
 					"note": "sent as null by --clear-start-on / clear_start_on"
 				},
 				"status": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
-					"note": "neither the CLI nor MCP sends it"
+					"status": "covered",
+					"cli": "--status",
+					"mcp": "status"
 				},
 				"team": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
-					"note": "neither the CLI nor MCP sends it"
+					"status": "covered",
+					"cli": "--team",
+					"mcp": "team_gid"
 				},
 				"time_period": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
-					"note": "neither the CLI nor MCP sends it"
+					"status": "covered",
+					"cli": "--time-period",
+					"mcp": "time_period_gid"
 				},
 				"workspace": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
-					"note": "neither the CLI nor MCP sends it"
+					"status": "skipped",
+					"reason": "A goal's workspace is fixed at creation; the field is in the update body only because GoalUpdateRequest extends the shared GoalRequestBase."
 				}
 			}
 		},
