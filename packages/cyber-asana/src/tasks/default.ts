@@ -1,7 +1,13 @@
 import { createClient } from '../platform/client.js'
 import type { PaginationOptions } from '../platform/pagination.js'
 import type { ReadOptions } from '../platform/read-options.js'
-import { createTaskApi, type TaskCollectionOptions, type TaskListOptions, type TaskWithStoriesOptions } from './api.js'
+import {
+	createTaskApi,
+	type SubtaskPosition,
+	type TaskCollectionOptions,
+	type TaskListOptions,
+	type TaskWithStoriesOptions,
+} from './api.js'
 import {
 	type CreateTaskFields,
 	createAsanaTaskGateway,
@@ -64,6 +70,10 @@ export async function listProjectsForTask(taskGid: string, opts?: PaginationOpti
 
 export async function duplicateTask(taskGid: string, fields: DuplicateTaskFields) {
 	return defaultTaskApi().duplicateTask(taskGid, fields)
+}
+
+export async function reorderSubtask(taskGid: string, position: SubtaskPosition) {
+	return defaultTaskApi().reorderSubtask(taskGid, position)
 }
 
 export async function createSubtask(parentTaskGid: string, name: string, opts?: CreateTaskFields) {

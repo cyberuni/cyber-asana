@@ -52,6 +52,10 @@ export type UpdateTaskFields = {
 	assignee?: string | null
 	parent?: string
 	clear_parent?: boolean
+	/** Place the task before this subtask of `parent` (`setParent`'s `insert_before`). */
+	insert_before?: string
+	/** Place the task after this subtask of `parent` (`setParent`'s `insert_after`). */
+	insert_after?: string
 	resource_subtype?: string
 	/** Custom type GID. */
 	custom_type?: string
@@ -266,14 +270,24 @@ export function createAsanaTaskGateway(client: Asana.ApiClient): TaskGateway {
 			return res.data
 		},
 		async updateTask(taskGid, fields) {
-			const { parent, clear_parent, ...taskFields } = fields
+			const { parent, clear_parent, insert_before, insert_after, ...taskFields } = fields
 			let updatedTask: Asana.Task | undefined
 			if (Object.keys(taskFields).length > 0) {
 				const res = await tasksApi.updateTask({ data: taskFields }, taskGid, {})
 				updatedTask = res.data
 			}
 			if (parent !== undefined || clear_parent) {
-				const res = await tasksApi.setParentForTask({ data: { parent: clear_parent ? null : parent } }, taskGid, {})
+				const res = await tasksApi.setParentForTask(
+					{
+						data: {
+							parent: clear_parent ? null : (parent as string),
+							...(insert_before !== undefined && { insert_before }),
+							...(insert_after !== undefined && { insert_after }),
+						},
+					},
+					taskGid,
+					{},
+				)
 				updatedTask = res.data
 			}
 			return updatedTask

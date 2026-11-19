@@ -17,6 +17,7 @@ const getMyTasksMock = vi.fn()
 const listSubtasksMock = vi.fn()
 const listProjectsForTaskMock = vi.fn()
 const createSubtaskMock = vi.fn()
+const reorderSubtaskMock = vi.fn()
 const listTagsMock = vi.fn()
 
 vi.mock('../tags/default.js', async () => {
@@ -40,6 +41,7 @@ vi.mock('./default.js', async () => {
 		listSubtasks: listSubtasksMock,
 		listProjectsForTask: listProjectsForTaskMock,
 		createSubtask: createSubtaskMock,
+		reorderSubtask: reorderSubtaskMock,
 	}
 })
 
@@ -194,6 +196,35 @@ describe('tasks/cli', () => {
 			resource_subtype: 'milestone',
 			custom_fields: { cf2: 'value' },
 		})
+	})
+
+	it('task update --parent --insert-after sends the position with the parent', async () => {
+		updateTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
+		const program = new Command().addCommand(taskCommand())
+
+		await program.parseAsync(['node', 'test', 'task', 'update', '123', '--parent', 'p1', '--insert-after', 's1'], {
+			from: 'node',
+		})
+
+		expect(updateTaskMock).toHaveBeenCalledWith('123', { parent: 'p1', insert_after: 's1' })
+	})
+
+	it('task update --insert-before without --parent is rejected before any call', async () => {
+		const program = new Command().addCommand(taskCommand())
+
+		await expect(
+			program.parseAsync(['node', 'test', 'task', 'update', '123', '--insert-before', 's1'], { from: 'node' }),
+		).rejects.toThrow('--insert-before needs --parent')
+		expect(updateTaskMock).not.toHaveBeenCalled()
+	})
+
+	it('task reorder moves a subtask within its current parent', async () => {
+		reorderSubtaskMock.mockResolvedValue({ gid: '123', name: 'Task' })
+		const program = new Command().addCommand(taskCommand())
+
+		await program.parseAsync(['node', 'test', 'task', 'reorder', '123', '--insert-before', 's1'], { from: 'node' })
+
+		expect(reorderSubtaskMock).toHaveBeenCalledWith('123', { insertBefore: 's1' })
 	})
 
 	it('task create --custom-type sends custom_type', async () => {
@@ -744,6 +775,7 @@ describe('tasks/cli', () => {
 				listProjectsForTask: vi.fn(),
 				duplicateTask: vi.fn(),
 				createSubtask: vi.fn(),
+				reorderSubtask: vi.fn(),
 				addTaskToProject: vi.fn(),
 				removeTaskFromProject: vi.fn(),
 				addFollowersToTask: vi.fn(),

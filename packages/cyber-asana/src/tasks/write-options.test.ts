@@ -67,6 +67,26 @@ describe('tasks/write-options', () => {
 		)
 	})
 
+	it('buildTaskUpdateFields maps insert_before and insert_after alongside a parent', () => {
+		expect(buildTaskUpdateFields({ parent: 'p1', insertAfter: 's1' })).toEqual({ parent: 'p1', insert_after: 's1' })
+		expect(buildTaskUpdateFields({ parent: 'p1', insertBefore: 's1' })).toEqual({ parent: 'p1', insert_before: 's1' })
+	})
+
+	it('buildTaskUpdateFields rejects insert_before and insert_after together', () => {
+		expect(() => buildTaskUpdateFields({ parent: 'p1', insertBefore: 's1', insertAfter: 's2' })).toThrow(
+			'--insert-before and --insert-after are mutually exclusive',
+		)
+	})
+
+	it('buildTaskUpdateFields rejects a position without a parent', () => {
+		expect(() => buildTaskUpdateFields({ insertAfter: 's1' })).toThrow(
+			'--insert-after needs --parent; to move a subtask within its current parent, use `task reorder`',
+		)
+		expect(() => buildTaskUpdateFields({ insertBefore: 's1', clearParent: true })).toThrow(
+			'--insert-before needs --parent; to move a subtask within its current parent, use `task reorder`',
+		)
+	})
+
 	it('buildTaskUpdateFields rejects due_on and clear_due_on together', () => {
 		expect(() => buildTaskUpdateFields({ dueOn: '2026-06-01', clearDueOn: true })).toThrow(
 			'--due-on and --clear-due-on are mutually exclusive',
