@@ -6,6 +6,7 @@ import {
 	toAsanaPaginationOptions,
 } from '../platform/pagination.js'
 import { type ReadOptions, toAsanaReadOptions } from '../platform/read-options.js'
+import type { CustomFieldFormat, CustomFieldInputRestriction, CustomLabelPosition } from './custom-field-enums.js'
 
 /** An enum option as Asana returns it. */
 export type EnumOption = { gid: string; name?: string; color?: string; enabled?: boolean }
@@ -20,6 +21,13 @@ export type CreateCustomFieldInput = {
 	description?: string
 	enumOptions?: EnumOptionInput[]
 	precision?: number
+	format?: CustomFieldFormat
+	currencyCode?: string
+	customLabel?: string
+	customLabelPosition?: CustomLabelPosition
+	hasNotificationsEnabled?: boolean
+	idPrefix?: string
+	inputRestrictions?: CustomFieldInputRestriction[]
 }
 
 /** Every field is optional; `resource_subtype` is absent because Asana cannot change a field's type. */
@@ -27,10 +35,13 @@ export type UpdateCustomFieldInput = {
 	name?: string
 	description?: string
 	precision?: number
-	format?: 'currency' | 'identifier' | 'percentage' | 'custom' | 'duration' | 'none'
+	format?: CustomFieldFormat
 	currencyCode?: string
 	customLabel?: string
-	customLabelPosition?: 'prefix' | 'suffix'
+	customLabelPosition?: CustomLabelPosition
+	hasNotificationsEnabled?: boolean
+	idPrefix?: string
+	inputRestrictions?: CustomFieldInputRestriction[]
 	enabled?: boolean
 }
 
@@ -126,6 +137,15 @@ export function createAsanaCustomFieldGateway(client: Asana.ApiClient): CustomFi
 						...(input.description !== undefined && { description: input.description }),
 						...(input.precision !== undefined && { precision: input.precision }),
 						...(input.enumOptions !== undefined && { enum_options: input.enumOptions }),
+						...(input.format !== undefined && { format: input.format }),
+						...(input.currencyCode !== undefined && { currency_code: input.currencyCode }),
+						...(input.customLabel !== undefined && { custom_label: input.customLabel }),
+						...(input.customLabelPosition !== undefined && { custom_label_position: input.customLabelPosition }),
+						...(input.hasNotificationsEnabled !== undefined && {
+							has_notifications_enabled: input.hasNotificationsEnabled,
+						}),
+						...(input.idPrefix !== undefined && { id_prefix: input.idPrefix }),
+						...(input.inputRestrictions !== undefined && { input_restrictions: input.inputRestrictions }),
 					},
 				},
 				toAsanaReadOptions(opts),
@@ -144,6 +164,11 @@ export function createAsanaCustomFieldGateway(client: Asana.ApiClient): CustomFi
 						...(input.currencyCode !== undefined && { currency_code: input.currencyCode }),
 						...(input.customLabel !== undefined && { custom_label: input.customLabel }),
 						...(input.customLabelPosition !== undefined && { custom_label_position: input.customLabelPosition }),
+						...(input.hasNotificationsEnabled !== undefined && {
+							has_notifications_enabled: input.hasNotificationsEnabled,
+						}),
+						...(input.idPrefix !== undefined && { id_prefix: input.idPrefix }),
+						...(input.inputRestrictions !== undefined && { input_restrictions: input.inputRestrictions }),
 						...(input.enabled !== undefined && { enabled: input.enabled }),
 					},
 				},

@@ -8,7 +8,7 @@ description: Every request parameter of each Asana API operation cyber-asana wra
 For each of the **171** Asana REST operations cyber-asana wraps, this page lists
 every path, query, and top-level body parameter in the
 [Asana OpenAPI definition](https://raw.githubusercontent.com/Asana/openapi/master/defs/asana_oas.yaml) (fetched 2026-11-19) and how cyber-asana sends it.
-Of **946** parameters, **838** are covered, **59** are skipped on purpose, and **49** are open gaps.
+Of **946** parameters, **849** are covered, **67** are skipped on purpose, and **30** are open gaps.
 Header parameters are left out: an API client sets them once, not per command.
 
 | Status | Meaning |
@@ -28,17 +28,6 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 
 | Endpoint | Parameter | In | CLI | MCP | Status |
 | --- | --- | --- | --- | --- | --- |
-| `createCustomField` | `currency_code` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
-| `createCustomField` | `custom_label` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
-| `createCustomField` | `custom_label_position` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
-| `createCustomField` | `format` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
-| `createCustomField` | `has_notifications_enabled` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
-| `createCustomField` | `id_prefix` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
-| `createCustomField` | `input_restrictions` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
-| `createCustomField` | `is_formula_field` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it (likely a read-only value field on the custom field object; unverified) |
-| `createCustomField` | `is_lookup_field` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it (likely a read-only value field on the custom field object; unverified) |
-| `createCustomField` | `owned_by_app` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it (likely a read-only value field on the custom field object; unverified) |
-| `createEnumOptionForCustomField` | `enabled` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends enabled on create (only enum-option update does) |
 | `createRecord` | `default_access_level` | body | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Not sent on create: createRecord body carries only name, table, custom_fields and unique_fingerprint; neither CLI nor MCP exposes it on create (update has it) |
 | `createStoryForRecord` | `is_pinned` | body | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: RecordStoryFields carries only text and html_text |
 | `createStoryForRecord` | `sticker_name` | body | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: RecordStoryFields carries only text and html_text |
@@ -64,14 +53,6 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `searchRecordsForWorkspace` | `tables.all` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) CLI has no flag; MCP sends it (tables_all) |
 | `updateAllocation` | `assignee` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: AllocationUpdateFields omits assignee |
 | `updateAllocation` | `parent` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: AllocationUpdateFields omits parent |
-| `updateCustomField` | `enum_options` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
-| `updateCustomField` | `has_notifications_enabled` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
-| `updateCustomField` | `id_prefix` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
-| `updateCustomField` | `input_restrictions` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
-| `updateCustomField` | `is_formula_field` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it (likely a read-only value field on the custom field object; unverified) |
-| `updateCustomField` | `is_lookup_field` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it (likely a read-only value field on the custom field object; unverified) |
-| `updateCustomField` | `owned_by_app` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it (likely a read-only value field on the custom field object; unverified) |
-| `updateCustomField` | `workspace` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
 | `updateTimeTrackingEntry` | `assignee` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `updateTimeTrackingEntry` | `attributable_to` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `updateTimeTrackingEntry` | `billable_status` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
@@ -171,23 +152,23 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | Endpoint | Parameter | In | CLI | MCP | Status |
 | --- | --- | --- | --- | --- | --- |
 | `createCustomField` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
-| `createCustomField` | `currency_code` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
-| `createCustomField` | `custom_label` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
-| `createCustomField` | `custom_label_position` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
+| `createCustomField` | `currency_code` | body | `--currency-code` | `currency_code` | ✅ |
+| `createCustomField` | `custom_label` | body | `--custom-label` | `custom_label` | ✅ |
+| `createCustomField` | `custom_label_position` | body | `--custom-label-position` | `custom_label_position` | ✅ |
 | `createCustomField` | `date_value` | body | — | — | ➖ A value the field holds on a task or project, set there through custom_fields; it is not part of the field definition |
 | `createCustomField` | `description` | body | `--description` | `description` | ✅ |
 | `createCustomField` | `enum_options` | body | `--option (repeatable)` | `enum_options` | ✅ names only; color/enabled per option not settable |
 | `createCustomField` | `enum_value` | body | — | — | ➖ A value the field holds on a task or project, set there through custom_fields; it is not part of the field definition |
-| `createCustomField` | `format` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
-| `createCustomField` | `has_notifications_enabled` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
-| `createCustomField` | `id_prefix` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
-| `createCustomField` | `input_restrictions` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
-| `createCustomField` | `is_formula_field` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it (likely a read-only value field on the custom field object; unverified) |
-| `createCustomField` | `is_lookup_field` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it (likely a read-only value field on the custom field object; unverified) |
+| `createCustomField` | `format` | body | `--format` | `format` | ✅ |
+| `createCustomField` | `has_notifications_enabled` | body | `--notifications / --no-notifications` | `has_notifications_enabled` | ✅ |
+| `createCustomField` | `id_prefix` | body | `--id-prefix` | `id_prefix` | ✅ |
+| `createCustomField` | `input_restrictions` | body | `--input-restriction` | `input_restrictions` | ✅ |
+| `createCustomField` | `is_formula_field` | body | — | — | ➖ Asana documents the flag only as describing a formula/lookup field and offers no way to define the formula or lookup through the API, so sending it alone has no defined effect |
+| `createCustomField` | `is_lookup_field` | body | — | — | ➖ Asana documents the flag only as describing a formula/lookup field and offers no way to define the formula or lookup through the API, so sending it alone has no defined effect |
 | `createCustomField` | `multi_enum_values` | body | — | — | ➖ A value the field holds on a task or project, set there through custom_fields; it is not part of the field definition |
 | `createCustomField` | `name` | body | `<name>` | `name` | ✅ |
 | `createCustomField` | `number_value` | body | — | — | ➖ A value the field holds on a task or project, set there through custom_fields; it is not part of the field definition |
-| `createCustomField` | `owned_by_app` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it (likely a read-only value field on the custom field object; unverified) |
+| `createCustomField` | `owned_by_app` | body | — | — | ➖ Allow-listed to specific apps; any other caller gets 403 Forbidden |
 | `createCustomField` | `people_value` | body | — | — | ➖ A value the field holds on a task or project, set there through custom_fields; it is not part of the field definition |
 | `createCustomField` | `precision` | body | `--precision` | `precision` | ✅ |
 | `createCustomField` | `reference_value` | body | — | — | ➖ A value the field holds on a task or project, set there through custom_fields; it is not part of the field definition |
@@ -197,7 +178,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `createEnumOptionForCustomField` | `custom_field_gid` | path | `<field-gid>` | `custom_field_gid` | ✅ |
 | `createEnumOptionForCustomField` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `createEnumOptionForCustomField` | `color` | body | `--color` | `color` | ✅ |
-| `createEnumOptionForCustomField` | `enabled` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends enabled on create (only enum-option update does) |
+| `createEnumOptionForCustomField` | `enabled` | body | `--disabled / --enabled` | `enabled` | ✅ |
 | `createEnumOptionForCustomField` | `insert_after` | body | `--insert-after` | `insert_after` | ✅ |
 | `createEnumOptionForCustomField` | `insert_before` | body | `--insert-before` | `insert_before` | ✅ |
 | `createEnumOptionForCustomField` | `name` | body | `<name>` | `name` | ✅ |
@@ -220,23 +201,23 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `updateCustomField` | `custom_label_position` | body | `--custom-label-position` | `custom_label_position` | ✅ |
 | `updateCustomField` | `date_value` | body | — | — | ➖ A value the field holds on a task or project, set there through custom_fields; it is not part of the field definition |
 | `updateCustomField` | `description` | body | `--description` | `description` | ✅ |
-| `updateCustomField` | `enum_options` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
+| `updateCustomField` | `enum_options` | body | — | — | ➖ Asana directs enum option changes to the enum-option endpoints, covered by custom-field enum-option add/move/update |
 | `updateCustomField` | `enum_value` | body | — | — | ➖ A value the field holds on a task or project, set there through custom_fields; it is not part of the field definition |
 | `updateCustomField` | `format` | body | `--format` | `format` | ✅ |
-| `updateCustomField` | `has_notifications_enabled` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
-| `updateCustomField` | `id_prefix` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
-| `updateCustomField` | `input_restrictions` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
-| `updateCustomField` | `is_formula_field` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it (likely a read-only value field on the custom field object; unverified) |
-| `updateCustomField` | `is_lookup_field` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it (likely a read-only value field on the custom field object; unverified) |
+| `updateCustomField` | `has_notifications_enabled` | body | `--notifications / --no-notifications` | `has_notifications_enabled` | ✅ |
+| `updateCustomField` | `id_prefix` | body | `--id-prefix` | `id_prefix` | ✅ |
+| `updateCustomField` | `input_restrictions` | body | `--input-restriction` | `input_restrictions` | ✅ |
+| `updateCustomField` | `is_formula_field` | body | — | — | ➖ Asana documents the flag only as describing a formula/lookup field and offers no way to define the formula or lookup through the API, so sending it alone has no defined effect |
+| `updateCustomField` | `is_lookup_field` | body | — | — | ➖ Asana documents the flag only as describing a formula/lookup field and offers no way to define the formula or lookup through the API, so sending it alone has no defined effect |
 | `updateCustomField` | `multi_enum_values` | body | — | — | ➖ A value the field holds on a task or project, set there through custom_fields; it is not part of the field definition |
 | `updateCustomField` | `name` | body | `--name` | `name` | ✅ |
 | `updateCustomField` | `number_value` | body | — | — | ➖ A value the field holds on a task or project, set there through custom_fields; it is not part of the field definition |
-| `updateCustomField` | `owned_by_app` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it (likely a read-only value field on the custom field object; unverified) |
+| `updateCustomField` | `owned_by_app` | body | — | — | ➖ Allow-listed to specific apps; any other caller gets 403 Forbidden |
 | `updateCustomField` | `people_value` | body | — | — | ➖ A value the field holds on a task or project, set there through custom_fields; it is not part of the field definition |
 | `updateCustomField` | `precision` | body | `--precision` | `precision` | ✅ |
 | `updateCustomField` | `reference_value` | body | — | — | ➖ A value the field holds on a task or project, set there through custom_fields; it is not part of the field definition |
 | `updateCustomField` | `text_value` | body | — | — | ➖ A value the field holds on a task or project, set there through custom_fields; it is not part of the field definition |
-| `updateCustomField` | `workspace` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
+| `updateCustomField` | `workspace` | body | — | — | ➖ Create-only in Asana; a custom field cannot move between workspaces |
 | `updateEnumOption` | `enum_option_gid` | path | `<option-gid>` | `enum_option_gid` | ✅ |
 | `updateEnumOption` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `updateEnumOption` | `color` | body | `--color` | `color` | ✅ |

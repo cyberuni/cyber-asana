@@ -336,6 +336,120 @@ describe('custom-fields/cli writes', () => {
 		)
 	})
 
+	it('create passes the format, label, notification, id prefix, and input restriction flags', async () => {
+		const createCustomField = vi.fn().mockResolvedValue({ gid: 'cf1', name: 'Cost' })
+		vi.spyOn(console, 'log').mockImplementation(() => {})
+
+		await run(
+			writeApi({ createCustomField }),
+			'create',
+			'Cost',
+			'--workspace-gid',
+			'ws1',
+			'--type',
+			'number',
+			'--format',
+			'custom',
+			'--currency-code',
+			'USD',
+			'--custom-label',
+			'pts',
+			'--custom-label-position',
+			'suffix',
+			'--notifications',
+			'--id-prefix',
+			'BUG',
+			'--input-restriction',
+			'task',
+			'--input-restriction',
+			'project,goal',
+		)
+
+		expect(createCustomField).toHaveBeenCalledWith(
+			{
+				workspace: 'ws1',
+				name: 'Cost',
+				resourceSubtype: 'number',
+				format: 'custom',
+				currencyCode: 'USD',
+				customLabel: 'pts',
+				customLabelPosition: 'suffix',
+				hasNotificationsEnabled: true,
+				idPrefix: 'BUG',
+				inputRestrictions: ['task', 'project', 'goal'],
+			},
+			undefined,
+		)
+	})
+
+	it('create rejects an unknown format, label position, or input restriction', async () => {
+		const createCustomField = vi.fn()
+		const base = ['create', 'Cost', '--workspace-gid', 'ws1']
+		const exit = vi.spyOn(process, 'exit').mockImplementation((() => {
+			throw new Error('exit')
+		}) as never)
+		vi.spyOn(process.stderr, 'write').mockImplementation(() => true)
+		const program = (...args: string[]) =>
+			new Command()
+				.exitOverride()
+				.addCommand(customFieldCommand(writeApi({ createCustomField })))
+				.parseAsync(['node', 'test', 'custom-field', ...base, ...args], { from: 'node' })
+
+		await expect(program('--format', 'bogus')).rejects.toThrow()
+		await expect(program('--custom-label-position', 'middle')).rejects.toThrow()
+		await expect(program('--input-restriction', 'task,bogus')).rejects.toThrow()
+		expect(createCustomField).not.toHaveBeenCalled()
+		exit.mockRestore()
+	})
+
+	it('create can turn notifications off with --no-notifications', async () => {
+		const createCustomField = vi.fn().mockResolvedValue({ gid: 'cf1' })
+		vi.spyOn(console, 'log').mockImplementation(() => {})
+
+		await run(writeApi({ createCustomField }), 'create', 'X', '--workspace-gid', 'ws1', '--no-notifications')
+
+		expect(createCustomField).toHaveBeenCalledWith(
+			{ workspace: 'ws1', name: 'X', resourceSubtype: 'text', hasNotificationsEnabled: false },
+			undefined,
+		)
+	})
+
+	it('update passes the notification, id prefix, and input restriction flags and counts them as changes', async () => {
+		const updateCustomField = vi.fn().mockResolvedValue({ gid: 'cf1' })
+		vi.spyOn(console, 'log').mockImplementation(() => {})
+
+		await run(
+			writeApi({ updateCustomField }),
+			'update',
+			'cf1',
+			'--no-notifications',
+			'--id-prefix',
+			'ID',
+			'--input-restriction',
+			'record,team',
+		)
+
+		expect(updateCustomField).toHaveBeenCalledWith(
+			'cf1',
+			{ hasNotificationsEnabled: false, idPrefix: 'ID', inputRestrictions: ['record', 'team'] },
+			undefined,
+		)
+	})
+
+	it('enum-option add passes --disabled and --enabled as enabled', async () => {
+		const createEnumOption = vi.fn().mockResolvedValue({ gid: 'o1' })
+		vi.spyOn(console, 'log').mockImplementation(() => {})
+
+		await run(writeApi({ createEnumOption }), 'enum-option', 'add', 'cf1', 'Old', '--disabled')
+		await run(writeApi({ createEnumOption }), 'enum-option', 'add', 'cf1', 'New', '--enabled')
+
+		expect(createEnumOption).toHaveBeenNthCalledWith(1, 'cf1', { name: 'Old', enabled: false }, undefined)
+		expect(createEnumOption).toHaveBeenNthCalledWith(2, 'cf1', { name: 'New', enabled: true }, undefined)
+		await expect(
+			run(writeApi({ createEnumOption }), 'enum-option', 'add', 'cf1', 'X', '--enabled', '--disabled'),
+		).rejects.toThrow('mutually exclusive')
+	})
+
 	it('create rejects --option on a non-enum type as a usage error', async () => {
 		const createCustomField = vi.fn()
 		await expect(
