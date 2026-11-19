@@ -65,13 +65,25 @@ function parsePositive(name: string) {
 	}
 }
 
-type WriteOpts = { hours?: number; minutes?: number; enteredOn?: string; optFields?: string }
+type WriteOpts = {
+	hours?: number
+	minutes?: number
+	enteredOn?: string
+	assignee?: string
+	attributableTo?: string
+	optFields?: string
+}
 
 function addWriteOptions<T extends Command>(cmd: T) {
 	return cmd
 		.option('--hours <n>', 'Time spent, in hours (may be fractional)', parsePositive('--hours'))
 		.option('--minutes <n>', 'Time spent, in minutes', parsePositive('--minutes'))
 		.option('--entered-on <date>', 'Date the time was spent, YYYY-MM-DD (default: today)')
+		.option(
+			'--assignee <user-gid>',
+			'User GID the time is attributed to (default: you). Another user only if you are their time reviewer or an admin',
+		)
+		.option('--attributable-to <project-gid>', 'Project GID the time is attributed to')
 		.option('--opt-fields <fields>', 'Comma-separated optional Asana fields to include')
 }
 
@@ -83,6 +95,8 @@ function fieldsFrom(opts: WriteOpts): TimeTrackingEntryFields {
 	return {
 		...(minutes !== undefined && { durationMinutes: minutes }),
 		...(opts.enteredOn !== undefined && { enteredOn: opts.enteredOn }),
+		...(opts.assignee !== undefined && { assignee: opts.assignee }),
+		...(opts.attributableTo !== undefined && { attributableTo: opts.attributableTo }),
 	}
 }
 
@@ -109,6 +123,9 @@ type ListOpts = {
 	taskGid?: string
 	user?: string
 	userGid?: string
+	assignee?: string
+	assigneeGid?: string
+	attributableTo?: string
 	portfolio?: string
 	portfolioGid?: string
 	workspace?: string
@@ -132,16 +149,17 @@ export function timeTrackingEntryCommand(api?: TimeTrackingEntryApi | (() => Tim
 			'Examples:',
 			'  cyber-asana time-entry create <task-gid> --hours 1.5 --entered-on 2026-11-17',
 			'  cyber-asana time-entry for-task <task-gid>',
-			'  cyber-asana time-entry list --user <gid> --from 2026-11-01 --to 2026-11-30',
+			'  cyber-asana time-entry list --assignee <gid> --from 2026-11-01 --to 2026-11-30',
 		].join('\n'),
 	)
 
 	let list = cmd
 		.command('list')
-		.description('List time entries across tasks, filtered by task, user, portfolio, or period')
+		.description('List time entries across tasks, filtered by task, assignee, project, portfolio, or period')
 	for (const [name, label] of [
 		['task', 'Task GID'],
-		['user', 'User GID'],
+		['assignee', 'User GID the time is attributed to'],
+		['user', 'User GID (same as --assignee; kept for older scripts)'],
 		['portfolio', 'Portfolio GID'],
 		['workspace', 'Workspace GID'],
 	] as const) {
@@ -149,6 +167,7 @@ export function timeTrackingEntryCommand(api?: TimeTrackingEntryApi | (() => Tim
 	}
 	addPaginationOptions(
 		list
+			.option('--attributable-to <project-gid>', 'Only entries attributed to this project')
 			.option('--from <date>', 'Only entries entered on or after this date (YYYY-MM-DD)')
 			.option('--to <date>', 'Only entries entered on or before this date (YYYY-MM-DD)'),
 	).action(async (opts: ListOpts) => {
@@ -156,7 +175,10 @@ export function timeTrackingEntryCommand(api?: TimeTrackingEntryApi | (() => Tim
 		pagination.optFields ??= ENTRY_LIST_FIELDS
 		const filters = {
 			...(normalizedGid(opts, 'task') && { task: normalizedGid(opts, 'task') }),
-			...(normalizedGid(opts, 'user') && { user: normalizedGid(opts, 'user') }),
+			...((normalizedGid(opts, 'assignee') ?? normalizedGid(opts, 'user')) && {
+				assignee: normalizedGid(opts, 'assignee') ?? normalizedGid(opts, 'user'),
+			}),
+			...(opts.attributableTo !== undefined && { attributableTo: opts.attributableTo }),
 			...(normalizedGid(opts, 'portfolio') && { portfolio: normalizedGid(opts, 'portfolio') }),
 			...(normalizedGid(opts, 'workspace') && { workspace: normalizedGid(opts, 'workspace') }),
 			...(opts.from !== undefined && { enteredOnStart: opts.from }),
@@ -202,7 +224,9 @@ export function timeTrackingEntryCommand(api?: TimeTrackingEntryApi | (() => Tim
 		async (gid: string, opts: WriteOpts) => {
 			const fields = fieldsFrom(opts)
 			if (Object.keys(fields).length === 0) {
-				throw new Error('Nothing to update: give at least one of --hours, --minutes, --entered-on')
+				throw new Error(
+					'Nothing to update: give at least one of --hours, --minutes, --entered-on, --assignee, --attributable-to',
+				)
 			}
 			const data = await resolveTimeTrackingEntryApi(api).updateTimeTrackingEntry(gid, fields, readOptionsFromCli(opts))
 			output(data, () => fmtEntry(data as Entry))

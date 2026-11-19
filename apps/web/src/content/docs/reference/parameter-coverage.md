@@ -8,7 +8,7 @@ description: Every request parameter of each Asana API operation cyber-asana wra
 For each of the **171** Asana REST operations cyber-asana wraps, this page lists
 every path, query, and top-level body parameter in the
 [Asana OpenAPI definition](https://raw.githubusercontent.com/Asana/openapi/master/defs/asana_oas.yaml) (fetched 2026-11-19) and how cyber-asana sends it.
-Of **946** parameters, **864** are covered, **67** are skipped on purpose, and **15** are open gaps.
+Of **946** parameters, **872** are covered, **67** are skipped on purpose, and **7** are open gaps.
 Header parameters are left out: an API client sets them once, not per command.
 
 | Status | Meaning |
@@ -28,18 +28,10 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 
 | Endpoint | Parameter | In | CLI | MCP | Status |
 | --- | --- | --- | --- | --- | --- |
-| `createTimeTrackingEntry` | `assignee` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
-| `createTimeTrackingEntry` | `attributable_to` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `createTimeTrackingEntry` | `billable_status` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `createTimeTrackingEntry` | `categories` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `createTimeTrackingEntry` | `description` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
-| `getTimeTrackingEntries` | `assignee` | query | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: the filters are task, user, portfolio, workspace and the date range |
-| `getTimeTrackingEntries` | `attributable_to` | query | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it |
 | `getTimeTrackingEntries` | `timesheet_approval_status` | query | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it |
-| `updateAllocation` | `assignee` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: AllocationUpdateFields omits assignee |
-| `updateAllocation` | `parent` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: AllocationUpdateFields omits parent |
-| `updateTimeTrackingEntry` | `assignee` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
-| `updateTimeTrackingEntry` | `attributable_to` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `updateTimeTrackingEntry` | `billable_status` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `updateTimeTrackingEntry` | `categories` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `updateTimeTrackingEntry` | `description` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
@@ -81,10 +73,10 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `getAllocations` | `workspace` | query | `--workspace-gid (or ASANA_WORKSPACE_GID)` | `workspace_gid` | ✅ |
 | `updateAllocation` | `allocation_gid` | path | `<gid>` | `allocation_gid` | ✅ |
 | `updateAllocation` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
-| `updateAllocation` | `assignee` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: AllocationUpdateFields omits assignee |
+| `updateAllocation` | `assignee` | body | `--assignee` | `assignee_gid` | ✅ |
 | `updateAllocation` | `effort` | body | `--percent / --hours` | `effort_type + effort_value` | ✅ |
 | `updateAllocation` | `end_date` | body | `--end-date` | `end_date` | ✅ |
-| `updateAllocation` | `parent` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: AllocationUpdateFields omits parent |
+| `updateAllocation` | `parent` | body | `--parent` | `parent_gid` | ✅ |
 | `updateAllocation` | `start_date` | body | `--start-date` | `start_date` | ✅ |
 
 ## Attachments
@@ -1082,16 +1074,16 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | --- | --- | --- | --- | --- | --- |
 | `createTimeTrackingEntry` | `task_gid` | path | `<task-gid>` | `task_gid` | ✅ |
 | `createTimeTrackingEntry` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
-| `createTimeTrackingEntry` | `assignee` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
-| `createTimeTrackingEntry` | `attributable_to` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
+| `createTimeTrackingEntry` | `assignee` | body | `--assignee` | `assignee_gid` | ✅ |
+| `createTimeTrackingEntry` | `attributable_to` | body | `--attributable-to` | `attributable_to_gid` | ✅ |
 | `createTimeTrackingEntry` | `billable_status` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `createTimeTrackingEntry` | `categories` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `createTimeTrackingEntry` | `description` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `createTimeTrackingEntry` | `duration_minutes` | body | `--hours / --minutes` | `duration_minutes` | ✅ CLI converts hours to minutes |
 | `createTimeTrackingEntry` | `entered_on` | body | `--entered-on` | `entered_on` | ✅ |
 | `deleteTimeTrackingEntry` | `time_tracking_entry_gid` | path | `<gid>` | `time_entry_gid` | ✅ |
-| `getTimeTrackingEntries` | `assignee` | query | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: the filters are task, user, portfolio, workspace and the date range |
-| `getTimeTrackingEntries` | `attributable_to` | query | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it |
+| `getTimeTrackingEntries` | `assignee` | query | `--assignee-gid (or --assignee)` | `assignee_gid` | ✅ |
+| `getTimeTrackingEntries` | `attributable_to` | query | `--attributable-to` | `attributable_to_gid` | ✅ |
 | `getTimeTrackingEntries` | `entered_on_end_date` | query | `--to` | `entered_on_end` | ✅ |
 | `getTimeTrackingEntries` | `entered_on_start_date` | query | `--from` | `entered_on_start` | ✅ |
 | `getTimeTrackingEntries` | `limit` | query | `--limit` | `limit` | ✅ |
@@ -1110,8 +1102,8 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `getTimeTrackingEntry` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `updateTimeTrackingEntry` | `time_tracking_entry_gid` | path | `<gid>` | `time_entry_gid` | ✅ |
 | `updateTimeTrackingEntry` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
-| `updateTimeTrackingEntry` | `assignee` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
-| `updateTimeTrackingEntry` | `attributable_to` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
+| `updateTimeTrackingEntry` | `assignee` | body | `--assignee` | `assignee_gid` | ✅ |
+| `updateTimeTrackingEntry` | `attributable_to` | body | `--attributable-to` | `attributable_to_gid` | ✅ |
 | `updateTimeTrackingEntry` | `billable_status` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `updateTimeTrackingEntry` | `categories` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `updateTimeTrackingEntry` | `description` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |

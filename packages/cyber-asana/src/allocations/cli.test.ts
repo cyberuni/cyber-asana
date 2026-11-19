@@ -145,6 +145,13 @@ describe('allocations/cli', () => {
 		)
 	})
 
+	it('update takes --assignee and --parent, and counts them as a change', async () => {
+		vi.spyOn(console, 'log').mockImplementation(() => {})
+		const api = apiStub()
+		await run(api, 'update', 'a1', '--assignee', 'u2', '--parent', 'p2')
+		expect(api.updateAllocation).toHaveBeenCalledWith('a1', { assignee: 'u2', parent: 'p2' }, undefined)
+	})
+
 	it('delete is idempotent: an allocation already gone is not an error', async () => {
 		const log = vi.spyOn(console, 'log').mockImplementation(() => {})
 		const api = apiStub()

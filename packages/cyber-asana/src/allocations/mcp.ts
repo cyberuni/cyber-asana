@@ -84,20 +84,24 @@ export function registerAllocationTools(server: McpServer, api?: AllocationApi |
 
 	server.tool(
 		'asana_allocation_update',
-		`Update an Asana allocation's dates or effort.${PLAN_NOTE}`,
+		`Update an Asana allocation's person, project, dates or effort.${PLAN_NOTE}`,
 		{
 			allocation_gid: z.string().describe('Allocation GID'),
+			assignee_gid: z.string().optional().describe('New user or placeholder GID (me for the caller)'),
+			parent_gid: z.string().optional().describe('New project GID'),
 			start_date: z.string().optional().describe('New first day (YYYY-MM-DD)'),
 			end_date: z.string().optional().describe('New last day (YYYY-MM-DD)'),
 			...effortParams,
 			...readParams,
 		},
-		async ({ allocation_gid, start_date, end_date, opt_fields, ...effort }) => {
+		async ({ allocation_gid, assignee_gid, parent_gid, start_date, end_date, opt_fields, ...effort }) => {
 			const e = effortOf(effort)
 			return json(
 				await resolveAllocationApi(api).updateAllocation(
 					allocation_gid,
 					{
+						...(assignee_gid !== undefined && { assignee: assignee_gid }),
+						...(parent_gid !== undefined && { parent: parent_gid }),
 						...(start_date !== undefined && { start_date }),
 						...(end_date !== undefined && { end_date }),
 						...(e && { effort: e }),

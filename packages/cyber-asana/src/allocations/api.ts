@@ -36,8 +36,9 @@ export function createAllocationApi(gateway: AllocationGateway, deps: Allocation
 				opts,
 			)
 		},
-		updateAllocation(allocationGid: string, fields: AllocationUpdateFields, opts?: ReadOptions) {
-			return gateway.updateAllocation(allocationGid, fields, opts)
+		async updateAllocation(allocationGid: string, fields: AllocationUpdateFields, opts?: ReadOptions) {
+			if (fields.assignee !== 'me') return gateway.updateAllocation(allocationGid, fields, opts)
+			return gateway.updateAllocation(allocationGid, { ...fields, assignee: await resolveAssignee('me') }, opts)
 		},
 		deleteAllocation(allocationGid: string) {
 			return gateway.deleteAllocation(allocationGid)

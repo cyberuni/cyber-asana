@@ -25,12 +25,24 @@ export type TimeTrackingEntryFields = {
 	durationMinutes?: number
 	/** `YYYY-MM-DD`; Asana defaults to today. */
 	enteredOn?: string
+	/**
+	 * User GID the logged time is attributed to; Asana defaults to the caller. Another user is accepted only
+	 * when the caller is that user's time reviewer or an admin.
+	 */
+	assignee?: string
+	/** Project GID the time is attributed to. */
+	attributableTo?: string
 }
 
 /** The filters of the workspace-wide list; every one is optional and maps to a query parameter. */
 export type TimeTrackingEntryFilters = {
 	task?: string
+	/** User GID the logged time is attributed to. */
+	assignee?: string
+	/** @deprecated Asana deprecated its `user` query parameter for `assignee`; this is sent as `assignee`. */
 	user?: string
+	/** Project GID the time is attributed to. */
+	attributableTo?: string
 	portfolio?: string
 	workspace?: string
 	enteredOnStart?: string
@@ -62,6 +74,8 @@ function bodyOf(fields: TimeTrackingEntryFields) {
 		data: {
 			...(fields.durationMinutes !== undefined && { duration_minutes: fields.durationMinutes }),
 			...(fields.enteredOn !== undefined && { entered_on: fields.enteredOn }),
+			...(fields.assignee !== undefined && { assignee: fields.assignee }),
+			...(fields.attributableTo !== undefined && { attributable_to: fields.attributableTo }),
 		},
 	}
 }
@@ -71,9 +85,11 @@ export function createAsanaTimeTrackingEntryGateway(client: Asana.ApiClient): Ti
 
 	return {
 		async listTimeTrackingEntries(filters, opts) {
+			const assignee = filters?.assignee ?? filters?.user
 			const res = await entriesApi.getTimeTrackingEntries({
 				...(filters?.task !== undefined && { task: filters.task }),
-				...(filters?.user !== undefined && { user: filters.user }),
+				...(assignee !== undefined && { assignee }),
+				...(filters?.attributableTo !== undefined && { attributable_to: filters.attributableTo }),
 				...(filters?.portfolio !== undefined && { portfolio: filters.portfolio }),
 				...(filters?.workspace !== undefined && { workspace: filters.workspace }),
 				...(filters?.enteredOnStart !== undefined && { entered_on_start_date: filters.enteredOnStart }),

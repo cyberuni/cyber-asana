@@ -88,6 +88,18 @@ describe('allocations/mcp', () => {
 		expect(api.updateAllocation).toHaveBeenCalledWith('a1', { effort: { type: 'hours', value: 8 } }, undefined)
 	})
 
+	it('asana_allocation_update reassigns with assignee_gid and parent_gid', async () => {
+		const api = apiStub()
+		const server = createServer()
+		registerAllocationTools(server as any, api)
+		await server.handlers.get('asana_allocation_update')?.({
+			allocation_gid: 'a1',
+			assignee_gid: 'u2',
+			parent_gid: 'p2',
+		})
+		expect(api.updateAllocation).toHaveBeenCalledWith('a1', { assignee: 'u2', parent: 'p2' }, undefined)
+	})
+
 	it('asana_allocation_delete acknowledges', async () => {
 		const server = createServer()
 		registerAllocationTools(server as any, apiStub())

@@ -1557,14 +1557,14 @@
 					"mcp": "opt_fields"
 				},
 				"assignee": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/414",
-					"note": "Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope)"
+					"status": "covered",
+					"cli": "--assignee",
+					"mcp": "assignee_gid"
 				},
 				"attributable_to": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/414",
-					"note": "Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope)"
+					"status": "covered",
+					"cli": "--attributable-to",
+					"mcp": "attributable_to_gid"
 				},
 				"billable_status": {
 					"status": "gap",
@@ -3604,14 +3604,14 @@
 			"mcp": ["asana_time_entry_list"],
 			"parameters": {
 				"assignee": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/414",
-					"note": "Neither CLI nor MCP sends it: the filters are task, user, portfolio, workspace and the date range"
+					"status": "covered",
+					"cli": "--assignee-gid (or --assignee)",
+					"mcp": "assignee_gid"
 				},
 				"attributable_to": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/414",
-					"note": "Neither CLI nor MCP sends it"
+					"status": "covered",
+					"cli": "--attributable-to",
+					"mcp": "attributable_to_gid"
 				},
 				"entered_on_end_date": {
 					"status": "covered",
@@ -4834,9 +4834,9 @@
 					"mcp": "opt_fields"
 				},
 				"assignee": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/414",
-					"note": "Neither CLI nor MCP sends it: AllocationUpdateFields omits assignee"
+					"status": "covered",
+					"cli": "--assignee",
+					"mcp": "assignee_gid"
 				},
 				"effort": {
 					"status": "covered",
@@ -4849,9 +4849,9 @@
 					"mcp": "end_date"
 				},
 				"parent": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/414",
-					"note": "Neither CLI nor MCP sends it: AllocationUpdateFields omits parent"
+					"status": "covered",
+					"cli": "--parent",
+					"mcp": "parent_gid"
 				},
 				"start_date": {
 					"status": "covered",
@@ -5682,14 +5682,14 @@
 					"mcp": "opt_fields"
 				},
 				"assignee": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/414",
-					"note": "Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope)"
+					"status": "covered",
+					"cli": "--assignee",
+					"mcp": "assignee_gid"
 				},
 				"attributable_to": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/414",
-					"note": "Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope)"
+					"status": "covered",
+					"cli": "--attributable-to",
+					"mcp": "attributable_to_gid"
 				},
 				"billable_status": {
 					"status": "gap",

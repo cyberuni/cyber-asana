@@ -47,6 +47,14 @@ describe('allocations/api', () => {
 	})
 
 	describe('assignee me', () => {
+		it('resolves me to the caller GID before updating', async () => {
+			const gateway = gatewayStub()
+			const users = usersStub()
+			await createAllocationApi(gateway, { users }).updateAllocation('a1', { assignee: 'me', parent: 'p2' })
+
+			expect(gateway.updateAllocation).toHaveBeenCalledWith('a1', { assignee: 'u-me', parent: 'p2' }, undefined)
+		})
+
 		const fields = { assignee: 'me', parent: 'p1', start_date: '2026-01-05', end_date: '2026-01-18' }
 
 		it('resolves me to the caller GID before listing', async () => {
