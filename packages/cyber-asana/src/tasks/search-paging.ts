@@ -20,6 +20,8 @@ export async function searchAllPages<T extends SearchPage>(
 	limits: { maxPages?: number } = {},
 ): Promise<PagedSearchResult<T>> {
 	const maxPages = limits.maxPages ?? 10
+	// A smaller `limit` makes a full page that many tasks, so only a shorter page is the last one.
+	const pageSize = opts.limit ?? SEARCH_PAGE_SIZE
 	const fields = opts.optFields
 	const optFields = fields === undefined || /(^|,)created_at(,|$)/.test(fields) ? fields : `${fields},created_at`
 	const seen = new Map<string, T>()
@@ -36,7 +38,7 @@ export async function searchAllPages<T extends SearchPage>(
 		pages++
 		const before = seen.size
 		for (const task of batch) if (!seen.has(task.gid)) seen.set(task.gid, task)
-		if (batch.length < SEARCH_PAGE_SIZE) return { data: [...seen.values()], page_count: pages, truncated: false }
+		if (batch.length < pageSize) return { data: [...seen.values()], page_count: pages, truncated: false }
 		const last = batch.at(-1)?.created_at
 		if (seen.size === before || last === undefined) break
 		after = last

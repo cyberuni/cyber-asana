@@ -21,7 +21,7 @@ function defaultTaskApi() {
 	return createTaskApi(createAsanaTaskGateway(createClient()))
 }
 
-export async function listTasks(projectGid: string, opts?: TaskListOptions) {
+export async function listTasks(projectGid: string | undefined, opts?: TaskListOptions) {
 	return defaultTaskApi().listTasks(projectGid, opts)
 }
 
@@ -105,11 +105,11 @@ export async function removeFollowersFromTask(taskGid: string, followerGids: str
 	return defaultTaskApi().removeFollowersFromTask(taskGid, followerGids)
 }
 
-export async function getDependencies(taskGid: string, opts?: { optFields?: string }) {
+export async function getDependencies(taskGid: string, opts?: PaginationOptions) {
 	return defaultTaskApi().getDependencies(taskGid, opts)
 }
 
-export async function getDependents(taskGid: string, opts?: { optFields?: string }) {
+export async function getDependents(taskGid: string, opts?: PaginationOptions) {
 	return defaultTaskApi().getDependents(taskGid, opts)
 }
 

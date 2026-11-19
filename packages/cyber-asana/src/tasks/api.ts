@@ -24,8 +24,28 @@ export type SubtaskPosition = { insertBefore?: string; insertAfter?: string }
 /** A section's or My Tasks' list options: pagination plus the two completion filters. */
 export type TaskCollectionOptions = PaginationOptions & CompletionFilter
 
+/** What narrows a `GET /tasks` list: a section, or an assignee together with their workspace (a project is the first argument). */
+export type TaskListScope = { section?: string; assignee?: string; workspace?: string }
+
 /** A project's task list options; `customType` filters by custom type GID ("" for tasks with none). */
-export type TaskListOptions = TaskCollectionOptions & { customType?: string }
+export type TaskListOptions = TaskCollectionOptions & TaskListScope & { customType?: string; modifiedSince?: string }
+
+/**
+ * Check a task list's filter locally, so a bad combination fails before any request. Asana wants exactly one
+ * of a project, a section, or an assignee with their workspace; `assignee` and `workspace` only work as a pair.
+ */
+function assertTaskListScope(projectGid: string | undefined, opts: TaskListOptions | undefined) {
+	const { section, assignee, workspace, modifiedSince } = opts ?? {}
+	if ((assignee === undefined) !== (workspace === undefined)) {
+		throw new Error('--assignee and --workspace must be given together')
+	}
+	const filters = [projectGid, section, assignee].filter((value) => value !== undefined)
+	if (filters.length === 0) throw new Error('give one of --project, --section, or --assignee with --workspace')
+	if (filters.length > 1) throw new Error('use only one of --project, --section, or --assignee with --workspace')
+	if (modifiedSince !== undefined && Number.isNaN(Date.parse(modifiedSince))) {
+		throw new Error(`--modified-since must be an ISO 8601 date or time, got "${modifiedSince}"`)
+	}
+}
 
 /** `since` keeps stories created at or after that ISO 8601 time; Asana has no such filter, so it applies here. */
 export type TaskWithStoriesOptions = ReadOptions & { since?: string }
@@ -100,7 +120,8 @@ export type TaskApi = ReturnType<typeof createTaskApi>
 
 export function createTaskApi(gateway: TaskGateway) {
 	return {
-		listTasks(projectGid: string, opts?: TaskListOptions) {
+		async listTasks(projectGid: string | undefined, opts?: TaskListOptions) {
+			assertTaskListScope(projectGid, opts)
 			return listWithCompletionFilter(opts, (o) => gateway.listTasks(projectGid, o))
 		},
 		listTasksForSection(sectionGid: string, opts?: TaskCollectionOptions) {
@@ -195,10 +216,10 @@ export function createTaskApi(gateway: TaskGateway) {
 		removeFollowersFromTask(taskGid: string, followerGids: string[]) {
 			return gateway.removeFollowersFromTask(taskGid, followerGids)
 		},
-		getDependencies(taskGid: string, opts?: { optFields?: string }) {
+		getDependencies(taskGid: string, opts?: PaginationOptions) {
 			return gateway.getDependencies(taskGid, opts)
 		},
-		getDependents(taskGid: string, opts?: { optFields?: string }) {
+		getDependents(taskGid: string, opts?: PaginationOptions) {
 			return gateway.getDependents(taskGid, opts)
 		},
 		addDependencies(taskGid: string, dependencyGids: string[]) {

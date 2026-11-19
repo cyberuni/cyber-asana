@@ -16,17 +16,24 @@ All commands accept the [global options](/cyber-asana/cli/) and list commands ac
 ```sh
 cyber-asana task list --project <gid>
 cyber-asana task list --project <gid> --incomplete
+cyber-asana task list --section <gid>
+cyber-asana task list --assignee me --workspace-gid <gid> --modified-since 2026-01-01
 cyber-asana task my-tasks list --workspace-gid <gid>
 ```
 
 | Option | Commands | Description |
 | --- | --- | --- |
 | `--project-gid <gid>` / `--project <gid>` | `list` | Project to list tasks from |
-| `--workspace-gid <gid>` / `--workspace <gid>` | `my-tasks list` | Workspace (defaults to `ASANA_WORKSPACE_GID`) |
+| `--section-gid <gid>` / `--section <gid>` | `list` | Section to list tasks from, in place of a project |
+| `--assignee-gid <gid>` / `--assignee <user>` | `list` | List the tasks assigned to this user (a GID, `me`, or a registered alias, email, or name); needs the workspace |
+| `--workspace-gid <gid>` / `--workspace <gid>` | `my-tasks list`, `list` | Workspace (defaults to `ASANA_WORKSPACE_GID`); on `list` it goes with `--assignee` and nothing else |
+| `--modified-since <datetime>` | `list` | Only tasks modified at or after this ISO 8601 date or time |
 | `--completed-since <date>` | `list`, `my-tasks list` | Only tasks completed on or after this ISO 8601 date or time; open tasks are left out. Filtered on the client, so a page can hold fewer tasks than `--limit` |
 | `--incomplete` | `list`, `my-tasks list`, `subtask list` | Only incomplete tasks |
 | `--incomplete-or-completed-since <date>` | `list`, `my-tasks list` | Asana's own `completed_since`: incomplete tasks plus tasks completed since the date (`now` for incomplete only) |
 | `--custom-type <gid>` | `list` | Only tasks of this custom type; an empty value selects tasks with no custom type |
+
+`task list` needs exactly one of `--project`, `--section`, or `--assignee` with its workspace; a missing or doubled filter, or an `--assignee` without a workspace, is caught locally before a request is sent.
 
 ## Reading tasks
 
@@ -100,6 +107,14 @@ cyber-asana task delete <task-gid>
 | `--tag <gid-or-name[,...]>` | `create` | Tags to apply, each a GID or a tag name resolved in the workspace. With none given, the `default_tags` [task convention](/cyber-asana/cli/repo-config/#task-conventions) is used |
 | `--custom-fields-json <json>` | `create`, `update` | JSON object keyed by custom field GID |
 | `--custom-field <gid=value>` | `create`, `update` | Repeatable override for simple values |
+| `--html-custom-fields-json <json>` | `create`, `update`, `subtask create` | JSON object of text custom field GID to HTML, each value wrapped in `<body>` |
+| `--html-custom-field <gid=html>` | `create`, `update`, `subtask create` | Repeatable HTML value for one text custom field; overrides the same GID in the JSON form |
+| `--approval-status <status>` | `create`, `update`, `subtask create` | `pending`, `approved`, `rejected`, or `changes_requested`; only meaningful for tasks with resource subtype `approval` |
+| `--assignee-section <gid>` | `create`, `update`, `subtask create` | Section of the assignee's My Tasks to place the task in |
+| `--custom-type-status-option <gid>` | `create`, `update`, `subtask create` | Custom type status option; Asana accepts it only for tasks with resource subtype `custom` |
+| `--liked` / `--no-liked` | `create`, `update`, `subtask create` | Like or unlike the task |
+| `--external-gid <id>` / `--external-data <string>` | `create`, `update`, `subtask create` | Link the task to an object in an external app. Asana honours it only under an OAuth token |
+| `--custom-type <gid>`, `--project-gid <gid[,gid...]>` / `--project <ref>`, `--tag <gid[,gid...]>` | `subtask create` | The same as on `create`; a subtask gets no default project, and tags are GIDs only |
 
 `--notes` and `--html-notes` are mutually exclusive, as is a date with its date-time twin
 (`--due-on` with `--due-at`, `--start-on` with `--start-at`); so is any value paired with
@@ -185,6 +200,7 @@ before this task can start; a *dependent* cannot start until this task finishes.
 ```sh
 cyber-asana task dependency list <task-gid>
 cyber-asana task dependency list <task-gid> --opt-fields "gid,name,assignee"
+cyber-asana task dependency list <task-gid> --limit 20 --offset <token>
 cyber-asana task dependency add <task-gid> <dep-gid> [<dep-gid>...]
 cyber-asana task dependency remove <task-gid> <dep-gid> [<dep-gid>...]
 
@@ -192,6 +208,8 @@ cyber-asana task dependent list <task-gid>
 cyber-asana task dependent add <task-gid> <dep-gid> [<dep-gid>...]
 cyber-asana task dependent remove <task-gid> <dep-gid> [<dep-gid>...]
 ```
+
+`dependency list` and `dependent list` take the [pagination options](/cyber-asana/cli/#pagination).
 
 Asana enforces a combined limit of 30 dependencies and dependents per task.
 
@@ -205,6 +223,7 @@ cyber-asana task search "login"
 cyber-asana task search --no-completed --project <gid>
 cyber-asana task search --assignee <user-gid> --subtype milestone --due-on-before 2026-01-01
 cyber-asana task search --is-blocked --sort-by due_date --json
+cyber-asana task search "login" --limit 25
 cyber-asana task search --modified-on-after 2026-05-17 --project-not <gid>
 ```
 

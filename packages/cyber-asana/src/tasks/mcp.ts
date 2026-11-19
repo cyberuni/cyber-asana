@@ -13,6 +13,7 @@ import {
 import { listTags } from '../tags/default.js'
 import { resolveTagRefs } from '../tags/resolve.js'
 import { type CompletionFilter, type SearchTasksOptions, scanTodos, type TaskApi } from './api.js'
+import { APPROVAL_STATUSES } from './approval-status.js'
 import {
 	addDependencies,
 	addDependents,
@@ -142,30 +143,105 @@ export function completionFilter(params: {
 	}
 }
 
+/** The write fields `asana_task_create`, `asana_task_update`, and `asana_task_subtask_create` share. */
+const taskWriteParams = {
+	approval_status: z
+		.enum(APPROVAL_STATUSES)
+		.optional()
+		.describe('Approval status; only meaningful for tasks with resource_subtype approval'),
+	assignee_section: z.string().optional().describe("GID of a section in the assignee's My Tasks"),
+	custom_type_status_option: z
+		.string()
+		.optional()
+		.describe('Custom type status option GID; Asana accepts it only for tasks with resource_subtype custom'),
+	html_custom_fields: z
+		.record(z.string(), z.string())
+		.optional()
+		.describe('Text custom field values as HTML keyed by field GID, each wrapped in <body>...</body>'),
+	liked: z.boolean().optional().describe('Like (true) or unlike (false) the task'),
+	external: z
+		.object({
+			gid: z.string().optional().describe('ID of the task in an external app'),
+			data: z.string().optional().describe('Data to store with the external link'),
+		})
+		.optional()
+		.describe('Link to an object in an external app; Asana honours it only under an OAuth token'),
+}
+
+type TaskWriteParams = {
+	approval_status?: string
+	assignee_section?: string
+	custom_type_status_option?: string
+	html_custom_fields?: Record<string, string>
+	liked?: boolean
+	external?: { gid?: string; data?: string }
+}
+
+function taskWriteInputFromParams(params: TaskWriteParams) {
+	return {
+		approvalStatus: params.approval_status,
+		assigneeSection: params.assignee_section,
+		customTypeStatusOption: params.custom_type_status_option,
+		htmlCustomFields: params.html_custom_fields,
+		liked: params.liked,
+		externalGid: params.external?.gid,
+		externalData: params.external?.data,
+	}
+}
+
 export function registerTaskTools(server: McpServer, api?: TaskApi | (() => TaskApi)) {
 	server.tool(
 		'asana_task_list',
-		'List Asana tasks in a project',
+		'List Asana tasks in a project or a section, or assigned to a user. Give exactly one of project_gid, section_gid, or an assignee with workspace_gid.',
 		{
-			project_gid: z.string().describe('Project GID'),
+			project_gid: z.string().optional().describe('Project GID'),
+			section_gid: z.string().optional().describe('Section GID'),
+			assignee_gid: z.string().optional().describe('Assignee user GID; needs workspace_gid'),
+			assignee: z
+				.string()
+				.optional()
+				.describe(
+					'Assignee as a user GID, "me", or an alias, email, or name registered with `cyber-asana config add-user`; needs workspace_gid. assignee_gid wins when both are set.',
+				),
+			workspace_gid: z.string().optional().describe('Workspace GID; only with an assignee'),
+			modified_since: z.string().optional().describe('Only tasks modified at or after this ISO 8601 date or time'),
 			...completionParams,
 			custom_type: customTypeParam('tasks'),
 			...paginationParams,
 		},
-		async ({ project_gid, completed_since, incomplete, incomplete_or_completed_since, custom_type, ...params }) => ({
-			content: [
-				{
-					type: 'text',
-					text: JSON.stringify(
-						await resolveTaskApi(api).listTasks(project_gid, {
-							...completionFilter({ completed_since, incomplete, incomplete_or_completed_since }),
-							...(custom_type !== undefined && { customType: custom_type }),
-							...paginationOptions(params),
-						}),
-					),
-				},
-			],
-		}),
+		async ({
+			project_gid,
+			section_gid,
+			assignee_gid,
+			assignee,
+			workspace_gid,
+			modified_since,
+			completed_since,
+			incomplete,
+			incomplete_or_completed_since,
+			custom_type,
+			...params
+		}) => {
+			const assigneeGid = await assigneeFromParams(assignee_gid, assignee)
+			return {
+				content: [
+					{
+						type: 'text',
+						text: JSON.stringify(
+							await resolveTaskApi(api).listTasks(project_gid, {
+								...completionFilter({ completed_since, incomplete, incomplete_or_completed_since }),
+								...(custom_type !== undefined && { customType: custom_type }),
+								...(section_gid !== undefined && { section: section_gid }),
+								...(assigneeGid !== undefined && { assignee: assigneeGid }),
+								...(workspace_gid !== undefined && { workspace: workspace_gid }),
+								...(modified_since !== undefined && { modifiedSince: modified_since }),
+								...paginationOptions(params),
+							}),
+						),
+					},
+				],
+			}
+		},
 	)
 
 	server.tool(
@@ -304,7 +380,21 @@ When setting notes, prefer html_notes over notes to preserve rich formatting (he
 				.optional()
 				.describe('Follower user GIDs'),
 			resource_subtype: z.string().optional().describe('Task resource subtype'),
+			custom_type: z.string().optional().describe('Custom type GID (e.g. an Epic or Initiative type)'),
+			project_gid: z.string().optional().describe('Project GID'),
+			project_gids: z.array(z.string()).optional().describe('Project GIDs'),
+			project: z
+				.string()
+				.optional()
+				.describe(
+					'Project as a GID, or a name or alias registered with `cyber-asana config add` (resolved from the repo config, no API call). project_gid and project_gids win when set. Unlike asana_task_create, no default project is applied.',
+				),
+			tag_gids: z
+				.union([z.array(z.string()), z.string()])
+				.optional()
+				.describe('Tag GIDs to apply'),
 			custom_fields: z.record(z.string(), z.unknown()).optional().describe('Custom field values keyed by GID'),
+			...taskWriteParams,
 			...readParams,
 		},
 		async ({
@@ -321,7 +411,18 @@ When setting notes, prefer html_notes over notes to preserve rich formatting (he
 			assignee,
 			follower_gids,
 			resource_subtype,
+			custom_type,
+			project_gid,
+			project_gids,
+			project,
+			tag_gids,
 			custom_fields,
+			approval_status,
+			assignee_section,
+			custom_type_status_option,
+			html_custom_fields,
+			liked,
+			external,
 			...params
 		}) => ({
 			content: [
@@ -332,6 +433,20 @@ When setting notes, prefer html_notes over notes to preserve rich formatting (he
 							task_gid,
 							name,
 							buildTaskCreateFields({
+								...taskWriteInputFromParams({
+									approval_status,
+									assignee_section,
+									custom_type_status_option,
+									html_custom_fields,
+									liked,
+									external,
+								}),
+								customType: custom_type,
+								projectGids:
+									project_gids ??
+									parseGidList(project_gid) ??
+									(project ? parseGidList(await resolveProjectRef(project)) : undefined),
+								tagGids: typeof tag_gids === 'string' ? parseGidList(tag_gids) : tag_gids,
 								notes,
 								htmlNotes: html_notes,
 								completed,
@@ -451,6 +566,7 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 			resource_subtype: z.string().optional().describe('Task resource subtype'),
 			custom_type: z.string().optional().describe('Custom type GID (e.g. an Epic or Initiative type)'),
 			custom_fields: z.record(z.string(), z.unknown()).optional().describe('Custom field values keyed by GID'),
+			...taskWriteParams,
 			default_section: z
 				.boolean()
 				.optional()
@@ -480,6 +596,12 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 			resource_subtype,
 			custom_type,
 			custom_fields,
+			approval_status,
+			assignee_section,
+			custom_type_status_option,
+			html_custom_fields,
+			liked,
+			external,
 			default_section,
 			...params
 		}) => {
@@ -502,6 +624,14 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 					resourceSubtype: resource_subtype,
 					customType: custom_type,
 					customFields: custom_fields,
+					...taskWriteInputFromParams({
+						approval_status,
+						assignee_section,
+						custom_type_status_option,
+						html_custom_fields,
+						liked,
+						external,
+					}),
 				}),
 				conventions,
 			)
@@ -571,6 +701,7 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 			resource_subtype: z.string().optional().describe('Task resource subtype'),
 			custom_type: z.string().optional().describe('Custom type GID (e.g. an Epic or Initiative type)'),
 			custom_fields: z.record(z.string(), z.unknown()).optional().describe('Custom field values keyed by GID'),
+			...taskWriteParams,
 			...readParams,
 		},
 		async ({
@@ -597,6 +728,12 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 			resource_subtype,
 			custom_type,
 			custom_fields,
+			approval_status,
+			assignee_section,
+			custom_type_status_option,
+			html_custom_fields,
+			liked,
+			external,
 			...params
 		}) => ({
 			content: [
@@ -627,6 +764,14 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 								resourceSubtype: resource_subtype,
 								customType: custom_type,
 								customFields: custom_fields,
+								...taskWriteInputFromParams({
+									approval_status,
+									assignee_section,
+									custom_type_status_option,
+									html_custom_fields,
+									liked,
+									external,
+								}),
 							}),
 							readOptions(params),
 						),
@@ -746,6 +891,13 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 					'Page past the 100-result search cap (sorted by created_at ascending); returns {data, page_count, truncated}',
 				),
 			max_pages: z.number().int().min(1).optional().describe('Maximum pages with fetch_all (default: 10)'),
+			limit: z
+				.number()
+				.int()
+				.min(1)
+				.max(100)
+				.optional()
+				.describe('Results per call, from 1 to 100 (default: 100); search has no offset, use fetch_all to page'),
 		},
 		async ({
 			workspace_gid,
@@ -855,6 +1007,7 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 				resourceSubtype: rest.resource_subtype,
 				sortBy: rest.sort_by,
 				sortAscending: rest.sort_ascending,
+				...(rest.limit !== undefined && { limit: rest.limit }),
 				optFields: rest.opt_fields,
 			}
 			const result = fetch_all
@@ -952,13 +1105,13 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 		'List dependencies of an Asana task (tasks this task depends on)',
 		{
 			task_gid: z.string().describe('Task GID'),
-			opt_fields: z.string().optional().describe('Comma-separated Asana fields to include'),
+			...paginationParams,
 		},
-		async ({ task_gid, opt_fields }) => ({
+		async ({ task_gid, ...params }) => ({
 			content: [
 				{
 					type: 'text',
-					text: JSON.stringify(await resolveTaskApi(api).getDependencies(task_gid, { optFields: opt_fields })),
+					text: JSON.stringify(await resolveTaskApi(api).getDependencies(task_gid, paginationOptions(params))),
 				},
 			],
 		}),
@@ -997,13 +1150,13 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 		'List dependents of an Asana task (tasks that depend on this task)',
 		{
 			task_gid: z.string().describe('Task GID'),
-			opt_fields: z.string().optional().describe('Comma-separated Asana fields to include'),
+			...paginationParams,
 		},
-		async ({ task_gid, opt_fields }) => ({
+		async ({ task_gid, ...params }) => ({
 			content: [
 				{
 					type: 'text',
-					text: JSON.stringify(await resolveTaskApi(api).getDependents(task_gid, { optFields: opt_fields })),
+					text: JSON.stringify(await resolveTaskApi(api).getDependents(task_gid, paginationOptions(params))),
 				},
 			],
 		}),
