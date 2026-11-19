@@ -61,6 +61,14 @@ cyber-asana project delete <gid>
 | `--clear-due-on` | `update` | Clear the due date |
 | `--clear-start-on` | `update` | Clear the start date |
 | `--clear-owner` | `update` | Leave the project without an owner |
+| `--follower <user[,user...]>` | `create` | Followers to add: user GIDs, emails, or `me`. Asana takes followers on create only; change them later with [`project follower add` and `remove`](#followers) |
+| `--custom-fields-json <json>` / `--custom-field <gid=value>` | `create`, `update` | Custom field values, a JSON object and repeatable `gid=value` entries (entries win) |
+| `--html-custom-fields-json <json>` / `--html-custom-field <gid=html>` | `create`, `update` | Text custom field values as HTML, each wrapped in `<body>...</body>` |
+| `--custom-type <gid>` | `create`, `update` | Custom type GID; Asana accepts it only with `--resource-subtype custom` |
+| `--resource-subtype <value>` | `create`, `update` | `default_project` or `custom` |
+| `--icon <value>` | `create`, `update` | Project icon, such as `list`, `board`, `rocket`, `bug`, `target`; `--help` lists them all |
+| `--min-access-for-customization <level>` | `create`, `update` | Lowest access level that may customize the project: `admin` or `editor` |
+| `--min-access-for-sharing <level>` | `create`, `update` | Lowest access level that may share the project: `admin` or `editor` |
 
 ## Task counts
 
@@ -81,6 +89,7 @@ default field set unless you need additional count fields.
 cyber-asana project duplicate <gid> --name "Sprint 3" --team-gid <gid>
 cyber-asana project duplicate <gid> --name "Sprint 3" --include members,task_notes
 cyber-asana project duplicate <gid> --name "Sprint 3" --no-wait
+cyber-asana project duplicate <gid> --name "Sprint 3" --include task_dates --schedule-start-on 2026-07-06 --skip-weekends
 ```
 
 Copies a project. Asana builds the copy as a job, so the command waits for it and prints the new
@@ -88,6 +97,8 @@ project GID. `--no-wait` returns the job instead, which `cyber-asana job get <gi
 `--timeout <seconds>` bounds the wait (default 60). A job that failed, or a wait that ran out, is an
 error. `--include` names the elements to copy, as Asana lists them. The MCP tool is
 `asana_project_duplicate`.
+
+`--schedule-start-on <date>` or `--schedule-due-on <date>` (exactly one) shifts the copied tasks' dates so the project starts or ends on that date. It needs `task_dates` in `--include`. `--skip-weekends` skips weekends when shifting; Asana always needs that boolean, so it is false when you give a schedule date without it, and `--no-skip-weekends` says so explicitly. Both rules are checked before any request is sent.
 
 ## Followers
 
@@ -133,7 +144,7 @@ cyber-asana project search --workspace-gid <gid> --portfolio <gid> --sort-by due
 - `--completed-on`, `--completed-on-before`, `--completed-on-after`, `--completed-at-before`, `--completed-at-after`
 
 **Other:** `--sort-by <field>` (`due_date`, `created_at`, `completed_at`, `modified_at`),
-`--sort-asc`, `--opt-fields <fields>`
+`--sort-asc`, `--limit <number>` (results per call, 1 to 100; search has no offset), `--opt-fields <fields>`
 
 :::caution
 Project search uses Asana's premium search endpoint. Results are eventually consistent, so

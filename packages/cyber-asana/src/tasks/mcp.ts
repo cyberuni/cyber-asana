@@ -1055,13 +1055,22 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 		'List the projects an Asana task belongs to (paginated)',
 		{
 			task_gid: z.string().describe('Task GID'),
+			include_inherited_projects: z
+				.boolean()
+				.optional()
+				.describe("Also list the projects the task's parent is in, which a subtask inherits"),
 			...paginationParams,
 		},
-		async ({ task_gid, ...params }) => ({
+		async ({ task_gid, include_inherited_projects, ...params }) => ({
 			content: [
 				{
 					type: 'text',
-					text: JSON.stringify(await resolveTaskApi(api).listProjectsForTask(task_gid, paginationOptions(params))),
+					text: JSON.stringify(
+						await resolveTaskApi(api).listProjectsForTask(task_gid, {
+							...paginationOptions(params),
+							...(include_inherited_projects !== undefined && { includeInheritedProjects: include_inherited_projects }),
+						}),
+					),
 				},
 			],
 		}),

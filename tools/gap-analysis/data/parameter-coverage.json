@@ -734,9 +734,8 @@
 					"mcp": "parent_gid"
 				},
 				"role": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
-					"note": "CLI has no flag; MCP has none"
+					"status": "skipped",
+					"reason": "Deprecated by Asana in favour of access_level"
 				}
 			}
 		},
@@ -860,14 +859,14 @@
 					"reason": "Deprecated by Asana (see Asana API reference; the SDK comment does not mark it); cyber-asana never sends it: use status updates"
 				},
 				"custom_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
-					"note": "CLI has no flag; MCP has none (CLI and MCP only attach fields through custom-field attach)"
+					"status": "covered",
+					"cli": "--custom-fields-json / --custom-field <gid=value>",
+					"mcp": "custom_fields"
 				},
 				"custom_type": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
-					"note": "CLI has no flag; MCP has none"
+					"status": "covered",
+					"cli": "--custom-type",
+					"mcp": "custom_type"
 				},
 				"default_access_level": {
 					"status": "covered",
@@ -889,14 +888,14 @@
 					"mcp": "due_on"
 				},
 				"followers": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
-					"note": "CLI has no flag on project create; MCP has none (followers are managed through project follower add/remove)"
+					"status": "covered",
+					"cli": "--follower",
+					"mcp": "follower_gids"
 				},
 				"html_custom_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
-					"note": "CLI has no flag; MCP has none"
+					"status": "covered",
+					"cli": "--html-custom-fields-json / --html-custom-field <gid=html>",
+					"mcp": "html_custom_fields"
 				},
 				"html_notes": {
 					"status": "covered",
@@ -904,19 +903,19 @@
 					"mcp": "html_notes"
 				},
 				"icon": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
-					"note": "CLI has no flag; MCP has none"
+					"status": "covered",
+					"cli": "--icon",
+					"mcp": "icon"
 				},
 				"minimum_access_level_for_customization": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
-					"note": "CLI has no flag; MCP has none"
+					"status": "covered",
+					"cli": "--min-access-for-customization",
+					"mcp": "minimum_access_level_for_customization"
 				},
 				"minimum_access_level_for_sharing": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
-					"note": "CLI has no flag; MCP has none"
+					"status": "covered",
+					"cli": "--min-access-for-sharing",
+					"mcp": "minimum_access_level_for_sharing"
 				},
 				"name": {
 					"status": "covered",
@@ -943,9 +942,9 @@
 					"reason": "Deprecated by Asana (see Asana API reference; the SDK comment does not mark it); cyber-asana never sends it: privacy_setting replaces it"
 				},
 				"resource_subtype": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
-					"note": "CLI has no flag; MCP has none"
+					"status": "covered",
+					"cli": "--resource-subtype",
+					"mcp": "resource_subtype"
 				},
 				"start_on": {
 					"status": "covered",
@@ -1810,9 +1809,9 @@
 					"mcp": "name"
 				},
 				"schedule_dates": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
-					"note": "CLI has no flag; MCP has none"
+					"status": "covered",
+					"cli": "--schedule-start-on / --schedule-due-on / --skip-weekends",
+					"mcp": "schedule_dates"
 				}
 			}
 		},
@@ -2610,9 +2609,8 @@
 					"mcp": "opt_fields"
 				},
 				"team": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
-					"note": "gateway supports a team filter, but CLI and MCP route a team to getProjectTemplatesForTeam instead, so this operation never receives team; workspace+team together cannot be sent"
+					"status": "skipped",
+					"reason": "A team routes to getProjectTemplatesForTeam (project-template list --team), which returns the same templates; workspace plus team together is redundant"
 				},
 				"workspace": {
 					"status": "covered",
@@ -2699,9 +2697,9 @@
 					"mcp": "task_gid"
 				},
 				"include_inherited_projects": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
-					"note": "CLI has no flag; MCP has none"
+					"status": "covered",
+					"cli": "--include-inherited",
+					"mcp": "include_inherited_projects"
 				},
 				"limit": {
 					"status": "covered",
@@ -3727,9 +3725,9 @@
 					"mcp": "opt_fields"
 				},
 				"workspace": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
-					"note": "gateway sends no workspace; CLI has no flag; MCP has none"
+					"status": "covered",
+					"cli": "--workspace-gid",
+					"mcp": "workspace_gid"
 				}
 			}
 		},
@@ -3772,9 +3770,9 @@
 					"mcp": "opt_fields"
 				},
 				"team": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
-					"note": "gateway sends no team filter; CLI has no flag; MCP has none"
+					"status": "covered",
+					"cli": "--team",
+					"mcp": "team_gid"
 				},
 				"workspace": {
 					"status": "covered",
@@ -4293,9 +4291,9 @@
 					"mcp": "due_on_before"
 				},
 				"limit": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
-					"note": "searchProjects sends no limit; CLI has no --limit on project search; MCP has none"
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
 				},
 				"members.any": {
 					"status": "covered",
@@ -5270,14 +5268,14 @@
 					"reason": "Deprecated by Asana (see Asana API reference; the SDK comment does not mark it); cyber-asana never sends it: use status updates"
 				},
 				"custom_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
-					"note": "CLI has no flag; MCP has none (CLI and MCP only attach fields through custom-field attach)"
+					"status": "covered",
+					"cli": "--custom-fields-json / --custom-field <gid=value>",
+					"mcp": "custom_fields"
 				},
 				"custom_type": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
-					"note": "CLI has no flag; MCP has none"
+					"status": "covered",
+					"cli": "--custom-type",
+					"mcp": "custom_type"
 				},
 				"default_access_level": {
 					"status": "covered",
@@ -5299,14 +5297,13 @@
 					"mcp": "due_on (clear_due_on sends null)"
 				},
 				"followers": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
-					"note": "CLI has no flag on project update; MCP has none (followers are managed through project follower add/remove)"
+					"status": "skipped",
+					"reason": "Create-only in Asana; change followers with project follower add/remove"
 				},
 				"html_custom_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
-					"note": "CLI has no flag; MCP has none"
+					"status": "covered",
+					"cli": "--html-custom-fields-json / --html-custom-field <gid=html>",
+					"mcp": "html_custom_fields"
 				},
 				"html_notes": {
 					"status": "covered",
@@ -5314,19 +5311,19 @@
 					"mcp": "html_notes"
 				},
 				"icon": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
-					"note": "CLI has no flag; MCP has none"
+					"status": "covered",
+					"cli": "--icon",
+					"mcp": "icon"
 				},
 				"minimum_access_level_for_customization": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
-					"note": "CLI has no flag; MCP has none"
+					"status": "covered",
+					"cli": "--min-access-for-customization",
+					"mcp": "minimum_access_level_for_customization"
 				},
 				"minimum_access_level_for_sharing": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
-					"note": "CLI has no flag; MCP has none"
+					"status": "covered",
+					"cli": "--min-access-for-sharing",
+					"mcp": "minimum_access_level_for_sharing"
 				},
 				"name": {
 					"status": "covered",
@@ -5353,9 +5350,9 @@
 					"reason": "Deprecated by Asana (see Asana API reference; the SDK comment does not mark it); cyber-asana never sends it: privacy_setting replaces it"
 				},
 				"resource_subtype": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
-					"note": "CLI has no flag; MCP has none"
+					"status": "covered",
+					"cli": "--resource-subtype",
+					"mcp": "resource_subtype"
 				},
 				"start_on": {
 					"status": "covered",

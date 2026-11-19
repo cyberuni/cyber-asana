@@ -24,6 +24,7 @@ import {
 	searchProjects,
 	updateProject,
 } from './default.js'
+import { PROJECT_ICONS, PROJECT_MINIMUM_ACCESS_LEVELS, PROJECT_RESOURCE_SUBTYPES } from './project-enums.js'
 import { buildProjectCreateFields, buildProjectUpdateFields } from './write-options.js'
 
 function resolveProjectApi(api?: ProjectApi | (() => ProjectApi)): ProjectApi {
@@ -44,6 +45,48 @@ function resolveProjectApi(api?: ProjectApi | (() => ProjectApi)): ProjectApi {
 			duplicateProjectAndWait,
 		}
 	)
+}
+
+/** The write fields `asana_project_create` and `asana_project_update` share. */
+const projectWriteParams = {
+	custom_fields: z.record(z.string(), z.unknown()).optional().describe('Custom field values keyed by field GID'),
+	html_custom_fields: z
+		.record(z.string(), z.string())
+		.optional()
+		.describe('Text custom field values as HTML keyed by field GID, each wrapped in <body>...</body>'),
+	custom_type: z.string().optional().describe('Custom type GID; Asana accepts it only when resource_subtype is custom'),
+	resource_subtype: z.enum(PROJECT_RESOURCE_SUBTYPES).optional().describe('Project resource subtype'),
+	icon: z.enum(PROJECT_ICONS).optional().describe('Project icon'),
+	minimum_access_level_for_customization: z
+		.enum(PROJECT_MINIMUM_ACCESS_LEVELS)
+		.optional()
+		.describe('Lowest access level that may customize the project'),
+	minimum_access_level_for_sharing: z
+		.enum(PROJECT_MINIMUM_ACCESS_LEVELS)
+		.optional()
+		.describe('Lowest access level that may share the project'),
+}
+
+type ProjectWriteParams = {
+	custom_fields?: Record<string, unknown>
+	html_custom_fields?: Record<string, string>
+	custom_type?: string
+	resource_subtype?: string
+	icon?: string
+	minimum_access_level_for_customization?: string
+	minimum_access_level_for_sharing?: string
+}
+
+function projectWriteInputFromParams(params: ProjectWriteParams) {
+	return {
+		customFields: params.custom_fields,
+		htmlCustomFields: params.html_custom_fields,
+		customType: params.custom_type,
+		resourceSubtype: params.resource_subtype,
+		icon: params.icon,
+		minAccessForCustomization: params.minimum_access_level_for_customization,
+		minAccessForSharing: params.minimum_access_level_for_sharing,
+	}
 }
 
 export function registerProjectTools(server: McpServer, api?: ProjectApi | (() => ProjectApi)) {
@@ -137,6 +180,13 @@ export function registerProjectTools(server: McpServer, api?: ProjectApi | (() =
 			start_on_after: z.string().optional().describe('Start date after (YYYY-MM-DD)'),
 			sort_by: z.string().optional().describe('Sort field: due_date, created_at, completed_at, modified_at'),
 			sort_ascending: z.boolean().optional().describe('Sort ascending (default: descending)'),
+			limit: z
+				.number()
+				.int()
+				.min(1)
+				.max(100)
+				.optional()
+				.describe('Results per call, from 1 to 100 (default: 100); search has no offset'),
 			opt_fields: z.string().optional().describe('Comma-separated optional Asana fields to include'),
 		},
 		async ({
@@ -168,6 +218,7 @@ export function registerProjectTools(server: McpServer, api?: ProjectApi | (() =
 			start_on_after,
 			sort_by,
 			sort_ascending,
+			limit,
 			opt_fields,
 		}) => ({
 			content: [
@@ -202,6 +253,7 @@ export function registerProjectTools(server: McpServer, api?: ProjectApi | (() =
 							startOnAfter: start_on_after,
 							sortBy: sort_by,
 							sortAscending: sort_ascending,
+							...(limit !== undefined && { limit }),
 							optFields: opt_fields,
 						}),
 					),
@@ -233,6 +285,13 @@ export function registerProjectTools(server: McpServer, api?: ProjectApi | (() =
 				.describe('Default access for users or teams who join the project'),
 			due_on: z.string().optional().describe('Due date (YYYY-MM-DD)'),
 			start_on: z.string().optional().describe('Start date (YYYY-MM-DD)'),
+			follower_gids: z
+				.union([z.array(z.string()), z.string()])
+				.optional()
+				.describe(
+					'Followers to add: user GIDs, emails, or "me"; set on create only (use asana_project_follower_add later)',
+				),
+			...projectWriteParams,
 		},
 		async ({
 			workspace_gid,
@@ -247,7 +306,9 @@ export function registerProjectTools(server: McpServer, api?: ProjectApi | (() =
 			default_access_level,
 			due_on,
 			start_on,
+			follower_gids,
 			opt_fields,
+			...write
 		}) => ({
 			content: [
 				{
@@ -267,6 +328,10 @@ export function registerProjectTools(server: McpServer, api?: ProjectApi | (() =
 								defaultAccessLevel: default_access_level,
 								dueOn: due_on,
 								startOn: start_on,
+								...(typeof follower_gids === 'string'
+									? { followerInput: follower_gids }
+									: { followerGids: follower_gids }),
+								...projectWriteInputFromParams(write),
 							}),
 							readOptions({ opt_fields }),
 						),
@@ -302,6 +367,7 @@ export function registerProjectTools(server: McpServer, api?: ProjectApi | (() =
 			start_on: z.string().optional().describe('Start date (YYYY-MM-DD)'),
 			clear_due_on: z.boolean().optional().describe('Clear the due date'),
 			clear_start_on: z.boolean().optional().describe('Clear the start date'),
+			...projectWriteParams,
 		},
 		async ({
 			project_gid,
@@ -320,6 +386,7 @@ export function registerProjectTools(server: McpServer, api?: ProjectApi | (() =
 			clear_due_on,
 			clear_start_on,
 			opt_fields,
+			...write
 		}) => ({
 			content: [
 				{
@@ -343,6 +410,7 @@ export function registerProjectTools(server: McpServer, api?: ProjectApi | (() =
 									startOn: start_on,
 									clearDueOn: clear_due_on,
 									clearStartOn: clear_start_on,
+									...projectWriteInputFromParams(write),
 								}),
 							},
 							readOptions({ opt_fields }),
@@ -418,6 +486,14 @@ export function registerProjectTools(server: McpServer, api?: ProjectApi | (() =
 				.array(z.string())
 				.optional()
 				.describe('Elements to copy, such as members, task_notes, task_assignee, task_dates'),
+			schedule_dates: z
+				.object({
+					should_skip_weekends: z.boolean().describe('Skip weekends when shifting dates'),
+					start_on: z.string().optional().describe('Start the project on this date (YYYY-MM-DD)'),
+					due_on: z.string().optional().describe('End the project on this date (YYYY-MM-DD)'),
+				})
+				.optional()
+				.describe("Shift the copied tasks' dates: exactly one of start_on or due_on; needs task_dates in include"),
 			wait: z.boolean().optional().describe('Wait for the copy to finish (default true); false returns the job'),
 			timeout_seconds: z
 				.number()
@@ -426,11 +502,12 @@ export function registerProjectTools(server: McpServer, api?: ProjectApi | (() =
 				.optional()
 				.describe(`Seconds to wait (default ${DEFAULT_DUPLICATE_TIMEOUT_SECONDS})`),
 		},
-		async ({ project_gid, name, team_gid, include, wait, timeout_seconds }) => {
+		async ({ project_gid, name, team_gid, include, schedule_dates, wait, timeout_seconds }) => {
 			const fields = {
 				name,
 				...(team_gid !== undefined && { team: team_gid }),
 				...(include !== undefined && { include }),
+				...(schedule_dates !== undefined && { schedule_dates }),
 			}
 			const projectApi = resolveProjectApi(api)
 			const job =

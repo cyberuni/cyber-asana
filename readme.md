@@ -538,7 +538,12 @@ Notable parameters:
 - `asana_task_follower_add` / `asana_task_follower_remove` — manage followers on existing tasks
 - `asana_goal_create` — `notes` or `html_notes` (mutually exclusive), `due_on`, `start_on` (Asana requires an accompanying due date)
 - `asana_goal_update` — `name`, `notes` or `html_notes` (mutually exclusive), `due_on`, `clear_due_on`, `start_on`, `clear_start_on`; the clear flags send an explicit null, and naming a date together with its clear flag is rejected before any request is sent
-- `asana_project_search` — `text`, `completed`, team/owner/member/portfolio filters, date filters, `sort_by`, `sort_ascending`, `opt_fields`
+- `asana_project_search` — `text`, `completed`, team/owner/member/portfolio filters, date filters, `sort_by`, `sort_ascending`, `limit` (1 to 100), `opt_fields`
+- `asana_project_create` — `follower_gids` (array or comma-separated; create only), `custom_fields`, `html_custom_fields`, `custom_type`, `resource_subtype` (`default_project` or `custom`), `icon`, `minimum_access_level_for_customization`, `minimum_access_level_for_sharing` (`admin` or `editor`)
+- `asana_project_update` — the same fields as `asana_project_create` except `follower_gids`, which Asana takes on create only; use `asana_project_follower_add` and `asana_project_follower_remove` afterwards
+- `asana_project_duplicate` — `schedule_dates` (`{should_skip_weekends, start_on | due_on}`: exactly one date, and `task_dates` in `include`; both checked before any request)
+- `asana_user_list` — `team_gid` narrows the list to one team's members; `asana_user_get` and `asana_user_me` — `workspace_gid` (sent only when given)
+- `asana_task_project_list` — `include_inherited_projects` also lists the projects a subtask inherits from its parent
 - `asana_project_counts` — `opt_fields` defaults to `num_tasks,num_incomplete_tasks,num_completed_tasks`
 - `asana_project_template_instantiate` — `name`, `team_gid`, `public`, `requested_dates` (`[{gid, value}]` from the template's `requested_dates`), `wait` (default `true`), `timeout_seconds` (default 60). Returns `{ job, project_gid }`; a failed job or an expired wait is an error, never a success with a null `project_gid`
 - `asana_attachment_create` — `connect_to_app` links the authenticated app to an external `url` attachment; Asana honours it only under an OAuth token, and a file upload rejects it locally

@@ -11,6 +11,7 @@ import type {
 	SearchProjectsOptions,
 	UpdateProjectFields,
 } from './gateway.js'
+import { assertScheduleDates } from './schedule-dates.js'
 
 export type {
 	CreateProjectFields,
@@ -22,6 +23,7 @@ export type {
 	SearchProjectsOptions,
 	UpdateProjectFields,
 } from './gateway.js'
+export type { ScheduleDates } from './schedule-dates.js'
 
 export type ExportedTask = {
 	gid: string
@@ -79,6 +81,7 @@ export function createProjectApi(gateway: ProjectGateway, deps: ProjectDeps = {}
 			return gateway.deleteProject(projectGid)
 		},
 		duplicateProject(projectGid: string, fields: DuplicateProjectFields) {
+			assertScheduleDates(fields.schedule_dates, fields.include)
 			return gateway.duplicateProject(projectGid, fields)
 		},
 		/**
@@ -90,6 +93,7 @@ export function createProjectApi(gateway: ProjectGateway, deps: ProjectDeps = {}
 			fields: DuplicateProjectFields,
 			opts?: WaitForJobOptions,
 		): Promise<Job> {
+			assertScheduleDates(fields.schedule_dates, fields.include)
 			const jobs = deps.jobs
 			if (!jobs) throw new Error('duplicateProjectAndWait needs a job gateway to poll the duplication')
 			const job = await gateway.duplicateProject(projectGid, fields)

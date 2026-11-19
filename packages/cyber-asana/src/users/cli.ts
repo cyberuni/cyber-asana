@@ -13,6 +13,7 @@ import {
 import { output, printCountSummary, printFields, printNextSteps, printTable } from '../platform/cli/output.js'
 import type { UserApi } from './api.js'
 import { getMe, getUser, listUsers } from './default.js'
+import type { UserListOptions, UserReadOptions } from './gateway.js'
 
 type User = { gid: string; name?: string; email?: string }
 
@@ -30,6 +31,25 @@ function fmtUserList(users: User[]) {
 		],
 		{ entity: 'users' },
 	)
+}
+
+type UserReadCliOptions = { optFields?: string; workspace?: string; workspaceGid?: string }
+
+/**
+ * `--workspace-gid` here is an explicit option only: unlike the list commands it does not fall back to
+ * ASANA_WORKSPACE_GID, so a plain `user get` keeps sending no workspace.
+ */
+function addUserWorkspaceOption<T extends Command>(cmd: T) {
+	return addGidOption(cmd, 'workspace', 'Workspace GID to read workspace-specific user fields for').addHelpText(
+		'after',
+		'\nThe workspace is sent only when given; ASANA_WORKSPACE_GID is not used here.',
+	)
+}
+
+function userReadOptionsFromCli(opts: UserReadCliOptions): UserReadOptions | undefined {
+	const workspaceGid = opts.workspaceGid ?? opts.workspace
+	if (workspaceGid === undefined) return readOptionsFromCli(opts)
+	return { ...readOptionsFromCli(opts), workspaceGid }
 }
 
 function resolveUserApi(api?: UserApi | (() => UserApi)): UserApi {
@@ -63,26 +83,33 @@ export function userCommand(api?: UserApi | (() => UserApi)) {
 	)
 
 	addPaginationOptions(
-		addGidOption(cmd.command('list').description('List users in a workspace'), 'workspace', 'Workspace GID'),
-	).action(async (opts: { workspace?: string; workspaceGid?: string } & PaginationCliOptions) => {
-		const pagination = paginationOptionsFromCli(opts)
-		pagination.optFields ??= USER_LIST_FIELDS
-		const data = await resolveUserApi(api).listUsers(requiredGid(opts, 'workspace', 'Workspace GID'), pagination)
-		output(data, () => {
-			const items = itemsForOutput(data)
-			fmtUserList(items)
-			printCountSummary(items.length, 'user(s)')
-			printNextPageHint(data)
-			printNextSteps([
-				'cyber-asana user get <gid> — view a user',
-				'cyber-asana ooo list --user-gid <gid> — check whether someone is out of office',
-			])
+		addGidOption(
+			cmd.command('list').description('List users in a workspace, optionally only the members of a team'),
+			'workspace',
+			'Workspace GID',
+		),
+	)
+		.option('--team <gid>', 'Only the members of this team GID')
+		.action(async (opts: { workspace?: string; workspaceGid?: string; team?: string } & PaginationCliOptions) => {
+			const pagination: UserListOptions = paginationOptionsFromCli(opts)
+			if (opts.team !== undefined) pagination.team = opts.team
+			pagination.optFields ??= USER_LIST_FIELDS
+			const data = await resolveUserApi(api).listUsers(requiredGid(opts, 'workspace', 'Workspace GID'), pagination)
+			output(data, () => {
+				const items = itemsForOutput(data)
+				fmtUserList(items)
+				printCountSummary(items.length, 'user(s)')
+				printNextPageHint(data)
+				printNextSteps([
+					'cyber-asana user get <gid> — view a user',
+					'cyber-asana ooo list --user-gid <gid> — check whether someone is out of office',
+				])
+			})
 		})
-	})
 
-	addReadOptions(cmd.command('get <gid>').description('Get a user by GID')).action(
-		async (gid: string, opts: { optFields?: string }) => {
-			const data = await resolveUserApi(api).getUser(gid, readOptionsFromCli(opts))
+	addUserWorkspaceOption(addReadOptions(cmd.command('get <gid>').description('Get a user by GID'))).action(
+		async (gid: string, opts: UserReadCliOptions) => {
+			const data = await resolveUserApi(api).getUser(gid, userReadOptionsFromCli(opts))
 			output(data, () => {
 				fmtUser(data)
 				printNextSteps([`cyber-asana ooo list --user-gid ${gid} — check whether this user is out of office`])
@@ -90,9 +117,9 @@ export function userCommand(api?: UserApi | (() => UserApi)) {
 		},
 	)
 
-	addReadOptions(cmd.command('me').description('Get the authenticated user')).action(
-		async (opts: { optFields?: string }) => {
-			const data = await resolveUserApi(api).getMe(readOptionsFromCli(opts))
+	addUserWorkspaceOption(addReadOptions(cmd.command('me').description('Get the authenticated user'))).action(
+		async (opts: UserReadCliOptions) => {
+			const data = await resolveUserApi(api).getMe(userReadOptionsFromCli(opts))
 			output(data, () => {
 				fmtUser(data)
 				printNextSteps(['cyber-asana ooo list — your out-of-office entries'])

@@ -1,5 +1,6 @@
 import type { RepoConventions } from '../config/conventions.js'
 import type { TaskSectionPlacement } from '../config/repo-config.js'
+import { mergeCustomFields, mergeHtmlCustomFields } from '../platform/custom-fields.js'
 import type { CreateTaskFields, UpdateTaskFields } from './api.js'
 import { APPROVAL_STATUSES, type ApprovalStatus } from './approval-status.js'
 
@@ -58,58 +59,6 @@ export function parseGidList(value?: string) {
 	return gids.length > 0 ? gids : undefined
 }
 
-function parseCustomFieldsJson(value?: string) {
-	if (!value) return undefined
-	const parsed = JSON.parse(value)
-	if (!parsed || Array.isArray(parsed) || typeof parsed !== 'object') {
-		throw new Error('custom fields JSON must be an object')
-	}
-	return parsed as Record<string, unknown>
-}
-
-function parseCustomFieldEntries(entries?: string[]) {
-	if (!entries?.length) return undefined
-	return Object.fromEntries(
-		entries.map((entry) => {
-			const separator = entry.indexOf('=')
-			if (separator <= 0) throw new Error(`invalid custom field entry: ${entry}`)
-			return [entry.slice(0, separator), entry.slice(separator + 1)]
-		}),
-	)
-}
-
-function parseHtmlCustomFieldsJson(value?: string) {
-	if (!value) return undefined
-	const parsed = JSON.parse(value)
-	if (!parsed || Array.isArray(parsed) || typeof parsed !== 'object') {
-		throw new Error('html custom fields JSON must be an object')
-	}
-	for (const [gid, html] of Object.entries(parsed)) {
-		if (typeof html !== 'string') throw new Error(`html custom field ${gid} must be a string of HTML`)
-	}
-	return parsed as Record<string, string>
-}
-
-function parseHtmlCustomFieldEntries(entries?: string[]) {
-	if (!entries?.length) return undefined
-	return Object.fromEntries(
-		entries.map((entry) => {
-			const separator = entry.indexOf('=')
-			if (separator <= 0) throw new Error(`invalid html custom field entry: ${entry}`)
-			return [entry.slice(0, separator), entry.slice(separator + 1)]
-		}),
-	)
-}
-
-function mergeHtmlCustomFields(input: BuildTaskWriteInput) {
-	const merged = {
-		...input.htmlCustomFields,
-		...parseHtmlCustomFieldsJson(input.htmlCustomFieldsJson),
-		...parseHtmlCustomFieldEntries(input.htmlCustomFieldEntries),
-	}
-	return Object.keys(merged).length > 0 ? merged : undefined
-}
-
 function assertApprovalStatus(value?: string): ApprovalStatus | undefined {
 	if (value === undefined) return undefined
 	if (!(APPROVAL_STATUSES as readonly string[]).includes(value)) {
@@ -137,13 +86,6 @@ function sharedTaskFields(input: BuildTaskWriteInput) {
 		...(input.liked !== undefined && { liked: input.liked }),
 		...(external && { external }),
 	}
-}
-
-function mergeCustomFields(customFieldsJson?: string, customFieldEntries?: string[]) {
-	const fromJson = parseCustomFieldsJson(customFieldsJson)
-	const fromEntries = parseCustomFieldEntries(customFieldEntries)
-	if (!fromJson && !fromEntries) return undefined
-	return { ...fromJson, ...fromEntries }
 }
 
 function assertNotesMode(notes?: string, htmlNotes?: string) {

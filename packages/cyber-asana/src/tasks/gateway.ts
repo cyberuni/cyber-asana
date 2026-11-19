@@ -167,6 +167,9 @@ export type SearchTasksOptions = {
  * What a gateway task list takes. `incompleteOrCompletedSince` is Asana's `completed_since`, passed as-is:
  * tasks that are incomplete or completed since that time (`"now"` for incomplete only).
  */
+/** `includeInheritedProjects` also lists the projects a parent task is in, which a subtask inherits. */
+export type TaskProjectListOptions = PaginationOptions & { includeInheritedProjects?: boolean }
+
 export type TaskGatewayListOptions = PaginationOptions & RawCompletionFilter
 
 /**
@@ -195,7 +198,7 @@ export type TaskGateway = {
 	deleteTask(taskGid: string): Promise<void>
 	getMyTasks(workspaceGid: string, opts?: TaskGatewayListOptions): Promise<ListResult<Asana.Task>>
 	listSubtasks(taskGid: string, opts?: TaskGatewayListOptions): Promise<ListResult<Asana.Task>>
-	listProjectsForTask(taskGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.Project>>
+	listProjectsForTask(taskGid: string, opts?: TaskProjectListOptions): Promise<ListResult<Asana.Project>>
 	duplicateTask(taskGid: string, fields: DuplicateTaskFields, opts?: ReadOptions): Promise<Job>
 	createSubtask(parentTaskGid: string, name: string, fields?: CreateTaskFields, opts?: ReadOptions): Promise<Asana.Task>
 	addTaskToProject(
@@ -361,7 +364,12 @@ export function createAsanaTaskGateway(client: Asana.ApiClient): TaskGateway {
 			return await collectListResponse(res, opts)
 		},
 		async listProjectsForTask(taskGid, opts) {
-			const res = await projectsApi.getProjectsForTask(taskGid, toAsanaPaginationOptions(opts))
+			const res = await projectsApi.getProjectsForTask(taskGid, {
+				...(opts?.includeInheritedProjects !== undefined && {
+					include_inherited_projects: opts.includeInheritedProjects,
+				}),
+				...toAsanaPaginationOptions(opts),
+			})
 			return await collectListResponse(res, opts)
 		},
 		async duplicateTask(taskGid, fields, opts) {

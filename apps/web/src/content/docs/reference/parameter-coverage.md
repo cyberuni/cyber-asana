@@ -8,7 +8,7 @@ description: Every request parameter of each Asana API operation cyber-asana wra
 For each of the **171** Asana REST operations cyber-asana wraps, this page lists
 every path, query, and top-level body parameter in the
 [Asana OpenAPI definition](https://raw.githubusercontent.com/Asana/openapi/master/defs/asana_oas.yaml) (fetched 2026-11-19) and how cyber-asana sends it.
-Of **946** parameters, **777** are covered, **55** are skipped on purpose, and **114** are open gaps.
+Of **946** parameters, **797** are covered, **58** are skipped on purpose, and **91** are open gaps.
 Header parameters are left out: an API client sets them once, not per command.
 
 | Status | Meaning |
@@ -46,7 +46,6 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `createGoal` | `team` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
 | `createGoal` | `time_period` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) the gateway type accepts time_period (Asana requires one on creation) but the CLI has no flag and MCP has no field |
 | `createGoalMetric` | `is_custom_weight` | body | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) neither the CLI nor MCP sends it |
-| `createMembership` | `role` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
 | `createPortfolio` | `archived` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
 | `createPortfolio` | `color` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
 | `createPortfolio` | `custom_type` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
@@ -55,14 +54,6 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `createPortfolio` | `public` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
 | `createPortfolio` | `resource_subtype` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
 | `createPortfolio` | `start_on` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
-| `createProject` | `custom_fields` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none (CLI and MCP only attach fields through custom-field attach) |
-| `createProject` | `custom_type` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
-| `createProject` | `followers` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag on project create; MCP has none (followers are managed through project follower add/remove) |
-| `createProject` | `html_custom_fields` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
-| `createProject` | `icon` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
-| `createProject` | `minimum_access_level_for_customization` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
-| `createProject` | `minimum_access_level_for_sharing` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
-| `createProject` | `resource_subtype` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
 | `createRecord` | `default_access_level` | body | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Not sent on create: createRecord body carries only name, table, custom_fields and unique_fingerprint; neither CLI nor MCP exposes it on create (update has it) |
 | `createStoryForRecord` | `is_pinned` | body | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: RecordStoryFields carries only text and html_text |
 | `createStoryForRecord` | `sticker_name` | body | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: RecordStoryFields carries only text and html_text |
@@ -72,15 +63,12 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `createTimeTrackingEntry` | `billable_status` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `createTimeTrackingEntry` | `categories` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `createTimeTrackingEntry` | `description` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
-| `duplicateProject` | `schedule_dates` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
 | `getGoals` | `is_workspace_level` | query | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) list filter: neither the CLI nor MCP sends it |
 | `getGoals` | `portfolio` | query | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) list filter: neither the CLI nor MCP sends it |
 | `getGoals` | `project` | query | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) list filter: neither the CLI nor MCP sends it |
 | `getGoals` | `task` | query | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) list filter: neither the CLI nor MCP sends it |
 | `getGoals` | `team` | query | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) list filter: neither the CLI nor MCP sends it |
 | `getGoals` | `time_periods` | query | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) list filter: neither the CLI nor MCP sends it |
-| `getProjectTemplates` | `team` | query | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) gateway supports a team filter, but CLI and MCP route a team to getProjectTemplatesForTeam instead, so this operation never receives team; workspace+team together cannot be sent |
-| `getProjectsForTask` | `include_inherited_projects` | query | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
 | `getStoriesForGoal` | `created_after` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: only pagination params reach the call |
 | `getStoriesForGoal` | `resource_subtype` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: only pagination params reach the call |
 | `getStoriesForGoal` | `sort_ascending` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: only pagination params reach the call |
@@ -92,9 +80,6 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `getTimeTrackingEntries` | `assignee` | query | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: the filters are task, user, portfolio, workspace and the date range |
 | `getTimeTrackingEntries` | `attributable_to` | query | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it |
 | `getTimeTrackingEntries` | `timesheet_approval_status` | query | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it |
-| `getUser` | `workspace` | query | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) gateway sends no workspace; CLI has no flag; MCP has none |
-| `getUsers` | `team` | query | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) gateway sends no team filter; CLI has no flag; MCP has none |
-| `searchProjectsForWorkspace` | `limit` | query | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) searchProjects sends no limit; CLI has no --limit on project search; MCP has none |
 | `searchRecordsForWorkspace` | `created_on` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) CLI has no flag; MCP sends it (created_on) |
 | `searchRecordsForWorkspace` | `created_on.after` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) CLI has no flag; MCP sends it (created_on_after) |
 | `searchRecordsForWorkspace` | `created_on.before` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) CLI has no flag; MCP sends it (created_on_before) |
@@ -129,14 +114,6 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `updatePortfolio` | `public` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
 | `updatePortfolio` | `resource_subtype` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
 | `updatePortfolio` | `start_on` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
-| `updateProject` | `custom_fields` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none (CLI and MCP only attach fields through custom-field attach) |
-| `updateProject` | `custom_type` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
-| `updateProject` | `followers` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag on project update; MCP has none (followers are managed through project follower add/remove) |
-| `updateProject` | `html_custom_fields` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
-| `updateProject` | `icon` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
-| `updateProject` | `minimum_access_level_for_customization` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
-| `updateProject` | `minimum_access_level_for_sharing` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
-| `updateProject` | `resource_subtype` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
 | `updateTimeTrackingEntry` | `assignee` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `updateTimeTrackingEntry` | `attributable_to` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `updateTimeTrackingEntry` | `billable_status` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
@@ -409,7 +386,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `createMembership` | `access_level` | body | `--access-level` | `access_level` | ✅ |
 | `createMembership` | `member` | body | `--member-gid` | `member_gid` | ✅ |
 | `createMembership` | `parent` | body | `--parent-gid` | `parent_gid` | ✅ |
-| `createMembership` | `role` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
+| `createMembership` | `role` | body | — | — | ➖ Deprecated by Asana in favour of access_level |
 | `deleteMembership` | `membership_gid` | path | `<gid>` | `membership_gid` | ✅ |
 | `getMembership` | `membership_gid` | path | `<gid>` | `membership_gid` | ✅ |
 | `getMemberships` | `limit` | query | `--limit` | `limit` | ✅ |
@@ -545,7 +522,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `getProjectTemplates` | `limit` | query | `--limit` | `limit` | ✅ |
 | `getProjectTemplates` | `offset` | query | `--offset` | `offset` | ✅ |
 | `getProjectTemplates` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
-| `getProjectTemplates` | `team` | query | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) gateway supports a team filter, but CLI and MCP route a team to getProjectTemplatesForTeam instead, so this operation never receives team; workspace+team together cannot be sent |
+| `getProjectTemplates` | `team` | query | — | — | ➖ A team routes to getProjectTemplatesForTeam (project-template list --team), which returns the same templates; workspace plus team together is redundant |
 | `getProjectTemplates` | `workspace` | query | `--workspace-gid (or ASANA_WORKSPACE_GID)` | `workspace_gid` | ✅ |
 | `getProjectTemplatesForTeam` | `team_gid` | path | `--team-gid` | `team_gid` | ✅ |
 | `getProjectTemplatesForTeam` | `limit` | query | `--limit` | `limit` | ✅ |
@@ -579,24 +556,24 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `createProject` | `color` | body | `--color` | `color` | ✅ |
 | `createProject` | `current_status` | body | — | — | ➖ Deprecated by Asana (see Asana API reference; the SDK comment does not mark it); cyber-asana never sends it: use status updates |
 | `createProject` | `current_status_update` | body | — | — | ➖ Deprecated by Asana (see Asana API reference; the SDK comment does not mark it); cyber-asana never sends it: use status updates |
-| `createProject` | `custom_fields` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none (CLI and MCP only attach fields through custom-field attach) |
-| `createProject` | `custom_type` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
+| `createProject` | `custom_fields` | body | `--custom-fields-json / --custom-field <gid=value>` | `custom_fields` | ✅ |
+| `createProject` | `custom_type` | body | `--custom-type` | `custom_type` | ✅ |
 | `createProject` | `default_access_level` | body | `--default-access-level` | `default_access_level` | ✅ |
 | `createProject` | `default_view` | body | `--default-view` | `default_view` | ✅ |
 | `createProject` | `due_date` | body | — | — | ➖ Deprecated by Asana (see Asana API reference; the SDK comment does not mark it); cyber-asana never sends it: due_on replaces it |
 | `createProject` | `due_on` | body | `--due-on` | `due_on` | ✅ |
-| `createProject` | `followers` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag on project create; MCP has none (followers are managed through project follower add/remove) |
-| `createProject` | `html_custom_fields` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
+| `createProject` | `followers` | body | `--follower` | `follower_gids` | ✅ |
+| `createProject` | `html_custom_fields` | body | `--html-custom-fields-json / --html-custom-field <gid=html>` | `html_custom_fields` | ✅ |
 | `createProject` | `html_notes` | body | `--html-notes` | `html_notes` | ✅ |
-| `createProject` | `icon` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
-| `createProject` | `minimum_access_level_for_customization` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
-| `createProject` | `minimum_access_level_for_sharing` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
+| `createProject` | `icon` | body | `--icon` | `icon` | ✅ |
+| `createProject` | `minimum_access_level_for_customization` | body | `--min-access-for-customization` | `minimum_access_level_for_customization` | ✅ |
+| `createProject` | `minimum_access_level_for_sharing` | body | `--min-access-for-sharing` | `minimum_access_level_for_sharing` | ✅ |
 | `createProject` | `name` | body | `<name>` | `name` | ✅ |
 | `createProject` | `notes` | body | `--notes` | `notes` | ✅ |
 | `createProject` | `owner` | body | `--owner` | `owner` | ✅ |
 | `createProject` | `privacy_setting` | body | `--privacy-setting` | `privacy_setting` | ✅ |
 | `createProject` | `public` | body | — | — | ➖ Deprecated by Asana (see Asana API reference; the SDK comment does not mark it); cyber-asana never sends it: privacy_setting replaces it |
-| `createProject` | `resource_subtype` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
+| `createProject` | `resource_subtype` | body | `--resource-subtype` | `resource_subtype` | ✅ |
 | `createProject` | `start_on` | body | `--start-on` | `start_on` | ✅ |
 | `createProject` | `team` | body | — | — | ➖ Deprecated for create/update/list filters in the SDK doc comments (share a project with a team through POST /memberships, which cyber-asana wraps as membership create); cyber-asana never sends it |
 | `createProject` | `workspace` | body | `--workspace-gid (or ASANA_WORKSPACE_GID)` | `workspace_gid` | ✅ |
@@ -605,7 +582,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `duplicateProject` | `opt_fields` | query | — | — | ➖ The default path polls the job and returns the polled job, replacing the response opt_fields would shape. |
 | `duplicateProject` | `include` | body | `--include` | `include` | ✅ comma list joined for Asana |
 | `duplicateProject` | `name` | body | `--name` | `name` | ✅ |
-| `duplicateProject` | `schedule_dates` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
+| `duplicateProject` | `schedule_dates` | body | `--schedule-start-on / --schedule-due-on / --skip-weekends` | `schedule_dates` | ✅ |
 | `getProject` | `project_gid` | path | `<gid>` | `project_gid` | ✅ |
 | `getProject` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `getProjects` | `archived` | query | `--archived / --no-archived` | `archived` | ✅ |
@@ -616,7 +593,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `getProjects` | `team` | query | — | — | ➖ Deprecated in the SDK doc comment (use GET /memberships with member=team, resource_subtype=project_membership); cyber-asana never sends it |
 | `getProjects` | `workspace` | query | `--workspace-gid (or ASANA_WORKSPACE_GID)` | `workspace_gid` | ✅ sent as the workspace query only on the custom_type path |
 | `getProjectsForTask` | `task_gid` | path | `<task-gid>` | `task_gid` | ✅ |
-| `getProjectsForTask` | `include_inherited_projects` | query | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
+| `getProjectsForTask` | `include_inherited_projects` | query | `--include-inherited` | `include_inherited_projects` | ✅ |
 | `getProjectsForTask` | `limit` | query | `--limit` | `limit` | ✅ |
 | `getProjectsForTask` | `offset` | query | `--offset` | `offset` | ✅ |
 | `getProjectsForTask` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
@@ -654,7 +631,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `searchProjectsForWorkspace` | `due_on` | query | `--due-on` | `due_on` | ✅ |
 | `searchProjectsForWorkspace` | `due_on.after` | query | `--due-on-after` | `due_on_after` | ✅ |
 | `searchProjectsForWorkspace` | `due_on.before` | query | `--due-on-before` | `due_on_before` | ✅ |
-| `searchProjectsForWorkspace` | `limit` | query | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) searchProjects sends no limit; CLI has no --limit on project search; MCP has none |
+| `searchProjectsForWorkspace` | `limit` | query | `--limit` | `limit` | ✅ |
 | `searchProjectsForWorkspace` | `members.any` | query | `--member` | `members_any` | ✅ |
 | `searchProjectsForWorkspace` | `members.not` | query | `--member-not` | `members_not` | ✅ |
 | `searchProjectsForWorkspace` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
@@ -673,24 +650,24 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `updateProject` | `color` | body | `--color` | `color` | ✅ |
 | `updateProject` | `current_status` | body | — | — | ➖ Deprecated by Asana (see Asana API reference; the SDK comment does not mark it); cyber-asana never sends it: use status updates |
 | `updateProject` | `current_status_update` | body | — | — | ➖ Deprecated by Asana (see Asana API reference; the SDK comment does not mark it); cyber-asana never sends it: use status updates |
-| `updateProject` | `custom_fields` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none (CLI and MCP only attach fields through custom-field attach) |
-| `updateProject` | `custom_type` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
+| `updateProject` | `custom_fields` | body | `--custom-fields-json / --custom-field <gid=value>` | `custom_fields` | ✅ |
+| `updateProject` | `custom_type` | body | `--custom-type` | `custom_type` | ✅ |
 | `updateProject` | `default_access_level` | body | `--default-access-level` | `default_access_level` | ✅ |
 | `updateProject` | `default_view` | body | `--default-view` | `default_view` | ✅ |
 | `updateProject` | `due_date` | body | — | — | ➖ Deprecated by Asana (see Asana API reference; the SDK comment does not mark it); cyber-asana never sends it: due_on replaces it |
 | `updateProject` | `due_on` | body | `--due-on (--clear-due-on sends null)` | `due_on (clear_due_on sends null)` | ✅ |
-| `updateProject` | `followers` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag on project update; MCP has none (followers are managed through project follower add/remove) |
-| `updateProject` | `html_custom_fields` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
+| `updateProject` | `followers` | body | — | — | ➖ Create-only in Asana; change followers with project follower add/remove |
+| `updateProject` | `html_custom_fields` | body | `--html-custom-fields-json / --html-custom-field <gid=html>` | `html_custom_fields` | ✅ |
 | `updateProject` | `html_notes` | body | `--html-notes` | `html_notes` | ✅ |
-| `updateProject` | `icon` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
-| `updateProject` | `minimum_access_level_for_customization` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
-| `updateProject` | `minimum_access_level_for_sharing` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
+| `updateProject` | `icon` | body | `--icon` | `icon` | ✅ |
+| `updateProject` | `minimum_access_level_for_customization` | body | `--min-access-for-customization` | `minimum_access_level_for_customization` | ✅ |
+| `updateProject` | `minimum_access_level_for_sharing` | body | `--min-access-for-sharing` | `minimum_access_level_for_sharing` | ✅ |
 | `updateProject` | `name` | body | `--name` | `name` | ✅ |
 | `updateProject` | `notes` | body | `--notes` | `notes` | ✅ |
 | `updateProject` | `owner` | body | `--owner (--clear-owner sends null)` | `owner (clear_owner sends null)` | ✅ |
 | `updateProject` | `privacy_setting` | body | `--privacy-setting` | `privacy_setting` | ✅ |
 | `updateProject` | `public` | body | — | — | ➖ Deprecated by Asana (see Asana API reference; the SDK comment does not mark it); cyber-asana never sends it: privacy_setting replaces it |
-| `updateProject` | `resource_subtype` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
+| `updateProject` | `resource_subtype` | body | `--resource-subtype` | `resource_subtype` | ✅ |
 | `updateProject` | `start_on` | body | `--start-on (--clear-start-on sends null)` | `start_on (clear_start_on sends null)` | ✅ |
 | `updateProject` | `team` | body | — | — | ➖ Deprecated for create/update/list filters in the SDK doc comments (share a project with a team through POST /memberships, which cyber-asana wraps as membership create); cyber-asana never sends it |
 
@@ -1242,11 +1219,11 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | --- | --- | --- | --- | --- | --- |
 | `getUser` | `user_gid` | path | `<gid> (user me sends "me")` | `user_gid` | ✅ |
 | `getUser` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
-| `getUser` | `workspace` | query | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) gateway sends no workspace; CLI has no flag; MCP has none |
+| `getUser` | `workspace` | query | `--workspace-gid` | `workspace_gid` | ✅ |
 | `getUsers` | `limit` | query | `--limit` | `limit` | ✅ |
 | `getUsers` | `offset` | query | `--offset` | `offset` | ✅ |
 | `getUsers` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
-| `getUsers` | `team` | query | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) gateway sends no team filter; CLI has no flag; MCP has none |
+| `getUsers` | `team` | query | `--team` | `team_gid` | ✅ |
 | `getUsers` | `workspace` | query | `--workspace-gid (or ASANA_WORKSPACE_GID)` | `workspace_gid` | ✅ |
 
 ## Workspaces

@@ -18,12 +18,14 @@ cyber-asana user get <gid>
 
 | Command | Arguments | Options |
 | --- | --- | --- |
-| `me` | — | — |
-| `list` | — | `--workspace-gid <gid>` / `--workspace <gid>`, plus the [pagination options](/cyber-asana/cli/#pagination) |
-| `get` | `<gid>` | — |
+| `me` | — | `--workspace-gid <gid>` / `--workspace <gid>` (sent only when given) |
+| `list` | — | `--workspace-gid <gid>` / `--workspace <gid>`, `--team <gid>` (only that team's members), plus the [pagination options](/cyber-asana/cli/#pagination) |
+| `get` | `<gid>` | `--workspace-gid <gid>` / `--workspace <gid>` (sent only when given) |
 
 `user me` returns the authenticated user — the quickest way to confirm your token works and
 to get your own GID for `--assignee`.
+
+On `user me` and `user get` the workspace is an explicit option only: `ASANA_WORKSPACE_GID` is not used there, so a plain call sends no workspace.
 
 `user list` pages through Asana's `GET /users?workspace=` endpoint, sorted by user ID, so it
 works on workspaces with tens of thousands of members. To assign work by name without paging
