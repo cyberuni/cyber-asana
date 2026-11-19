@@ -1,12 +1,13 @@
 import { createClient } from '../platform/client.js'
-import type { PaginationOptions } from '../platform/pagination.js'
 import type { ReadOptions } from '../platform/read-options.js'
 import { createGoalApi } from './api.js'
 import {
 	type CreateGoalFields,
 	createAsanaGoalGateway,
+	type GoalListOptions,
 	type GoalMetricInput,
 	type SupportingRelationshipOptions,
+	type TimePeriodListOptions,
 	type UpdateGoalFields,
 } from './gateway.js'
 
@@ -14,7 +15,7 @@ function defaultGoalApi() {
 	return createGoalApi(createAsanaGoalGateway(createClient()))
 }
 
-export async function listGoals(workspaceGid: string, opts?: PaginationOptions) {
+export async function listGoals(workspaceGid: string | undefined, opts?: GoalListOptions) {
 	return defaultGoalApi().listGoals(workspaceGid, opts)
 }
 
@@ -34,7 +35,7 @@ export async function deleteGoal(goalGid: string) {
 	return defaultGoalApi().deleteGoal(goalGid)
 }
 
-export async function listTimePeriods(workspaceGid: string, opts?: PaginationOptions) {
+export async function listTimePeriods(workspaceGid: string, opts?: TimePeriodListOptions) {
 	return defaultGoalApi().listTimePeriods(workspaceGid, opts)
 }
 

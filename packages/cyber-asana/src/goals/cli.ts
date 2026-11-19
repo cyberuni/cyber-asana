@@ -4,6 +4,7 @@ import {
 	addPaginationOptions,
 	addReadOptions,
 	itemsForOutput,
+	normalizedGid,
 	paginationOptionsFromCli,
 	printNextPageHint,
 	readOptionsFromCli,
@@ -11,7 +12,7 @@ import {
 } from '../platform/cli/options.js'
 import { output, printCountSummary, printFields, printNextSteps, printTable } from '../platform/cli/output.js'
 import { deleteIdempotently, deleteMessage } from '../platform/idempotent-delete.js'
-import type { GoalApi, GoalMetricInput } from './api.js'
+import type { GoalApi, GoalListOptions, GoalMetricInput, TimePeriodListOptions } from './api.js'
 import {
 	addGoalFollowers,
 	addSupportingRelationship,
@@ -46,6 +47,52 @@ function parseNumber(name: string) {
 		const n = Number(value)
 		if (value.trim() === '' || Number.isNaN(n)) throw new InvalidArgumentError(`${name} must be a number`)
 		return n
+	}
+}
+
+function collectOption(value: string, previous: string[] = []) {
+	return [...previous, value]
+}
+
+function splitList(values?: string[]) {
+	const items = (values ?? [])
+		.flatMap((v) => v.split(','))
+		.map((v) => v.trim())
+		.filter(Boolean)
+	return items.length > 0 ? items : undefined
+}
+
+const GOAL_STATUS_HELP =
+	'Status: green, yellow, red while open; missed, achieved, partial, dropped when closed. Asana accepts it only when the goal has a metric'
+
+type GoalWriteCliOptions = {
+	timePeriod?: string
+	owner?: string
+	ownerGid?: string
+	team?: string
+	teamGid?: string
+	workspaceLevel?: boolean
+	liked?: boolean
+}
+
+function addGoalWriteOptions<T extends Command>(cmd: T) {
+	addGidOption(cmd, 'owner', 'Owner user GID')
+	addGidOption(cmd, 'team', 'Team GID; Asana honours it only in an organization')
+	return cmd
+		.option('--time-period <gid>', 'Time period GID (see goal time-period list)')
+		.option('--workspace-level', 'Make it a workspace-level goal (organization only)')
+		.option('--no-workspace-level', 'Make it a team goal (organization only)')
+		.option('--liked', 'Like the goal')
+		.option('--no-liked', 'Remove your like from the goal')
+}
+
+function goalWriteInputFromCli(opts: GoalWriteCliOptions) {
+	return {
+		timePeriod: opts.timePeriod,
+		owner: normalizedGid(opts, 'owner'),
+		team: normalizedGid(opts, 'team'),
+		isWorkspaceLevel: opts.workspaceLevel,
+		liked: opts.liked,
 	}
 }
 
@@ -105,36 +152,83 @@ export function goalCommand(api?: GoalApi | (() => GoalApi)) {
 		].join('\n'),
 	)
 
-	addPaginationOptions(
-		addGidOption(cmd.command('list').description('List goals in a workspace'), 'workspace', 'Workspace GID'),
-	).action(
-		async (opts: {
-			workspace?: string
-			workspaceGid?: string
-			limit?: number
-			offset?: string
-			optFields?: string
-		}) => {
-			const pagination = paginationOptionsFromCli(opts)
-			pagination.optFields ??= GOAL_LIST_FIELDS
-			const data = await resolveGoalApi(api).listGoals(requiredGid(opts, 'workspace', 'Workspace GID'), pagination)
-			output(data, () => {
-				const items = itemsForOutput(data)
-				printTable(
-					items,
-					[
-						{ label: 'Name', get: (g: Goal) => g.name ?? '' },
-						{ label: 'ID', get: (g: Goal) => g.gid },
-						{ label: 'Due', get: (g: Goal) => g.due_on ?? '' },
-					],
-					{ entity: 'goals' },
-				)
-				printCountSummary(items.length, 'goal(s)')
-				printNextPageHint(data)
-				printNextSteps(GOAL_LIST_NEXT_STEPS)
-			})
-		},
+	const listCmd = addGidOption(
+		cmd
+			.command('list')
+			.description(
+				'List goals in a workspace, or by --portfolio, --project, --task or --team (a scope other than the workspace drops the ASANA_WORKSPACE_GID default)',
+			),
+		'workspace',
+		'Workspace GID',
 	)
+	for (const [name, label] of [
+		['portfolio', 'Supporting portfolio GID'],
+		['project', 'Supporting project GID'],
+		['task', 'Supporting task GID'],
+		['team', 'Team GID'],
+	] as const) {
+		addGidOption(listCmd, name, label)
+	}
+	addPaginationOptions(listCmd)
+		.option('--workspace-level', 'Only workspace-level goals; needs the workspace')
+		.option('--no-workspace-level', 'Only goals that are not workspace-level; needs the workspace')
+		.option('--time-period <gid[,gid...]>', 'Only goals in these time periods, repeatable', collectOption, [])
+		.action(
+			async (opts: {
+				workspace?: string
+				workspaceGid?: string
+				portfolio?: string
+				portfolioGid?: string
+				project?: string
+				projectGid?: string
+				task?: string
+				taskGid?: string
+				team?: string
+				teamGid?: string
+				workspaceLevel?: boolean
+				timePeriod?: string[]
+				limit?: number
+				offset?: string
+				optFields?: string
+			}) => {
+				const pagination: GoalListOptions = paginationOptionsFromCli(opts)
+				pagination.optFields ??= GOAL_LIST_FIELDS
+				const filters = {
+					portfolio: normalizedGid(opts, 'portfolio'),
+					project: normalizedGid(opts, 'project'),
+					task: normalizedGid(opts, 'task'),
+					team: normalizedGid(opts, 'team'),
+				}
+				const scoped = Object.values(filters).some((v) => v !== undefined)
+				if (filters.portfolio !== undefined) pagination.portfolio = filters.portfolio
+				if (filters.project !== undefined) pagination.project = filters.project
+				if (filters.task !== undefined) pagination.task = filters.task
+				if (filters.team !== undefined) pagination.team = filters.team
+				if (opts.workspaceLevel !== undefined) pagination.isWorkspaceLevel = opts.workspaceLevel
+				const timePeriods = splitList(opts.timePeriod)
+				if (timePeriods) pagination.timePeriods = timePeriods
+				// Another scope filter replaces the environment workspace; only a workspace flag stays.
+				const workspace = scoped
+					? (opts.workspaceGid ?? opts.workspace)
+					: requiredGid(opts, 'workspace', 'Workspace GID')
+				const data = await resolveGoalApi(api).listGoals(workspace, pagination)
+				output(data, () => {
+					const items = itemsForOutput(data)
+					printTable(
+						items,
+						[
+							{ label: 'Name', get: (g: Goal) => g.name ?? '' },
+							{ label: 'ID', get: (g: Goal) => g.gid },
+							{ label: 'Due', get: (g: Goal) => g.due_on ?? '' },
+						],
+						{ entity: 'goals' },
+					)
+					printCountSummary(items.length, 'goal(s)')
+					printNextPageHint(data)
+					printNextSteps(GOAL_LIST_NEXT_STEPS)
+				})
+			},
+		)
 
 	addReadOptions(cmd.command('get <gid>').description('Get a goal by GID')).action(
 		async (gid: string, opts: { optFields?: string }) => {
@@ -148,15 +242,17 @@ export function goalCommand(api?: GoalApi | (() => GoalApi)) {
 		'workspace',
 		'Workspace GID',
 	)
-	addReadOptions(createCmd)
+	addGoalWriteOptions(addReadOptions(createCmd))
 		.option('--notes <text>', 'Goal notes')
 		.option('--html-notes <html>', 'Goal notes as Asana rich text HTML')
 		.option('--due-on <date>', 'Due date (YYYY-MM-DD)')
 		.option('--start-on <date>', 'Start date (YYYY-MM-DD); Asana requires an accompanying due date')
+		.option('--follower <user[,user...]>', 'Followers to add: user GIDs, emails, or "me"; set on create only')
 		.action(
 			async (
 				name: string,
-				opts: {
+				opts: GoalWriteCliOptions & {
+					follower?: string
 					workspace?: string
 					workspaceGid?: string
 					notes?: string
@@ -169,14 +265,14 @@ export function goalCommand(api?: GoalApi | (() => GoalApi)) {
 				const data = await resolveGoalApi(api).createGoal(
 					requiredGid(opts, 'workspace', 'Workspace GID'),
 					name,
-					buildGoalCreateFields(opts),
+					buildGoalCreateFields({ ...opts, ...goalWriteInputFromCli(opts), followerInput: opts.follower }),
 					readOptionsFromCli(opts),
 				)
 				output(data, () => fmtGoal(data))
 			},
 		)
 
-	addReadOptions(cmd.command('update <gid>').description('Update a goal'))
+	addGoalWriteOptions(addReadOptions(cmd.command('update <gid>').description('Update a goal')))
 		.option('--name <name>', 'New name')
 		.option('--notes <text>', 'New notes')
 		.option('--html-notes <html>', 'New notes as Asana rich text HTML')
@@ -184,10 +280,23 @@ export function goalCommand(api?: GoalApi | (() => GoalApi)) {
 		.option('--clear-due-on', 'Clear the due date')
 		.option('--start-on <date>', 'Start date (YYYY-MM-DD); Asana requires an accompanying due date')
 		.option('--clear-start-on', 'Clear the start date')
+		.option('--status <status>', GOAL_STATUS_HELP)
+		.option('--custom-fields-json <json>', 'Custom field values as a JSON object of field GID to value')
+		.option('--custom-field <gid=value>', 'Custom field value, repeatable', collectOption, [])
+		.option(
+			'--html-custom-fields-json <json>',
+			'Text custom field values as a JSON object of field GID to HTML (Asana rich text subset)',
+		)
+		.option('--html-custom-field <gid=html>', 'Text custom field value as HTML, repeatable', collectOption, [])
 		.action(
 			async (
 				gid: string,
-				opts: {
+				opts: GoalWriteCliOptions & {
+					status?: string
+					customFieldsJson?: string
+					customField?: string[]
+					htmlCustomFieldsJson?: string
+					htmlCustomField?: string[]
 					name?: string
 					notes?: string
 					htmlNotes?: string
@@ -198,7 +307,16 @@ export function goalCommand(api?: GoalApi | (() => GoalApi)) {
 					optFields?: string
 				},
 			) => {
-				const data = await resolveGoalApi(api).updateGoal(gid, buildGoalUpdateFields(opts), readOptionsFromCli(opts))
+				const data = await resolveGoalApi(api).updateGoal(
+					gid,
+					buildGoalUpdateFields({
+						...opts,
+						...goalWriteInputFromCli(opts),
+						customFieldEntries: opts.customField,
+						htmlCustomFieldEntries: opts.htmlCustomField,
+					}),
+					readOptionsFromCli(opts),
+				)
 				output(data, () => fmtGoal(data))
 			},
 		)
@@ -225,6 +343,11 @@ export function goalCommand(api?: GoalApi | (() => GoalApi)) {
 		.option('--target <n>', 'Target value', parseNumber('--target'))
 		.option('--current <n>', 'Current value', parseNumber('--current'))
 		.option('--progress-source <source>', 'manual, subgoal_progress, project_task_completion, ...')
+		.option(
+			'--custom-weight',
+			'Weight the supporting resources yourself; relevant only for the subgoal_progress, project_task_completion, project_milestone_completion and task_completion progress sources',
+		)
+		.option('--no-custom-weight', 'Weight the supporting resources equally')
 		.action(
 			async (
 				gid: string,
@@ -236,6 +359,7 @@ export function goalCommand(api?: GoalApi | (() => GoalApi)) {
 					target?: number
 					current?: number
 					progressSource?: GoalMetricInput['progressSource']
+					customWeight?: boolean
 					optFields?: string
 				},
 			) => {
@@ -249,6 +373,7 @@ export function goalCommand(api?: GoalApi | (() => GoalApi)) {
 						...(opts.target !== undefined && { targetNumberValue: opts.target }),
 						...(opts.current !== undefined && { currentNumberValue: opts.current }),
 						...(opts.progressSource !== undefined && { progressSource: opts.progressSource }),
+						...(opts.customWeight !== undefined && { isCustomWeight: opts.customWeight }),
 					},
 					readOptionsFromCli(opts),
 				)
@@ -319,38 +444,45 @@ export function goalCommand(api?: GoalApi | (() => GoalApi)) {
 			'workspace',
 			'Workspace GID',
 		),
-	).action(
-		async (opts: {
-			workspace?: string
-			workspaceGid?: string
-			limit?: number
-			offset?: string
-			optFields?: string
-		}) => {
-			const pagination = paginationOptionsFromCli(opts)
-			pagination.optFields ??= TIME_PERIOD_LIST_FIELDS
-			const data = await resolveGoalApi(api).listTimePeriods(
-				requiredGid(opts, 'workspace', 'Workspace GID'),
-				pagination,
-			)
-			output(data, () => {
-				const items = itemsForOutput(data)
-				printTable(
-					items,
-					[
-						{ label: 'Name', get: (p: TimePeriod) => p.display_name ?? '' },
-						{ label: 'ID', get: (p: TimePeriod) => p.gid },
-						{ label: 'Start', get: (p: TimePeriod) => p.start_on ?? '' },
-						{ label: 'End', get: (p: TimePeriod) => p.end_on ?? '' },
-					],
-					{ entity: 'time periods' },
-				)
-				printCountSummary(items.length, 'time period(s)')
-				printNextPageHint(data)
-				printNextSteps(TIME_PERIOD_LIST_NEXT_STEPS)
-			})
-		},
 	)
+		.option('--start-on <date>', 'Only periods starting on or after this date (YYYY-MM-DD)')
+		.option('--end-on <date>', 'Only periods ending on or before this date (YYYY-MM-DD)')
+		.action(
+			async (opts: {
+				startOn?: string
+				endOn?: string
+				workspace?: string
+				workspaceGid?: string
+				limit?: number
+				offset?: string
+				optFields?: string
+			}) => {
+				const pagination: TimePeriodListOptions = paginationOptionsFromCli(opts)
+				pagination.optFields ??= TIME_PERIOD_LIST_FIELDS
+				if (opts.startOn !== undefined) pagination.startOn = opts.startOn
+				if (opts.endOn !== undefined) pagination.endOn = opts.endOn
+				const data = await resolveGoalApi(api).listTimePeriods(
+					requiredGid(opts, 'workspace', 'Workspace GID'),
+					pagination,
+				)
+				output(data, () => {
+					const items = itemsForOutput(data)
+					printTable(
+						items,
+						[
+							{ label: 'Name', get: (p: TimePeriod) => p.display_name ?? '' },
+							{ label: 'ID', get: (p: TimePeriod) => p.gid },
+							{ label: 'Start', get: (p: TimePeriod) => p.start_on ?? '' },
+							{ label: 'End', get: (p: TimePeriod) => p.end_on ?? '' },
+						],
+						{ entity: 'time periods' },
+					)
+					printCountSummary(items.length, 'time period(s)')
+					printNextPageHint(data)
+					printNextSteps(TIME_PERIOD_LIST_NEXT_STEPS)
+				})
+			},
+		)
 
 	addReadOptions(timePeriodCmd.command('get <gid>').description('Get a time period by GID')).action(
 		async (gid: string, opts: { optFields?: string }) => {
