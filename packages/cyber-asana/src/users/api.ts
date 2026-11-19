@@ -1,18 +1,16 @@
-import type { PaginationOptions } from '../platform/pagination.js'
-import type { ReadOptions } from '../platform/read-options.js'
-import type { UserGateway } from './gateway.js'
+import type { UserGateway, UserListOptions, UserReadOptions } from './gateway.js'
 
 export type UserApi = ReturnType<typeof createUserApi>
 
 export function createUserApi(gateway: UserGateway) {
 	return {
-		listUsers(workspaceGid: string, opts?: PaginationOptions) {
+		listUsers(workspaceGid: string, opts?: UserListOptions) {
 			return gateway.listUsers(workspaceGid, opts)
 		},
-		getUser(userGid: string, opts?: ReadOptions) {
+		getUser(userGid: string, opts?: UserReadOptions) {
 			return gateway.getUser(userGid, opts)
 		},
-		getMe(opts?: ReadOptions) {
+		getMe(opts?: UserReadOptions) {
 			return gateway.getMe(opts)
 		},
 	}

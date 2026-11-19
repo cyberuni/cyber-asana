@@ -58,6 +58,7 @@ import {
 	searchTasks,
 	updateTask,
 } from './default.js'
+import type { TaskProjectListOptions } from './gateway.js'
 import { type CustomFieldFilter, parseCustomFieldFilter } from './search-custom-fields.js'
 import { searchAllPages } from './search-paging.js'
 import {
@@ -1060,24 +1061,30 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 
 	const projectCmd = cmd.command('project').description('Manage project membership for a task')
 
-	addPaginationOptions(projectCmd.command('list <task-gid>').description('List the projects a task belongs to')).action(
-		async (taskGid: string, opts: { limit?: number; offset?: string; optFields?: string }) => {
-			const pagination = paginationOptionsFromCli(opts)
-			pagination.optFields = pagination.optFields ?? TASK_PROJECT_LIST_FIELDS
-			const data = await resolveTaskApi(api).listProjectsForTask(taskGid, pagination)
-			output(data, () => {
-				printTable(
-					itemsForOutput(data),
-					[
-						{ label: 'GID', get: (p) => p.gid },
-						{ label: 'Name', get: (p) => p.name ?? '' },
-					],
-					{ entity: 'projects' },
-				)
-				printNextPageHint(data)
-			})
-		},
-	)
+	addPaginationOptions(projectCmd.command('list <task-gid>').description('List the projects a task belongs to'))
+		.option('--include-inherited', "Also list the projects the task's parent is in, which a subtask inherits")
+		.action(
+			async (
+				taskGid: string,
+				opts: { limit?: number; offset?: string; optFields?: string; includeInherited?: boolean },
+			) => {
+				const pagination: TaskProjectListOptions = paginationOptionsFromCli(opts)
+				if (opts.includeInherited) pagination.includeInheritedProjects = true
+				pagination.optFields = pagination.optFields ?? TASK_PROJECT_LIST_FIELDS
+				const data = await resolveTaskApi(api).listProjectsForTask(taskGid, pagination)
+				output(data, () => {
+					printTable(
+						itemsForOutput(data),
+						[
+							{ label: 'GID', get: (p) => p.gid },
+							{ label: 'Name', get: (p) => p.name ?? '' },
+						],
+						{ entity: 'projects' },
+					)
+					printNextPageHint(data)
+				})
+			},
+		)
 
 	addGidOption(
 		projectCmd

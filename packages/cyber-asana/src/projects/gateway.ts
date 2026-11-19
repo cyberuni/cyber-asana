@@ -7,12 +7,28 @@ import {
 	toAsanaPaginationOptions,
 } from '../platform/pagination.js'
 import { type ReadOptions, toAsanaReadOptions } from '../platform/read-options.js'
+import type { ProjectIcon, ProjectMinimumAccessLevel, ProjectResourceSubtype } from './project-enums.js'
+import type { ScheduleDates } from './schedule-dates.js'
 
 export type ProjectPrivacySetting = 'public_to_workspace' | 'private' | 'private_to_team'
 export type ProjectDefaultView = 'list' | 'board' | 'calendar' | 'timeline'
 export type ProjectAccessLevel = 'admin' | 'editor' | 'commenter' | 'viewer'
 
-export type CreateProjectFields = {
+/** The write fields create and update share. Custom field values are keyed by custom field GID. */
+type ProjectSharedFields = {
+	custom_fields?: Record<string, unknown>
+	html_custom_fields?: Record<string, string>
+	/** Asana accepts it only when `resource_subtype` is `custom`. */
+	custom_type?: string
+	resource_subtype?: ProjectResourceSubtype
+	icon?: ProjectIcon
+	minimum_access_level_for_customization?: ProjectMinimumAccessLevel
+	minimum_access_level_for_sharing?: ProjectMinimumAccessLevel
+}
+
+export type CreateProjectFields = ProjectSharedFields & {
+	/** Comma-separated users (GID, email, or "me"); Asana takes it only on create. */
+	followers?: string
 	archived?: boolean
 	owner?: string
 	/** The team the project belongs to; required by Asana in an organization. */
@@ -27,7 +43,7 @@ export type CreateProjectFields = {
 	start_on?: string
 }
 
-export type UpdateProjectFields = {
+export type UpdateProjectFields = ProjectSharedFields & {
 	name?: string
 	archived?: boolean
 	owner?: string | null
@@ -42,7 +58,13 @@ export type UpdateProjectFields = {
 }
 
 /** What `duplicateProject` copies and where the copy goes. `include` names the elements to copy (Asana's list, *(docs)*). */
-export type DuplicateProjectFields = { name: string; team?: string; include?: string[] }
+export type DuplicateProjectFields = {
+	name: string
+	team?: string
+	include?: string[]
+	/** Shift the copied tasks' dates; needs `task_dates` in `include`. */
+	schedule_dates?: ScheduleDates
+}
 
 export type SearchProjectsOptions = {
 	text?: string
@@ -72,6 +94,8 @@ export type SearchProjectsOptions = {
 	startOnAfter?: string
 	sortBy?: string
 	sortAscending?: boolean
+	/** Results per call, from 1 to 100; search has no offset. */
+	limit?: number
 	optFields?: string
 }
 
@@ -153,6 +177,7 @@ export function createAsanaProjectGateway(client: Asana.ApiClient): ProjectGatew
 						name: fields.name,
 						...(fields.team !== undefined && { team: fields.team }),
 						...(fields.include !== undefined && { include: fields.include.join(',') }),
+						...(fields.schedule_dates !== undefined && { schedule_dates: fields.schedule_dates }),
 					},
 				},
 			})
@@ -195,6 +220,7 @@ export function createAsanaProjectGateway(client: Asana.ApiClient): ProjectGatew
 				'start_on.after': opts?.startOnAfter,
 				sort_by: opts?.sortBy,
 				sort_ascending: opts?.sortAscending,
+				limit: opts?.limit,
 				opt_fields: opts?.optFields,
 			})
 			return res.data

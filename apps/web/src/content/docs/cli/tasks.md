@@ -181,6 +181,7 @@ cyber-asana task project remove <task-gid> <project-gid>
 | `--section-gid <gid>` / `--section <gid>` | Place into a specific section |
 | `--insert-after <gid>` | Position after this task |
 | `--insert-before <gid>` | Position before this task |
+| `--include-inherited` | On `project list`: also list the projects the task's parent is in, which a subtask inherits |
 
 `--insert-after` and `--insert-before` are mutually exclusive; omitting both appends to the
 end of the project or section. Removing a task from a project does not delete the task.

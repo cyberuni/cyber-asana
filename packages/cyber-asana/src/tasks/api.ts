@@ -9,6 +9,7 @@ import type {
 	SearchTasksOptions,
 	TaskBatchLookupResult,
 	TaskGateway,
+	TaskProjectListOptions,
 	UpdateTaskFields,
 } from './gateway.js'
 
@@ -169,7 +170,7 @@ export function createTaskApi(gateway: TaskGateway) {
 		listSubtasks(taskGid: string, opts?: TaskCollectionOptions) {
 			return listWithCompletionFilter(opts, (o) => gateway.listSubtasks(taskGid, o))
 		},
-		listProjectsForTask(taskGid: string, opts?: PaginationOptions) {
+		listProjectsForTask(taskGid: string, opts?: TaskProjectListOptions) {
 			return gateway.listProjectsForTask(taskGid, opts)
 		},
 		duplicateTask(taskGid: string, fields: DuplicateTaskFields, opts?: ReadOptions) {

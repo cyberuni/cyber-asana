@@ -1,5 +1,5 @@
 import { writeFile } from 'node:fs/promises'
-import { Command, InvalidArgumentError } from 'commander'
+import { Command, InvalidArgumentError, Option } from 'commander'
 import {
 	addGidOption,
 	addPaginationOptions,
@@ -7,6 +7,7 @@ import {
 	itemsForOutput,
 	normalizedGid,
 	paginationOptionsFromCli,
+	parseLimit,
 	printNextPageHint,
 	readOptionsFromCli,
 	requiredGid,
@@ -39,6 +40,8 @@ import {
 	searchProjects,
 	updateProject,
 } from './default.js'
+import { PROJECT_ICONS, PROJECT_MINIMUM_ACCESS_LEVELS, PROJECT_RESOURCE_SUBTYPES } from './project-enums.js'
+import { buildScheduleDates } from './schedule-dates.js'
 import { buildProjectCreateFields, buildProjectUpdateFields } from './write-options.js'
 
 function resolveProjectApi(api?: ProjectApi | (() => ProjectApi)): ProjectApi {
@@ -59,6 +62,65 @@ function resolveProjectApi(api?: ProjectApi | (() => ProjectApi)): ProjectApi {
 			duplicateProjectAndWait,
 		}
 	)
+}
+
+type ProjectWriteCliOptions = {
+	customFieldsJson?: string
+	customField?: string[]
+	htmlCustomFieldsJson?: string
+	htmlCustomField?: string[]
+	customType?: string
+	resourceSubtype?: string
+	icon?: string
+	minAccessForCustomization?: string
+	minAccessForSharing?: string
+}
+
+function collectOption(value: string, previous: string[] = []) {
+	return [...previous, value]
+}
+
+/** The write flags `project create` and `project update` share. */
+function addProjectWriteOptions<T extends Command>(cmd: T) {
+	return cmd
+		.option('--custom-fields-json <json>', 'Custom field values as a JSON object of field GID to value')
+		.option('--custom-field <gid=value>', 'Custom field value, repeatable', collectOption, [])
+		.option(
+			'--html-custom-fields-json <json>',
+			'Text custom field values as HTML, a JSON object of field GID to "<body>...</body>"',
+		)
+		.option('--html-custom-field <gid=html>', 'Text custom field value as HTML, repeatable', collectOption, [])
+		.option('--custom-type <gid>', 'Custom type GID; Asana accepts it only with --resource-subtype custom')
+		.addOption(
+			new Option('--resource-subtype <subtype>', 'Project resource subtype').choices(PROJECT_RESOURCE_SUBTYPES),
+		)
+		.addOption(new Option('--icon <icon>', 'Project icon').choices(PROJECT_ICONS))
+		.addOption(
+			new Option(
+				'--min-access-for-customization <level>',
+				'Lowest access level that may customize the project',
+			).choices(PROJECT_MINIMUM_ACCESS_LEVELS),
+		)
+		.addOption(
+			new Option('--min-access-for-sharing <level>', 'Lowest access level that may share the project').choices(
+				PROJECT_MINIMUM_ACCESS_LEVELS,
+			),
+		)
+}
+
+/** The write flags above as the input `write-options` builds Asana's fields from. */
+function projectWriteInputFromCli(opts: ProjectWriteCliOptions) {
+	return {
+		customFieldsJson: opts.customFieldsJson,
+		customFieldEntries: opts.customField,
+		htmlCustomFieldsJson: opts.htmlCustomFieldsJson,
+		htmlCustomFieldEntries: opts.htmlCustomField,
+		customType: opts.customType,
+		resourceSubtype: opts.resourceSubtype,
+		icon: opts.icon,
+		minAccessForCustomization: opts.minAccessForCustomization,
+		minAccessForSharing: opts.minAccessForSharing,
+	}
 }
 
 type Project = { gid: string; name?: string; permalink_url?: string; color?: string; notes?: string }
@@ -210,6 +272,7 @@ export function projectCommand(api?: ProjectApi | (() => ProjectApi)) {
 		.option('--start-on-after <date>', 'Start date after (YYYY-MM-DD)')
 		.option('--sort-by <field>', 'Sort field: due_date, created_at, completed_at, modified_at')
 		.option('--sort-asc', 'Sort ascending (default: descending)')
+		.option('--limit <number>', 'Results per call, from 1 to 100 (default: 100); search has no offset', parseLimit)
 		.option('--opt-fields <fields>', 'Comma-separated optional Asana fields to include')
 		.action(
 			async (
@@ -243,6 +306,7 @@ export function projectCommand(api?: ProjectApi | (() => ProjectApi)) {
 					startOnAfter?: string
 					sortBy?: string
 					sortAsc?: boolean
+					limit?: number
 					optFields?: string
 				},
 			) => {
@@ -274,6 +338,7 @@ export function projectCommand(api?: ProjectApi | (() => ProjectApi)) {
 					startOnAfter: opts.startOnAfter,
 					sortBy: opts.sortBy,
 					sortAscending: opts.sortAsc,
+					...(opts.limit !== undefined && { limit: opts.limit }),
 					optFields: opts.optFields,
 				})
 				output(data, () => fmtProjectList(data))
@@ -299,47 +364,51 @@ export function projectCommand(api?: ProjectApi | (() => ProjectApi)) {
 		)
 		.option('--due-on <date>', 'Due date (YYYY-MM-DD)')
 		.option('--start-on <date>', 'Start date (YYYY-MM-DD)')
-		.action(
-			async (
-				name: string,
-				opts: {
-					workspace?: string
-					workspaceGid?: string
-					archived?: boolean
-					owner?: string
-					notes?: string
-					htmlNotes?: string
-					color?: string
-					privacySetting?: 'public_to_workspace' | 'private' | 'private_to_team'
-					defaultView?: 'list' | 'board' | 'calendar' | 'timeline'
-					defaultAccessLevel?: 'admin' | 'editor' | 'commenter' | 'viewer'
-					dueOn?: string
-					startOn?: string
-					optFields?: string
-				},
-			) => {
-				const data = await resolveProjectApi(api).createProject(
-					requiredGid(opts, 'workspace', 'Workspace GID'),
-					name,
-					buildProjectCreateFields({
-						archived: opts.archived,
-						owner: opts.owner,
-						notes: opts.notes,
-						htmlNotes: opts.htmlNotes,
-						color: opts.color,
-						privacySetting: opts.privacySetting,
-						defaultView: opts.defaultView,
-						defaultAccessLevel: opts.defaultAccessLevel,
-						dueOn: opts.dueOn,
-						startOn: opts.startOn,
-					}),
-					readOptionsFromCli(opts),
-				)
-				output(data, () => fmtProject(data))
+		.option('--follower <user[,user...]>', 'Followers to add: user GIDs, emails, or "me"; set on create only')
+	addProjectWriteOptions(createCmd).action(
+		async (
+			name: string,
+			opts: ProjectWriteCliOptions & {
+				follower?: string
+				workspace?: string
+				workspaceGid?: string
+				archived?: boolean
+				owner?: string
+				notes?: string
+				htmlNotes?: string
+				color?: string
+				privacySetting?: 'public_to_workspace' | 'private' | 'private_to_team'
+				defaultView?: 'list' | 'board' | 'calendar' | 'timeline'
+				defaultAccessLevel?: 'admin' | 'editor' | 'commenter' | 'viewer'
+				dueOn?: string
+				startOn?: string
+				optFields?: string
 			},
-		)
+		) => {
+			const data = await resolveProjectApi(api).createProject(
+				requiredGid(opts, 'workspace', 'Workspace GID'),
+				name,
+				buildProjectCreateFields({
+					archived: opts.archived,
+					owner: opts.owner,
+					notes: opts.notes,
+					htmlNotes: opts.htmlNotes,
+					color: opts.color,
+					privacySetting: opts.privacySetting,
+					defaultView: opts.defaultView,
+					defaultAccessLevel: opts.defaultAccessLevel,
+					dueOn: opts.dueOn,
+					startOn: opts.startOn,
+					followerInput: opts.follower,
+					...projectWriteInputFromCli(opts),
+				}),
+				readOptionsFromCli(opts),
+			)
+			output(data, () => fmtProject(data))
+		},
+	)
 
-	addReadOptions(cmd.command('update <gid>').description('Update a project'))
+	const updateCmd = addReadOptions(cmd.command('update <gid>').description('Update a project'))
 		.option('--name <name>', 'New name')
 		.option('--archived', 'Archive the project')
 		.option('--no-archived', 'Unarchive the project')
@@ -358,52 +427,53 @@ export function projectCommand(api?: ProjectApi | (() => ProjectApi)) {
 		.option('--start-on <date>', 'Start date (YYYY-MM-DD)')
 		.option('--clear-due-on', 'Clear the due date')
 		.option('--clear-start-on', 'Clear the start date')
-		.action(
-			async (
-				gid: string,
-				opts: {
-					name?: string
-					archived?: boolean
-					owner?: string
-					clearOwner?: boolean
-					notes?: string
-					htmlNotes?: string
-					color?: string
-					privacySetting?: 'public_to_workspace' | 'private' | 'private_to_team'
-					defaultView?: 'list' | 'board' | 'calendar' | 'timeline'
-					defaultAccessLevel?: 'admin' | 'editor' | 'commenter' | 'viewer'
-					dueOn?: string
-					startOn?: string
-					clearDueOn?: boolean
-					clearStartOn?: boolean
-					optFields?: string
-				},
-			) => {
-				const data = await resolveProjectApi(api).updateProject(
-					gid,
-					{
-						name: opts.name,
-						...buildProjectUpdateFields({
-							archived: opts.archived,
-							owner: opts.owner,
-							clearOwner: opts.clearOwner,
-							notes: opts.notes,
-							htmlNotes: opts.htmlNotes,
-							color: opts.color,
-							privacySetting: opts.privacySetting,
-							defaultView: opts.defaultView,
-							defaultAccessLevel: opts.defaultAccessLevel,
-							dueOn: opts.dueOn,
-							startOn: opts.startOn,
-							clearDueOn: opts.clearDueOn,
-							clearStartOn: opts.clearStartOn,
-						}),
-					},
-					readOptionsFromCli(opts),
-				)
-				output(data, () => fmtProject(data))
+	addProjectWriteOptions(updateCmd).action(
+		async (
+			gid: string,
+			opts: ProjectWriteCliOptions & {
+				name?: string
+				archived?: boolean
+				owner?: string
+				clearOwner?: boolean
+				notes?: string
+				htmlNotes?: string
+				color?: string
+				privacySetting?: 'public_to_workspace' | 'private' | 'private_to_team'
+				defaultView?: 'list' | 'board' | 'calendar' | 'timeline'
+				defaultAccessLevel?: 'admin' | 'editor' | 'commenter' | 'viewer'
+				dueOn?: string
+				startOn?: string
+				clearDueOn?: boolean
+				clearStartOn?: boolean
+				optFields?: string
 			},
-		)
+		) => {
+			const data = await resolveProjectApi(api).updateProject(
+				gid,
+				{
+					name: opts.name,
+					...buildProjectUpdateFields({
+						archived: opts.archived,
+						owner: opts.owner,
+						clearOwner: opts.clearOwner,
+						notes: opts.notes,
+						htmlNotes: opts.htmlNotes,
+						color: opts.color,
+						privacySetting: opts.privacySetting,
+						defaultView: opts.defaultView,
+						defaultAccessLevel: opts.defaultAccessLevel,
+						dueOn: opts.dueOn,
+						startOn: opts.startOn,
+						clearDueOn: opts.clearDueOn,
+						clearStartOn: opts.clearStartOn,
+						...projectWriteInputFromCli(opts),
+					}),
+				},
+				readOptionsFromCli(opts),
+			)
+			output(data, () => fmtProject(data))
+		},
+	)
 
 	cmd
 		.command('delete <gid>')
@@ -448,6 +518,16 @@ export function projectCommand(api?: ProjectApi | (() => ProjectApi)) {
 			'Elements to copy, comma-separated (for example members,task_notes,task_assignee,task_dates)',
 			(value: string) => value.split(',').filter(Boolean),
 		)
+		.option(
+			'--schedule-start-on <date>',
+			'Shift the copied tasks so the project starts on this date (YYYY-MM-DD); needs task_dates in --include; exclusive with --schedule-due-on',
+		)
+		.option(
+			'--schedule-due-on <date>',
+			'Shift the copied tasks so the project ends on this date (YYYY-MM-DD); needs task_dates in --include; exclusive with --schedule-start-on',
+		)
+		.option('--skip-weekends', 'Skip weekends when shifting dates (with a schedule date; default: no)')
+		.option('--no-skip-weekends', 'Count weekends when shifting dates (the default when a schedule date is given)')
 		.option('--no-wait', 'Return the job immediately instead of waiting for the copy')
 		.option(
 			'--timeout <seconds>',
@@ -463,13 +543,29 @@ export function projectCommand(api?: ProjectApi | (() => ProjectApi)) {
 		.action(
 			async (
 				gid: string,
-				opts: { name: string; team?: string; teamGid?: string; include?: string[]; wait: boolean; timeout?: number },
+				opts: {
+					name: string
+					team?: string
+					teamGid?: string
+					include?: string[]
+					scheduleStartOn?: string
+					scheduleDueOn?: string
+					skipWeekends?: boolean
+					wait: boolean
+					timeout?: number
+				},
 			) => {
 				const teamGid = normalizedGid(opts, 'team')
+				const scheduleDates = buildScheduleDates({
+					startOn: opts.scheduleStartOn,
+					dueOn: opts.scheduleDueOn,
+					skipWeekends: opts.skipWeekends,
+				})
 				const fields = {
 					name: opts.name,
 					...(teamGid !== undefined && { team: teamGid }),
 					...(opts.include !== undefined && { include: opts.include }),
+					...(scheduleDates && { schedule_dates: scheduleDates }),
 				}
 				const projectApi = resolveProjectApi(api)
 				if (!opts.wait) {
