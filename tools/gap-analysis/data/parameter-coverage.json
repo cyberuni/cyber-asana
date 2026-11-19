@@ -1225,14 +1225,13 @@
 					"mcp": "opt_fields"
 				},
 				"approval_status": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "Gateway never sends it; no CLI flag and no MCP field"
+					"status": "covered",
+					"cli": "--approval-status",
+					"mcp": "approval_status"
 				},
 				"assigned_by": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "Gateway never sends it; no CLI flag and no MCP field"
+					"status": "skipped",
+					"reason": "Read-only in the Asana TaskBase schema (readOnly: true); the audit listed it only because it sits in the shared schema."
 				},
 				"assignee": {
 					"status": "covered",
@@ -1240,14 +1239,13 @@
 					"mcp": "assignee_gid / assignee"
 				},
 				"assignee_section": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "Gateway never sends it; no CLI flag and no MCP field"
+					"status": "covered",
+					"cli": "--assignee-section",
+					"mcp": "assignee_section"
 				},
 				"assignee_status": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "Gateway never sends it; no CLI flag and no MCP field"
+					"status": "skipped",
+					"reason": "Deprecated by Asana; My Tasks scheduling now goes through assignee_section, which is covered."
 				},
 				"completed": {
 					"status": "covered",
@@ -1255,9 +1253,8 @@
 					"mcp": "completed"
 				},
 				"completed_by": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "Gateway never sends it; no CLI flag and no MCP field"
+					"status": "skipped",
+					"reason": "Read-only in the Asana TaskBase schema (readOnly: true); the audit listed it only because it sits in the shared schema."
 				},
 				"custom_fields": {
 					"status": "covered",
@@ -1265,14 +1262,14 @@
 					"mcp": "custom_fields"
 				},
 				"custom_type": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "Subtask create has no flag and no MCP field for custom_type (task create has both)"
+					"status": "covered",
+					"cli": "--custom-type",
+					"mcp": "custom_type"
 				},
 				"custom_type_status_option": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "Gateway never sends it; no CLI flag and no MCP field"
+					"status": "covered",
+					"cli": "--custom-type-status-option",
+					"mcp": "custom_type_status_option"
 				},
 				"due_at": {
 					"status": "covered",
@@ -1285,9 +1282,9 @@
 					"mcp": "due_on"
 				},
 				"external": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "Gateway never sends it; no CLI flag and no MCP field"
+					"status": "covered",
+					"cli": "--external-gid / --external-data",
+					"mcp": "external"
 				},
 				"followers": {
 					"status": "covered",
@@ -1295,9 +1292,9 @@
 					"mcp": "follower_gids"
 				},
 				"html_custom_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "Gateway never sends it; no CLI flag and no MCP field"
+					"status": "covered",
+					"cli": "--html-custom-fields-json / --html-custom-field",
+					"mcp": "html_custom_fields"
 				},
 				"html_notes": {
 					"status": "covered",
@@ -1305,9 +1302,9 @@
 					"mcp": "html_notes"
 				},
 				"liked": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "Gateway never sends it; no CLI flag and no MCP field"
+					"status": "covered",
+					"cli": "--liked / --no-liked",
+					"mcp": "liked"
 				},
 				"name": {
 					"status": "covered",
@@ -1324,9 +1321,9 @@
 					"reason": "The parent is the task in the URL path (<task-gid>), set by the endpoint itself"
 				},
 				"projects": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "Subtask create has no flag and no MCP field for projects (task create has both)"
+					"status": "covered",
+					"cli": "--project-gid / --project",
+					"mcp": "project_gids / project_gid / project"
 				},
 				"resource_subtype": {
 					"status": "covered",
@@ -1344,9 +1341,9 @@
 					"mcp": "start_on"
 				},
 				"tags": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "Subtask create has no flag and no MCP field for tags (task create has both)"
+					"status": "covered",
+					"cli": "--tag",
+					"mcp": "tag_gids"
 				},
 				"workspace": {
 					"status": "skipped",
@@ -1421,14 +1418,13 @@
 					"mcp": "opt_fields"
 				},
 				"approval_status": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "Gateway never sends it; no CLI flag and no MCP field"
+					"status": "covered",
+					"cli": "--approval-status",
+					"mcp": "approval_status"
 				},
 				"assigned_by": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "Gateway never sends it; no CLI flag and no MCP field"
+					"status": "skipped",
+					"reason": "Read-only in the Asana TaskBase schema (readOnly: true); the audit listed it only because it sits in the shared schema."
 				},
 				"assignee": {
 					"status": "covered",
@@ -1436,14 +1432,13 @@
 					"mcp": "assignee_gid / assignee"
 				},
 				"assignee_section": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "Gateway never sends it; no CLI flag and no MCP field"
+					"status": "covered",
+					"cli": "--assignee-section",
+					"mcp": "assignee_section"
 				},
 				"assignee_status": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "Gateway never sends it; no CLI flag and no MCP field"
+					"status": "skipped",
+					"reason": "Deprecated by Asana; My Tasks scheduling now goes through assignee_section, which is covered."
 				},
 				"completed": {
 					"status": "covered",
@@ -1451,9 +1446,8 @@
 					"mcp": "completed"
 				},
 				"completed_by": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "Gateway never sends it; no CLI flag and no MCP field"
+					"status": "skipped",
+					"reason": "Read-only in the Asana TaskBase schema (readOnly: true); the audit listed it only because it sits in the shared schema."
 				},
 				"custom_fields": {
 					"status": "covered",
@@ -1466,9 +1460,9 @@
 					"mcp": "custom_type"
 				},
 				"custom_type_status_option": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "Gateway never sends it; no CLI flag and no MCP field"
+					"status": "covered",
+					"cli": "--custom-type-status-option",
+					"mcp": "custom_type_status_option"
 				},
 				"due_at": {
 					"status": "covered",
@@ -1481,9 +1475,9 @@
 					"mcp": "due_on"
 				},
 				"external": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "Gateway never sends it; no CLI flag and no MCP field"
+					"status": "covered",
+					"cli": "--external-gid / --external-data",
+					"mcp": "external"
 				},
 				"followers": {
 					"status": "covered",
@@ -1491,9 +1485,9 @@
 					"mcp": "follower_gids"
 				},
 				"html_custom_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "Gateway never sends it; no CLI flag and no MCP field"
+					"status": "covered",
+					"cli": "--html-custom-fields-json / --html-custom-field",
+					"mcp": "html_custom_fields"
 				},
 				"html_notes": {
 					"status": "covered",
@@ -1501,9 +1495,9 @@
 					"mcp": "html_notes"
 				},
 				"liked": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "Gateway never sends it; no CLI flag and no MCP field"
+					"status": "covered",
+					"cli": "--liked / --no-liked",
+					"mcp": "liked"
 				},
 				"name": {
 					"status": "covered",
@@ -2181,14 +2175,14 @@
 					"mcp": "task_gid"
 				},
 				"limit": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "Gateway sends only opt_fields; no --limit and no MCP limit"
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
 				},
 				"offset": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "Gateway sends only opt_fields; no --offset and no MCP offset"
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
 				},
 				"opt_fields": {
 					"status": "covered",
@@ -2208,14 +2202,14 @@
 					"mcp": "task_gid"
 				},
 				"limit": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "Gateway sends only opt_fields; no --limit and no MCP limit"
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
 				},
 				"offset": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "Gateway sends only opt_fields; no --offset and no MCP offset"
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
 				},
 				"opt_fields": {
 					"status": "covered",
@@ -3288,9 +3282,9 @@
 			"mcp": ["asana_task_list"],
 			"parameters": {
 				"assignee": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "Only reached with project + custom_type; no assignee flag and no MCP field"
+					"status": "covered",
+					"cli": "--assignee-gid / --assignee",
+					"mcp": "assignee_gid / assignee"
 				},
 				"completed_since": {
 					"status": "covered",
@@ -3309,9 +3303,9 @@
 					"mcp": "limit"
 				},
 				"modified_since": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "No CLI flag and no MCP field"
+					"status": "covered",
+					"cli": "--modified-since",
+					"mcp": "modified_since"
 				},
 				"offset": {
 					"status": "covered",
@@ -3329,14 +3323,14 @@
 					"mcp": "project_gid"
 				},
 				"section": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "Not sent; no CLI flag and no MCP field (section lists use getTasksForSection)"
+					"status": "covered",
+					"cli": "--section-gid / --section",
+					"mcp": "section_gid"
 				},
 				"workspace": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "Not sent; GET /tasks is only called with a project, and neither channel passes workspace"
+					"status": "covered",
+					"cli": "--workspace-gid / --workspace",
+					"mcp": "workspace_gid"
 				}
 			}
 		},
@@ -4616,9 +4610,9 @@
 					"mcp": "liked_by_not"
 				},
 				"limit": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "searchTasks sends no limit; no CLI --limit and no MCP limit (--all/fetch_all pages instead)"
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
 				},
 				"modified_at.after": {
 					"status": "covered",
@@ -5574,14 +5568,13 @@
 					"mcp": "opt_fields"
 				},
 				"approval_status": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "Gateway never sends it; no CLI flag and no MCP field"
+					"status": "covered",
+					"cli": "--approval-status",
+					"mcp": "approval_status"
 				},
 				"assigned_by": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "Gateway never sends it; no CLI flag and no MCP field"
+					"status": "skipped",
+					"reason": "Read-only in the Asana TaskBase schema (readOnly: true); the audit listed it only because it sits in the shared schema."
 				},
 				"assignee": {
 					"status": "covered",
@@ -5590,14 +5583,13 @@
 					"note": "Sent as null by --clear-assignee"
 				},
 				"assignee_section": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "Gateway never sends it; no CLI flag and no MCP field"
+					"status": "covered",
+					"cli": "--assignee-section",
+					"mcp": "assignee_section"
 				},
 				"assignee_status": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "Gateway never sends it; no CLI flag and no MCP field"
+					"status": "skipped",
+					"reason": "Deprecated by Asana; My Tasks scheduling now goes through assignee_section, which is covered."
 				},
 				"completed": {
 					"status": "covered",
@@ -5606,9 +5598,8 @@
 					"note": "MCP can send false to reopen"
 				},
 				"completed_by": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "Gateway never sends it; no CLI flag and no MCP field"
+					"status": "skipped",
+					"reason": "Read-only in the Asana TaskBase schema (readOnly: true); the audit listed it only because it sits in the shared schema."
 				},
 				"custom_fields": {
 					"status": "covered",
@@ -5621,9 +5612,9 @@
 					"mcp": "custom_type"
 				},
 				"custom_type_status_option": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "Gateway never sends it; no CLI flag and no MCP field"
+					"status": "covered",
+					"cli": "--custom-type-status-option",
+					"mcp": "custom_type_status_option"
 				},
 				"due_at": {
 					"status": "covered",
@@ -5636,14 +5627,14 @@
 					"mcp": "due_on / clear_due_on"
 				},
 				"external": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "Gateway never sends it; no CLI flag and no MCP field"
+					"status": "covered",
+					"cli": "--external-gid / --external-data",
+					"mcp": "external"
 				},
 				"html_custom_fields": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "Gateway never sends it; no CLI flag and no MCP field"
+					"status": "covered",
+					"cli": "--html-custom-fields-json / --html-custom-field",
+					"mcp": "html_custom_fields"
 				},
 				"html_notes": {
 					"status": "covered",
@@ -5651,9 +5642,9 @@
 					"mcp": "html_notes"
 				},
 				"liked": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
-					"note": "Gateway never sends it; no CLI flag and no MCP field"
+					"status": "covered",
+					"cli": "--liked / --no-liked",
+					"mcp": "liked"
 				},
 				"name": {
 					"status": "covered",

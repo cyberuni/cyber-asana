@@ -1,6 +1,7 @@
 import type { RepoConventions } from '../config/conventions.js'
 import type { TaskSectionPlacement } from '../config/repo-config.js'
 import type { CreateTaskFields, UpdateTaskFields } from './api.js'
+import { APPROVAL_STATUSES, type ApprovalStatus } from './approval-status.js'
 
 type BuildTaskWriteInput = {
 	notes?: string
@@ -17,6 +18,15 @@ type BuildTaskWriteInput = {
 	customFieldsJson?: string
 	customFieldEntries?: string[]
 	customFields?: Record<string, unknown>
+	approvalStatus?: string
+	assigneeSection?: string
+	customTypeStatusOption?: string
+	htmlCustomFieldsJson?: string
+	htmlCustomFieldEntries?: string[]
+	htmlCustomFields?: Record<string, string>
+	liked?: boolean
+	externalGid?: string
+	externalData?: string
 }
 
 type BuildTaskCreateInput = BuildTaskWriteInput & {
@@ -68,6 +78,67 @@ function parseCustomFieldEntries(entries?: string[]) {
 	)
 }
 
+function parseHtmlCustomFieldsJson(value?: string) {
+	if (!value) return undefined
+	const parsed = JSON.parse(value)
+	if (!parsed || Array.isArray(parsed) || typeof parsed !== 'object') {
+		throw new Error('html custom fields JSON must be an object')
+	}
+	for (const [gid, html] of Object.entries(parsed)) {
+		if (typeof html !== 'string') throw new Error(`html custom field ${gid} must be a string of HTML`)
+	}
+	return parsed as Record<string, string>
+}
+
+function parseHtmlCustomFieldEntries(entries?: string[]) {
+	if (!entries?.length) return undefined
+	return Object.fromEntries(
+		entries.map((entry) => {
+			const separator = entry.indexOf('=')
+			if (separator <= 0) throw new Error(`invalid html custom field entry: ${entry}`)
+			return [entry.slice(0, separator), entry.slice(separator + 1)]
+		}),
+	)
+}
+
+function mergeHtmlCustomFields(input: BuildTaskWriteInput) {
+	const merged = {
+		...input.htmlCustomFields,
+		...parseHtmlCustomFieldsJson(input.htmlCustomFieldsJson),
+		...parseHtmlCustomFieldEntries(input.htmlCustomFieldEntries),
+	}
+	return Object.keys(merged).length > 0 ? merged : undefined
+}
+
+function assertApprovalStatus(value?: string): ApprovalStatus | undefined {
+	if (value === undefined) return undefined
+	if (!(APPROVAL_STATUSES as readonly string[]).includes(value)) {
+		throw new Error(`approval status must be one of: ${APPROVAL_STATUSES.join(', ')}; got "${value}"`)
+	}
+	return value as ApprovalStatus
+}
+
+/** The task fields create and update share, in Asana's names, so the two cannot drift apart. */
+function sharedTaskFields(input: BuildTaskWriteInput) {
+	const approvalStatus = assertApprovalStatus(input.approvalStatus)
+	const htmlCustomFields = mergeHtmlCustomFields(input)
+	const external =
+		input.externalGid !== undefined || input.externalData !== undefined
+			? {
+					...(input.externalGid !== undefined && { gid: input.externalGid }),
+					...(input.externalData !== undefined && { data: input.externalData }),
+				}
+			: undefined
+	return {
+		...(approvalStatus !== undefined && { approval_status: approvalStatus }),
+		...(input.assigneeSection !== undefined && { assignee_section: input.assigneeSection }),
+		...(input.customTypeStatusOption !== undefined && { custom_type_status_option: input.customTypeStatusOption }),
+		...(htmlCustomFields && { html_custom_fields: htmlCustomFields }),
+		...(input.liked !== undefined && { liked: input.liked }),
+		...(external && { external }),
+	}
+}
+
 function mergeCustomFields(customFieldsJson?: string, customFieldEntries?: string[]) {
 	const fromJson = parseCustomFieldsJson(customFieldsJson)
 	const fromEntries = parseCustomFieldEntries(customFieldEntries)
@@ -116,6 +187,7 @@ export function buildTaskCreateFields(input: BuildTaskCreateInput): CreateTaskFi
 		...(followers && { followers }),
 		...(tags && { tags }),
 		...(Object.keys(customFields).length > 0 && { custom_fields: customFields }),
+		...sharedTaskFields(input),
 	}
 }
 
@@ -217,5 +289,6 @@ export function buildTaskUpdateFields(input: BuildTaskUpdateInput): UpdateTaskFi
 		...(input.resourceSubtype !== undefined && { resource_subtype: input.resourceSubtype }),
 		...(input.customType !== undefined && { custom_type: input.customType }),
 		...(Object.keys(customFields).length > 0 && { custom_fields: customFields }),
+		...sharedTaskFields(input),
 	}
 }

@@ -8,7 +8,7 @@ description: Every request parameter of each Asana API operation cyber-asana wra
 For each of the **171** Asana REST operations cyber-asana wraps, this page lists
 every path, query, and top-level body parameter in the
 [Asana OpenAPI definition](https://raw.githubusercontent.com/Asana/openapi/master/defs/asana_oas.yaml) (fetched 2026-11-19) and how cyber-asana sends it.
-Of **946** parameters, **747** are covered, **46** are skipped on purpose, and **153** are open gaps.
+Of **946** parameters, **777** are covered, **55** are skipped on purpose, and **114** are open gaps.
 Header parameters are left out: an API client sets them once, not per command.
 
 | Status | Meaning |
@@ -67,37 +67,12 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `createStoryForRecord` | `is_pinned` | body | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: RecordStoryFields carries only text and html_text |
 | `createStoryForRecord` | `sticker_name` | body | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: RecordStoryFields carries only text and html_text |
 | `createStoryForTask` | `parent_comment` | body | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: StoryCreateFields has no parent_comment |
-| `createSubtaskForTask` | `approval_status` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
-| `createSubtaskForTask` | `assigned_by` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
-| `createSubtaskForTask` | `assignee_section` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
-| `createSubtaskForTask` | `assignee_status` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
-| `createSubtaskForTask` | `completed_by` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
-| `createSubtaskForTask` | `custom_type` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Subtask create has no flag and no MCP field for custom_type (task create has both) |
-| `createSubtaskForTask` | `custom_type_status_option` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
-| `createSubtaskForTask` | `external` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
-| `createSubtaskForTask` | `html_custom_fields` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
-| `createSubtaskForTask` | `liked` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
-| `createSubtaskForTask` | `projects` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Subtask create has no flag and no MCP field for projects (task create has both) |
-| `createSubtaskForTask` | `tags` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Subtask create has no flag and no MCP field for tags (task create has both) |
-| `createTask` | `approval_status` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
-| `createTask` | `assigned_by` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
-| `createTask` | `assignee_section` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
-| `createTask` | `assignee_status` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
-| `createTask` | `completed_by` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
-| `createTask` | `custom_type_status_option` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
-| `createTask` | `external` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
-| `createTask` | `html_custom_fields` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
-| `createTask` | `liked` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
 | `createTimeTrackingEntry` | `assignee` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `createTimeTrackingEntry` | `attributable_to` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `createTimeTrackingEntry` | `billable_status` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `createTimeTrackingEntry` | `categories` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `createTimeTrackingEntry` | `description` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `duplicateProject` | `schedule_dates` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
-| `getDependenciesForTask` | `limit` | query | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway sends only opt_fields; no --limit and no MCP limit |
-| `getDependenciesForTask` | `offset` | query | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway sends only opt_fields; no --offset and no MCP offset |
-| `getDependentsForTask` | `limit` | query | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway sends only opt_fields; no --limit and no MCP limit |
-| `getDependentsForTask` | `offset` | query | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway sends only opt_fields; no --offset and no MCP offset |
 | `getGoals` | `is_workspace_level` | query | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) list filter: neither the CLI nor MCP sends it |
 | `getGoals` | `portfolio` | query | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) list filter: neither the CLI nor MCP sends it |
 | `getGoals` | `project` | query | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) list filter: neither the CLI nor MCP sends it |
@@ -112,10 +87,6 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `getStoriesForTask` | `created_after` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: only pagination params reach the call |
 | `getStoriesForTask` | `resource_subtype` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: only pagination params reach the call |
 | `getStoriesForTask` | `sort_ascending` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: only pagination params reach the call |
-| `getTasks` | `assignee` | query | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Only reached with project + custom_type; no assignee flag and no MCP field |
-| `getTasks` | `modified_since` | query | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) No CLI flag and no MCP field |
-| `getTasks` | `section` | query | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Not sent; no CLI flag and no MCP field (section lists use getTasksForSection) |
-| `getTasks` | `workspace` | query | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Not sent; GET /tasks is only called with a project, and neither channel passes workspace |
 | `getTimePeriods` | `end_on` | query | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) list filter: neither the CLI nor MCP sends it |
 | `getTimePeriods` | `start_on` | query | — | — | ❌ [#410](https://github.com/cyberuni/cyber-asana/issues/410) list filter: neither the CLI nor MCP sends it |
 | `getTimeTrackingEntries` | `assignee` | query | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: the filters are task, user, portfolio, workspace and the date range |
@@ -129,7 +100,6 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `searchRecordsForWorkspace` | `created_on.before` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) CLI has no flag; MCP sends it (created_on_before) |
 | `searchRecordsForWorkspace` | `followers.not` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) CLI has no flag; MCP sends it (followers_not) |
 | `searchRecordsForWorkspace` | `tables.all` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) CLI has no flag; MCP sends it (tables_all) |
-| `searchTasksForWorkspace` | `limit` | query | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) searchTasks sends no limit; no CLI --limit and no MCP limit (--all/fetch_all pages instead) |
 | `updateAllocation` | `assignee` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: AllocationUpdateFields omits assignee |
 | `updateAllocation` | `parent` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: AllocationUpdateFields omits parent |
 | `updateCustomField` | `enum_options` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
@@ -167,15 +137,6 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `updateProject` | `minimum_access_level_for_customization` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
 | `updateProject` | `minimum_access_level_for_sharing` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
 | `updateProject` | `resource_subtype` | body | — | — | ❌ [#409](https://github.com/cyberuni/cyber-asana/issues/409) CLI has no flag; MCP has none |
-| `updateTask` | `approval_status` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
-| `updateTask` | `assigned_by` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
-| `updateTask` | `assignee_section` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
-| `updateTask` | `assignee_status` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
-| `updateTask` | `completed_by` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
-| `updateTask` | `custom_type_status_option` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
-| `updateTask` | `external` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
-| `updateTask` | `html_custom_fields` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
-| `updateTask` | `liked` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
 | `updateTimeTrackingEntry` | `assignee` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `updateTimeTrackingEntry` | `attributable_to` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `updateTimeTrackingEntry` | `billable_status` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
@@ -978,50 +939,50 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `addTagForTask` | `tag` | body | `<tag-gid>` | `tag_gid` | ✅ |
 | `createSubtaskForTask` | `task_gid` | path | `<task-gid>` | `task_gid` | ✅ |
 | `createSubtaskForTask` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
-| `createSubtaskForTask` | `approval_status` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
-| `createSubtaskForTask` | `assigned_by` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
+| `createSubtaskForTask` | `approval_status` | body | `--approval-status` | `approval_status` | ✅ |
+| `createSubtaskForTask` | `assigned_by` | body | — | — | ➖ Read-only in the Asana TaskBase schema (readOnly: true); the audit listed it only because it sits in the shared schema. |
 | `createSubtaskForTask` | `assignee` | body | `--assignee-gid / --assignee` | `assignee_gid / assignee` | ✅ |
-| `createSubtaskForTask` | `assignee_section` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
-| `createSubtaskForTask` | `assignee_status` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
+| `createSubtaskForTask` | `assignee_section` | body | `--assignee-section` | `assignee_section` | ✅ |
+| `createSubtaskForTask` | `assignee_status` | body | — | — | ➖ Deprecated by Asana; My Tasks scheduling now goes through assignee_section, which is covered. |
 | `createSubtaskForTask` | `completed` | body | `--completed` | `completed` | ✅ |
-| `createSubtaskForTask` | `completed_by` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
+| `createSubtaskForTask` | `completed_by` | body | — | — | ➖ Read-only in the Asana TaskBase schema (readOnly: true); the audit listed it only because it sits in the shared schema. |
 | `createSubtaskForTask` | `custom_fields` | body | `--custom-fields-json / --custom-field` | `custom_fields` | ✅ |
-| `createSubtaskForTask` | `custom_type` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Subtask create has no flag and no MCP field for custom_type (task create has both) |
-| `createSubtaskForTask` | `custom_type_status_option` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
+| `createSubtaskForTask` | `custom_type` | body | `--custom-type` | `custom_type` | ✅ |
+| `createSubtaskForTask` | `custom_type_status_option` | body | `--custom-type-status-option` | `custom_type_status_option` | ✅ |
 | `createSubtaskForTask` | `due_at` | body | `--due-at` | `due_at` | ✅ |
 | `createSubtaskForTask` | `due_on` | body | `--due-on` | `due_on` | ✅ |
-| `createSubtaskForTask` | `external` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
+| `createSubtaskForTask` | `external` | body | `--external-gid / --external-data` | `external` | ✅ |
 | `createSubtaskForTask` | `followers` | body | `--follower` | `follower_gids` | ✅ |
-| `createSubtaskForTask` | `html_custom_fields` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
+| `createSubtaskForTask` | `html_custom_fields` | body | `--html-custom-fields-json / --html-custom-field` | `html_custom_fields` | ✅ |
 | `createSubtaskForTask` | `html_notes` | body | `--html-notes` | `html_notes` | ✅ |
-| `createSubtaskForTask` | `liked` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
+| `createSubtaskForTask` | `liked` | body | `--liked / --no-liked` | `liked` | ✅ |
 | `createSubtaskForTask` | `name` | body | `<name>` | `name` | ✅ |
 | `createSubtaskForTask` | `notes` | body | `--notes` | `notes` | ✅ |
 | `createSubtaskForTask` | `parent` | body | — | — | ➖ The parent is the task in the URL path (<task-gid>), set by the endpoint itself |
-| `createSubtaskForTask` | `projects` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Subtask create has no flag and no MCP field for projects (task create has both) |
+| `createSubtaskForTask` | `projects` | body | `--project-gid / --project` | `project_gids / project_gid / project` | ✅ |
 | `createSubtaskForTask` | `resource_subtype` | body | `--resource-subtype` | `resource_subtype` | ✅ |
 | `createSubtaskForTask` | `start_at` | body | `--start-at` | `start_at` | ✅ |
 | `createSubtaskForTask` | `start_on` | body | `--start-on` | `start_on` | ✅ |
-| `createSubtaskForTask` | `tags` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Subtask create has no flag and no MCP field for tags (task create has both) |
+| `createSubtaskForTask` | `tags` | body | `--tag` | `tag_gids` | ✅ |
 | `createSubtaskForTask` | `workspace` | body | — | — | ➖ Asana derives the workspace from the parent task in the path; the gateway sends none |
 | `createTask` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
-| `createTask` | `approval_status` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
-| `createTask` | `assigned_by` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
+| `createTask` | `approval_status` | body | `--approval-status` | `approval_status` | ✅ |
+| `createTask` | `assigned_by` | body | — | — | ➖ Read-only in the Asana TaskBase schema (readOnly: true); the audit listed it only because it sits in the shared schema. |
 | `createTask` | `assignee` | body | `--assignee-gid / --assignee` | `assignee_gid / assignee` | ✅ |
-| `createTask` | `assignee_section` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
-| `createTask` | `assignee_status` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
+| `createTask` | `assignee_section` | body | `--assignee-section` | `assignee_section` | ✅ |
+| `createTask` | `assignee_status` | body | — | — | ➖ Deprecated by Asana; My Tasks scheduling now goes through assignee_section, which is covered. |
 | `createTask` | `completed` | body | `--completed` | `completed` | ✅ |
-| `createTask` | `completed_by` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
+| `createTask` | `completed_by` | body | — | — | ➖ Read-only in the Asana TaskBase schema (readOnly: true); the audit listed it only because it sits in the shared schema. |
 | `createTask` | `custom_fields` | body | `--custom-fields-json / --custom-field` | `custom_fields` | ✅ |
 | `createTask` | `custom_type` | body | `--custom-type` | `custom_type` | ✅ |
-| `createTask` | `custom_type_status_option` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
+| `createTask` | `custom_type_status_option` | body | `--custom-type-status-option` | `custom_type_status_option` | ✅ |
 | `createTask` | `due_at` | body | `--due-at` | `due_at` | ✅ |
 | `createTask` | `due_on` | body | `--due-on` | `due_on` | ✅ |
-| `createTask` | `external` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
+| `createTask` | `external` | body | `--external-gid / --external-data` | `external` | ✅ |
 | `createTask` | `followers` | body | `--follower` | `follower_gids` | ✅ |
-| `createTask` | `html_custom_fields` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
+| `createTask` | `html_custom_fields` | body | `--html-custom-fields-json / --html-custom-field` | `html_custom_fields` | ✅ |
 | `createTask` | `html_notes` | body | `--html-notes` | `html_notes` | ✅ |
-| `createTask` | `liked` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
+| `createTask` | `liked` | body | `--liked / --no-liked` | `liked` | ✅ |
 | `createTask` | `name` | body | `<name>` | `name` | ✅ |
 | `createTask` | `notes` | body | `--notes` | `notes` | ✅ |
 | `createTask` | `parent` | body | `--parent-gid (or --parent)` | `parent_gid` | ✅ |
@@ -1037,12 +998,12 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `duplicateTask` | `include` | body | `--include` | `include` | ✅ |
 | `duplicateTask` | `name` | body | `--name` | `name` | ✅ |
 | `getDependenciesForTask` | `task_gid` | path | `<task-gid>` | `task_gid` | ✅ |
-| `getDependenciesForTask` | `limit` | query | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway sends only opt_fields; no --limit and no MCP limit |
-| `getDependenciesForTask` | `offset` | query | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway sends only opt_fields; no --offset and no MCP offset |
+| `getDependenciesForTask` | `limit` | query | `--limit` | `limit` | ✅ |
+| `getDependenciesForTask` | `offset` | query | `--offset` | `offset` | ✅ |
 | `getDependenciesForTask` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ Defaults to gid,name,completed,due_on |
 | `getDependentsForTask` | `task_gid` | path | `<task-gid>` | `task_gid` | ✅ |
-| `getDependentsForTask` | `limit` | query | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway sends only opt_fields; no --limit and no MCP limit |
-| `getDependentsForTask` | `offset` | query | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway sends only opt_fields; no --offset and no MCP offset |
+| `getDependentsForTask` | `limit` | query | `--limit` | `limit` | ✅ |
+| `getDependentsForTask` | `offset` | query | `--offset` | `offset` | ✅ |
 | `getDependentsForTask` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ Defaults to gid,name,completed,due_on |
 | `getSubtasksForTask` | `task_gid` | path | `<task-gid>` | `task_gid` | ✅ |
 | `getSubtasksForTask` | `limit` | query | `--limit` | `limit` | ✅ |
@@ -1050,16 +1011,16 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `getSubtasksForTask` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `getTask` | `task_gid` | path | `<gid>` | `task_gid` | ✅ |
 | `getTask` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ Defaults to a fixed field set when omitted |
-| `getTasks` | `assignee` | query | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Only reached with project + custom_type; no assignee flag and no MCP field |
+| `getTasks` | `assignee` | query | `--assignee-gid / --assignee` | `assignee_gid / assignee` | ✅ |
 | `getTasks` | `completed_since` | query | `--completed-since / --incomplete-or-completed-since / --incomplete` | `completed_since / incomplete_or_completed_since / incomplete` | ✅ Sent only when --custom-type / custom_type routes the list through GET /tasks |
 | `getTasks` | `custom_type` | query | `--custom-type` | `custom_type` | ✅ |
 | `getTasks` | `limit` | query | `--limit` | `limit` | ✅ |
-| `getTasks` | `modified_since` | query | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) No CLI flag and no MCP field |
+| `getTasks` | `modified_since` | query | `--modified-since` | `modified_since` | ✅ |
 | `getTasks` | `offset` | query | `--offset` | `offset` | ✅ |
 | `getTasks` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `getTasks` | `project` | query | `--project-gid (or --project)` | `project_gid` | ✅ |
-| `getTasks` | `section` | query | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Not sent; no CLI flag and no MCP field (section lists use getTasksForSection) |
-| `getTasks` | `workspace` | query | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Not sent; GET /tasks is only called with a project, and neither channel passes workspace |
+| `getTasks` | `section` | query | `--section-gid / --section` | `section_gid` | ✅ |
+| `getTasks` | `workspace` | query | `--workspace-gid / --workspace` | `workspace_gid` | ✅ |
 | `getTasksForProject` | `project_gid` | path | `--project-gid (or --project)` | `project_gid` | ✅ |
 | `getTasksForProject` | `completed_since` | query | `--completed-since / --incomplete-or-completed-since / --incomplete` | `completed_since / incomplete_or_completed_since / incomplete` | ✅ |
 | `getTasksForProject` | `limit` | query | `--limit` | `limit` | ✅ |
@@ -1121,7 +1082,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `searchTasksForWorkspace` | `is_blocking` | query | `--is-blocking` | `is_blocking` | ✅ |
 | `searchTasksForWorkspace` | `is_subtask` | query | `--subtask / --no-subtask` | `is_subtask` | ✅ |
 | `searchTasksForWorkspace` | `liked_by.not` | query | `--undefined-not` | `liked_by_not` | ✅ |
-| `searchTasksForWorkspace` | `limit` | query | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) searchTasks sends no limit; no CLI --limit and no MCP limit (--all/fetch_all pages instead) |
+| `searchTasksForWorkspace` | `limit` | query | `--limit` | `limit` | ✅ |
 | `searchTasksForWorkspace` | `modified_at.after` | query | `--modified-at-after` | `modified_at_after` | ✅ |
 | `searchTasksForWorkspace` | `modified_at.before` | query | `--modified-at-before` | `modified_at_before` | ✅ |
 | `searchTasksForWorkspace` | `modified_on` | query | `--modified-on` | `modified_on` | ✅ |
@@ -1153,22 +1114,22 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `setParentForTask` | `parent` | body | `--parent-gid (or --parent) / --clear-parent` | `parent_gid / clear_parent` | ✅ Sent as null by --clear-parent / clear_parent |
 | `updateTask` | `task_gid` | path | `<gid>` | `task_gid` | ✅ |
 | `updateTask` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
-| `updateTask` | `approval_status` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
-| `updateTask` | `assigned_by` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
+| `updateTask` | `approval_status` | body | `--approval-status` | `approval_status` | ✅ |
+| `updateTask` | `assigned_by` | body | — | — | ➖ Read-only in the Asana TaskBase schema (readOnly: true); the audit listed it only because it sits in the shared schema. |
 | `updateTask` | `assignee` | body | `--assignee-gid / --assignee / --clear-assignee` | `assignee_gid / assignee / clear_assignee` | ✅ Sent as null by --clear-assignee |
-| `updateTask` | `assignee_section` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
-| `updateTask` | `assignee_status` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
+| `updateTask` | `assignee_section` | body | `--assignee-section` | `assignee_section` | ✅ |
+| `updateTask` | `assignee_status` | body | — | — | ➖ Deprecated by Asana; My Tasks scheduling now goes through assignee_section, which is covered. |
 | `updateTask` | `completed` | body | `--completed / --no-completed` | `completed` | ✅ MCP can send false to reopen |
-| `updateTask` | `completed_by` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
+| `updateTask` | `completed_by` | body | — | — | ➖ Read-only in the Asana TaskBase schema (readOnly: true); the audit listed it only because it sits in the shared schema. |
 | `updateTask` | `custom_fields` | body | `--custom-fields-json / --custom-field` | `custom_fields` | ✅ |
 | `updateTask` | `custom_type` | body | `--custom-type` | `custom_type` | ✅ |
-| `updateTask` | `custom_type_status_option` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
+| `updateTask` | `custom_type_status_option` | body | `--custom-type-status-option` | `custom_type_status_option` | ✅ |
 | `updateTask` | `due_at` | body | `--due-at / --clear-due-at` | `due_at / clear_due_at` | ✅ |
 | `updateTask` | `due_on` | body | `--due-on / --clear-due-on` | `due_on / clear_due_on` | ✅ |
-| `updateTask` | `external` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
-| `updateTask` | `html_custom_fields` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
+| `updateTask` | `external` | body | `--external-gid / --external-data` | `external` | ✅ |
+| `updateTask` | `html_custom_fields` | body | `--html-custom-fields-json / --html-custom-field` | `html_custom_fields` | ✅ |
 | `updateTask` | `html_notes` | body | `--html-notes` | `html_notes` | ✅ |
-| `updateTask` | `liked` | body | — | — | ❌ [#408](https://github.com/cyberuni/cyber-asana/issues/408) Gateway never sends it; no CLI flag and no MCP field |
+| `updateTask` | `liked` | body | `--liked / --no-liked` | `liked` | ✅ |
 | `updateTask` | `name` | body | `--name` | `name` | ✅ |
 | `updateTask` | `notes` | body | `--notes` | `notes` | ✅ |
 | `updateTask` | `parent` | body | `--parent-gid (or --parent) / --clear-parent` | `parent_gid / clear_parent` | ✅ Sent through setParentForTask, not in the updateTask body |

@@ -8,7 +8,9 @@ import {
 	addReadOptions,
 	itemsForOutput,
 	normalizedGid,
+	type PaginationCliOptions,
 	paginationOptionsFromCli,
+	parseLimit,
 	printNextPageHint,
 	readOptionsFromCli,
 	requiredGid,
@@ -28,6 +30,7 @@ import { isFull, truncate } from '../platform/truncate.js'
 import { listTags } from '../tags/default.js'
 import { resolveTagRefs } from '../tags/resolve.js'
 import { type CompletionFilter, type SearchTasksOptions, scanTodos, type TaskApi, type TodoMatch } from './api.js'
+import { APPROVAL_STATUSES } from './approval-status.js'
 import {
 	addDependencies,
 	addDependents,
@@ -64,6 +67,59 @@ import {
 	parseGidList,
 	placeInSection,
 } from './write-options.js'
+
+type TaskWriteCliOptions = {
+	approvalStatus?: string
+	assigneeSection?: string
+	customTypeStatusOption?: string
+	htmlCustomFieldsJson?: string
+	htmlCustomField?: string[]
+	liked?: boolean
+	externalGid?: string
+	externalData?: string
+}
+
+/** The write flags `task create`, `task update`, and `task subtask create` share. */
+function addTaskWriteOptions<T extends Command>(cmd: T) {
+	return cmd
+		.addOption(
+			new Option(
+				'--approval-status <status>',
+				'Approval status; only meaningful for tasks with resource subtype approval',
+			).choices(APPROVAL_STATUSES),
+		)
+		.option('--assignee-section <gid>', "GID of a section in the assignee's My Tasks")
+		.option(
+			'--custom-type-status-option <gid>',
+			'Custom type status option GID; Asana accepts it only for tasks with resource subtype custom',
+		)
+		.option(
+			'--html-custom-fields-json <json>',
+			'Text custom field values as HTML, a JSON object of field GID to "<body>...</body>"',
+		)
+		.option('--html-custom-field <gid=html>', 'Text custom field value as HTML, repeatable', collectOption, [])
+		.option('--liked', 'Like the task')
+		.option('--no-liked', 'Remove your like from the task')
+		.option('--external-gid <id>', 'ID of the task in an external app; Asana honours it only under an OAuth token')
+		.option(
+			'--external-data <string>',
+			'Data to store with the external link; Asana honours it only under an OAuth token',
+		)
+}
+
+/** The write flags above as the input `write-options` builds Asana's fields from. */
+function taskWriteInputFromCli(opts: TaskWriteCliOptions) {
+	return {
+		approvalStatus: opts.approvalStatus,
+		assigneeSection: opts.assigneeSection,
+		customTypeStatusOption: opts.customTypeStatusOption,
+		htmlCustomFieldsJson: opts.htmlCustomFieldsJson,
+		htmlCustomFieldEntries: opts.htmlCustomField,
+		liked: opts.liked,
+		externalGid: opts.externalGid,
+		externalData: opts.externalData,
+	}
+}
 
 const ASSIGNEE_FLAG = '--assignee <user>'
 const ASSIGNEE_DESCRIPTION = 'Assignee: user GID, "me", or an alias, email, or name registered with config add-user'
@@ -282,14 +338,37 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 
 	addPaginationOptions(
 		addCompletionOptions(
-			addGidOption(cmd.command('list').description('List tasks in a project'), 'project', 'Project GID'),
-		).option('--custom-type <gid>', 'Only tasks of this custom type GID ("" for tasks with no custom type)'),
+			addAssigneeOptions(
+				addGidOption(
+					addGidOption(
+						addGidOption(
+							cmd.command('list').description('List tasks in a project or a section, or assigned to a user'),
+							'project',
+							'Project GID',
+						),
+						'section',
+						'Section GID',
+					),
+					'workspace',
+					'Workspace GID, with --assignee',
+				),
+			),
+		)
+			.option('--custom-type <gid>', 'Only tasks of this custom type GID ("" for tasks with no custom type)')
+			.option('--modified-since <datetime>', 'Only tasks modified at or after this ISO 8601 date or time'),
 	).action(
 		async (
 			opts: CompletionCliOptions & {
 				project?: string
 				projectGid?: string
+				section?: string
+				sectionGid?: string
+				workspace?: string
+				workspaceGid?: string
+				assignee?: string
+				assigneeGid?: string
 				customType?: string
+				modifiedSince?: string
 				limit?: number
 				offset?: string
 				optFields?: string
@@ -297,9 +376,17 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 		) => {
 			const pagination = paginationOptionsFromCli(opts)
 			pagination.optFields ??= TASK_LIST_FIELDS
-			const data = await resolveTaskApi(api).listTasks(requiredGid(opts, 'project', 'Project GID'), {
+			const assignee = await assigneeFromCli(opts)
+			// The workspace env fallback only applies with --assignee; elsewhere a workspace was given on purpose.
+			const workspace =
+				assignee !== undefined ? normalizedGid(opts, 'workspace') : (opts.workspaceGid ?? opts.workspace)
+			const data = await resolveTaskApi(api).listTasks(normalizedGid(opts, 'project'), {
 				...completionFilterFromCli(opts),
 				...(opts.customType !== undefined && { customType: opts.customType }),
+				...(normalizedGid(opts, 'section') !== undefined && { section: normalizedGid(opts, 'section') }),
+				...(assignee !== undefined && { assignee }),
+				...(workspace !== undefined && { workspace }),
+				...(opts.modifiedSince !== undefined && { modifiedSince: opts.modifiedSince }),
 				...pagination,
 			})
 			output(data, () => printTaskListResult(data))
@@ -389,19 +476,21 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 			})
 		})
 
-	addAssigneeOptions(
-		addGidOption(
+	addTaskWriteOptions(
+		addAssigneeOptions(
 			addGidOption(
 				addGidOption(
-					addReadOptions(cmd.command('create <name>').description('Create a new task')),
-					'workspace',
-					'Workspace GID',
+					addGidOption(
+						addReadOptions(cmd.command('create <name>').description('Create a new task')),
+						'workspace',
+						'Workspace GID',
+					),
+					'project',
+					'Project GID',
 				),
-				'project',
-				'Project GID',
+				'parent',
+				'Parent task GID',
 			),
-			'parent',
-			'Parent task GID',
 		),
 	)
 		.option('--notes <text>', 'Task notes')
@@ -421,7 +510,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 		.action(
 			async (
 				name: string,
-				opts: {
+				opts: TaskWriteCliOptions & {
 					workspace?: string
 					workspaceGid?: string
 					project?: string
@@ -469,6 +558,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 						customType: opts.customType,
 						customFieldsJson: opts.customFieldsJson,
 						customFieldEntries: opts.customField,
+						...taskWriteInputFromCli(opts),
 					}),
 					conventions,
 				)
@@ -489,37 +579,39 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 			},
 		)
 
-	addAssigneeOptions(
-		addGidOption(
-			addReadOptions(cmd.command('update <gid>').description('Update a task'))
-				.option('--name <name>', 'New name')
-				.option('--notes <text>', 'New notes')
-				.option('--html-notes <html>', 'New notes as HTML')
-				.option('--completed', 'Mark as completed')
-				.option('--no-completed', 'Mark as incomplete (reopen a completed task)')
-				.option('--due-on <date>', 'Due date (YYYY-MM-DD)')
-				.option('--clear-due-on', 'Clear the due date')
-				.option('--due-at <datetime>', 'Due date and time (ISO 8601 UTC); not usable with --due-on')
-				.option('--clear-due-at', 'Clear the due date and time')
-				.option('--start-on <date>', 'Start date (YYYY-MM-DD)')
-				.option('--clear-start-on', 'Clear the start date')
-				.option('--start-at <datetime>', 'Start date and time (ISO 8601 UTC); Asana requires a due time alongside it')
-				.option('--clear-start-at', 'Clear the start date and time')
-				.option('--clear-assignee', 'Unassign the task')
-				.option('--clear-parent', 'Remove the parent task relationship')
-				.option('--insert-before <gid>', 'With --parent: place the task before this subtask of the parent')
-				.option('--insert-after <gid>', 'With --parent: place the task after this subtask of the parent')
-				.option('--resource-subtype <subtype>', 'Task resource subtype (e.g. default_task, milestone)')
-				.option('--custom-type <gid>', 'Custom type GID (e.g. an Epic or Initiative type)')
-				.option('--custom-fields-json <json>', 'Custom field values as a JSON object')
-				.option('--custom-field <gid=value>', 'Custom field value override', collectOption, []),
-			'parent',
-			'Parent task GID',
+	addTaskWriteOptions(
+		addAssigneeOptions(
+			addGidOption(
+				addReadOptions(cmd.command('update <gid>').description('Update a task'))
+					.option('--name <name>', 'New name')
+					.option('--notes <text>', 'New notes')
+					.option('--html-notes <html>', 'New notes as HTML')
+					.option('--completed', 'Mark as completed')
+					.option('--no-completed', 'Mark as incomplete (reopen a completed task)')
+					.option('--due-on <date>', 'Due date (YYYY-MM-DD)')
+					.option('--clear-due-on', 'Clear the due date')
+					.option('--due-at <datetime>', 'Due date and time (ISO 8601 UTC); not usable with --due-on')
+					.option('--clear-due-at', 'Clear the due date and time')
+					.option('--start-on <date>', 'Start date (YYYY-MM-DD)')
+					.option('--clear-start-on', 'Clear the start date')
+					.option('--start-at <datetime>', 'Start date and time (ISO 8601 UTC); Asana requires a due time alongside it')
+					.option('--clear-start-at', 'Clear the start date and time')
+					.option('--clear-assignee', 'Unassign the task')
+					.option('--clear-parent', 'Remove the parent task relationship')
+					.option('--insert-before <gid>', 'With --parent: place the task before this subtask of the parent')
+					.option('--insert-after <gid>', 'With --parent: place the task after this subtask of the parent')
+					.option('--resource-subtype <subtype>', 'Task resource subtype (e.g. default_task, milestone)')
+					.option('--custom-type <gid>', 'Custom type GID (e.g. an Epic or Initiative type)')
+					.option('--custom-fields-json <json>', 'Custom field values as a JSON object')
+					.option('--custom-field <gid=value>', 'Custom field value override', collectOption, []),
+				'parent',
+				'Parent task GID',
+			),
 		),
 	).action(
 		async (
 			gid: string,
-			opts: {
+			opts: TaskWriteCliOptions & {
 				name?: string
 				notes?: string
 				htmlNotes?: string
@@ -572,6 +664,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 					customType: opts.customType,
 					customFieldsJson: opts.customFieldsJson,
 					customFieldEntries: opts.customField,
+					...taskWriteInputFromCli(opts),
 				}),
 				readOptionsFromCli(opts),
 			)
@@ -678,24 +771,36 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 		},
 	)
 
-	addAssigneeOptions(
-		addReadOptions(subtaskCmd.command('create <task-gid> <name>').description('Create a subtask under a task'))
-			.option('--notes <text>', 'Task notes')
-			.option('--html-notes <html>', 'Task notes as HTML')
-			.option('--completed', 'Create the subtask already marked complete')
-			.option('--due-on <date>', 'Due date (YYYY-MM-DD)')
-			.option('--due-at <datetime>', 'Due date and time (ISO 8601 UTC); not usable with --due-on')
-			.option('--start-on <date>', 'Start date (YYYY-MM-DD)')
-			.option('--start-at <datetime>', 'Start date and time (ISO 8601 UTC); Asana requires a due time alongside it')
-			.option('--resource-subtype <subtype>', 'Task resource subtype (e.g. default_task, milestone)')
-			.option('--follower <gid[,gid...]>', 'Follower user GIDs')
-			.option('--custom-fields-json <json>', 'Custom field values as a JSON object')
-			.option('--custom-field <gid=value>', 'Custom field value override', collectOption, []),
+	addTaskWriteOptions(
+		addAssigneeOptions(
+			addGidOption(
+				addReadOptions(subtaskCmd.command('create <task-gid> <name>').description('Create a subtask under a task'))
+					.option('--notes <text>', 'Task notes')
+					.option('--html-notes <html>', 'Task notes as HTML')
+					.option('--completed', 'Create the subtask already marked complete')
+					.option('--due-on <date>', 'Due date (YYYY-MM-DD)')
+					.option('--due-at <datetime>', 'Due date and time (ISO 8601 UTC); not usable with --due-on')
+					.option('--start-on <date>', 'Start date (YYYY-MM-DD)')
+					.option('--start-at <datetime>', 'Start date and time (ISO 8601 UTC); Asana requires a due time alongside it')
+					.option('--resource-subtype <subtype>', 'Task resource subtype (e.g. default_task, milestone)')
+					.option('--custom-type <gid>', 'Custom type GID (e.g. an Epic or Initiative type)')
+					.option('--tag <gid[,gid...]>', 'Tag GIDs to apply')
+					.option('--follower <gid[,gid...]>', 'Follower user GIDs')
+					.option('--custom-fields-json <json>', 'Custom field values as a JSON object')
+					.option('--custom-field <gid=value>', 'Custom field value override', collectOption, []),
+				'project',
+				'Project GID or a name or alias registered with `config add`',
+			),
+		),
 	).action(
 		async (
 			taskGid: string,
 			name: string,
-			opts: {
+			opts: TaskWriteCliOptions & {
+				project?: string
+				projectGid?: string
+				customType?: string
+				tag?: string
 				notes?: string
 				htmlNotes?: string
 				completed?: boolean
@@ -721,13 +826,18 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 					completed: opts.completed,
 					assignee: await assigneeFromCli(opts),
 					followerInput: opts.follower,
+					// Unlike task create, no default project: a subtask follows its parent unless told otherwise.
+					projectInput: opts.projectGid ?? (opts.project ? await resolveProjectRef(opts.project) : undefined),
+					tagGids: parseGidList(opts.tag),
 					dueOn: opts.dueOn,
 					dueAt: opts.dueAt,
 					startOn: opts.startOn,
 					startAt: opts.startAt,
 					resourceSubtype: opts.resourceSubtype,
+					customType: opts.customType,
 					customFieldsJson: opts.customFieldsJson,
 					customFieldEntries: opts.customField,
+					...taskWriteInputFromCli(opts),
 				}),
 				readOptionsFromCli(opts),
 			)
@@ -795,6 +905,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 			'Filter on a custom field, repeatable; operator is value, is_set, less_than, greater_than, before, or after (premium)',
 			(value: string, previous: CustomFieldFilter[] = []) => [...previous, parseCustomFieldFilter(value)],
 		)
+		.option('--limit <number>', 'Results per call, from 1 to 100 (default: 100); search has no offset', parseLimit)
 		.option('--all', 'Page past the 100-result search cap (sorts by created_at ascending)')
 		.option('--max-pages <number>', 'Maximum pages to fetch with --all (default: 10)', (v: string) => {
 			const n = Number(v)
@@ -861,6 +972,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 					sortBy?: string
 					sortAsc?: boolean
 					customFieldFilter?: CustomFieldFilter[]
+					limit?: number
 					all?: boolean
 					maxPages?: number
 					optFields?: string
@@ -920,6 +1032,7 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 					resourceSubtype: opts.subtype,
 					sortBy: opts.sortBy,
 					sortAscending: opts.sortAsc,
+					...(opts.limit !== undefined && { limit: opts.limit }),
 					...(opts.customFieldFilter && { customFields: opts.customFieldFilter }),
 					optFields: opts.optFields ?? TASK_LIST_FIELDS,
 				}
@@ -1028,14 +1141,15 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 
 	const dependencyCmd = cmd.command('dependency').description('Manage task dependencies (tasks this task depends on)')
 
-	dependencyCmd
-		.command('list <task-gid>')
-		.description('List dependencies of a task')
-		.option('--opt-fields <fields>', 'Comma-separated Asana fields to include')
-		.action(async (taskGid: string, opts: { optFields?: string }) => {
-			const data = await resolveTaskApi(api).getDependencies(taskGid, { optFields: opts.optFields })
-			output(data, () => fmtTaskList(data))
-		})
+	addPaginationOptions(dependencyCmd.command('list <task-gid>').description('List dependencies of a task')).action(
+		async (taskGid: string, opts: PaginationCliOptions) => {
+			const data = await resolveTaskApi(api).getDependencies(taskGid, paginationOptionsFromCli(opts))
+			output(data, () => {
+				fmtTaskList(itemsForOutput(data))
+				printNextPageHint(data)
+			})
+		},
+	)
 
 	dependencyCmd
 		.command('add <task-gid> <dep-gids...>')
@@ -1059,14 +1173,15 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 
 	const dependentCmd = cmd.command('dependent').description('Manage task dependents (tasks that depend on this task)')
 
-	dependentCmd
-		.command('list <task-gid>')
-		.description('List dependents of a task')
-		.option('--opt-fields <fields>', 'Comma-separated Asana fields to include')
-		.action(async (taskGid: string, opts: { optFields?: string }) => {
-			const data = await resolveTaskApi(api).getDependents(taskGid, { optFields: opts.optFields })
-			output(data, () => fmtTaskList(data))
-		})
+	addPaginationOptions(dependentCmd.command('list <task-gid>').description('List dependents of a task')).action(
+		async (taskGid: string, opts: PaginationCliOptions) => {
+			const data = await resolveTaskApi(api).getDependents(taskGid, paginationOptionsFromCli(opts))
+			output(data, () => {
+				fmtTaskList(itemsForOutput(data))
+				printNextPageHint(data)
+			})
+		},
+	)
 
 	dependentCmd
 		.command('add <task-gid> <dep-gids...>')

@@ -8,6 +8,7 @@ import {
 } from '../platform/pagination.js'
 import { type ReadOptions, toAsanaReadOptions } from '../platform/read-options.js'
 import { createAsanaStoryGateway } from '../stories/gateway.js'
+import type { ApprovalStatus } from './approval-status.js'
 import type { RawCompletionFilter } from './completion-filter.js'
 
 /**
@@ -20,6 +21,17 @@ import type { RawCompletionFilter } from './completion-filter.js'
 export type TaskCustomFields = Record<string, unknown>
 
 export type CreateTaskFields = {
+	/** Approval status; meaningful only for `resource_subtype: approval`. Asana keeps it in sync with `completed`. */
+	approval_status?: ApprovalStatus
+	/** GID of a section in the assignee's My Tasks. */
+	assignee_section?: string
+	/** Custom type status option GID; Asana accepts it only when `resource_subtype` is `custom`. */
+	custom_type_status_option?: string
+	/** Text custom field values as HTML, keyed by field GID; each value is wrapped in `<body>`. */
+	html_custom_fields?: Record<string, string>
+	liked?: boolean
+	/** Link to an object in an external app; Asana honours it only under an OAuth token. */
+	external?: { gid?: string; data?: string }
 	notes?: string
 	html_notes?: string
 	completed?: boolean
@@ -41,6 +53,17 @@ export type CreateTaskFields = {
 }
 
 export type UpdateTaskFields = {
+	/** Approval status; meaningful only for `resource_subtype: approval`. Asana keeps it in sync with `completed`. */
+	approval_status?: ApprovalStatus
+	/** GID of a section in the assignee's My Tasks. */
+	assignee_section?: string
+	/** Custom type status option GID; Asana accepts it only when `resource_subtype` is `custom`. */
+	custom_type_status_option?: string
+	/** Text custom field values as HTML, keyed by field GID; each value is wrapped in `<body>`. */
+	html_custom_fields?: Record<string, string>
+	liked?: boolean
+	/** Link to an object in an external app; Asana honours it only under an OAuth token. */
+	external?: { gid?: string; data?: string }
 	name?: string
 	notes?: string
 	html_notes?: string
@@ -135,6 +158,8 @@ export type SearchTasksOptions = {
 	resourceSubtype?: string
 	sortBy?: string
 	sortAscending?: boolean
+	/** Page size sent to Asana, 1 to 100; search has no offset. */
+	limit?: number
 	optFields?: string
 }
 
@@ -144,14 +169,24 @@ export type SearchTasksOptions = {
  */
 export type TaskGatewayListOptions = PaginationOptions & RawCompletionFilter
 
-/** `customType` filters by custom type GID; an empty string selects tasks with no custom type. */
-export type TaskGatewayProjectListOptions = TaskGatewayListOptions & { customType?: string }
+/**
+ * What a task list through `GET /tasks` takes. `customType` filters by custom type GID (an empty string
+ * selects tasks with no custom type). `section`, or `assignee` together with `workspace`, scope the list
+ * in place of a project; `modifiedSince` keeps tasks modified at or after that time.
+ */
+export type TaskGatewayProjectListOptions = TaskGatewayListOptions & {
+	customType?: string
+	section?: string
+	assignee?: string
+	workspace?: string
+	modifiedSince?: string
+}
 
 /** What `duplicateTask` names the copy and which elements it carries over (Asana's `include` list). */
 export type DuplicateTaskFields = { name: string; include?: string[] }
 
 export type TaskGateway = {
-	listTasks(projectGid: string, opts?: TaskGatewayProjectListOptions): Promise<ListResult<Asana.Task>>
+	listTasks(projectGid: string | undefined, opts?: TaskGatewayProjectListOptions): Promise<ListResult<Asana.Task>>
 	listTasksForSection(sectionGid: string, opts?: TaskGatewayListOptions): Promise<ListResult<Asana.Task>>
 	getTask(taskGid: string, opts?: ReadOptions): Promise<Asana.Task>
 	getTasksByGid(taskGids: string[], opts?: { optFields?: string }): Promise<TaskBatchLookupResult[]>
@@ -171,8 +206,8 @@ export type TaskGateway = {
 	removeTaskFromProject(taskGid: string, projectGid: string): Promise<Asana.EmptyResponse>
 	addFollowersToTask(taskGid: string, followerGids: string[]): Promise<Asana.Task>
 	removeFollowersFromTask(taskGid: string, followerGids: string[]): Promise<Asana.Task>
-	getDependencies(taskGid: string, opts?: { optFields?: string }): Promise<Asana.Task[]>
-	getDependents(taskGid: string, opts?: { optFields?: string }): Promise<Asana.Task[]>
+	getDependencies(taskGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.Task>>
+	getDependents(taskGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.Task>>
 	addDependencies(taskGid: string, dependencyGids: string[]): Promise<Asana.EmptyResponse>
 	addDependents(taskGid: string, dependentGids: string[]): Promise<Asana.EmptyResponse>
 	removeDependencies(taskGid: string, dependencyGids: string[]): Promise<void>
@@ -215,12 +250,23 @@ export function createAsanaTaskGateway(client: Asana.ApiClient): TaskGateway {
 
 	return {
 		async listTasks(projectGid, opts) {
-			// Only GET /tasks takes custom_type; it returns the same project task list when scoped by project.
-			if (opts?.customType !== undefined) {
+			// Only GET /tasks takes custom_type, section, assignee+workspace and modified_since. Scoped by
+			// project alone it returns the same list as getTasksForProject, so that stays the plain path.
+			const viaGetTasks =
+				projectGid === undefined ||
+				opts?.customType !== undefined ||
+				opts?.modifiedSince !== undefined ||
+				opts?.section !== undefined ||
+				opts?.assignee !== undefined
+			if (viaGetTasks) {
 				const res = await tasksApi.getTasks({
-					project: projectGid,
-					custom_type: opts.customType,
-					completed_since: opts.incompleteOrCompletedSince,
+					...(projectGid !== undefined && { project: projectGid }),
+					...(opts?.section !== undefined && { section: opts.section }),
+					...(opts?.assignee !== undefined && { assignee: opts.assignee }),
+					...(opts?.workspace !== undefined && { workspace: opts.workspace }),
+					...(opts?.customType !== undefined && { custom_type: opts.customType }),
+					...(opts?.modifiedSince !== undefined && { modified_since: opts.modifiedSince }),
+					...(opts?.incompleteOrCompletedSince !== undefined && { completed_since: opts.incompleteOrCompletedSince }),
 					...toAsanaPaginationOptions(opts),
 				})
 				return await collectListResponse(res, opts)
@@ -366,12 +412,24 @@ export function createAsanaTaskGateway(client: Asana.ApiClient): TaskGateway {
 			return res.data
 		},
 		async getDependencies(taskGid, opts) {
-			const res = await tasksApi.getDependenciesForTask(taskGid, { opt_fields: opts?.optFields ?? DEFAULT_DEP_FIELDS })
-			return res.data
+			const res = await tasksApi.getDependenciesForTask(
+				taskGid,
+				toAsanaPaginationOptions(
+					{ ...opts, optFields: opts?.optFields ?? DEFAULT_DEP_FIELDS },
+					{ limit: opts?.limit !== undefined },
+				),
+			)
+			return await collectListResponse(res, opts ?? {}, { limit: opts?.limit !== undefined })
 		},
 		async getDependents(taskGid, opts) {
-			const res = await tasksApi.getDependentsForTask(taskGid, { opt_fields: opts?.optFields ?? DEFAULT_DEP_FIELDS })
-			return res.data
+			const res = await tasksApi.getDependentsForTask(
+				taskGid,
+				toAsanaPaginationOptions(
+					{ ...opts, optFields: opts?.optFields ?? DEFAULT_DEP_FIELDS },
+					{ limit: opts?.limit !== undefined },
+				),
+			)
+			return await collectListResponse(res, opts ?? {}, { limit: opts?.limit !== undefined })
 		},
 		async addDependencies(taskGid, dependencyGids) {
 			return tasksApi.addDependenciesForTask({ data: { dependencies: dependencyGids } }, taskGid)
@@ -441,6 +499,7 @@ export function createAsanaTaskGateway(client: Asana.ApiClient): TaskGateway {
 				resource_subtype: opts?.resourceSubtype,
 				sort_by: opts?.sortBy,
 				sort_ascending: opts?.sortAscending,
+				limit: opts?.limit,
 				opt_fields: opts?.optFields,
 			})
 			return res.data
