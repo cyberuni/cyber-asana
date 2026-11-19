@@ -1,0 +1,78 @@
+openapi: 3.0.0
+info:
+  title: Asana
+  version: "1.0"
+components:
+  parameters:
+    task_path_gid:
+      name: task_gid
+      in: path
+    pretty:
+      name: opt_pretty
+      in: query
+  schemas:
+    TaskBase:
+      type: object
+      properties:
+        gid:
+          type: string
+          readOnly: true
+        name:
+          type: string
+    TaskSetParentRequest:
+      allOf:
+        - $ref: "#/components/schemas/TaskBase"
+        - type: object
+          properties:
+            parent:
+              type: string
+            insert_after:
+              type: string
+            insert_before:
+              type: string
+paths:
+  /tasks/{task_gid}/setParent:
+    parameters:
+      - $ref: "#/components/parameters/task_path_gid"
+      - $ref: "#/components/parameters/pretty"
+    post:
+      tags:
+        - Tasks
+      operationId: setParentForTask
+      parameters:
+        - name: opt_fields
+          in: query
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: "#/components/schemas/TaskSetParentRequest"
+  /attachments:
+    post:
+      tags:
+        - Attachments
+      operationId: createAttachmentForObject
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                parent:
+                  type: string
+  /tasks/{task_gid}/stories:
+    get:
+      tags:
+        - Stories
+      operationId: getStoriesForTask
+      parameters:
+        - $ref: "#/components/parameters/task_path_gid"
+        - name: limit
+          in: query
+        - name: Asana-Enable
+          in: header

@@ -13,3 +13,6 @@ export const officialToolsReferenceUrl = 'https://developers.asana.com/docs/mcp-
 
 export const restBaselinePath = path.join(dataDir, 'asana-rest-baseline.json')
 export const asanaOpenApiUrl = 'https://raw.githubusercontent.com/Asana/openapi/master/defs/asana_oas.yaml'
+
+export const parameterCoveragePath = path.join(dataDir, 'parameter-coverage.json')
+export const parameterReportPath = path.join(workspaceRoot, 'apps/web/src/content/docs/reference/parameter-coverage.md')

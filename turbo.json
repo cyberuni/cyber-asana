@@ -17,6 +17,14 @@
 			"dependsOn": ["^build"],
 			"inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/readme.md"]
 		},
+		"@cyberuni/gap-analysis#test": {
+			"dependsOn": ["^build"],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"$TURBO_ROOT$/packages/cyber-asana/src/**",
+				"$TURBO_ROOT$/apps/web/src/content/docs/reference/parameter-coverage.md"
+			]
+		},
 		"dev": {
 			"persistent": true,
 			"cache": false

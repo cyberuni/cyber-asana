@@ -21,6 +21,9 @@ so an operation counts once however many CLI commands or MCP tools reach it. `ge
 out because it duplicates `getTagsForWorkspace`.
 :::
 
+Which options each wrapped operation takes, parameter by parameter, is on
+[Parameter Coverage](/cyber-asana/reference/parameter-coverage/).
+
 ## Coverage at a glance
 
 Asana documents **52 resource groups**. cyber-asana wraps **34** of them, **20** fully, and
