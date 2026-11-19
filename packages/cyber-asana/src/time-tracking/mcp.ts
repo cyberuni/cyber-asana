@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { deleteIdempotently } from '../platform/idempotent-delete.js'
 import { paginationOptions, paginationParams, readOptions, readParams } from '../platform/mcp/options.js'
 import type { TimeTrackingEntryApi, TimeTrackingEntryFields } from './api.js'
+import { BILLABLE_STATUSES } from './billing.js'
 import {
 	createTimeTrackingEntry,
 	deleteTimeTrackingEntry,
@@ -31,13 +32,47 @@ const json = (value: unknown) => ({ content: [{ type: 'text' as const, text: JSO
 const writeParams = {
 	duration_minutes: z.number().positive().optional().describe('Time spent, in minutes'),
 	entered_on: z.string().optional().describe('Date the time was spent (YYYY-MM-DD); Asana defaults to today'),
+	assignee_gid: z
+		.string()
+		.optional()
+		.describe(
+			'User GID the time is attributed to; defaults to the caller. Another user only if the caller is their time reviewer or an admin',
+		),
+	attributable_to_gid: z.string().optional().describe('Project GID the time is attributed to'),
+	billable_status: z
+		.enum(BILLABLE_STATUSES)
+		.optional()
+		.describe('Billing status. Needs the Timesheets and Budgets add-on (402 Payment Required without it)'),
+	category_gids: z
+		.array(z.string())
+		.optional()
+		.describe(
+			'Time tracking category GIDs; replaces existing categories. Asana allows at most one. Needs the Timesheets and Budgets add-on (402 Payment Required without it)',
+		),
+	description: z
+		.string()
+		.optional()
+		.describe('Note on the entry. Needs the Timesheets and Budgets add-on (402 Payment Required without it)'),
 	...readParams,
 }
 
-function fieldsFrom(params: { duration_minutes?: number; entered_on?: string }): TimeTrackingEntryFields {
+function fieldsFrom(params: {
+	duration_minutes?: number
+	entered_on?: string
+	assignee_gid?: string
+	attributable_to_gid?: string
+	billable_status?: (typeof BILLABLE_STATUSES)[number]
+	category_gids?: string[]
+	description?: string
+}): TimeTrackingEntryFields {
 	return {
 		...(params.duration_minutes !== undefined && { durationMinutes: params.duration_minutes }),
 		...(params.entered_on !== undefined && { enteredOn: params.entered_on }),
+		...(params.assignee_gid !== undefined && { assignee: params.assignee_gid }),
+		...(params.attributable_to_gid !== undefined && { attributableTo: params.attributable_to_gid }),
+		...(params.billable_status !== undefined && { billableStatus: params.billable_status }),
+		...(params.category_gids !== undefined && { categories: params.category_gids }),
+		...(params.description !== undefined && { description: params.description }),
 	}
 }
 
@@ -47,22 +82,45 @@ export function registerTimeTrackingEntryTools(
 ) {
 	server.tool(
 		'asana_time_entry_list',
-		'List Asana time tracking entries across tasks, filtered by task, user, portfolio, workspace, or period (paid plan)',
+		'List Asana time tracking entries across tasks, filtered by task, assignee, project, portfolio, workspace, or period (paid plan)',
 		{
 			task_gid: z.string().optional().describe('Only entries on this task'),
-			user_gid: z.string().optional().describe('Only entries logged by this user'),
+			assignee_gid: z.string().optional().describe('Only entries attributed to this user'),
+			user_gid: z.string().optional().describe('Same as assignee_gid; kept for older callers'),
+			attributable_to_gid: z.string().optional().describe('Only entries attributed to this project'),
+			timesheet_approval_status_gid: z
+				.string()
+				.optional()
+				.describe(
+					'Only entries with this timesheet approval status GID. Needs the Timesheets and Budgets add-on (402 Payment Required without it)',
+				),
 			portfolio_gid: z.string().optional().describe('Only entries on tasks in this portfolio'),
 			workspace_gid: z.string().optional().describe('Only entries in this workspace'),
 			entered_on_start: z.string().optional().describe('Only entries entered on or after this date (YYYY-MM-DD)'),
 			entered_on_end: z.string().optional().describe('Only entries entered on or before this date (YYYY-MM-DD)'),
 			...paginationParams,
 		},
-		async ({ task_gid, user_gid, portfolio_gid, workspace_gid, entered_on_start, entered_on_end, ...params }) =>
+		async ({
+			task_gid,
+			assignee_gid,
+			user_gid,
+			attributable_to_gid,
+			timesheet_approval_status_gid,
+			portfolio_gid,
+			workspace_gid,
+			entered_on_start,
+			entered_on_end,
+			...params
+		}) =>
 			json(
 				await resolveTimeTrackingEntryApi(api).listTimeTrackingEntries(
 					{
 						...(task_gid !== undefined && { task: task_gid }),
-						...(user_gid !== undefined && { user: user_gid }),
+						...((assignee_gid ?? user_gid) !== undefined && { assignee: assignee_gid ?? user_gid }),
+						...(attributable_to_gid !== undefined && { attributableTo: attributable_to_gid }),
+						...(timesheet_approval_status_gid !== undefined && {
+							timesheetApprovalStatus: timesheet_approval_status_gid,
+						}),
 						...(portfolio_gid !== undefined && { portfolio: portfolio_gid }),
 						...(workspace_gid !== undefined && { workspace: workspace_gid }),
 						...(entered_on_start !== undefined && { enteredOnStart: entered_on_start }),
@@ -102,12 +160,14 @@ export function registerTimeTrackingEntryTools(
 
 	server.tool(
 		'asana_time_entry_update',
-		'Update an Asana time tracking entry (paid plan). Give at least one of duration_minutes, entered_on',
+		'Update an Asana time tracking entry (paid plan). Give at least one of duration_minutes, entered_on, assignee_gid, attributable_to_gid, billable_status, category_gids, description. billable_status, category_gids and description need the Timesheets and Budgets add-on (402 without it)',
 		{ time_entry_gid: z.string().describe('Time tracking entry GID'), ...writeParams },
 		async ({ time_entry_gid, ...params }) => {
 			const fields = fieldsFrom(params)
 			if (Object.keys(fields).length === 0) {
-				throw new Error('Nothing to update: give at least one of duration_minutes, entered_on')
+				throw new Error(
+					'Nothing to update: give at least one of duration_minutes, entered_on, assignee_gid, attributable_to_gid, billable_status, category_gids, description',
+				)
 			}
 			return json(
 				await resolveTimeTrackingEntryApi(api).updateTimeTrackingEntry(time_entry_gid, fields, readOptions(params)),

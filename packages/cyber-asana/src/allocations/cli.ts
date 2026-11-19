@@ -169,15 +169,22 @@ export function allocationCommand(api?: AllocationApi | (() => AllocationApi)) {
 
 	const updateCmd = cmd
 		.command('update <gid>')
-		.description('Update an allocation')
+		.description('Update an allocation, or move it to another person or project')
+		.option('--assignee <gid>', 'New user GID or placeholder GID (me for yourself)')
+		.option('--parent <gid>', 'New project GID the allocation is on')
 		.option('--start-date <date>', 'New first day (YYYY-MM-DD)')
 		.option('--end-date <date>', 'New last day (YYYY-MM-DD)')
 	addReadOptions(effortOptions(updateCmd)).action(
-		async (gid: string, opts: Dates & { percent?: number; hours?: number; optFields?: string }) => {
+		async (
+			gid: string,
+			opts: Dates & { assignee?: string; parent?: string; percent?: number; hours?: number; optFields?: string },
+		) => {
 			const effort = effortFromCli(opts)
 			const data = await resolveAllocationApi(api).updateAllocation(
 				gid,
 				{
+					...(opts.assignee !== undefined && { assignee: opts.assignee }),
+					...(opts.parent !== undefined && { parent: opts.parent }),
 					...(opts.startDate !== undefined && { start_date: opts.startDate }),
 					...(opts.endDate !== undefined && { end_date: opts.endDate }),
 					...(effort && { effort }),

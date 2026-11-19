@@ -36,6 +36,78 @@ describe('time-tracking/gateway', () => {
 		expect(spy).toHaveBeenCalledWith({ data: { duration_minutes: 30 } }, 'e1', {})
 	})
 
+	it('create and update send assignee and attributable_to under Asana’s names', async () => {
+		const create = vi
+			.spyOn(Asana.TimeTrackingEntriesApi.prototype, 'createTimeTrackingEntry')
+			.mockResolvedValue({ data: entry } as never)
+		const update = vi
+			.spyOn(Asana.TimeTrackingEntriesApi.prototype, 'updateTimeTrackingEntry')
+			.mockResolvedValue({ data: entry } as never)
+		const gateway = createAsanaTimeTrackingEntryGateway(client)
+
+		await gateway.createTimeTrackingEntry('t1', { durationMinutes: 5, assignee: 'u2', attributableTo: 'p1' })
+		await gateway.updateTimeTrackingEntry('e1', { assignee: 'u3', attributableTo: 'p2' })
+
+		expect(create).toHaveBeenCalledWith(
+			{ data: { duration_minutes: 5, assignee: 'u2', attributable_to: 'p1' } },
+			't1',
+			{},
+		)
+		expect(update).toHaveBeenCalledWith({ data: { assignee: 'u3', attributable_to: 'p2' } }, 'e1', {})
+	})
+
+	it('list sends assignee and attributable_to, and sends the deprecated user filter as assignee', async () => {
+		const spy = vi
+			.spyOn(Asana.TimeTrackingEntriesApi.prototype, 'getTimeTrackingEntries')
+			.mockResolvedValue({ data: [entry] } as never)
+		const gateway = createAsanaTimeTrackingEntryGateway(client)
+
+		await gateway.listTimeTrackingEntries({ assignee: 'u1', attributableTo: 'p1' })
+		await gateway.listTimeTrackingEntries({ user: 'u2' })
+
+		expect(spy).toHaveBeenNthCalledWith(1, { assignee: 'u1', attributable_to: 'p1', limit: 100 })
+		expect(spy).toHaveBeenNthCalledWith(2, { assignee: 'u2', limit: 100 })
+	})
+
+	it('create and update send billable_status, categories and description under Asana’s names', async () => {
+		const create = vi
+			.spyOn(Asana.TimeTrackingEntriesApi.prototype, 'createTimeTrackingEntry')
+			.mockResolvedValue({ data: entry } as never)
+		const update = vi
+			.spyOn(Asana.TimeTrackingEntriesApi.prototype, 'updateTimeTrackingEntry')
+			.mockResolvedValue({ data: entry } as never)
+		const gateway = createAsanaTimeTrackingEntryGateway(client)
+
+		await gateway.createTimeTrackingEntry('t1', {
+			durationMinutes: 5,
+			billableStatus: 'nonBillable',
+			categories: ['c1'],
+			description: 'pairing',
+		})
+		await gateway.updateTimeTrackingEntry('e1', { billableStatus: 'billable', categories: [], description: '' })
+
+		expect(create).toHaveBeenCalledWith(
+			{ data: { duration_minutes: 5, billable_status: 'nonBillable', categories: ['c1'], description: 'pairing' } },
+			't1',
+			{},
+		)
+		expect(update).toHaveBeenCalledWith(
+			{ data: { billable_status: 'billable', categories: [], description: '' } },
+			'e1',
+			{},
+		)
+	})
+
+	it('list sends timesheet_approval_status', async () => {
+		const spy = vi
+			.spyOn(Asana.TimeTrackingEntriesApi.prototype, 'getTimeTrackingEntries')
+			.mockResolvedValue({ data: [entry] } as never)
+
+		await createAsanaTimeTrackingEntryGateway(client).listTimeTrackingEntries({ timesheetApprovalStatus: 's1' })
+
+		expect(spy).toHaveBeenCalledWith({ timesheet_approval_status: 's1', limit: 100 })
+	})
+
 	it('delete calls deleteTimeTrackingEntry', async () => {
 		const spy = vi
 			.spyOn(Asana.TimeTrackingEntriesApi.prototype, 'deleteTimeTrackingEntry')
@@ -52,13 +124,13 @@ describe('time-tracking/gateway', () => {
 			.mockResolvedValue({ data: [entry] } as never)
 
 		await createAsanaTimeTrackingEntryGateway(client).listTimeTrackingEntries(
-			{ task: 't1', user: 'u1', workspace: 'w1', enteredOnStart: '2026-11-01', enteredOnEnd: '2026-11-30' },
+			{ task: 't1', assignee: 'u1', workspace: 'w1', enteredOnStart: '2026-11-01', enteredOnEnd: '2026-11-30' },
 			{ limit: 10 },
 		)
 
 		expect(spy).toHaveBeenCalledWith({
 			task: 't1',
-			user: 'u1',
+			assignee: 'u1',
 			workspace: 'w1',
 			entered_on_start_date: '2026-11-01',
 			entered_on_end_date: '2026-11-30',
@@ -102,6 +174,18 @@ describe('time-tracking/api', () => {
 		expect(gateway.createTimeTrackingEntry).toHaveBeenCalledWith('t1', { durationMinutes: 5 }, undefined)
 		expect(gateway.updateTimeTrackingEntry).toHaveBeenCalledWith('e1', { durationMinutes: 6 }, undefined)
 		expect(gateway.deleteTimeTrackingEntry).toHaveBeenCalledWith('e1')
+	})
+})
+
+describe('time-tracking/api categories', () => {
+	it('rejects more than one category before calling the gateway', () => {
+		const gateway = { createTimeTrackingEntry: vi.fn(), updateTimeTrackingEntry: vi.fn() }
+		const api = createTimeTrackingEntryApi(gateway as never)
+
+		expect(() => api.createTimeTrackingEntry('t1', { categories: ['a', 'b'] })).toThrow(/at most one/)
+		expect(() => api.updateTimeTrackingEntry('e1', { categories: ['a', 'b'] })).toThrow(/at most one/)
+		expect(gateway.createTimeTrackingEntry).not.toHaveBeenCalled()
+		expect(gateway.updateTimeTrackingEntry).not.toHaveBeenCalled()
 	})
 })
 
@@ -159,10 +243,102 @@ describe('time-tracking/cli', () => {
 		await run({ listTimeTrackingEntries }, 'list', '--user', 'u1', '--from', '2026-11-01', '--to', '2026-11-30')
 
 		expect(listTimeTrackingEntries).toHaveBeenCalledWith(
-			{ user: 'u1', enteredOnStart: '2026-11-01', enteredOnEnd: '2026-11-30' },
+			{ assignee: 'u1', enteredOnStart: '2026-11-01', enteredOnEnd: '2026-11-30' },
 			expect.objectContaining({ optFields: expect.any(String) }),
 		)
 		expect(log.mock.calls.map((c) => String(c[0])).join('\n')).toContain('0 time entries found')
+	})
+
+	it('list takes --assignee and --attributable-to; --user stays an alias of --assignee', async () => {
+		const listTimeTrackingEntries = vi.fn().mockResolvedValue([entry])
+		vi.spyOn(console, 'log').mockImplementation(() => {})
+
+		await run({ listTimeTrackingEntries }, 'list', '--assignee', 'u2', '--attributable-to', 'p1')
+		await run({ listTimeTrackingEntries }, 'list', '--user-gid', 'u3')
+
+		expect(listTimeTrackingEntries).toHaveBeenNthCalledWith(
+			1,
+			{ assignee: 'u2', attributableTo: 'p1' },
+			expect.anything(),
+		)
+		expect(listTimeTrackingEntries).toHaveBeenNthCalledWith(2, { assignee: 'u3' }, expect.anything())
+	})
+
+	it('create and update take --assignee and --attributable-to', async () => {
+		const createTimeTrackingEntry = vi.fn().mockResolvedValue(entry)
+		const updateTimeTrackingEntry = vi.fn().mockResolvedValue(entry)
+		vi.spyOn(console, 'log').mockImplementation(() => {})
+
+		await run(
+			{ createTimeTrackingEntry },
+			'create',
+			't1',
+			'--minutes',
+			'5',
+			'--assignee',
+			'u2',
+			'--attributable-to',
+			'p1',
+		)
+		await run({ updateTimeTrackingEntry }, 'update', 'e1', '--assignee', 'u3')
+		await run({ updateTimeTrackingEntry }, 'update', 'e1', '--attributable-to', 'p2')
+
+		expect(createTimeTrackingEntry).toHaveBeenCalledWith(
+			't1',
+			{ durationMinutes: 5, assignee: 'u2', attributableTo: 'p1' },
+			undefined,
+		)
+		expect(updateTimeTrackingEntry).toHaveBeenNthCalledWith(1, 'e1', { assignee: 'u3' }, undefined)
+		expect(updateTimeTrackingEntry).toHaveBeenNthCalledWith(2, 'e1', { attributableTo: 'p2' }, undefined)
+	})
+
+	it('create and update take --billable-status, --category and --description', async () => {
+		const createTimeTrackingEntry = vi.fn().mockResolvedValue(entry)
+		const updateTimeTrackingEntry = vi.fn().mockResolvedValue(entry)
+		vi.spyOn(console, 'log').mockImplementation(() => {})
+
+		await run(
+			{ createTimeTrackingEntry },
+			'create',
+			't1',
+			'--minutes',
+			'5',
+			'--billable-status',
+			'nonBillable',
+			'--category',
+			'c1',
+			'--description',
+			'pairing',
+		)
+		await run({ updateTimeTrackingEntry }, 'update', 'e1', '--description', 'fixed')
+		await run({ updateTimeTrackingEntry }, 'update', 'e1', '--category', 'c2')
+		await run({ updateTimeTrackingEntry }, 'update', 'e1', '--billable-status', 'billable')
+
+		expect(createTimeTrackingEntry).toHaveBeenCalledWith(
+			't1',
+			{ durationMinutes: 5, billableStatus: 'nonBillable', categories: ['c1'], description: 'pairing' },
+			undefined,
+		)
+		expect(updateTimeTrackingEntry).toHaveBeenNthCalledWith(1, 'e1', { description: 'fixed' }, undefined)
+		expect(updateTimeTrackingEntry).toHaveBeenNthCalledWith(2, 'e1', { categories: ['c2'] }, undefined)
+		expect(updateTimeTrackingEntry).toHaveBeenNthCalledWith(3, 'e1', { billableStatus: 'billable' }, undefined)
+	})
+
+	it('rejects more than one --category before any request', async () => {
+		const createTimeTrackingEntry = vi.fn()
+		await expect(
+			run({ createTimeTrackingEntry }, 'create', 't1', '--minutes', '5', '--category', 'c1', '--category', 'c2'),
+		).rejects.toThrow(/at most one/)
+		expect(createTimeTrackingEntry).not.toHaveBeenCalled()
+	})
+
+	it('list takes --timesheet-approval-status', async () => {
+		const listTimeTrackingEntries = vi.fn().mockResolvedValue([entry])
+		vi.spyOn(console, 'log').mockImplementation(() => {})
+
+		await run({ listTimeTrackingEntries }, 'list', '--timesheet-approval-status', 's1')
+
+		expect(listTimeTrackingEntries).toHaveBeenCalledWith({ timesheetApprovalStatus: 's1' }, expect.anything())
 	})
 
 	it('for-task lists a task’s entries', async () => {
@@ -218,11 +394,71 @@ describe('time-tracking/mcp', () => {
 		)
 		expect(api.updateTimeTrackingEntry).toHaveBeenCalledWith('e1', { durationMinutes: 30 }, undefined)
 		expect(api.listTimeTrackingEntries).toHaveBeenCalledWith(
-			{ user: 'u1', enteredOnStart: '2026-11-01' },
+			{ assignee: 'u1', enteredOnStart: '2026-11-01' },
 			expect.objectContaining({ limit: 5 }),
 		)
 		expect(api.listTimeTrackingEntriesForTask).toHaveBeenCalledWith('t1', expect.anything())
 		expect(api.getTimeTrackingEntry).toHaveBeenCalledWith('e1', undefined)
 		expect(JSON.parse(del.content[0].text)).toMatchObject({ deleted: true, gid: 'e1' })
+	})
+
+	it('assignee_gid and attributable_to_gid reach the api on list, create and update', async () => {
+		const handlers = new Map<string, (p: any) => Promise<any>>()
+		const server = { tool: (n: string, _d: string, _s: unknown, h: (p: any) => Promise<any>) => handlers.set(n, h) }
+		const api = {
+			listTimeTrackingEntries: vi.fn().mockResolvedValue([entry]),
+			createTimeTrackingEntry: vi.fn().mockResolvedValue(entry),
+			updateTimeTrackingEntry: vi.fn().mockResolvedValue(entry),
+		}
+		registerTimeTrackingEntryTools(server as never, api as never)
+
+		await handlers.get('asana_time_entry_list')?.({ assignee_gid: 'u2', attributable_to_gid: 'p1' })
+		await handlers.get('asana_time_entry_create')?.({
+			task_gid: 't1',
+			duration_minutes: 5,
+			assignee_gid: 'u2',
+			attributable_to_gid: 'p1',
+		})
+		await handlers.get('asana_time_entry_update')?.({ time_entry_gid: 'e1', assignee_gid: 'u3' })
+
+		expect(api.listTimeTrackingEntries).toHaveBeenCalledWith(
+			{ assignee: 'u2', attributableTo: 'p1' },
+			expect.anything(),
+		)
+		expect(api.createTimeTrackingEntry).toHaveBeenCalledWith(
+			't1',
+			{ durationMinutes: 5, assignee: 'u2', attributableTo: 'p1' },
+			undefined,
+		)
+		expect(api.updateTimeTrackingEntry).toHaveBeenCalledWith('e1', { assignee: 'u3' }, undefined)
+	})
+
+	it('billable_status, category_gids, description and timesheet_approval_status_gid reach the api', async () => {
+		const handlers = new Map<string, (p: any) => Promise<any>>()
+		const server = { tool: (n: string, _d: string, _s: unknown, h: (p: any) => Promise<any>) => handlers.set(n, h) }
+		const api = {
+			listTimeTrackingEntries: vi.fn().mockResolvedValue([entry]),
+			createTimeTrackingEntry: vi.fn().mockResolvedValue(entry),
+			updateTimeTrackingEntry: vi.fn().mockResolvedValue(entry),
+		}
+		registerTimeTrackingEntryTools(server as never, api as never)
+
+		await handlers.get('asana_time_entry_list')?.({ timesheet_approval_status_gid: 's1' })
+		await handlers.get('asana_time_entry_create')?.({
+			task_gid: 't1',
+			duration_minutes: 5,
+			billable_status: 'billable',
+			category_gids: ['c1'],
+			description: 'pairing',
+		})
+		await handlers.get('asana_time_entry_update')?.({ time_entry_gid: 'e1', description: 'fixed' })
+
+		expect(api.listTimeTrackingEntries).toHaveBeenCalledWith({ timesheetApprovalStatus: 's1' }, expect.anything())
+		expect(api.createTimeTrackingEntry).toHaveBeenCalledWith(
+			't1',
+			{ durationMinutes: 5, billableStatus: 'billable', categories: ['c1'], description: 'pairing' },
+			undefined,
+		)
+		expect(api.updateTimeTrackingEntry).toHaveBeenCalledWith('e1', { description: 'fixed' }, undefined)
 	})
 })

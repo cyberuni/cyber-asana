@@ -34,13 +34,14 @@ cyber-asana allocation get <gid>
 cyber-asana allocation create --assignee <gid> --parent <project-gid> \
   --start-date 2026-01-05 --end-date 2026-01-18 --percent 50
 cyber-asana allocation update <gid> --hours 20
+cyber-asana allocation update <gid> --assignee <gid> --parent <project-gid>
 cyber-asana allocation delete <gid>
 ```
 
 | Command | Options |
 | --- | --- |
 | `create` | `--assignee`, `--parent`, `--start-date`, `--end-date` (all required), and `--percent <n>` or `--hours <n>` |
-| `update <gid>` | any of `--start-date`, `--end-date`, `--percent`, `--hours` |
+| `update <gid>` | any of `--assignee <gid>` (a user or placeholder; `me` works), `--parent <project-gid>`, `--start-date`, `--end-date`, `--percent`, `--hours` |
 | `delete <gid>` | — |
 
 `--percent` and `--hours` cannot be combined. Dates are ISO 8601 days (`YYYY-MM-DD`). Deleting an
@@ -50,4 +51,4 @@ allocation that is already gone succeeds and says so.
 
 `asana_allocation_list`, `asana_allocation_get`, `asana_allocation_create`,
 `asana_allocation_update`, and `asana_allocation_delete`. Create and update take `effort_type`
-(`hours` or `percent`) and `effort_value`.
+(`hours` or `percent`) and `effort_value`; update also takes `assignee_gid` and `parent_gid`.

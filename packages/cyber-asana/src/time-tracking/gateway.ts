@@ -6,6 +6,7 @@ import {
 	toAsanaPaginationOptions,
 } from '../platform/pagination.js'
 import { type ReadOptions, toAsanaReadOptions } from '../platform/read-options.js'
+import type { BillableStatus } from './billing.js'
 
 /** A time tracking entry as Asana returns it, as far as cyber-asana reads it. */
 export type TimeTrackingEntry = {
@@ -25,12 +26,32 @@ export type TimeTrackingEntryFields = {
 	durationMinutes?: number
 	/** `YYYY-MM-DD`; Asana defaults to today. */
 	enteredOn?: string
+	/**
+	 * User GID the logged time is attributed to; Asana defaults to the caller. Another user is accepted only
+	 * when the caller is that user's time reviewer or an admin.
+	 */
+	assignee?: string
+	/** Project GID the time is attributed to. */
+	attributableTo?: string
+	/** Needs the Timesheets and Budgets add-on; Asana answers 402 Payment Required without it. */
+	billableStatus?: BillableStatus
+	/** Time tracking category GIDs; replaces any existing ones. At most one. Needs the add-on (402 without it). */
+	categories?: string[]
+	/** Free-text note on the entry. Needs the add-on (402 without it). */
+	description?: string
 }
 
 /** The filters of the workspace-wide list; every one is optional and maps to a query parameter. */
 export type TimeTrackingEntryFilters = {
 	task?: string
+	/** User GID the logged time is attributed to. */
+	assignee?: string
+	/** @deprecated Asana deprecated its `user` query parameter for `assignee`; this is sent as `assignee`. */
 	user?: string
+	/** Project GID the time is attributed to. */
+	attributableTo?: string
+	/** Timesheet approval status GID. Needs the Timesheets and Budgets add-on (402 without it). */
+	timesheetApprovalStatus?: string
 	portfolio?: string
 	workspace?: string
 	enteredOnStart?: string
@@ -62,6 +83,11 @@ function bodyOf(fields: TimeTrackingEntryFields) {
 		data: {
 			...(fields.durationMinutes !== undefined && { duration_minutes: fields.durationMinutes }),
 			...(fields.enteredOn !== undefined && { entered_on: fields.enteredOn }),
+			...(fields.assignee !== undefined && { assignee: fields.assignee }),
+			...(fields.attributableTo !== undefined && { attributable_to: fields.attributableTo }),
+			...(fields.billableStatus !== undefined && { billable_status: fields.billableStatus }),
+			...(fields.categories !== undefined && { categories: fields.categories }),
+			...(fields.description !== undefined && { description: fields.description }),
 		},
 	}
 }
@@ -71,9 +97,14 @@ export function createAsanaTimeTrackingEntryGateway(client: Asana.ApiClient): Ti
 
 	return {
 		async listTimeTrackingEntries(filters, opts) {
+			const assignee = filters?.assignee ?? filters?.user
 			const res = await entriesApi.getTimeTrackingEntries({
 				...(filters?.task !== undefined && { task: filters.task }),
-				...(filters?.user !== undefined && { user: filters.user }),
+				...(assignee !== undefined && { assignee }),
+				...(filters?.attributableTo !== undefined && { attributable_to: filters.attributableTo }),
+				...(filters?.timesheetApprovalStatus !== undefined && {
+					timesheet_approval_status: filters.timesheetApprovalStatus,
+				}),
 				...(filters?.portfolio !== undefined && { portfolio: filters.portfolio }),
 				...(filters?.workspace !== undefined && { workspace: filters.workspace }),
 				...(filters?.enteredOnStart !== undefined && { entered_on_start_date: filters.enteredOnStart }),

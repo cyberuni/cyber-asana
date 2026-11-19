@@ -39,7 +39,7 @@ export type AllocationCreateFields = {
 	effort?: AllocationEffort
 }
 
-export type AllocationUpdateFields = Partial<Omit<AllocationCreateFields, 'assignee' | 'parent'>>
+export type AllocationUpdateFields = Partial<AllocationCreateFields>
 
 export type AllocationGateway = {
 	listAllocations(opts?: AllocationListOptions): Promise<ListResult<Allocation>>
