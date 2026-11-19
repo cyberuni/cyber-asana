@@ -291,11 +291,21 @@ export function registerCustomFieldTools(server: McpServer, api?: CustomFieldApi
 			project_gid: z.string().describe('Project GID'),
 			custom_field_gid: z.string().describe('Custom field GID'),
 			is_important: z.boolean().optional().describe('Show the field on the project list by default'),
+			insert_before: z
+				.string()
+				.optional()
+				.describe('Custom field setting GID on this project to place the field before; not with insert_after'),
+			insert_after: z
+				.string()
+				.optional()
+				.describe('Custom field setting GID on this project to place the field after; not with insert_before'),
 		},
-		async ({ project_gid, custom_field_gid, is_important }) =>
+		async ({ project_gid, custom_field_gid, is_important, insert_before, insert_after }) =>
 			json(
 				await resolveCustomFieldApi(api).attachCustomField(project_gid, custom_field_gid, {
 					...(is_important !== undefined && { isImportant: is_important }),
+					...(insert_before !== undefined && { insertBefore: insert_before }),
+					...(insert_after !== undefined && { insertAfter: insert_after }),
 				}),
 			),
 	)
@@ -318,11 +328,21 @@ export function registerCustomFieldTools(server: McpServer, api?: CustomFieldApi
 			portfolio_gid: z.string().describe('Portfolio GID'),
 			custom_field_gid: z.string().describe('Custom field GID'),
 			is_important: z.boolean().optional().describe('Show the field on the portfolio list by default'),
+			insert_before: z
+				.string()
+				.optional()
+				.describe('Custom field setting GID on this portfolio to place the field before; not with insert_after'),
+			insert_after: z
+				.string()
+				.optional()
+				.describe('Custom field setting GID on this portfolio to place the field after; not with insert_before'),
 		},
-		async ({ portfolio_gid, custom_field_gid, is_important }) =>
+		async ({ portfolio_gid, custom_field_gid, is_important, insert_before, insert_after }) =>
 			json(
 				await resolveCustomFieldApi(api).attachCustomFieldToPortfolio(portfolio_gid, custom_field_gid, {
 					...(is_important !== undefined && { isImportant: is_important }),
+					...(insert_before !== undefined && { insertBefore: insert_before }),
+					...(insert_after !== undefined && { insertAfter: insert_after }),
 				}),
 			),
 	)

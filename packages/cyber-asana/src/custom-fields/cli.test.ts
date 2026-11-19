@@ -469,6 +469,21 @@ describe('custom-fields/cli writes', () => {
 		expect(logged).toContain('Detached custom field cf1 from portfolio pf1')
 	})
 
+	it('attach and attach-portfolio place the field with --insert-before or --insert-after', async () => {
+		const attachCustomField = vi.fn().mockResolvedValue({ project: 'p1', custom_field: 'cf1', status: 'attached' })
+		const attachCustomFieldToPortfolio = vi
+			.fn()
+			.mockResolvedValue({ portfolio: 'pf1', custom_field: 'cf1', status: 'attached' })
+		vi.spyOn(console, 'log').mockImplementation(() => {})
+		const api = writeApi({ attachCustomField, attachCustomFieldToPortfolio })
+
+		await run(api, 'attach', 'p1', 'cf1', '--insert-before', 's1')
+		await run(api, 'attach-portfolio', 'pf1', 'cf1', '--insert-after', 's2')
+
+		expect(attachCustomField).toHaveBeenCalledWith('p1', 'cf1', { insertBefore: 's1' })
+		expect(attachCustomFieldToPortfolio).toHaveBeenCalledWith('pf1', 'cf1', { insertAfter: 's2' })
+	})
+
 	it('attach and detach report an idempotent status', async () => {
 		const attachCustomField = vi
 			.fn()

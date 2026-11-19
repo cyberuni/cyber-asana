@@ -306,6 +306,26 @@ describe('custom-fields/mcp writes', () => {
 		expect(JSON.parse(detached.content[0].text).status).toBe('already_detached')
 	})
 
+	it('attach tools pass insert_before and insert_after through', async () => {
+		const attachCustomField = vi.fn().mockResolvedValue({ status: 'attached' })
+		const attachCustomFieldToPortfolio = vi.fn().mockResolvedValue({ status: 'attached' })
+		const server = setup({ attachCustomField, attachCustomFieldToPortfolio })
+
+		await server.handlers.get('asana_custom_field_attach')?.({
+			project_gid: 'p1',
+			custom_field_gid: 'cf1',
+			insert_before: 's1',
+		})
+		await server.handlers.get('asana_custom_field_attach_portfolio')?.({
+			portfolio_gid: 'pf1',
+			custom_field_gid: 'cf1',
+			insert_after: 's2',
+		})
+
+		expect(attachCustomField).toHaveBeenCalledWith('p1', 'cf1', { insertBefore: 's1' })
+		expect(attachCustomFieldToPortfolio).toHaveBeenCalledWith('pf1', 'cf1', { insertAfter: 's2' })
+	})
+
 	it('attach and detach tools return the idempotent status', async () => {
 		const attachCustomField = vi.fn().mockResolvedValue({ status: 'attached' })
 		const detachCustomField = vi.fn().mockResolvedValue({ status: 'already_detached' })

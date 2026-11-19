@@ -413,18 +413,28 @@ export function customFieldCommand(api?: CustomFieldApi | (() => CustomFieldApi)
 		.command('attach <project-gid> <field-gid>')
 		.description('Attach a custom field to a project (no-op when it already is)')
 		.option('--important', 'Show the field on the project list by default')
-		.action(async (projectGid: string, fieldGid: string, opts: { important?: boolean }) => {
-			const result = await resolveCustomFieldApi(api).attachCustomField(projectGid, fieldGid, {
-				...(opts.important && { isImportant: true }),
-			})
-			output(result, () =>
-				console.log(
-					result.status === 'attached'
-						? `Attached custom field ${fieldGid} to project ${projectGid}`
-						: `Custom field ${fieldGid} was already attached to project ${projectGid}`,
-				),
-			)
-		})
+		.option('--insert-before <setting-gid>', 'Place it before this custom field setting of the project')
+		.option('--insert-after <setting-gid>', 'Place it after this custom field setting of the project')
+		.action(
+			async (
+				projectGid: string,
+				fieldGid: string,
+				opts: { important?: boolean; insertBefore?: string; insertAfter?: string },
+			) => {
+				const result = await resolveCustomFieldApi(api).attachCustomField(projectGid, fieldGid, {
+					...(opts.important && { isImportant: true }),
+					...(opts.insertBefore !== undefined && { insertBefore: opts.insertBefore }),
+					...(opts.insertAfter !== undefined && { insertAfter: opts.insertAfter }),
+				})
+				output(result, () =>
+					console.log(
+						result.status === 'attached'
+							? `Attached custom field ${fieldGid} to project ${projectGid}`
+							: `Custom field ${fieldGid} was already attached to project ${projectGid}`,
+					),
+				)
+			},
+		)
 
 	cmd
 		.command('detach <project-gid> <field-gid>')
@@ -444,18 +454,28 @@ export function customFieldCommand(api?: CustomFieldApi | (() => CustomFieldApi)
 		.command('attach-portfolio <portfolio-gid> <field-gid>')
 		.description('Attach a custom field to a portfolio (no-op when it already is)')
 		.option('--important', 'Show the field on the portfolio list by default')
-		.action(async (portfolioGid: string, fieldGid: string, opts: { important?: boolean }) => {
-			const result = await resolveCustomFieldApi(api).attachCustomFieldToPortfolio(portfolioGid, fieldGid, {
-				...(opts.important && { isImportant: true }),
-			})
-			output(result, () =>
-				console.log(
-					result.status === 'attached'
-						? `Attached custom field ${fieldGid} to portfolio ${portfolioGid}`
-						: `Custom field ${fieldGid} was already attached to portfolio ${portfolioGid}`,
-				),
-			)
-		})
+		.option('--insert-before <setting-gid>', 'Place it before this custom field setting of the portfolio')
+		.option('--insert-after <setting-gid>', 'Place it after this custom field setting of the portfolio')
+		.action(
+			async (
+				portfolioGid: string,
+				fieldGid: string,
+				opts: { important?: boolean; insertBefore?: string; insertAfter?: string },
+			) => {
+				const result = await resolveCustomFieldApi(api).attachCustomFieldToPortfolio(portfolioGid, fieldGid, {
+					...(opts.important && { isImportant: true }),
+					...(opts.insertBefore !== undefined && { insertBefore: opts.insertBefore }),
+					...(opts.insertAfter !== undefined && { insertAfter: opts.insertAfter }),
+				})
+				output(result, () =>
+					console.log(
+						result.status === 'attached'
+							? `Attached custom field ${fieldGid} to portfolio ${portfolioGid}`
+							: `Custom field ${fieldGid} was already attached to portfolio ${portfolioGid}`,
+					),
+				)
+			},
+		)
 
 	cmd
 		.command('detach-portfolio <portfolio-gid> <field-gid>')

@@ -30,7 +30,7 @@ cyber-asana custom-field get <gid>
 | `enum-option add` | `<field-gid> <name>` | `--color`, `--insert-before <option-gid>`, `--insert-after <option-gid>` |
 | `enum-option move` | `<field-gid> <option-gid>` | exactly one of `--before <option-gid>`, `--after <option-gid>` |
 | `enum-option update` | `<option-gid>` | `--name`, `--color`, `--disabled`, `--enabled` |
-| `attach` | `<project-gid> <field-gid>` | `--important` |
+| `attach` | `<project-gid> <field-gid>` | `--important`, `--insert-before <setting-gid>` or `--insert-after <setting-gid>` (a custom field setting of the project; default is last) |
 | `detach` | `<project-gid> <field-gid>` | — |
 
 `list` requests `gid,name,resource_subtype` by default. The subtype is the part that matters
@@ -87,7 +87,8 @@ cyber-asana custom-field enum-option add <field-gid> "Sprint 2" --insert-after <
 ```
 
 Portfolios take the same two commands, `attach-portfolio <portfolio-gid> <field-gid>` and
-`detach-portfolio <portfolio-gid> <field-gid>` (paid plan).
+`detach-portfolio <portfolio-gid> <field-gid>` (paid plan). `attach-portfolio` takes the same
+`--important`, `--insert-before`, and `--insert-after` options.
 
 `attach`, `detach`, and their portfolio forms are idempotent: attaching a field the project already has, or detaching
 one it does not have, exits `0` with status `already_attached` or `already_detached` and

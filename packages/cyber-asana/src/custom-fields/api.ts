@@ -77,6 +77,7 @@ export function createCustomFieldApi(gateway: CustomFieldGateway) {
 		},
 		/** Attaching a field the project already has succeeds with `already_attached` and writes nothing. */
 		async attachCustomField(projectGid: string, customFieldGid: string, opts?: AddCustomFieldToProjectOptions) {
+			assertOnePosition(opts)
 			if (await isAttached(projectGid, customFieldGid)) {
 				return { project: projectGid, custom_field: customFieldGid, status: 'already_attached' as const }
 			}
@@ -97,6 +98,7 @@ export function createCustomFieldApi(gateway: CustomFieldGateway) {
 			customFieldGid: string,
 			opts?: AddCustomFieldToProjectOptions,
 		) {
+			assertOnePosition(opts)
 			if (await isAttachedToPortfolio(portfolioGid, customFieldGid)) {
 				return { portfolio: portfolioGid, custom_field: customFieldGid, status: 'already_attached' as const }
 			}
@@ -111,5 +113,12 @@ export function createCustomFieldApi(gateway: CustomFieldGateway) {
 			await gateway.removeCustomFieldFromPortfolio(portfolioGid, customFieldGid)
 			return { portfolio: portfolioGid, custom_field: customFieldGid, status: 'detached' as const }
 		},
+	}
+}
+
+/** Asana rejects a custom field setting placed both before and after another; fail before any request. */
+function assertOnePosition(opts?: AddCustomFieldToProjectOptions) {
+	if (opts?.insertBefore !== undefined && opts.insertAfter !== undefined) {
+		throw new Error('insert_before and insert_after cannot both be given')
 	}
 }

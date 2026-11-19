@@ -18,14 +18,14 @@
 					"mcp": "custom_field_gid"
 				},
 				"insert_after": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/406",
-					"note": "no CLI flag and no MCP field"
+					"status": "covered",
+					"cli": "--insert-after",
+					"mcp": "insert_after"
 				},
 				"insert_before": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/406",
-					"note": "no CLI flag and no MCP field"
+					"status": "covered",
+					"cli": "--insert-before",
+					"mcp": "insert_before"
 				},
 				"is_important": {
 					"status": "covered",
@@ -55,14 +55,14 @@
 					"mcp": "custom_field_gid"
 				},
 				"insert_after": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/406",
-					"note": "gateway supports it; CLI has no flag; MCP has none"
+					"status": "covered",
+					"cli": "--insert-after",
+					"mcp": "insert_after"
 				},
 				"insert_before": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/406",
-					"note": "gateway supports it; CLI has no flag; MCP has none"
+					"status": "covered",
+					"cli": "--insert-before",
+					"mcp": "insert_before"
 				},
 				"is_important": {
 					"status": "covered",
@@ -5464,14 +5464,12 @@
 					"note": "gateway sends no opt_fields; CLI has no flag; MCP has none"
 				},
 				"insert_after": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/406",
-					"note": "updateSection sends only name; CLI and MCP reposition a section through section move (insertSectionForProject), not through update"
+					"status": "skipped",
+					"reason": "Asana documents name as the only field updateSection changes; the insert fields come from the SectionRequest schema it shares with createSection. Reposition a section with section move (insertSectionForProject)"
 				},
 				"insert_before": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/406",
-					"note": "updateSection sends only name; CLI and MCP reposition a section through section move (insertSectionForProject), not through update"
+					"status": "skipped",
+					"reason": "Asana documents name as the only field updateSection changes; the insert fields come from the SectionRequest schema it shares with createSection. Reposition a section with section move (insertSectionForProject)"
 				},
 				"name": {
 					"status": "covered",
