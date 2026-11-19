@@ -1,5 +1,12 @@
 # cyber-asana
 
+## 0.30.0
+
+### Minor Changes
+
+- cead0a0: Skills run the CLI through a forwarder in each skill folder, `node <this skill's folder>/scripts/cyber-asana.mjs`, written by universal-plugin 0.23.0. It runs the plugin's own version on every install route (Claude Code, Cursor, Codex, Copilot CLI) and the local build in a checkout. The `bin/cyber-asana` launcher is removed: only Claude Code put it on `PATH`. The `link-pr` route runs repobuddy through a forwarder pinned to `repobuddy@2.2.0`.
+- 64fed1e: `task update --parent` takes `--insert-before` or `--insert-after` to place the task among the new parent's subtasks, instead of always first. `task reorder <gid>` (MCP `asana_task_reorder`) moves a subtask before or after a sibling under the parent it already has.
+
 ## 0.29.0
 
 ### Minor Changes
