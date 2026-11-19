@@ -33,6 +33,8 @@ export type CreateRecordOptions = {
 	customFields?: RecordCustomFields
 	/** A second record with the same fingerprint in the same table fails with 409 instead of duplicating. */
 	uniqueFingerprint?: string
+	/** Default access for new members of the record. */
+	defaultAccessLevel?: AccessLevel
 }
 
 /** Fields Asana accepts on a record update, from developers.asana.com (`RecordItemUpdateRequest`). */
@@ -93,6 +95,9 @@ export type RecordStoryFilters = {
 export type RecordStoryFields = {
 	text?: string
 	html_text?: string
+	is_pinned?: boolean
+	/** One of the sticker names a task story takes (`STICKER_NAMES`). */
+	sticker_name?: string
 }
 
 export type RecordGateway = {
@@ -163,6 +168,7 @@ export function createAsanaRecordGateway(client: Asana.ApiClient): RecordGateway
 						table: tableGid,
 						...(opts?.customFields !== undefined && { custom_fields: opts.customFields }),
 						...(opts?.uniqueFingerprint !== undefined && { unique_fingerprint: opts.uniqueFingerprint }),
+						...(opts?.defaultAccessLevel !== undefined && { default_access_level: opts.defaultAccessLevel }),
 					},
 				},
 				toAsanaReadOptions(readOpts),

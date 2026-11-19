@@ -193,6 +193,8 @@ Most create and update tools accept `opt_fields` as well, to choose the fields o
 - `asana_goal_metric_set` — `is_custom_weight`, relevant only for the `subgoal_progress`, `project_task_completion`, `project_milestone_completion` and `task_completion` progress sources
 - `asana_time_period_list` — `start_on`, `end_on` (`YYYY-MM-DD`)
 - `asana_story_create` / `asana_comment_create` — `template: true` interpolates `{task.name}`, `{task.assignee}`, `{task.due_on}`, `{task.notes}`
+- `asana_story_list` / `asana_comment_list` / `asana_story_goal_list` — `created_after` (ISO 8601 date-time, exclusive, second granularity), `comments_only` (sends `resource_subtype=comment_added`), `sort_ascending` (`false` for newest first); they combine with `limit` and `offset`
+- `asana_story_create` / `asana_comment_create` — `parent_comment_gid` replies in a thread: it is the top-level comment's `comment_gid` (read it with `opt_fields: comment_gid`), not its story GID, and the parent must be on the same task
 - `asana_story_create` / `asana_story_update` (and the `comment` aliases) — `is_pinned` pins the comment to the top of its task; `sticker_name` attaches one of Asana's stickers
 - `asana_story_update` / `asana_story_delete` (and the `comment` aliases) — take `story_gid`; only comment stories you authored can be changed, and a refusal is a `403` carrying that as a hint
 - `asana_search_objects` — `resource_type` (one per call), `query`, `count` (1–100, default 20), `opt_fields`. Turns a name into a GID; not paginated and not exhaustive

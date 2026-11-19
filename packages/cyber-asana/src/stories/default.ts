@@ -1,15 +1,14 @@
 import { createClient } from '../platform/client.js'
-import type { PaginationOptions } from '../platform/pagination.js'
 import type { ReadOptions } from '../platform/read-options.js'
 import { createStoryApi } from './api.js'
-import { createAsanaStoryGateway } from './gateway.js'
-import type { StoryCreateFields, StoryUpdateFields } from './write-options.js'
+import { createAsanaStoryGateway, type StoryListOptions } from './gateway.js'
+import type { GoalStoryCreateFields, StoryCreateFields, StoryUpdateFields } from './write-options.js'
 
 function defaultStoryApi() {
 	return createStoryApi(createAsanaStoryGateway(createClient()))
 }
 
-export async function listStories(taskGid: string, opts?: PaginationOptions) {
+export async function listStories(taskGid: string, opts?: StoryListOptions) {
 	return defaultStoryApi().listStories(taskGid, opts)
 }
 
@@ -33,10 +32,10 @@ export async function getTaskTemplateData(taskGid: string) {
 	return defaultStoryApi().getTaskTemplateData(taskGid)
 }
 
-export async function listGoalStories(goalGid: string, opts?: PaginationOptions) {
+export async function listGoalStories(goalGid: string, opts?: StoryListOptions) {
 	return defaultStoryApi().listGoalStories(goalGid, opts)
 }
 
-export async function createGoalStory(goalGid: string, fields: StoryCreateFields, opts?: ReadOptions) {
+export async function createGoalStory(goalGid: string, fields: GoalStoryCreateFields, opts?: ReadOptions) {
 	return defaultStoryApi().createGoalStory(goalGid, fields, opts)
 }

@@ -15,6 +15,29 @@ function gatewayDouble(): RecordGateway {
 	}
 }
 
+describe('createRecordApi story decorations', () => {
+	it('createRecordStory passes is_pinned and a known sticker_name to the gateway', async () => {
+		const gateway = gatewayDouble()
+
+		await createRecordApi(gateway).createRecordStory('r1', { text: 'hi', is_pinned: true, sticker_name: 'trophy' })
+
+		expect(gateway.createRecordStory).toHaveBeenCalledWith(
+			'r1',
+			{ text: 'hi', is_pinned: true, sticker_name: 'trophy' },
+			undefined,
+		)
+	})
+
+	it('createRecordStory rejects an unknown sticker_name before calling the gateway', async () => {
+		const gateway = gatewayDouble()
+
+		await expect(
+			createRecordApi(gateway).createRecordStory('r1', { text: 'hi', sticker_name: 'nope' }),
+		).rejects.toThrow(/sticker_name must be one of/)
+		expect(gateway.createRecordStory).not.toHaveBeenCalled()
+	})
+})
+
 describe('createRecordApi', () => {
 	it('delegates every operation to the gateway', async () => {
 		const gateway = gatewayDouble()

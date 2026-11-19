@@ -2,6 +2,7 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import { deleteIdempotently } from '../platform/idempotent-delete.js'
 import { paginationOptions, paginationParams, readOptions, readParams } from '../platform/mcp/options.js'
+import { STICKER_NAMES } from '../stories/write-options.js'
 import { ACCESS_LEVELS } from '../tables/access-level.js'
 import type { RecordApi, RecordSearchFilters } from './api.js'
 import {
@@ -125,9 +126,10 @@ export function registerRecordTools(server: McpServer, api?: RecordApi | (() => 
 				.describe(
 					'Client-chosen identifier: a duplicate in the same table fails with 409 instead of creating a second record',
 				),
+			default_access_level: z.enum(ACCESS_LEVELS).optional().describe('Default access level for new members'),
 			...readParams,
 		},
-		async ({ table_gid, name, custom_fields, unique_fingerprint, ...params }) =>
+		async ({ table_gid, name, custom_fields, unique_fingerprint, default_access_level, ...params }) =>
 			json(
 				await resolveRecordApi(api).createRecord(
 					table_gid,
@@ -135,6 +137,7 @@ export function registerRecordTools(server: McpServer, api?: RecordApi | (() => 
 					{
 						...(custom_fields !== undefined && { customFields: custom_fields }),
 						...(unique_fingerprint !== undefined && { uniqueFingerprint: unique_fingerprint }),
+						...(default_access_level !== undefined && { defaultAccessLevel: default_access_level }),
 					},
 					readOptions(params),
 				),
@@ -204,15 +207,19 @@ export function registerRecordTools(server: McpServer, api?: RecordApi | (() => 
 			record_gid: z.string().describe('Record GID'),
 			text: z.string().optional().describe('Comment text'),
 			html_text: z.string().optional().describe('Comment as Asana rich text HTML'),
+			is_pinned: z.boolean().optional().describe('Pin the new comment on the record'),
+			sticker_name: z.enum(STICKER_NAMES).optional().describe('Sticker to attach to the comment'),
 			...readParams,
 		},
-		async ({ record_gid, text, html_text, ...params }) =>
+		async ({ record_gid, text, html_text, is_pinned, sticker_name, ...params }) =>
 			json(
 				await resolveRecordApi(api).createRecordStory(
 					record_gid,
 					{
 						...(text !== undefined && { text }),
 						...(html_text !== undefined && { html_text }),
+						...(is_pinned !== undefined && { is_pinned }),
+						...(sticker_name !== undefined && { sticker_name }),
 					},
 					readOptions(params),
 				),

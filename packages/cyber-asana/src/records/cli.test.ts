@@ -83,6 +83,66 @@ describe('records/cli', () => {
 		)
 	})
 
+	it('record search forwards the created-on, followers-not and tables-all filters', async () => {
+		vi.spyOn(console, 'log').mockImplementation(() => {})
+		const api = apiDouble()
+
+		await run(
+			api,
+			'search',
+			'--workspace-gid',
+			'ws1',
+			'--created-on',
+			'2026-11-01',
+			'--created-on-after',
+			'2026-10-01',
+			'--created-on-before',
+			'2026-12-01',
+			'--followers-not',
+			'u1,me',
+			'--tables-all',
+			't1,t2',
+		)
+
+		expect(api.searchRecords).toHaveBeenCalledWith(
+			'ws1',
+			{
+				createdOn: '2026-11-01',
+				createdOnAfter: '2026-10-01',
+				createdOnBefore: '2026-12-01',
+				followersNot: ['u1', 'me'],
+				tablesAll: ['t1', 't2'],
+			},
+			expect.any(Object),
+		)
+	})
+
+	it('record create forwards --default-access-level and rejects an unknown level', async () => {
+		vi.spyOn(console, 'log').mockImplementation(() => {})
+		const api = apiDouble({ createRecord: vi.fn().mockResolvedValue({ gid: 'r1', name: 'Q3' }) })
+
+		await run(api, 'create', 'Q3', '--table', 't1', '--default-access-level', 'viewer')
+		await expect(run(api, 'create', 'Q3', '--table', 't1', '--default-access-level', 'boss')).rejects.toThrow(
+			/access level must be one of/,
+		)
+
+		expect(api.createRecord).toHaveBeenCalledTimes(1)
+		expect(api.createRecord).toHaveBeenCalledWith('t1', 'Q3', { defaultAccessLevel: 'viewer' }, undefined)
+	})
+
+	it('record stories create forwards --pin and --sticker', async () => {
+		vi.spyOn(console, 'log').mockImplementation(() => {})
+		const api = apiDouble({ createRecordStory: vi.fn().mockResolvedValue({ gid: 's1' }) })
+
+		await run(api, 'stories', 'create', 'r1', '--text', 'hi', '--pin', '--sticker', 'heart')
+
+		expect(api.createRecordStory).toHaveBeenCalledWith(
+			'r1',
+			{ text: 'hi', is_pinned: true, sticker_name: 'heart' },
+			undefined,
+		)
+	})
+
 	it('record get forwards --opt-fields', async () => {
 		vi.spyOn(console, 'log').mockImplementation(() => {})
 		const api = apiDouble({ getRecord: vi.fn().mockResolvedValue({ gid: 'r1', name: 'Q3' }) })

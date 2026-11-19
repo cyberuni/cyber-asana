@@ -22,13 +22,13 @@ cyber-asana record stories create <gid> --text "Sent the quote"
 | Command | Arguments | Options |
 | --- | --- | --- |
 | `list` | `<table-gid>` | `--sort-by created_at`, `--modified-since <datetime>`, [pagination](/cyber-asana/cli/#pagination) |
-| `search` | — | `--workspace-gid <gid>`, `--text`, `--table <gids>`, `--exclude-table <gids>`, `--team <gids>`, `--follower <users>`, `--created-after <datetime>`, `--created-before <datetime>`, `--sort-by created_at\|modified_at`, `--ascending`, `--limit`, `--opt-fields` |
+| `search` | — | `--workspace-gid <gid>`, `--text`, `--table <gids>`, `--exclude-table <gids>`, `--team <gids>`, `--follower <users>`, `--tables-all <gids>`, `--followers-not <users>`, `--created-on <date>`, `--created-on-after <date>`, `--created-on-before <date>`, `--created-after <datetime>`, `--created-before <datetime>`, `--sort-by created_at\|modified_at`, `--ascending`, `--limit`, `--opt-fields` |
 | `get` | `<gid>` | `--opt-fields <fields>` |
-| `create` | `<name>` | `--table-gid <gid>` / `--table <gid>`, `--field <gid=value>` (repeatable), `--fields-json <json>`, `--fingerprint <value>` |
+| `create` | `<name>` | `--table-gid <gid>` / `--table <gid>`, `--field <gid=value>` (repeatable), `--fields-json <json>`, `--fingerprint <value>`, `--default-access-level admin\|editor\|commenter\|viewer` |
 | `update` | `<gid>` | `--name`, `--field`, `--fields-json`, `--default-access-level` (at least one) |
 | `delete` | `<gid>` | Deleting a record that is already gone succeeds |
 | `stories list` | `<record-gid>` | `--comments-only`, `--created-after <datetime>`, `--newest-first`, [pagination](/cyber-asana/cli/#pagination) |
-| `stories create` | `<record-gid>` | `--text <text>` or `--html-text <html>` |
+| `stories create` | `<record-gid>` | `--text <text>` or `--html-text <html>`, `--pin`, `--sticker <name>` |
 
 - **Writing fields:** only custom fields already on the record's table can be written; unlike
   tasks, a record does not accept a value for a field the table lacks.

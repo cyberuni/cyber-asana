@@ -1,4 +1,4 @@
-import { Command, InvalidArgumentError } from 'commander'
+import { Command, InvalidArgumentError, Option } from 'commander'
 import {
 	addGidOption,
 	addPaginationOptions,
@@ -24,7 +24,7 @@ import {
 	listStories,
 	updateStory,
 } from './default.js'
-import { STICKER_NAMES } from './write-options.js'
+import { STICKER_NAMES, validateCreatedAfter } from './write-options.js'
 
 const TEXT_COLUMN_LIMIT = 60
 
@@ -47,6 +47,36 @@ function pinnedFromCli(opts: { pin?: boolean; unpin?: boolean }) {
 	if (opts.pin) return true
 	if (opts.unpin) return false
 	return undefined
+}
+
+type ListFilterOpts = { createdAfter?: string; commentsOnly?: boolean; newestFirst?: boolean }
+
+function parseCreatedAfter(value: string) {
+	try {
+		return validateCreatedAfter(value)
+	} catch (error) {
+		throw new InvalidArgumentError((error as Error).message)
+	}
+}
+
+function addListFilterOptions<T extends Command>(cmd: T) {
+	return cmd
+		.addOption(
+			new Option(
+				'--created-after <datetime>',
+				'Only stories created after this ISO 8601 date-time (exclusive, second granularity)',
+			).argParser(parseCreatedAfter),
+		)
+		.option('--comments-only', 'Only comments, not system activity')
+		.option('--newest-first', 'Newest first (Asana defaults to oldest first)')
+}
+
+function listFiltersFromCli(opts: ListFilterOpts) {
+	return {
+		...(opts.createdAfter !== undefined && { createdAfter: opts.createdAfter }),
+		...(opts.commentsOnly && { commentsOnly: true }),
+		...(opts.newestFirst && { sortAscending: false }),
+	}
 }
 
 function resolveStoryApi(api?: StoryApi | (() => StoryApi)): StoryApi {
@@ -92,40 +122,54 @@ export function storyCommand(name = 'story', api?: StoryApi | (() => StoryApi)) 
 		].join('\n'),
 	)
 
-	addPaginationOptions(
-		addGidOption(cmd.command('list').description('List stories for a task'), 'task', 'Task GID'),
-	).action(async (opts: { task?: string; taskGid?: string; limit?: number; offset?: string; optFields?: string }) => {
-		const pagination = paginationOptionsFromCli(opts)
-		pagination.optFields ??= STORY_LIST_FIELDS
-		const data = await resolveStoryApi(api).listStories(requiredGid(opts, 'task', 'Task GID'), pagination)
-		output(data, () => {
-			const items = itemsForOutput(data)
-			printTable(
-				items,
-				[
-					{ label: 'ID', get: (s: Story) => s.gid },
-					{ label: 'Type', get: (s: Story) => s.type ?? '' },
-					{ label: 'By', get: (s: Story) => s.created_by?.name ?? '' },
-					// The table stays readable at 60 characters; --full and the size hint come from truncate().
-					{ label: 'Text', get: (s: Story) => truncate(s.text, { limit: TEXT_COLUMN_LIMIT, full: isFull() }) },
-				],
-				{ entity: 'stories' },
-			)
-			printCountSummary(items.length, 'story(s)')
-			printNextPageHint(data)
-			printNextSteps([
-				`cyber-asana ${name} create --task-gid ${requiredGid(opts, 'task', 'Task GID')} "<text>" — comment`,
-				`cyber-asana ${name} update <gid> "<text>" — fix a comment you authored`,
-				`cyber-asana ${name} delete <gid> — withdraw a comment you authored`,
-			])
-		})
-	})
+	addListFilterOptions(
+		addPaginationOptions(addGidOption(cmd.command('list').description('List stories for a task'), 'task', 'Task GID')),
+	).action(
+		async (
+			opts: {
+				task?: string
+				taskGid?: string
+				limit?: number
+				offset?: string
+				optFields?: string
+			} & ListFilterOpts,
+		) => {
+			const pagination = { ...paginationOptionsFromCli(opts), ...listFiltersFromCli(opts) }
+			pagination.optFields ??= STORY_LIST_FIELDS
+			const data = await resolveStoryApi(api).listStories(requiredGid(opts, 'task', 'Task GID'), pagination)
+			output(data, () => {
+				const items = itemsForOutput(data)
+				printTable(
+					items,
+					[
+						{ label: 'ID', get: (s: Story) => s.gid },
+						{ label: 'Type', get: (s: Story) => s.type ?? '' },
+						{ label: 'By', get: (s: Story) => s.created_by?.name ?? '' },
+						// The table stays readable at 60 characters; --full and the size hint come from truncate().
+						{ label: 'Text', get: (s: Story) => truncate(s.text, { limit: TEXT_COLUMN_LIMIT, full: isFull() }) },
+					],
+					{ entity: 'stories' },
+				)
+				printCountSummary(items.length, 'story(s)')
+				printNextPageHint(data)
+				printNextSteps([
+					`cyber-asana ${name} create --task-gid ${requiredGid(opts, 'task', 'Task GID')} "<text>" — comment`,
+					`cyber-asana ${name} update <gid> "<text>" — fix a comment you authored`,
+					`cyber-asana ${name} delete <gid> — withdraw a comment you authored`,
+				])
+			})
+		},
+	)
 
 	addGidOption(
 		addReadOptions(cmd.command('create [text]').description('Add a comment to a task'))
 			.option('--html-text <html>', 'Comment rich text as Asana HTML')
 			.option('--pin', 'Pin the new comment on the task')
 			.option('--sticker <name>', `Sticker to attach (${STICKER_NAMES.join(', ')})`)
+			.option(
+				'--reply-to <comment-gid>',
+				"Reply in the thread of a top-level comment: pass its comment_gid (read it with --opt-fields comment_gid on 'get' or 'list'), not its story GID",
+			)
 			.option(
 				'--template',
 				'Treat text as a template; interpolates {task.name}, {task.assignee}, {task.due_on}, {task.notes}',
@@ -142,6 +186,7 @@ export function storyCommand(name = 'story', api?: StoryApi | (() => StoryApi)) 
 				htmlText?: string
 				pin?: boolean
 				sticker?: string
+				replyTo?: string
 				optFields?: string
 			},
 		) => {
@@ -157,6 +202,7 @@ export function storyCommand(name = 'story', api?: StoryApi | (() => StoryApi)) 
 					}),
 					...(isPinned !== undefined && { is_pinned: isPinned }),
 					...(opts.sticker !== undefined && { sticker_name: opts.sticker }),
+					...(opts.replyTo !== undefined && { parent_comment: opts.replyTo }),
 				},
 				readOptionsFromCli(opts),
 			)
@@ -205,29 +251,29 @@ export function storyCommand(name = 'story', api?: StoryApi | (() => StoryApi)) 
 			output(result, () => console.log(deleteMessage(result, 'Comment')))
 		})
 
-	addPaginationOptions(cmd.command('list-goal <goal-gid>').description("List a goal's stories (paid plan)")).action(
-		async (goalGid: string, opts: { limit?: number; offset?: string; optFields?: string }) => {
-			const pagination = paginationOptionsFromCli(opts)
-			pagination.optFields ??= STORY_LIST_FIELDS
-			const data = await resolveStoryApi(api).listGoalStories(goalGid, pagination)
-			output(data, () => {
-				const items = itemsForOutput(data)
-				printTable(
-					items,
-					[
-						{ label: 'ID', get: (s: Story) => s.gid },
-						{ label: 'Type', get: (s: Story) => s.type ?? '' },
-						{ label: 'By', get: (s: Story) => s.created_by?.name ?? '' },
-						{ label: 'Text', get: (s: Story) => truncate(s.text, { limit: TEXT_COLUMN_LIMIT, full: isFull() }) },
-					],
-					{ entity: 'stories' },
-				)
-				printCountSummary(items.length, 'story(s)')
-				printNextPageHint(data)
-				printNextSteps([`cyber-asana ${name} create-goal ${goalGid} "<text>" — post a progress note`])
-			})
-		},
-	)
+	addListFilterOptions(
+		addPaginationOptions(cmd.command('list-goal <goal-gid>').description("List a goal's stories (paid plan)")),
+	).action(async (goalGid: string, opts: { limit?: number; offset?: string; optFields?: string } & ListFilterOpts) => {
+		const pagination = { ...paginationOptionsFromCli(opts), ...listFiltersFromCli(opts) }
+		pagination.optFields ??= STORY_LIST_FIELDS
+		const data = await resolveStoryApi(api).listGoalStories(goalGid, pagination)
+		output(data, () => {
+			const items = itemsForOutput(data)
+			printTable(
+				items,
+				[
+					{ label: 'ID', get: (s: Story) => s.gid },
+					{ label: 'Type', get: (s: Story) => s.type ?? '' },
+					{ label: 'By', get: (s: Story) => s.created_by?.name ?? '' },
+					{ label: 'Text', get: (s: Story) => truncate(s.text, { limit: TEXT_COLUMN_LIMIT, full: isFull() }) },
+				],
+				{ entity: 'stories' },
+			)
+			printCountSummary(items.length, 'story(s)')
+			printNextPageHint(data)
+			printNextSteps([`cyber-asana ${name} create-goal ${goalGid} "<text>" — post a progress note`])
+		})
+	})
 
 	addReadOptions(cmd.command('create-goal <goal-gid> [text]').description('Post a comment on a goal (paid plan)'))
 		.option('--html-text <html>', 'Comment rich text as Asana HTML')
