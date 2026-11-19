@@ -8,7 +8,7 @@ description: Every request parameter of each Asana API operation cyber-asana wra
 For each of the **171** Asana REST operations cyber-asana wraps, this page lists
 every path, query, and top-level body parameter in the
 [Asana OpenAPI definition](https://raw.githubusercontent.com/Asana/openapi/master/defs/asana_oas.yaml) (fetched 2026-11-19) and how cyber-asana sends it.
-Of **946** parameters, **700** are covered, **31** are skipped on purpose, and **215** are open gaps.
+Of **946** parameters, **704** are covered, **33** are skipped on purpose, and **209** are open gaps.
 Header parameters are left out: an API client sets them once, not per command.
 
 | Status | Meaning |
@@ -28,11 +28,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 
 | Endpoint | Parameter | In | CLI | MCP | Status |
 | --- | --- | --- | --- | --- | --- |
-| `addCustomFieldSettingForPortfolio` | `insert_after` | body | — | — | ❌ [#406](https://github.com/cyberuni/cyber-asana/issues/406) no CLI flag and no MCP field |
-| `addCustomFieldSettingForPortfolio` | `insert_before` | body | — | — | ❌ [#406](https://github.com/cyberuni/cyber-asana/issues/406) no CLI flag and no MCP field |
 | `addCustomFieldSettingForProject` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) gateway sends no opt_fields; CLI has no flag; MCP has none |
-| `addCustomFieldSettingForProject` | `insert_after` | body | — | — | ❌ [#406](https://github.com/cyberuni/cyber-asana/issues/406) gateway supports it; CLI has no flag; MCP has none |
-| `addCustomFieldSettingForProject` | `insert_before` | body | — | — | ❌ [#406](https://github.com/cyberuni/cyber-asana/issues/406) gateway supports it; CLI has no flag; MCP has none |
 | `addCustomFieldSettingForTable` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
 | `addFollowers` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object |
 | `addFollowersForProject` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) gateway passes an empty opts object; CLI has no flag; MCP has none |
@@ -222,8 +218,6 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `updateProjectBrief` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) gateway passes an empty opts object; CLI has no flag; MCP has none |
 | `updateRecord` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
 | `updateSection` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) gateway sends no opt_fields; CLI has no flag; MCP has none |
-| `updateSection` | `insert_after` | body | — | — | ❌ [#406](https://github.com/cyberuni/cyber-asana/issues/406) updateSection sends only name; CLI and MCP reposition a section through section move (insertSectionForProject), not through update |
-| `updateSection` | `insert_before` | body | — | — | ❌ [#406](https://github.com/cyberuni/cyber-asana/issues/406) updateSection sends only name; CLI and MCP reposition a section through section move (insertSectionForProject), not through update |
 | `updateStory` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
 | `updateTable` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it |
 | `updateTag` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object |
@@ -570,8 +564,8 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | --- | --- | --- | --- | --- | --- |
 | `addCustomFieldSettingForPortfolio` | `portfolio_gid` | path | `<portfolio-gid>` | `portfolio_gid` | ✅ |
 | `addCustomFieldSettingForPortfolio` | `custom_field` | body | `<field-gid>` | `custom_field_gid` | ✅ |
-| `addCustomFieldSettingForPortfolio` | `insert_after` | body | — | — | ❌ [#406](https://github.com/cyberuni/cyber-asana/issues/406) no CLI flag and no MCP field |
-| `addCustomFieldSettingForPortfolio` | `insert_before` | body | — | — | ❌ [#406](https://github.com/cyberuni/cyber-asana/issues/406) no CLI flag and no MCP field |
+| `addCustomFieldSettingForPortfolio` | `insert_after` | body | `--insert-after` | `insert_after` | ✅ |
+| `addCustomFieldSettingForPortfolio` | `insert_before` | body | `--insert-before` | `insert_before` | ✅ |
 | `addCustomFieldSettingForPortfolio` | `is_important` | body | `--important` | `is_important` | ✅ CLI sends only true; no way to send false |
 | `addItemForPortfolio` | `portfolio_gid` | path | `<portfolio-gid>` | `portfolio_gid` | ✅ |
 | `addItemForPortfolio` | `insert_after` | body | `--insert-after` | `insert_after` | ✅ |
@@ -669,8 +663,8 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `addCustomFieldSettingForProject` | `project_gid` | path | `<project-gid>` | `project_gid` | ✅ |
 | `addCustomFieldSettingForProject` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) gateway sends no opt_fields; CLI has no flag; MCP has none |
 | `addCustomFieldSettingForProject` | `custom_field` | body | `<field-gid>` | `custom_field_gid` | ✅ |
-| `addCustomFieldSettingForProject` | `insert_after` | body | — | — | ❌ [#406](https://github.com/cyberuni/cyber-asana/issues/406) gateway supports it; CLI has no flag; MCP has none |
-| `addCustomFieldSettingForProject` | `insert_before` | body | — | — | ❌ [#406](https://github.com/cyberuni/cyber-asana/issues/406) gateway supports it; CLI has no flag; MCP has none |
+| `addCustomFieldSettingForProject` | `insert_after` | body | `--insert-after` | `insert_after` | ✅ |
+| `addCustomFieldSettingForProject` | `insert_before` | body | `--insert-before` | `insert_before` | ✅ |
 | `addCustomFieldSettingForProject` | `is_important` | body | `--important` | `is_important` | ✅ |
 | `addFollowersForProject` | `project_gid` | path | `<project-gid>` | `project_gid` | ✅ |
 | `addFollowersForProject` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) gateway passes an empty opts object; CLI has no flag; MCP has none |
@@ -871,8 +865,8 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `insertSectionForProject` | `section` | body | `<gid>` | `section_gid` | ✅ |
 | `updateSection` | `section_gid` | path | `<gid>` | `section_gid` | ✅ |
 | `updateSection` | `opt_fields` | query | — | — | ❌ [#407](https://github.com/cyberuni/cyber-asana/issues/407) gateway sends no opt_fields; CLI has no flag; MCP has none |
-| `updateSection` | `insert_after` | body | — | — | ❌ [#406](https://github.com/cyberuni/cyber-asana/issues/406) updateSection sends only name; CLI and MCP reposition a section through section move (insertSectionForProject), not through update |
-| `updateSection` | `insert_before` | body | — | — | ❌ [#406](https://github.com/cyberuni/cyber-asana/issues/406) updateSection sends only name; CLI and MCP reposition a section through section move (insertSectionForProject), not through update |
+| `updateSection` | `insert_after` | body | — | — | ➖ Asana documents name as the only field updateSection changes; the insert fields come from the SectionRequest schema it shares with createSection. Reposition a section with section move (insertSectionForProject) |
+| `updateSection` | `insert_before` | body | — | — | ➖ Asana documents name as the only field updateSection changes; the insert fields come from the SectionRequest schema it shares with createSection. Reposition a section with section move (insertSectionForProject) |
 | `updateSection` | `name` | body | `--name` | `name` | ✅ |
 
 ## Status updates

@@ -181,6 +181,25 @@ describe('custom-fields/api writes', () => {
 		expect(result).toEqual({ project: 'p1', custom_field: 'cf1', status: 'attached' })
 	})
 
+	it('attachCustomField and attachCustomFieldToPortfolio reject insertBefore with insertAfter before any call', async () => {
+		const list = vi.fn()
+		const add = vi.fn()
+		const api = createCustomFieldApi(
+			gateway({
+				listCustomFieldSettingsForProject: list,
+				listCustomFieldSettingsForPortfolio: list,
+				addCustomFieldToProject: add,
+				addCustomFieldToPortfolio: add,
+			}),
+		)
+		const both = { insertBefore: 's1', insertAfter: 's2' }
+
+		await expect(api.attachCustomField('p1', 'cf1', both)).rejects.toThrow(/insert_before.*insert_after/)
+		await expect(api.attachCustomFieldToPortfolio('pf1', 'cf1', both)).rejects.toThrow(/insert_before.*insert_after/)
+		expect(list).not.toHaveBeenCalled()
+		expect(add).not.toHaveBeenCalled()
+	})
+
 	it('attachCustomField is a no-op when the project already has the field', async () => {
 		const add = vi.fn()
 		const api = createCustomFieldApi(
