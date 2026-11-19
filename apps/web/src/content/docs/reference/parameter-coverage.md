@@ -8,7 +8,7 @@ description: Every request parameter of each Asana API operation cyber-asana wra
 For each of the **171** Asana REST operations cyber-asana wraps, this page lists
 every path, query, and top-level body parameter in the
 [Asana OpenAPI definition](https://raw.githubusercontent.com/Asana/openapi/master/defs/asana_oas.yaml) (fetched 2026-11-19) and how cyber-asana sends it.
-Of **946** parameters, **820** are covered, **59** are skipped on purpose, and **67** are open gaps.
+Of **946** parameters, **838** are covered, **59** are skipped on purpose, and **49** are open gaps.
 Header parameters are left out: an API client sets them once, not per command.
 
 | Status | Meaning |
@@ -39,14 +39,6 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `createCustomField` | `is_lookup_field` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it (likely a read-only value field on the custom field object; unverified) |
 | `createCustomField` | `owned_by_app` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it (likely a read-only value field on the custom field object; unverified) |
 | `createEnumOptionForCustomField` | `enabled` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends enabled on create (only enum-option update does) |
-| `createPortfolio` | `archived` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
-| `createPortfolio` | `color` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
-| `createPortfolio` | `custom_type` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
-| `createPortfolio` | `default_access_level` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
-| `createPortfolio` | `due_on` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
-| `createPortfolio` | `public` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
-| `createPortfolio` | `resource_subtype` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
-| `createPortfolio` | `start_on` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
 | `createRecord` | `default_access_level` | body | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Not sent on create: createRecord body carries only name, table, custom_fields and unique_fingerprint; neither CLI nor MCP exposes it on create (update has it) |
 | `createStoryForRecord` | `is_pinned` | body | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: RecordStoryFields carries only text and html_text |
 | `createStoryForRecord` | `sticker_name` | body | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: RecordStoryFields carries only text and html_text |
@@ -80,16 +72,6 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `updateCustomField` | `is_lookup_field` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it (likely a read-only value field on the custom field object; unverified) |
 | `updateCustomField` | `owned_by_app` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it (likely a read-only value field on the custom field object; unverified) |
 | `updateCustomField` | `workspace` | body | — | — | ❌ [#412](https://github.com/cyberuni/cyber-asana/issues/412) neither the CLI nor MCP sends it |
-| `updatePortfolio` | `archived` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
-| `updatePortfolio` | `color` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
-| `updatePortfolio` | `custom_fields` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
-| `updatePortfolio` | `custom_type` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
-| `updatePortfolio` | `default_access_level` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
-| `updatePortfolio` | `due_on` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
-| `updatePortfolio` | `html_custom_fields` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
-| `updatePortfolio` | `public` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
-| `updatePortfolio` | `resource_subtype` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
-| `updatePortfolio` | `start_on` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
 | `updateTimeTrackingEntry` | `assignee` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `updateTimeTrackingEntry` | `attributable_to` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `updateTimeTrackingEntry` | `billable_status` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
@@ -430,15 +412,15 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `addItemForPortfolio` | `insert_before` | body | `--insert-before` | `insert_before` | ✅ |
 | `addItemForPortfolio` | `item` | body | `<item-gid>` | `item_gid` | ✅ |
 | `createPortfolio` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
-| `createPortfolio` | `archived` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
-| `createPortfolio` | `color` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
-| `createPortfolio` | `custom_type` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
-| `createPortfolio` | `default_access_level` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
-| `createPortfolio` | `due_on` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
+| `createPortfolio` | `archived` | body | `--archived / --no-archived` | `archived` | ✅ |
+| `createPortfolio` | `color` | body | `--color` | `color` | ✅ |
+| `createPortfolio` | `custom_type` | body | `--custom-type` | `custom_type` | ✅ |
+| `createPortfolio` | `default_access_level` | body | `--default-access-level` | `default_access_level` | ✅ |
+| `createPortfolio` | `due_on` | body | `--due-on` | `due_on` | ✅ |
 | `createPortfolio` | `name` | body | `<name>` | `name` | ✅ |
-| `createPortfolio` | `public` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
-| `createPortfolio` | `resource_subtype` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
-| `createPortfolio` | `start_on` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
+| `createPortfolio` | `public` | body | `--public / --no-public` | `public` | ✅ |
+| `createPortfolio` | `resource_subtype` | body | `--resource-subtype` | `resource_subtype` | ✅ |
+| `createPortfolio` | `start_on` | body | `--start-on` | `start_on` | ✅ |
 | `createPortfolio` | `workspace` | body | `--workspace-gid (or ASANA_WORKSPACE_GID)` | `workspace_gid` | ✅ |
 | `deletePortfolio` | `portfolio_gid` | path | `<gid>` | `portfolio_gid` | ✅ |
 | `getItemsForPortfolio` | `portfolio_gid` | path | `<gid>` | `portfolio_gid` | ✅ |
@@ -459,17 +441,17 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `removeItemForPortfolio` | `item` | body | `<item-gid>` | `item_gid` | ✅ |
 | `updatePortfolio` | `portfolio_gid` | path | `<gid>` | `portfolio_gid` | ✅ |
 | `updatePortfolio` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
-| `updatePortfolio` | `archived` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
-| `updatePortfolio` | `color` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
-| `updatePortfolio` | `custom_fields` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
-| `updatePortfolio` | `custom_type` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
-| `updatePortfolio` | `default_access_level` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
-| `updatePortfolio` | `due_on` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
-| `updatePortfolio` | `html_custom_fields` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
+| `updatePortfolio` | `archived` | body | `--archived / --no-archived` | `archived` | ✅ |
+| `updatePortfolio` | `color` | body | `--color` | `color` | ✅ |
+| `updatePortfolio` | `custom_fields` | body | `--custom-fields-json / --custom-field` | `custom_fields` | ✅ |
+| `updatePortfolio` | `custom_type` | body | `--custom-type` | `custom_type` | ✅ |
+| `updatePortfolio` | `default_access_level` | body | `--default-access-level` | `default_access_level` | ✅ |
+| `updatePortfolio` | `due_on` | body | `--due-on` | `due_on` | ✅ |
+| `updatePortfolio` | `html_custom_fields` | body | `--html-custom-fields-json / --html-custom-field` | `html_custom_fields` | ✅ |
 | `updatePortfolio` | `name` | body | `--name` | `name` | ✅ |
-| `updatePortfolio` | `public` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
-| `updatePortfolio` | `resource_subtype` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
-| `updatePortfolio` | `start_on` | body | — | — | ❌ [#411](https://github.com/cyberuni/cyber-asana/issues/411) neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create) |
+| `updatePortfolio` | `public` | body | `--public / --no-public` | `public` | ✅ |
+| `updatePortfolio` | `resource_subtype` | body | `--resource-subtype` | `resource_subtype` | ✅ |
+| `updatePortfolio` | `start_on` | body | `--start-on` | `start_on` | ✅ |
 
 ## Project briefs
 

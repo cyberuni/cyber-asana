@@ -1,3 +1,4 @@
+import { assertIsoDate } from '../platform/iso-date.js'
 import type { ReadOptions } from '../platform/read-options.js'
 import type {
 	CreateGoalFields,
@@ -17,12 +18,6 @@ export type {
 	TimePeriodListOptions,
 	UpdateGoalFields,
 } from './gateway.js'
-
-function assertIsoDate(label: string, value?: string) {
-	if (value === undefined) return
-	const valid = /^\d{4}-\d{2}-\d{2}$/.test(value) && new Date(`${value}T00:00:00Z`).toISOString().slice(0, 10) === value
-	if (!valid) throw new Error(`${label} must be a date (YYYY-MM-DD); got "${value}"`)
-}
 
 function assertGoalListScope(workspaceGid: string | undefined, opts?: GoalListOptions) {
 	if (opts?.isWorkspaceLevel !== undefined && !workspaceGid) {

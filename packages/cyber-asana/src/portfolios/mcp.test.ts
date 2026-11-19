@@ -46,7 +46,7 @@ describe('portfolios/mcp', () => {
 			name: 'Roadmap',
 		})
 
-		expect(createPortfolioMock).toHaveBeenCalledWith('ws1', 'Roadmap', undefined)
+		expect(createPortfolioMock).toHaveBeenCalledWith('ws1', 'Roadmap', undefined, undefined)
 	})
 
 	it('asana_portfolio_update forwards gid and fields', async () => {
@@ -94,7 +94,7 @@ describe('portfolios/mcp', () => {
 			name: 'Roadmap',
 		})
 
-		expect(injectedCreatePortfolio).toHaveBeenCalledWith('ws1', 'Roadmap', undefined)
+		expect(injectedCreatePortfolio).toHaveBeenCalledWith('ws1', 'Roadmap', undefined, undefined)
 	})
 
 	it('asana_portfolio_list forwards owner_gid as an owner filter', async () => {

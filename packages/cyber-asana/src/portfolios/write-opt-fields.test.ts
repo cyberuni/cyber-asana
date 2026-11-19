@@ -44,7 +44,7 @@ describe('portfolios write opt_fields', () => {
 				{ from: 'node' },
 			)
 
-		expect(api.createPortfolio).toHaveBeenCalledWith(...['ws1', 'Roadmap', { optFields: 'gid,name' }])
+		expect(api.createPortfolio).toHaveBeenCalledWith(...['ws1', 'Roadmap', { optFields: 'gid,name' }, undefined])
 	})
 
 	it('asana_portfolio_create opt_fields reaches the api method', async () => {
@@ -58,7 +58,7 @@ describe('portfolios write opt_fields', () => {
 			opt_fields: 'gid,name',
 		})
 
-		expect(api.createPortfolio).toHaveBeenCalledWith(...['ws1', 'Roadmap', { optFields: 'gid,name' }])
+		expect(api.createPortfolio).toHaveBeenCalledWith(...['ws1', 'Roadmap', { optFields: 'gid,name' }, undefined])
 	})
 
 	it('gateway update sends opt_fields to the SDK', async () => {

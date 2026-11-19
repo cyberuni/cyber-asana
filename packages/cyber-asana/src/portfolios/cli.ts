@@ -1,4 +1,4 @@
-import { Command } from 'commander'
+import { Command, Option } from 'commander'
 import {
 	addGidOption,
 	addPaginationOptions,
@@ -23,6 +23,8 @@ import {
 	removePortfolioItem,
 	updatePortfolio,
 } from './default.js'
+import { PORTFOLIO_COLORS, PORTFOLIO_DEFAULT_ACCESS_LEVELS, PORTFOLIO_RESOURCE_SUBTYPES } from './portfolio-enums.js'
+import { buildPortfolioCreateFields, buildPortfolioUpdateFields } from './write-options.js'
 
 type Portfolio = { gid: string; name?: string; permalink_url?: string }
 
@@ -44,6 +46,42 @@ function resolvePortfolioApi(api?: PortfolioApi | (() => PortfolioApi)): Portfol
 			removePortfolioItem,
 		}
 	)
+}
+
+type PortfolioWriteCliOptions = {
+	archived?: boolean
+	color?: string
+	customType?: string
+	resourceSubtype?: string
+	defaultAccessLevel?: string
+	public?: boolean
+	dueOn?: string
+	startOn?: string
+}
+
+function collectOption(value: string, previous: string[] = []) {
+	return [...previous, value]
+}
+
+/** The write flags `portfolio create` and `portfolio update` share. */
+function addPortfolioWriteOptions<T extends Command>(cmd: T) {
+	return cmd
+		.option('--archived', 'Archive the portfolio')
+		.option('--no-archived', 'Do not archive the portfolio')
+		.addOption(new Option('--color <color>', 'Portfolio color').choices(PORTFOLIO_COLORS))
+		.option('--custom-type <gid>', 'Custom type GID; Asana accepts it only with --resource-subtype custom')
+		.addOption(
+			new Option('--resource-subtype <subtype>', 'Portfolio resource subtype').choices(PORTFOLIO_RESOURCE_SUBTYPES),
+		)
+		.addOption(
+			new Option('--default-access-level <level>', 'Default access level for members').choices(
+				PORTFOLIO_DEFAULT_ACCESS_LEVELS,
+			),
+		)
+		.option('--public', 'Make the portfolio public to the workspace (new portfolios are private)')
+		.option('--no-public', 'Make the portfolio private')
+		.option('--due-on <date>', 'Due date (YYYY-MM-DD)')
+		.option('--start-on <date>', 'Start date (YYYY-MM-DD); Asana requires --due-on with it, and not before it')
 }
 
 // Minimal default schema for portfolio lists — principle 2.
@@ -147,26 +185,62 @@ export function portfolioCommand(api?: PortfolioApi | (() => PortfolioApi)) {
 		},
 	)
 
-	const createCmd = addGidOption(
-		addReadOptions(cmd.command('create <name>').description('Create a portfolio')),
-		'workspace',
-		'Workspace GID',
+	const createCmd = addPortfolioWriteOptions(
+		addGidOption(
+			addReadOptions(cmd.command('create <name>').description('Create a portfolio')),
+			'workspace',
+			'Workspace GID',
+		),
 	)
-	createCmd.action(async (name: string, opts: { workspace?: string; workspaceGid?: string; optFields?: string }) => {
-		const data = await resolvePortfolioApi(api).createPortfolio(
-			requiredGid(opts, 'workspace', 'Workspace GID'),
-			name,
-			readOptionsFromCli(opts),
-		)
-		output(data, () => fmtPortfolio(data))
-	})
+	createCmd.action(
+		async (
+			name: string,
+			opts: PortfolioWriteCliOptions & { workspace?: string; workspaceGid?: string; optFields?: string },
+		) => {
+			const data = await resolvePortfolioApi(api).createPortfolio(
+				requiredGid(opts, 'workspace', 'Workspace GID'),
+				name,
+				readOptionsFromCli(opts),
+				buildPortfolioCreateFields(opts),
+			)
+			output(data, () => fmtPortfolio(data))
+		},
+	)
 
-	addReadOptions(
-		cmd.command('update <gid>').description('Update a portfolio').option('--name <name>', 'New name'),
-	).action(async (gid: string, opts: { name?: string; optFields?: string }) => {
-		const data = await resolvePortfolioApi(api).updatePortfolio(gid, { name: opts.name }, readOptionsFromCli(opts))
-		output(data, () => fmtPortfolio(data))
-	})
+	addPortfolioWriteOptions(
+		addReadOptions(cmd.command('update <gid>').description('Update a portfolio').option('--name <name>', 'New name')),
+	)
+		.option('--custom-fields-json <json>', 'Custom field values as a JSON object of field GID to value')
+		.option('--custom-field <gid=value>', 'Custom field value, repeatable', collectOption, [])
+		.option(
+			'--html-custom-fields-json <json>',
+			'Text custom field values as HTML, a JSON object of field GID to "<body>...</body>"',
+		)
+		.option('--html-custom-field <gid=html>', 'Text custom field value as HTML, repeatable', collectOption, [])
+		.action(
+			async (
+				gid: string,
+				opts: PortfolioWriteCliOptions & {
+					name?: string
+					customFieldsJson?: string
+					customField?: string[]
+					htmlCustomFieldsJson?: string
+					htmlCustomField?: string[]
+					optFields?: string
+				},
+			) => {
+				const data = await resolvePortfolioApi(api).updatePortfolio(
+					gid,
+					buildPortfolioUpdateFields({
+						...opts,
+						customFieldEntries: opts.customField,
+						htmlCustomFieldEntries: opts.htmlCustomField,
+					}),
+					readOptionsFromCli(opts),
+				)
+				output(data, () => fmtPortfolio(data))
+			},
+		)
 
 	cmd
 		.command('delete <gid>')
