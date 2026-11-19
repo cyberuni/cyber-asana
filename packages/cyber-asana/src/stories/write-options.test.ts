@@ -1,5 +1,23 @@
 import { describe, expect, it } from 'vitest'
-import { buildStoryCreateFields, buildStoryUpdateFields } from './write-options.js'
+import { buildStoryCreateFields, buildStoryUpdateFields, validateCreatedAfter } from './write-options.js'
+
+describe('stories/write-options parent_comment and created_after', () => {
+	it('buildStoryCreateFields carries parent_comment', () => {
+		expect(buildStoryCreateFields({ text: 'Agreed', parentComment: 'c1' })).toEqual({
+			text: 'Agreed',
+			parent_comment: 'c1',
+		})
+	})
+
+	it('buildStoryUpdateFields never carries parent_comment', () => {
+		expect(buildStoryUpdateFields({ text: 'Edit' })).toEqual({ text: 'Edit' })
+	})
+
+	it('validateCreatedAfter accepts an ISO 8601 date-time and rejects anything else', () => {
+		expect(validateCreatedAfter('2026-11-01T00:00:00Z')).toBe('2026-11-01T00:00:00Z')
+		expect(() => validateCreatedAfter('yesterday')).toThrow('created_after must be an ISO 8601 date-time')
+	})
+})
 
 describe('stories/write-options', () => {
 	it('buildStoryCreateFields rejects text and html_text together', () => {

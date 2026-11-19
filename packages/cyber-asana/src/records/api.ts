@@ -1,5 +1,6 @@
 import type { PaginationOptions } from '../platform/pagination.js'
 import type { ReadOptions } from '../platform/read-options.js'
+import { validateStickerName } from '../stories/write-options.js'
 import type {
 	CreateRecordOptions,
 	RecordGateway,
@@ -48,8 +49,9 @@ export function createRecordApi(gateway: RecordGateway) {
 		listRecordStories(recordGid: string, filters?: RecordStoryFilters, opts?: PaginationOptions) {
 			return gateway.listRecordStories(recordGid, filters, opts)
 		},
-		createRecordStory(recordGid: string, fields: RecordStoryFields, opts?: ReadOptions) {
-			return gateway.createRecordStory(recordGid, fields, opts)
+		async createRecordStory(recordGid: string, fields: RecordStoryFields, opts?: ReadOptions) {
+			if (fields.sticker_name !== undefined) validateStickerName(fields.sticker_name)
+			return await gateway.createRecordStory(recordGid, fields, opts)
 		},
 	}
 }

@@ -8,7 +8,7 @@ description: Every request parameter of each Asana API operation cyber-asana wra
 For each of the **171** Asana REST operations cyber-asana wraps, this page lists
 every path, query, and top-level body parameter in the
 [Asana OpenAPI definition](https://raw.githubusercontent.com/Asana/openapi/master/defs/asana_oas.yaml) (fetched 2026-11-19) and how cyber-asana sends it.
-Of **946** parameters, **849** are covered, **67** are skipped on purpose, and **30** are open gaps.
+Of **946** parameters, **864** are covered, **67** are skipped on purpose, and **15** are open gaps.
 Header parameters are left out: an API client sets them once, not per command.
 
 | Status | Meaning |
@@ -28,29 +28,14 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 
 | Endpoint | Parameter | In | CLI | MCP | Status |
 | --- | --- | --- | --- | --- | --- |
-| `createRecord` | `default_access_level` | body | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Not sent on create: createRecord body carries only name, table, custom_fields and unique_fingerprint; neither CLI nor MCP exposes it on create (update has it) |
-| `createStoryForRecord` | `is_pinned` | body | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: RecordStoryFields carries only text and html_text |
-| `createStoryForRecord` | `sticker_name` | body | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: RecordStoryFields carries only text and html_text |
-| `createStoryForTask` | `parent_comment` | body | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: StoryCreateFields has no parent_comment |
 | `createTimeTrackingEntry` | `assignee` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `createTimeTrackingEntry` | `attributable_to` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `createTimeTrackingEntry` | `billable_status` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `createTimeTrackingEntry` | `categories` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
 | `createTimeTrackingEntry` | `description` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
-| `getStoriesForGoal` | `created_after` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: only pagination params reach the call |
-| `getStoriesForGoal` | `resource_subtype` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: only pagination params reach the call |
-| `getStoriesForGoal` | `sort_ascending` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: only pagination params reach the call |
-| `getStoriesForTask` | `created_after` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: only pagination params reach the call |
-| `getStoriesForTask` | `resource_subtype` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: only pagination params reach the call |
-| `getStoriesForTask` | `sort_ascending` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: only pagination params reach the call |
 | `getTimeTrackingEntries` | `assignee` | query | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: the filters are task, user, portfolio, workspace and the date range |
 | `getTimeTrackingEntries` | `attributable_to` | query | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it |
 | `getTimeTrackingEntries` | `timesheet_approval_status` | query | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it |
-| `searchRecordsForWorkspace` | `created_on` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) CLI has no flag; MCP sends it (created_on) |
-| `searchRecordsForWorkspace` | `created_on.after` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) CLI has no flag; MCP sends it (created_on_after) |
-| `searchRecordsForWorkspace` | `created_on.before` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) CLI has no flag; MCP sends it (created_on_before) |
-| `searchRecordsForWorkspace` | `followers.not` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) CLI has no flag; MCP sends it (followers_not) |
-| `searchRecordsForWorkspace` | `tables.all` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) CLI has no flag; MCP sends it (tables_all) |
 | `updateAllocation` | `assignee` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: AllocationUpdateFields omits assignee |
 | `updateAllocation` | `parent` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: AllocationUpdateFields omits parent |
 | `updateTimeTrackingEntry` | `assignee` | body | — | — | ❌ [#414](https://github.com/cyberuni/cyber-asana/issues/414) Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope) |
@@ -616,7 +601,7 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | --- | --- | --- | --- | --- | --- |
 | `createRecord` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `createRecord` | `custom_fields` | body | `--field <gid=value> / --fields-json` | `custom_fields` | ✅ |
-| `createRecord` | `default_access_level` | body | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Not sent on create: createRecord body carries only name, table, custom_fields and unique_fingerprint; neither CLI nor MCP exposes it on create (update has it) |
+| `createRecord` | `default_access_level` | body | `--default-access-level` | `default_access_level` | ✅ |
 | `createRecord` | `name` | body | `<name>` | `name` | ✅ |
 | `createRecord` | `table` | body | `--table-gid (or --table)` | `table_gid` | ✅ |
 | `createRecord` | `unique_fingerprint` | body | `--fingerprint` | `unique_fingerprint` | ✅ |
@@ -632,16 +617,16 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `searchRecordsForWorkspace` | `workspace_gid` | path | `--workspace-gid (or ASANA_WORKSPACE_GID)` | `workspace_gid` | ✅ |
 | `searchRecordsForWorkspace` | `created_at.after` | query | `--created-after` | `created_at_after` | ✅ |
 | `searchRecordsForWorkspace` | `created_at.before` | query | `--created-before` | `created_at_before` | ✅ |
-| `searchRecordsForWorkspace` | `created_on` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) CLI has no flag; MCP sends it (created_on) |
-| `searchRecordsForWorkspace` | `created_on.after` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) CLI has no flag; MCP sends it (created_on_after) |
-| `searchRecordsForWorkspace` | `created_on.before` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) CLI has no flag; MCP sends it (created_on_before) |
+| `searchRecordsForWorkspace` | `created_on` | query | `--created-on` | `created_on` | ✅ |
+| `searchRecordsForWorkspace` | `created_on.after` | query | `--created-on-after` | `created_on_after` | ✅ |
+| `searchRecordsForWorkspace` | `created_on.before` | query | `--created-on-before` | `created_on_before` | ✅ |
 | `searchRecordsForWorkspace` | `followers.any` | query | `--follower` | `followers_any` | ✅ |
-| `searchRecordsForWorkspace` | `followers.not` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) CLI has no flag; MCP sends it (followers_not) |
+| `searchRecordsForWorkspace` | `followers.not` | query | `--followers-not` | `followers_not` | ✅ |
 | `searchRecordsForWorkspace` | `limit` | query | `--limit` | `limit` | ✅ |
 | `searchRecordsForWorkspace` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `searchRecordsForWorkspace` | `sort_ascending` | query | `--ascending` | `sort_ascending` | ✅ |
 | `searchRecordsForWorkspace` | `sort_by` | query | `--sort-by` | `sort_by` | ✅ |
-| `searchRecordsForWorkspace` | `tables.all` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) CLI has no flag; MCP sends it (tables_all) |
+| `searchRecordsForWorkspace` | `tables.all` | query | `--tables-all` | `tables_all` | ✅ |
 | `searchRecordsForWorkspace` | `tables.any` | query | `--table` | `tables_any` | ✅ |
 | `searchRecordsForWorkspace` | `tables.not` | query | `--exclude-table` | `tables_not` | ✅ |
 | `searchRecordsForWorkspace` | `teams.any` | query | `--team` | `teams_any` | ✅ |
@@ -722,24 +707,24 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `createStoryForRecord` | `record_gid` | path | `<record-gid>` | `record_gid` | ✅ |
 | `createStoryForRecord` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `createStoryForRecord` | `html_text` | body | `--html-text` | `html_text` | ✅ |
-| `createStoryForRecord` | `is_pinned` | body | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: RecordStoryFields carries only text and html_text |
-| `createStoryForRecord` | `sticker_name` | body | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: RecordStoryFields carries only text and html_text |
+| `createStoryForRecord` | `is_pinned` | body | `--pin` | `is_pinned` | ✅ |
+| `createStoryForRecord` | `sticker_name` | body | `--sticker` | `sticker_name` | ✅ |
 | `createStoryForRecord` | `text` | body | `--text` | `text` | ✅ |
 | `createStoryForTask` | `task_gid` | path | `--task-gid` | `task_gid` | ✅ |
 | `createStoryForTask` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `createStoryForTask` | `html_text` | body | `--html-text` | `html_text` | ✅ |
 | `createStoryForTask` | `is_pinned` | body | `--pin` | `is_pinned` | ✅ |
-| `createStoryForTask` | `parent_comment` | body | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: StoryCreateFields has no parent_comment |
+| `createStoryForTask` | `parent_comment` | body | `--reply-to` | `parent_comment_gid` | ✅ |
 | `createStoryForTask` | `sticker_name` | body | `--sticker` | `sticker_name` | ✅ |
 | `createStoryForTask` | `text` | body | `[text]` | `text` | ✅ |
 | `deleteStory` | `story_gid` | path | `<gid>` | `story_gid` | ✅ |
 | `getStoriesForGoal` | `goal_gid` | path | `<goal-gid>` | `goal_gid` | ✅ |
-| `getStoriesForGoal` | `created_after` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: only pagination params reach the call |
+| `getStoriesForGoal` | `created_after` | query | `--created-after` | `created_after` | ✅ |
 | `getStoriesForGoal` | `limit` | query | `--limit` | `limit` | ✅ |
 | `getStoriesForGoal` | `offset` | query | `--offset` | `offset` | ✅ |
 | `getStoriesForGoal` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
-| `getStoriesForGoal` | `resource_subtype` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: only pagination params reach the call |
-| `getStoriesForGoal` | `sort_ascending` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: only pagination params reach the call |
+| `getStoriesForGoal` | `resource_subtype` | query | `--comments-only` | `comments_only` | ✅ |
+| `getStoriesForGoal` | `sort_ascending` | query | `--newest-first` | `sort_ascending` | ✅ |
 | `getStoriesForRecord` | `record_gid` | path | `<record-gid>` | `record_gid` | ✅ |
 | `getStoriesForRecord` | `created_after` | query | `--created-after` | `created_after` | ✅ |
 | `getStoriesForRecord` | `limit` | query | `--limit` | `limit` | ✅ |
@@ -748,12 +733,12 @@ this table does not classify, so refreshing the baseline after Asana adds one su
 | `getStoriesForRecord` | `resource_subtype` | query | `--comments-only` | `comments_only` | ✅ sent as comment_added; the only subtype Asana supports here |
 | `getStoriesForRecord` | `sort_ascending` | query | `--newest-first` | `sort_ascending` | ✅ CLI sends sort_ascending=false only when --newest-first is given |
 | `getStoriesForTask` | `task_gid` | path | `--task-gid` | `task_gid` | ✅ |
-| `getStoriesForTask` | `created_after` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: only pagination params reach the call |
+| `getStoriesForTask` | `created_after` | query | `--created-after` | `created_after` | ✅ |
 | `getStoriesForTask` | `limit` | query | `--limit` | `limit` | ✅ |
 | `getStoriesForTask` | `offset` | query | `--offset` | `offset` | ✅ |
 | `getStoriesForTask` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
-| `getStoriesForTask` | `resource_subtype` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: only pagination params reach the call |
-| `getStoriesForTask` | `sort_ascending` | query | — | — | ❌ [#413](https://github.com/cyberuni/cyber-asana/issues/413) Neither CLI nor MCP sends it: only pagination params reach the call |
+| `getStoriesForTask` | `resource_subtype` | query | `--comments-only` | `comments_only` | ✅ |
+| `getStoriesForTask` | `sort_ascending` | query | `--newest-first` | `sort_ascending` | ✅ |
 | `getStory` | `story_gid` | path | `<gid>` | `story_gid` | ✅ |
 | `getStory` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `updateStory` | `story_gid` | path | `<gid>` | `story_gid` | ✅ |

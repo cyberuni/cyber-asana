@@ -1,8 +1,31 @@
-export type StoryCreateFields = {
+/** The body and decorations every story write carries. */
+type StoryFields = {
 	text?: string
 	html_text?: string
 	is_pinned?: boolean
 	sticker_name?: string
+}
+
+/** A task comment, optionally a threaded reply. */
+export type StoryCreateFields = StoryFields & {
+	/**
+	 * The `comment_gid` of the top-level comment to reply to (read it with `opt_fields=comment_gid`),
+	 * not a story gid. The parent must belong to the same task and must not itself be a reply.
+	 */
+	parent_comment?: string
+}
+
+/** A goal comment; goals have no threaded replies. */
+export type GoalStoryCreateFields = StoryFields
+
+/** Filters of a story list; they ride beside the pagination options. */
+export type StoryListFilters = {
+	/** ISO 8601 date-time; exclusive, second granularity. */
+	createdAfter?: string
+	/** Only comments (`resource_subtype=comment_added`), the one subtype Asana supports. */
+	commentsOnly?: boolean
+	/** Oldest first when true (Asana's default), newest first when false. */
+	sortAscending?: boolean
 }
 
 /** Asana's fixed sticker vocabulary; anything else is rejected before a request is sent. */
@@ -22,13 +45,22 @@ export const STICKER_NAMES = [
 ] as const
 
 /** An edit replaces the comment body, so it carries the same fields a create does. */
-export type StoryUpdateFields = StoryCreateFields
+export type StoryUpdateFields = StoryFields
 
 type BuildStoryCreateInput = {
 	text?: string
 	htmlText?: string
 	isPinned?: boolean
 	stickerName?: string
+	parentComment?: string
+}
+
+/** Rejects a `created_after` Asana could not read; the bound is an ISO 8601 date-time. */
+export function validateCreatedAfter(value: string): string {
+	if (Number.isNaN(Date.parse(value))) {
+		throw new Error(`created_after must be an ISO 8601 date-time, got "${value}"`)
+	}
+	return value
 }
 
 function validateHtmlText(htmlText: string) {
@@ -61,7 +93,7 @@ function validateHtmlText(htmlText: string) {
 }
 
 /** The comment body, or undefined when the caller left both text forms out. */
-function buildStoryBody(input: BuildStoryCreateInput): StoryCreateFields | undefined {
+function buildStoryBody(input: BuildStoryCreateInput): StoryFields | undefined {
 	if (input.text !== undefined && input.htmlText !== undefined) {
 		throw new Error('--text and --html-text are mutually exclusive')
 	}
@@ -73,13 +105,13 @@ function buildStoryBody(input: BuildStoryCreateInput): StoryCreateFields | undef
 	return undefined
 }
 
-function validateStickerName(stickerName: string) {
+export function validateStickerName(stickerName: string) {
 	if (!(STICKER_NAMES as readonly string[]).includes(stickerName)) {
 		throw new Error(`sticker_name must be one of ${STICKER_NAMES.join(', ')}`)
 	}
 }
 
-function withDecorations(body: StoryCreateFields | undefined, input: BuildStoryCreateInput): StoryCreateFields {
+function withDecorations(body: StoryFields | undefined, input: BuildStoryCreateInput): StoryFields {
 	if (input.stickerName !== undefined) validateStickerName(input.stickerName)
 	return {
 		...body,
@@ -92,7 +124,10 @@ export function buildStoryCreateFields(input: BuildStoryCreateInput): StoryCreat
 	const body = buildStoryBody(input)
 	// Asana only creates comment stories, and a comment without a body is not one.
 	if (!body) throw new Error('Provide either text or --html-text')
-	return withDecorations(body, input)
+	return {
+		...withDecorations(body, input),
+		...(input.parentComment !== undefined && { parent_comment: input.parentComment }),
+	}
 }
 
 export function buildStoryUpdateFields(input: BuildStoryCreateInput): StoryUpdateFields {

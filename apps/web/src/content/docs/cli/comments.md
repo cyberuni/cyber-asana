@@ -19,14 +19,37 @@ cyber-asana story create "Great work!" --task <gid>
 
 | Command | Arguments | Options |
 | --- | --- | --- |
-| `list` | — | `--task-gid <gid>` / `--task <gid>`, [pagination](/cyber-asana/cli/#pagination) |
-| `create` | `[text]` | `--task-gid <gid>` / `--task <gid>`, `--html-text <html>`, `--pin`, `--sticker <name>`, `--template` |
+| `list` | — | `--task-gid <gid>` / `--task <gid>`, `--created-after <datetime>`, `--comments-only`, `--newest-first`, [pagination](/cyber-asana/cli/#pagination) |
+| `create` | `[text]` | `--task-gid <gid>` / `--task <gid>`, `--html-text <html>`, `--pin`, `--sticker <name>`, `--reply-to <comment-gid>`, `--template` |
 | `get` | `<gid>` | — |
 | `update` | `<gid> [text]` | `--html-text <html>`, `--pin`, `--unpin`, `--sticker <name>` |
 | `delete` | `<gid>` | — |
 
 Comment bodies are truncated in list output with a size hint; pass `--full` for the
 complete text.
+
+## Filtering a list
+
+`list` and `list-goal` take the same three filters. `--created-after <datetime>` keeps stories
+created after an ISO 8601 date-time; the bound is exclusive but has second granularity, so a story
+from the same second can come back again (de-duplicate on `gid` when polling). A value that does not
+parse is rejected before a request is sent. `--comments-only` keeps comments and drops system
+activity (it sends `resource_subtype=comment_added`, the one subtype Asana supports).
+`--newest-first` sorts newest first instead of oldest first. They combine with `--limit` and
+`--offset`, so `--newest-first --limit 5` reads the five latest stories.
+
+## Replying in a thread
+
+`create --reply-to <comment-gid>` posts a threaded reply. The value is the top-level comment's
+`comment_gid`, not its story GID, so read it first:
+
+```sh
+cyber-asana comment list --task <gid> --opt-fields comment_gid,text
+cyber-asana comment create "Agreed" --task <gid> --reply-to <comment-gid>
+```
+
+The parent must belong to the same task and must not itself be a reply. The MCP field is
+`parent_comment_gid`.
 
 ## Goal comments
 

@@ -1005,9 +1005,9 @@
 					"mcp": "custom_fields"
 				},
 				"default_access_level": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/413",
-					"note": "Not sent on create: createRecord body carries only name, table, custom_fields and unique_fingerprint; neither CLI nor MCP exposes it on create (update has it)"
+					"status": "covered",
+					"cli": "--default-access-level",
+					"mcp": "default_access_level"
 				},
 				"name": {
 					"status": "covered",
@@ -1149,14 +1149,14 @@
 					"mcp": "html_text"
 				},
 				"is_pinned": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/413",
-					"note": "Neither CLI nor MCP sends it: RecordStoryFields carries only text and html_text"
+					"status": "covered",
+					"cli": "--pin",
+					"mcp": "is_pinned"
 				},
 				"sticker_name": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/413",
-					"note": "Neither CLI nor MCP sends it: RecordStoryFields carries only text and html_text"
+					"status": "covered",
+					"cli": "--sticker",
+					"mcp": "sticker_name"
 				},
 				"text": {
 					"status": "covered",
@@ -1190,9 +1190,9 @@
 					"mcp": "is_pinned"
 				},
 				"parent_comment": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/413",
-					"note": "Neither CLI nor MCP sends it: StoryCreateFields has no parent_comment"
+					"status": "covered",
+					"cli": "--reply-to",
+					"mcp": "parent_comment_gid"
 				},
 				"sticker_name": {
 					"status": "covered",
@@ -2929,9 +2929,9 @@
 					"mcp": "goal_gid"
 				},
 				"created_after": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/413",
-					"note": "Neither CLI nor MCP sends it: only pagination params reach the call"
+					"status": "covered",
+					"cli": "--created-after",
+					"mcp": "created_after"
 				},
 				"limit": {
 					"status": "covered",
@@ -2949,14 +2949,14 @@
 					"mcp": "opt_fields"
 				},
 				"resource_subtype": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/413",
-					"note": "Neither CLI nor MCP sends it: only pagination params reach the call"
+					"status": "covered",
+					"cli": "--comments-only",
+					"mcp": "comments_only"
 				},
 				"sort_ascending": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/413",
-					"note": "Neither CLI nor MCP sends it: only pagination params reach the call"
+					"status": "covered",
+					"cli": "--newest-first",
+					"mcp": "sort_ascending"
 				}
 			}
 		},
@@ -3013,9 +3013,9 @@
 					"mcp": "task_gid"
 				},
 				"created_after": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/413",
-					"note": "Neither CLI nor MCP sends it: only pagination params reach the call"
+					"status": "covered",
+					"cli": "--created-after",
+					"mcp": "created_after"
 				},
 				"limit": {
 					"status": "covered",
@@ -3033,14 +3033,14 @@
 					"mcp": "opt_fields"
 				},
 				"resource_subtype": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/413",
-					"note": "Neither CLI nor MCP sends it: only pagination params reach the call"
+					"status": "covered",
+					"cli": "--comments-only",
+					"mcp": "comments_only"
 				},
 				"sort_ascending": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/413",
-					"note": "Neither CLI nor MCP sends it: only pagination params reach the call"
+					"status": "covered",
+					"cli": "--newest-first",
+					"mcp": "sort_ascending"
 				}
 			}
 		},
@@ -4374,19 +4374,19 @@
 					"mcp": "created_at_before"
 				},
 				"created_on": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/413",
-					"note": "CLI has no flag; MCP sends it (created_on)"
+					"status": "covered",
+					"cli": "--created-on",
+					"mcp": "created_on"
 				},
 				"created_on.after": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/413",
-					"note": "CLI has no flag; MCP sends it (created_on_after)"
+					"status": "covered",
+					"cli": "--created-on-after",
+					"mcp": "created_on_after"
 				},
 				"created_on.before": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/413",
-					"note": "CLI has no flag; MCP sends it (created_on_before)"
+					"status": "covered",
+					"cli": "--created-on-before",
+					"mcp": "created_on_before"
 				},
 				"followers.any": {
 					"status": "covered",
@@ -4394,9 +4394,9 @@
 					"mcp": "followers_any"
 				},
 				"followers.not": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/413",
-					"note": "CLI has no flag; MCP sends it (followers_not)"
+					"status": "covered",
+					"cli": "--followers-not",
+					"mcp": "followers_not"
 				},
 				"limit": {
 					"status": "covered",
@@ -4419,9 +4419,9 @@
 					"mcp": "sort_by"
 				},
 				"tables.all": {
-					"status": "gap",
-					"issue": "https://github.com/cyberuni/cyber-asana/issues/413",
-					"note": "CLI has no flag; MCP sends it (tables_all)"
+					"status": "covered",
+					"cli": "--tables-all",
+					"mcp": "tables_all"
 				},
 				"tables.any": {
 					"status": "covered",

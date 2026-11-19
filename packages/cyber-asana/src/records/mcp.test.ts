@@ -103,6 +103,35 @@ describe('records/mcp', () => {
 		})
 	})
 
+	it('asana_record_create forwards default_access_level', async () => {
+		const createRecord = vi.fn().mockResolvedValue({ gid: 'r1' })
+
+		await setup({ createRecord }).get('asana_record_create')!({
+			table_gid: 't1',
+			name: 'Q3',
+			default_access_level: 'commenter',
+		})
+
+		expect(createRecord).toHaveBeenCalledWith('t1', 'Q3', { defaultAccessLevel: 'commenter' }, undefined)
+	})
+
+	it('asana_record_story_create forwards is_pinned and sticker_name', async () => {
+		const createRecordStory = vi.fn().mockResolvedValue({ gid: 's1' })
+
+		await setup({ createRecordStory }).get('asana_record_story_create')!({
+			record_gid: 'r1',
+			text: 'hi',
+			is_pinned: true,
+			sticker_name: 'heart',
+		})
+
+		expect(createRecordStory).toHaveBeenCalledWith(
+			'r1',
+			{ text: 'hi', is_pinned: true, sticker_name: 'heart' },
+			undefined,
+		)
+	})
+
 	it('story tools forward the record and comment fields', async () => {
 		const listRecordStories = vi.fn().mockResolvedValue([])
 		const createRecordStory = vi.fn().mockResolvedValue({ gid: 's1' })

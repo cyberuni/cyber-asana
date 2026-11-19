@@ -12,6 +12,7 @@ import {
 } from '../platform/cli/options.js'
 import { output, printCountSummary, printFields, printNextSteps, printTable } from '../platform/cli/output.js'
 import { deleteIdempotently, deleteMessage } from '../platform/idempotent-delete.js'
+import { STICKER_NAMES } from '../stories/write-options.js'
 import { parseAccessLevel } from '../tables/write-options.js'
 import type { RecordApi, RecordSearchFilters, TableRecord, UpdateRecordFields } from './api.js'
 import {
@@ -175,6 +176,11 @@ export function recordCommand(api?: RecordApi | (() => RecordApi)) {
 		.option('--exclude-table <gids>', 'Skip records in these tables (comma-separated GIDs)', commaList)
 		.option('--team <gids>', 'Only records of these teams (comma-separated GIDs)', commaList)
 		.option('--follower <users>', 'Only records followed by any of these users (GIDs, emails, or me)', commaList)
+		.option('--tables-all <gids>', 'Only records in all of these tables (comma-separated GIDs)', commaList)
+		.option('--followers-not <users>', 'Skip records followed by any of these users (GIDs, emails, or me)', commaList)
+		.option('--created-on <date>', 'Created on this date (YYYY-MM-DD)')
+		.option('--created-on-after <date>', 'Created after this date (YYYY-MM-DD)')
+		.option('--created-on-before <date>', 'Created before this date (YYYY-MM-DD)')
 		.option('--created-after <datetime>', 'Created after this ISO 8601 date-time')
 		.option('--created-before <datetime>', 'Created before this ISO 8601 date-time')
 		.addOption(
@@ -194,6 +200,11 @@ export function recordCommand(api?: RecordApi | (() => RecordApi)) {
 				excludeTable?: string[]
 				team?: string[]
 				follower?: string[]
+				tablesAll?: string[]
+				followersNot?: string[]
+				createdOn?: string
+				createdOnAfter?: string
+				createdOnBefore?: string
 				createdAfter?: string
 				createdBefore?: string
 				sortBy?: 'created_at' | 'modified_at'
@@ -207,6 +218,11 @@ export function recordCommand(api?: RecordApi | (() => RecordApi)) {
 					...(opts.excludeTable && { tablesNot: opts.excludeTable }),
 					...(opts.team && { teamsAny: opts.team }),
 					...(opts.follower && { followersAny: opts.follower }),
+					...(opts.tablesAll && { tablesAll: opts.tablesAll }),
+					...(opts.followersNot && { followersNot: opts.followersNot }),
+					...(opts.createdOn && { createdOn: opts.createdOn }),
+					...(opts.createdOnAfter && { createdOnAfter: opts.createdOnAfter }),
+					...(opts.createdOnBefore && { createdOnBefore: opts.createdOnBefore }),
 					...(opts.createdAfter && { createdAtAfter: opts.createdAfter }),
 					...(opts.createdBefore && { createdAtBefore: opts.createdBefore }),
 					...(opts.sortBy && { sortBy: opts.sortBy }),
@@ -246,6 +262,7 @@ export function recordCommand(api?: RecordApi | (() => RecordApi)) {
 		addGidOption(cmd.command('create <name>').description('Create a record in a table'), 'table', 'Table GID'),
 	)
 		.option('--fingerprint <value>', 'Unique fingerprint: a duplicate in the same table fails with 409')
+		.option('--default-access-level <level>', 'Default access for new members: admin, editor, commenter, viewer')
 		.option('--opt-fields <fields>', 'Comma-separated optional Asana fields to include')
 		.action(
 			async (
@@ -256,6 +273,7 @@ export function recordCommand(api?: RecordApi | (() => RecordApi)) {
 					field?: Record<string, string>
 					fieldsJson?: string
 					fingerprint?: string
+					defaultAccessLevel?: string
 					optFields?: string
 				},
 			) => {
@@ -266,6 +284,9 @@ export function recordCommand(api?: RecordApi | (() => RecordApi)) {
 					{
 						...(customFields && { customFields }),
 						...(opts.fingerprint && { uniqueFingerprint: opts.fingerprint }),
+						...(opts.defaultAccessLevel !== undefined && {
+							defaultAccessLevel: parseAccessLevel(opts.defaultAccessLevel),
+						}),
 					},
 					readOptionsFromCli(opts),
 				)
@@ -369,19 +390,28 @@ export function recordCommand(api?: RecordApi | (() => RecordApi)) {
 		.description('Add a comment to a record (Asana allows only comments here)')
 		.option('--text <text>', 'Comment text')
 		.option('--html-text <html>', 'Comment as Asana rich text HTML')
+		.option('--pin', 'Pin the new comment on the record')
+		.option('--sticker <name>', `Sticker to attach (${STICKER_NAMES.join(', ')})`)
 		.option('--opt-fields <fields>', 'Comma-separated optional Asana fields to include')
-		.action(async (recordGid: string, opts: { text?: string; htmlText?: string; optFields?: string }) => {
-			if (!opts.text && !opts.htmlText) throw new InvalidArgumentError('pass --text or --html-text')
-			const data = await resolveRecordApi(api).createRecordStory(
-				recordGid,
-				{
-					...(opts.text && { text: opts.text }),
-					...(opts.htmlText && { html_text: opts.htmlText }),
-				},
-				readOptionsFromCli(opts),
-			)
-			output(data, () => console.log(`Added a comment to record ${recordGid} (story ${data.gid})`))
-		})
+		.action(
+			async (
+				recordGid: string,
+				opts: { text?: string; htmlText?: string; pin?: boolean; sticker?: string; optFields?: string },
+			) => {
+				if (!opts.text && !opts.htmlText) throw new InvalidArgumentError('pass --text or --html-text')
+				const data = await resolveRecordApi(api).createRecordStory(
+					recordGid,
+					{
+						...(opts.text && { text: opts.text }),
+						...(opts.htmlText && { html_text: opts.htmlText }),
+						...(opts.pin && { is_pinned: true }),
+						...(opts.sticker !== undefined && { sticker_name: opts.sticker }),
+					},
+					readOptionsFromCli(opts),
+				)
+				output(data, () => console.log(`Added a comment to record ${recordGid} (story ${data.gid})`))
+			},
+		)
 
 	return cmd
 }

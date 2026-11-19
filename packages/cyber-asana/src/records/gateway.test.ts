@@ -103,6 +103,26 @@ describe('records/gateway', () => {
 		)
 	})
 
+	it('createRecord sends default_access_level', async () => {
+		const spy = vi.spyOn(records, 'createRecord').mockResolvedValue({ data: { gid: 'r1' } } as never)
+
+		await createAsanaRecordGateway(client).createRecord('t1', 'Q3', { defaultAccessLevel: 'viewer' })
+
+		expect(spy).toHaveBeenCalledWith({ data: { name: 'Q3', table: 't1', default_access_level: 'viewer' } }, {})
+	})
+
+	it('createRecordStory sends is_pinned and sticker_name', async () => {
+		const spy = vi.spyOn(stories, 'createStoryForRecord').mockResolvedValue({ data: { gid: 's1' } } as never)
+
+		await createAsanaRecordGateway(client).createRecordStory('r1', {
+			text: 'hi',
+			is_pinned: true,
+			sticker_name: 'heart',
+		})
+
+		expect(spy).toHaveBeenCalledWith({ data: { text: 'hi', is_pinned: true, sticker_name: 'heart' } }, 'r1', {})
+	})
+
 	it('createRecord omits unset options', async () => {
 		const spy = vi.spyOn(records, 'createRecord').mockResolvedValue({ data: { gid: 'r1' } } as never)
 

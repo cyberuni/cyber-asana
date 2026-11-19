@@ -1,12 +1,13 @@
 import { buildErrorBody } from '../platform/error-body.js'
-import type { PaginationOptions } from '../platform/pagination.js'
 import type { ReadOptions } from '../platform/read-options.js'
-import type { StoryGateway, TaskTemplateData } from './gateway.js'
+import type { StoryGateway, StoryListOptions, TaskTemplateData } from './gateway.js'
 import {
 	buildStoryCreateFields,
 	buildStoryUpdateFields,
+	type GoalStoryCreateFields,
 	type StoryCreateFields,
 	type StoryUpdateFields,
+	validateCreatedAfter,
 } from './write-options.js'
 
 export function interpolateTemplate(text: string, task: TaskTemplateData): string {
@@ -45,8 +46,9 @@ export type StoryApi = ReturnType<typeof createStoryApi>
 
 export function createStoryApi(gateway: StoryGateway) {
 	return {
-		listStories(taskGid: string, opts?: PaginationOptions) {
-			return gateway.listStories(taskGid, opts)
+		async listStories(taskGid: string, opts?: StoryListOptions) {
+			if (opts?.createdAfter !== undefined) validateCreatedAfter(opts.createdAfter)
+			return await gateway.listStories(taskGid, opts)
 		},
 		async createStory(taskGid: string, fields: StoryCreateFields, opts?: ReadOptions) {
 			// Local shape checks run outside the try: their messages mention html_text, and the
@@ -56,6 +58,7 @@ export function createStoryApi(gateway: StoryGateway) {
 				htmlText: fields.html_text,
 				isPinned: fields.is_pinned,
 				stickerName: fields.sticker_name,
+				parentComment: fields.parent_comment,
 			})
 			try {
 				return await gateway.createStory(taskGid, payload, opts)
@@ -91,10 +94,11 @@ export function createStoryApi(gateway: StoryGateway) {
 		getTaskTemplateData(taskGid: string) {
 			return gateway.getTaskTemplateData(taskGid)
 		},
-		listGoalStories(goalGid: string, opts?: PaginationOptions) {
-			return gateway.listGoalStories(goalGid, opts)
+		async listGoalStories(goalGid: string, opts?: StoryListOptions) {
+			if (opts?.createdAfter !== undefined) validateCreatedAfter(opts.createdAfter)
+			return await gateway.listGoalStories(goalGid, opts)
 		},
-		async createGoalStory(goalGid: string, fields: StoryCreateFields, opts?: ReadOptions) {
+		async createGoalStory(goalGid: string, fields: GoalStoryCreateFields, opts?: ReadOptions) {
 			const payload = buildStoryCreateFields({
 				text: fields.text,
 				htmlText: fields.html_text,

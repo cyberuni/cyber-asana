@@ -16,6 +16,30 @@ import {
 } from './default.js'
 import { STICKER_NAMES } from './write-options.js'
 
+const listFilterParams = {
+	created_after: z
+		.string()
+		.optional()
+		.describe('Only stories created after this ISO 8601 date-time (exclusive, second granularity)'),
+	comments_only: z.boolean().optional().describe('Only comments, not system activity'),
+	sort_ascending: z.boolean().optional().describe('Oldest first (the default) when true, newest first when false'),
+}
+
+function listOptions(params: {
+	created_after?: string
+	comments_only?: boolean
+	sort_ascending?: boolean
+	[key: string]: unknown
+}) {
+	const { created_after, comments_only, sort_ascending, ...rest } = params
+	return {
+		...paginationOptions(rest),
+		...(created_after !== undefined && { createdAfter: created_after }),
+		...(comments_only !== undefined && { commentsOnly: comments_only }),
+		...(sort_ascending !== undefined && { sortAscending: sort_ascending }),
+	}
+}
+
 function resolveStoryApi(api?: StoryApi | (() => StoryApi)): StoryApi {
 	if (typeof api === 'function') return api()
 	return (
@@ -43,12 +67,12 @@ function registerStoryToolsWithPrefix(
 	server.tool(
 		`asana_${prefix}_list`,
 		'List Asana stories (comments) for a task',
-		{ task_gid: z.string().describe('Task GID'), ...paginationParams },
+		{ task_gid: z.string().describe('Task GID'), ...listFilterParams, ...paginationParams },
 		async ({ task_gid, ...params }) => ({
 			content: [
 				{
 					type: 'text',
-					text: JSON.stringify(await resolveStoryApi(api).listStories(task_gid, paginationOptions(params))),
+					text: JSON.stringify(await resolveStoryApi(api).listStories(task_gid, listOptions(params))),
 				},
 			],
 		}),
@@ -73,13 +97,19 @@ function registerStoryToolsWithPrefix(
 				),
 			is_pinned: z.boolean().optional().describe('Pin the new comment on the task'),
 			sticker_name: z.enum(STICKER_NAMES).optional().describe('Sticker to attach to the comment'),
+			parent_comment_gid: z
+				.string()
+				.optional()
+				.describe(
+					'Reply in a thread: the comment_gid of the top-level comment to reply to (read it with opt_fields comment_gid on get or list), not its story GID. The parent must be on this task and must not itself be a reply',
+				),
 			template: z
 				.boolean()
 				.optional()
 				.describe('Treat text as a template and interpolate task variables before posting'),
 			...readParams,
 		},
-		async ({ task_gid, text, html_text, is_pinned, sticker_name, template, ...params }) => {
+		async ({ task_gid, text, html_text, is_pinned, sticker_name, parent_comment_gid, template, ...params }) => {
 			const task = template ? await resolveStoryApi(api).getTaskTemplateData(task_gid) : undefined
 			return {
 				content: [
@@ -95,6 +125,7 @@ function registerStoryToolsWithPrefix(
 									}),
 									...(is_pinned !== undefined && { is_pinned }),
 									...(sticker_name !== undefined && { sticker_name }),
+									...(parent_comment_gid !== undefined && { parent_comment: parent_comment_gid }),
 								},
 								readOptions(params),
 							),
@@ -163,12 +194,12 @@ function registerGoalStoryTools(server: McpServer, api?: StoryApi | (() => Story
 	server.tool(
 		'asana_story_goal_list',
 		"List an Asana goal's stories (comments), such as progress notes (paid plan)",
-		{ goal_gid: z.string().describe('Goal GID'), ...paginationParams },
+		{ goal_gid: z.string().describe('Goal GID'), ...listFilterParams, ...paginationParams },
 		async ({ goal_gid, ...params }) => ({
 			content: [
 				{
 					type: 'text',
-					text: JSON.stringify(await resolveStoryApi(api).listGoalStories(goal_gid, paginationOptions(params))),
+					text: JSON.stringify(await resolveStoryApi(api).listGoalStories(goal_gid, listOptions(params))),
 				},
 			],
 		}),
