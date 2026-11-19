@@ -83,7 +83,7 @@ The table lives in `SYSTEM_SUITES` in `packages/cyber-asana/src/testing/system-s
 | `records/api` | `ASANA_SYSTEM_TEST_TABLE_GID` (records list pagination) and `ASANA_SYSTEM_TEST_RECORD_GID` (stories list pagination); `pnpm test:system:setup` creates both on a paid workspace. Needs a table with at least two records, and a record with at least two stories | paid, optional |
 | `tables/api` | workspace. Lists only; needs an Advanced, Enterprise, or Enterprise+ plan | paid |
 | `tags/api` | workspace | any |
-| `tasks/api` | workspace, project, task, second task (fixtures); `ASANA_SYSTEM_TEST_SECTION_GID` for create-in-section | any |
+| `tasks/api` | workspace, project, task, second task (fixtures); `ASANA_SYSTEM_TEST_SECTION_GID` for create-in-section; subtask position creates and deletes four probe tasks in the workspace | any |
 | `task-templates/api` | project (fixture) | any |
 | `teams/api` | workspace; `ASANA_SYSTEM_TEST_TEAM_GID` (fixture: the project's team; export one to override; skips in a workspace without teams) for the members and projects pagination tests | any |
 | `users/me-time-zone` | none. Pins that `user me` returns no `time_zone` (D11) | any |

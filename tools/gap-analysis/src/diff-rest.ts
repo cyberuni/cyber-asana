@@ -1,7 +1,18 @@
 import { isDirectRun } from './cli.js'
 import { restBaselinePath } from './paths.js'
 import { readRestCatalog } from './rest-catalog.js'
-import type { RestCatalog, RestDiff, RestOperation } from './rest-types.js'
+import type { AddedRestParameter, RestCatalog, RestDiff, RestOperation } from './rest-types.js'
+
+function addedParameters(before: Map<string, RestOperation>, fetched: RestCatalog): AddedRestParameter[] {
+	return fetched.operations.flatMap((operation) => {
+		const known = before.get(operation.operationId)?.parameters
+		if (!known) return []
+		const names = new Set(known.map((p) => `${p.in}:${p.name}`))
+		return (operation.parameters ?? [])
+			.filter((p) => !names.has(`${p.in}:${p.name}`))
+			.map((p) => ({ operationId: operation.operationId, ...p }))
+	})
+}
 
 export function diffRestCatalogs(baseline: RestCatalog, fetched: RestCatalog): RestDiff {
 	const before = new Map(baseline.operations.map((o) => [o.operationId, o]))
@@ -10,6 +21,7 @@ export function diffRestCatalogs(baseline: RestCatalog, fetched: RestCatalog): R
 		added: fetched.operations.filter((o) => !before.has(o.operationId)),
 		removed: baseline.operations.filter((o) => !after.has(o.operationId)),
 		newly_deprecated: fetched.operations.filter((o) => o.deprecated && before.get(o.operationId)?.deprecated === false),
+		added_parameters: addedParameters(before, fetched),
 		baseline_path: restBaselinePath,
 		fetched_at: fetched.fetched_at,
 		operation_count_before: baseline.operation_count,
@@ -18,7 +30,7 @@ export function diffRestCatalogs(baseline: RestCatalog, fetched: RestCatalog): R
 }
 
 export function isRestDrift(diff: RestDiff): boolean {
-	return diff.added.length + diff.removed.length + diff.newly_deprecated.length > 0
+	return diff.added.length + diff.removed.length + diff.newly_deprecated.length + diff.added_parameters.length > 0
 }
 
 function list(operations: RestOperation[]): string {
@@ -44,6 +56,14 @@ ${list(diff.removed)}
 
 ${list(diff.newly_deprecated)}
 
+## Added parameters on existing operations (${diff.added_parameters.length})
+
+${
+	diff.added_parameters.length > 0
+		? diff.added_parameters.map((p) => `- \`${p.operationId}\`: ${p.in} \`${p.name}\``).join('\n')
+		: '- _(none)_'
+}
+
 ## Operation counts
 
 - Baseline: ${diff.operation_count_before}
@@ -55,6 +75,7 @@ ${list(diff.newly_deprecated)}
 - [ ] Run the \`.agents/skills/analyze-asana-api-coverage\` skill
 - [ ] Run the \`update-asana-sdk\` skill to wrap what is worth wrapping
 - [ ] Refresh the baseline: \`pnpm --filter @cyberuni/gap-analysis run fetch-rest -- --write\`
+- [ ] Classify each new parameter of a wrapped operation in \`tools/gap-analysis/data/parameter-coverage.json\` (cover it, skip it with a reason, or file an issue), then \`pnpm --filter @cyberuni/gap-analysis run parameters\`
 
 Compare with committed baseline at \`tools/gap-analysis/data/asana-rest-baseline.json\`.
 `
@@ -98,6 +119,10 @@ async function main() {
 		if (ops.length === 0) continue
 		console.log(`\n${label}:`)
 		for (const o of ops) console.log(`  ${sign} ${o.operationId} (${o.method} ${o.path})`)
+	}
+	if (diff.added_parameters.length > 0) {
+		console.log('\nAdded parameters:')
+		for (const p of diff.added_parameters) console.log(`  + ${p.operationId} ${p.in} ${p.name}`)
 	}
 	process.exit(1)
 }

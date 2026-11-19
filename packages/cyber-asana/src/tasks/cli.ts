@@ -51,6 +51,7 @@ import {
 	removeDependents,
 	removeFollowersFromTask,
 	removeTaskFromProject,
+	reorderSubtask,
 	searchTasks,
 	updateTask,
 } from './default.js'
@@ -109,6 +110,7 @@ function resolveTaskApi(api?: TaskApi | (() => TaskApi)): TaskApi {
 			listProjectsForTask,
 			duplicateTask,
 			createSubtask,
+			reorderSubtask,
 			addTaskToProject,
 			removeTaskFromProject,
 			addFollowersToTask,
@@ -497,6 +499,8 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 				.option('--clear-start-at', 'Clear the start date and time')
 				.option('--clear-assignee', 'Unassign the task')
 				.option('--clear-parent', 'Remove the parent task relationship')
+				.option('--insert-before <gid>', 'With --parent: place the task before this subtask of the parent')
+				.option('--insert-after <gid>', 'With --parent: place the task after this subtask of the parent')
 				.option('--resource-subtype <subtype>', 'Task resource subtype (e.g. default_task, milestone)')
 				.option('--custom-type <gid>', 'Custom type GID (e.g. an Epic or Initiative type)')
 				.option('--custom-fields-json <json>', 'Custom field values as a JSON object')
@@ -523,6 +527,8 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 				parent?: string
 				parentGid?: string
 				clearParent?: boolean
+				insertBefore?: string
+				insertAfter?: string
 				resourceSubtype?: string
 				customType?: string
 				customFieldsJson?: string
@@ -551,6 +557,8 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 					clearAssignee: opts.clearAssignee,
 					parent: normalizedGid(opts, 'parent'),
 					clearParent: opts.clearParent,
+					insertBefore: opts.insertBefore,
+					insertAfter: opts.insertAfter,
 					resourceSubtype: opts.resourceSubtype,
 					customType: opts.customType,
 					customFieldsJson: opts.customFieldsJson,
@@ -560,6 +568,19 @@ export function taskCommand(api?: TaskApi | (() => TaskApi)) {
 			output(data, () => (data ? fmtTask(data) : console.log('No changes to apply')))
 		},
 	)
+
+	cmd
+		.command('reorder <gid>')
+		.description('Move a subtask before or after a sibling, keeping its parent')
+		.option('--insert-before <gid>', 'Place the task before this sibling subtask')
+		.option('--insert-after <gid>', 'Place the task after this sibling subtask')
+		.action(async (gid: string, opts: { insertBefore?: string; insertAfter?: string }) => {
+			const data = await resolveTaskApi(api).reorderSubtask(gid, {
+				...(opts.insertBefore !== undefined && { insertBefore: opts.insertBefore }),
+				...(opts.insertAfter !== undefined && { insertAfter: opts.insertAfter }),
+			})
+			output(data, () => (data ? fmtTask(data) : console.log(`Moved task ${gid}`)))
+		})
 
 	cmd
 		.command('delete <gid>')

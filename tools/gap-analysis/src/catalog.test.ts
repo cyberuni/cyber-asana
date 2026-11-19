@@ -42,7 +42,8 @@ describe('extractCyberTools', () => {
 		expect(tools).toContain('asana_html_check')
 		expect(tools).toContain('asana_table_list')
 		expect(tools).toContain('asana_record_story_create')
-		expect(tools.length).toBe(199)
+		expect(tools).toContain('asana_task_reorder')
+		expect(tools.length).toBe(200)
 	})
 })
 

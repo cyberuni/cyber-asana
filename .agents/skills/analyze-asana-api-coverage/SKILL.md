@@ -46,7 +46,23 @@ Update [`apps/web/src/content/docs/reference/api-coverage.md`](../../apps/web/sr
 - Not-wrapped resources
 - cyber-asana helpers under What cyber-asana adds on top
 
-### 4. Verify
+### 4. Reconcile parameter coverage
+
+Operation counts say nothing about the options an operation takes. Every path, query, and top-level
+body parameter of each wrapped operation is classified in
+[`tools/gap-analysis/data/parameter-coverage.json`](../../../tools/gap-analysis/data/parameter-coverage.json):
+`covered` (name the CLI flag and the MCP field), `skipped` (give the reason), or `gap` (link the issue
+that tracks it).
+
+1. After refreshing the baseline or wrapping a new operation, run
+   `pnpm --filter @cyberuni/gap-analysis run parameters -- --skeleton` to add a `todo` entry for each
+   wrapped operation that has none.
+2. Replace every `todo`, and classify any parameter `pnpm --filter @cyberuni/gap-analysis test` names.
+3. File one issue per gap, or per group of gaps that one change closes, and put its URL in `issue`.
+4. Run `pnpm --filter @cyberuni/gap-analysis run parameters` to regenerate
+   [the parameter coverage page](../../../apps/web/src/content/docs/reference/parameter-coverage.md).
+
+### 5. Verify
 
 ```sh
 pnpm check
@@ -55,6 +71,6 @@ pnpm --dir apps/web build
 
 Run focused package tests when the inventory found source behavior that needs correction.
 
-### 5. Commit discipline
+### 6. Commit discipline
 
 Commit documentation corrections with the API change they describe. If the audit finds only doc drift, commit the web-doc update as its own `docs:` commit.

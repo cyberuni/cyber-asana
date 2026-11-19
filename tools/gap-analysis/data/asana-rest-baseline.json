@@ -1,6 +1,6 @@
 {
 	"source": "https://raw.githubusercontent.com/Asana/openapi/master/defs/asana_oas.yaml",
-	"fetched_at": "2026-11-14",
+	"fetched_at": "2026-11-19",
 	"operation_count": 271,
 	"operations": [
 		{
@@ -8,1897 +8,8915 @@
 			"method": "POST",
 			"path": "/goals/{goal_gid}/addCustomFieldSetting",
 			"tag": "Goals",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "goal_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "custom_field",
+					"in": "body"
+				},
+				{
+					"name": "insert_after",
+					"in": "body"
+				},
+				{
+					"name": "insert_before",
+					"in": "body"
+				},
+				{
+					"name": "is_important",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "addCustomFieldSettingForPortfolio",
 			"method": "POST",
 			"path": "/portfolios/{portfolio_gid}/addCustomFieldSetting",
 			"tag": "Portfolios",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "portfolio_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "custom_field",
+					"in": "body"
+				},
+				{
+					"name": "insert_after",
+					"in": "body"
+				},
+				{
+					"name": "insert_before",
+					"in": "body"
+				},
+				{
+					"name": "is_important",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "addCustomFieldSettingForProject",
 			"method": "POST",
 			"path": "/projects/{project_gid}/addCustomFieldSetting",
 			"tag": "Projects",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "project_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "custom_field",
+					"in": "body"
+				},
+				{
+					"name": "insert_after",
+					"in": "body"
+				},
+				{
+					"name": "insert_before",
+					"in": "body"
+				},
+				{
+					"name": "is_important",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "addCustomFieldSettingForTable",
 			"method": "POST",
 			"path": "/tables/{table_gid}/addCustomFieldSetting",
 			"tag": "Tables",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "table_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "custom_field",
+					"in": "body"
+				},
+				{
+					"name": "insert_after",
+					"in": "body"
+				},
+				{
+					"name": "insert_before",
+					"in": "body"
+				},
+				{
+					"name": "is_important",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "addDependenciesForTask",
 			"method": "POST",
 			"path": "/tasks/{task_gid}/addDependencies",
 			"tag": "Tasks",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "task_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "dependencies",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "addDependentsForTask",
 			"method": "POST",
 			"path": "/tasks/{task_gid}/addDependents",
 			"tag": "Tasks",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "task_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "dependents",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "addFollowers",
 			"method": "POST",
 			"path": "/goals/{goal_gid}/addFollowers",
 			"tag": "Goals",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "goal_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "followers",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "addFollowersForProject",
 			"method": "POST",
 			"path": "/projects/{project_gid}/addFollowers",
 			"tag": "Projects",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "project_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "followers",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "addFollowersForTask",
 			"method": "POST",
 			"path": "/tasks/{task_gid}/addFollowers",
 			"tag": "Tasks",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "task_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "followers",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "addItemForPortfolio",
 			"method": "POST",
 			"path": "/portfolios/{portfolio_gid}/addItem",
 			"tag": "Portfolios",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "portfolio_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "insert_after",
+					"in": "body"
+				},
+				{
+					"name": "insert_before",
+					"in": "body"
+				},
+				{
+					"name": "item",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "addMembersForPortfolio",
 			"method": "POST",
 			"path": "/portfolios/{portfolio_gid}/addMembers",
 			"tag": "Portfolios",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "portfolio_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "members",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "addMembersForProject",
 			"method": "POST",
 			"path": "/projects/{project_gid}/addMembers",
 			"tag": "Projects",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "project_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "members",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "addProjectForTask",
 			"method": "POST",
 			"path": "/tasks/{task_gid}/addProject",
 			"tag": "Tasks",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "task_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "insert_after",
+					"in": "body"
+				},
+				{
+					"name": "insert_before",
+					"in": "body"
+				},
+				{
+					"name": "project",
+					"in": "body"
+				},
+				{
+					"name": "section",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "addSupportingRelationship",
 			"method": "POST",
 			"path": "/goals/{goal_gid}/addSupportingRelationship",
 			"tag": "Goal relationships",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "goal_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "contribution_weight",
+					"in": "body"
+				},
+				{
+					"name": "insert_after",
+					"in": "body"
+				},
+				{
+					"name": "insert_before",
+					"in": "body"
+				},
+				{
+					"name": "supporting_resource",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "addTagForTask",
 			"method": "POST",
 			"path": "/tasks/{task_gid}/addTag",
 			"tag": "Tasks",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "task_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "tag",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "addTaskForSection",
 			"method": "POST",
 			"path": "/sections/{section_gid}/addTask",
 			"tag": "Sections",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "section_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "insert_after",
+					"in": "body"
+				},
+				{
+					"name": "insert_before",
+					"in": "body"
+				},
+				{
+					"name": "task",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "addUserForTeam",
 			"method": "POST",
 			"path": "/teams/{team_gid}/addUser",
 			"tag": "Teams",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "team_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "user",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "addUserForWorkspace",
 			"method": "POST",
 			"path": "/workspaces/{workspace_gid}/addUser",
 			"tag": "Workspaces",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "workspace_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "user",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "approveAccessRequest",
 			"method": "POST",
 			"path": "/access_requests/{access_request_gid}/approve",
 			"tag": "Access requests",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "access_request_gid",
+					"in": "path"
+				}
+			]
 		},
 		{
 			"operationId": "createAccessRequest",
 			"method": "POST",
 			"path": "/access_requests",
 			"tag": "Access requests",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "message",
+					"in": "body"
+				},
+				{
+					"name": "target",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "createAllocation",
 			"method": "POST",
 			"path": "/allocations",
 			"tag": "Allocations",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "assignee",
+					"in": "body"
+				},
+				{
+					"name": "effort",
+					"in": "body"
+				},
+				{
+					"name": "end_date",
+					"in": "body"
+				},
+				{
+					"name": "parent",
+					"in": "body"
+				},
+				{
+					"name": "start_date",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "createAttachmentForObject",
 			"method": "POST",
 			"path": "/attachments",
 			"tag": "Attachments",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "connect_to_app",
+					"in": "body"
+				},
+				{
+					"name": "file",
+					"in": "body"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				},
+				{
+					"name": "parent",
+					"in": "body"
+				},
+				{
+					"name": "resource_subtype",
+					"in": "body"
+				},
+				{
+					"name": "url",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "createBatchRequest",
 			"method": "POST",
 			"path": "/batch",
 			"tag": "Batch API",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "actions",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "createBudget",
 			"method": "POST",
 			"path": "/budgets",
 			"tag": "Budgets",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "actual",
+					"in": "body"
+				},
+				{
+					"name": "budget_type",
+					"in": "body"
+				},
+				{
+					"name": "estimate",
+					"in": "body"
+				},
+				{
+					"name": "parent",
+					"in": "body"
+				},
+				{
+					"name": "total",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "createCustomField",
 			"method": "POST",
 			"path": "/custom_fields",
 			"tag": "Custom fields",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "currency_code",
+					"in": "body"
+				},
+				{
+					"name": "custom_label",
+					"in": "body"
+				},
+				{
+					"name": "custom_label_position",
+					"in": "body"
+				},
+				{
+					"name": "date_value",
+					"in": "body"
+				},
+				{
+					"name": "description",
+					"in": "body"
+				},
+				{
+					"name": "enum_options",
+					"in": "body"
+				},
+				{
+					"name": "enum_value",
+					"in": "body"
+				},
+				{
+					"name": "format",
+					"in": "body"
+				},
+				{
+					"name": "has_notifications_enabled",
+					"in": "body"
+				},
+				{
+					"name": "id_prefix",
+					"in": "body"
+				},
+				{
+					"name": "input_restrictions",
+					"in": "body"
+				},
+				{
+					"name": "is_formula_field",
+					"in": "body"
+				},
+				{
+					"name": "is_lookup_field",
+					"in": "body"
+				},
+				{
+					"name": "multi_enum_values",
+					"in": "body"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				},
+				{
+					"name": "number_value",
+					"in": "body"
+				},
+				{
+					"name": "owned_by_app",
+					"in": "body"
+				},
+				{
+					"name": "people_value",
+					"in": "body"
+				},
+				{
+					"name": "precision",
+					"in": "body"
+				},
+				{
+					"name": "reference_value",
+					"in": "body"
+				},
+				{
+					"name": "resource_subtype",
+					"in": "body"
+				},
+				{
+					"name": "text_value",
+					"in": "body"
+				},
+				{
+					"name": "workspace",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "createEnumOptionForCustomField",
 			"method": "POST",
 			"path": "/custom_fields/{custom_field_gid}/enum_options",
 			"tag": "Custom fields",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "custom_field_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "color",
+					"in": "body"
+				},
+				{
+					"name": "enabled",
+					"in": "body"
+				},
+				{
+					"name": "insert_after",
+					"in": "body"
+				},
+				{
+					"name": "insert_before",
+					"in": "body"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "createGoal",
 			"method": "POST",
 			"path": "/goals",
 			"tag": "Goals",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "due_on",
+					"in": "body"
+				},
+				{
+					"name": "followers",
+					"in": "body"
+				},
+				{
+					"name": "html_notes",
+					"in": "body"
+				},
+				{
+					"name": "is_workspace_level",
+					"in": "body"
+				},
+				{
+					"name": "liked",
+					"in": "body"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				},
+				{
+					"name": "notes",
+					"in": "body"
+				},
+				{
+					"name": "owner",
+					"in": "body"
+				},
+				{
+					"name": "start_on",
+					"in": "body"
+				},
+				{
+					"name": "team",
+					"in": "body"
+				},
+				{
+					"name": "time_period",
+					"in": "body"
+				},
+				{
+					"name": "workspace",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "createGoalMetric",
 			"method": "POST",
 			"path": "/goals/{goal_gid}/setMetric",
 			"tag": "Goals",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "goal_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "currency_code",
+					"in": "body"
+				},
+				{
+					"name": "current_number_value",
+					"in": "body"
+				},
+				{
+					"name": "initial_number_value",
+					"in": "body"
+				},
+				{
+					"name": "is_custom_weight",
+					"in": "body"
+				},
+				{
+					"name": "precision",
+					"in": "body"
+				},
+				{
+					"name": "progress_source",
+					"in": "body"
+				},
+				{
+					"name": "target_number_value",
+					"in": "body"
+				},
+				{
+					"name": "unit",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "createGraphExport",
 			"method": "POST",
 			"path": "/exports/graph",
 			"tag": "Exports",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "parent",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "createMembership",
 			"method": "POST",
 			"path": "/memberships",
 			"tag": "Memberships",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "access_level",
+					"in": "body"
+				},
+				{
+					"name": "member",
+					"in": "body"
+				},
+				{
+					"name": "parent",
+					"in": "body"
+				},
+				{
+					"name": "role",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "createOooEntry",
 			"method": "POST",
 			"path": "/ooo_entries",
 			"tag": "Ooo entries",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "end_date",
+					"in": "body"
+				},
+				{
+					"name": "start_date",
+					"in": "body"
+				},
+				{
+					"name": "user",
+					"in": "body"
+				},
+				{
+					"name": "workspace",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "createOrganizationExport",
 			"method": "POST",
 			"path": "/organization_exports",
 			"tag": "Organization exports",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "organization",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "createPortfolio",
 			"method": "POST",
 			"path": "/portfolios",
 			"tag": "Portfolios",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "archived",
+					"in": "body"
+				},
+				{
+					"name": "color",
+					"in": "body"
+				},
+				{
+					"name": "custom_type",
+					"in": "body"
+				},
+				{
+					"name": "default_access_level",
+					"in": "body"
+				},
+				{
+					"name": "due_on",
+					"in": "body"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				},
+				{
+					"name": "public",
+					"in": "body"
+				},
+				{
+					"name": "resource_subtype",
+					"in": "body"
+				},
+				{
+					"name": "start_on",
+					"in": "body"
+				},
+				{
+					"name": "workspace",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "createProject",
 			"method": "POST",
 			"path": "/projects",
 			"tag": "Projects",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "archived",
+					"in": "body"
+				},
+				{
+					"name": "color",
+					"in": "body"
+				},
+				{
+					"name": "current_status",
+					"in": "body"
+				},
+				{
+					"name": "current_status_update",
+					"in": "body"
+				},
+				{
+					"name": "custom_fields",
+					"in": "body"
+				},
+				{
+					"name": "custom_type",
+					"in": "body"
+				},
+				{
+					"name": "default_access_level",
+					"in": "body"
+				},
+				{
+					"name": "default_view",
+					"in": "body"
+				},
+				{
+					"name": "due_date",
+					"in": "body"
+				},
+				{
+					"name": "due_on",
+					"in": "body"
+				},
+				{
+					"name": "followers",
+					"in": "body"
+				},
+				{
+					"name": "html_custom_fields",
+					"in": "body"
+				},
+				{
+					"name": "html_notes",
+					"in": "body"
+				},
+				{
+					"name": "icon",
+					"in": "body"
+				},
+				{
+					"name": "minimum_access_level_for_customization",
+					"in": "body"
+				},
+				{
+					"name": "minimum_access_level_for_sharing",
+					"in": "body"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				},
+				{
+					"name": "notes",
+					"in": "body"
+				},
+				{
+					"name": "owner",
+					"in": "body"
+				},
+				{
+					"name": "privacy_setting",
+					"in": "body"
+				},
+				{
+					"name": "public",
+					"in": "body"
+				},
+				{
+					"name": "resource_subtype",
+					"in": "body"
+				},
+				{
+					"name": "start_on",
+					"in": "body"
+				},
+				{
+					"name": "team",
+					"in": "body"
+				},
+				{
+					"name": "workspace",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "createProjectBrief",
 			"method": "POST",
 			"path": "/projects/{project_gid}/project_briefs",
 			"tag": "Project briefs",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "project_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "html_text",
+					"in": "body"
+				},
+				{
+					"name": "text",
+					"in": "body"
+				},
+				{
+					"name": "title",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "createProjectForTeam",
 			"method": "POST",
 			"path": "/teams/{team_gid}/projects",
 			"tag": "Projects",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "team_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "archived",
+					"in": "body"
+				},
+				{
+					"name": "color",
+					"in": "body"
+				},
+				{
+					"name": "current_status",
+					"in": "body"
+				},
+				{
+					"name": "current_status_update",
+					"in": "body"
+				},
+				{
+					"name": "custom_fields",
+					"in": "body"
+				},
+				{
+					"name": "custom_type",
+					"in": "body"
+				},
+				{
+					"name": "default_access_level",
+					"in": "body"
+				},
+				{
+					"name": "default_view",
+					"in": "body"
+				},
+				{
+					"name": "due_date",
+					"in": "body"
+				},
+				{
+					"name": "due_on",
+					"in": "body"
+				},
+				{
+					"name": "followers",
+					"in": "body"
+				},
+				{
+					"name": "html_custom_fields",
+					"in": "body"
+				},
+				{
+					"name": "html_notes",
+					"in": "body"
+				},
+				{
+					"name": "icon",
+					"in": "body"
+				},
+				{
+					"name": "minimum_access_level_for_customization",
+					"in": "body"
+				},
+				{
+					"name": "minimum_access_level_for_sharing",
+					"in": "body"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				},
+				{
+					"name": "notes",
+					"in": "body"
+				},
+				{
+					"name": "owner",
+					"in": "body"
+				},
+				{
+					"name": "privacy_setting",
+					"in": "body"
+				},
+				{
+					"name": "public",
+					"in": "body"
+				},
+				{
+					"name": "resource_subtype",
+					"in": "body"
+				},
+				{
+					"name": "start_on",
+					"in": "body"
+				},
+				{
+					"name": "team",
+					"in": "body"
+				},
+				{
+					"name": "workspace",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "createProjectForWorkspace",
 			"method": "POST",
 			"path": "/workspaces/{workspace_gid}/projects",
 			"tag": "Projects",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "workspace_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "archived",
+					"in": "body"
+				},
+				{
+					"name": "color",
+					"in": "body"
+				},
+				{
+					"name": "current_status",
+					"in": "body"
+				},
+				{
+					"name": "current_status_update",
+					"in": "body"
+				},
+				{
+					"name": "custom_fields",
+					"in": "body"
+				},
+				{
+					"name": "custom_type",
+					"in": "body"
+				},
+				{
+					"name": "default_access_level",
+					"in": "body"
+				},
+				{
+					"name": "default_view",
+					"in": "body"
+				},
+				{
+					"name": "due_date",
+					"in": "body"
+				},
+				{
+					"name": "due_on",
+					"in": "body"
+				},
+				{
+					"name": "followers",
+					"in": "body"
+				},
+				{
+					"name": "html_custom_fields",
+					"in": "body"
+				},
+				{
+					"name": "html_notes",
+					"in": "body"
+				},
+				{
+					"name": "icon",
+					"in": "body"
+				},
+				{
+					"name": "minimum_access_level_for_customization",
+					"in": "body"
+				},
+				{
+					"name": "minimum_access_level_for_sharing",
+					"in": "body"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				},
+				{
+					"name": "notes",
+					"in": "body"
+				},
+				{
+					"name": "owner",
+					"in": "body"
+				},
+				{
+					"name": "privacy_setting",
+					"in": "body"
+				},
+				{
+					"name": "public",
+					"in": "body"
+				},
+				{
+					"name": "resource_subtype",
+					"in": "body"
+				},
+				{
+					"name": "start_on",
+					"in": "body"
+				},
+				{
+					"name": "team",
+					"in": "body"
+				},
+				{
+					"name": "workspace",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "createProjectStatusForProject",
 			"method": "POST",
 			"path": "/projects/{project_gid}/project_statuses",
 			"tag": "Project statuses",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "project_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "color",
+					"in": "body"
+				},
+				{
+					"name": "html_text",
+					"in": "body"
+				},
+				{
+					"name": "text",
+					"in": "body"
+				},
+				{
+					"name": "title",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "createRate",
 			"method": "POST",
 			"path": "/rates",
 			"tag": "Rates",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "parent",
+					"in": "body"
+				},
+				{
+					"name": "rate",
+					"in": "body"
+				},
+				{
+					"name": "resource",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "createRecord",
 			"method": "POST",
 			"path": "/records",
 			"tag": "Records",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "custom_fields",
+					"in": "body"
+				},
+				{
+					"name": "default_access_level",
+					"in": "body"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				},
+				{
+					"name": "table",
+					"in": "body"
+				},
+				{
+					"name": "unique_fingerprint",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "createResourceExport",
 			"method": "POST",
 			"path": "/exports/resource",
 			"tag": "Exports",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "export_request_parameters",
+					"in": "body"
+				},
+				{
+					"name": "workspace",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "createRole",
 			"method": "POST",
 			"path": "/roles",
 			"tag": "Roles",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "base_role_type",
+					"in": "body"
+				},
+				{
+					"name": "description",
+					"in": "body"
+				},
+				{
+					"name": "is_standard_role",
+					"in": "body"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				},
+				{
+					"name": "permissions",
+					"in": "body"
+				},
+				{
+					"name": "workspace",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "createSectionForProject",
 			"method": "POST",
 			"path": "/projects/{project_gid}/sections",
 			"tag": "Sections",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "project_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "insert_after",
+					"in": "body"
+				},
+				{
+					"name": "insert_before",
+					"in": "body"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "createStatusForObject",
 			"method": "POST",
 			"path": "/status_updates",
 			"tag": "Status updates",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "html_text",
+					"in": "body"
+				},
+				{
+					"name": "parent",
+					"in": "body"
+				},
+				{
+					"name": "status_type",
+					"in": "body"
+				},
+				{
+					"name": "text",
+					"in": "body"
+				},
+				{
+					"name": "title",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "createStoryForGoal",
 			"method": "POST",
 			"path": "/goals/{goal_gid}/stories",
 			"tag": "Stories",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "goal_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "html_text",
+					"in": "body"
+				},
+				{
+					"name": "is_pinned",
+					"in": "body"
+				},
+				{
+					"name": "sticker_name",
+					"in": "body"
+				},
+				{
+					"name": "text",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "createStoryForRecord",
 			"method": "POST",
 			"path": "/records/{record_gid}/stories",
 			"tag": "Stories",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "record_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "html_text",
+					"in": "body"
+				},
+				{
+					"name": "is_pinned",
+					"in": "body"
+				},
+				{
+					"name": "sticker_name",
+					"in": "body"
+				},
+				{
+					"name": "text",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "createStoryForTask",
 			"method": "POST",
 			"path": "/tasks/{task_gid}/stories",
 			"tag": "Stories",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "task_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "html_text",
+					"in": "body"
+				},
+				{
+					"name": "is_pinned",
+					"in": "body"
+				},
+				{
+					"name": "parent_comment",
+					"in": "body"
+				},
+				{
+					"name": "sticker_name",
+					"in": "body"
+				},
+				{
+					"name": "text",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "createSubtaskForTask",
 			"method": "POST",
 			"path": "/tasks/{task_gid}/subtasks",
 			"tag": "Tasks",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "task_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "approval_status",
+					"in": "body"
+				},
+				{
+					"name": "assigned_by",
+					"in": "body"
+				},
+				{
+					"name": "assignee",
+					"in": "body"
+				},
+				{
+					"name": "assignee_section",
+					"in": "body"
+				},
+				{
+					"name": "assignee_status",
+					"in": "body"
+				},
+				{
+					"name": "completed",
+					"in": "body"
+				},
+				{
+					"name": "completed_by",
+					"in": "body"
+				},
+				{
+					"name": "custom_fields",
+					"in": "body"
+				},
+				{
+					"name": "custom_type",
+					"in": "body"
+				},
+				{
+					"name": "custom_type_status_option",
+					"in": "body"
+				},
+				{
+					"name": "due_at",
+					"in": "body"
+				},
+				{
+					"name": "due_on",
+					"in": "body"
+				},
+				{
+					"name": "external",
+					"in": "body"
+				},
+				{
+					"name": "followers",
+					"in": "body"
+				},
+				{
+					"name": "html_custom_fields",
+					"in": "body"
+				},
+				{
+					"name": "html_notes",
+					"in": "body"
+				},
+				{
+					"name": "liked",
+					"in": "body"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				},
+				{
+					"name": "notes",
+					"in": "body"
+				},
+				{
+					"name": "parent",
+					"in": "body"
+				},
+				{
+					"name": "projects",
+					"in": "body"
+				},
+				{
+					"name": "resource_subtype",
+					"in": "body"
+				},
+				{
+					"name": "start_at",
+					"in": "body"
+				},
+				{
+					"name": "start_on",
+					"in": "body"
+				},
+				{
+					"name": "tags",
+					"in": "body"
+				},
+				{
+					"name": "workspace",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "createTable",
 			"method": "POST",
 			"path": "/tables",
 			"tag": "Tables",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				},
+				{
+					"name": "workspace",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "createTag",
 			"method": "POST",
 			"path": "/tags",
 			"tag": "Tags",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "color",
+					"in": "body"
+				},
+				{
+					"name": "followers",
+					"in": "body"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				},
+				{
+					"name": "notes",
+					"in": "body"
+				},
+				{
+					"name": "workspace",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "createTagForWorkspace",
 			"method": "POST",
 			"path": "/workspaces/{workspace_gid}/tags",
 			"tag": "Tags",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "workspace_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "color",
+					"in": "body"
+				},
+				{
+					"name": "followers",
+					"in": "body"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				},
+				{
+					"name": "notes",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "createTask",
 			"method": "POST",
 			"path": "/tasks",
 			"tag": "Tasks",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "approval_status",
+					"in": "body"
+				},
+				{
+					"name": "assigned_by",
+					"in": "body"
+				},
+				{
+					"name": "assignee",
+					"in": "body"
+				},
+				{
+					"name": "assignee_section",
+					"in": "body"
+				},
+				{
+					"name": "assignee_status",
+					"in": "body"
+				},
+				{
+					"name": "completed",
+					"in": "body"
+				},
+				{
+					"name": "completed_by",
+					"in": "body"
+				},
+				{
+					"name": "custom_fields",
+					"in": "body"
+				},
+				{
+					"name": "custom_type",
+					"in": "body"
+				},
+				{
+					"name": "custom_type_status_option",
+					"in": "body"
+				},
+				{
+					"name": "due_at",
+					"in": "body"
+				},
+				{
+					"name": "due_on",
+					"in": "body"
+				},
+				{
+					"name": "external",
+					"in": "body"
+				},
+				{
+					"name": "followers",
+					"in": "body"
+				},
+				{
+					"name": "html_custom_fields",
+					"in": "body"
+				},
+				{
+					"name": "html_notes",
+					"in": "body"
+				},
+				{
+					"name": "liked",
+					"in": "body"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				},
+				{
+					"name": "notes",
+					"in": "body"
+				},
+				{
+					"name": "parent",
+					"in": "body"
+				},
+				{
+					"name": "projects",
+					"in": "body"
+				},
+				{
+					"name": "resource_subtype",
+					"in": "body"
+				},
+				{
+					"name": "start_at",
+					"in": "body"
+				},
+				{
+					"name": "start_on",
+					"in": "body"
+				},
+				{
+					"name": "tags",
+					"in": "body"
+				},
+				{
+					"name": "workspace",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "createTeam",
 			"method": "POST",
 			"path": "/teams",
 			"tag": "Teams",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "description",
+					"in": "body"
+				},
+				{
+					"name": "edit_team_name_or_description_access_level",
+					"in": "body"
+				},
+				{
+					"name": "edit_team_visibility_or_trash_team_access_level",
+					"in": "body"
+				},
+				{
+					"name": "endorsed",
+					"in": "body"
+				},
+				{
+					"name": "guest_invite_management_access_level",
+					"in": "body"
+				},
+				{
+					"name": "html_description",
+					"in": "body"
+				},
+				{
+					"name": "join_request_management_access_level",
+					"in": "body"
+				},
+				{
+					"name": "member_invite_management_access_level",
+					"in": "body"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				},
+				{
+					"name": "organization",
+					"in": "body"
+				},
+				{
+					"name": "team_content_management_access_level",
+					"in": "body"
+				},
+				{
+					"name": "team_member_removal_access_level",
+					"in": "body"
+				},
+				{
+					"name": "visibility",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "createTimeTrackingCategory",
 			"method": "POST",
 			"path": "/time_tracking_categories",
 			"tag": "Time tracking categories",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "color",
+					"in": "body"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				},
+				{
+					"name": "workspace",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "createTimeTrackingEntry",
 			"method": "POST",
 			"path": "/tasks/{task_gid}/time_tracking_entries",
 			"tag": "Time tracking entries",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "task_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "assignee",
+					"in": "body"
+				},
+				{
+					"name": "attributable_to",
+					"in": "body"
+				},
+				{
+					"name": "billable_status",
+					"in": "body"
+				},
+				{
+					"name": "categories",
+					"in": "body"
+				},
+				{
+					"name": "description",
+					"in": "body"
+				},
+				{
+					"name": "duration_minutes",
+					"in": "body"
+				},
+				{
+					"name": "entered_on",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "createTimesheetApprovalStatus",
 			"method": "POST",
 			"path": "/timesheet_approval_statuses",
 			"tag": "Timesheet approval statuses",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "end_date",
+					"in": "body"
+				},
+				{
+					"name": "start_date",
+					"in": "body"
+				},
+				{
+					"name": "user",
+					"in": "body"
+				},
+				{
+					"name": "workspace",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "createWebhook",
 			"method": "POST",
 			"path": "/webhooks",
 			"tag": "Webhooks",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "filters",
+					"in": "body"
+				},
+				{
+					"name": "resource",
+					"in": "body"
+				},
+				{
+					"name": "target",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "deleteAllocation",
 			"method": "DELETE",
 			"path": "/allocations/{allocation_gid}",
 			"tag": "Allocations",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "allocation_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "deleteAttachment",
 			"method": "DELETE",
 			"path": "/attachments/{attachment_gid}",
 			"tag": "Attachments",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "attachment_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "deleteBudget",
 			"method": "DELETE",
 			"path": "/budgets/{budget_gid}",
 			"tag": "Budgets",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "budget_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "deleteCustomField",
 			"method": "DELETE",
 			"path": "/custom_fields/{custom_field_gid}",
 			"tag": "Custom fields",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "custom_field_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "deleteGoal",
 			"method": "DELETE",
 			"path": "/goals/{goal_gid}",
 			"tag": "Goals",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "goal_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "deleteMembership",
 			"method": "DELETE",
 			"path": "/memberships/{membership_gid}",
 			"tag": "Memberships",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "membership_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "deleteOooEntry",
 			"method": "DELETE",
 			"path": "/ooo_entries/{ooo_entry_gid}",
 			"tag": "Ooo entries",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "ooo_entry_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "deletePortfolio",
 			"method": "DELETE",
 			"path": "/portfolios/{portfolio_gid}",
 			"tag": "Portfolios",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "portfolio_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "deleteProject",
 			"method": "DELETE",
 			"path": "/projects/{project_gid}",
 			"tag": "Projects",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "project_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "deleteProjectBrief",
 			"method": "DELETE",
 			"path": "/project_briefs/{project_brief_gid}",
 			"tag": "Project briefs",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "project_brief_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "deleteProjectStatus",
 			"method": "DELETE",
 			"path": "/project_statuses/{project_status_gid}",
 			"tag": "Project statuses",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "project_status_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "deleteProjectTemplate",
 			"method": "DELETE",
 			"path": "/project_templates/{project_template_gid}",
 			"tag": "Project templates",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "project_template_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "deleteRate",
 			"method": "DELETE",
 			"path": "/rates/{rate_gid}",
 			"tag": "Rates",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "rate_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "deleteRecord",
 			"method": "DELETE",
 			"path": "/records/{record_gid}",
 			"tag": "Records",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "record_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "deleteRole",
 			"method": "DELETE",
 			"path": "/roles/{role_gid}",
 			"tag": "Roles",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "role_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "deleteSection",
 			"method": "DELETE",
 			"path": "/sections/{section_gid}",
 			"tag": "Sections",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "section_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "deleteStatus",
 			"method": "DELETE",
 			"path": "/status_updates/{status_update_gid}",
 			"tag": "Status updates",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "status_update_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "deleteStory",
 			"method": "DELETE",
 			"path": "/stories/{story_gid}",
 			"tag": "Stories",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "story_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "deleteTable",
 			"method": "DELETE",
 			"path": "/tables/{table_gid}",
 			"tag": "Tables",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "table_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "deleteTag",
 			"method": "DELETE",
 			"path": "/tags/{tag_gid}",
 			"tag": "Tags",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "tag_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "deleteTask",
 			"method": "DELETE",
 			"path": "/tasks/{task_gid}",
 			"tag": "Tasks",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "task_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "deleteTaskTemplate",
 			"method": "DELETE",
 			"path": "/task_templates/{task_template_gid}",
 			"tag": "Task templates",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "task_template_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "deleteTimeTrackingCategory",
 			"method": "DELETE",
 			"path": "/time_tracking_categories/{time_tracking_category_gid}",
 			"tag": "Time tracking categories",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "time_tracking_category_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "deleteTimeTrackingEntry",
 			"method": "DELETE",
 			"path": "/time_tracking_entries/{time_tracking_entry_gid}",
 			"tag": "Time tracking entries",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "time_tracking_entry_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "deleteWebhook",
 			"method": "DELETE",
 			"path": "/webhooks/{webhook_gid}",
 			"tag": "Webhooks",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "webhook_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "duplicatePortfolio",
 			"method": "POST",
 			"path": "/portfolios/{portfolio_gid}/duplicate",
 			"tag": "Portfolios",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "portfolio_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "include",
+					"in": "body"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "duplicateProject",
 			"method": "POST",
 			"path": "/projects/{project_gid}/duplicate",
 			"tag": "Projects",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "project_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "include",
+					"in": "body"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				},
+				{
+					"name": "schedule_dates",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "duplicateTask",
 			"method": "POST",
 			"path": "/tasks/{task_gid}/duplicate",
 			"tag": "Tasks",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "task_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "include",
+					"in": "body"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "getAccessRequests",
 			"method": "GET",
 			"path": "/access_requests",
 			"tag": "Access requests",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "target",
+					"in": "query"
+				},
+				{
+					"name": "user",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getAgent",
 			"method": "GET",
 			"path": "/agents/{agent_gid}",
 			"tag": "Agents",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "agent_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getAgentsForWorkspace",
 			"method": "GET",
 			"path": "/workspaces/{workspace_gid}/agents",
 			"tag": "Agents",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "workspace_gid",
+					"in": "path"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getAiStudioRuns",
 			"method": "GET",
 			"path": "/workspaces/{workspace_gid}/ai_studio/runs",
 			"tag": "AI Studio usage API",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "workspace_gid",
+					"in": "path"
+				},
+				{
+					"name": "division_gid",
+					"in": "query"
+				},
+				{
+					"name": "end_at",
+					"in": "query"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "start_at",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getAiStudioSeats",
 			"method": "GET",
 			"path": "/workspaces/{workspace_gid}/ai_studio/seats",
 			"tag": "AI Studio usage API",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "workspace_gid",
+					"in": "path"
+				},
+				{
+					"name": "division_gid",
+					"in": "query"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "state",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getAllocation",
 			"method": "GET",
 			"path": "/allocations/{allocation_gid}",
 			"tag": "Allocations",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "allocation_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getAllocations",
 			"method": "GET",
 			"path": "/allocations",
 			"tag": "Allocations",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "assignee",
+					"in": "query"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "parent",
+					"in": "query"
+				},
+				{
+					"name": "workspace",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getAttachment",
 			"method": "GET",
 			"path": "/attachments/{attachment_gid}",
 			"tag": "Attachments",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "attachment_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getAttachmentsForObject",
 			"method": "GET",
 			"path": "/attachments",
 			"tag": "Attachments",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "parent",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getAuditLogEvents",
 			"method": "GET",
 			"path": "/workspaces/{workspace_gid}/audit_log_events",
 			"tag": "Audit log API",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "workspace_gid",
+					"in": "path"
+				},
+				{
+					"name": "actor_gid",
+					"in": "query"
+				},
+				{
+					"name": "actor_type",
+					"in": "query"
+				},
+				{
+					"name": "end_at",
+					"in": "query"
+				},
+				{
+					"name": "event_type",
+					"in": "query"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "resource_gid",
+					"in": "query"
+				},
+				{
+					"name": "start_at",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getBudget",
 			"method": "GET",
 			"path": "/budgets/{budget_gid}",
 			"tag": "Budgets",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "budget_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getBudgets",
 			"method": "GET",
 			"path": "/budgets",
 			"tag": "Budgets",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "parent",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getCustomField",
 			"method": "GET",
 			"path": "/custom_fields/{custom_field_gid}",
 			"tag": "Custom fields",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "custom_field_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getCustomFieldSettingsForGoal",
 			"method": "GET",
 			"path": "/goals/{goal_gid}/custom_field_settings",
 			"tag": "Custom field settings",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "goal_gid",
+					"in": "path"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getCustomFieldSettingsForPortfolio",
 			"method": "GET",
 			"path": "/portfolios/{portfolio_gid}/custom_field_settings",
 			"tag": "Custom field settings",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "portfolio_gid",
+					"in": "path"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getCustomFieldSettingsForProject",
 			"method": "GET",
 			"path": "/projects/{project_gid}/custom_field_settings",
 			"tag": "Custom field settings",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "project_gid",
+					"in": "path"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getCustomFieldSettingsForTable",
 			"method": "GET",
 			"path": "/tables/{table_gid}/custom_field_settings",
 			"tag": "Tables",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "table_gid",
+					"in": "path"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getCustomFieldSettingsForTableLegacy",
 			"method": "GET",
 			"path": "/tables/{table_gid}/getCustomFieldSettings",
 			"tag": "Tables",
-			"deprecated": true
+			"deprecated": true,
+			"parameters": [
+				{
+					"name": "table_gid",
+					"in": "path"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getCustomFieldSettingsForTeam",
 			"method": "GET",
 			"path": "/teams/{team_gid}/custom_field_settings",
 			"tag": "Custom field settings",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "team_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getCustomFieldsForWorkspace",
 			"method": "GET",
 			"path": "/workspaces/{workspace_gid}/custom_fields",
 			"tag": "Custom fields",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "workspace_gid",
+					"in": "path"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getCustomType",
 			"method": "GET",
 			"path": "/custom_types/{custom_type_gid}",
 			"tag": "Custom types",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "custom_type_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getCustomTypes",
 			"method": "GET",
 			"path": "/custom_types",
 			"tag": "Custom types",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "project",
+					"in": "query"
+				},
+				{
+					"name": "workspace",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getDependenciesForTask",
 			"method": "GET",
 			"path": "/tasks/{task_gid}/dependencies",
 			"tag": "Tasks",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "task_gid",
+					"in": "path"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getDependentsForTask",
 			"method": "GET",
 			"path": "/tasks/{task_gid}/dependents",
 			"tag": "Tasks",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "task_gid",
+					"in": "path"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getEvents",
 			"method": "GET",
 			"path": "/events",
 			"tag": "Events",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "resource",
+					"in": "query"
+				},
+				{
+					"name": "sync",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getFavoritesForUser",
 			"method": "GET",
 			"path": "/users/{user_gid}/favorites",
 			"tag": "Users",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "user_gid",
+					"in": "path"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "resource_type",
+					"in": "query"
+				},
+				{
+					"name": "workspace",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getGoal",
 			"method": "GET",
 			"path": "/goals/{goal_gid}",
 			"tag": "Goals",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "goal_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getGoalRelationship",
 			"method": "GET",
 			"path": "/goal_relationships/{goal_relationship_gid}",
 			"tag": "Goal relationships",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "goal_relationship_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getGoalRelationships",
 			"method": "GET",
 			"path": "/goal_relationships",
 			"tag": "Goal relationships",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "resource_subtype",
+					"in": "query"
+				},
+				{
+					"name": "supported_goal",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getGoals",
 			"method": "GET",
 			"path": "/goals",
 			"tag": "Goals",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "is_workspace_level",
+					"in": "query"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "portfolio",
+					"in": "query"
+				},
+				{
+					"name": "project",
+					"in": "query"
+				},
+				{
+					"name": "task",
+					"in": "query"
+				},
+				{
+					"name": "team",
+					"in": "query"
+				},
+				{
+					"name": "time_periods",
+					"in": "query"
+				},
+				{
+					"name": "workspace",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getItemsForPortfolio",
 			"method": "GET",
 			"path": "/portfolios/{portfolio_gid}/items",
 			"tag": "Portfolios",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "portfolio_gid",
+					"in": "path"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getJob",
 			"method": "GET",
 			"path": "/jobs/{job_gid}",
 			"tag": "Jobs",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "job_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getMembership",
 			"method": "GET",
 			"path": "/memberships/{membership_gid}",
 			"tag": "Memberships",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "membership_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getMemberships",
 			"method": "GET",
 			"path": "/memberships",
 			"tag": "Memberships",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "member",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "parent",
+					"in": "query"
+				},
+				{
+					"name": "resource_subtype",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getNotificationsForUser",
 			"method": "GET",
 			"path": "/users/{user_gid}/notifications",
 			"tag": "Notifications",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "user_gid",
+					"in": "path"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "workspace",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getOooEntries",
 			"method": "GET",
 			"path": "/ooo_entries",
 			"tag": "Ooo entries",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "end_date",
+					"in": "query"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "start_date",
+					"in": "query"
+				},
+				{
+					"name": "user",
+					"in": "query"
+				},
+				{
+					"name": "workspace",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getOooEntry",
 			"method": "GET",
 			"path": "/ooo_entries/{ooo_entry_gid}",
 			"tag": "Ooo entries",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "ooo_entry_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getOrganizationExport",
 			"method": "GET",
 			"path": "/organization_exports/{organization_export_gid}",
 			"tag": "Organization exports",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "organization_export_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getParentGoalsForGoal",
 			"method": "GET",
 			"path": "/goals/{goal_gid}/parentGoals",
 			"tag": "Goals",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "goal_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getPortfolio",
 			"method": "GET",
 			"path": "/portfolios/{portfolio_gid}",
 			"tag": "Portfolios",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "portfolio_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getPortfolioMembership",
 			"method": "GET",
 			"path": "/portfolio_memberships/{portfolio_membership_gid}",
 			"tag": "Portfolio memberships",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "portfolio_membership_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getPortfolioMemberships",
 			"method": "GET",
 			"path": "/portfolio_memberships",
 			"tag": "Portfolio memberships",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "portfolio",
+					"in": "query"
+				},
+				{
+					"name": "user",
+					"in": "query"
+				},
+				{
+					"name": "workspace",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getPortfolioMembershipsForPortfolio",
 			"method": "GET",
 			"path": "/portfolios/{portfolio_gid}/portfolio_memberships",
 			"tag": "Portfolio memberships",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "portfolio_gid",
+					"in": "path"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "user",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getPortfolios",
 			"method": "GET",
 			"path": "/portfolios",
 			"tag": "Portfolios",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "custom_type",
+					"in": "query"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "owner",
+					"in": "query"
+				},
+				{
+					"name": "workspace",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getProject",
 			"method": "GET",
 			"path": "/projects/{project_gid}",
 			"tag": "Projects",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "project_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getProjectBrief",
 			"method": "GET",
 			"path": "/project_briefs/{project_brief_gid}",
 			"tag": "Project briefs",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "project_brief_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getProjectMembership",
 			"method": "GET",
 			"path": "/project_memberships/{project_membership_gid}",
 			"tag": "Project memberships",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "project_membership_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getProjectMembershipsForProject",
 			"method": "GET",
 			"path": "/projects/{project_gid}/project_memberships",
 			"tag": "Project memberships",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "project_gid",
+					"in": "path"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "user",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getProjectPortfolioSetting",
 			"method": "GET",
 			"path": "/project_portfolio_settings/{project_portfolio_setting_gid}",
 			"tag": "Project portfolio settings",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "project_portfolio_setting_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getProjectPortfolioSettingsForPortfolio",
 			"method": "GET",
 			"path": "/portfolios/{portfolio_gid}/project_portfolio_settings",
 			"tag": "Project portfolio settings",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "portfolio_gid",
+					"in": "path"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getProjectPortfolioSettingsForProject",
 			"method": "GET",
 			"path": "/projects/{project_gid}/project_portfolio_settings",
 			"tag": "Project portfolio settings",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "project_gid",
+					"in": "path"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getProjectStatus",
 			"method": "GET",
 			"path": "/project_statuses/{project_status_gid}",
 			"tag": "Project statuses",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "project_status_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getProjectStatusesForProject",
 			"method": "GET",
 			"path": "/projects/{project_gid}/project_statuses",
 			"tag": "Project statuses",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "project_gid",
+					"in": "path"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getProjectTemplate",
 			"method": "GET",
 			"path": "/project_templates/{project_template_gid}",
 			"tag": "Project templates",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "project_template_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getProjectTemplates",
 			"method": "GET",
 			"path": "/project_templates",
 			"tag": "Project templates",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "team",
+					"in": "query"
+				},
+				{
+					"name": "workspace",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getProjectTemplatesForTeam",
 			"method": "GET",
 			"path": "/teams/{team_gid}/project_templates",
 			"tag": "Project templates",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "team_gid",
+					"in": "path"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getProjects",
 			"method": "GET",
 			"path": "/projects",
 			"tag": "Projects",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "archived",
+					"in": "query"
+				},
+				{
+					"name": "custom_type",
+					"in": "query"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "team",
+					"in": "query"
+				},
+				{
+					"name": "workspace",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getProjectsForTask",
 			"method": "GET",
 			"path": "/tasks/{task_gid}/projects",
 			"tag": "Projects",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "task_gid",
+					"in": "path"
+				},
+				{
+					"name": "include_inherited_projects",
+					"in": "query"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getProjectsForTeam",
 			"method": "GET",
 			"path": "/teams/{team_gid}/projects",
 			"tag": "Projects",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "team_gid",
+					"in": "path"
+				},
+				{
+					"name": "archived",
+					"in": "query"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getProjectsForWorkspace",
 			"method": "GET",
 			"path": "/workspaces/{workspace_gid}/projects",
 			"tag": "Projects",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "workspace_gid",
+					"in": "path"
+				},
+				{
+					"name": "archived",
+					"in": "query"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getRate",
 			"method": "GET",
 			"path": "/rates/{rate_gid}",
 			"tag": "Rates",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "rate_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getRates",
 			"method": "GET",
 			"path": "/rates",
 			"tag": "Rates",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "parent",
+					"in": "query"
+				},
+				{
+					"name": "resource",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getReactionsOnObject",
 			"method": "GET",
 			"path": "/reactions",
 			"tag": "Reactions",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "emoji_base",
+					"in": "query"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "target",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getRecord",
 			"method": "GET",
 			"path": "/records/{record_gid}",
 			"tag": "Records",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "record_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getRecordsForTable",
 			"method": "GET",
 			"path": "/tables/{table_gid}/records",
 			"tag": "Records",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "table_gid",
+					"in": "path"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "modified_since",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "sort_by",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getRole",
 			"method": "GET",
 			"path": "/roles/{role_gid}",
 			"tag": "Roles",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "role_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getRoles",
 			"method": "GET",
 			"path": "/roles",
 			"tag": "Roles",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "archived",
+					"in": "query"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "workspace",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getSection",
 			"method": "GET",
 			"path": "/sections/{section_gid}",
 			"tag": "Sections",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "section_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getSectionsForProject",
 			"method": "GET",
 			"path": "/projects/{project_gid}/sections",
 			"tag": "Sections",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "project_gid",
+					"in": "path"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getStatus",
 			"method": "GET",
 			"path": "/status_updates/{status_update_gid}",
 			"tag": "Status updates",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "status_update_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getStatusesForObject",
 			"method": "GET",
 			"path": "/status_updates",
 			"tag": "Status updates",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "created_since",
+					"in": "query"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "parent",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getStoriesForGoal",
 			"method": "GET",
 			"path": "/goals/{goal_gid}/stories",
 			"tag": "Stories",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "goal_gid",
+					"in": "path"
+				},
+				{
+					"name": "created_after",
+					"in": "query"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "resource_subtype",
+					"in": "query"
+				},
+				{
+					"name": "sort_ascending",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getStoriesForRecord",
 			"method": "GET",
 			"path": "/records/{record_gid}/stories",
 			"tag": "Stories",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "record_gid",
+					"in": "path"
+				},
+				{
+					"name": "created_after",
+					"in": "query"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "resource_subtype",
+					"in": "query"
+				},
+				{
+					"name": "sort_ascending",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getStoriesForTask",
 			"method": "GET",
 			"path": "/tasks/{task_gid}/stories",
 			"tag": "Stories",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "task_gid",
+					"in": "path"
+				},
+				{
+					"name": "created_after",
+					"in": "query"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "resource_subtype",
+					"in": "query"
+				},
+				{
+					"name": "sort_ascending",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getStory",
 			"method": "GET",
 			"path": "/stories/{story_gid}",
 			"tag": "Stories",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "story_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getSubtasksForTask",
 			"method": "GET",
 			"path": "/tasks/{task_gid}/subtasks",
 			"tag": "Tasks",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "task_gid",
+					"in": "path"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getTable",
 			"method": "GET",
 			"path": "/tables/{table_gid}",
 			"tag": "Tables",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "table_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getTablesForWorkspace",
 			"method": "GET",
 			"path": "/workspaces/{workspace_gid}/tables",
 			"tag": "Tables",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "workspace_gid",
+					"in": "path"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getTag",
 			"method": "GET",
 			"path": "/tags/{tag_gid}",
 			"tag": "Tags",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "tag_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getTags",
 			"method": "GET",
 			"path": "/tags",
 			"tag": "Tags",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "workspace",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getTagsForTask",
 			"method": "GET",
 			"path": "/tasks/{task_gid}/tags",
 			"tag": "Tags",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "task_gid",
+					"in": "path"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getTagsForWorkspace",
 			"method": "GET",
 			"path": "/workspaces/{workspace_gid}/tags",
 			"tag": "Tags",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "workspace_gid",
+					"in": "path"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getTask",
 			"method": "GET",
 			"path": "/tasks/{task_gid}",
 			"tag": "Tasks",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "task_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getTaskCountsForProject",
 			"method": "GET",
 			"path": "/projects/{project_gid}/task_counts",
 			"tag": "Projects",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "project_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getTaskForCustomID",
 			"method": "GET",
 			"path": "/workspaces/{workspace_gid}/tasks/custom_id/{custom_id}",
 			"tag": "Tasks",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "custom_id",
+					"in": "path"
+				},
+				{
+					"name": "workspace_gid",
+					"in": "path"
+				}
+			]
 		},
 		{
 			"operationId": "getTaskTemplate",
 			"method": "GET",
 			"path": "/task_templates/{task_template_gid}",
 			"tag": "Task templates",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "task_template_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getTaskTemplates",
 			"method": "GET",
 			"path": "/task_templates",
 			"tag": "Task templates",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "project",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getTasks",
 			"method": "GET",
 			"path": "/tasks",
 			"tag": "Tasks",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "assignee",
+					"in": "query"
+				},
+				{
+					"name": "completed_since",
+					"in": "query"
+				},
+				{
+					"name": "custom_type",
+					"in": "query"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "modified_since",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "project",
+					"in": "query"
+				},
+				{
+					"name": "section",
+					"in": "query"
+				},
+				{
+					"name": "workspace",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getTasksForProject",
 			"method": "GET",
 			"path": "/projects/{project_gid}/tasks",
 			"tag": "Tasks",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "project_gid",
+					"in": "path"
+				},
+				{
+					"name": "completed_since",
+					"in": "query"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getTasksForSection",
 			"method": "GET",
 			"path": "/sections/{section_gid}/tasks",
 			"tag": "Tasks",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "section_gid",
+					"in": "path"
+				},
+				{
+					"name": "completed_since",
+					"in": "query"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getTasksForTag",
 			"method": "GET",
 			"path": "/tags/{tag_gid}/tasks",
 			"tag": "Tasks",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "tag_gid",
+					"in": "path"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getTasksForUserTaskList",
 			"method": "GET",
 			"path": "/user_task_lists/{user_task_list_gid}/tasks",
 			"tag": "Tasks",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "user_task_list_gid",
+					"in": "path"
+				},
+				{
+					"name": "completed_since",
+					"in": "query"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getTeam",
 			"method": "GET",
 			"path": "/teams/{team_gid}",
 			"tag": "Teams",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "team_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getTeamMembership",
 			"method": "GET",
 			"path": "/team_memberships/{team_membership_gid}",
 			"tag": "Team memberships",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "team_membership_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getTeamMemberships",
 			"method": "GET",
 			"path": "/team_memberships",
 			"tag": "Team memberships",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "team",
+					"in": "query"
+				},
+				{
+					"name": "user",
+					"in": "query"
+				},
+				{
+					"name": "workspace",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getTeamMembershipsForTeam",
 			"method": "GET",
 			"path": "/teams/{team_gid}/team_memberships",
 			"tag": "Team memberships",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "team_gid",
+					"in": "path"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getTeamMembershipsForUser",
 			"method": "GET",
 			"path": "/users/{user_gid}/team_memberships",
 			"tag": "Team memberships",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "user_gid",
+					"in": "path"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "workspace",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getTeamsForUser",
 			"method": "GET",
 			"path": "/users/{user_gid}/teams",
 			"tag": "Teams",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "user_gid",
+					"in": "path"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "organization",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getTeamsForWorkspace",
 			"method": "GET",
 			"path": "/workspaces/{workspace_gid}/teams",
 			"tag": "Teams",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "workspace_gid",
+					"in": "path"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getTimePeriod",
 			"method": "GET",
 			"path": "/time_periods/{time_period_gid}",
 			"tag": "Time periods",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "time_period_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getTimePeriods",
 			"method": "GET",
 			"path": "/time_periods",
 			"tag": "Time periods",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "end_on",
+					"in": "query"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "start_on",
+					"in": "query"
+				},
+				{
+					"name": "workspace",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getTimeTrackingCategories",
 			"method": "GET",
 			"path": "/time_tracking_categories",
 			"tag": "Time tracking categories",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "is_archived",
+					"in": "query"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "workspace",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getTimeTrackingCategory",
 			"method": "GET",
 			"path": "/time_tracking_categories/{time_tracking_category_gid}",
 			"tag": "Time tracking categories",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "time_tracking_category_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getTimeTrackingEntries",
 			"method": "GET",
 			"path": "/time_tracking_entries",
 			"tag": "Time tracking entries",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "assignee",
+					"in": "query"
+				},
+				{
+					"name": "attributable_to",
+					"in": "query"
+				},
+				{
+					"name": "entered_on_end_date",
+					"in": "query"
+				},
+				{
+					"name": "entered_on_start_date",
+					"in": "query"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "portfolio",
+					"in": "query"
+				},
+				{
+					"name": "task",
+					"in": "query"
+				},
+				{
+					"name": "timesheet_approval_status",
+					"in": "query"
+				},
+				{
+					"name": "user",
+					"in": "query"
+				},
+				{
+					"name": "workspace",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getTimeTrackingEntriesForTask",
 			"method": "GET",
 			"path": "/tasks/{task_gid}/time_tracking_entries",
 			"tag": "Time tracking entries",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "task_gid",
+					"in": "path"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getTimeTrackingEntriesForTimeTrackingCategory",
 			"method": "GET",
 			"path": "/time_tracking_categories/{time_tracking_category_gid}/time_tracking_entries",
 			"tag": "Time tracking categories",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "time_tracking_category_gid",
+					"in": "path"
+				},
+				{
+					"name": "end_date",
+					"in": "query"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "start_date",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getTimeTrackingEntry",
 			"method": "GET",
 			"path": "/time_tracking_entries/{time_tracking_entry_gid}",
 			"tag": "Time tracking entries",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "time_tracking_entry_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getTimesheetApprovalStatus",
 			"method": "GET",
 			"path": "/timesheet_approval_statuses/{timesheet_approval_status_gid}",
 			"tag": "Timesheet approval statuses",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "timesheet_approval_status_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getTimesheetApprovalStatuses",
 			"method": "GET",
 			"path": "/timesheet_approval_statuses",
 			"tag": "Timesheet approval statuses",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "approval_statuses",
+					"in": "query"
+				},
+				{
+					"name": "from_date",
+					"in": "query"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "to_date",
+					"in": "query"
+				},
+				{
+					"name": "user",
+					"in": "query"
+				},
+				{
+					"name": "workspace",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getUser",
 			"method": "GET",
 			"path": "/users/{user_gid}",
 			"tag": "Users",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "user_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "workspace",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getUserForWorkspace",
 			"method": "GET",
 			"path": "/workspaces/{workspace_gid}/users/{user_gid}",
 			"tag": "Users",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "user_gid",
+					"in": "path"
+				},
+				{
+					"name": "workspace_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getUserTaskList",
 			"method": "GET",
 			"path": "/user_task_lists/{user_task_list_gid}",
 			"tag": "User task lists",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "user_task_list_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getUserTaskListForUser",
 			"method": "GET",
 			"path": "/users/{user_gid}/user_task_list",
 			"tag": "User task lists",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "user_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "workspace",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getUsers",
 			"method": "GET",
 			"path": "/users",
 			"tag": "Users",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "team",
+					"in": "query"
+				},
+				{
+					"name": "workspace",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getUsersForTeam",
 			"method": "GET",
 			"path": "/teams/{team_gid}/users",
 			"tag": "Users",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "team_gid",
+					"in": "path"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getUsersForWorkspace",
 			"method": "GET",
 			"path": "/workspaces/{workspace_gid}/users",
 			"tag": "Users",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "workspace_gid",
+					"in": "path"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getWebhook",
 			"method": "GET",
 			"path": "/webhooks/{webhook_gid}",
 			"tag": "Webhooks",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "webhook_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getWebhooks",
 			"method": "GET",
 			"path": "/webhooks",
 			"tag": "Webhooks",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "resource",
+					"in": "query"
+				},
+				{
+					"name": "workspace",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getWorkspace",
 			"method": "GET",
 			"path": "/workspaces/{workspace_gid}",
 			"tag": "Workspaces",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "workspace_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getWorkspaceEvents",
 			"method": "GET",
 			"path": "/workspaces/{workspace_gid}/events",
 			"tag": "Workspaces",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "workspace_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "sync",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getWorkspaceMembership",
 			"method": "GET",
 			"path": "/workspace_memberships/{workspace_membership_gid}",
 			"tag": "Workspace memberships",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "workspace_membership_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getWorkspaceMembershipsForUser",
 			"method": "GET",
 			"path": "/users/{user_gid}/workspace_memberships",
 			"tag": "Workspace memberships",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "user_gid",
+					"in": "path"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getWorkspaceMembershipsForWorkspace",
 			"method": "GET",
 			"path": "/workspaces/{workspace_gid}/workspace_memberships",
 			"tag": "Workspace memberships",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "workspace_gid",
+					"in": "path"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "user",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "getWorkspaces",
 			"method": "GET",
 			"path": "/workspaces",
 			"tag": "Workspaces",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "offset",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "insertEnumOptionForCustomField",
 			"method": "POST",
 			"path": "/custom_fields/{custom_field_gid}/enum_options/insert",
 			"tag": "Custom fields",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "custom_field_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "after_enum_option",
+					"in": "body"
+				},
+				{
+					"name": "before_enum_option",
+					"in": "body"
+				},
+				{
+					"name": "enum_option",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "insertSectionForProject",
 			"method": "POST",
 			"path": "/projects/{project_gid}/sections/insert",
 			"tag": "Sections",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "project_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "after_section",
+					"in": "body"
+				},
+				{
+					"name": "before_section",
+					"in": "body"
+				},
+				{
+					"name": "section",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "instantiateProject",
 			"method": "POST",
 			"path": "/project_templates/{project_template_gid}/instantiateProject",
 			"tag": "Project templates",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "project_template_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "is_strict",
+					"in": "body"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				},
+				{
+					"name": "privacy_setting",
+					"in": "body"
+				},
+				{
+					"name": "public",
+					"in": "body"
+				},
+				{
+					"name": "requested_dates",
+					"in": "body"
+				},
+				{
+					"name": "requested_roles",
+					"in": "body"
+				},
+				{
+					"name": "team",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "instantiateTask",
 			"method": "POST",
 			"path": "/task_templates/{task_template_gid}/instantiateTask",
 			"tag": "Task templates",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "task_template_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "markNotificationsReadForUser",
 			"method": "POST",
 			"path": "/users/{user_gid}/notifications/markRead",
 			"tag": "Notifications",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "user_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "notification_gids",
+					"in": "body"
+				},
+				{
+					"name": "workspace",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "markNotificationsUnreadForUser",
 			"method": "POST",
 			"path": "/users/{user_gid}/notifications/markUnread",
 			"tag": "Notifications",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "user_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "notification_gids",
+					"in": "body"
+				},
+				{
+					"name": "workspace",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "projectSaveAsTemplate",
 			"method": "POST",
 			"path": "/projects/{project_gid}/saveAsTemplate",
 			"tag": "Projects",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "project_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				},
+				{
+					"name": "public",
+					"in": "body"
+				},
+				{
+					"name": "team",
+					"in": "body"
+				},
+				{
+					"name": "workspace",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "rejectAccessRequest",
 			"method": "POST",
 			"path": "/access_requests/{access_request_gid}/reject",
 			"tag": "Access requests",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "access_request_gid",
+					"in": "path"
+				}
+			]
 		},
 		{
 			"operationId": "removeCustomFieldSettingForGoal",
 			"method": "POST",
 			"path": "/goals/{goal_gid}/removeCustomFieldSetting",
 			"tag": "Goals",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "goal_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "custom_field",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "removeCustomFieldSettingForPortfolio",
 			"method": "POST",
 			"path": "/portfolios/{portfolio_gid}/removeCustomFieldSetting",
 			"tag": "Portfolios",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "portfolio_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "custom_field",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "removeCustomFieldSettingForProject",
 			"method": "POST",
 			"path": "/projects/{project_gid}/removeCustomFieldSetting",
 			"tag": "Projects",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "project_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "custom_field",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "removeCustomFieldSettingForTable",
 			"method": "POST",
 			"path": "/tables/{table_gid}/removeCustomFieldSetting",
 			"tag": "Tables",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "table_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "custom_field",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "removeDependenciesForTask",
 			"method": "POST",
 			"path": "/tasks/{task_gid}/removeDependencies",
 			"tag": "Tasks",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "task_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "dependencies",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "removeDependentsForTask",
 			"method": "POST",
 			"path": "/tasks/{task_gid}/removeDependents",
 			"tag": "Tasks",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "task_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "dependents",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "removeFollowerForTask",
 			"method": "POST",
 			"path": "/tasks/{task_gid}/removeFollowers",
 			"tag": "Tasks",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "task_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "followers",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "removeFollowers",
 			"method": "POST",
 			"path": "/goals/{goal_gid}/removeFollowers",
 			"tag": "Goals",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "goal_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "followers",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "removeFollowersForProject",
 			"method": "POST",
 			"path": "/projects/{project_gid}/removeFollowers",
 			"tag": "Projects",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "project_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "followers",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "removeItemForPortfolio",
 			"method": "POST",
 			"path": "/portfolios/{portfolio_gid}/removeItem",
 			"tag": "Portfolios",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "portfolio_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "item",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "removeMembersForPortfolio",
 			"method": "POST",
 			"path": "/portfolios/{portfolio_gid}/removeMembers",
 			"tag": "Portfolios",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "portfolio_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "members",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "removeMembersForProject",
 			"method": "POST",
 			"path": "/projects/{project_gid}/removeMembers",
 			"tag": "Projects",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "project_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "members",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "removeProjectForTask",
 			"method": "POST",
 			"path": "/tasks/{task_gid}/removeProject",
 			"tag": "Tasks",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "task_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "project",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "removeSupportingRelationship",
 			"method": "POST",
 			"path": "/goals/{goal_gid}/removeSupportingRelationship",
 			"tag": "Goal relationships",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "goal_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "supporting_resource",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "removeTagForTask",
 			"method": "POST",
 			"path": "/tasks/{task_gid}/removeTag",
 			"tag": "Tasks",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "task_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "tag",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "removeUserForTeam",
 			"method": "POST",
 			"path": "/teams/{team_gid}/removeUser",
 			"tag": "Teams",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "team_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "user",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "removeUserForWorkspace",
 			"method": "POST",
 			"path": "/workspaces/{workspace_gid}/removeUser",
 			"tag": "Workspaces",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "workspace_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "user",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "rollupProject",
 			"method": "POST",
 			"path": "/projects/{project_gid}/rollup",
 			"tag": "Projects",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "project_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "rollupTask",
 			"method": "POST",
 			"path": "/tasks/{task_gid}/rollup",
 			"tag": "Tasks",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "task_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "searchProjectsForWorkspace",
 			"method": "GET",
 			"path": "/workspaces/{workspace_gid}/projects/search",
 			"tag": "Projects",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "workspace_gid",
+					"in": "path"
+				},
+				{
+					"name": "completed",
+					"in": "query"
+				},
+				{
+					"name": "completed_at.after",
+					"in": "query"
+				},
+				{
+					"name": "completed_at.before",
+					"in": "query"
+				},
+				{
+					"name": "completed_on",
+					"in": "query"
+				},
+				{
+					"name": "completed_on.after",
+					"in": "query"
+				},
+				{
+					"name": "completed_on.before",
+					"in": "query"
+				},
+				{
+					"name": "created_at.after",
+					"in": "query"
+				},
+				{
+					"name": "created_at.before",
+					"in": "query"
+				},
+				{
+					"name": "created_on",
+					"in": "query"
+				},
+				{
+					"name": "created_on.after",
+					"in": "query"
+				},
+				{
+					"name": "created_on.before",
+					"in": "query"
+				},
+				{
+					"name": "due_at.after",
+					"in": "query"
+				},
+				{
+					"name": "due_at.before",
+					"in": "query"
+				},
+				{
+					"name": "due_on",
+					"in": "query"
+				},
+				{
+					"name": "due_on.after",
+					"in": "query"
+				},
+				{
+					"name": "due_on.before",
+					"in": "query"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "members.any",
+					"in": "query"
+				},
+				{
+					"name": "members.not",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "owner.any",
+					"in": "query"
+				},
+				{
+					"name": "portfolios.any",
+					"in": "query"
+				},
+				{
+					"name": "sort_ascending",
+					"in": "query"
+				},
+				{
+					"name": "sort_by",
+					"in": "query"
+				},
+				{
+					"name": "start_on",
+					"in": "query"
+				},
+				{
+					"name": "start_on.after",
+					"in": "query"
+				},
+				{
+					"name": "start_on.before",
+					"in": "query"
+				},
+				{
+					"name": "teams.any",
+					"in": "query"
+				},
+				{
+					"name": "text",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "searchRecordsForWorkspace",
 			"method": "GET",
 			"path": "/workspaces/{workspace_gid}/records/search",
 			"tag": "Records",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "workspace_gid",
+					"in": "path"
+				},
+				{
+					"name": "created_at.after",
+					"in": "query"
+				},
+				{
+					"name": "created_at.before",
+					"in": "query"
+				},
+				{
+					"name": "created_on",
+					"in": "query"
+				},
+				{
+					"name": "created_on.after",
+					"in": "query"
+				},
+				{
+					"name": "created_on.before",
+					"in": "query"
+				},
+				{
+					"name": "followers.any",
+					"in": "query"
+				},
+				{
+					"name": "followers.not",
+					"in": "query"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "sort_ascending",
+					"in": "query"
+				},
+				{
+					"name": "sort_by",
+					"in": "query"
+				},
+				{
+					"name": "tables.all",
+					"in": "query"
+				},
+				{
+					"name": "tables.any",
+					"in": "query"
+				},
+				{
+					"name": "tables.not",
+					"in": "query"
+				},
+				{
+					"name": "teams.any",
+					"in": "query"
+				},
+				{
+					"name": "text",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "searchTasksForWorkspace",
 			"method": "GET",
 			"path": "/workspaces/{workspace_gid}/tasks/search",
 			"tag": "Tasks",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "workspace_gid",
+					"in": "path"
+				},
+				{
+					"name": "assigned_by.any",
+					"in": "query"
+				},
+				{
+					"name": "assigned_by.not",
+					"in": "query"
+				},
+				{
+					"name": "assignee.any",
+					"in": "query"
+				},
+				{
+					"name": "assignee.not",
+					"in": "query"
+				},
+				{
+					"name": "commented_on_by.not",
+					"in": "query"
+				},
+				{
+					"name": "completed",
+					"in": "query"
+				},
+				{
+					"name": "completed_at.after",
+					"in": "query"
+				},
+				{
+					"name": "completed_at.before",
+					"in": "query"
+				},
+				{
+					"name": "completed_on",
+					"in": "query"
+				},
+				{
+					"name": "completed_on.after",
+					"in": "query"
+				},
+				{
+					"name": "completed_on.before",
+					"in": "query"
+				},
+				{
+					"name": "created_at.after",
+					"in": "query"
+				},
+				{
+					"name": "created_at.before",
+					"in": "query"
+				},
+				{
+					"name": "created_by.any",
+					"in": "query"
+				},
+				{
+					"name": "created_by.not",
+					"in": "query"
+				},
+				{
+					"name": "created_on",
+					"in": "query"
+				},
+				{
+					"name": "created_on.after",
+					"in": "query"
+				},
+				{
+					"name": "created_on.before",
+					"in": "query"
+				},
+				{
+					"name": "due_at.after",
+					"in": "query"
+				},
+				{
+					"name": "due_at.before",
+					"in": "query"
+				},
+				{
+					"name": "due_on",
+					"in": "query"
+				},
+				{
+					"name": "due_on.after",
+					"in": "query"
+				},
+				{
+					"name": "due_on.before",
+					"in": "query"
+				},
+				{
+					"name": "followers.any",
+					"in": "query"
+				},
+				{
+					"name": "followers.not",
+					"in": "query"
+				},
+				{
+					"name": "has_attachment",
+					"in": "query"
+				},
+				{
+					"name": "is_blocked",
+					"in": "query"
+				},
+				{
+					"name": "is_blocking",
+					"in": "query"
+				},
+				{
+					"name": "is_subtask",
+					"in": "query"
+				},
+				{
+					"name": "liked_by.not",
+					"in": "query"
+				},
+				{
+					"name": "limit",
+					"in": "query"
+				},
+				{
+					"name": "modified_at.after",
+					"in": "query"
+				},
+				{
+					"name": "modified_at.before",
+					"in": "query"
+				},
+				{
+					"name": "modified_on",
+					"in": "query"
+				},
+				{
+					"name": "modified_on.after",
+					"in": "query"
+				},
+				{
+					"name": "modified_on.before",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "portfolios.any",
+					"in": "query"
+				},
+				{
+					"name": "projects.all",
+					"in": "query"
+				},
+				{
+					"name": "projects.any",
+					"in": "query"
+				},
+				{
+					"name": "projects.not",
+					"in": "query"
+				},
+				{
+					"name": "resource_subtype",
+					"in": "query"
+				},
+				{
+					"name": "sections.all",
+					"in": "query"
+				},
+				{
+					"name": "sections.any",
+					"in": "query"
+				},
+				{
+					"name": "sections.not",
+					"in": "query"
+				},
+				{
+					"name": "sort_ascending",
+					"in": "query"
+				},
+				{
+					"name": "sort_by",
+					"in": "query"
+				},
+				{
+					"name": "start_on",
+					"in": "query"
+				},
+				{
+					"name": "start_on.after",
+					"in": "query"
+				},
+				{
+					"name": "start_on.before",
+					"in": "query"
+				},
+				{
+					"name": "tags.all",
+					"in": "query"
+				},
+				{
+					"name": "tags.any",
+					"in": "query"
+				},
+				{
+					"name": "tags.not",
+					"in": "query"
+				},
+				{
+					"name": "teams.any",
+					"in": "query"
+				},
+				{
+					"name": "text",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "setParentForTask",
 			"method": "POST",
 			"path": "/tasks/{task_gid}/setParent",
 			"tag": "Tasks",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "task_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "insert_after",
+					"in": "body"
+				},
+				{
+					"name": "insert_before",
+					"in": "body"
+				},
+				{
+					"name": "parent",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "triggerRule",
 			"method": "POST",
 			"path": "/rule_triggers/{rule_trigger_gid}/run",
 			"tag": "Rules",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "rule_trigger_gid",
+					"in": "path"
+				},
+				{
+					"name": "action_data",
+					"in": "body"
+				},
+				{
+					"name": "resource",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "typeaheadForWorkspace",
 			"method": "GET",
 			"path": "/workspaces/{workspace_gid}/typeahead",
 			"tag": "Typeahead",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "workspace_gid",
+					"in": "path"
+				},
+				{
+					"name": "count",
+					"in": "query"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "query",
+					"in": "query"
+				},
+				{
+					"name": "resource_type",
+					"in": "query"
+				},
+				{
+					"name": "type",
+					"in": "query"
+				}
+			]
 		},
 		{
 			"operationId": "updateAllocation",
 			"method": "PUT",
 			"path": "/allocations/{allocation_gid}",
 			"tag": "Allocations",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "allocation_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "assignee",
+					"in": "body"
+				},
+				{
+					"name": "effort",
+					"in": "body"
+				},
+				{
+					"name": "end_date",
+					"in": "body"
+				},
+				{
+					"name": "parent",
+					"in": "body"
+				},
+				{
+					"name": "start_date",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "updateBudget",
 			"method": "PUT",
 			"path": "/budgets/{budget_gid}",
 			"tag": "Budgets",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "budget_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "actual",
+					"in": "body"
+				},
+				{
+					"name": "budget_type",
+					"in": "body"
+				},
+				{
+					"name": "estimate",
+					"in": "body"
+				},
+				{
+					"name": "parent",
+					"in": "body"
+				},
+				{
+					"name": "total",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "updateCustomField",
 			"method": "PUT",
 			"path": "/custom_fields/{custom_field_gid}",
 			"tag": "Custom fields",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "custom_field_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "currency_code",
+					"in": "body"
+				},
+				{
+					"name": "custom_label",
+					"in": "body"
+				},
+				{
+					"name": "custom_label_position",
+					"in": "body"
+				},
+				{
+					"name": "date_value",
+					"in": "body"
+				},
+				{
+					"name": "description",
+					"in": "body"
+				},
+				{
+					"name": "enum_options",
+					"in": "body"
+				},
+				{
+					"name": "enum_value",
+					"in": "body"
+				},
+				{
+					"name": "format",
+					"in": "body"
+				},
+				{
+					"name": "has_notifications_enabled",
+					"in": "body"
+				},
+				{
+					"name": "id_prefix",
+					"in": "body"
+				},
+				{
+					"name": "input_restrictions",
+					"in": "body"
+				},
+				{
+					"name": "is_formula_field",
+					"in": "body"
+				},
+				{
+					"name": "is_lookup_field",
+					"in": "body"
+				},
+				{
+					"name": "multi_enum_values",
+					"in": "body"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				},
+				{
+					"name": "number_value",
+					"in": "body"
+				},
+				{
+					"name": "owned_by_app",
+					"in": "body"
+				},
+				{
+					"name": "people_value",
+					"in": "body"
+				},
+				{
+					"name": "precision",
+					"in": "body"
+				},
+				{
+					"name": "reference_value",
+					"in": "body"
+				},
+				{
+					"name": "text_value",
+					"in": "body"
+				},
+				{
+					"name": "workspace",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "updateEnumOption",
 			"method": "PUT",
 			"path": "/enum_options/{enum_option_gid}",
 			"tag": "Custom fields",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "enum_option_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "color",
+					"in": "body"
+				},
+				{
+					"name": "enabled",
+					"in": "body"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "updateGoal",
 			"method": "PUT",
 			"path": "/goals/{goal_gid}",
 			"tag": "Goals",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "goal_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "custom_fields",
+					"in": "body"
+				},
+				{
+					"name": "due_on",
+					"in": "body"
+				},
+				{
+					"name": "html_custom_fields",
+					"in": "body"
+				},
+				{
+					"name": "html_notes",
+					"in": "body"
+				},
+				{
+					"name": "is_workspace_level",
+					"in": "body"
+				},
+				{
+					"name": "liked",
+					"in": "body"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				},
+				{
+					"name": "notes",
+					"in": "body"
+				},
+				{
+					"name": "owner",
+					"in": "body"
+				},
+				{
+					"name": "start_on",
+					"in": "body"
+				},
+				{
+					"name": "status",
+					"in": "body"
+				},
+				{
+					"name": "team",
+					"in": "body"
+				},
+				{
+					"name": "time_period",
+					"in": "body"
+				},
+				{
+					"name": "workspace",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "updateGoalMetric",
 			"method": "POST",
 			"path": "/goals/{goal_gid}/setMetricCurrentValue",
 			"tag": "Goals",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "goal_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "current_number_value",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "updateGoalRelationship",
 			"method": "PUT",
 			"path": "/goal_relationships/{goal_relationship_gid}",
 			"tag": "Goal relationships",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "goal_relationship_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "contribution_weight",
+					"in": "body"
+				},
+				{
+					"name": "supported_goal",
+					"in": "body"
+				},
+				{
+					"name": "supporting_resource",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "updateMembership",
 			"method": "PUT",
 			"path": "/memberships/{membership_gid}",
 			"tag": "Memberships",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "membership_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "access_level",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "updateOooEntry",
 			"method": "PUT",
 			"path": "/ooo_entries/{ooo_entry_gid}",
 			"tag": "Ooo entries",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "ooo_entry_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "end_date",
+					"in": "body"
+				},
+				{
+					"name": "start_date",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "updatePortfolio",
 			"method": "PUT",
 			"path": "/portfolios/{portfolio_gid}",
 			"tag": "Portfolios",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "portfolio_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "archived",
+					"in": "body"
+				},
+				{
+					"name": "color",
+					"in": "body"
+				},
+				{
+					"name": "custom_fields",
+					"in": "body"
+				},
+				{
+					"name": "custom_type",
+					"in": "body"
+				},
+				{
+					"name": "default_access_level",
+					"in": "body"
+				},
+				{
+					"name": "due_on",
+					"in": "body"
+				},
+				{
+					"name": "html_custom_fields",
+					"in": "body"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				},
+				{
+					"name": "public",
+					"in": "body"
+				},
+				{
+					"name": "resource_subtype",
+					"in": "body"
+				},
+				{
+					"name": "start_on",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "updateProject",
 			"method": "PUT",
 			"path": "/projects/{project_gid}",
 			"tag": "Projects",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "project_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "archived",
+					"in": "body"
+				},
+				{
+					"name": "color",
+					"in": "body"
+				},
+				{
+					"name": "current_status",
+					"in": "body"
+				},
+				{
+					"name": "current_status_update",
+					"in": "body"
+				},
+				{
+					"name": "custom_fields",
+					"in": "body"
+				},
+				{
+					"name": "custom_type",
+					"in": "body"
+				},
+				{
+					"name": "default_access_level",
+					"in": "body"
+				},
+				{
+					"name": "default_view",
+					"in": "body"
+				},
+				{
+					"name": "due_date",
+					"in": "body"
+				},
+				{
+					"name": "due_on",
+					"in": "body"
+				},
+				{
+					"name": "followers",
+					"in": "body"
+				},
+				{
+					"name": "html_custom_fields",
+					"in": "body"
+				},
+				{
+					"name": "html_notes",
+					"in": "body"
+				},
+				{
+					"name": "icon",
+					"in": "body"
+				},
+				{
+					"name": "minimum_access_level_for_customization",
+					"in": "body"
+				},
+				{
+					"name": "minimum_access_level_for_sharing",
+					"in": "body"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				},
+				{
+					"name": "notes",
+					"in": "body"
+				},
+				{
+					"name": "owner",
+					"in": "body"
+				},
+				{
+					"name": "privacy_setting",
+					"in": "body"
+				},
+				{
+					"name": "public",
+					"in": "body"
+				},
+				{
+					"name": "resource_subtype",
+					"in": "body"
+				},
+				{
+					"name": "start_on",
+					"in": "body"
+				},
+				{
+					"name": "team",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "updateProjectBrief",
 			"method": "PUT",
 			"path": "/project_briefs/{project_brief_gid}",
 			"tag": "Project briefs",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "project_brief_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "html_text",
+					"in": "body"
+				},
+				{
+					"name": "text",
+					"in": "body"
+				},
+				{
+					"name": "title",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "updateProjectPortfolioSetting",
 			"method": "PUT",
 			"path": "/project_portfolio_settings/{project_portfolio_setting_gid}",
 			"tag": "Project portfolio settings",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "project_portfolio_setting_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "is_access_control_inherited",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "updateRate",
 			"method": "PUT",
 			"path": "/rates/{rate_gid}",
 			"tag": "Rates",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "rate_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "rate",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "updateRecord",
 			"method": "PUT",
 			"path": "/records/{record_gid}",
 			"tag": "Records",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "record_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "custom_fields",
+					"in": "body"
+				},
+				{
+					"name": "default_access_level",
+					"in": "body"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "updateRole",
 			"method": "PUT",
 			"path": "/roles/{role_gid}",
 			"tag": "Roles",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "role_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "base_role_type",
+					"in": "body"
+				},
+				{
+					"name": "description",
+					"in": "body"
+				},
+				{
+					"name": "is_standard_role",
+					"in": "body"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				},
+				{
+					"name": "permissions",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "updateSection",
 			"method": "PUT",
 			"path": "/sections/{section_gid}",
 			"tag": "Sections",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "section_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "insert_after",
+					"in": "body"
+				},
+				{
+					"name": "insert_before",
+					"in": "body"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "updateStory",
 			"method": "PUT",
 			"path": "/stories/{story_gid}",
 			"tag": "Stories",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "story_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "html_text",
+					"in": "body"
+				},
+				{
+					"name": "is_pinned",
+					"in": "body"
+				},
+				{
+					"name": "sticker_name",
+					"in": "body"
+				},
+				{
+					"name": "text",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "updateTable",
 			"method": "PUT",
 			"path": "/tables/{table_gid}",
 			"tag": "Tables",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "table_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "default_access_level",
+					"in": "body"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "updateTag",
 			"method": "PUT",
 			"path": "/tags/{tag_gid}",
 			"tag": "Tags",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "tag_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "color",
+					"in": "body"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				},
+				{
+					"name": "notes",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "updateTask",
 			"method": "PUT",
 			"path": "/tasks/{task_gid}",
 			"tag": "Tasks",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "task_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "approval_status",
+					"in": "body"
+				},
+				{
+					"name": "assigned_by",
+					"in": "body"
+				},
+				{
+					"name": "assignee",
+					"in": "body"
+				},
+				{
+					"name": "assignee_section",
+					"in": "body"
+				},
+				{
+					"name": "assignee_status",
+					"in": "body"
+				},
+				{
+					"name": "completed",
+					"in": "body"
+				},
+				{
+					"name": "completed_by",
+					"in": "body"
+				},
+				{
+					"name": "custom_fields",
+					"in": "body"
+				},
+				{
+					"name": "custom_type",
+					"in": "body"
+				},
+				{
+					"name": "custom_type_status_option",
+					"in": "body"
+				},
+				{
+					"name": "due_at",
+					"in": "body"
+				},
+				{
+					"name": "due_on",
+					"in": "body"
+				},
+				{
+					"name": "external",
+					"in": "body"
+				},
+				{
+					"name": "html_custom_fields",
+					"in": "body"
+				},
+				{
+					"name": "html_notes",
+					"in": "body"
+				},
+				{
+					"name": "liked",
+					"in": "body"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				},
+				{
+					"name": "notes",
+					"in": "body"
+				},
+				{
+					"name": "parent",
+					"in": "body"
+				},
+				{
+					"name": "resource_subtype",
+					"in": "body"
+				},
+				{
+					"name": "start_at",
+					"in": "body"
+				},
+				{
+					"name": "start_on",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "updateTeam",
 			"method": "PUT",
 			"path": "/teams/{team_gid}",
 			"tag": "Teams",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "team_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "description",
+					"in": "body"
+				},
+				{
+					"name": "edit_team_name_or_description_access_level",
+					"in": "body"
+				},
+				{
+					"name": "edit_team_visibility_or_trash_team_access_level",
+					"in": "body"
+				},
+				{
+					"name": "endorsed",
+					"in": "body"
+				},
+				{
+					"name": "guest_invite_management_access_level",
+					"in": "body"
+				},
+				{
+					"name": "html_description",
+					"in": "body"
+				},
+				{
+					"name": "join_request_management_access_level",
+					"in": "body"
+				},
+				{
+					"name": "member_invite_management_access_level",
+					"in": "body"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				},
+				{
+					"name": "organization",
+					"in": "body"
+				},
+				{
+					"name": "team_content_management_access_level",
+					"in": "body"
+				},
+				{
+					"name": "team_member_removal_access_level",
+					"in": "body"
+				},
+				{
+					"name": "visibility",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "updateTimeTrackingCategory",
 			"method": "PUT",
 			"path": "/time_tracking_categories/{time_tracking_category_gid}",
 			"tag": "Time tracking categories",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "time_tracking_category_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "color",
+					"in": "body"
+				},
+				{
+					"name": "is_archived",
+					"in": "body"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "updateTimeTrackingEntry",
 			"method": "PUT",
 			"path": "/time_tracking_entries/{time_tracking_entry_gid}",
 			"tag": "Time tracking entries",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "time_tracking_entry_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "assignee",
+					"in": "body"
+				},
+				{
+					"name": "attributable_to",
+					"in": "body"
+				},
+				{
+					"name": "billable_status",
+					"in": "body"
+				},
+				{
+					"name": "categories",
+					"in": "body"
+				},
+				{
+					"name": "description",
+					"in": "body"
+				},
+				{
+					"name": "duration_minutes",
+					"in": "body"
+				},
+				{
+					"name": "entered_on",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "updateTimesheetApprovalStatus",
 			"method": "PUT",
 			"path": "/timesheet_approval_statuses/{timesheet_approval_status_gid}",
 			"tag": "Timesheet approval statuses",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "timesheet_approval_status_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "approval_status",
+					"in": "body"
+				},
+				{
+					"name": "message",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "updateUser",
 			"method": "PUT",
 			"path": "/users/{user_gid}",
 			"tag": "Users",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "user_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "workspace",
+					"in": "query"
+				},
+				{
+					"name": "custom_fields",
+					"in": "body"
+				},
+				{
+					"name": "html_custom_fields",
+					"in": "body"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "updateUserForWorkspace",
 			"method": "PUT",
 			"path": "/workspaces/{workspace_gid}/users/{user_gid}",
 			"tag": "Users",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "user_gid",
+					"in": "path"
+				},
+				{
+					"name": "workspace_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "custom_fields",
+					"in": "body"
+				},
+				{
+					"name": "html_custom_fields",
+					"in": "body"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "updateWebhook",
 			"method": "PUT",
 			"path": "/webhooks/{webhook_gid}",
 			"tag": "Webhooks",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "webhook_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "filters",
+					"in": "body"
+				}
+			]
 		},
 		{
 			"operationId": "updateWorkspace",
 			"method": "PUT",
 			"path": "/workspaces/{workspace_gid}",
 			"tag": "Workspaces",
-			"deprecated": false
+			"deprecated": false,
+			"parameters": [
+				{
+					"name": "workspace_gid",
+					"in": "path"
+				},
+				{
+					"name": "opt_fields",
+					"in": "query"
+				},
+				{
+					"name": "opt_pretty",
+					"in": "query"
+				},
+				{
+					"name": "name",
+					"in": "body"
+				}
+			]
 		}
 	]
 }

@@ -36,6 +36,7 @@ import {
 	removeDependents,
 	removeFollowersFromTask,
 	removeTaskFromProject,
+	reorderSubtask,
 	searchTasks,
 	updateTask,
 } from './default.js'
@@ -95,6 +96,7 @@ function resolveTaskApi(api?: TaskApi | (() => TaskApi)): TaskApi {
 			listProjectsForTask,
 			duplicateTask,
 			createSubtask,
+			reorderSubtask,
 			addTaskToProject,
 			removeTaskFromProject,
 			addFollowersToTask,
@@ -546,6 +548,11 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 			clear_assignee: z.boolean().optional().describe('Unassign the task'),
 			parent_gid: z.string().optional().describe('Parent task GID'),
 			clear_parent: z.boolean().optional().describe('Remove the parent task relationship'),
+			insert_before: z
+				.string()
+				.optional()
+				.describe('With parent_gid: place the task before this subtask of the parent'),
+			insert_after: z.string().optional().describe('With parent_gid: place the task after this subtask of the parent'),
 			resource_subtype: z.string().optional().describe('Task resource subtype'),
 			custom_type: z.string().optional().describe('Custom type GID (e.g. an Epic or Initiative type)'),
 			custom_fields: z.record(z.string(), z.unknown()).optional().describe('Custom field values keyed by GID'),
@@ -569,6 +576,8 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 			clear_assignee,
 			parent_gid,
 			clear_parent,
+			insert_before,
+			insert_after,
 			resource_subtype,
 			custom_type,
 			custom_fields,
@@ -596,11 +605,36 @@ Use \\n for line breaks (not <br> or <p>). Example: "<body><h1>Title</h1>Content
 								clearAssignee: clear_assignee,
 								parent: parent_gid,
 								clearParent: clear_parent,
+								insertBefore: insert_before,
+								insertAfter: insert_after,
 								resourceSubtype: resource_subtype,
 								customType: custom_type,
 								customFields: custom_fields,
 							}),
 						),
+					),
+				},
+			],
+		}),
+	)
+
+	server.tool(
+		'asana_task_reorder',
+		'Move an Asana subtask before or after a sibling, keeping its parent. Give exactly one of insert_before or insert_after.',
+		{
+			task_gid: z.string().describe('Subtask GID'),
+			insert_before: z.string().optional().describe('Place the task before this sibling subtask'),
+			insert_after: z.string().optional().describe('Place the task after this sibling subtask'),
+		},
+		async ({ task_gid, insert_before, insert_after }) => ({
+			content: [
+				{
+					type: 'text',
+					text: JSON.stringify(
+						await resolveTaskApi(api).reorderSubtask(task_gid, {
+							...(insert_before !== undefined && { insertBefore: insert_before }),
+							...(insert_after !== undefined && { insertAfter: insert_after }),
+						}),
 					),
 				},
 			],

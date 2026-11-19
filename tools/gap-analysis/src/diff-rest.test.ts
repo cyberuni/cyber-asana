@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { diffRestCatalogs, renderRestIssueBody } from './diff-rest.js'
+import { diffRestCatalogs, isRestDrift, renderRestIssueBody } from './diff-rest.js'
 import { restCatalogFromOperations } from './rest-catalog.js'
 import type { RestOperation } from './rest-types.js'
 
@@ -36,7 +36,33 @@ describe('diffRestCatalogs', () => {
 	})
 })
 
+describe('diffRestCatalogs parameters', () => {
+	const withParams = (names: string[]) =>
+		restCatalogFromOperations('x', [
+			op('setParentForTask', { parameters: names.map((name) => ({ name, in: 'body' })) }),
+		])
+
+	it('reports parameters an existing operation gained', () => {
+		const diff = diffRestCatalogs(withParams(['parent']), withParams(['parent', 'insert_after']))
+		expect(diff.added_parameters).toEqual([{ operationId: 'setParentForTask', name: 'insert_after', in: 'body' }])
+		expect(isRestDrift(diff)).toBe(true)
+	})
+
+	it('reports nothing for a baseline written before parameters were tracked', () => {
+		const old = restCatalogFromOperations('b', [op('setParentForTask')])
+		expect(diffRestCatalogs(old, withParams(['parent'])).added_parameters).toEqual([])
+	})
+})
+
 describe('renderRestIssueBody', () => {
+	it('lists added parameters and the coverage step', () => {
+		const before = restCatalogFromOperations('b', [op('getTask', { parameters: [] })])
+		const after = restCatalogFromOperations('f', [op('getTask', { parameters: [{ name: 'opt_fields', in: 'query' }] })])
+		const body = renderRestIssueBody(diffRestCatalogs(before, after))
+		expect(body).toContain('`getTask`: query `opt_fields`')
+		expect(body).toContain('parameter-coverage.json')
+	})
+
 	it('lists the changes and the next-step checklist', () => {
 		const fetched = restCatalogFromOperations('f', [op('getGoals')])
 		const body = renderRestIssueBody(diffRestCatalogs(baseline, fetched))

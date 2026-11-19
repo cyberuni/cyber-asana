@@ -5,6 +5,7 @@ import { defineBatchLookupAcceptanceSpecs } from './batch-lookup.acceptance.js'
 import { defineCreateInSectionAcceptanceSpecs } from './create-in-section.acceptance.js'
 import { defineGetWithStoriesAcceptanceSpecs } from './get-with-stories.acceptance.js'
 import { defineTaskListPaginationAcceptanceSpecs } from './list-pagination.acceptance.js'
+import { defineSubtaskPositionAcceptanceSpecs } from './subtask-position.acceptance.js'
 
 const primaryTaskGid = systemEnv('ASANA_SYSTEM_TEST_TASK_GID')
 const projectGid = systemEnv('ASANA_SYSTEM_TEST_PROJECT_GID')
@@ -52,4 +53,11 @@ describe.skipIf(!createInSectionEnabled)(
 		projectGid: projectGid!,
 		sectionGid: sectionGid!,
 	}),
+)
+
+const subtaskPositionEnabled = isSystemTestEnabled() && Boolean(workspaceGid)
+
+describe.skipIf(!subtaskPositionEnabled)(
+	'tasks/api subtask position system',
+	defineSubtaskPositionAcceptanceSpecs({ getApi: getTaskApi, workspaceGid: workspaceGid! }),
 )

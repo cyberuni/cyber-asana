@@ -1,0 +1,5759 @@
+{
+	"global": {
+		"opt_pretty": "Pretty-prints Asana's JSON; the CLI formats its own output and MCP serializes compactly"
+	},
+	"operations": {
+		"addCustomFieldSettingForPortfolio": {
+			"cli": ["custom-field attach-portfolio"],
+			"mcp": ["asana_custom_field_attach_portfolio"],
+			"parameters": {
+				"portfolio_gid": {
+					"status": "covered",
+					"cli": "<portfolio-gid>",
+					"mcp": "portfolio_gid"
+				},
+				"custom_field": {
+					"status": "covered",
+					"cli": "<field-gid>",
+					"mcp": "custom_field_gid"
+				},
+				"insert_after": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/406",
+					"note": "no CLI flag and no MCP field"
+				},
+				"insert_before": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/406",
+					"note": "no CLI flag and no MCP field"
+				},
+				"is_important": {
+					"status": "covered",
+					"cli": "--important",
+					"mcp": "is_important",
+					"note": "CLI sends only true; no way to send false"
+				}
+			}
+		},
+		"addCustomFieldSettingForProject": {
+			"cli": ["custom-field attach"],
+			"mcp": ["asana_custom_field_attach"],
+			"parameters": {
+				"project_gid": {
+					"status": "covered",
+					"cli": "<project-gid>",
+					"mcp": "project_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "gateway sends no opt_fields; CLI has no flag; MCP has none"
+				},
+				"custom_field": {
+					"status": "covered",
+					"cli": "<field-gid>",
+					"mcp": "custom_field_gid"
+				},
+				"insert_after": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/406",
+					"note": "gateway supports it; CLI has no flag; MCP has none"
+				},
+				"insert_before": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/406",
+					"note": "gateway supports it; CLI has no flag; MCP has none"
+				},
+				"is_important": {
+					"status": "covered",
+					"cli": "--important",
+					"mcp": "is_important"
+				}
+			}
+		},
+		"addCustomFieldSettingForTable": {
+			"cli": ["table add-field"],
+			"mcp": ["asana_table_add_field"],
+			"parameters": {
+				"table_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "table_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it"
+				},
+				"custom_field": {
+					"status": "covered",
+					"cli": "<custom-field-gid>",
+					"mcp": "custom_field_gid"
+				},
+				"insert_after": {
+					"status": "covered",
+					"cli": "--insert-after",
+					"mcp": "insert_after"
+				},
+				"insert_before": {
+					"status": "covered",
+					"cli": "--insert-before",
+					"mcp": "insert_before"
+				},
+				"is_important": {
+					"status": "covered",
+					"cli": "--important",
+					"mcp": "is_important"
+				}
+			}
+		},
+		"addDependenciesForTask": {
+			"cli": ["task dependency add"],
+			"mcp": ["asana_task_dependency_add"],
+			"parameters": {
+				"task_gid": {
+					"status": "covered",
+					"cli": "<task-gid>",
+					"mcp": "task_gid"
+				},
+				"dependencies": {
+					"status": "covered",
+					"cli": "<dep-gids...>",
+					"mcp": "dependency_gids"
+				}
+			}
+		},
+		"addDependentsForTask": {
+			"cli": ["task dependent add"],
+			"mcp": ["asana_task_dependent_add"],
+			"parameters": {
+				"task_gid": {
+					"status": "covered",
+					"cli": "<task-gid>",
+					"mcp": "task_gid"
+				},
+				"dependents": {
+					"status": "covered",
+					"cli": "<dep-gids...>",
+					"mcp": "dependent_gids"
+				}
+			}
+		},
+		"addFollowers": {
+			"cli": ["goal follower add"],
+			"mcp": ["asana_goal_follower_add"],
+			"parameters": {
+				"goal_gid": {
+					"status": "covered",
+					"cli": "<goal-gid>",
+					"mcp": "goal_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object"
+				},
+				"followers": {
+					"status": "covered",
+					"cli": "<follower-gids...>",
+					"mcp": "follower_gids"
+				}
+			}
+		},
+		"addFollowersForProject": {
+			"cli": ["project follower add"],
+			"mcp": ["asana_project_follower_add"],
+			"parameters": {
+				"project_gid": {
+					"status": "covered",
+					"cli": "<project-gid>",
+					"mcp": "project_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "gateway passes an empty opts object; CLI has no flag; MCP has none"
+				},
+				"followers": {
+					"status": "covered",
+					"cli": "<follower-gids...>",
+					"mcp": "follower_gids"
+				}
+			}
+		},
+		"addFollowersForTask": {
+			"cli": ["task follower add"],
+			"mcp": ["asana_task_follower_add"],
+			"parameters": {
+				"task_gid": {
+					"status": "covered",
+					"cli": "<task-gid>",
+					"mcp": "task_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "Gateway sends no opt_fields; no CLI flag and no MCP field"
+				},
+				"followers": {
+					"status": "covered",
+					"cli": "<follower-gids...>",
+					"mcp": "follower_gids"
+				}
+			}
+		},
+		"addItemForPortfolio": {
+			"cli": ["portfolio item add"],
+			"mcp": ["asana_portfolio_item_add"],
+			"parameters": {
+				"portfolio_gid": {
+					"status": "covered",
+					"cli": "<portfolio-gid>",
+					"mcp": "portfolio_gid"
+				},
+				"insert_after": {
+					"status": "covered",
+					"cli": "--insert-after",
+					"mcp": "insert_after"
+				},
+				"insert_before": {
+					"status": "covered",
+					"cli": "--insert-before",
+					"mcp": "insert_before"
+				},
+				"item": {
+					"status": "covered",
+					"cli": "<item-gid>",
+					"mcp": "item_gid"
+				}
+			}
+		},
+		"addProjectForTask": {
+			"cli": ["task project add"],
+			"mcp": ["asana_task_project_add"],
+			"parameters": {
+				"task_gid": {
+					"status": "covered",
+					"cli": "<task-gid>",
+					"mcp": "task_gid"
+				},
+				"insert_after": {
+					"status": "covered",
+					"cli": "--insert-after",
+					"mcp": "insert_after"
+				},
+				"insert_before": {
+					"status": "covered",
+					"cli": "--insert-before",
+					"mcp": "insert_before"
+				},
+				"project": {
+					"status": "covered",
+					"cli": "<project-gid>",
+					"mcp": "project_gid"
+				},
+				"section": {
+					"status": "covered",
+					"cli": "--section-gid (or --section)",
+					"mcp": "section_gid"
+				}
+			}
+		},
+		"addSupportingRelationship": {
+			"cli": ["goal supporting add"],
+			"mcp": ["asana_goal_supporting_add"],
+			"parameters": {
+				"goal_gid": {
+					"status": "covered",
+					"cli": "<goal-gid>",
+					"mcp": "goal_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object"
+				},
+				"contribution_weight": {
+					"status": "covered",
+					"cli": "--weight",
+					"mcp": "contribution_weight"
+				},
+				"insert_after": {
+					"status": "covered",
+					"cli": "--insert-after",
+					"mcp": "insert_after"
+				},
+				"insert_before": {
+					"status": "covered",
+					"cli": "--insert-before",
+					"mcp": "insert_before"
+				},
+				"supporting_resource": {
+					"status": "covered",
+					"cli": "<supporting-gid>",
+					"mcp": "supporting_resource_gid"
+				}
+			}
+		},
+		"addTagForTask": {
+			"cli": ["tag task add"],
+			"mcp": ["asana_tag_add_to_task"],
+			"parameters": {
+				"task_gid": {
+					"status": "covered",
+					"cli": "<task-gid>",
+					"mcp": "task_gid"
+				},
+				"tag": {
+					"status": "covered",
+					"cli": "<tag-gid>",
+					"mcp": "tag_gid"
+				}
+			}
+		},
+		"addTaskForSection": {
+			"cli": ["section task add"],
+			"mcp": ["asana_section_task_add"],
+			"parameters": {
+				"section_gid": {
+					"status": "covered",
+					"cli": "<section-gid>",
+					"mcp": "section_gid"
+				},
+				"insert_after": {
+					"status": "covered",
+					"cli": "--insert-after",
+					"mcp": "insert_after"
+				},
+				"insert_before": {
+					"status": "covered",
+					"cli": "--insert-before",
+					"mcp": "insert_before"
+				},
+				"task": {
+					"status": "covered",
+					"cli": "<task-gid>",
+					"mcp": "task_gid"
+				}
+			}
+		},
+		"createAllocation": {
+			"cli": ["allocation create"],
+			"mcp": ["asana_allocation_create"],
+			"parameters": {
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it"
+				},
+				"assignee": {
+					"status": "covered",
+					"cli": "--assignee",
+					"mcp": "assignee_gid"
+				},
+				"effort": {
+					"status": "covered",
+					"cli": "--percent / --hours",
+					"mcp": "effort_type + effort_value"
+				},
+				"end_date": {
+					"status": "covered",
+					"cli": "--end-date",
+					"mcp": "end_date"
+				},
+				"parent": {
+					"status": "covered",
+					"cli": "--parent",
+					"mcp": "parent_gid"
+				},
+				"start_date": {
+					"status": "covered",
+					"cli": "--start-date",
+					"mcp": "start_date"
+				}
+			}
+		},
+		"createAttachmentForObject": {
+			"cli": ["attachment create"],
+			"mcp": ["asana_attachment_create"],
+			"parameters": {
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it"
+				},
+				"connect_to_app": {
+					"status": "covered",
+					"cli": "--connect-to-app",
+					"mcp": "connect_to_app"
+				},
+				"file": {
+					"status": "covered",
+					"cli": "[file]",
+					"mcp": "file"
+				},
+				"name": {
+					"status": "covered",
+					"cli": "--name",
+					"mcp": "name"
+				},
+				"parent": {
+					"status": "covered",
+					"cli": "--parent-gid",
+					"mcp": "parent_gid"
+				},
+				"resource_subtype": {
+					"status": "skipped",
+					"reason": "Set by cyber-asana itself: attachments/api.ts sends resource_subtype \"external\" for a url attachment; a file upload needs none"
+				},
+				"url": {
+					"status": "covered",
+					"cli": "--url",
+					"mcp": "url"
+				}
+			}
+		},
+		"createBatchRequest": {
+			"cli": ["task get-many"],
+			"mcp": ["asana_task_get_many"],
+			"parameters": {
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "Not sent on the batch call itself (fields go into each action's options.fields instead); no CLI flag or MCP field for the batch-level opt_fields"
+				},
+				"actions": {
+					"status": "covered",
+					"cli": "<gids...> (with --opt-fields)",
+					"mcp": "task_gids (with opt_fields)",
+					"note": "Only GET /tasks/{gid} actions are built, from task GIDs and opt_fields; arbitrary batch actions are not exposed"
+				}
+			}
+		},
+		"createCustomField": {
+			"cli": ["custom-field create"],
+			"mcp": ["asana_custom_field_create"],
+			"parameters": {
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object"
+				},
+				"currency_code": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
+					"note": "neither the CLI nor MCP sends it"
+				},
+				"custom_label": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
+					"note": "neither the CLI nor MCP sends it"
+				},
+				"custom_label_position": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
+					"note": "neither the CLI nor MCP sends it"
+				},
+				"date_value": {
+					"status": "skipped",
+					"reason": "A value the field holds on a task or project, set there through custom_fields; it is not part of the field definition"
+				},
+				"description": {
+					"status": "covered",
+					"cli": "--description",
+					"mcp": "description"
+				},
+				"enum_options": {
+					"status": "covered",
+					"cli": "--option (repeatable)",
+					"mcp": "enum_options",
+					"note": "names only; color/enabled per option not settable"
+				},
+				"enum_value": {
+					"status": "skipped",
+					"reason": "A value the field holds on a task or project, set there through custom_fields; it is not part of the field definition"
+				},
+				"format": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
+					"note": "neither the CLI nor MCP sends it"
+				},
+				"has_notifications_enabled": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
+					"note": "neither the CLI nor MCP sends it"
+				},
+				"id_prefix": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
+					"note": "neither the CLI nor MCP sends it"
+				},
+				"input_restrictions": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
+					"note": "neither the CLI nor MCP sends it"
+				},
+				"is_formula_field": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
+					"note": "neither the CLI nor MCP sends it (likely a read-only value field on the custom field object; unverified)"
+				},
+				"is_lookup_field": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
+					"note": "neither the CLI nor MCP sends it (likely a read-only value field on the custom field object; unverified)"
+				},
+				"multi_enum_values": {
+					"status": "skipped",
+					"reason": "A value the field holds on a task or project, set there through custom_fields; it is not part of the field definition"
+				},
+				"name": {
+					"status": "covered",
+					"cli": "<name>",
+					"mcp": "name"
+				},
+				"number_value": {
+					"status": "skipped",
+					"reason": "A value the field holds on a task or project, set there through custom_fields; it is not part of the field definition"
+				},
+				"owned_by_app": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
+					"note": "neither the CLI nor MCP sends it (likely a read-only value field on the custom field object; unverified)"
+				},
+				"people_value": {
+					"status": "skipped",
+					"reason": "A value the field holds on a task or project, set there through custom_fields; it is not part of the field definition"
+				},
+				"precision": {
+					"status": "covered",
+					"cli": "--precision",
+					"mcp": "precision"
+				},
+				"reference_value": {
+					"status": "skipped",
+					"reason": "A value the field holds on a task or project, set there through custom_fields; it is not part of the field definition"
+				},
+				"resource_subtype": {
+					"status": "covered",
+					"cli": "--type",
+					"mcp": "type",
+					"note": "sent as resource_subtype"
+				},
+				"text_value": {
+					"status": "skipped",
+					"reason": "A value the field holds on a task or project, set there through custom_fields; it is not part of the field definition"
+				},
+				"workspace": {
+					"status": "covered",
+					"cli": "--workspace-gid (or ASANA_WORKSPACE_GID)",
+					"mcp": "workspace_gid"
+				}
+			}
+		},
+		"createEnumOptionForCustomField": {
+			"cli": ["custom-field enum-option add"],
+			"mcp": ["asana_custom_field_enum_option_create"],
+			"parameters": {
+				"custom_field_gid": {
+					"status": "covered",
+					"cli": "<field-gid>",
+					"mcp": "custom_field_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object"
+				},
+				"color": {
+					"status": "covered",
+					"cli": "--color",
+					"mcp": "color"
+				},
+				"enabled": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
+					"note": "neither the CLI nor MCP sends enabled on create (only enum-option update does)"
+				},
+				"insert_after": {
+					"status": "covered",
+					"cli": "--insert-after",
+					"mcp": "insert_after"
+				},
+				"insert_before": {
+					"status": "covered",
+					"cli": "--insert-before",
+					"mcp": "insert_before"
+				},
+				"name": {
+					"status": "covered",
+					"cli": "<name>",
+					"mcp": "name"
+				}
+			}
+		},
+		"createGoal": {
+			"cli": ["goal create"],
+			"mcp": ["asana_goal_create"],
+			"parameters": {
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object"
+				},
+				"due_on": {
+					"status": "covered",
+					"cli": "--due-on",
+					"mcp": "due_on"
+				},
+				"followers": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
+					"note": "neither the CLI nor MCP sends it"
+				},
+				"html_notes": {
+					"status": "covered",
+					"cli": "--html-notes",
+					"mcp": "html_notes"
+				},
+				"is_workspace_level": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
+					"note": "neither the CLI nor MCP sends it"
+				},
+				"liked": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
+					"note": "neither the CLI nor MCP sends it"
+				},
+				"name": {
+					"status": "covered",
+					"cli": "<name>",
+					"mcp": "name"
+				},
+				"notes": {
+					"status": "covered",
+					"cli": "--notes",
+					"mcp": "notes"
+				},
+				"owner": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
+					"note": "neither the CLI nor MCP sends it"
+				},
+				"start_on": {
+					"status": "covered",
+					"cli": "--start-on",
+					"mcp": "start_on"
+				},
+				"team": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
+					"note": "neither the CLI nor MCP sends it"
+				},
+				"time_period": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
+					"note": "the gateway type accepts time_period (Asana requires one on creation) but the CLI has no flag and MCP has no field"
+				},
+				"workspace": {
+					"status": "covered",
+					"cli": "--workspace-gid (or ASANA_WORKSPACE_GID)",
+					"mcp": "workspace_gid"
+				}
+			}
+		},
+		"createGoalMetric": {
+			"cli": ["goal metric set"],
+			"mcp": ["asana_goal_metric_set"],
+			"parameters": {
+				"goal_gid": {
+					"status": "covered",
+					"cli": "<goal-gid>",
+					"mcp": "goal_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object"
+				},
+				"currency_code": {
+					"status": "covered",
+					"cli": "--currency-code",
+					"mcp": "currency_code"
+				},
+				"current_number_value": {
+					"status": "covered",
+					"cli": "--current",
+					"mcp": "current_number_value"
+				},
+				"initial_number_value": {
+					"status": "covered",
+					"cli": "--initial",
+					"mcp": "initial_number_value"
+				},
+				"is_custom_weight": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
+					"note": "neither the CLI nor MCP sends it"
+				},
+				"precision": {
+					"status": "covered",
+					"cli": "--precision",
+					"mcp": "precision"
+				},
+				"progress_source": {
+					"status": "covered",
+					"cli": "--progress-source",
+					"mcp": "progress_source"
+				},
+				"target_number_value": {
+					"status": "covered",
+					"cli": "--target",
+					"mcp": "target_number_value"
+				},
+				"unit": {
+					"status": "covered",
+					"cli": "--unit",
+					"mcp": "unit"
+				}
+			}
+		},
+		"createMembership": {
+			"cli": ["membership create"],
+			"mcp": ["asana_membership_create"],
+			"parameters": {
+				"access_level": {
+					"status": "covered",
+					"cli": "--access-level",
+					"mcp": "access_level"
+				},
+				"member": {
+					"status": "covered",
+					"cli": "--member-gid",
+					"mcp": "member_gid"
+				},
+				"parent": {
+					"status": "covered",
+					"cli": "--parent-gid",
+					"mcp": "parent_gid"
+				},
+				"role": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
+					"note": "CLI has no flag; MCP has none"
+				}
+			}
+		},
+		"createOooEntry": {
+			"cli": ["ooo create"],
+			"mcp": ["asana_ooo_create"],
+			"parameters": {
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it"
+				},
+				"end_date": {
+					"status": "covered",
+					"cli": "--end-date",
+					"mcp": "end_date"
+				},
+				"start_date": {
+					"status": "covered",
+					"cli": "--start-date",
+					"mcp": "start_date"
+				},
+				"user": {
+					"status": "covered",
+					"cli": "--user-gid (default: me)",
+					"mcp": "user_gid"
+				},
+				"workspace": {
+					"status": "covered",
+					"cli": "--workspace-gid (or ASANA_WORKSPACE_GID)",
+					"mcp": "workspace_gid"
+				}
+			}
+		},
+		"createPortfolio": {
+			"cli": ["portfolio create"],
+			"mcp": ["asana_portfolio_create"],
+			"parameters": {
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object"
+				},
+				"archived": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/411",
+					"note": "neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create)"
+				},
+				"color": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/411",
+					"note": "neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create)"
+				},
+				"custom_type": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/411",
+					"note": "neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create)"
+				},
+				"default_access_level": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/411",
+					"note": "neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create)"
+				},
+				"due_on": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/411",
+					"note": "neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create)"
+				},
+				"name": {
+					"status": "covered",
+					"cli": "<name>",
+					"mcp": "name"
+				},
+				"public": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/411",
+					"note": "neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create)"
+				},
+				"resource_subtype": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/411",
+					"note": "neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create)"
+				},
+				"start_on": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/411",
+					"note": "neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create)"
+				},
+				"workspace": {
+					"status": "covered",
+					"cli": "--workspace-gid (or ASANA_WORKSPACE_GID)",
+					"mcp": "workspace_gid"
+				}
+			}
+		},
+		"createProject": {
+			"cli": ["project create"],
+			"mcp": ["asana_project_create"],
+			"parameters": {
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "gateway sends no opt_fields on create; CLI has no flag; MCP has none"
+				},
+				"archived": {
+					"status": "covered",
+					"cli": "--archived",
+					"mcp": "archived"
+				},
+				"color": {
+					"status": "covered",
+					"cli": "--color",
+					"mcp": "color"
+				},
+				"current_status": {
+					"status": "skipped",
+					"reason": "Deprecated by Asana (see Asana API reference; the SDK comment does not mark it); cyber-asana never sends it: use status updates"
+				},
+				"current_status_update": {
+					"status": "skipped",
+					"reason": "Deprecated by Asana (see Asana API reference; the SDK comment does not mark it); cyber-asana never sends it: use status updates"
+				},
+				"custom_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
+					"note": "CLI has no flag; MCP has none (CLI and MCP only attach fields through custom-field attach)"
+				},
+				"custom_type": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
+					"note": "CLI has no flag; MCP has none"
+				},
+				"default_access_level": {
+					"status": "covered",
+					"cli": "--default-access-level",
+					"mcp": "default_access_level"
+				},
+				"default_view": {
+					"status": "covered",
+					"cli": "--default-view",
+					"mcp": "default_view"
+				},
+				"due_date": {
+					"status": "skipped",
+					"reason": "Deprecated by Asana (see Asana API reference; the SDK comment does not mark it); cyber-asana never sends it: due_on replaces it"
+				},
+				"due_on": {
+					"status": "covered",
+					"cli": "--due-on",
+					"mcp": "due_on"
+				},
+				"followers": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
+					"note": "CLI has no flag on project create; MCP has none (followers are managed through project follower add/remove)"
+				},
+				"html_custom_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
+					"note": "CLI has no flag; MCP has none"
+				},
+				"html_notes": {
+					"status": "covered",
+					"cli": "--html-notes",
+					"mcp": "html_notes"
+				},
+				"icon": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
+					"note": "CLI has no flag; MCP has none"
+				},
+				"minimum_access_level_for_customization": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
+					"note": "CLI has no flag; MCP has none"
+				},
+				"minimum_access_level_for_sharing": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
+					"note": "CLI has no flag; MCP has none"
+				},
+				"name": {
+					"status": "covered",
+					"cli": "<name>",
+					"mcp": "name"
+				},
+				"notes": {
+					"status": "covered",
+					"cli": "--notes",
+					"mcp": "notes"
+				},
+				"owner": {
+					"status": "covered",
+					"cli": "--owner",
+					"mcp": "owner"
+				},
+				"privacy_setting": {
+					"status": "covered",
+					"cli": "--privacy-setting",
+					"mcp": "privacy_setting"
+				},
+				"public": {
+					"status": "skipped",
+					"reason": "Deprecated by Asana (see Asana API reference; the SDK comment does not mark it); cyber-asana never sends it: privacy_setting replaces it"
+				},
+				"resource_subtype": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
+					"note": "CLI has no flag; MCP has none"
+				},
+				"start_on": {
+					"status": "covered",
+					"cli": "--start-on",
+					"mcp": "start_on"
+				},
+				"team": {
+					"status": "skipped",
+					"reason": "Deprecated for create/update/list filters in the SDK doc comments (share a project with a team through POST /memberships, which cyber-asana wraps as membership create); cyber-asana never sends it"
+				},
+				"workspace": {
+					"status": "covered",
+					"cli": "--workspace-gid (or ASANA_WORKSPACE_GID)",
+					"mcp": "workspace_gid"
+				}
+			}
+		},
+		"createProjectBrief": {
+			"cli": ["project-brief create"],
+			"mcp": ["asana_project_brief_create"],
+			"parameters": {
+				"project_gid": {
+					"status": "covered",
+					"cli": "--project-gid",
+					"mcp": "project_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "gateway passes an empty opts object; CLI has no flag; MCP has none"
+				},
+				"html_text": {
+					"status": "covered",
+					"cli": "--html-text",
+					"mcp": "html_text"
+				},
+				"text": {
+					"status": "covered",
+					"cli": "--text",
+					"mcp": "text"
+				},
+				"title": {
+					"status": "covered",
+					"cli": "--title",
+					"mcp": "title"
+				}
+			}
+		},
+		"createRecord": {
+			"cli": ["record create"],
+			"mcp": ["asana_record_create"],
+			"parameters": {
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it"
+				},
+				"custom_fields": {
+					"status": "covered",
+					"cli": "--field <gid=value> / --fields-json",
+					"mcp": "custom_fields"
+				},
+				"default_access_level": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/413",
+					"note": "Not sent on create: createRecord body carries only name, table, custom_fields and unique_fingerprint; neither CLI nor MCP exposes it on create (update has it)"
+				},
+				"name": {
+					"status": "covered",
+					"cli": "<name>",
+					"mcp": "name"
+				},
+				"table": {
+					"status": "covered",
+					"cli": "--table-gid (or --table)",
+					"mcp": "table_gid"
+				},
+				"unique_fingerprint": {
+					"status": "covered",
+					"cli": "--fingerprint",
+					"mcp": "unique_fingerprint"
+				}
+			}
+		},
+		"createSectionForProject": {
+			"cli": ["section create"],
+			"mcp": ["asana_section_create"],
+			"parameters": {
+				"project_gid": {
+					"status": "covered",
+					"cli": "--project-gid",
+					"mcp": "project_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "gateway sends no opt_fields; CLI has no flag; MCP has none"
+				},
+				"insert_after": {
+					"status": "covered",
+					"cli": "--insert-after",
+					"mcp": "insert_after"
+				},
+				"insert_before": {
+					"status": "covered",
+					"cli": "--insert-before",
+					"mcp": "insert_before"
+				},
+				"name": {
+					"status": "covered",
+					"cli": "<name>",
+					"mcp": "name"
+				}
+			}
+		},
+		"createStatusForObject": {
+			"cli": ["status create"],
+			"mcp": ["asana_status_create"],
+			"parameters": {
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object"
+				},
+				"html_text": {
+					"status": "covered",
+					"cli": "--html-text",
+					"mcp": "html_text"
+				},
+				"parent": {
+					"status": "covered",
+					"cli": "--parent-gid (or --parent)",
+					"mcp": "parent_gid"
+				},
+				"status_type": {
+					"status": "covered",
+					"cli": "--status-type",
+					"mcp": "status_type"
+				},
+				"text": {
+					"status": "covered",
+					"cli": "--text",
+					"mcp": "text"
+				},
+				"title": {
+					"status": "covered",
+					"cli": "--title",
+					"mcp": "title"
+				}
+			}
+		},
+		"createStoryForGoal": {
+			"cli": ["story create-goal"],
+			"mcp": ["asana_story_goal_create"],
+			"parameters": {
+				"goal_gid": {
+					"status": "covered",
+					"cli": "<goal-gid>",
+					"mcp": "goal_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it"
+				},
+				"html_text": {
+					"status": "covered",
+					"cli": "--html-text",
+					"mcp": "html_text"
+				},
+				"is_pinned": {
+					"status": "covered",
+					"cli": "--pin",
+					"mcp": "is_pinned"
+				},
+				"sticker_name": {
+					"status": "covered",
+					"cli": "--sticker",
+					"mcp": "sticker_name"
+				},
+				"text": {
+					"status": "covered",
+					"cli": "[text]",
+					"mcp": "text"
+				}
+			}
+		},
+		"createStoryForRecord": {
+			"cli": ["record stories create"],
+			"mcp": ["asana_record_story_create"],
+			"parameters": {
+				"record_gid": {
+					"status": "covered",
+					"cli": "<record-gid>",
+					"mcp": "record_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it"
+				},
+				"html_text": {
+					"status": "covered",
+					"cli": "--html-text",
+					"mcp": "html_text"
+				},
+				"is_pinned": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/413",
+					"note": "Neither CLI nor MCP sends it: RecordStoryFields carries only text and html_text"
+				},
+				"sticker_name": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/413",
+					"note": "Neither CLI nor MCP sends it: RecordStoryFields carries only text and html_text"
+				},
+				"text": {
+					"status": "covered",
+					"cli": "--text",
+					"mcp": "text"
+				}
+			}
+		},
+		"createStoryForTask": {
+			"cli": ["story create", "comment create"],
+			"mcp": ["asana_story_create", "asana_comment_create"],
+			"parameters": {
+				"task_gid": {
+					"status": "covered",
+					"cli": "--task-gid",
+					"mcp": "task_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it"
+				},
+				"html_text": {
+					"status": "covered",
+					"cli": "--html-text",
+					"mcp": "html_text"
+				},
+				"is_pinned": {
+					"status": "covered",
+					"cli": "--pin",
+					"mcp": "is_pinned"
+				},
+				"parent_comment": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/413",
+					"note": "Neither CLI nor MCP sends it: StoryCreateFields has no parent_comment"
+				},
+				"sticker_name": {
+					"status": "covered",
+					"cli": "--sticker",
+					"mcp": "sticker_name"
+				},
+				"text": {
+					"status": "covered",
+					"cli": "[text]",
+					"mcp": "text"
+				}
+			}
+		},
+		"createSubtaskForTask": {
+			"cli": ["task subtask create"],
+			"mcp": ["asana_task_subtask_create"],
+			"parameters": {
+				"task_gid": {
+					"status": "covered",
+					"cli": "<task-gid>",
+					"mcp": "task_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "Gateway sends no opt_fields; no CLI flag and no MCP field"
+				},
+				"approval_status": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "Gateway never sends it; no CLI flag and no MCP field"
+				},
+				"assigned_by": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "Gateway never sends it; no CLI flag and no MCP field"
+				},
+				"assignee": {
+					"status": "covered",
+					"cli": "--assignee-gid / --assignee",
+					"mcp": "assignee_gid / assignee"
+				},
+				"assignee_section": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "Gateway never sends it; no CLI flag and no MCP field"
+				},
+				"assignee_status": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "Gateway never sends it; no CLI flag and no MCP field"
+				},
+				"completed": {
+					"status": "covered",
+					"cli": "--completed",
+					"mcp": "completed"
+				},
+				"completed_by": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "Gateway never sends it; no CLI flag and no MCP field"
+				},
+				"custom_fields": {
+					"status": "covered",
+					"cli": "--custom-fields-json / --custom-field",
+					"mcp": "custom_fields"
+				},
+				"custom_type": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "Subtask create has no flag and no MCP field for custom_type (task create has both)"
+				},
+				"custom_type_status_option": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "Gateway never sends it; no CLI flag and no MCP field"
+				},
+				"due_at": {
+					"status": "covered",
+					"cli": "--due-at",
+					"mcp": "due_at"
+				},
+				"due_on": {
+					"status": "covered",
+					"cli": "--due-on",
+					"mcp": "due_on"
+				},
+				"external": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "Gateway never sends it; no CLI flag and no MCP field"
+				},
+				"followers": {
+					"status": "covered",
+					"cli": "--follower",
+					"mcp": "follower_gids"
+				},
+				"html_custom_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "Gateway never sends it; no CLI flag and no MCP field"
+				},
+				"html_notes": {
+					"status": "covered",
+					"cli": "--html-notes",
+					"mcp": "html_notes"
+				},
+				"liked": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "Gateway never sends it; no CLI flag and no MCP field"
+				},
+				"name": {
+					"status": "covered",
+					"cli": "<name>",
+					"mcp": "name"
+				},
+				"notes": {
+					"status": "covered",
+					"cli": "--notes",
+					"mcp": "notes"
+				},
+				"parent": {
+					"status": "skipped",
+					"reason": "The parent is the task in the URL path (<task-gid>), set by the endpoint itself"
+				},
+				"projects": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "Subtask create has no flag and no MCP field for projects (task create has both)"
+				},
+				"resource_subtype": {
+					"status": "covered",
+					"cli": "--resource-subtype",
+					"mcp": "resource_subtype"
+				},
+				"start_at": {
+					"status": "covered",
+					"cli": "--start-at",
+					"mcp": "start_at"
+				},
+				"start_on": {
+					"status": "covered",
+					"cli": "--start-on",
+					"mcp": "start_on"
+				},
+				"tags": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "Subtask create has no flag and no MCP field for tags (task create has both)"
+				},
+				"workspace": {
+					"status": "skipped",
+					"reason": "Asana derives the workspace from the parent task in the path; the gateway sends none"
+				}
+			}
+		},
+		"createTable": {
+			"cli": ["table create"],
+			"mcp": ["asana_table_create"],
+			"parameters": {
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it"
+				},
+				"name": {
+					"status": "covered",
+					"cli": "<name>",
+					"mcp": "name"
+				},
+				"workspace": {
+					"status": "covered",
+					"cli": "--workspace-gid (or ASANA_WORKSPACE_GID)",
+					"mcp": "workspace_gid"
+				}
+			}
+		},
+		"createTagForWorkspace": {
+			"cli": ["tag create"],
+			"mcp": ["asana_tag_create"],
+			"parameters": {
+				"workspace_gid": {
+					"status": "covered",
+					"cli": "--workspace-gid (or ASANA_WORKSPACE_GID)",
+					"mcp": "workspace_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object"
+				},
+				"color": {
+					"status": "covered",
+					"cli": "--color",
+					"mcp": "color"
+				},
+				"followers": {
+					"status": "covered",
+					"cli": "--follower <gid[,gid...]>",
+					"mcp": "follower_gids"
+				},
+				"name": {
+					"status": "covered",
+					"cli": "<name>",
+					"mcp": "name"
+				},
+				"notes": {
+					"status": "covered",
+					"cli": "--notes",
+					"mcp": "notes"
+				}
+			}
+		},
+		"createTask": {
+			"cli": ["task create"],
+			"mcp": ["asana_task_create"],
+			"parameters": {
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "Gateway sends no opt_fields; no CLI flag and no MCP field"
+				},
+				"approval_status": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "Gateway never sends it; no CLI flag and no MCP field"
+				},
+				"assigned_by": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "Gateway never sends it; no CLI flag and no MCP field"
+				},
+				"assignee": {
+					"status": "covered",
+					"cli": "--assignee-gid / --assignee",
+					"mcp": "assignee_gid / assignee"
+				},
+				"assignee_section": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "Gateway never sends it; no CLI flag and no MCP field"
+				},
+				"assignee_status": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "Gateway never sends it; no CLI flag and no MCP field"
+				},
+				"completed": {
+					"status": "covered",
+					"cli": "--completed",
+					"mcp": "completed"
+				},
+				"completed_by": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "Gateway never sends it; no CLI flag and no MCP field"
+				},
+				"custom_fields": {
+					"status": "covered",
+					"cli": "--custom-fields-json / --custom-field",
+					"mcp": "custom_fields"
+				},
+				"custom_type": {
+					"status": "covered",
+					"cli": "--custom-type",
+					"mcp": "custom_type"
+				},
+				"custom_type_status_option": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "Gateway never sends it; no CLI flag and no MCP field"
+				},
+				"due_at": {
+					"status": "covered",
+					"cli": "--due-at",
+					"mcp": "due_at"
+				},
+				"due_on": {
+					"status": "covered",
+					"cli": "--due-on",
+					"mcp": "due_on"
+				},
+				"external": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "Gateway never sends it; no CLI flag and no MCP field"
+				},
+				"followers": {
+					"status": "covered",
+					"cli": "--follower",
+					"mcp": "follower_gids"
+				},
+				"html_custom_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "Gateway never sends it; no CLI flag and no MCP field"
+				},
+				"html_notes": {
+					"status": "covered",
+					"cli": "--html-notes",
+					"mcp": "html_notes"
+				},
+				"liked": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "Gateway never sends it; no CLI flag and no MCP field"
+				},
+				"name": {
+					"status": "covered",
+					"cli": "<name>",
+					"mcp": "name"
+				},
+				"notes": {
+					"status": "covered",
+					"cli": "--notes",
+					"mcp": "notes"
+				},
+				"parent": {
+					"status": "covered",
+					"cli": "--parent-gid (or --parent)",
+					"mcp": "parent_gid"
+				},
+				"projects": {
+					"status": "covered",
+					"cli": "--project-gid / --project",
+					"mcp": "project_gid / project_gids / project"
+				},
+				"resource_subtype": {
+					"status": "covered",
+					"cli": "--resource-subtype",
+					"mcp": "resource_subtype"
+				},
+				"start_at": {
+					"status": "covered",
+					"cli": "--start-at",
+					"mcp": "start_at"
+				},
+				"start_on": {
+					"status": "covered",
+					"cli": "--start-on",
+					"mcp": "start_on"
+				},
+				"tags": {
+					"status": "covered",
+					"cli": "--tag",
+					"mcp": "tag_gids"
+				},
+				"workspace": {
+					"status": "covered",
+					"cli": "--workspace-gid (or ASANA_WORKSPACE_GID)",
+					"mcp": "workspace_gid"
+				}
+			}
+		},
+		"createTimeTrackingEntry": {
+			"cli": ["time-entry create"],
+			"mcp": ["asana_time_entry_create"],
+			"parameters": {
+				"task_gid": {
+					"status": "covered",
+					"cli": "<task-gid>",
+					"mcp": "task_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it"
+				},
+				"assignee": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/414",
+					"note": "Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope)"
+				},
+				"attributable_to": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/414",
+					"note": "Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope)"
+				},
+				"billable_status": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/414",
+					"note": "Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope)"
+				},
+				"categories": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/414",
+					"note": "Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope)"
+				},
+				"description": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/414",
+					"note": "Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope)"
+				},
+				"duration_minutes": {
+					"status": "covered",
+					"cli": "--hours / --minutes",
+					"mcp": "duration_minutes",
+					"note": "CLI converts hours to minutes"
+				},
+				"entered_on": {
+					"status": "covered",
+					"cli": "--entered-on",
+					"mcp": "entered_on"
+				}
+			}
+		},
+		"deleteAllocation": {
+			"cli": ["allocation delete"],
+			"mcp": ["asana_allocation_delete"],
+			"parameters": {
+				"allocation_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "allocation_gid"
+				}
+			}
+		},
+		"deleteAttachment": {
+			"cli": ["attachment delete"],
+			"mcp": ["asana_attachment_delete"],
+			"parameters": {
+				"attachment_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "attachment_gid"
+				}
+			}
+		},
+		"deleteCustomField": {
+			"cli": ["custom-field delete"],
+			"mcp": ["asana_custom_field_delete"],
+			"parameters": {
+				"custom_field_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "custom_field_gid"
+				}
+			}
+		},
+		"deleteGoal": {
+			"cli": ["goal delete"],
+			"mcp": ["asana_goal_delete"],
+			"parameters": {
+				"goal_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "goal_gid"
+				}
+			}
+		},
+		"deleteMembership": {
+			"cli": ["membership delete"],
+			"mcp": ["asana_membership_delete"],
+			"parameters": {
+				"membership_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "membership_gid"
+				}
+			}
+		},
+		"deleteOooEntry": {
+			"cli": ["ooo delete"],
+			"mcp": ["asana_ooo_delete"],
+			"parameters": {
+				"ooo_entry_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "ooo_entry_gid"
+				}
+			}
+		},
+		"deletePortfolio": {
+			"cli": ["portfolio delete"],
+			"mcp": ["asana_portfolio_delete"],
+			"parameters": {
+				"portfolio_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "portfolio_gid"
+				}
+			}
+		},
+		"deleteProject": {
+			"cli": ["project delete"],
+			"mcp": ["asana_project_delete"],
+			"parameters": {
+				"project_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "project_gid"
+				}
+			}
+		},
+		"deleteProjectBrief": {
+			"cli": ["project-brief delete"],
+			"mcp": ["asana_project_brief_delete"],
+			"parameters": {
+				"project_brief_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "project_brief_gid"
+				}
+			}
+		},
+		"deleteRecord": {
+			"cli": ["record delete"],
+			"mcp": ["asana_record_delete"],
+			"parameters": {
+				"record_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "record_gid"
+				}
+			}
+		},
+		"deleteSection": {
+			"cli": ["section delete"],
+			"mcp": ["asana_section_delete"],
+			"parameters": {
+				"section_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "section_gid"
+				}
+			}
+		},
+		"deleteStatus": {
+			"cli": ["status delete"],
+			"mcp": ["asana_status_delete"],
+			"parameters": {
+				"status_update_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "status_gid"
+				}
+			}
+		},
+		"deleteStory": {
+			"cli": ["story delete", "comment delete"],
+			"mcp": ["asana_story_delete", "asana_comment_delete"],
+			"parameters": {
+				"story_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "story_gid"
+				}
+			}
+		},
+		"deleteTable": {
+			"cli": ["table delete"],
+			"mcp": ["asana_table_delete"],
+			"parameters": {
+				"table_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "table_gid"
+				}
+			}
+		},
+		"deleteTag": {
+			"cli": ["tag delete"],
+			"mcp": ["asana_tag_delete"],
+			"parameters": {
+				"tag_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "tag_gid"
+				}
+			}
+		},
+		"deleteTask": {
+			"cli": ["task delete"],
+			"mcp": ["asana_task_delete"],
+			"parameters": {
+				"task_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "task_gid"
+				}
+			}
+		},
+		"deleteTimeTrackingEntry": {
+			"cli": ["time-entry delete"],
+			"mcp": ["asana_time_entry_delete"],
+			"parameters": {
+				"time_tracking_entry_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "time_entry_gid"
+				}
+			}
+		},
+		"duplicateProject": {
+			"cli": ["project duplicate"],
+			"mcp": ["asana_project_duplicate"],
+			"parameters": {
+				"project_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "project_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "gateway sends no opt_fields; CLI has no flag; MCP has none"
+				},
+				"include": {
+					"status": "covered",
+					"cli": "--include",
+					"mcp": "include",
+					"note": "comma list joined for Asana"
+				},
+				"name": {
+					"status": "covered",
+					"cli": "--name",
+					"mcp": "name"
+				},
+				"schedule_dates": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
+					"note": "CLI has no flag; MCP has none"
+				}
+			}
+		},
+		"duplicateTask": {
+			"cli": ["task duplicate"],
+			"mcp": ["asana_task_duplicate"],
+			"parameters": {
+				"task_gid": {
+					"status": "covered",
+					"cli": "<task-gid>",
+					"mcp": "task_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "Gateway sends no opt_fields; no CLI flag and no MCP field"
+				},
+				"include": {
+					"status": "covered",
+					"cli": "--include",
+					"mcp": "include"
+				},
+				"name": {
+					"status": "covered",
+					"cli": "--name",
+					"mcp": "name"
+				}
+			}
+		},
+		"getAiStudioRuns": {
+			"cli": ["ai-studio runs"],
+			"mcp": ["asana_ai_studio_run_list"],
+			"parameters": {
+				"workspace_gid": {
+					"status": "covered",
+					"cli": "--workspace-gid (or ASANA_WORKSPACE_GID)",
+					"mcp": "workspace_gid"
+				},
+				"division_gid": {
+					"status": "covered",
+					"cli": "--division-gid",
+					"mcp": "division_gid"
+				},
+				"end_at": {
+					"status": "covered",
+					"cli": "--end-at",
+					"mcp": "end_at"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"start_at": {
+					"status": "covered",
+					"cli": "--start-at",
+					"mcp": "start_at"
+				}
+			}
+		},
+		"getAiStudioSeats": {
+			"cli": ["ai-studio seats"],
+			"mcp": ["asana_ai_studio_seat_list"],
+			"parameters": {
+				"workspace_gid": {
+					"status": "covered",
+					"cli": "--workspace-gid (or ASANA_WORKSPACE_GID)",
+					"mcp": "workspace_gid"
+				},
+				"division_gid": {
+					"status": "covered",
+					"cli": "--division-gid",
+					"mcp": "division_gid"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"state": {
+					"status": "covered",
+					"cli": "--state",
+					"mcp": "state"
+				}
+			}
+		},
+		"getAllocation": {
+			"cli": ["allocation get"],
+			"mcp": ["asana_allocation_get"],
+			"parameters": {
+				"allocation_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "allocation_gid"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getAllocations": {
+			"cli": ["allocation list"],
+			"mcp": ["asana_allocation_list"],
+			"parameters": {
+				"assignee": {
+					"status": "covered",
+					"cli": "--assignee",
+					"mcp": "assignee_gid"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				},
+				"parent": {
+					"status": "covered",
+					"cli": "--parent",
+					"mcp": "parent_gid"
+				},
+				"workspace": {
+					"status": "covered",
+					"cli": "--workspace-gid (or ASANA_WORKSPACE_GID)",
+					"mcp": "workspace_gid"
+				}
+			}
+		},
+		"getAttachment": {
+			"cli": ["attachment get"],
+			"mcp": ["asana_attachment_get"],
+			"parameters": {
+				"attachment_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "attachment_gid"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getAttachmentsForObject": {
+			"cli": ["attachment list"],
+			"mcp": ["asana_attachment_list"],
+			"parameters": {
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				},
+				"parent": {
+					"status": "covered",
+					"cli": "--parent-gid (or --task-gid)",
+					"mcp": "parent_gid (or task_gid)"
+				}
+			}
+		},
+		"getCustomField": {
+			"cli": ["custom-field get"],
+			"mcp": ["asana_custom_field_get"],
+			"parameters": {
+				"custom_field_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "custom_field_gid"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getCustomFieldSettingsForGoal": {
+			"cli": ["custom-field goal"],
+			"mcp": ["asana_custom_field_list_for_goal"],
+			"parameters": {
+				"goal_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "goal_gid"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getCustomFieldSettingsForPortfolio": {
+			"cli": ["custom-field portfolio"],
+			"mcp": ["asana_custom_field_list_for_portfolio"],
+			"parameters": {
+				"portfolio_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "portfolio_gid"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getCustomFieldSettingsForProject": {
+			"cli": ["custom-field project"],
+			"mcp": ["asana_custom_field_list_for_project"],
+			"parameters": {
+				"project_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "project_gid"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getCustomFieldSettingsForTable": {
+			"cli": ["table fields"],
+			"mcp": ["asana_table_fields_list"],
+			"parameters": {
+				"table_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "table_gid"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getCustomFieldSettingsForTeam": {
+			"cli": ["custom-field team"],
+			"mcp": ["asana_custom_field_list_for_team"],
+			"parameters": {
+				"team_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "team_gid"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getCustomFieldsForWorkspace": {
+			"cli": ["custom-field list"],
+			"mcp": ["asana_custom_field_list"],
+			"parameters": {
+				"workspace_gid": {
+					"status": "covered",
+					"cli": "--workspace-gid (or ASANA_WORKSPACE_GID)",
+					"mcp": "workspace_gid"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getDependenciesForTask": {
+			"cli": ["task dependency list"],
+			"mcp": ["asana_task_dependency_list"],
+			"parameters": {
+				"task_gid": {
+					"status": "covered",
+					"cli": "<task-gid>",
+					"mcp": "task_gid"
+				},
+				"limit": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "Gateway sends only opt_fields; no --limit and no MCP limit"
+				},
+				"offset": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "Gateway sends only opt_fields; no --offset and no MCP offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields",
+					"note": "Defaults to gid,name,completed,due_on"
+				}
+			}
+		},
+		"getDependentsForTask": {
+			"cli": ["task dependent list"],
+			"mcp": ["asana_task_dependent_list"],
+			"parameters": {
+				"task_gid": {
+					"status": "covered",
+					"cli": "<task-gid>",
+					"mcp": "task_gid"
+				},
+				"limit": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "Gateway sends only opt_fields; no --limit and no MCP limit"
+				},
+				"offset": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "Gateway sends only opt_fields; no --offset and no MCP offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields",
+					"note": "Defaults to gid,name,completed,due_on"
+				}
+			}
+		},
+		"getEvents": {
+			"cli": ["event list"],
+			"mcp": ["asana_event_list"],
+			"parameters": {
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				},
+				"resource": {
+					"status": "covered",
+					"cli": "<resource-gid>",
+					"mcp": "resource_gid"
+				},
+				"sync": {
+					"status": "covered",
+					"cli": "--sync",
+					"mcp": "sync"
+				}
+			}
+		},
+		"getGoal": {
+			"cli": ["goal get"],
+			"mcp": ["asana_goal_get"],
+			"parameters": {
+				"goal_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "goal_gid"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getGoals": {
+			"cli": ["goal list"],
+			"mcp": ["asana_goal_list"],
+			"parameters": {
+				"is_workspace_level": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
+					"note": "list filter: neither the CLI nor MCP sends it"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				},
+				"portfolio": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
+					"note": "list filter: neither the CLI nor MCP sends it"
+				},
+				"project": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
+					"note": "list filter: neither the CLI nor MCP sends it"
+				},
+				"task": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
+					"note": "list filter: neither the CLI nor MCP sends it"
+				},
+				"team": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
+					"note": "list filter: neither the CLI nor MCP sends it"
+				},
+				"time_periods": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
+					"note": "list filter: neither the CLI nor MCP sends it"
+				},
+				"workspace": {
+					"status": "covered",
+					"cli": "--workspace-gid (or ASANA_WORKSPACE_GID)",
+					"mcp": "workspace_gid"
+				}
+			}
+		},
+		"getItemsForPortfolio": {
+			"cli": ["portfolio items"],
+			"mcp": ["asana_portfolio_item_list"],
+			"parameters": {
+				"portfolio_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "portfolio_gid"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getJob": {
+			"cli": ["job get"],
+			"mcp": ["asana_job_get"],
+			"parameters": {
+				"job_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "job_gid"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getMembership": {
+			"cli": ["membership get"],
+			"mcp": ["asana_membership_get"],
+			"parameters": {
+				"membership_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "membership_gid"
+				}
+			}
+		},
+		"getMemberships": {
+			"cli": ["membership list"],
+			"mcp": ["asana_membership_list"],
+			"parameters": {
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"member": {
+					"status": "covered",
+					"cli": "--member-gid",
+					"mcp": "member_gid"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				},
+				"parent": {
+					"status": "covered",
+					"cli": "--parent-gid",
+					"mcp": "parent_gid"
+				},
+				"resource_subtype": {
+					"status": "covered",
+					"cli": "--resource-subtype",
+					"mcp": "resource_subtype"
+				}
+			}
+		},
+		"getNotificationsForUser": {
+			"cli": ["notification list"],
+			"mcp": ["asana_notification_list"],
+			"parameters": {
+				"user_gid": {
+					"status": "covered",
+					"cli": "--user-gid (default: me)",
+					"mcp": "user_gid"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				},
+				"workspace": {
+					"status": "covered",
+					"cli": "--workspace-gid (or ASANA_WORKSPACE_GID)",
+					"mcp": "workspace_gid"
+				}
+			}
+		},
+		"getOooEntries": {
+			"cli": ["ooo list"],
+			"mcp": ["asana_ooo_list"],
+			"parameters": {
+				"end_date": {
+					"status": "covered",
+					"cli": "--end-date",
+					"mcp": "end_date"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				},
+				"start_date": {
+					"status": "covered",
+					"cli": "--start-date",
+					"mcp": "start_date"
+				},
+				"user": {
+					"status": "covered",
+					"cli": "--user-gid (default: me)",
+					"mcp": "user_gid"
+				},
+				"workspace": {
+					"status": "covered",
+					"cli": "--workspace-gid (or ASANA_WORKSPACE_GID)",
+					"mcp": "workspace_gid"
+				}
+			}
+		},
+		"getOooEntry": {
+			"cli": ["ooo get"],
+			"mcp": ["asana_ooo_get"],
+			"parameters": {
+				"ooo_entry_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "ooo_entry_gid"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getPortfolio": {
+			"cli": ["portfolio get"],
+			"mcp": ["asana_portfolio_get"],
+			"parameters": {
+				"portfolio_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "portfolio_gid"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getPortfolios": {
+			"cli": ["portfolio list"],
+			"mcp": ["asana_portfolio_list"],
+			"parameters": {
+				"custom_type": {
+					"status": "covered",
+					"cli": "--custom-type",
+					"mcp": "custom_type"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				},
+				"owner": {
+					"status": "covered",
+					"cli": "--owner-gid (or --owner)",
+					"mcp": "owner_gid",
+					"note": "Asana honors it for service accounts only"
+				},
+				"workspace": {
+					"status": "covered",
+					"cli": "--workspace-gid (or ASANA_WORKSPACE_GID)",
+					"mcp": "workspace_gid"
+				}
+			}
+		},
+		"getProject": {
+			"cli": ["project get"],
+			"mcp": ["asana_project_get"],
+			"parameters": {
+				"project_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "project_gid"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getProjectBrief": {
+			"cli": ["project-brief get"],
+			"mcp": ["asana_project_brief_get"],
+			"parameters": {
+				"project_brief_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "project_brief_gid"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getProjectTemplate": {
+			"cli": ["project-template get"],
+			"mcp": ["asana_project_template_get"],
+			"parameters": {
+				"project_template_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "project_template_gid"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getProjectTemplates": {
+			"cli": ["project-template list"],
+			"mcp": ["asana_project_template_list"],
+			"parameters": {
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				},
+				"team": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
+					"note": "gateway supports a team filter, but CLI and MCP route a team to getProjectTemplatesForTeam instead, so this operation never receives team; workspace+team together cannot be sent"
+				},
+				"workspace": {
+					"status": "covered",
+					"cli": "--workspace-gid (or ASANA_WORKSPACE_GID)",
+					"mcp": "workspace_gid"
+				}
+			}
+		},
+		"getProjectTemplatesForTeam": {
+			"cli": ["project-template list"],
+			"mcp": ["asana_project_template_list"],
+			"parameters": {
+				"team_gid": {
+					"status": "covered",
+					"cli": "--team-gid",
+					"mcp": "team_gid"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getProjects": {
+			"cli": ["project list"],
+			"mcp": ["asana_project_list"],
+			"parameters": {
+				"archived": {
+					"status": "covered",
+					"cli": "--archived / --no-archived",
+					"mcp": "archived"
+				},
+				"custom_type": {
+					"status": "covered",
+					"cli": "--custom-type",
+					"mcp": "custom_type",
+					"note": "GET /projects is called only when custom_type is given; otherwise getProjectsForWorkspace is used"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				},
+				"team": {
+					"status": "skipped",
+					"reason": "Deprecated in the SDK doc comment (use GET /memberships with member=team, resource_subtype=project_membership); cyber-asana never sends it"
+				},
+				"workspace": {
+					"status": "covered",
+					"cli": "--workspace-gid (or ASANA_WORKSPACE_GID)",
+					"mcp": "workspace_gid",
+					"note": "sent as the workspace query only on the custom_type path"
+				}
+			}
+		},
+		"getProjectsForTask": {
+			"cli": ["task project list"],
+			"mcp": ["asana_task_project_list"],
+			"parameters": {
+				"task_gid": {
+					"status": "covered",
+					"cli": "<task-gid>",
+					"mcp": "task_gid"
+				},
+				"include_inherited_projects": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
+					"note": "CLI has no flag; MCP has none"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getProjectsForTeam": {
+			"cli": ["team projects"],
+			"mcp": ["asana_team_projects"],
+			"parameters": {
+				"team_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "team_gid"
+				},
+				"archived": {
+					"status": "covered",
+					"cli": "--archived",
+					"mcp": "archived",
+					"note": "CLI can send archived=true only (no --no-archived); MCP can send true or false"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getProjectsForWorkspace": {
+			"cli": ["project list"],
+			"mcp": ["asana_project_list"],
+			"parameters": {
+				"workspace_gid": {
+					"status": "covered",
+					"cli": "--workspace-gid (or ASANA_WORKSPACE_GID)",
+					"mcp": "workspace_gid"
+				},
+				"archived": {
+					"status": "covered",
+					"cli": "--archived / --no-archived",
+					"mcp": "archived"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getRecord": {
+			"cli": ["record get"],
+			"mcp": ["asana_record_get"],
+			"parameters": {
+				"record_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "record_gid"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getRecordsForTable": {
+			"cli": ["record list"],
+			"mcp": ["asana_record_list"],
+			"parameters": {
+				"table_gid": {
+					"status": "covered",
+					"cli": "<table-gid>",
+					"mcp": "table_gid"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"modified_since": {
+					"status": "covered",
+					"cli": "--modified-since",
+					"mcp": "modified_since"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				},
+				"sort_by": {
+					"status": "covered",
+					"cli": "--sort-by",
+					"mcp": "sort_by"
+				}
+			}
+		},
+		"getSection": {
+			"cli": ["section get"],
+			"mcp": ["asana_section_get"],
+			"parameters": {
+				"section_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "section_gid"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getSectionsForProject": {
+			"cli": ["section list"],
+			"mcp": ["asana_section_list"],
+			"parameters": {
+				"project_gid": {
+					"status": "covered",
+					"cli": "--project-gid",
+					"mcp": "project_gid"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getStatus": {
+			"cli": ["status get"],
+			"mcp": ["asana_status_get"],
+			"parameters": {
+				"status_update_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "status_gid"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getStatusesForObject": {
+			"cli": ["status list"],
+			"mcp": ["asana_status_list"],
+			"parameters": {
+				"created_since": {
+					"status": "covered",
+					"cli": "--created-since",
+					"mcp": "created_since"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				},
+				"parent": {
+					"status": "covered",
+					"cli": "--parent-gid (or --parent)",
+					"mcp": "parent_gid"
+				}
+			}
+		},
+		"getStoriesForGoal": {
+			"cli": ["story list-goal"],
+			"mcp": ["asana_story_goal_list"],
+			"parameters": {
+				"goal_gid": {
+					"status": "covered",
+					"cli": "<goal-gid>",
+					"mcp": "goal_gid"
+				},
+				"created_after": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/413",
+					"note": "Neither CLI nor MCP sends it: only pagination params reach the call"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				},
+				"resource_subtype": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/413",
+					"note": "Neither CLI nor MCP sends it: only pagination params reach the call"
+				},
+				"sort_ascending": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/413",
+					"note": "Neither CLI nor MCP sends it: only pagination params reach the call"
+				}
+			}
+		},
+		"getStoriesForRecord": {
+			"cli": ["record stories list"],
+			"mcp": ["asana_record_story_list"],
+			"parameters": {
+				"record_gid": {
+					"status": "covered",
+					"cli": "<record-gid>",
+					"mcp": "record_gid"
+				},
+				"created_after": {
+					"status": "covered",
+					"cli": "--created-after",
+					"mcp": "created_after"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				},
+				"resource_subtype": {
+					"status": "covered",
+					"cli": "--comments-only",
+					"mcp": "comments_only",
+					"note": "sent as comment_added; the only subtype Asana supports here"
+				},
+				"sort_ascending": {
+					"status": "covered",
+					"cli": "--newest-first",
+					"mcp": "sort_ascending",
+					"note": "CLI sends sort_ascending=false only when --newest-first is given"
+				}
+			}
+		},
+		"getStoriesForTask": {
+			"cli": ["story list", "comment list"],
+			"mcp": ["asana_story_list", "asana_comment_list"],
+			"parameters": {
+				"task_gid": {
+					"status": "covered",
+					"cli": "--task-gid",
+					"mcp": "task_gid"
+				},
+				"created_after": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/413",
+					"note": "Neither CLI nor MCP sends it: only pagination params reach the call"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				},
+				"resource_subtype": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/413",
+					"note": "Neither CLI nor MCP sends it: only pagination params reach the call"
+				},
+				"sort_ascending": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/413",
+					"note": "Neither CLI nor MCP sends it: only pagination params reach the call"
+				}
+			}
+		},
+		"getStory": {
+			"cli": ["story get", "comment get"],
+			"mcp": ["asana_story_get", "asana_comment_get"],
+			"parameters": {
+				"story_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "story_gid"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getSubtasksForTask": {
+			"cli": ["task subtask list"],
+			"mcp": ["asana_task_subtask_list"],
+			"parameters": {
+				"task_gid": {
+					"status": "covered",
+					"cli": "<task-gid>",
+					"mcp": "task_gid"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getTable": {
+			"cli": ["table get"],
+			"mcp": ["asana_table_get"],
+			"parameters": {
+				"table_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "table_gid"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getTablesForWorkspace": {
+			"cli": ["table list"],
+			"mcp": ["asana_table_list"],
+			"parameters": {
+				"workspace_gid": {
+					"status": "covered",
+					"cli": "--workspace-gid (or ASANA_WORKSPACE_GID)",
+					"mcp": "workspace_gid"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getTag": {
+			"cli": ["tag get"],
+			"mcp": ["asana_tag_get"],
+			"parameters": {
+				"tag_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "tag_gid"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getTagsForTask": {
+			"cli": ["tag task list"],
+			"mcp": ["asana_tag_list_for_task"],
+			"parameters": {
+				"task_gid": {
+					"status": "covered",
+					"cli": "<task-gid>",
+					"mcp": "task_gid"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getTagsForWorkspace": {
+			"cli": ["tag list"],
+			"mcp": ["asana_tag_list"],
+			"parameters": {
+				"workspace_gid": {
+					"status": "covered",
+					"cli": "--workspace-gid (or ASANA_WORKSPACE_GID)",
+					"mcp": "workspace_gid"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getTask": {
+			"cli": ["task get"],
+			"mcp": ["asana_task_get"],
+			"parameters": {
+				"task_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "task_gid"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields",
+					"note": "Defaults to a fixed field set when omitted"
+				}
+			}
+		},
+		"getTaskCountsForProject": {
+			"cli": ["project counts"],
+			"mcp": ["asana_project_counts"],
+			"parameters": {
+				"project_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "project_gid"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields",
+					"note": "defaults to 'num_tasks,num_incomplete_tasks,num_completed_tasks' when absent"
+				}
+			}
+		},
+		"getTaskTemplate": {
+			"cli": ["task-template get"],
+			"mcp": ["asana_task_template_get"],
+			"parameters": {
+				"task_template_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "task_template_gid"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getTaskTemplates": {
+			"cli": ["task-template list"],
+			"mcp": ["asana_task_template_list"],
+			"parameters": {
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				},
+				"project": {
+					"status": "covered",
+					"cli": "--project-gid",
+					"mcp": "project_gid"
+				}
+			}
+		},
+		"getTasks": {
+			"cli": ["task list"],
+			"mcp": ["asana_task_list"],
+			"parameters": {
+				"assignee": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "Only reached with project + custom_type; no assignee flag and no MCP field"
+				},
+				"completed_since": {
+					"status": "covered",
+					"cli": "--completed-since / --incomplete-or-completed-since / --incomplete",
+					"mcp": "completed_since / incomplete_or_completed_since / incomplete",
+					"note": "Sent only when --custom-type / custom_type routes the list through GET /tasks"
+				},
+				"custom_type": {
+					"status": "covered",
+					"cli": "--custom-type",
+					"mcp": "custom_type"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"modified_since": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "No CLI flag and no MCP field"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				},
+				"project": {
+					"status": "covered",
+					"cli": "--project-gid (or --project)",
+					"mcp": "project_gid"
+				},
+				"section": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "Not sent; no CLI flag and no MCP field (section lists use getTasksForSection)"
+				},
+				"workspace": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "Not sent; GET /tasks is only called with a project, and neither channel passes workspace"
+				}
+			}
+		},
+		"getTasksForProject": {
+			"cli": ["task list"],
+			"mcp": ["asana_task_list"],
+			"parameters": {
+				"project_gid": {
+					"status": "covered",
+					"cli": "--project-gid (or --project)",
+					"mcp": "project_gid"
+				},
+				"completed_since": {
+					"status": "covered",
+					"cli": "--completed-since / --incomplete-or-completed-since / --incomplete",
+					"mcp": "completed_since / incomplete_or_completed_since / incomplete"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getTasksForSection": {
+			"cli": ["section tasks"],
+			"mcp": ["asana_section_task_list"],
+			"parameters": {
+				"section_gid": {
+					"status": "covered",
+					"cli": "<section-gid>",
+					"mcp": "section_gid"
+				},
+				"completed_since": {
+					"status": "covered",
+					"cli": "--completed-since / --incomplete-or-completed-since / --incomplete",
+					"mcp": "completed_since / incomplete_or_completed_since / incomplete"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getTasksForTag": {
+			"cli": ["tag tasks"],
+			"mcp": ["asana_tag_list_tasks"],
+			"parameters": {
+				"tag_gid": {
+					"status": "covered",
+					"cli": "<tag-gid>",
+					"mcp": "tag_gid"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getTasksForUserTaskList": {
+			"cli": ["task my-tasks list"],
+			"mcp": ["asana_task_my_tasks"],
+			"parameters": {
+				"user_task_list_gid": {
+					"status": "skipped",
+					"reason": "Resolved by cyber-asana from the authenticated user (\"me\") and the workspace; the command only lists My Tasks"
+				},
+				"completed_since": {
+					"status": "covered",
+					"cli": "--completed-since / --incomplete-or-completed-since / --incomplete",
+					"mcp": "completed_since / incomplete_or_completed_since / incomplete"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getTeam": {
+			"cli": ["team get"],
+			"mcp": ["asana_team_get"],
+			"parameters": {
+				"team_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "team_gid"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getTeamMembershipsForTeam": {
+			"cli": ["team members"],
+			"mcp": ["asana_team_members"],
+			"parameters": {
+				"team_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "team_gid"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getTeamsForUser": {
+			"cli": ["team for-user"],
+			"mcp": ["asana_team_list_for_user"],
+			"parameters": {
+				"user_gid": {
+					"status": "covered",
+					"cli": "<user-gid>",
+					"mcp": "user_gid"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				},
+				"organization": {
+					"status": "covered",
+					"cli": "--workspace-gid (or ASANA_WORKSPACE_GID)",
+					"mcp": "workspace_gid",
+					"note": "sent as the organization query"
+				}
+			}
+		},
+		"getTeamsForWorkspace": {
+			"cli": ["team list"],
+			"mcp": ["asana_team_list"],
+			"parameters": {
+				"workspace_gid": {
+					"status": "covered",
+					"cli": "--workspace-gid (or ASANA_WORKSPACE_GID)",
+					"mcp": "workspace_gid"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getTimePeriod": {
+			"cli": ["goal time-period get"],
+			"mcp": ["asana_time_period_get"],
+			"parameters": {
+				"time_period_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "time_period_gid"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getTimePeriods": {
+			"cli": ["goal time-period list"],
+			"mcp": ["asana_time_period_list"],
+			"parameters": {
+				"end_on": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
+					"note": "list filter: neither the CLI nor MCP sends it"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				},
+				"start_on": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
+					"note": "list filter: neither the CLI nor MCP sends it"
+				},
+				"workspace": {
+					"status": "covered",
+					"cli": "--workspace-gid (or ASANA_WORKSPACE_GID)",
+					"mcp": "workspace_gid"
+				}
+			}
+		},
+		"getTimeTrackingEntries": {
+			"cli": ["time-entry list"],
+			"mcp": ["asana_time_entry_list"],
+			"parameters": {
+				"assignee": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/414",
+					"note": "Neither CLI nor MCP sends it: the filters are task, user, portfolio, workspace and the date range"
+				},
+				"attributable_to": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/414",
+					"note": "Neither CLI nor MCP sends it"
+				},
+				"entered_on_end_date": {
+					"status": "covered",
+					"cli": "--to",
+					"mcp": "entered_on_end"
+				},
+				"entered_on_start_date": {
+					"status": "covered",
+					"cli": "--from",
+					"mcp": "entered_on_start"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				},
+				"portfolio": {
+					"status": "covered",
+					"cli": "--portfolio-gid",
+					"mcp": "portfolio_gid"
+				},
+				"task": {
+					"status": "covered",
+					"cli": "--task-gid",
+					"mcp": "task_gid"
+				},
+				"timesheet_approval_status": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/414",
+					"note": "Neither CLI nor MCP sends it"
+				},
+				"user": {
+					"status": "covered",
+					"cli": "--user-gid",
+					"mcp": "user_gid"
+				},
+				"workspace": {
+					"status": "covered",
+					"cli": "--workspace-gid (or ASANA_WORKSPACE_GID)",
+					"mcp": "workspace_gid"
+				}
+			}
+		},
+		"getTimeTrackingEntriesForTask": {
+			"cli": ["time-entry for-task"],
+			"mcp": ["asana_time_entry_list_for_task"],
+			"parameters": {
+				"task_gid": {
+					"status": "covered",
+					"cli": "<task-gid>",
+					"mcp": "task_gid"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getTimeTrackingEntry": {
+			"cli": ["time-entry get"],
+			"mcp": ["asana_time_entry_get"],
+			"parameters": {
+				"time_tracking_entry_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "time_entry_gid"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getUser": {
+			"cli": ["user get", "user me"],
+			"mcp": ["asana_user_get", "asana_user_me"],
+			"parameters": {
+				"user_gid": {
+					"status": "covered",
+					"cli": "<gid> (user me sends \"me\")",
+					"mcp": "user_gid"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				},
+				"workspace": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
+					"note": "gateway sends no workspace; CLI has no flag; MCP has none"
+				}
+			}
+		},
+		"getUserTaskListForUser": {
+			"cli": ["task my-tasks list"],
+			"mcp": ["asana_task_my_tasks"],
+			"parameters": {
+				"user_gid": {
+					"status": "skipped",
+					"reason": "Always \"me\": the command lists the authenticated user's My Tasks"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "Gateway passes no options; no CLI flag and no MCP field for this lookup"
+				},
+				"workspace": {
+					"status": "covered",
+					"cli": "--workspace-gid (or ASANA_WORKSPACE_GID)",
+					"mcp": "workspace_gid"
+				}
+			}
+		},
+		"getUsers": {
+			"cli": ["user list"],
+			"mcp": ["asana_user_list"],
+			"parameters": {
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				},
+				"team": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
+					"note": "gateway sends no team filter; CLI has no flag; MCP has none"
+				},
+				"workspace": {
+					"status": "covered",
+					"cli": "--workspace-gid (or ASANA_WORKSPACE_GID)",
+					"mcp": "workspace_gid"
+				}
+			}
+		},
+		"getWorkspace": {
+			"cli": ["workspace get"],
+			"mcp": ["asana_workspace_get"],
+			"parameters": {
+				"workspace_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "workspace_gid"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"getWorkspaces": {
+			"cli": ["workspace list"],
+			"mcp": ["asana_workspace_list"],
+			"parameters": {
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"offset": {
+					"status": "covered",
+					"cli": "--offset",
+					"mcp": "offset"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				}
+			}
+		},
+		"insertEnumOptionForCustomField": {
+			"cli": ["custom-field enum-option move"],
+			"mcp": ["asana_custom_field_enum_option_insert"],
+			"parameters": {
+				"custom_field_gid": {
+					"status": "covered",
+					"cli": "<field-gid>",
+					"mcp": "custom_field_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object"
+				},
+				"after_enum_option": {
+					"status": "covered",
+					"cli": "--after",
+					"mcp": "after_enum_option_gid"
+				},
+				"before_enum_option": {
+					"status": "covered",
+					"cli": "--before",
+					"mcp": "before_enum_option_gid"
+				},
+				"enum_option": {
+					"status": "covered",
+					"cli": "<option-gid>",
+					"mcp": "enum_option_gid"
+				}
+			}
+		},
+		"insertSectionForProject": {
+			"cli": ["section move"],
+			"mcp": ["asana_section_move"],
+			"parameters": {
+				"project_gid": {
+					"status": "covered",
+					"cli": "--project-gid",
+					"mcp": "project_gid"
+				},
+				"after_section": {
+					"status": "covered",
+					"cli": "--insert-after",
+					"mcp": "insert_after"
+				},
+				"before_section": {
+					"status": "covered",
+					"cli": "--insert-before",
+					"mcp": "insert_before"
+				},
+				"section": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "section_gid"
+				}
+			}
+		},
+		"instantiateProject": {
+			"cli": ["project-template instantiate"],
+			"mcp": ["asana_project_template_instantiate"],
+			"parameters": {
+				"project_template_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "project_template_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "gateway sends no opt_fields; CLI has no flag; MCP has none"
+				},
+				"is_strict": {
+					"status": "covered",
+					"cli": "--strict-dates",
+					"mcp": "is_strict"
+				},
+				"name": {
+					"status": "covered",
+					"cli": "--name",
+					"mcp": "name"
+				},
+				"privacy_setting": {
+					"status": "covered",
+					"cli": "--privacy-setting",
+					"mcp": "privacy_setting"
+				},
+				"public": {
+					"status": "covered",
+					"cli": "--public / --private",
+					"mcp": "public",
+					"note": "deprecated by Asana in favour of privacy_setting, but both channels still send it"
+				},
+				"requested_dates": {
+					"status": "covered",
+					"cli": "--requested-date <gid=value>",
+					"mcp": "requested_dates"
+				},
+				"requested_roles": {
+					"status": "covered",
+					"cli": "--requested-role <gid=user>",
+					"mcp": "requested_roles"
+				},
+				"team": {
+					"status": "covered",
+					"cli": "--team-gid",
+					"mcp": "team_gid"
+				}
+			}
+		},
+		"instantiateTask": {
+			"cli": ["task-template instantiate"],
+			"mcp": ["asana_task_template_instantiate"],
+			"parameters": {
+				"task_template_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "task_template_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "Neither CLI nor MCP sends it: the gateway passes only the body"
+				},
+				"name": {
+					"status": "covered",
+					"cli": "--name",
+					"mcp": "name"
+				}
+			}
+		},
+		"markNotificationsReadForUser": {
+			"cli": ["notification mark-read"],
+			"mcp": ["asana_notification_mark_read"],
+			"parameters": {
+				"user_gid": {
+					"status": "covered",
+					"cli": "--user-gid (default: me)",
+					"mcp": "user_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it"
+				},
+				"notification_gids": {
+					"status": "covered",
+					"cli": "<notification-gids...>",
+					"mcp": "notification_gids"
+				},
+				"workspace": {
+					"status": "covered",
+					"cli": "--workspace-gid (or ASANA_WORKSPACE_GID)",
+					"mcp": "workspace_gid"
+				}
+			}
+		},
+		"markNotificationsUnreadForUser": {
+			"cli": ["notification mark-unread"],
+			"mcp": ["asana_notification_mark_unread"],
+			"parameters": {
+				"user_gid": {
+					"status": "covered",
+					"cli": "--user-gid (default: me)",
+					"mcp": "user_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it"
+				},
+				"notification_gids": {
+					"status": "covered",
+					"cli": "<notification-gids...>",
+					"mcp": "notification_gids"
+				},
+				"workspace": {
+					"status": "covered",
+					"cli": "--workspace-gid (or ASANA_WORKSPACE_GID)",
+					"mcp": "workspace_gid"
+				}
+			}
+		},
+		"removeCustomFieldSettingForPortfolio": {
+			"cli": ["custom-field detach-portfolio"],
+			"mcp": ["asana_custom_field_detach_portfolio"],
+			"parameters": {
+				"portfolio_gid": {
+					"status": "covered",
+					"cli": "<portfolio-gid>",
+					"mcp": "portfolio_gid"
+				},
+				"custom_field": {
+					"status": "covered",
+					"cli": "<field-gid>",
+					"mcp": "custom_field_gid"
+				}
+			}
+		},
+		"removeCustomFieldSettingForProject": {
+			"cli": ["custom-field detach"],
+			"mcp": ["asana_custom_field_detach"],
+			"parameters": {
+				"project_gid": {
+					"status": "covered",
+					"cli": "<project-gid>",
+					"mcp": "project_gid"
+				},
+				"custom_field": {
+					"status": "covered",
+					"cli": "<field-gid>",
+					"mcp": "custom_field_gid"
+				}
+			}
+		},
+		"removeCustomFieldSettingForTable": {
+			"cli": ["table remove-field"],
+			"mcp": ["asana_table_remove_field"],
+			"parameters": {
+				"table_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "table_gid"
+				},
+				"custom_field": {
+					"status": "covered",
+					"cli": "<custom-field-gid>",
+					"mcp": "custom_field_gid"
+				}
+			}
+		},
+		"removeDependenciesForTask": {
+			"cli": ["task dependency remove"],
+			"mcp": ["asana_task_dependency_remove"],
+			"parameters": {
+				"task_gid": {
+					"status": "covered",
+					"cli": "<task-gid>",
+					"mcp": "task_gid"
+				},
+				"dependencies": {
+					"status": "covered",
+					"cli": "<dep-gids...>",
+					"mcp": "dependency_gids"
+				}
+			}
+		},
+		"removeDependentsForTask": {
+			"cli": ["task dependent remove"],
+			"mcp": ["asana_task_dependent_remove"],
+			"parameters": {
+				"task_gid": {
+					"status": "covered",
+					"cli": "<task-gid>",
+					"mcp": "task_gid"
+				},
+				"dependents": {
+					"status": "covered",
+					"cli": "<dep-gids...>",
+					"mcp": "dependent_gids"
+				}
+			}
+		},
+		"removeFollowerForTask": {
+			"cli": ["task follower remove"],
+			"mcp": ["asana_task_follower_remove"],
+			"parameters": {
+				"task_gid": {
+					"status": "covered",
+					"cli": "<task-gid>",
+					"mcp": "task_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "Gateway sends no opt_fields; no CLI flag and no MCP field"
+				},
+				"followers": {
+					"status": "covered",
+					"cli": "<follower-gids...>",
+					"mcp": "follower_gids"
+				}
+			}
+		},
+		"removeFollowers": {
+			"cli": ["goal follower remove"],
+			"mcp": ["asana_goal_follower_remove"],
+			"parameters": {
+				"goal_gid": {
+					"status": "covered",
+					"cli": "<goal-gid>",
+					"mcp": "goal_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object"
+				},
+				"followers": {
+					"status": "covered",
+					"cli": "<follower-gids...>",
+					"mcp": "follower_gids"
+				}
+			}
+		},
+		"removeFollowersForProject": {
+			"cli": ["project follower remove"],
+			"mcp": ["asana_project_follower_remove"],
+			"parameters": {
+				"project_gid": {
+					"status": "covered",
+					"cli": "<project-gid>",
+					"mcp": "project_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "gateway passes an empty opts object; CLI has no flag; MCP has none"
+				},
+				"followers": {
+					"status": "covered",
+					"cli": "<follower-gids...>",
+					"mcp": "follower_gids"
+				}
+			}
+		},
+		"removeItemForPortfolio": {
+			"cli": ["portfolio item remove"],
+			"mcp": ["asana_portfolio_item_remove"],
+			"parameters": {
+				"portfolio_gid": {
+					"status": "covered",
+					"cli": "<portfolio-gid>",
+					"mcp": "portfolio_gid"
+				},
+				"item": {
+					"status": "covered",
+					"cli": "<item-gid>",
+					"mcp": "item_gid"
+				}
+			}
+		},
+		"removeProjectForTask": {
+			"cli": ["task project remove"],
+			"mcp": ["asana_task_project_remove"],
+			"parameters": {
+				"task_gid": {
+					"status": "covered",
+					"cli": "<task-gid>",
+					"mcp": "task_gid"
+				},
+				"project": {
+					"status": "covered",
+					"cli": "<project-gid>",
+					"mcp": "project_gid"
+				}
+			}
+		},
+		"removeSupportingRelationship": {
+			"cli": ["goal supporting remove"],
+			"mcp": ["asana_goal_supporting_remove"],
+			"parameters": {
+				"goal_gid": {
+					"status": "covered",
+					"cli": "<goal-gid>",
+					"mcp": "goal_gid"
+				},
+				"supporting_resource": {
+					"status": "covered",
+					"cli": "<supporting-gid>",
+					"mcp": "supporting_resource_gid"
+				}
+			}
+		},
+		"removeTagForTask": {
+			"cli": ["tag task remove"],
+			"mcp": ["asana_tag_remove_from_task"],
+			"parameters": {
+				"task_gid": {
+					"status": "covered",
+					"cli": "<task-gid>",
+					"mcp": "task_gid"
+				},
+				"tag": {
+					"status": "covered",
+					"cli": "<tag-gid>",
+					"mcp": "tag_gid"
+				}
+			}
+		},
+		"searchProjectsForWorkspace": {
+			"cli": ["project search"],
+			"mcp": ["asana_project_search"],
+			"parameters": {
+				"workspace_gid": {
+					"status": "covered",
+					"cli": "--workspace-gid (or ASANA_WORKSPACE_GID)",
+					"mcp": "workspace_gid"
+				},
+				"completed": {
+					"status": "covered",
+					"cli": "--completed / --no-completed",
+					"mcp": "completed"
+				},
+				"completed_at.after": {
+					"status": "covered",
+					"cli": "--completed-at-after",
+					"mcp": "completed_at_after"
+				},
+				"completed_at.before": {
+					"status": "covered",
+					"cli": "--completed-at-before",
+					"mcp": "completed_at_before"
+				},
+				"completed_on": {
+					"status": "covered",
+					"cli": "--completed-on",
+					"mcp": "completed_on"
+				},
+				"completed_on.after": {
+					"status": "covered",
+					"cli": "--completed-on-after",
+					"mcp": "completed_on_after"
+				},
+				"completed_on.before": {
+					"status": "covered",
+					"cli": "--completed-on-before",
+					"mcp": "completed_on_before"
+				},
+				"created_at.after": {
+					"status": "covered",
+					"cli": "--created-at-after",
+					"mcp": "created_at_after"
+				},
+				"created_at.before": {
+					"status": "covered",
+					"cli": "--created-at-before",
+					"mcp": "created_at_before"
+				},
+				"created_on": {
+					"status": "covered",
+					"cli": "--created-on",
+					"mcp": "created_on"
+				},
+				"created_on.after": {
+					"status": "covered",
+					"cli": "--created-on-after",
+					"mcp": "created_on_after"
+				},
+				"created_on.before": {
+					"status": "covered",
+					"cli": "--created-on-before",
+					"mcp": "created_on_before"
+				},
+				"due_at.after": {
+					"status": "covered",
+					"cli": "--due-at-after",
+					"mcp": "due_at_after"
+				},
+				"due_at.before": {
+					"status": "covered",
+					"cli": "--due-at-before",
+					"mcp": "due_at_before"
+				},
+				"due_on": {
+					"status": "covered",
+					"cli": "--due-on",
+					"mcp": "due_on"
+				},
+				"due_on.after": {
+					"status": "covered",
+					"cli": "--due-on-after",
+					"mcp": "due_on_after"
+				},
+				"due_on.before": {
+					"status": "covered",
+					"cli": "--due-on-before",
+					"mcp": "due_on_before"
+				},
+				"limit": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
+					"note": "searchProjects sends no limit; CLI has no --limit on project search; MCP has none"
+				},
+				"members.any": {
+					"status": "covered",
+					"cli": "--member",
+					"mcp": "members_any"
+				},
+				"members.not": {
+					"status": "covered",
+					"cli": "--member-not",
+					"mcp": "members_not"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				},
+				"owner.any": {
+					"status": "covered",
+					"cli": "--owner",
+					"mcp": "owner_any"
+				},
+				"portfolios.any": {
+					"status": "covered",
+					"cli": "--portfolio",
+					"mcp": "portfolios_any"
+				},
+				"sort_ascending": {
+					"status": "covered",
+					"cli": "--sort-asc",
+					"mcp": "sort_ascending"
+				},
+				"sort_by": {
+					"status": "covered",
+					"cli": "--sort-by",
+					"mcp": "sort_by"
+				},
+				"start_on": {
+					"status": "covered",
+					"cli": "--start-on",
+					"mcp": "start_on"
+				},
+				"start_on.after": {
+					"status": "covered",
+					"cli": "--start-on-after",
+					"mcp": "start_on_after"
+				},
+				"start_on.before": {
+					"status": "covered",
+					"cli": "--start-on-before",
+					"mcp": "start_on_before"
+				},
+				"teams.any": {
+					"status": "covered",
+					"cli": "--team",
+					"mcp": "teams_any"
+				},
+				"text": {
+					"status": "covered",
+					"cli": "[text] positional",
+					"mcp": "text"
+				}
+			}
+		},
+		"searchRecordsForWorkspace": {
+			"cli": ["record search"],
+			"mcp": ["asana_record_search"],
+			"parameters": {
+				"workspace_gid": {
+					"status": "covered",
+					"cli": "--workspace-gid (or ASANA_WORKSPACE_GID)",
+					"mcp": "workspace_gid"
+				},
+				"created_at.after": {
+					"status": "covered",
+					"cli": "--created-after",
+					"mcp": "created_at_after"
+				},
+				"created_at.before": {
+					"status": "covered",
+					"cli": "--created-before",
+					"mcp": "created_at_before"
+				},
+				"created_on": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/413",
+					"note": "CLI has no flag; MCP sends it (created_on)"
+				},
+				"created_on.after": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/413",
+					"note": "CLI has no flag; MCP sends it (created_on_after)"
+				},
+				"created_on.before": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/413",
+					"note": "CLI has no flag; MCP sends it (created_on_before)"
+				},
+				"followers.any": {
+					"status": "covered",
+					"cli": "--follower",
+					"mcp": "followers_any"
+				},
+				"followers.not": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/413",
+					"note": "CLI has no flag; MCP sends it (followers_not)"
+				},
+				"limit": {
+					"status": "covered",
+					"cli": "--limit",
+					"mcp": "limit"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				},
+				"sort_ascending": {
+					"status": "covered",
+					"cli": "--ascending",
+					"mcp": "sort_ascending"
+				},
+				"sort_by": {
+					"status": "covered",
+					"cli": "--sort-by",
+					"mcp": "sort_by"
+				},
+				"tables.all": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/413",
+					"note": "CLI has no flag; MCP sends it (tables_all)"
+				},
+				"tables.any": {
+					"status": "covered",
+					"cli": "--table",
+					"mcp": "tables_any"
+				},
+				"tables.not": {
+					"status": "covered",
+					"cli": "--exclude-table",
+					"mcp": "tables_not"
+				},
+				"teams.any": {
+					"status": "covered",
+					"cli": "--team",
+					"mcp": "teams_any"
+				},
+				"text": {
+					"status": "covered",
+					"cli": "--text",
+					"mcp": "text"
+				}
+			}
+		},
+		"searchTasksForWorkspace": {
+			"cli": ["task search"],
+			"mcp": ["asana_task_search"],
+			"parameters": {
+				"workspace_gid": {
+					"status": "covered",
+					"cli": "--workspace-gid (or ASANA_WORKSPACE_GID)",
+					"mcp": "workspace_gid"
+				},
+				"assigned_by.any": {
+					"status": "covered",
+					"cli": "--assigned-by",
+					"mcp": "assigned_by_any"
+				},
+				"assigned_by.not": {
+					"status": "covered",
+					"cli": "--assigned-by-not",
+					"mcp": "assigned_by_not"
+				},
+				"assignee.any": {
+					"status": "covered",
+					"cli": "--assignee",
+					"mcp": "assignee_any"
+				},
+				"assignee.not": {
+					"status": "covered",
+					"cli": "--assignee-not",
+					"mcp": "assignee_not"
+				},
+				"commented_on_by.not": {
+					"status": "covered",
+					"cli": "--undefined-not",
+					"mcp": "commented_on_by_not"
+				},
+				"completed": {
+					"status": "covered",
+					"cli": "--completed / --no-completed",
+					"mcp": "completed"
+				},
+				"completed_at.after": {
+					"status": "covered",
+					"cli": "--completed-at-after",
+					"mcp": "completed_at_after"
+				},
+				"completed_at.before": {
+					"status": "covered",
+					"cli": "--completed-at-before",
+					"mcp": "completed_at_before"
+				},
+				"completed_on": {
+					"status": "covered",
+					"cli": "--completed-on",
+					"mcp": "completed_on"
+				},
+				"completed_on.after": {
+					"status": "covered",
+					"cli": "--completed-on-after",
+					"mcp": "completed_on_after"
+				},
+				"completed_on.before": {
+					"status": "covered",
+					"cli": "--completed-on-before",
+					"mcp": "completed_on_before"
+				},
+				"created_at.after": {
+					"status": "covered",
+					"cli": "--created-at-after",
+					"mcp": "created_at_after"
+				},
+				"created_at.before": {
+					"status": "covered",
+					"cli": "--created-at-before",
+					"mcp": "created_at_before"
+				},
+				"created_by.any": {
+					"status": "covered",
+					"cli": "--created-by",
+					"mcp": "created_by_any"
+				},
+				"created_by.not": {
+					"status": "covered",
+					"cli": "--created-by-not",
+					"mcp": "created_by_not"
+				},
+				"created_on": {
+					"status": "covered",
+					"cli": "--created-on",
+					"mcp": "created_on"
+				},
+				"created_on.after": {
+					"status": "covered",
+					"cli": "--created-on-after",
+					"mcp": "created_on_after"
+				},
+				"created_on.before": {
+					"status": "covered",
+					"cli": "--created-on-before",
+					"mcp": "created_on_before"
+				},
+				"due_at.after": {
+					"status": "covered",
+					"cli": "--due-at-after",
+					"mcp": "due_at_after"
+				},
+				"due_at.before": {
+					"status": "covered",
+					"cli": "--due-at-before",
+					"mcp": "due_at_before"
+				},
+				"due_on": {
+					"status": "covered",
+					"cli": "--due-on",
+					"mcp": "due_on"
+				},
+				"due_on.after": {
+					"status": "covered",
+					"cli": "--due-on-after",
+					"mcp": "due_on_after"
+				},
+				"due_on.before": {
+					"status": "covered",
+					"cli": "--due-on-before",
+					"mcp": "due_on_before"
+				},
+				"followers.any": {
+					"status": "covered",
+					"cli": "--follower",
+					"mcp": "followers_any"
+				},
+				"followers.not": {
+					"status": "covered",
+					"cli": "--follower-not",
+					"mcp": "followers_not"
+				},
+				"has_attachment": {
+					"status": "covered",
+					"cli": "--has-attachment",
+					"mcp": "has_attachment"
+				},
+				"is_blocked": {
+					"status": "covered",
+					"cli": "--is-blocked",
+					"mcp": "is_blocked"
+				},
+				"is_blocking": {
+					"status": "covered",
+					"cli": "--is-blocking",
+					"mcp": "is_blocking"
+				},
+				"is_subtask": {
+					"status": "covered",
+					"cli": "--subtask / --no-subtask",
+					"mcp": "is_subtask"
+				},
+				"liked_by.not": {
+					"status": "covered",
+					"cli": "--undefined-not",
+					"mcp": "liked_by_not"
+				},
+				"limit": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "searchTasks sends no limit; no CLI --limit and no MCP limit (--all/fetch_all pages instead)"
+				},
+				"modified_at.after": {
+					"status": "covered",
+					"cli": "--modified-at-after",
+					"mcp": "modified_at_after"
+				},
+				"modified_at.before": {
+					"status": "covered",
+					"cli": "--modified-at-before",
+					"mcp": "modified_at_before"
+				},
+				"modified_on": {
+					"status": "covered",
+					"cli": "--modified-on",
+					"mcp": "modified_on"
+				},
+				"modified_on.after": {
+					"status": "covered",
+					"cli": "--modified-on-after",
+					"mcp": "modified_on_after"
+				},
+				"modified_on.before": {
+					"status": "covered",
+					"cli": "--modified-on-before",
+					"mcp": "modified_on_before"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				},
+				"portfolios.any": {
+					"status": "covered",
+					"cli": "--portfolio",
+					"mcp": "portfolios_any"
+				},
+				"projects.all": {
+					"status": "covered",
+					"cli": "--project-all",
+					"mcp": "projects_all"
+				},
+				"projects.any": {
+					"status": "covered",
+					"cli": "--project",
+					"mcp": "projects_any"
+				},
+				"projects.not": {
+					"status": "covered",
+					"cli": "--project-not",
+					"mcp": "projects_not"
+				},
+				"resource_subtype": {
+					"status": "covered",
+					"cli": "--subtype",
+					"mcp": "resource_subtype"
+				},
+				"sections.all": {
+					"status": "covered",
+					"cli": "--section-all",
+					"mcp": "sections_all"
+				},
+				"sections.any": {
+					"status": "covered",
+					"cli": "--section",
+					"mcp": "sections_any"
+				},
+				"sections.not": {
+					"status": "covered",
+					"cli": "--section-not",
+					"mcp": "sections_not"
+				},
+				"sort_ascending": {
+					"status": "covered",
+					"cli": "--sort-asc",
+					"mcp": "sort_ascending"
+				},
+				"sort_by": {
+					"status": "covered",
+					"cli": "--sort-by",
+					"mcp": "sort_by"
+				},
+				"start_on": {
+					"status": "covered",
+					"cli": "--start-on",
+					"mcp": "start_on"
+				},
+				"start_on.after": {
+					"status": "covered",
+					"cli": "--start-on-after",
+					"mcp": "start_on_after"
+				},
+				"start_on.before": {
+					"status": "covered",
+					"cli": "--start-on-before",
+					"mcp": "start_on_before"
+				},
+				"tags.all": {
+					"status": "covered",
+					"cli": "--tag-all",
+					"mcp": "tags_all"
+				},
+				"tags.any": {
+					"status": "covered",
+					"cli": "--tag",
+					"mcp": "tags_any"
+				},
+				"tags.not": {
+					"status": "covered",
+					"cli": "--tag-not",
+					"mcp": "tags_not"
+				},
+				"teams.any": {
+					"status": "covered",
+					"cli": "--team",
+					"mcp": "teams_any"
+				},
+				"text": {
+					"status": "covered",
+					"cli": "[text]",
+					"mcp": "text"
+				}
+			}
+		},
+		"setParentForTask": {
+			"cli": ["task update", "task reorder"],
+			"mcp": ["asana_task_update", "asana_task_reorder"],
+			"parameters": {
+				"task_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "task_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "Gateway sends no opt_fields; no CLI flag and no MCP field"
+				},
+				"insert_after": {
+					"status": "covered",
+					"cli": "--insert-after",
+					"mcp": "insert_after"
+				},
+				"insert_before": {
+					"status": "covered",
+					"cli": "--insert-before",
+					"mcp": "insert_before"
+				},
+				"parent": {
+					"status": "covered",
+					"cli": "--parent-gid (or --parent) / --clear-parent",
+					"mcp": "parent_gid / clear_parent",
+					"note": "Sent as null by --clear-parent / clear_parent"
+				}
+			}
+		},
+		"triggerRule": {
+			"cli": ["rule trigger"],
+			"mcp": ["asana_rule_trigger"],
+			"parameters": {
+				"rule_trigger_gid": {
+					"status": "covered",
+					"cli": "<rule-trigger-gid>",
+					"mcp": "rule_trigger_gid"
+				},
+				"action_data": {
+					"status": "covered",
+					"cli": "--action-data-json",
+					"mcp": "action_data"
+				},
+				"resource": {
+					"status": "covered",
+					"cli": "--resource",
+					"mcp": "resource"
+				}
+			}
+		},
+		"typeaheadForWorkspace": {
+			"cli": ["search objects"],
+			"mcp": ["asana_search_objects"],
+			"parameters": {
+				"workspace_gid": {
+					"status": "covered",
+					"cli": "--workspace-gid (or ASANA_WORKSPACE_GID)",
+					"mcp": "workspace_gid"
+				},
+				"count": {
+					"status": "covered",
+					"cli": "--count",
+					"mcp": "count"
+				},
+				"opt_fields": {
+					"status": "covered",
+					"cli": "--opt-fields",
+					"mcp": "opt_fields"
+				},
+				"query": {
+					"status": "covered",
+					"cli": "[query]",
+					"mcp": "query"
+				},
+				"resource_type": {
+					"status": "covered",
+					"cli": "<resource-type>",
+					"mcp": "resource_type"
+				},
+				"type": {
+					"status": "skipped",
+					"reason": "Deprecated in Asana's docs in favour of resource_type, which cyber-asana sends"
+				}
+			}
+		},
+		"updateAllocation": {
+			"cli": ["allocation update"],
+			"mcp": ["asana_allocation_update"],
+			"parameters": {
+				"allocation_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "allocation_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it"
+				},
+				"assignee": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/414",
+					"note": "Neither CLI nor MCP sends it: AllocationUpdateFields omits assignee"
+				},
+				"effort": {
+					"status": "covered",
+					"cli": "--percent / --hours",
+					"mcp": "effort_type + effort_value"
+				},
+				"end_date": {
+					"status": "covered",
+					"cli": "--end-date",
+					"mcp": "end_date"
+				},
+				"parent": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/414",
+					"note": "Neither CLI nor MCP sends it: AllocationUpdateFields omits parent"
+				},
+				"start_date": {
+					"status": "covered",
+					"cli": "--start-date",
+					"mcp": "start_date"
+				}
+			}
+		},
+		"updateCustomField": {
+			"cli": ["custom-field update"],
+			"mcp": ["asana_custom_field_update"],
+			"parameters": {
+				"custom_field_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "custom_field_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object"
+				},
+				"currency_code": {
+					"status": "covered",
+					"cli": "--currency-code",
+					"mcp": "currency_code"
+				},
+				"custom_label": {
+					"status": "covered",
+					"cli": "--custom-label",
+					"mcp": "custom_label"
+				},
+				"custom_label_position": {
+					"status": "covered",
+					"cli": "--custom-label-position",
+					"mcp": "custom_label_position"
+				},
+				"date_value": {
+					"status": "skipped",
+					"reason": "A value the field holds on a task or project, set there through custom_fields; it is not part of the field definition"
+				},
+				"description": {
+					"status": "covered",
+					"cli": "--description",
+					"mcp": "description"
+				},
+				"enum_options": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
+					"note": "neither the CLI nor MCP sends it"
+				},
+				"enum_value": {
+					"status": "skipped",
+					"reason": "A value the field holds on a task or project, set there through custom_fields; it is not part of the field definition"
+				},
+				"format": {
+					"status": "covered",
+					"cli": "--format",
+					"mcp": "format"
+				},
+				"has_notifications_enabled": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
+					"note": "neither the CLI nor MCP sends it"
+				},
+				"id_prefix": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
+					"note": "neither the CLI nor MCP sends it"
+				},
+				"input_restrictions": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
+					"note": "neither the CLI nor MCP sends it"
+				},
+				"is_formula_field": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
+					"note": "neither the CLI nor MCP sends it (likely a read-only value field on the custom field object; unverified)"
+				},
+				"is_lookup_field": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
+					"note": "neither the CLI nor MCP sends it (likely a read-only value field on the custom field object; unverified)"
+				},
+				"multi_enum_values": {
+					"status": "skipped",
+					"reason": "A value the field holds on a task or project, set there through custom_fields; it is not part of the field definition"
+				},
+				"name": {
+					"status": "covered",
+					"cli": "--name",
+					"mcp": "name"
+				},
+				"number_value": {
+					"status": "skipped",
+					"reason": "A value the field holds on a task or project, set there through custom_fields; it is not part of the field definition"
+				},
+				"owned_by_app": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
+					"note": "neither the CLI nor MCP sends it (likely a read-only value field on the custom field object; unverified)"
+				},
+				"people_value": {
+					"status": "skipped",
+					"reason": "A value the field holds on a task or project, set there through custom_fields; it is not part of the field definition"
+				},
+				"precision": {
+					"status": "covered",
+					"cli": "--precision",
+					"mcp": "precision"
+				},
+				"reference_value": {
+					"status": "skipped",
+					"reason": "A value the field holds on a task or project, set there through custom_fields; it is not part of the field definition"
+				},
+				"text_value": {
+					"status": "skipped",
+					"reason": "A value the field holds on a task or project, set there through custom_fields; it is not part of the field definition"
+				},
+				"workspace": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/412",
+					"note": "neither the CLI nor MCP sends it"
+				}
+			}
+		},
+		"updateEnumOption": {
+			"cli": ["custom-field enum-option update"],
+			"mcp": ["asana_custom_field_enum_option_update"],
+			"parameters": {
+				"enum_option_gid": {
+					"status": "covered",
+					"cli": "<option-gid>",
+					"mcp": "enum_option_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object"
+				},
+				"color": {
+					"status": "covered",
+					"cli": "--color",
+					"mcp": "color"
+				},
+				"enabled": {
+					"status": "covered",
+					"cli": "--enabled / --disabled",
+					"mcp": "enabled"
+				},
+				"name": {
+					"status": "covered",
+					"cli": "--name",
+					"mcp": "name"
+				}
+			}
+		},
+		"updateGoal": {
+			"cli": ["goal update"],
+			"mcp": ["asana_goal_update"],
+			"parameters": {
+				"goal_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "goal_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object"
+				},
+				"custom_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
+					"note": "neither the CLI nor MCP sends it"
+				},
+				"due_on": {
+					"status": "covered",
+					"cli": "--due-on",
+					"mcp": "due_on",
+					"note": "sent as null by --clear-due-on / clear_due_on"
+				},
+				"html_custom_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
+					"note": "neither the CLI nor MCP sends it"
+				},
+				"html_notes": {
+					"status": "covered",
+					"cli": "--html-notes",
+					"mcp": "html_notes"
+				},
+				"is_workspace_level": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
+					"note": "neither the CLI nor MCP sends it"
+				},
+				"liked": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
+					"note": "neither the CLI nor MCP sends it"
+				},
+				"name": {
+					"status": "covered",
+					"cli": "--name",
+					"mcp": "name"
+				},
+				"notes": {
+					"status": "covered",
+					"cli": "--notes",
+					"mcp": "notes"
+				},
+				"owner": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
+					"note": "neither the CLI nor MCP sends it"
+				},
+				"start_on": {
+					"status": "covered",
+					"cli": "--start-on",
+					"mcp": "start_on",
+					"note": "sent as null by --clear-start-on / clear_start_on"
+				},
+				"status": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
+					"note": "neither the CLI nor MCP sends it"
+				},
+				"team": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
+					"note": "neither the CLI nor MCP sends it"
+				},
+				"time_period": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
+					"note": "neither the CLI nor MCP sends it"
+				},
+				"workspace": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/410",
+					"note": "neither the CLI nor MCP sends it"
+				}
+			}
+		},
+		"updateGoalMetric": {
+			"cli": ["goal metric set-current"],
+			"mcp": ["asana_goal_metric_set_current_value"],
+			"parameters": {
+				"goal_gid": {
+					"status": "covered",
+					"cli": "<goal-gid>",
+					"mcp": "goal_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object"
+				},
+				"current_number_value": {
+					"status": "covered",
+					"cli": "<value>",
+					"mcp": "current_number_value"
+				}
+			}
+		},
+		"updateMembership": {
+			"cli": ["membership update"],
+			"mcp": ["asana_membership_update"],
+			"parameters": {
+				"membership_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "membership_gid"
+				},
+				"access_level": {
+					"status": "covered",
+					"cli": "--access-level",
+					"mcp": "access_level"
+				}
+			}
+		},
+		"updateOooEntry": {
+			"cli": ["ooo update"],
+			"mcp": ["asana_ooo_update"],
+			"parameters": {
+				"ooo_entry_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "ooo_entry_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it"
+				},
+				"end_date": {
+					"status": "covered",
+					"cli": "--end-date",
+					"mcp": "end_date"
+				},
+				"start_date": {
+					"status": "covered",
+					"cli": "--start-date",
+					"mcp": "start_date"
+				}
+			}
+		},
+		"updatePortfolio": {
+			"cli": ["portfolio update"],
+			"mcp": ["asana_portfolio_update"],
+			"parameters": {
+				"portfolio_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "portfolio_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object"
+				},
+				"archived": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/411",
+					"note": "neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create)"
+				},
+				"color": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/411",
+					"note": "neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create)"
+				},
+				"custom_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/411",
+					"note": "neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create)"
+				},
+				"custom_type": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/411",
+					"note": "neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create)"
+				},
+				"default_access_level": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/411",
+					"note": "neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create)"
+				},
+				"due_on": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/411",
+					"note": "neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create)"
+				},
+				"html_custom_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/411",
+					"note": "neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create)"
+				},
+				"name": {
+					"status": "covered",
+					"cli": "--name",
+					"mcp": "name"
+				},
+				"public": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/411",
+					"note": "neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create)"
+				},
+				"resource_subtype": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/411",
+					"note": "neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create)"
+				},
+				"start_on": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/411",
+					"note": "neither the CLI nor MCP sends it; the portfolio write path carries only name (and workspace on create)"
+				}
+			}
+		},
+		"updateProject": {
+			"cli": ["project update"],
+			"mcp": ["asana_project_update"],
+			"parameters": {
+				"project_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "project_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "gateway passes an empty opts object; CLI has no flag; MCP has none"
+				},
+				"archived": {
+					"status": "covered",
+					"cli": "--archived / --no-archived",
+					"mcp": "archived"
+				},
+				"color": {
+					"status": "covered",
+					"cli": "--color",
+					"mcp": "color"
+				},
+				"current_status": {
+					"status": "skipped",
+					"reason": "Deprecated by Asana (see Asana API reference; the SDK comment does not mark it); cyber-asana never sends it: use status updates"
+				},
+				"current_status_update": {
+					"status": "skipped",
+					"reason": "Deprecated by Asana (see Asana API reference; the SDK comment does not mark it); cyber-asana never sends it: use status updates"
+				},
+				"custom_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
+					"note": "CLI has no flag; MCP has none (CLI and MCP only attach fields through custom-field attach)"
+				},
+				"custom_type": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
+					"note": "CLI has no flag; MCP has none"
+				},
+				"default_access_level": {
+					"status": "covered",
+					"cli": "--default-access-level",
+					"mcp": "default_access_level"
+				},
+				"default_view": {
+					"status": "covered",
+					"cli": "--default-view",
+					"mcp": "default_view"
+				},
+				"due_date": {
+					"status": "skipped",
+					"reason": "Deprecated by Asana (see Asana API reference; the SDK comment does not mark it); cyber-asana never sends it: due_on replaces it"
+				},
+				"due_on": {
+					"status": "covered",
+					"cli": "--due-on (--clear-due-on sends null)",
+					"mcp": "due_on (clear_due_on sends null)"
+				},
+				"followers": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
+					"note": "CLI has no flag on project update; MCP has none (followers are managed through project follower add/remove)"
+				},
+				"html_custom_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
+					"note": "CLI has no flag; MCP has none"
+				},
+				"html_notes": {
+					"status": "covered",
+					"cli": "--html-notes",
+					"mcp": "html_notes"
+				},
+				"icon": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
+					"note": "CLI has no flag; MCP has none"
+				},
+				"minimum_access_level_for_customization": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
+					"note": "CLI has no flag; MCP has none"
+				},
+				"minimum_access_level_for_sharing": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
+					"note": "CLI has no flag; MCP has none"
+				},
+				"name": {
+					"status": "covered",
+					"cli": "--name",
+					"mcp": "name"
+				},
+				"notes": {
+					"status": "covered",
+					"cli": "--notes",
+					"mcp": "notes"
+				},
+				"owner": {
+					"status": "covered",
+					"cli": "--owner (--clear-owner sends null)",
+					"mcp": "owner (clear_owner sends null)"
+				},
+				"privacy_setting": {
+					"status": "covered",
+					"cli": "--privacy-setting",
+					"mcp": "privacy_setting"
+				},
+				"public": {
+					"status": "skipped",
+					"reason": "Deprecated by Asana (see Asana API reference; the SDK comment does not mark it); cyber-asana never sends it: privacy_setting replaces it"
+				},
+				"resource_subtype": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/409",
+					"note": "CLI has no flag; MCP has none"
+				},
+				"start_on": {
+					"status": "covered",
+					"cli": "--start-on (--clear-start-on sends null)",
+					"mcp": "start_on (clear_start_on sends null)"
+				},
+				"team": {
+					"status": "skipped",
+					"reason": "Deprecated for create/update/list filters in the SDK doc comments (share a project with a team through POST /memberships, which cyber-asana wraps as membership create); cyber-asana never sends it"
+				}
+			}
+		},
+		"updateProjectBrief": {
+			"cli": ["project-brief update"],
+			"mcp": ["asana_project_brief_update"],
+			"parameters": {
+				"project_brief_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "project_brief_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "gateway passes an empty opts object; CLI has no flag; MCP has none"
+				},
+				"html_text": {
+					"status": "covered",
+					"cli": "--html-text",
+					"mcp": "html_text"
+				},
+				"text": {
+					"status": "covered",
+					"cli": "--text",
+					"mcp": "text"
+				},
+				"title": {
+					"status": "covered",
+					"cli": "--title",
+					"mcp": "title"
+				}
+			}
+		},
+		"updateRecord": {
+			"cli": ["record update"],
+			"mcp": ["asana_record_update"],
+			"parameters": {
+				"record_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "record_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it"
+				},
+				"custom_fields": {
+					"status": "covered",
+					"cli": "--field <gid=value> / --fields-json",
+					"mcp": "custom_fields"
+				},
+				"default_access_level": {
+					"status": "covered",
+					"cli": "--default-access-level",
+					"mcp": "default_access_level"
+				},
+				"name": {
+					"status": "covered",
+					"cli": "--name",
+					"mcp": "name"
+				}
+			}
+		},
+		"updateSection": {
+			"cli": ["section update"],
+			"mcp": ["asana_section_update"],
+			"parameters": {
+				"section_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "section_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "gateway sends no opt_fields; CLI has no flag; MCP has none"
+				},
+				"insert_after": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/406",
+					"note": "updateSection sends only name; CLI and MCP reposition a section through section move (insertSectionForProject), not through update"
+				},
+				"insert_before": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/406",
+					"note": "updateSection sends only name; CLI and MCP reposition a section through section move (insertSectionForProject), not through update"
+				},
+				"name": {
+					"status": "covered",
+					"cli": "--name",
+					"mcp": "name"
+				}
+			}
+		},
+		"updateStory": {
+			"cli": ["story update", "comment update"],
+			"mcp": ["asana_story_update", "asana_comment_update"],
+			"parameters": {
+				"story_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "story_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it"
+				},
+				"html_text": {
+					"status": "covered",
+					"cli": "--html-text",
+					"mcp": "html_text"
+				},
+				"is_pinned": {
+					"status": "covered",
+					"cli": "--pin / --unpin",
+					"mcp": "is_pinned"
+				},
+				"sticker_name": {
+					"status": "covered",
+					"cli": "--sticker",
+					"mcp": "sticker_name"
+				},
+				"text": {
+					"status": "covered",
+					"cli": "[text]",
+					"mcp": "text"
+				}
+			}
+		},
+		"updateTable": {
+			"cli": ["table update"],
+			"mcp": ["asana_table_update"],
+			"parameters": {
+				"table_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "table_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it"
+				},
+				"default_access_level": {
+					"status": "covered",
+					"cli": "--default-access-level",
+					"mcp": "default_access_level"
+				},
+				"name": {
+					"status": "covered",
+					"cli": "--name",
+					"mcp": "name"
+				}
+			}
+		},
+		"updateTag": {
+			"cli": ["tag update"],
+			"mcp": ["asana_tag_update"],
+			"parameters": {
+				"tag_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "tag_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "neither the CLI nor MCP sends opt_fields on this write; the gateway passes an empty opts object"
+				},
+				"color": {
+					"status": "covered",
+					"cli": "--color",
+					"mcp": "color",
+					"note": "sent as null by --clear-color / clear_color"
+				},
+				"name": {
+					"status": "covered",
+					"cli": "--name",
+					"mcp": "name"
+				},
+				"notes": {
+					"status": "covered",
+					"cli": "--notes",
+					"mcp": "notes"
+				}
+			}
+		},
+		"updateTask": {
+			"cli": ["task update"],
+			"mcp": ["asana_task_update"],
+			"parameters": {
+				"task_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "task_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "Gateway sends no opt_fields; no CLI flag and no MCP field"
+				},
+				"approval_status": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "Gateway never sends it; no CLI flag and no MCP field"
+				},
+				"assigned_by": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "Gateway never sends it; no CLI flag and no MCP field"
+				},
+				"assignee": {
+					"status": "covered",
+					"cli": "--assignee-gid / --assignee / --clear-assignee",
+					"mcp": "assignee_gid / assignee / clear_assignee",
+					"note": "Sent as null by --clear-assignee"
+				},
+				"assignee_section": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "Gateway never sends it; no CLI flag and no MCP field"
+				},
+				"assignee_status": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "Gateway never sends it; no CLI flag and no MCP field"
+				},
+				"completed": {
+					"status": "covered",
+					"cli": "--completed / --no-completed",
+					"mcp": "completed",
+					"note": "MCP can send false to reopen"
+				},
+				"completed_by": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "Gateway never sends it; no CLI flag and no MCP field"
+				},
+				"custom_fields": {
+					"status": "covered",
+					"cli": "--custom-fields-json / --custom-field",
+					"mcp": "custom_fields"
+				},
+				"custom_type": {
+					"status": "covered",
+					"cli": "--custom-type",
+					"mcp": "custom_type"
+				},
+				"custom_type_status_option": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "Gateway never sends it; no CLI flag and no MCP field"
+				},
+				"due_at": {
+					"status": "covered",
+					"cli": "--due-at / --clear-due-at",
+					"mcp": "due_at / clear_due_at"
+				},
+				"due_on": {
+					"status": "covered",
+					"cli": "--due-on / --clear-due-on",
+					"mcp": "due_on / clear_due_on"
+				},
+				"external": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "Gateway never sends it; no CLI flag and no MCP field"
+				},
+				"html_custom_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "Gateway never sends it; no CLI flag and no MCP field"
+				},
+				"html_notes": {
+					"status": "covered",
+					"cli": "--html-notes",
+					"mcp": "html_notes"
+				},
+				"liked": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/408",
+					"note": "Gateway never sends it; no CLI flag and no MCP field"
+				},
+				"name": {
+					"status": "covered",
+					"cli": "--name",
+					"mcp": "name"
+				},
+				"notes": {
+					"status": "covered",
+					"cli": "--notes",
+					"mcp": "notes"
+				},
+				"parent": {
+					"status": "covered",
+					"cli": "--parent-gid (or --parent) / --clear-parent",
+					"mcp": "parent_gid / clear_parent",
+					"note": "Sent through setParentForTask, not in the updateTask body"
+				},
+				"resource_subtype": {
+					"status": "covered",
+					"cli": "--resource-subtype",
+					"mcp": "resource_subtype"
+				},
+				"start_at": {
+					"status": "covered",
+					"cli": "--start-at / --clear-start-at",
+					"mcp": "start_at / clear_start_at"
+				},
+				"start_on": {
+					"status": "covered",
+					"cli": "--start-on / --clear-start-on",
+					"mcp": "start_on / clear_start_on"
+				}
+			}
+		},
+		"updateTimeTrackingEntry": {
+			"cli": ["time-entry update"],
+			"mcp": ["asana_time_entry_update"],
+			"parameters": {
+				"time_tracking_entry_gid": {
+					"status": "covered",
+					"cli": "<gid>",
+					"mcp": "time_entry_gid"
+				},
+				"opt_fields": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/407",
+					"note": "opt_fields is never sent on this write: the gateway passes an empty options object, and neither CLI nor MCP has a flag/field for it"
+				},
+				"assignee": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/414",
+					"note": "Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope)"
+				},
+				"attributable_to": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/414",
+					"note": "Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope)"
+				},
+				"billable_status": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/414",
+					"note": "Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope)"
+				},
+				"categories": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/414",
+					"note": "Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope)"
+				},
+				"description": {
+					"status": "gap",
+					"issue": "https://github.com/cyberuni/cyber-asana/issues/414",
+					"note": "Neither CLI nor MCP sends it: TimeTrackingEntryFields carries only duration_minutes and entered_on (categories, billing and attribution are out of scope)"
+				},
+				"duration_minutes": {
+					"status": "covered",
+					"cli": "--hours / --minutes",
+					"mcp": "duration_minutes",
+					"note": "CLI converts hours to minutes"
+				},
+				"entered_on": {
+					"status": "covered",
+					"cli": "--entered-on",
+					"mcp": "entered_on"
+				}
+			}
+		}
+	}
+}

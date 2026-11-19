@@ -30,6 +30,8 @@ type BuildTaskCreateInput = BuildTaskWriteInput & {
 type BuildTaskUpdateInput = BuildTaskWriteInput & {
 	name?: string
 	clearParent?: boolean
+	insertBefore?: string
+	insertAfter?: string
 	clearAssignee?: boolean
 	clearDueOn?: boolean
 	clearDueAt?: boolean
@@ -149,12 +151,34 @@ export function placeInSection(fields: CreateTaskFields, placement?: TaskSection
 	}
 }
 
+/** Exactly one anchor, or none, as `setParent` takes. Shared by `task update` and `task reorder`. */
+export function assertOnePosition(position: { insertBefore?: string; insertAfter?: string }) {
+	if (position.insertBefore !== undefined && position.insertAfter !== undefined) {
+		throw new Error('--insert-before and --insert-after are mutually exclusive')
+	}
+}
+
+// A position only means something next to the parent it is relative to; moving within the
+// current parent is `task reorder`, which reads that parent first.
+function assertPosition(input: BuildTaskUpdateInput) {
+	assertOnePosition(input)
+	if (input.parent !== undefined) return
+	const flag =
+		input.insertBefore !== undefined
+			? '--insert-before'
+			: input.insertAfter !== undefined
+				? '--insert-after'
+				: undefined
+	if (flag) throw new Error(`${flag} needs --parent; to move a subtask within its current parent, use \`task reorder\``)
+}
+
 export function buildTaskUpdateFields(input: BuildTaskUpdateInput): UpdateTaskFields {
 	assertNotesMode(input.notes, input.htmlNotes)
 	assertDateModes(input)
 	if (input.parent !== undefined && input.clearParent) {
 		throw new Error('--parent and --clear-parent are mutually exclusive')
 	}
+	assertPosition(input)
 	if (input.assignee !== undefined && input.clearAssignee) {
 		throw new Error('--assignee-gid and --clear-assignee are mutually exclusive')
 	}
@@ -188,6 +212,8 @@ export function buildTaskUpdateFields(input: BuildTaskUpdateInput): UpdateTaskFi
 		...(input.clearStartAt && { start_at: null }),
 		...(input.parent !== undefined && { parent: input.parent }),
 		...(input.clearParent !== undefined && { clear_parent: input.clearParent }),
+		...(input.insertBefore !== undefined && { insert_before: input.insertBefore }),
+		...(input.insertAfter !== undefined && { insert_after: input.insertAfter }),
 		...(input.resourceSubtype !== undefined && { resource_subtype: input.resourceSubtype }),
 		...(input.customType !== undefined && { custom_type: input.customType }),
 		...(Object.keys(customFields).length > 0 && { custom_fields: customFields }),

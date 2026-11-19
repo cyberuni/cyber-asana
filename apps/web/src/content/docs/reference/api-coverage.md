@@ -21,6 +21,9 @@ so an operation counts once however many CLI commands or MCP tools reach it. `ge
 out because it duplicates `getTagsForWorkspace`.
 :::
 
+Which options each wrapped operation takes, parameter by parameter, is on
+[Parameter Coverage](/cyber-asana/reference/parameter-coverage/).
+
 ## Coverage at a glance
 
 Asana documents **52 resource groups**. cyber-asana wraps **34** of them, **20** fully, and
@@ -101,7 +104,8 @@ arbitrary endpoints.
 | Search tasks in a workspace | `task search [text]` | `asana_task_search` |
 | Get My Tasks | `task my-tasks list` | `asana_task_my_tasks` |
 | Create a task | `task create <name>` | `asana_task_create` |
-| Update a task (incl. reparent) | `task update <gid>` | `asana_task_update` |
+| Update a task (incl. reparent, with `--insert-before` / `--insert-after`) | `task update <gid>` | `asana_task_update` |
+| Move a subtask among its siblings (`setParent` with its current parent) | `task reorder <gid>` | `asana_task_reorder` |
 | Delete a task | `task delete <gid>` | `asana_task_delete` |
 | Duplicate a task (async job) | `task duplicate <gid> --name` | `asana_task_duplicate` |
 | List subtasks | `task subtask list <gid>` | `asana_task_subtask_list` |

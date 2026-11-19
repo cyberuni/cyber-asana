@@ -477,7 +477,7 @@ Tools are named `asana_<resource>_<action>` (e.g. `asana_task_create`).
 | --- | --- |
 | `workspace` | `asana_workspace_list`, `asana_workspace_get` |
 | `project` | `asana_project_list`, `asana_project_get`, `asana_project_counts`, `asana_project_search`, `asana_project_create`, `asana_project_update`, `asana_project_delete`, `asana_project_follower_add`, `asana_project_follower_remove`, `asana_project_duplicate`, `asana_project_export` |
-| `task` | `asana_task_list`, `asana_task_my_tasks`, `asana_task_subtask_list`, `asana_task_subtask_create`, `asana_task_get`, `asana_task_get_many`, `asana_task_create`, `asana_task_update`, `asana_task_delete`, `asana_task_duplicate`, `asana_task_search`, `asana_task_follower_add`, `asana_task_follower_remove`, `asana_task_project_list`, `asana_task_project_add`, `asana_task_project_remove`, `asana_task_dependency_list`, `asana_task_dependency_add`, `asana_task_dependency_remove`, `asana_task_dependent_list`, `asana_task_dependent_add`, `asana_task_dependent_remove`, `asana_task_scan_todos` |
+| `task` | `asana_task_list`, `asana_task_my_tasks`, `asana_task_subtask_list`, `asana_task_subtask_create`, `asana_task_get`, `asana_task_get_many`, `asana_task_create`, `asana_task_update`, `asana_task_reorder`, `asana_task_delete`, `asana_task_duplicate`, `asana_task_search`, `asana_task_follower_add`, `asana_task_follower_remove`, `asana_task_project_list`, `asana_task_project_add`, `asana_task_project_remove`, `asana_task_dependency_list`, `asana_task_dependency_add`, `asana_task_dependency_remove`, `asana_task_dependent_list`, `asana_task_dependent_add`, `asana_task_dependent_remove`, `asana_task_scan_todos` |
 | `task-template` | `asana_task_template_list`, `asana_task_template_get`, `asana_task_template_instantiate` |
 | `section` | `asana_section_list`, `asana_section_get`, `asana_section_create`, `asana_section_update`, `asana_section_move`, `asana_section_task_add`, `asana_section_task_list`, `asana_section_delete` |
 | `user` | `asana_user_list`, `asana_user_get`, `asana_user_me` |
@@ -797,6 +797,7 @@ cyber-asana task update <task-gid> \
 | `--clear-assignee` | `task update` | Unassign the task |
 | `--parent-gid <gid>` / `--parent <gid>` | `task create`, `task update` | Set the task parent |
 | `--clear-parent` | `task update` | Remove the task parent |
+| `--insert-before <gid>` / `--insert-after <gid>` | `task update` (with `--parent`) | Place the task before or after that subtask of the new parent; without one, Asana puts it first. To move a subtask that already has the right parent, use `task reorder <gid> --insert-before\|--insert-after <sibling>` |
 | `--resource-subtype <subtype>` | `task create`, `task update` | Example: `default_task`, `milestone` |
 | `--custom-type <gid>` | `task create`, `task update` | Custom type GID (for example an Epic type). Read it back with `task get --opt-fields custom_type.name`. On an existing default task, `task update` needs `--resource-subtype custom` too, or Asana rejects the call |
 | `--custom-fields-json <json>` | `task create`, `task update` | JSON object keyed by custom field GID |

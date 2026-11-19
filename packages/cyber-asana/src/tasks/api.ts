@@ -12,9 +12,14 @@ import type {
 	UpdateTaskFields,
 } from './gateway.js'
 
+import { assertOnePosition } from './write-options.js'
+
 export type { CompletionFilter } from './completion-filter.js'
 export type { TaskBatchLookupFailure, TaskBatchLookupSuccess, TaskCustomFields } from './gateway.js'
 export type { CreateTaskFields, SearchTasksOptions, TaskBatchLookupResult, UpdateTaskFields }
+
+/** Where `reorderSubtask` puts a subtask among its siblings: before or after one of them. */
+export type SubtaskPosition = { insertBefore?: string; insertAfter?: string }
 
 /** A section's or My Tasks' list options: pagination plus the two completion filters. */
 export type TaskCollectionOptions = PaginationOptions & CompletionFilter
@@ -148,6 +153,24 @@ export function createTaskApi(gateway: TaskGateway) {
 		},
 		duplicateTask(taskGid: string, fields: DuplicateTaskFields) {
 			return gateway.duplicateTask(taskGid, fields)
+		},
+		/**
+		 * Move a subtask within the parent it already has. Asana treats setting the same parent again
+		 * as a no-op unless a position comes with it, so this reads the parent and sends it back with one.
+		 */
+		async reorderSubtask(taskGid: string, position: SubtaskPosition) {
+			if (position.insertBefore === undefined && position.insertAfter === undefined) {
+				throw new Error('give one of --insert-before or --insert-after')
+			}
+			assertOnePosition(position)
+			const task = await gateway.getTask(taskGid, { optFields: 'parent' })
+			const parent = task.parent?.gid
+			if (!parent) throw new Error(`task ${taskGid} has no parent; set one with \`task update --parent\``)
+			return gateway.updateTask(taskGid, {
+				parent,
+				...(position.insertBefore !== undefined && { insert_before: position.insertBefore }),
+				...(position.insertAfter !== undefined && { insert_after: position.insertAfter }),
+			})
 		},
 		createSubtask(parentTaskGid: string, name: string, opts?: CreateTaskFields) {
 			return gateway.createSubtask(parentTaskGid, name, opts)

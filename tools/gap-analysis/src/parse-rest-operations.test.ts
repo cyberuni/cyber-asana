@@ -6,7 +6,7 @@ const fixture = readFileSync(new URL('./fixtures/asana-oas-snippet.yaml', import
 
 describe('parseRestOperations', () => {
 	it('extracts operationId, method, path, tag and deprecated, sorted by operationId', () => {
-		expect(parseRestOperations(fixture)).toEqual([
+		expect(parseRestOperations(fixture).map(({ parameters: _, ...operation }) => operation)).toEqual([
 			{ operationId: 'createProject', method: 'POST', path: '/projects', tag: '', deprecated: false },
 			{ operationId: 'deleteTask', method: 'DELETE', path: '/tasks/{task_gid}', tag: 'Tasks', deprecated: true },
 			{ operationId: 'getProjects', method: 'GET', path: '/projects', tag: 'Projects', deprecated: false },

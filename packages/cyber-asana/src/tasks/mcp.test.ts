@@ -12,6 +12,7 @@ const getTasksByGidMock = vi.fn()
 const getTaskMock = vi.fn()
 const getTaskWithStoriesMock = vi.fn()
 const createSubtaskMock = vi.fn()
+const reorderSubtaskMock = vi.fn()
 const listProjectsForTaskMock = vi.fn()
 const listTagsMock = vi.fn()
 
@@ -32,6 +33,7 @@ vi.mock('./default.js', async () => {
 		getTask: getTaskMock,
 		getTaskWithStories: getTaskWithStoriesMock,
 		createSubtask: createSubtaskMock,
+		reorderSubtask: reorderSubtaskMock,
 		listProjectsForTask: listProjectsForTaskMock,
 	}
 })
@@ -231,6 +233,27 @@ describe('tasks/mcp', () => {
 		})
 	})
 
+	it('asana_task_update forwards a position with the parent', async () => {
+		updateTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
+		const server = createServer()
+		registerTaskTools(server as any)
+
+		await server.handlers.get('asana_task_update')?.({ task_gid: '123', parent_gid: 'p1', insert_before: 's1' })
+
+		expect(updateTaskMock).toHaveBeenCalledWith('123', { parent: 'p1', insert_before: 's1' })
+	})
+
+	it('asana_task_reorder moves a subtask within its current parent', async () => {
+		reorderSubtaskMock.mockResolvedValue({ gid: '123', name: 'Task' })
+		const server = createServer()
+		registerTaskTools(server as any)
+
+		const result = await server.handlers.get('asana_task_reorder')?.({ task_gid: '123', insert_after: 's1' })
+
+		expect(reorderSubtaskMock).toHaveBeenCalledWith('123', { insertAfter: 's1' })
+		expect(JSON.parse(result.content[0].text)).toEqual({ gid: '123', name: 'Task' })
+	})
+
 	it('asana_task_create and asana_task_update forward custom_type', async () => {
 		createTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
 		updateTaskMock.mockResolvedValue({ gid: '1', name: 'Task' })
@@ -381,6 +404,7 @@ describe('tasks/mcp', () => {
 			listProjectsForTask: vi.fn(),
 			duplicateTask: vi.fn(),
 			createSubtask: vi.fn(),
+			reorderSubtask: vi.fn(),
 			addTaskToProject: vi.fn(),
 			removeTaskFromProject: vi.fn(),
 			addFollowersToTask: vi.fn(),

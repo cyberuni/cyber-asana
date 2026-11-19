@@ -254,6 +254,20 @@ describe('tasks/api', () => {
 		expect(Asana.TasksApi.prototype.setParentForTask).toHaveBeenCalledWith({ data: { parent: 'parent1' } }, '456', {})
 	})
 
+	it('updateTask sends the position with the parent', async () => {
+		vi.spyOn(Asana.TasksApi.prototype, 'updateTask').mockResolvedValue({ data: mockTask } as never)
+		vi.spyOn(Asana.TasksApi.prototype, 'setParentForTask').mockResolvedValue({ data: mockTask } as never)
+
+		await updateTask('456', { parent: 'parent1', insert_after: 'sib1' })
+
+		expect(Asana.TasksApi.prototype.updateTask).not.toHaveBeenCalled()
+		expect(Asana.TasksApi.prototype.setParentForTask).toHaveBeenCalledWith(
+			{ data: { parent: 'parent1', insert_after: 'sib1' } },
+			'456',
+			{},
+		)
+	})
+
 	it('updateTask can clear a parent without updating task fields', async () => {
 		vi.spyOn(Asana.TasksApi.prototype, 'updateTask').mockResolvedValue({ data: mockTask } as never)
 		vi.spyOn(Asana.TasksApi.prototype, 'setParentForTask').mockResolvedValue({

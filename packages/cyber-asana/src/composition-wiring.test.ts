@@ -34,6 +34,7 @@ function mockRuntimeContext(): RuntimeContext {
 			listProjectsForTask: vi.fn(),
 			duplicateTask: vi.fn(),
 			createSubtask: vi.fn(),
+			reorderSubtask: vi.fn(),
 			addTaskToProject: vi.fn(),
 			removeTaskFromProject: vi.fn(),
 			addFollowersToTask: vi.fn(),
