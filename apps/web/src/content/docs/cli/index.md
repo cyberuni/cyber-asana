@@ -108,6 +108,7 @@ page is available.
 
 Each list command requests a small default field set — task lists ask for only
 `gid,name,completed,due_on` — so responses stay cheap. Pass `--opt-fields` to widen.
+Most create and update commands accept `--opt-fields` too, to choose the fields of the object they return.
 
 `get` commands (and `user me`) take `--opt-fields` as well, to ask for fields Asana leaves
 out of a single-resource read. Without it, a `get` returns the same fields as before.

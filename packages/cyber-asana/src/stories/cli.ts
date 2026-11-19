@@ -122,9 +122,7 @@ export function storyCommand(name = 'story', api?: StoryApi | (() => StoryApi)) 
 	})
 
 	addGidOption(
-		cmd
-			.command('create [text]')
-			.description('Add a comment to a task')
+		addReadOptions(cmd.command('create [text]').description('Add a comment to a task'))
 			.option('--html-text <html>', 'Comment rich text as Asana HTML')
 			.option('--pin', 'Pin the new comment on the task')
 			.option('--sticker <name>', `Sticker to attach (${STICKER_NAMES.join(', ')})`)
@@ -144,19 +142,24 @@ export function storyCommand(name = 'story', api?: StoryApi | (() => StoryApi)) 
 				htmlText?: string
 				pin?: boolean
 				sticker?: string
+				optFields?: string
 			},
 		) => {
 			const taskGid = requiredGid(opts, 'task', 'Task GID')
 			const task = opts.template ? await resolveStoryApi(api).getTaskTemplateData(taskGid) : undefined
 			const isPinned = pinnedFromCli(opts)
-			const data = await resolveStoryApi(api).createStory(taskGid, {
-				...(text !== undefined && { text: task ? interpolateTemplate(text, task) : text }),
-				...(opts.htmlText !== undefined && {
-					html_text: task ? interpolateTemplate(opts.htmlText, task) : opts.htmlText,
-				}),
-				...(isPinned !== undefined && { is_pinned: isPinned }),
-				...(opts.sticker !== undefined && { sticker_name: opts.sticker }),
-			})
+			const data = await resolveStoryApi(api).createStory(
+				taskGid,
+				{
+					...(text !== undefined && { text: task ? interpolateTemplate(text, task) : text }),
+					...(opts.htmlText !== undefined && {
+						html_text: task ? interpolateTemplate(opts.htmlText, task) : opts.htmlText,
+					}),
+					...(isPinned !== undefined && { is_pinned: isPinned }),
+					...(opts.sticker !== undefined && { sticker_name: opts.sticker }),
+				},
+				readOptionsFromCli(opts),
+			)
 			output(data, () => fmtStory(data))
 		},
 	)
@@ -168,9 +171,7 @@ export function storyCommand(name = 'story', api?: StoryApi | (() => StoryApi)) 
 		},
 	)
 
-	cmd
-		.command('update <gid> [text]')
-		.description('Edit a comment you authored')
+	addReadOptions(cmd.command('update <gid> [text]').description('Edit a comment you authored'))
 		.option('--html-text <html>', 'Replacement rich text as Asana HTML')
 		.option('--pin', 'Pin the comment on its task')
 		.option('--unpin', 'Unpin the comment from its task')
@@ -179,15 +180,19 @@ export function storyCommand(name = 'story', api?: StoryApi | (() => StoryApi)) 
 			async (
 				gid: string,
 				text: string | undefined,
-				opts: { htmlText?: string; pin?: boolean; unpin?: boolean; sticker?: string },
+				opts: { htmlText?: string; pin?: boolean; unpin?: boolean; sticker?: string; optFields?: string },
 			) => {
 				const isPinned = pinnedFromCli(opts)
-				const data = await resolveStoryApi(api).updateStory(gid, {
-					...(text !== undefined && { text }),
-					...(opts.htmlText !== undefined && { html_text: opts.htmlText }),
-					...(isPinned !== undefined && { is_pinned: isPinned }),
-					...(opts.sticker !== undefined && { sticker_name: opts.sticker }),
-				})
+				const data = await resolveStoryApi(api).updateStory(
+					gid,
+					{
+						...(text !== undefined && { text }),
+						...(opts.htmlText !== undefined && { html_text: opts.htmlText }),
+						...(isPinned !== undefined && { is_pinned: isPinned }),
+						...(opts.sticker !== undefined && { sticker_name: opts.sticker }),
+					},
+					readOptionsFromCli(opts),
+				)
 				output(data, () => fmtStory(data))
 			},
 		)
@@ -224,9 +229,7 @@ export function storyCommand(name = 'story', api?: StoryApi | (() => StoryApi)) 
 		},
 	)
 
-	cmd
-		.command('create-goal <goal-gid> [text]')
-		.description('Post a comment on a goal (paid plan)')
+	addReadOptions(cmd.command('create-goal <goal-gid> [text]').description('Post a comment on a goal (paid plan)'))
 		.option('--html-text <html>', 'Comment rich text as Asana HTML')
 		.option('--pin', 'Pin the new comment on the goal')
 		.option('--sticker <name>', `Sticker to attach (${STICKER_NAMES.join(', ')})`)
@@ -234,15 +237,19 @@ export function storyCommand(name = 'story', api?: StoryApi | (() => StoryApi)) 
 			async (
 				goalGid: string,
 				text: string | undefined,
-				opts: { htmlText?: string; pin?: boolean; sticker?: string },
+				opts: { htmlText?: string; pin?: boolean; sticker?: string; optFields?: string },
 			) => {
 				const isPinned = pinnedFromCli(opts)
-				const data = await resolveStoryApi(api).createGoalStory(goalGid, {
-					...(text !== undefined && { text }),
-					...(opts.htmlText !== undefined && { html_text: opts.htmlText }),
-					...(isPinned !== undefined && { is_pinned: isPinned }),
-					...(opts.sticker !== undefined && { sticker_name: opts.sticker }),
-				})
+				const data = await resolveStoryApi(api).createGoalStory(
+					goalGid,
+					{
+						...(text !== undefined && { text }),
+						...(opts.htmlText !== undefined && { html_text: opts.htmlText }),
+						...(isPinned !== undefined && { is_pinned: isPinned }),
+						...(opts.sticker !== undefined && { sticker_name: opts.sticker }),
+					},
+					readOptionsFromCli(opts),
+				)
 				output(data, () => fmtStory(data))
 			},
 		)

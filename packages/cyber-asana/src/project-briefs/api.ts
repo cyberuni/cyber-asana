@@ -24,13 +24,13 @@ export function createProjectBriefApi(gateway: ProjectBriefGateway) {
 		getProjectBrief(projectBriefGid: string, opts?: ReadOptions) {
 			return gateway.getProjectBrief(projectBriefGid, opts)
 		},
-		async createProjectBrief(projectGid: string, fields: ProjectBriefFields) {
+		async createProjectBrief(projectGid: string, fields: ProjectBriefFields, opts?: ReadOptions) {
 			assertBriefHtml(fields)
-			return gateway.createProjectBrief(projectGid, fields)
+			return gateway.createProjectBrief(projectGid, fields, opts)
 		},
-		async updateProjectBrief(projectBriefGid: string, fields: ProjectBriefFields) {
+		async updateProjectBrief(projectBriefGid: string, fields: ProjectBriefFields, opts?: ReadOptions) {
 			assertBriefHtml(fields)
-			return gateway.updateProjectBrief(projectBriefGid, fields)
+			return gateway.updateProjectBrief(projectBriefGid, fields, opts)
 		},
 		deleteProjectBrief(projectBriefGid: string) {
 			return gateway.deleteProjectBrief(projectBriefGid)

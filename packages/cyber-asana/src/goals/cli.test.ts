@@ -134,10 +134,15 @@ describe('goals/cli', () => {
 			{ from: 'node' },
 		)
 
-		expect(createGoalMock).toHaveBeenCalledWith('ws1', 'Ship v1', {
-			notes: 'Q2 target',
-			due_on: '2026-06-30',
-		})
+		expect(createGoalMock).toHaveBeenCalledWith(
+			'ws1',
+			'Ship v1',
+			{
+				notes: 'Q2 target',
+				due_on: '2026-06-30',
+			},
+			undefined,
+		)
 	})
 
 	it('goal update forwards gid and fields', async () => {
@@ -146,7 +151,7 @@ describe('goals/cli', () => {
 
 		await program.parseAsync(['node', 'test', 'goal', 'update', 'goal1', '--name', 'Ship v2'], { from: 'node' })
 
-		expect(updateGoalMock).toHaveBeenCalledWith('goal1', { name: 'Ship v2' })
+		expect(updateGoalMock).toHaveBeenCalledWith('goal1', { name: 'Ship v2' }, undefined)
 	})
 
 	it('goal command can use injected dependencies', async () => {
@@ -173,7 +178,7 @@ describe('goals/cli', () => {
 			from: 'node',
 		})
 
-		expect(injectedCreateGoal).toHaveBeenCalledWith('ws1', 'Ship v1', {})
+		expect(injectedCreateGoal).toHaveBeenCalledWith('ws1', 'Ship v1', {}, undefined)
 	})
 
 	it('goal create falls back to ASANA_WORKSPACE_GID when workspace flag is omitted', async () => {
@@ -183,7 +188,7 @@ describe('goals/cli', () => {
 
 		await program.parseAsync(['node', 'test', 'goal', 'create', 'Ship v1'], { from: 'node' })
 
-		expect(createGoalMock).toHaveBeenCalledWith('ws-alias', 'Ship v1', {})
+		expect(createGoalMock).toHaveBeenCalledWith('ws-alias', 'Ship v1', {}, undefined)
 	})
 
 	it('goal create forwards a start date alongside a due date', async () => {
@@ -207,10 +212,15 @@ describe('goals/cli', () => {
 			{ from: 'node' },
 		)
 
-		expect(createGoalMock).toHaveBeenCalledWith('ws1', 'Ship v1', {
-			start_on: '2026-01-01',
-			due_on: '2026-06-30',
-		})
+		expect(createGoalMock).toHaveBeenCalledWith(
+			'ws1',
+			'Ship v1',
+			{
+				start_on: '2026-01-01',
+				due_on: '2026-06-30',
+			},
+			undefined,
+		)
 	})
 
 	it('goal update forwards a start date', async () => {
@@ -221,7 +231,7 @@ describe('goals/cli', () => {
 			from: 'node',
 		})
 
-		expect(updateGoalMock).toHaveBeenCalledWith('goal1', { start_on: '2026-01-01' })
+		expect(updateGoalMock).toHaveBeenCalledWith('goal1', { start_on: '2026-01-01' }, undefined)
 	})
 
 	it('goal update clears the start date with --clear-start-on', async () => {
@@ -230,7 +240,7 @@ describe('goals/cli', () => {
 
 		await program.parseAsync(['node', 'test', 'goal', 'update', 'goal1', '--clear-start-on'], { from: 'node' })
 
-		expect(updateGoalMock).toHaveBeenCalledWith('goal1', { start_on: null })
+		expect(updateGoalMock).toHaveBeenCalledWith('goal1', { start_on: null }, undefined)
 	})
 
 	it('goal update clears the due date with --clear-due-on', async () => {
@@ -239,7 +249,7 @@ describe('goals/cli', () => {
 
 		await program.parseAsync(['node', 'test', 'goal', 'update', 'goal1', '--clear-due-on'], { from: 'node' })
 
-		expect(updateGoalMock).toHaveBeenCalledWith('goal1', { due_on: null })
+		expect(updateGoalMock).toHaveBeenCalledWith('goal1', { due_on: null }, undefined)
 	})
 
 	it('goal update rejects --due-on together with --clear-due-on', async () => {
@@ -262,7 +272,7 @@ describe('goals/cli', () => {
 			{ from: 'node' },
 		)
 
-		expect(createGoalMock).toHaveBeenCalledWith('ws1', 'Ship v1', { html_notes: '<body>Q2</body>' })
+		expect(createGoalMock).toHaveBeenCalledWith('ws1', 'Ship v1', { html_notes: '<body>Q2</body>' }, undefined)
 	})
 
 	it('goal update forwards rich-text notes', async () => {
@@ -273,7 +283,7 @@ describe('goals/cli', () => {
 			from: 'node',
 		})
 
-		expect(updateGoalMock).toHaveBeenCalledWith('goal1', { html_notes: '<body>Q3</body>' })
+		expect(updateGoalMock).toHaveBeenCalledWith('goal1', { html_notes: '<body>Q3</body>' }, undefined)
 	})
 
 	it('goal update rejects --notes together with --html-notes', async () => {

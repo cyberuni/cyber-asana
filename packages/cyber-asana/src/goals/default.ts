@@ -22,12 +22,12 @@ export async function getGoal(goalGid: string, opts?: ReadOptions) {
 	return defaultGoalApi().getGoal(goalGid, opts)
 }
 
-export async function createGoal(workspaceGid: string, name: string, opts?: CreateGoalFields) {
-	return defaultGoalApi().createGoal(workspaceGid, name, opts)
+export async function createGoal(workspaceGid: string, name: string, opts?: CreateGoalFields, read?: ReadOptions) {
+	return defaultGoalApi().createGoal(workspaceGid, name, opts, read)
 }
 
-export async function updateGoal(goalGid: string, fields: UpdateGoalFields) {
-	return defaultGoalApi().updateGoal(goalGid, fields)
+export async function updateGoal(goalGid: string, fields: UpdateGoalFields, opts?: ReadOptions) {
+	return defaultGoalApi().updateGoal(goalGid, fields, opts)
 }
 
 export async function deleteGoal(goalGid: string) {
@@ -42,20 +42,21 @@ export async function getTimePeriod(timePeriodGid: string, opts?: ReadOptions) {
 	return defaultGoalApi().getTimePeriod(timePeriodGid, opts)
 }
 
-export async function setGoalMetric(goalGid: string, metric: GoalMetricInput) {
-	return defaultGoalApi().setGoalMetric(goalGid, metric)
+export async function setGoalMetric(goalGid: string, metric: GoalMetricInput, opts?: ReadOptions) {
+	return defaultGoalApi().setGoalMetric(goalGid, metric, opts)
 }
 
-export async function setGoalMetricCurrentValue(goalGid: string, currentNumberValue: number) {
-	return defaultGoalApi().setGoalMetricCurrentValue(goalGid, currentNumberValue)
+export async function setGoalMetricCurrentValue(goalGid: string, currentNumberValue: number, opts?: ReadOptions) {
+	return defaultGoalApi().setGoalMetricCurrentValue(goalGid, currentNumberValue, opts)
 }
 
 export async function addSupportingRelationship(
 	goalGid: string,
 	supportingResourceGid: string,
 	opts?: SupportingRelationshipOptions,
+	read?: ReadOptions,
 ) {
-	return defaultGoalApi().addSupportingRelationship(goalGid, supportingResourceGid, opts)
+	return defaultGoalApi().addSupportingRelationship(goalGid, supportingResourceGid, opts, read)
 }
 
 export async function removeSupportingRelationship(goalGid: string, supportingResourceGid: string) {

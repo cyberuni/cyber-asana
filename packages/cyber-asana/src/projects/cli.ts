@@ -285,7 +285,7 @@ export function projectCommand(api?: ProjectApi | (() => ProjectApi)) {
 		'workspace',
 		'Workspace GID',
 	)
-	createCmd
+	addReadOptions(createCmd)
 		.option('--archived', 'Create the project already archived')
 		.option('--owner <user>', 'Project owner — a user GID, an email, or "me"')
 		.option('--notes <text>', 'Project notes')
@@ -315,6 +315,7 @@ export function projectCommand(api?: ProjectApi | (() => ProjectApi)) {
 					defaultAccessLevel?: 'admin' | 'editor' | 'commenter' | 'viewer'
 					dueOn?: string
 					startOn?: string
+					optFields?: string
 				},
 			) => {
 				const data = await resolveProjectApi(api).createProject(
@@ -332,14 +333,13 @@ export function projectCommand(api?: ProjectApi | (() => ProjectApi)) {
 						dueOn: opts.dueOn,
 						startOn: opts.startOn,
 					}),
+					readOptionsFromCli(opts),
 				)
 				output(data, () => fmtProject(data))
 			},
 		)
 
-	cmd
-		.command('update <gid>')
-		.description('Update a project')
+	addReadOptions(cmd.command('update <gid>').description('Update a project'))
 		.option('--name <name>', 'New name')
 		.option('--archived', 'Archive the project')
 		.option('--no-archived', 'Unarchive the project')
@@ -376,26 +376,31 @@ export function projectCommand(api?: ProjectApi | (() => ProjectApi)) {
 					startOn?: string
 					clearDueOn?: boolean
 					clearStartOn?: boolean
+					optFields?: string
 				},
 			) => {
-				const data = await resolveProjectApi(api).updateProject(gid, {
-					name: opts.name,
-					...buildProjectUpdateFields({
-						archived: opts.archived,
-						owner: opts.owner,
-						clearOwner: opts.clearOwner,
-						notes: opts.notes,
-						htmlNotes: opts.htmlNotes,
-						color: opts.color,
-						privacySetting: opts.privacySetting,
-						defaultView: opts.defaultView,
-						defaultAccessLevel: opts.defaultAccessLevel,
-						dueOn: opts.dueOn,
-						startOn: opts.startOn,
-						clearDueOn: opts.clearDueOn,
-						clearStartOn: opts.clearStartOn,
-					}),
-				})
+				const data = await resolveProjectApi(api).updateProject(
+					gid,
+					{
+						name: opts.name,
+						...buildProjectUpdateFields({
+							archived: opts.archived,
+							owner: opts.owner,
+							clearOwner: opts.clearOwner,
+							notes: opts.notes,
+							htmlNotes: opts.htmlNotes,
+							color: opts.color,
+							privacySetting: opts.privacySetting,
+							defaultView: opts.defaultView,
+							defaultAccessLevel: opts.defaultAccessLevel,
+							dueOn: opts.dueOn,
+							startOn: opts.startOn,
+							clearDueOn: opts.clearDueOn,
+							clearStartOn: opts.clearStartOn,
+						}),
+					},
+					readOptionsFromCli(opts),
+				)
 				output(data, () => fmtProject(data))
 			},
 		)

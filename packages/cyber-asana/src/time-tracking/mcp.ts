@@ -31,6 +31,7 @@ const json = (value: unknown) => ({ content: [{ type: 'text' as const, text: JSO
 const writeParams = {
 	duration_minutes: z.number().positive().optional().describe('Time spent, in minutes'),
 	entered_on: z.string().optional().describe('Date the time was spent (YYYY-MM-DD); Asana defaults to today'),
+	...readParams,
 }
 
 function fieldsFrom(params: { duration_minutes?: number; entered_on?: string }): TimeTrackingEntryFields {
@@ -95,7 +96,7 @@ export function registerTimeTrackingEntryTools(
 		async ({ task_gid, ...params }) => {
 			const fields = fieldsFrom(params)
 			if (fields.durationMinutes === undefined) throw new Error('Give duration_minutes')
-			return json(await resolveTimeTrackingEntryApi(api).createTimeTrackingEntry(task_gid, fields))
+			return json(await resolveTimeTrackingEntryApi(api).createTimeTrackingEntry(task_gid, fields, readOptions(params)))
 		},
 	)
 
@@ -108,7 +109,9 @@ export function registerTimeTrackingEntryTools(
 			if (Object.keys(fields).length === 0) {
 				throw new Error('Nothing to update: give at least one of duration_minutes, entered_on')
 			}
-			return json(await resolveTimeTrackingEntryApi(api).updateTimeTrackingEntry(time_entry_gid, fields))
+			return json(
+				await resolveTimeTrackingEntryApi(api).updateTimeTrackingEntry(time_entry_gid, fields, readOptions(params)),
+			)
 		},
 	)
 

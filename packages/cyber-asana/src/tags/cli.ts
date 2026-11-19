@@ -131,7 +131,11 @@ export function tagCommand(api?: TagApi | (() => TagApi)) {
 		},
 	)
 
-	const createCmd = addGidOption(cmd.command('create <name>').description('Create a tag'), 'workspace', 'Workspace GID')
+	const createCmd = addGidOption(
+		addReadOptions(cmd.command('create <name>').description('Create a tag')),
+		'workspace',
+		'Workspace GID',
+	)
 	createCmd
 		.option('--color <color>', 'Tag color')
 		.option('--notes <text>', 'Tag notes')
@@ -139,29 +143,44 @@ export function tagCommand(api?: TagApi | (() => TagApi)) {
 	createCmd.action(
 		async (
 			name: string,
-			opts: { workspace?: string; workspaceGid?: string; color?: string; notes?: string; follower?: string },
+			opts: {
+				workspace?: string
+				workspaceGid?: string
+				color?: string
+				notes?: string
+				follower?: string
+				optFields?: string
+			},
 		) => {
 			const followers = parseFollowerGids(opts.follower)
-			const data = await resolveTagApi(api).createTag(requiredGid(opts, 'workspace', 'Workspace GID'), name, {
-				...(opts.color !== undefined && { color: opts.color }),
-				...(opts.notes !== undefined && { notes: opts.notes }),
-				...(followers && { followers }),
-			})
+			const data = await resolveTagApi(api).createTag(
+				requiredGid(opts, 'workspace', 'Workspace GID'),
+				name,
+				{
+					...(opts.color !== undefined && { color: opts.color }),
+					...(opts.notes !== undefined && { notes: opts.notes }),
+					...(followers && { followers }),
+				},
+				readOptionsFromCli(opts),
+			)
 			output(data, () => fmtTag(data))
 		},
 	)
 
-	cmd
-		.command('update <gid>')
-		.description('Update a tag')
+	addReadOptions(cmd.command('update <gid>').description('Update a tag'))
 		.option('--name <name>', 'New tag name')
 		.option('--color <color>', 'New tag color')
 		.option('--clear-color', 'Remove the tag color')
 		.option('--notes <text>', 'New tag notes')
-		.action(async (gid: string, opts: { name?: string; color?: string; clearColor?: boolean; notes?: string }) => {
-			const data = await resolveTagApi(api).updateTag(gid, buildTagUpdateFields(opts))
-			output(data, () => fmtTag(data))
-		})
+		.action(
+			async (
+				gid: string,
+				opts: { name?: string; color?: string; clearColor?: boolean; notes?: string; optFields?: string },
+			) => {
+				const data = await resolveTagApi(api).updateTag(gid, buildTagUpdateFields(opts), readOptionsFromCli(opts))
+				output(data, () => fmtTag(data))
+			},
+		)
 
 	cmd
 		.command('delete <gid>')

@@ -133,11 +133,11 @@ export function createTaskApi(gateway: TaskGateway) {
 		getTasksByGid(taskGids: string[], opts?: { optFields?: string }) {
 			return gateway.getTasksByGid(taskGids, opts)
 		},
-		createTask(workspaceGid: string, name: string, opts?: CreateTaskFields) {
-			return gateway.createTask(workspaceGid, name, opts)
+		createTask(workspaceGid: string, name: string, fields?: CreateTaskFields, opts?: ReadOptions) {
+			return gateway.createTask(workspaceGid, name, fields, opts)
 		},
-		updateTask(taskGid: string, fields: UpdateTaskFields) {
-			return gateway.updateTask(taskGid, fields)
+		updateTask(taskGid: string, fields: UpdateTaskFields, opts?: ReadOptions) {
+			return gateway.updateTask(taskGid, fields, opts)
 		},
 		deleteTask(taskGid: string) {
 			return gateway.deleteTask(taskGid)
@@ -151,14 +151,14 @@ export function createTaskApi(gateway: TaskGateway) {
 		listProjectsForTask(taskGid: string, opts?: PaginationOptions) {
 			return gateway.listProjectsForTask(taskGid, opts)
 		},
-		duplicateTask(taskGid: string, fields: DuplicateTaskFields) {
-			return gateway.duplicateTask(taskGid, fields)
+		duplicateTask(taskGid: string, fields: DuplicateTaskFields, opts?: ReadOptions) {
+			return gateway.duplicateTask(taskGid, fields, opts)
 		},
 		/**
 		 * Move a subtask within the parent it already has. Asana treats setting the same parent again
 		 * as a no-op unless a position comes with it, so this reads the parent and sends it back with one.
 		 */
-		async reorderSubtask(taskGid: string, position: SubtaskPosition) {
+		async reorderSubtask(taskGid: string, position: SubtaskPosition, opts?: ReadOptions) {
 			if (position.insertBefore === undefined && position.insertAfter === undefined) {
 				throw new Error('give one of --insert-before or --insert-after')
 			}
@@ -166,14 +166,18 @@ export function createTaskApi(gateway: TaskGateway) {
 			const task = await gateway.getTask(taskGid, { optFields: 'parent' })
 			const parent = task.parent?.gid
 			if (!parent) throw new Error(`task ${taskGid} has no parent; set one with \`task update --parent\``)
-			return gateway.updateTask(taskGid, {
-				parent,
-				...(position.insertBefore !== undefined && { insert_before: position.insertBefore }),
-				...(position.insertAfter !== undefined && { insert_after: position.insertAfter }),
-			})
+			return gateway.updateTask(
+				taskGid,
+				{
+					parent,
+					...(position.insertBefore !== undefined && { insert_before: position.insertBefore }),
+					...(position.insertAfter !== undefined && { insert_after: position.insertAfter }),
+				},
+				opts,
+			)
 		},
-		createSubtask(parentTaskGid: string, name: string, opts?: CreateTaskFields) {
-			return gateway.createSubtask(parentTaskGid, name, opts)
+		createSubtask(parentTaskGid: string, name: string, fields?: CreateTaskFields, opts?: ReadOptions) {
+			return gateway.createSubtask(parentTaskGid, name, fields, opts)
 		},
 		addTaskToProject(
 			taskGid: string,

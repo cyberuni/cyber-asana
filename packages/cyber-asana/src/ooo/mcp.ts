@@ -77,13 +77,19 @@ export function registerOooTools(server: McpServer, api?: OooApi | (() => OooApi
 			workspace_gid: z.string().describe('Workspace GID'),
 			start_date: z.string().describe('First day out of office (YYYY-MM-DD)'),
 			end_date: z.string().describe('Last day out of office (YYYY-MM-DD)'),
+			...readParams,
 		},
-		async ({ user_gid, workspace_gid, start_date, end_date }) => ({
+		async ({ user_gid, workspace_gid, start_date, end_date, ...params }) => ({
 			content: [
 				{
 					type: 'text',
 					text: JSON.stringify(
-						await resolveOooApi(api).createOooEntry(user_gid ?? 'me', workspace_gid, { start_date, end_date }),
+						await resolveOooApi(api).createOooEntry(
+							user_gid ?? 'me',
+							workspace_gid,
+							{ start_date, end_date },
+							readOptions(params),
+						),
 					),
 				},
 			],
@@ -97,16 +103,21 @@ export function registerOooTools(server: McpServer, api?: OooApi | (() => OooApi
 			ooo_entry_gid: z.string().describe('OOO entry GID'),
 			start_date: z.string().optional().describe('New first day out of office (YYYY-MM-DD)'),
 			end_date: z.string().optional().describe('New last day out of office (YYYY-MM-DD)'),
+			...readParams,
 		},
-		async ({ ooo_entry_gid, start_date, end_date }) => ({
+		async ({ ooo_entry_gid, start_date, end_date, ...params }) => ({
 			content: [
 				{
 					type: 'text',
 					text: JSON.stringify(
-						await resolveOooApi(api).updateOooEntry(ooo_entry_gid, {
-							...(start_date !== undefined && { start_date }),
-							...(end_date !== undefined && { end_date }),
-						}),
+						await resolveOooApi(api).updateOooEntry(
+							ooo_entry_gid,
+							{
+								...(start_date !== undefined && { start_date }),
+								...(end_date !== undefined && { end_date }),
+							},
+							readOptions(params),
+						),
 					),
 				},
 			],

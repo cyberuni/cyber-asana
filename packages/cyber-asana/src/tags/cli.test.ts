@@ -112,10 +112,15 @@ describe('tags/cli', () => {
 			{ from: 'node' },
 		)
 
-		expect(createTagMock).toHaveBeenCalledWith('ws1', 'Urgent', {
-			color: 'red',
-			notes: 'Act fast',
-		})
+		expect(createTagMock).toHaveBeenCalledWith(
+			'ws1',
+			'Urgent',
+			{
+				color: 'red',
+				notes: 'Act fast',
+			},
+			undefined,
+		)
 	})
 
 	it('tag update forwards mutable tag fields', async () => {
@@ -127,11 +132,15 @@ describe('tags/cli', () => {
 			{ from: 'node' },
 		)
 
-		expect(updateTagMock).toHaveBeenCalledWith('tag1', {
-			name: 'Urgent',
-			color: 'red',
-			notes: 'Act fast',
-		})
+		expect(updateTagMock).toHaveBeenCalledWith(
+			'tag1',
+			{
+				name: 'Urgent',
+				color: 'red',
+				notes: 'Act fast',
+			},
+			undefined,
+		)
 	})
 
 	it('tag delete removes a tag by gid', async () => {
@@ -211,7 +220,7 @@ describe('tags/cli', () => {
 
 		await program.parseAsync(['node', 'test', 'tag', 'create', 'Urgent', '--workspace-gid', 'ws1'], { from: 'node' })
 
-		expect(injectedCreateTag).toHaveBeenCalledWith('ws1', 'Urgent', {})
+		expect(injectedCreateTag).toHaveBeenCalledWith('ws1', 'Urgent', {}, undefined)
 	})
 	it('tag create adds followers from a comma-separated --follower list', async () => {
 		vi.spyOn(console, 'log').mockImplementation(() => {})
@@ -224,7 +233,7 @@ describe('tags/cli', () => {
 				from: 'node',
 			})
 
-		expect(api.createTag).toHaveBeenCalledWith('ws1', 'Urgent', { followers: ['u1', 'u2'] })
+		expect(api.createTag).toHaveBeenCalledWith('ws1', 'Urgent', { followers: ['u1', 'u2'] }, undefined)
 	})
 	it('tag update clears the colour with --clear-color', async () => {
 		vi.spyOn(console, 'log').mockImplementation(() => {})
@@ -235,7 +244,7 @@ describe('tags/cli', () => {
 			.addCommand(tagCommand(api))
 			.parseAsync(['node', 'test', 'tag', 'update', 'tag1', '--clear-color'], { from: 'node' })
 
-		expect(api.updateTag).toHaveBeenCalledWith('tag1', { color: null })
+		expect(api.updateTag).toHaveBeenCalledWith('tag1', { color: null }, undefined)
 	})
 
 	it('tag update rejects --color together with --clear-color before calling Asana', async () => {

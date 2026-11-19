@@ -61,12 +61,16 @@ export type CustomFieldGateway = {
 		teamGid: string,
 		opts?: PaginationOptions,
 	): Promise<ListResult<Asana.CustomFieldSetting>>
-	createCustomField(input: CreateCustomFieldInput): Promise<Asana.CustomField>
-	updateCustomField(customFieldGid: string, input: UpdateCustomFieldInput): Promise<Asana.CustomField>
+	createCustomField(input: CreateCustomFieldInput, opts?: ReadOptions): Promise<Asana.CustomField>
+	updateCustomField(
+		customFieldGid: string,
+		input: UpdateCustomFieldInput,
+		opts?: ReadOptions,
+	): Promise<Asana.CustomField>
 	deleteCustomField(customFieldGid: string): Promise<void>
-	createEnumOption(customFieldGid: string, input: CreateEnumOptionInput): Promise<EnumOption>
+	createEnumOption(customFieldGid: string, input: CreateEnumOptionInput, opts?: ReadOptions): Promise<EnumOption>
 	insertEnumOption(customFieldGid: string, input: InsertEnumOptionInput): Promise<EnumOption>
-	updateEnumOption(enumOptionGid: string, input: UpdateEnumOptionInput): Promise<EnumOption>
+	updateEnumOption(enumOptionGid: string, input: UpdateEnumOptionInput, opts?: ReadOptions): Promise<EnumOption>
 	addCustomFieldToProject(
 		projectGid: string,
 		customFieldGid: string,
@@ -112,7 +116,7 @@ export function createAsanaCustomFieldGateway(client: Asana.ApiClient): CustomFi
 			const res = await settingsApi.getCustomFieldSettingsForTeam(teamGid, toAsanaPaginationOptions(opts))
 			return await collectListResponse(res, opts)
 		},
-		async createCustomField(input) {
+		async createCustomField(input, opts) {
 			const res = await customFieldsApi.createCustomField(
 				{
 					data: {
@@ -124,12 +128,13 @@ export function createAsanaCustomFieldGateway(client: Asana.ApiClient): CustomFi
 						...(input.enumOptions !== undefined && { enum_options: input.enumOptions }),
 					},
 				},
-				{},
+				toAsanaReadOptions(opts),
 			)
 			return res.data
 		},
-		async updateCustomField(customFieldGid, input) {
+		async updateCustomField(customFieldGid, input, opts) {
 			const res = await customFieldsApi.updateCustomField(customFieldGid, {
+				...toAsanaReadOptions(opts),
 				body: {
 					data: {
 						...(input.name !== undefined && { name: input.name }),
@@ -148,8 +153,9 @@ export function createAsanaCustomFieldGateway(client: Asana.ApiClient): CustomFi
 		async deleteCustomField(customFieldGid) {
 			await customFieldsApi.deleteCustomField(customFieldGid)
 		},
-		async createEnumOption(customFieldGid, input) {
+		async createEnumOption(customFieldGid, input, opts) {
 			const res = await customFieldsApi.createEnumOptionForCustomField(customFieldGid, {
+				...toAsanaReadOptions(opts),
 				body: {
 					data: {
 						name: input.name,
@@ -174,8 +180,9 @@ export function createAsanaCustomFieldGateway(client: Asana.ApiClient): CustomFi
 			})
 			return res.data
 		},
-		async updateEnumOption(enumOptionGid, input) {
+		async updateEnumOption(enumOptionGid, input, opts) {
 			const res = await customFieldsApi.updateEnumOption(enumOptionGid, {
+				...toAsanaReadOptions(opts),
 				body: {
 					data: {
 						...(input.name !== undefined && { name: input.name }),

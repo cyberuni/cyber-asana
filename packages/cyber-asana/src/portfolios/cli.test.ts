@@ -129,7 +129,7 @@ describe('portfolios/cli', () => {
 			from: 'node',
 		})
 
-		expect(createPortfolioMock).toHaveBeenCalledWith('ws1', 'Roadmap')
+		expect(createPortfolioMock).toHaveBeenCalledWith('ws1', 'Roadmap', undefined)
 	})
 
 	it('portfolio update forwards gid and fields', async () => {
@@ -138,7 +138,7 @@ describe('portfolios/cli', () => {
 
 		await program.parseAsync(['node', 'test', 'portfolio', 'update', 'pf1', '--name', 'Updated'], { from: 'node' })
 
-		expect(updatePortfolioMock).toHaveBeenCalledWith('pf1', { name: 'Updated' })
+		expect(updatePortfolioMock).toHaveBeenCalledWith('pf1', { name: 'Updated' }, undefined)
 	})
 
 	it('portfolio items forwards portfolio gid and pagination options', async () => {
@@ -169,7 +169,7 @@ describe('portfolios/cli', () => {
 			from: 'node',
 		})
 
-		expect(injectedCreatePortfolio).toHaveBeenCalledWith('ws1', 'Roadmap')
+		expect(injectedCreatePortfolio).toHaveBeenCalledWith('ws1', 'Roadmap', undefined)
 	})
 
 	it('portfolio list forwards --owner-gid as an owner filter', async () => {

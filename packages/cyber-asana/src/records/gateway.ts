@@ -99,15 +99,15 @@ export type RecordGateway = {
 	listRecords(tableGid: string, filters?: RecordListFilters, opts?: PaginationOptions): Promise<ListResult<TableRecord>>
 	searchRecords(workspaceGid: string, filters?: RecordSearchFilters, opts?: RecordSearchOptions): Promise<TableRecord[]>
 	getRecord(recordGid: string, opts?: ReadOptions): Promise<TableRecord>
-	createRecord(tableGid: string, name: string, opts?: CreateRecordOptions): Promise<TableRecord>
-	updateRecord(recordGid: string, fields: UpdateRecordFields): Promise<TableRecord>
+	createRecord(tableGid: string, name: string, opts?: CreateRecordOptions, readOpts?: ReadOptions): Promise<TableRecord>
+	updateRecord(recordGid: string, fields: UpdateRecordFields, opts?: ReadOptions): Promise<TableRecord>
 	deleteRecord(recordGid: string): Promise<void>
 	listRecordStories(
 		recordGid: string,
 		filters?: RecordStoryFilters,
 		opts?: PaginationOptions,
 	): Promise<ListResult<Asana.Story>>
-	createRecordStory(recordGid: string, fields: RecordStoryFields): Promise<Asana.Story>
+	createRecordStory(recordGid: string, fields: RecordStoryFields, opts?: ReadOptions): Promise<Asana.Story>
 }
 
 const list = (values?: string[]) => (values && values.length > 0 ? values.join(',') : undefined)
@@ -155,7 +155,7 @@ export function createAsanaRecordGateway(client: Asana.ApiClient): RecordGateway
 			const res = await recordsApi.getRecord(recordGid, toAsanaReadOptions(opts))
 			return res.data
 		},
-		async createRecord(tableGid, name, opts) {
+		async createRecord(tableGid, name, opts, readOpts) {
 			const res = await recordsApi.createRecord(
 				{
 					data: {
@@ -165,12 +165,12 @@ export function createAsanaRecordGateway(client: Asana.ApiClient): RecordGateway
 						...(opts?.uniqueFingerprint !== undefined && { unique_fingerprint: opts.uniqueFingerprint }),
 					},
 				},
-				{},
+				toAsanaReadOptions(readOpts),
 			)
 			return res.data
 		},
-		async updateRecord(recordGid, fields) {
-			const res = await recordsApi.updateRecord({ data: fields }, recordGid, {})
+		async updateRecord(recordGid, fields, opts) {
+			const res = await recordsApi.updateRecord({ data: fields }, recordGid, toAsanaReadOptions(opts))
 			return res.data
 		},
 		async deleteRecord(recordGid) {
@@ -187,8 +187,8 @@ export function createAsanaRecordGateway(client: Asana.ApiClient): RecordGateway
 			})
 			return await collectListResponse(res, opts)
 		},
-		async createRecordStory(recordGid, fields) {
-			const res = await storiesApi.createStoryForRecord({ data: fields }, recordGid, {})
+		async createRecordStory(recordGid, fields, opts) {
+			const res = await storiesApi.createStoryForRecord({ data: fields }, recordGid, toAsanaReadOptions(opts))
 			return res.data
 		},
 	}

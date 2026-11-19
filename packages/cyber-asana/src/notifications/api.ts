@@ -1,4 +1,5 @@
 import type { ListResult, PaginationOptions } from '../platform/pagination.js'
+import type { ReadOptions } from '../platform/read-options.js'
 import type { NotificationGateway } from './gateway.js'
 
 export type { MarkNotificationsResult } from './gateway.js'
@@ -34,13 +35,18 @@ export function createNotificationApi(gateway: NotificationGateway) {
 			const result = await gateway.listNotifications(userGid, workspaceGid, opts ? pagination : undefined)
 			return unread ? keepUnread(result) : result
 		},
-		async markNotificationsRead(userGid: string, workspaceGid: string, notificationGids: string[]) {
+		async markNotificationsRead(userGid: string, workspaceGid: string, notificationGids: string[], opts?: ReadOptions) {
 			assertGids(notificationGids)
-			return gateway.markNotificationsRead(userGid, workspaceGid, notificationGids)
+			return gateway.markNotificationsRead(userGid, workspaceGid, notificationGids, opts)
 		},
-		async markNotificationsUnread(userGid: string, workspaceGid: string, notificationGids: string[]) {
+		async markNotificationsUnread(
+			userGid: string,
+			workspaceGid: string,
+			notificationGids: string[],
+			opts?: ReadOptions,
+		) {
 			assertGids(notificationGids)
-			return gateway.markNotificationsUnread(userGid, workspaceGid, notificationGids)
+			return gateway.markNotificationsUnread(userGid, workspaceGid, notificationGids, opts)
 		},
 	}
 }

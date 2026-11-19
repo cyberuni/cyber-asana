@@ -148,23 +148,25 @@ export function portfolioCommand(api?: PortfolioApi | (() => PortfolioApi)) {
 	)
 
 	const createCmd = addGidOption(
-		cmd.command('create <name>').description('Create a portfolio'),
+		addReadOptions(cmd.command('create <name>').description('Create a portfolio')),
 		'workspace',
 		'Workspace GID',
 	)
-	createCmd.action(async (name: string, opts: { workspace?: string; workspaceGid?: string }) => {
-		const data = await resolvePortfolioApi(api).createPortfolio(requiredGid(opts, 'workspace', 'Workspace GID'), name)
+	createCmd.action(async (name: string, opts: { workspace?: string; workspaceGid?: string; optFields?: string }) => {
+		const data = await resolvePortfolioApi(api).createPortfolio(
+			requiredGid(opts, 'workspace', 'Workspace GID'),
+			name,
+			readOptionsFromCli(opts),
+		)
 		output(data, () => fmtPortfolio(data))
 	})
 
-	cmd
-		.command('update <gid>')
-		.description('Update a portfolio')
-		.option('--name <name>', 'New name')
-		.action(async (gid: string, opts: { name?: string }) => {
-			const data = await resolvePortfolioApi(api).updatePortfolio(gid, opts)
-			output(data, () => fmtPortfolio(data))
-		})
+	addReadOptions(
+		cmd.command('update <gid>').description('Update a portfolio').option('--name <name>', 'New name'),
+	).action(async (gid: string, opts: { name?: string; optFields?: string }) => {
+		const data = await resolvePortfolioApi(api).updatePortfolio(gid, { name: opts.name }, readOptionsFromCli(opts))
+		output(data, () => fmtPortfolio(data))
+	})
 
 	cmd
 		.command('delete <gid>')

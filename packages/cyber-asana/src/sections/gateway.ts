@@ -10,8 +10,13 @@ import { type ReadOptions, toAsanaReadOptions } from '../platform/read-options.j
 export type SectionGateway = {
 	listSections(projectGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.Section>>
 	getSection(sectionGid: string, opts?: ReadOptions): Promise<Asana.Section>
-	createSection(projectGid: string, name: string, opts?: SectionPlacement): Promise<Asana.Section>
-	updateSection(sectionGid: string, name: string): Promise<Asana.Section>
+	createSection(
+		projectGid: string,
+		name: string,
+		opts?: SectionPlacement,
+		readOpts?: ReadOptions,
+	): Promise<Asana.Section>
+	updateSection(sectionGid: string, name: string, opts?: ReadOptions): Promise<Asana.Section>
 	deleteSection(sectionGid: string): Promise<void>
 	moveSection(projectGid: string, sectionGid: string, opts?: SectionPlacement): Promise<void>
 	addTaskToSection(sectionGid: string, taskGid: string, opts?: TaskPlacement): Promise<void>
@@ -35,7 +40,7 @@ export function createAsanaSectionGateway(client: Asana.ApiClient): SectionGatew
 			const res = await sectionsApi.getSection(sectionGid, toAsanaReadOptions(opts))
 			return res.data
 		},
-		async createSection(projectGid, name, opts) {
+		async createSection(projectGid, name, opts, readOpts) {
 			const res = await sectionsApi.createSectionForProject(projectGid, {
 				body: {
 					data: {
@@ -44,11 +49,15 @@ export function createAsanaSectionGateway(client: Asana.ApiClient): SectionGatew
 						...(opts?.insertAfter !== undefined && { insert_after: opts.insertAfter }),
 					},
 				},
+				...toAsanaReadOptions(readOpts),
 			})
 			return res.data
 		},
-		async updateSection(sectionGid, name) {
-			const res = await sectionsApi.updateSection(sectionGid, { body: { data: { name } } })
+		async updateSection(sectionGid, name, opts) {
+			const res = await sectionsApi.updateSection(sectionGid, {
+				body: { data: { name } },
+				...toAsanaReadOptions(opts),
+			})
 			return res.data
 		},
 		async deleteSection(sectionGid) {

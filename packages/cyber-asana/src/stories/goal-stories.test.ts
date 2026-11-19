@@ -55,7 +55,7 @@ describe('goal stories', () => {
 		await run({ createGoalStory }, 'create-goal', 'g1', 'On track', '--pin')
 
 		expect(listGoalStories).toHaveBeenCalledWith('g1', expect.objectContaining({ optFields: expect.any(String) }))
-		expect(createGoalStory).toHaveBeenCalledWith('g1', { text: 'On track', is_pinned: true })
+		expect(createGoalStory).toHaveBeenCalledWith('g1', { text: 'On track', is_pinned: true }, undefined)
 		expect(log.mock.calls.map((c) => String(c[0])).join('\n')).toContain('0 stories found')
 	})
 
@@ -72,7 +72,7 @@ describe('goal stories', () => {
 		await handlers.get('asana_story_goal_create')?.({ goal_gid: 'g1', text: 'On track', is_pinned: true })
 
 		expect(api.listGoalStories).toHaveBeenCalledWith('g1', expect.objectContaining({ limit: 5 }))
-		expect(api.createGoalStory).toHaveBeenCalledWith('g1', { text: 'On track', is_pinned: true })
+		expect(api.createGoalStory).toHaveBeenCalledWith('g1', { text: 'On track', is_pinned: true }, undefined)
 		expect(handlers.has('asana_comment_goal_list')).toBe(false)
 	})
 })

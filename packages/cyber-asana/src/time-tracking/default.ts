@@ -24,12 +24,12 @@ export async function getTimeTrackingEntry(entryGid: string, opts?: ReadOptions)
 	return defaultTimeTrackingEntryApi().getTimeTrackingEntry(entryGid, opts)
 }
 
-export async function createTimeTrackingEntry(taskGid: string, fields: TimeTrackingEntryFields) {
-	return defaultTimeTrackingEntryApi().createTimeTrackingEntry(taskGid, fields)
+export async function createTimeTrackingEntry(taskGid: string, fields: TimeTrackingEntryFields, opts?: ReadOptions) {
+	return defaultTimeTrackingEntryApi().createTimeTrackingEntry(taskGid, fields, opts)
 }
 
-export async function updateTimeTrackingEntry(entryGid: string, fields: TimeTrackingEntryFields) {
-	return defaultTimeTrackingEntryApi().updateTimeTrackingEntry(entryGid, fields)
+export async function updateTimeTrackingEntry(entryGid: string, fields: TimeTrackingEntryFields, opts?: ReadOptions) {
+	return defaultTimeTrackingEntryApi().updateTimeTrackingEntry(entryGid, fields, opts)
 }
 
 export async function deleteTimeTrackingEntry(entryGid: string) {

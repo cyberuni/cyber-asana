@@ -55,10 +55,15 @@ describe('sections/mcp', () => {
 			name: 'In Progress',
 		})
 
-		expect(createSectionMock).toHaveBeenCalledWith('proj1', 'In Progress', {
-			insertBefore: undefined,
-			insertAfter: undefined,
-		})
+		expect(createSectionMock).toHaveBeenCalledWith(
+			'proj1',
+			'In Progress',
+			{
+				insertBefore: undefined,
+				insertAfter: undefined,
+			},
+			undefined,
+		)
 	})
 
 	it('asana_section_create forwards the placement it was given', async () => {
@@ -72,10 +77,15 @@ describe('sections/mcp', () => {
 			insert_after: 'sec2',
 		})
 
-		expect(createSection).toHaveBeenCalledWith('proj1', 'In Progress', {
-			insertBefore: undefined,
-			insertAfter: 'sec2',
-		})
+		expect(createSection).toHaveBeenCalledWith(
+			'proj1',
+			'In Progress',
+			{
+				insertBefore: undefined,
+				insertAfter: 'sec2',
+			},
+			undefined,
+		)
 	})
 
 	it('asana_section_update forwards gid and new name', async () => {
@@ -88,7 +98,7 @@ describe('sections/mcp', () => {
 			name: 'Done',
 		})
 
-		expect(updateSectionMock).toHaveBeenCalledWith('sec1', 'Done')
+		expect(updateSectionMock).toHaveBeenCalledWith('sec1', 'Done', undefined)
 	})
 
 	it('section tools can use injected dependencies', async () => {
@@ -101,10 +111,15 @@ describe('sections/mcp', () => {
 			name: 'In Progress',
 		})
 
-		expect(injectedCreateSection).toHaveBeenCalledWith('proj1', 'In Progress', {
-			insertBefore: undefined,
-			insertAfter: undefined,
-		})
+		expect(injectedCreateSection).toHaveBeenCalledWith(
+			'proj1',
+			'In Progress',
+			{
+				insertBefore: undefined,
+				insertAfter: undefined,
+			},
+			undefined,
+		)
 	})
 
 	it('asana_section_move forwards the project, section, and placement', async () => {

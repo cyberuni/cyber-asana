@@ -98,16 +98,22 @@ export function registerSectionTools(
 			name: z.string().describe('Section name'),
 			insert_before: z.string().optional().describe('Section GID to insert before'),
 			insert_after: z.string().optional().describe('Section GID to insert after'),
+			...readParams,
 		},
-		async ({ project_gid, name, insert_before, insert_after }) => ({
+		async ({ project_gid, name, insert_before, insert_after, opt_fields }) => ({
 			content: [
 				{
 					type: 'text',
 					text: JSON.stringify(
-						await resolveSectionApi(api).createSection(project_gid, name, {
-							insertBefore: insert_before,
-							insertAfter: insert_after,
-						}),
+						await resolveSectionApi(api).createSection(
+							project_gid,
+							name,
+							{
+								insertBefore: insert_before,
+								insertAfter: insert_after,
+							},
+							readOptions({ opt_fields }),
+						),
 					),
 				},
 			],
@@ -120,12 +126,15 @@ export function registerSectionTools(
 		{
 			section_gid: z.string().describe('Section GID'),
 			name: z.string().describe('New name'),
+			...readParams,
 		},
-		async ({ section_gid, name }) => ({
+		async ({ section_gid, name, opt_fields }) => ({
 			content: [
 				{
 					type: 'text',
-					text: JSON.stringify(await resolveSectionApi(api).updateSection(section_gid, name)),
+					text: JSON.stringify(
+						await resolveSectionApi(api).updateSection(section_gid, name, readOptions({ opt_fields })),
+					),
 				},
 			],
 		}),

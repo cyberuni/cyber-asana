@@ -42,9 +42,9 @@ describe('project-briefs/mcp', () => {
 		const read = await handlers.get('asana_project_brief_get')?.({ project_brief_gid: 'b1', opt_fields: 'gid,title' })
 		await handlers.get('asana_project_brief_update')?.({ project_brief_gid: 'b1', text: 'new' })
 
-		expect(createProjectBrief).toHaveBeenCalledWith('p1', { title: 'T', html_text: '<body>x</body>' })
+		expect(createProjectBrief).toHaveBeenCalledWith('p1', { title: 'T', html_text: '<body>x</body>' }, undefined)
 		expect(getProjectBrief).toHaveBeenCalledWith('b1', { optFields: 'gid,title' })
-		expect(updateProjectBrief).toHaveBeenCalledWith('b1', { text: 'new' })
+		expect(updateProjectBrief).toHaveBeenCalledWith('b1', { text: 'new' }, undefined)
 		expect(JSON.parse(created.content[0].text)).toEqual({ gid: 'b1' })
 		expect(JSON.parse(read.content[0].text)).toEqual({ gid: 'b1', title: 'T' })
 	})

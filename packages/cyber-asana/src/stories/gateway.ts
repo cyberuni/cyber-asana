@@ -17,14 +17,14 @@ export type TaskTemplateData = {
 
 export type StoryGateway = {
 	listStories(taskGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.Story>>
-	createStory(taskGid: string, fields: StoryCreateFields): Promise<Asana.Story>
+	createStory(taskGid: string, fields: StoryCreateFields, opts?: ReadOptions): Promise<Asana.Story>
 	getStory(storyGid: string, opts?: ReadOptions): Promise<Asana.Story>
-	updateStory(storyGid: string, fields: StoryUpdateFields): Promise<Asana.Story>
+	updateStory(storyGid: string, fields: StoryUpdateFields, opts?: ReadOptions): Promise<Asana.Story>
 	deleteStory(storyGid: string): Promise<void>
 	getTaskTemplateData(taskGid: string): Promise<TaskTemplateData>
 	/** Goal stories are a paid feature; request shapes from developers.asana.com, unverified live. */
 	listGoalStories(goalGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.Story>>
-	createGoalStory(goalGid: string, fields: StoryCreateFields): Promise<Asana.Story>
+	createGoalStory(goalGid: string, fields: StoryCreateFields, opts?: ReadOptions): Promise<Asana.Story>
 }
 
 export function createAsanaStoryGateway(client: Asana.ApiClient): StoryGateway {
@@ -36,16 +36,16 @@ export function createAsanaStoryGateway(client: Asana.ApiClient): StoryGateway {
 			const res = await storiesApi.getStoriesForTask(taskGid, toAsanaPaginationOptions(opts))
 			return await collectListResponse(res, opts)
 		},
-		async createStory(taskGid, fields) {
-			const res = await storiesApi.createStoryForTask({ data: fields }, taskGid, {})
+		async createStory(taskGid, fields, opts) {
+			const res = await storiesApi.createStoryForTask({ data: fields }, taskGid, toAsanaReadOptions(opts))
 			return res.data
 		},
 		async getStory(storyGid, opts) {
 			const res = await storiesApi.getStory(storyGid, toAsanaReadOptions(opts))
 			return res.data
 		},
-		async updateStory(storyGid, fields) {
-			const res = await storiesApi.updateStory({ data: fields }, storyGid, {})
+		async updateStory(storyGid, fields, opts) {
+			const res = await storiesApi.updateStory({ data: fields }, storyGid, toAsanaReadOptions(opts))
 			return res.data
 		},
 		async deleteStory(storyGid) {
@@ -59,8 +59,8 @@ export function createAsanaStoryGateway(client: Asana.ApiClient): StoryGateway {
 			const res = await storiesApi.getStoriesForGoal(goalGid, toAsanaPaginationOptions(opts))
 			return await collectListResponse(res, opts)
 		},
-		async createGoalStory(goalGid, fields) {
-			const res = await storiesApi.createStoryForGoal({ data: fields }, goalGid, {})
+		async createGoalStory(goalGid, fields, opts) {
+			const res = await storiesApi.createStoryForGoal({ data: fields }, goalGid, toAsanaReadOptions(opts))
 			return res.data
 		},
 	}

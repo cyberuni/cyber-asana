@@ -223,12 +223,15 @@ describe('custom-fields/mcp writes', () => {
 			enum_options: ['Sprint 1'],
 		})
 
-		expect(createCustomField).toHaveBeenCalledWith({
-			workspace: 'ws1',
-			name: 'Sprint',
-			resourceSubtype: 'enum',
-			enumOptions: [{ name: 'Sprint 1' }],
-		})
+		expect(createCustomField).toHaveBeenCalledWith(
+			{
+				workspace: 'ws1',
+				name: 'Sprint',
+				resourceSubtype: 'enum',
+				enumOptions: [{ name: 'Sprint 1' }],
+			},
+			undefined,
+		)
 		expect(JSON.parse(result.content[0].text)).toEqual({ gid: 'cf1' })
 	})
 
@@ -250,9 +253,9 @@ describe('custom-fields/mcp writes', () => {
 		})
 		await server.handlers.get('asana_custom_field_enum_option_update')?.({ enum_option_gid: 'o1', enabled: false })
 
-		expect(createEnumOption).toHaveBeenCalledWith('cf1', { name: 'S2', insertAfter: 'o0' })
+		expect(createEnumOption).toHaveBeenCalledWith('cf1', { name: 'S2', insertAfter: 'o0' }, undefined)
 		expect(insertEnumOption).toHaveBeenCalledWith('cf1', { enumOption: 'o1', beforeEnumOption: 'o0' })
-		expect(updateEnumOption).toHaveBeenCalledWith('o1', { enabled: false })
+		expect(updateEnumOption).toHaveBeenCalledWith('o1', { enabled: false }, undefined)
 	})
 
 	it('asana_custom_field_update maps snake_case params to the api and rejects an empty change set', async () => {
@@ -265,7 +268,11 @@ describe('custom-fields/mcp writes', () => {
 			currency_code: 'USD',
 			enabled: false,
 		})
-		expect(updateCustomField).toHaveBeenCalledWith('cf1', { name: 'Cost', currencyCode: 'USD', enabled: false })
+		expect(updateCustomField).toHaveBeenCalledWith(
+			'cf1',
+			{ name: 'Cost', currencyCode: 'USD', enabled: false },
+			undefined,
+		)
 
 		await expect(server.handlers.get('asana_custom_field_update')?.({ custom_field_gid: 'cf1' })).rejects.toThrow(
 			'Nothing to update',

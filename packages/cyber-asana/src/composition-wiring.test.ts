@@ -304,7 +304,7 @@ describe('composition wiring', () => {
 			from: 'node',
 		})
 
-		expect(ctx.tasks.createTask).toHaveBeenCalledWith('ws1', 'New Task', {})
+		expect(ctx.tasks.createTask).toHaveBeenCalledWith('ws1', 'New Task', {}, undefined)
 	})
 
 	it('CLI tag create uses runtime context tags api', async () => {
@@ -317,7 +317,7 @@ describe('composition wiring', () => {
 			from: 'node',
 		})
 
-		expect(ctx.tags.createTag).toHaveBeenCalledWith('ws1', 'Urgent', {})
+		expect(ctx.tags.createTag).toHaveBeenCalledWith('ws1', 'Urgent', {}, undefined)
 	})
 
 	it('CLI task-template instantiate uses runtime context task templates api', async () => {
@@ -588,7 +588,7 @@ describe('composition wiring', () => {
 			{ from: 'node' },
 		)
 
-		expect(ctx.projectBriefs.createProjectBrief).toHaveBeenCalledWith('proj1', { title: 'Charter' })
+		expect(ctx.projectBriefs.createProjectBrief).toHaveBeenCalledWith('proj1', { title: 'Charter' }, undefined)
 	})
 
 	it('MCP asana_project_brief_get uses runtime context projectBriefs api', async () => {
@@ -612,7 +612,7 @@ describe('composition wiring', () => {
 			from: 'node',
 		})
 
-		expect(ctx.notifications.markNotificationsRead).toHaveBeenCalledWith('me', 'ws1', ['n1'])
+		expect(ctx.notifications.markNotificationsRead).toHaveBeenCalledWith('me', 'ws1', ['n1'], undefined)
 	})
 
 	it('MCP asana_notification_list uses runtime context notifications api', async () => {
@@ -745,6 +745,6 @@ describe('composition wiring', () => {
 			name: 'New Task',
 		})
 
-		expect(ctx.tasks.createTask).toHaveBeenCalledWith('ws1', 'New Task', {})
+		expect(ctx.tasks.createTask).toHaveBeenCalledWith('ws1', 'New Task', {}, undefined)
 	})
 })

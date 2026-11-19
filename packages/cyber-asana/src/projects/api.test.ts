@@ -118,6 +118,7 @@ describe('projects/api', () => {
 		expect(result).toEqual(mockData)
 		expect(Asana.ProjectsApi.prototype.createProject).toHaveBeenCalledWith(
 			expect.objectContaining({ data: expect.objectContaining({ name: 'Test Project' }) }),
+			{},
 		)
 	})
 
@@ -134,17 +135,20 @@ describe('projects/api', () => {
 			start_on: '2026-06-01',
 		})
 
-		expect(Asana.ProjectsApi.prototype.createProject).toHaveBeenCalledWith({
-			data: {
-				name: 'Test Project',
-				workspace: 'ws1',
-				html_notes: '<body>Hi</body>',
-				privacy_setting: 'private',
-				default_view: 'timeline',
-				due_on: '2026-06-10',
-				start_on: '2026-06-01',
+		expect(Asana.ProjectsApi.prototype.createProject).toHaveBeenCalledWith(
+			{
+				data: {
+					name: 'Test Project',
+					workspace: 'ws1',
+					html_notes: '<body>Hi</body>',
+					privacy_setting: 'private',
+					default_view: 'timeline',
+					due_on: '2026-06-10',
+					start_on: '2026-06-01',
+				},
 			},
-		})
+			{},
+		)
 	})
 
 	it('updateProject calls updateProject with fields', async () => {

@@ -93,11 +93,15 @@ describe('attachments/mcp', () => {
 			name: 'Sprint report',
 		})
 
-		expect(createAttachmentMock).toHaveBeenCalledWith('task1', {
-			file: '/srv/reports/sprint.md',
-			url: undefined,
-			name: 'Sprint report',
-		})
+		expect(createAttachmentMock).toHaveBeenCalledWith(
+			'task1',
+			{
+				file: '/srv/reports/sprint.md',
+				url: undefined,
+				name: 'Sprint report',
+			},
+			undefined,
+		)
 	})
 
 	it('asana_attachment_create says where a file path is resolved', () => {
@@ -148,11 +152,15 @@ describe('attachments/mcp', () => {
 			connect_to_app: true,
 		})
 
-		expect(createAttachmentMock).toHaveBeenCalledWith('task1', {
-			file: undefined,
-			url: 'https://example.com/design',
-			name: undefined,
-			connectToApp: true,
-		})
+		expect(createAttachmentMock).toHaveBeenCalledWith(
+			'task1',
+			{
+				file: undefined,
+				url: 'https://example.com/design',
+				name: undefined,
+				connectToApp: true,
+			},
+			undefined,
+		)
 	})
 })

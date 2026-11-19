@@ -140,9 +140,13 @@ describe('stories/cli', () => {
 			{ from: 'node' },
 		)
 
-		expect(createStoryMock).toHaveBeenCalledWith('task1', {
-			html_text: '<body><strong>Rich</strong></body>',
-		})
+		expect(createStoryMock).toHaveBeenCalledWith(
+			'task1',
+			{
+				html_text: '<body><strong>Rich</strong></body>',
+			},
+			undefined,
+		)
 	})
 
 	it('story create applies templates to html_text', async () => {
@@ -170,9 +174,13 @@ describe('stories/cli', () => {
 			{ from: 'node' },
 		)
 
-		expect(createStoryMock).toHaveBeenCalledWith('task1', {
-			html_text: '<body><strong>Fix bug</strong> for Alice</body>',
-		})
+		expect(createStoryMock).toHaveBeenCalledWith(
+			'task1',
+			{
+				html_text: '<body><strong>Fix bug</strong> for Alice</body>',
+			},
+			undefined,
+		)
 	})
 
 	it('story get prints the story fields', async () => {
@@ -193,7 +201,7 @@ describe('stories/cli', () => {
 
 		await program.parseAsync(['node', 'test', 'story', 'update', 'story1', 'Corrected'], { from: 'node' })
 
-		expect(updateStory).toHaveBeenCalledWith('story1', { text: 'Corrected' })
+		expect(updateStory).toHaveBeenCalledWith('story1', { text: 'Corrected' }, undefined)
 	})
 
 	it('story update forwards html_text', async () => {
@@ -206,7 +214,11 @@ describe('stories/cli', () => {
 			{ from: 'node' },
 		)
 
-		expect(updateStory).toHaveBeenCalledWith('story1', { html_text: '<body><strong>Corrected</strong></body>' })
+		expect(updateStory).toHaveBeenCalledWith(
+			'story1',
+			{ html_text: '<body><strong>Corrected</strong></body>' },
+			undefined,
+		)
 	})
 
 	it('comment delete removes the comment', async () => {
@@ -241,7 +253,7 @@ describe('stories/cli', () => {
 
 		await program.parseAsync(['node', 'test', 'story', 'create', 'Hi', '--task-gid', 'task1'], { from: 'node' })
 
-		expect(injectedCreateStory).toHaveBeenCalledWith('task1', { text: 'Hi' })
+		expect(injectedCreateStory).toHaveBeenCalledWith('task1', { text: 'Hi' }, undefined)
 		expect(injectedLoadTask).not.toHaveBeenCalled()
 	})
 	it('story create pins the new comment with --pin', async () => {
@@ -252,7 +264,7 @@ describe('stories/cli', () => {
 			.addCommand(storyCommand('story', storyDeps({ createStory })))
 			.parseAsync(['node', 'test', 'story', 'create', 'Pin me', '--task-gid', 'task1', '--pin'], { from: 'node' })
 
-		expect(createStory).toHaveBeenCalledWith('task1', { text: 'Pin me', is_pinned: true })
+		expect(createStory).toHaveBeenCalledWith('task1', { text: 'Pin me', is_pinned: true }, undefined)
 	})
 
 	it('story update unpins a comment without replacing its text', async () => {
@@ -263,7 +275,7 @@ describe('stories/cli', () => {
 			.addCommand(storyCommand('story', storyDeps({ updateStory })))
 			.parseAsync(['node', 'test', 'story', 'update', 'story1', '--unpin'], { from: 'node' })
 
-		expect(updateStory).toHaveBeenCalledWith('story1', { is_pinned: false })
+		expect(updateStory).toHaveBeenCalledWith('story1', { is_pinned: false }, undefined)
 	})
 
 	it('story update rejects --pin together with --unpin before calling Asana', async () => {
@@ -287,7 +299,7 @@ describe('stories/cli', () => {
 				from: 'node',
 			})
 
-		expect(createStory).toHaveBeenCalledWith('task1', { text: 'Nice', sticker_name: 'trophy' })
+		expect(createStory).toHaveBeenCalledWith('task1', { text: 'Nice', sticker_name: 'trophy' }, undefined)
 	})
 
 	it('story update sets a sticker without replacing the comment text', async () => {
@@ -298,6 +310,6 @@ describe('stories/cli', () => {
 			.addCommand(storyCommand('story', storyDeps({ updateStory })))
 			.parseAsync(['node', 'test', 'story', 'update', 'story1', '--sticker', 'heart'], { from: 'node' })
 
-		expect(updateStory).toHaveBeenCalledWith('story1', { sticker_name: 'heart' })
+		expect(updateStory).toHaveBeenCalledWith('story1', { sticker_name: 'heart' }, undefined)
 	})
 })

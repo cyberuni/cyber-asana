@@ -146,10 +146,15 @@ describe('ooo/cli', () => {
 			{ from: 'node' },
 		)
 
-		expect(createOooEntryMock).toHaveBeenCalledWith('me', 'ws1', {
-			start_date: '2026-01-01',
-			end_date: '2026-01-15',
-		})
+		expect(createOooEntryMock).toHaveBeenCalledWith(
+			'me',
+			'ws1',
+			{
+				start_date: '2026-01-01',
+				end_date: '2026-01-15',
+			},
+			undefined,
+		)
 		vi.restoreAllMocks()
 	})
 
@@ -170,7 +175,7 @@ describe('ooo/cli', () => {
 
 		await program.parseAsync(['node', 'test', 'ooo', 'update', 'ooo1', '--end-date', '2026-01-20'], { from: 'node' })
 
-		expect(updateOooEntryMock).toHaveBeenCalledWith('ooo1', { end_date: '2026-01-20' })
+		expect(updateOooEntryMock).toHaveBeenCalledWith('ooo1', { end_date: '2026-01-20' }, undefined)
 		vi.restoreAllMocks()
 	})
 

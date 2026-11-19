@@ -11,11 +11,16 @@ export function createOooApi(gateway: OooGateway) {
 		getOooEntry(oooEntryGid: string, opts?: ReadOptions) {
 			return gateway.getOooEntry(oooEntryGid, opts)
 		},
-		createOooEntry(userGid: string, workspaceGid: string, fields: { start_date: string; end_date: string }) {
-			return gateway.createOooEntry(userGid, workspaceGid, fields)
+		createOooEntry(
+			userGid: string,
+			workspaceGid: string,
+			fields: { start_date: string; end_date: string },
+			opts?: ReadOptions,
+		) {
+			return gateway.createOooEntry(userGid, workspaceGid, fields, opts)
 		},
-		updateOooEntry(oooEntryGid: string, fields: OooEntryWriteFields) {
-			return gateway.updateOooEntry(oooEntryGid, fields)
+		updateOooEntry(oooEntryGid: string, fields: OooEntryWriteFields, opts?: ReadOptions) {
+			return gateway.updateOooEntry(oooEntryGid, fields, opts)
 		},
 		deleteOooEntry(oooEntryGid: string) {
 			return gateway.deleteOooEntry(oooEntryGid)

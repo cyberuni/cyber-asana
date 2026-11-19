@@ -44,8 +44,16 @@ export type TimeTrackingEntryGateway = {
 	): Promise<ListResult<TimeTrackingEntry>>
 	listTimeTrackingEntriesForTask(taskGid: string, opts?: PaginationOptions): Promise<ListResult<TimeTrackingEntry>>
 	getTimeTrackingEntry(entryGid: string, opts?: ReadOptions): Promise<TimeTrackingEntry>
-	createTimeTrackingEntry(taskGid: string, fields: TimeTrackingEntryFields): Promise<TimeTrackingEntry>
-	updateTimeTrackingEntry(entryGid: string, fields: TimeTrackingEntryFields): Promise<TimeTrackingEntry>
+	createTimeTrackingEntry(
+		taskGid: string,
+		fields: TimeTrackingEntryFields,
+		opts?: ReadOptions,
+	): Promise<TimeTrackingEntry>
+	updateTimeTrackingEntry(
+		entryGid: string,
+		fields: TimeTrackingEntryFields,
+		opts?: ReadOptions,
+	): Promise<TimeTrackingEntry>
 	deleteTimeTrackingEntry(entryGid: string): Promise<void>
 }
 
@@ -82,12 +90,12 @@ export function createAsanaTimeTrackingEntryGateway(client: Asana.ApiClient): Ti
 			const res = await entriesApi.getTimeTrackingEntry(entryGid, toAsanaReadOptions(opts))
 			return res.data
 		},
-		async createTimeTrackingEntry(taskGid, fields) {
-			const res = await entriesApi.createTimeTrackingEntry(bodyOf(fields), taskGid, {})
+		async createTimeTrackingEntry(taskGid, fields, opts) {
+			const res = await entriesApi.createTimeTrackingEntry(bodyOf(fields), taskGid, toAsanaReadOptions(opts))
 			return res.data
 		},
-		async updateTimeTrackingEntry(entryGid, fields) {
-			const res = await entriesApi.updateTimeTrackingEntry(bodyOf(fields), entryGid, {})
+		async updateTimeTrackingEntry(entryGid, fields, opts) {
+			const res = await entriesApi.updateTimeTrackingEntry(bodyOf(fields), entryGid, toAsanaReadOptions(opts))
 			return res.data
 		},
 		async deleteTimeTrackingEntry(entryGid) {

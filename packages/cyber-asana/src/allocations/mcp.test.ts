@@ -75,14 +75,17 @@ describe('allocations/mcp', () => {
 			effort_value: 8,
 		})
 
-		expect(api.createAllocation).toHaveBeenCalledWith({
-			assignee: 'u1',
-			parent: 'p1',
-			start_date: '2026-01-05',
-			end_date: '2026-01-18',
-			effort: { type: 'percent', value: 50 },
-		})
-		expect(api.updateAllocation).toHaveBeenCalledWith('a1', { effort: { type: 'hours', value: 8 } })
+		expect(api.createAllocation).toHaveBeenCalledWith(
+			{
+				assignee: 'u1',
+				parent: 'p1',
+				start_date: '2026-01-05',
+				end_date: '2026-01-18',
+				effort: { type: 'percent', value: 50 },
+			},
+			undefined,
+		)
+		expect(api.updateAllocation).toHaveBeenCalledWith('a1', { effort: { type: 'hours', value: 8 } }, undefined)
 	})
 
 	it('asana_allocation_delete acknowledges', async () => {

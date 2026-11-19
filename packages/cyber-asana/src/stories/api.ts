@@ -48,7 +48,7 @@ export function createStoryApi(gateway: StoryGateway) {
 		listStories(taskGid: string, opts?: PaginationOptions) {
 			return gateway.listStories(taskGid, opts)
 		},
-		async createStory(taskGid: string, fields: StoryCreateFields) {
+		async createStory(taskGid: string, fields: StoryCreateFields, opts?: ReadOptions) {
 			// Local shape checks run outside the try: their messages mention html_text, and the
 			// catch below would otherwise attribute a never-sent payload to Asana (#99).
 			const payload = buildStoryCreateFields({
@@ -58,7 +58,7 @@ export function createStoryApi(gateway: StoryGateway) {
 				stickerName: fields.sticker_name,
 			})
 			try {
-				return await gateway.createStory(taskGid, payload)
+				return await gateway.createStory(taskGid, payload, opts)
 			} catch (error) {
 				normalizeStoryCreateError(error)
 			}
@@ -66,7 +66,7 @@ export function createStoryApi(gateway: StoryGateway) {
 		getStory(storyGid: string, opts?: ReadOptions) {
 			return gateway.getStory(storyGid, opts)
 		},
-		async updateStory(storyGid: string, fields: StoryUpdateFields) {
+		async updateStory(storyGid: string, fields: StoryUpdateFields, opts?: ReadOptions) {
 			// Same reasoning as createStory: validate outside the try so a locally
 			// rejected payload is never attributed to Asana.
 			const payload = buildStoryUpdateFields({
@@ -76,7 +76,7 @@ export function createStoryApi(gateway: StoryGateway) {
 				stickerName: fields.sticker_name,
 			})
 			try {
-				return await gateway.updateStory(storyGid, payload)
+				return await gateway.updateStory(storyGid, payload, opts)
 			} catch (error) {
 				annotateStoryPermissionError(error)
 			}
@@ -94,7 +94,7 @@ export function createStoryApi(gateway: StoryGateway) {
 		listGoalStories(goalGid: string, opts?: PaginationOptions) {
 			return gateway.listGoalStories(goalGid, opts)
 		},
-		async createGoalStory(goalGid: string, fields: StoryCreateFields) {
+		async createGoalStory(goalGid: string, fields: StoryCreateFields, opts?: ReadOptions) {
 			const payload = buildStoryCreateFields({
 				text: fields.text,
 				htmlText: fields.html_text,
@@ -102,7 +102,7 @@ export function createStoryApi(gateway: StoryGateway) {
 				stickerName: fields.sticker_name,
 			})
 			try {
-				return await gateway.createGoalStory(goalGid, payload)
+				return await gateway.createGoalStory(goalGid, payload, opts)
 			} catch (error) {
 				normalizeStoryCreateError(error)
 			}

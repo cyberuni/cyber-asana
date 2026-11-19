@@ -13,6 +13,7 @@ function resolveProjectBriefApi(api?: ProjectBriefApi | (() => ProjectBriefApi))
 const json = (value: unknown) => ({ content: [{ type: 'text' as const, text: JSON.stringify(value) }] })
 
 const writeParams = {
+	...readParams,
 	title: z.string().optional().describe('Brief title'),
 	text: z.string().optional().describe('Brief body as plain text'),
 	html_text: z
@@ -45,7 +46,7 @@ export function registerProjectBriefTools(server: McpServer, api?: ProjectBriefA
 		'Create the brief of an Asana project (a project holds one brief). Rich text is checked against the project-brief HTML rules before it is sent',
 		{ project_gid: z.string().describe('Project GID the brief belongs to'), ...writeParams },
 		async ({ project_gid, ...params }) =>
-			json(await resolveProjectBriefApi(api).createProjectBrief(project_gid, fieldsFrom(params))),
+			json(await resolveProjectBriefApi(api).createProjectBrief(project_gid, fieldsFrom(params), readOptions(params))),
 	)
 
 	server.tool(
@@ -57,7 +58,7 @@ export function registerProjectBriefTools(server: McpServer, api?: ProjectBriefA
 			if (Object.keys(fields).length === 0) {
 				throw new Error('Nothing to update: give at least one of title, text, html_text')
 			}
-			return json(await resolveProjectBriefApi(api).updateProjectBrief(project_brief_gid, fields))
+			return json(await resolveProjectBriefApi(api).updateProjectBrief(project_brief_gid, fields, readOptions(params)))
 		},
 	)
 

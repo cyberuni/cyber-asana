@@ -2,11 +2,13 @@ import { Command } from 'commander'
 import {
 	addGidOption,
 	addPaginationOptions,
+	addReadOptions,
 	type CliGidOptions,
 	itemsForOutput,
 	normalizedGid,
 	paginationOptionsFromCli,
 	printNextPageHint,
+	readOptionsFromCli,
 	requiredGid,
 } from '../platform/cli/options.js'
 import { output, printCountSummary, printNextSteps, printTable } from '../platform/cli/output.js'
@@ -107,17 +109,20 @@ export function notificationCommand(api?: NotificationApi | (() => NotificationA
 		['mark-read', 'read', 'markNotificationsRead'],
 		['mark-unread', 'unread', 'markNotificationsUnread'],
 	] as const) {
-		addScopeOptions(
-			cmd
-				.command(`${name} <notification-gids...>`)
-				.description(
-					`Mark notifications ${verb}; Asana takes 1 to 50 and reports the ones it could not update. ${BETA}`,
-				),
-		).action(async (notificationGids: string[], opts: GidOpts) => {
+		addReadOptions(
+			addScopeOptions(
+				cmd
+					.command(`${name} <notification-gids...>`)
+					.description(
+						`Mark notifications ${verb}; Asana takes 1 to 50 and reports the ones it could not update. ${BETA}`,
+					),
+			),
+		).action(async (notificationGids: string[], opts: GidOpts & { optFields?: string }) => {
 			const result = await resolveNotificationApi(api)[call](
 				userGidOrMe(opts),
 				requiredGid(opts, 'workspace', 'Workspace GID'),
 				notificationGids,
+				readOptionsFromCli(opts),
 			)
 			output(result, () => reportMark(result, notificationGids, verb))
 		})

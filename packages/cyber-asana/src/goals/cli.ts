@@ -148,7 +148,7 @@ export function goalCommand(api?: GoalApi | (() => GoalApi)) {
 		'workspace',
 		'Workspace GID',
 	)
-	createCmd
+	addReadOptions(createCmd)
 		.option('--notes <text>', 'Goal notes')
 		.option('--html-notes <html>', 'Goal notes as Asana rich text HTML')
 		.option('--due-on <date>', 'Due date (YYYY-MM-DD)')
@@ -163,20 +163,20 @@ export function goalCommand(api?: GoalApi | (() => GoalApi)) {
 					htmlNotes?: string
 					dueOn?: string
 					startOn?: string
+					optFields?: string
 				},
 			) => {
 				const data = await resolveGoalApi(api).createGoal(
 					requiredGid(opts, 'workspace', 'Workspace GID'),
 					name,
 					buildGoalCreateFields(opts),
+					readOptionsFromCli(opts),
 				)
 				output(data, () => fmtGoal(data))
 			},
 		)
 
-	cmd
-		.command('update <gid>')
-		.description('Update a goal')
+	addReadOptions(cmd.command('update <gid>').description('Update a goal'))
 		.option('--name <name>', 'New name')
 		.option('--notes <text>', 'New notes')
 		.option('--html-notes <html>', 'New notes as Asana rich text HTML')
@@ -195,9 +195,10 @@ export function goalCommand(api?: GoalApi | (() => GoalApi)) {
 					clearDueOn?: boolean
 					startOn?: string
 					clearStartOn?: boolean
+					optFields?: string
 				},
 			) => {
-				const data = await resolveGoalApi(api).updateGoal(gid, buildGoalUpdateFields(opts))
+				const data = await resolveGoalApi(api).updateGoal(gid, buildGoalUpdateFields(opts), readOptionsFromCli(opts))
 				output(data, () => fmtGoal(data))
 			},
 		)
@@ -212,9 +213,11 @@ export function goalCommand(api?: GoalApi | (() => GoalApi)) {
 
 	const metricCmd = cmd.command('metric').description('Define a goal metric and record its progress (paid plan)')
 
-	metricCmd
-		.command('set <goal-gid>')
-		.description("Set a goal's metric: unit, precision, and initial, target, and current values")
+	addReadOptions(
+		metricCmd
+			.command('set <goal-gid>')
+			.description("Set a goal's metric: unit, precision, and initial, target, and current values"),
+	)
 		.option('--unit <unit>', 'none, currency, or percentage')
 		.option('--precision <n>', 'Decimal places', parseNumber('--precision'))
 		.option('--currency-code <code>', 'ISO 4217 code, for --unit currency')
@@ -233,36 +236,46 @@ export function goalCommand(api?: GoalApi | (() => GoalApi)) {
 					target?: number
 					current?: number
 					progressSource?: GoalMetricInput['progressSource']
+					optFields?: string
 				},
 			) => {
-				const data = await resolveGoalApi(api).setGoalMetric(gid, {
-					...(opts.unit !== undefined && { unit: opts.unit }),
-					...(opts.precision !== undefined && { precision: opts.precision }),
-					...(opts.currencyCode !== undefined && { currencyCode: opts.currencyCode }),
-					...(opts.initial !== undefined && { initialNumberValue: opts.initial }),
-					...(opts.target !== undefined && { targetNumberValue: opts.target }),
-					...(opts.current !== undefined && { currentNumberValue: opts.current }),
-					...(opts.progressSource !== undefined && { progressSource: opts.progressSource }),
-				})
+				const data = await resolveGoalApi(api).setGoalMetric(
+					gid,
+					{
+						...(opts.unit !== undefined && { unit: opts.unit }),
+						...(opts.precision !== undefined && { precision: opts.precision }),
+						...(opts.currencyCode !== undefined && { currencyCode: opts.currencyCode }),
+						...(opts.initial !== undefined && { initialNumberValue: opts.initial }),
+						...(opts.target !== undefined && { targetNumberValue: opts.target }),
+						...(opts.current !== undefined && { currentNumberValue: opts.current }),
+						...(opts.progressSource !== undefined && { progressSource: opts.progressSource }),
+					},
+					readOptionsFromCli(opts),
+				)
 				output(data, () => console.log(`Set the metric of goal ${gid}`))
 			},
 		)
 
-	metricCmd
-		.command('set-current <goal-gid> <value>')
-		.description("Record a goal metric's current value")
-		.action(async (gid: string, value: string) => {
-			const data = await resolveGoalApi(api).setGoalMetricCurrentValue(gid, parseNumber('<value>')(value))
-			output(data, () => console.log(`Set the current value of goal ${gid} to ${value}`))
-		})
+	addReadOptions(
+		metricCmd.command('set-current <goal-gid> <value>').description("Record a goal metric's current value"),
+	).action(async (gid: string, value: string, opts: { optFields?: string }) => {
+		const data = await resolveGoalApi(api).setGoalMetricCurrentValue(
+			gid,
+			parseNumber('<value>')(value),
+			readOptionsFromCli(opts),
+		)
+		output(data, () => console.log(`Set the current value of goal ${gid} to ${value}`))
+	})
 
 	const supportingCmd = cmd
 		.command('supporting')
 		.description('Link goals, projects, or portfolios that support a goal (paid plan)')
 
-	supportingCmd
-		.command('add <goal-gid> <supporting-gid>')
-		.description('Make a goal, project, or portfolio support a goal')
+	addReadOptions(
+		supportingCmd
+			.command('add <goal-gid> <supporting-gid>')
+			.description('Make a goal, project, or portfolio support a goal'),
+	)
 		.option('--weight <n>', "Contribution weight in the goal's progress, 0 to 1", parseNumber('--weight'))
 		.option('--insert-before <gid>', 'Place it before this supporting resource')
 		.option('--insert-after <gid>', 'Place it after this supporting resource')
@@ -270,13 +283,18 @@ export function goalCommand(api?: GoalApi | (() => GoalApi)) {
 			async (
 				goalGid: string,
 				supportingGid: string,
-				opts: { weight?: number; insertBefore?: string; insertAfter?: string },
+				opts: { weight?: number; insertBefore?: string; insertAfter?: string; optFields?: string },
 			) => {
-				const data = await resolveGoalApi(api).addSupportingRelationship(goalGid, supportingGid, {
-					...(opts.weight !== undefined && { contributionWeight: opts.weight }),
-					...(opts.insertBefore !== undefined && { insertBefore: opts.insertBefore }),
-					...(opts.insertAfter !== undefined && { insertAfter: opts.insertAfter }),
-				})
+				const data = await resolveGoalApi(api).addSupportingRelationship(
+					goalGid,
+					supportingGid,
+					{
+						...(opts.weight !== undefined && { contributionWeight: opts.weight }),
+						...(opts.insertBefore !== undefined && { insertBefore: opts.insertBefore }),
+						...(opts.insertAfter !== undefined && { insertAfter: opts.insertAfter }),
+					},
+					readOptionsFromCli(opts),
+				)
 				output(data, () => console.log(`Added supporting resource ${supportingGid} to goal ${goalGid}`))
 			},
 		)

@@ -98,10 +98,15 @@ describe('records/cli', () => {
 
 		await run(api, 'create', 'Q3', '--table', 't1', '--field', 'cf1=Acme', '--field', 'cf2=12', '--fingerprint', 'fp-1')
 
-		expect(api.createRecord).toHaveBeenCalledWith('t1', 'Q3', {
-			customFields: { cf1: 'Acme', cf2: '12' },
-			uniqueFingerprint: 'fp-1',
-		})
+		expect(api.createRecord).toHaveBeenCalledWith(
+			't1',
+			'Q3',
+			{
+				customFields: { cf1: 'Acme', cf2: '12' },
+				uniqueFingerprint: 'fp-1',
+			},
+			undefined,
+		)
 	})
 
 	it('record create accepts --fields-json and rejects a malformed --field', async () => {
@@ -112,7 +117,7 @@ describe('records/cli', () => {
 		await expect(run(api, 'create', 'Q3', '--table', 't1', '--field', 'nonsense')).rejects.toThrow(/gid=value/)
 
 		expect(api.createRecord).toHaveBeenCalledTimes(1)
-		expect(api.createRecord).toHaveBeenCalledWith('t1', 'Q3', { customFields: { cf1: 'a' } })
+		expect(api.createRecord).toHaveBeenCalledWith('t1', 'Q3', { customFields: { cf1: 'a' } }, undefined)
 	})
 
 	it('record update sends only what it was given and refuses an empty update', async () => {
@@ -123,11 +128,15 @@ describe('records/cli', () => {
 		await expect(run(api, 'update', 'r1')).rejects.toThrow(/nothing to update/i)
 
 		expect(api.updateRecord).toHaveBeenCalledTimes(1)
-		expect(api.updateRecord).toHaveBeenCalledWith('r1', {
-			name: 'N',
-			custom_fields: { cf1: 'x' },
-			default_access_level: 'viewer',
-		})
+		expect(api.updateRecord).toHaveBeenCalledWith(
+			'r1',
+			{
+				name: 'N',
+				custom_fields: { cf1: 'x' },
+				default_access_level: 'viewer',
+			},
+			undefined,
+		)
 	})
 
 	it('record delete is idempotent on a 404', async () => {
@@ -164,7 +173,7 @@ describe('records/cli', () => {
 			{ commentsOnly: true, createdAfter: '2026-11-01T00:00:00Z', sortAscending: false },
 			expect.objectContaining({ optFields: expect.any(String) }),
 		)
-		expect(api.createRecordStory).toHaveBeenCalledWith('r1', { text: 'hello' })
+		expect(api.createRecordStory).toHaveBeenCalledWith('r1', { text: 'hello' }, undefined)
 	})
 
 	it('record stories create needs text or html text', async () => {

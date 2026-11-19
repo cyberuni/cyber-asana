@@ -104,8 +104,9 @@ export function registerGoalTools(server: McpServer, api?: GoalApi | (() => Goal
 			html_notes: z.string().optional().describe('Goal notes as Asana rich text HTML'),
 			due_on: z.string().optional().describe('Due date (YYYY-MM-DD)'),
 			start_on: z.string().optional().describe('Start date (YYYY-MM-DD); Asana requires an accompanying due date'),
+			...readParams,
 		},
-		async ({ workspace_gid, name, notes, html_notes, due_on, start_on }) => ({
+		async ({ workspace_gid, name, notes, html_notes, due_on, start_on, ...params }) => ({
 			content: [
 				{
 					type: 'text',
@@ -114,6 +115,7 @@ export function registerGoalTools(server: McpServer, api?: GoalApi | (() => Goal
 							workspace_gid,
 							name,
 							buildGoalCreateFields({ notes, htmlNotes: html_notes, dueOn: due_on, startOn: start_on }),
+							readOptions(params),
 						),
 					),
 				},
@@ -133,8 +135,9 @@ export function registerGoalTools(server: McpServer, api?: GoalApi | (() => Goal
 			clear_due_on: z.boolean().optional().describe('Clear the due date'),
 			start_on: z.string().optional().describe('Start date (YYYY-MM-DD); Asana requires an accompanying due date'),
 			clear_start_on: z.boolean().optional().describe('Clear the start date'),
+			...readParams,
 		},
-		async ({ goal_gid, name, notes, html_notes, due_on, clear_due_on, start_on, clear_start_on }) => ({
+		async ({ goal_gid, name, notes, html_notes, due_on, clear_due_on, start_on, clear_start_on, ...params }) => ({
 			content: [
 				{
 					type: 'text',
@@ -150,6 +153,7 @@ export function registerGoalTools(server: McpServer, api?: GoalApi | (() => Goal
 								startOn: start_on,
 								clearStartOn: clear_start_on,
 							}),
+							readOptions(params),
 						),
 					),
 				},
@@ -179,6 +183,7 @@ export function registerGoalTools(server: McpServer, api?: GoalApi | (() => Goal
 			target_number_value: z.number().optional().describe('Target value'),
 			current_number_value: z.number().optional().describe('Current value'),
 			progress_source: z.string().optional().describe('Where progress comes from, such as manual'),
+			...readParams,
 		},
 		async ({
 			goal_gid,
@@ -189,22 +194,27 @@ export function registerGoalTools(server: McpServer, api?: GoalApi | (() => Goal
 			target_number_value,
 			current_number_value,
 			progress_source,
+			...params
 		}) => ({
 			content: [
 				{
 					type: 'text',
 					text: JSON.stringify(
-						await resolveGoalApi(api).setGoalMetric(goal_gid, {
-							...(unit !== undefined && { unit }),
-							...(precision !== undefined && { precision }),
-							...(currency_code !== undefined && { currencyCode: currency_code }),
-							...(initial_number_value !== undefined && { initialNumberValue: initial_number_value }),
-							...(target_number_value !== undefined && { targetNumberValue: target_number_value }),
-							...(current_number_value !== undefined && { currentNumberValue: current_number_value }),
-							...(progress_source !== undefined && {
-								progressSource: progress_source as GoalMetricInput['progressSource'],
-							}),
-						}),
+						await resolveGoalApi(api).setGoalMetric(
+							goal_gid,
+							{
+								...(unit !== undefined && { unit }),
+								...(precision !== undefined && { precision }),
+								...(currency_code !== undefined && { currencyCode: currency_code }),
+								...(initial_number_value !== undefined && { initialNumberValue: initial_number_value }),
+								...(target_number_value !== undefined && { targetNumberValue: target_number_value }),
+								...(current_number_value !== undefined && { currentNumberValue: current_number_value }),
+								...(progress_source !== undefined && {
+									progressSource: progress_source as GoalMetricInput['progressSource'],
+								}),
+							},
+							readOptions(params),
+						),
 					),
 				},
 			],
@@ -217,12 +227,15 @@ export function registerGoalTools(server: McpServer, api?: GoalApi | (() => Goal
 		{
 			goal_gid: z.string().describe('Goal GID'),
 			current_number_value: z.number().describe('Current value'),
+			...readParams,
 		},
-		async ({ goal_gid, current_number_value }) => ({
+		async ({ goal_gid, current_number_value, ...params }) => ({
 			content: [
 				{
 					type: 'text',
-					text: JSON.stringify(await resolveGoalApi(api).setGoalMetricCurrentValue(goal_gid, current_number_value)),
+					text: JSON.stringify(
+						await resolveGoalApi(api).setGoalMetricCurrentValue(goal_gid, current_number_value, readOptions(params)),
+					),
 				},
 			],
 		}),
@@ -237,17 +250,23 @@ export function registerGoalTools(server: McpServer, api?: GoalApi | (() => Goal
 			contribution_weight: z.number().min(0).max(1).optional().describe("Weight in the goal's progress, 0 to 1"),
 			insert_before: z.string().optional().describe('Place it before this supporting resource GID'),
 			insert_after: z.string().optional().describe('Place it after this supporting resource GID'),
+			...readParams,
 		},
-		async ({ goal_gid, supporting_resource_gid, contribution_weight, insert_before, insert_after }) => ({
+		async ({ goal_gid, supporting_resource_gid, contribution_weight, insert_before, insert_after, ...params }) => ({
 			content: [
 				{
 					type: 'text',
 					text: JSON.stringify(
-						await resolveGoalApi(api).addSupportingRelationship(goal_gid, supporting_resource_gid, {
-							...(contribution_weight !== undefined && { contributionWeight: contribution_weight }),
-							...(insert_before !== undefined && { insertBefore: insert_before }),
-							...(insert_after !== undefined && { insertAfter: insert_after }),
-						}),
+						await resolveGoalApi(api).addSupportingRelationship(
+							goal_gid,
+							supporting_resource_gid,
+							{
+								...(contribution_weight !== undefined && { contributionWeight: contribution_weight }),
+								...(insert_before !== undefined && { insertBefore: insert_before }),
+								...(insert_after !== undefined && { insertAfter: insert_after }),
+							},
+							readOptions(params),
+						),
 					),
 				},
 			],

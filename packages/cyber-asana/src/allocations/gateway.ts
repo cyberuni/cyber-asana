@@ -44,8 +44,8 @@ export type AllocationUpdateFields = Partial<Omit<AllocationCreateFields, 'assig
 export type AllocationGateway = {
 	listAllocations(opts?: AllocationListOptions): Promise<ListResult<Allocation>>
 	getAllocation(allocationGid: string, opts?: ReadOptions): Promise<Allocation>
-	createAllocation(fields: AllocationCreateFields): Promise<Allocation>
-	updateAllocation(allocationGid: string, fields: AllocationUpdateFields): Promise<Allocation>
+	createAllocation(fields: AllocationCreateFields, opts?: ReadOptions): Promise<Allocation>
+	updateAllocation(allocationGid: string, fields: AllocationUpdateFields, opts?: ReadOptions): Promise<Allocation>
 	deleteAllocation(allocationGid: string): Promise<void>
 }
 
@@ -70,12 +70,12 @@ export function createAsanaAllocationGateway(client: Asana.ApiClient): Allocatio
 			const res = await allocationsApi.getAllocation(allocationGid, toAsanaReadOptions(opts))
 			return res.data
 		},
-		async createAllocation(fields) {
-			const res = await allocationsApi.createAllocation({ data: fields }, {})
+		async createAllocation(fields, opts) {
+			const res = await allocationsApi.createAllocation({ data: fields }, toAsanaReadOptions(opts))
 			return res.data
 		},
-		async updateAllocation(allocationGid, fields) {
-			const res = await allocationsApi.updateAllocation({ data: fields }, allocationGid, {})
+		async updateAllocation(allocationGid, fields, opts) {
+			const res = await allocationsApi.updateAllocation({ data: fields }, allocationGid, toAsanaReadOptions(opts))
 			return res.data
 		},
 		async deleteAllocation(allocationGid) {

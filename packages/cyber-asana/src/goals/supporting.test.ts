@@ -36,7 +36,7 @@ describe('goal supporting relationships', () => {
 		await api.addSupportingRelationship('g1', 'p1', { insertBefore: 'x' })
 		await api.removeSupportingRelationship('g1', 'p1')
 
-		expect(gateway.addSupportingRelationship).toHaveBeenCalledWith('g1', 'p1', { insertBefore: 'x' })
+		expect(gateway.addSupportingRelationship).toHaveBeenCalledWith('g1', 'p1', { insertBefore: 'x' }, undefined)
 		expect(gateway.removeSupportingRelationship).toHaveBeenCalledWith('g1', 'p1')
 	})
 
@@ -53,7 +53,7 @@ describe('goal supporting relationships', () => {
 		})
 		await program.parseAsync(['node', 't', 'goal', 'supporting', 'remove', 'g1', 'p1'], { from: 'node' })
 
-		expect(addSupportingRelationship).toHaveBeenCalledWith('g1', 'p1', { contributionWeight: 0.25 })
+		expect(addSupportingRelationship).toHaveBeenCalledWith('g1', 'p1', { contributionWeight: 0.25 }, undefined)
 		expect(removeSupportingRelationship).toHaveBeenCalledWith('g1', 'p1')
 		expect(log.mock.calls.map((c) => String(c[0])).join('\n')).toContain('Removed supporting resource p1 from goal g1')
 	})
@@ -74,7 +74,7 @@ describe('goal supporting relationships', () => {
 		})
 		await handlers.get('asana_goal_supporting_remove')?.({ goal_gid: 'g1', supporting_resource_gid: 'p1' })
 
-		expect(api.addSupportingRelationship).toHaveBeenCalledWith('g1', 'p1', { contributionWeight: 1 })
+		expect(api.addSupportingRelationship).toHaveBeenCalledWith('g1', 'p1', { contributionWeight: 1 }, undefined)
 		expect(api.removeSupportingRelationship).toHaveBeenCalledWith('g1', 'p1')
 		expect(JSON.parse(added.content[0].text)).toEqual({ gid: 'r1' })
 	})

@@ -34,8 +34,8 @@ describe('goal metrics', () => {
 
 		expect(await api.setGoalMetric('g1', { unit: 'none' })).toBe(metric)
 		expect(await api.setGoalMetricCurrentValue('g1', 3)).toBe(metric)
-		expect(setGoalMetric).toHaveBeenCalledWith('g1', { unit: 'none' })
-		expect(setGoalMetricCurrentValue).toHaveBeenCalledWith('g1', 3)
+		expect(setGoalMetric).toHaveBeenCalledWith('g1', { unit: 'none' }, undefined)
+		expect(setGoalMetricCurrentValue).toHaveBeenCalledWith('g1', 3, undefined)
 	})
 
 	it('goal metric set and set-current forward typed options', async () => {
@@ -65,13 +65,17 @@ describe('goal metrics', () => {
 		)
 		await program.parseAsync(['node', 't', 'goal', 'metric', 'set-current', 'g1', '42.5'], { from: 'node' })
 
-		expect(setGoalMetric).toHaveBeenCalledWith('g1', {
-			unit: 'percentage',
-			initialNumberValue: 0,
-			targetNumberValue: 100,
-			precision: 1,
-		})
-		expect(setGoalMetricCurrentValue).toHaveBeenCalledWith('g1', 42.5)
+		expect(setGoalMetric).toHaveBeenCalledWith(
+			'g1',
+			{
+				unit: 'percentage',
+				initialNumberValue: 0,
+				targetNumberValue: 100,
+				precision: 1,
+			},
+			undefined,
+		)
+		expect(setGoalMetricCurrentValue).toHaveBeenCalledWith('g1', 42.5, undefined)
 		expect(log).toHaveBeenCalled()
 	})
 
@@ -102,13 +106,17 @@ describe('goal metrics', () => {
 			current_number_value: 2,
 		})
 
-		expect(setGoalMetric).toHaveBeenCalledWith('g1', {
-			unit: 'currency',
-			currencyCode: 'EUR',
-			initialNumberValue: 1,
-			targetNumberValue: 5,
-		})
-		expect(setGoalMetricCurrentValue).toHaveBeenCalledWith('g1', 2)
+		expect(setGoalMetric).toHaveBeenCalledWith(
+			'g1',
+			{
+				unit: 'currency',
+				currencyCode: 'EUR',
+				initialNumberValue: 1,
+				targetNumberValue: 5,
+			},
+			undefined,
+		)
+		expect(setGoalMetricCurrentValue).toHaveBeenCalledWith('g1', 2, undefined)
 		expect(JSON.parse(res.content[0].text)).toEqual(metric)
 	})
 })

@@ -20,11 +20,11 @@ export function createTableApi(gateway: TableGateway) {
 		getTable(tableGid: string, opts?: ReadOptions) {
 			return gateway.getTable(tableGid, opts)
 		},
-		createTable(workspaceGid: string, name: string) {
-			return gateway.createTable(workspaceGid, name)
+		createTable(workspaceGid: string, name: string, opts?: ReadOptions) {
+			return gateway.createTable(workspaceGid, name, opts)
 		},
-		updateTable(tableGid: string, fields: UpdateTableFields) {
-			return gateway.updateTable(tableGid, fields)
+		updateTable(tableGid: string, fields: UpdateTableFields, opts?: ReadOptions) {
+			return gateway.updateTable(tableGid, fields, opts)
 		},
 		deleteTable(tableGid: string) {
 			return gateway.deleteTable(tableGid)
@@ -32,8 +32,8 @@ export function createTableApi(gateway: TableGateway) {
 		listTableFields(tableGid: string, opts?: PaginationOptions) {
 			return gateway.listTableFields(tableGid, opts)
 		},
-		addTableField(tableGid: string, customFieldGid: string, opts?: AddTableFieldOptions) {
-			return gateway.addTableField(tableGid, customFieldGid, opts)
+		addTableField(tableGid: string, customFieldGid: string, opts?: AddTableFieldOptions, readOpts?: ReadOptions) {
+			return gateway.addTableField(tableGid, customFieldGid, opts, readOpts)
 		},
 		removeTableField(tableGid: string, customFieldGid: string) {
 			return gateway.removeTableField(tableGid, customFieldGid)

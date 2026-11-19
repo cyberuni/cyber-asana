@@ -27,14 +27,17 @@ export function createAllocationApi(gateway: AllocationGateway, deps: Allocation
 		getAllocation(allocationGid: string, opts?: ReadOptions) {
 			return gateway.getAllocation(allocationGid, opts)
 		},
-		async createAllocation(fields: AllocationCreateFields) {
-			return gateway.createAllocation({
-				...fields,
-				assignee: (await resolveAssignee(fields.assignee)) ?? fields.assignee,
-			})
+		async createAllocation(fields: AllocationCreateFields, opts?: ReadOptions) {
+			return gateway.createAllocation(
+				{
+					...fields,
+					assignee: (await resolveAssignee(fields.assignee)) ?? fields.assignee,
+				},
+				opts,
+			)
 		},
-		updateAllocation(allocationGid: string, fields: AllocationUpdateFields) {
-			return gateway.updateAllocation(allocationGid, fields)
+		updateAllocation(allocationGid: string, fields: AllocationUpdateFields, opts?: ReadOptions) {
+			return gateway.updateAllocation(allocationGid, fields, opts)
 		},
 		deleteAllocation(allocationGid: string) {
 			return gateway.deleteAllocation(allocationGid)

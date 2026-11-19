@@ -99,8 +99,8 @@ describe('time-tracking/api', () => {
 		expect(gateway.listTimeTrackingEntries).toHaveBeenCalledWith({ task: 't1' }, { limit: 5 })
 		expect(gateway.listTimeTrackingEntriesForTask).toHaveBeenCalledWith('t1', { limit: 5 })
 		expect(gateway.getTimeTrackingEntry).toHaveBeenCalledWith('e1', { optFields: 'gid' })
-		expect(gateway.createTimeTrackingEntry).toHaveBeenCalledWith('t1', { durationMinutes: 5 })
-		expect(gateway.updateTimeTrackingEntry).toHaveBeenCalledWith('e1', { durationMinutes: 6 })
+		expect(gateway.createTimeTrackingEntry).toHaveBeenCalledWith('t1', { durationMinutes: 5 }, undefined)
+		expect(gateway.updateTimeTrackingEntry).toHaveBeenCalledWith('e1', { durationMinutes: 6 }, undefined)
 		expect(gateway.deleteTimeTrackingEntry).toHaveBeenCalledWith('e1')
 	})
 })
@@ -124,8 +124,13 @@ describe('time-tracking/cli', () => {
 		await run({ createTimeTrackingEntry }, 'create', 't1', '--minutes', '90', '--entered-on', '2026-11-17')
 		await run({ createTimeTrackingEntry }, 'create', 't1', '--hours', '1.5')
 
-		expect(createTimeTrackingEntry).toHaveBeenNthCalledWith(1, 't1', { durationMinutes: 90, enteredOn: '2026-11-17' })
-		expect(createTimeTrackingEntry).toHaveBeenNthCalledWith(2, 't1', { durationMinutes: 90 })
+		expect(createTimeTrackingEntry).toHaveBeenNthCalledWith(
+			1,
+			't1',
+			{ durationMinutes: 90, enteredOn: '2026-11-17' },
+			undefined,
+		)
+		expect(createTimeTrackingEntry).toHaveBeenNthCalledWith(2, 't1', { durationMinutes: 90 }, undefined)
 	})
 
 	it('create rejects giving both --hours and --minutes, or neither', async () => {
@@ -144,7 +149,7 @@ describe('time-tracking/cli', () => {
 
 		await run({ updateTimeTrackingEntry }, 'update', 'e1', '--minutes', '45')
 
-		expect(updateTimeTrackingEntry).toHaveBeenCalledWith('e1', { durationMinutes: 45 })
+		expect(updateTimeTrackingEntry).toHaveBeenCalledWith('e1', { durationMinutes: 45 }, undefined)
 	})
 
 	it('list passes filters and names the empty state', async () => {
@@ -206,8 +211,12 @@ describe('time-tracking/mcp', () => {
 		await handlers.get('asana_time_entry_get')?.({ time_entry_gid: 'e1' })
 		const del = await handlers.get('asana_time_entry_delete')?.({ time_entry_gid: 'e1' })
 
-		expect(api.createTimeTrackingEntry).toHaveBeenCalledWith('t1', { durationMinutes: 60, enteredOn: '2026-11-17' })
-		expect(api.updateTimeTrackingEntry).toHaveBeenCalledWith('e1', { durationMinutes: 30 })
+		expect(api.createTimeTrackingEntry).toHaveBeenCalledWith(
+			't1',
+			{ durationMinutes: 60, enteredOn: '2026-11-17' },
+			undefined,
+		)
+		expect(api.updateTimeTrackingEntry).toHaveBeenCalledWith('e1', { durationMinutes: 30 }, undefined)
 		expect(api.listTimeTrackingEntries).toHaveBeenCalledWith(
 			{ user: 'u1', enteredOnStart: '2026-11-01' },
 			expect.objectContaining({ limit: 5 }),

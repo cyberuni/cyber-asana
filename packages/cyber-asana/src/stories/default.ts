@@ -13,16 +13,16 @@ export async function listStories(taskGid: string, opts?: PaginationOptions) {
 	return defaultStoryApi().listStories(taskGid, opts)
 }
 
-export async function createStory(taskGid: string, fields: StoryCreateFields) {
-	return defaultStoryApi().createStory(taskGid, fields)
+export async function createStory(taskGid: string, fields: StoryCreateFields, opts?: ReadOptions) {
+	return defaultStoryApi().createStory(taskGid, fields, opts)
 }
 
 export async function getStory(storyGid: string, opts?: ReadOptions) {
 	return defaultStoryApi().getStory(storyGid, opts)
 }
 
-export async function updateStory(storyGid: string, fields: StoryUpdateFields) {
-	return defaultStoryApi().updateStory(storyGid, fields)
+export async function updateStory(storyGid: string, fields: StoryUpdateFields, opts?: ReadOptions) {
+	return defaultStoryApi().updateStory(storyGid, fields, opts)
 }
 
 export async function deleteStory(storyGid: string) {
@@ -37,6 +37,6 @@ export async function listGoalStories(goalGid: string, opts?: PaginationOptions)
 	return defaultStoryApi().listGoalStories(goalGid, opts)
 }
 
-export async function createGoalStory(goalGid: string, fields: StoryCreateFields) {
-	return defaultStoryApi().createGoalStory(goalGid, fields)
+export async function createGoalStory(goalGid: string, fields: StoryCreateFields, opts?: ReadOptions) {
+	return defaultStoryApi().createGoalStory(goalGid, fields, opts)
 }

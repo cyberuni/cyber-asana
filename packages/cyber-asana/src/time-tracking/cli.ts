@@ -65,13 +65,14 @@ function parsePositive(name: string) {
 	}
 }
 
-type WriteOpts = { hours?: number; minutes?: number; enteredOn?: string }
+type WriteOpts = { hours?: number; minutes?: number; enteredOn?: string; optFields?: string }
 
 function addWriteOptions<T extends Command>(cmd: T) {
 	return cmd
 		.option('--hours <n>', 'Time spent, in hours (may be fractional)', parsePositive('--hours'))
 		.option('--minutes <n>', 'Time spent, in minutes', parsePositive('--minutes'))
 		.option('--entered-on <date>', 'Date the time was spent, YYYY-MM-DD (default: today)')
+		.option('--opt-fields <fields>', 'Comma-separated optional Asana fields to include')
 }
 
 function fieldsFrom(opts: WriteOpts): TimeTrackingEntryFields {
@@ -185,7 +186,11 @@ export function timeTrackingEntryCommand(api?: TimeTrackingEntryApi | (() => Tim
 		async (taskGid: string, opts: WriteOpts) => {
 			const fields = fieldsFrom(opts)
 			if (fields.durationMinutes === undefined) throw new Error('Give the time spent with --hours or --minutes')
-			const data = await resolveTimeTrackingEntryApi(api).createTimeTrackingEntry(taskGid, fields)
+			const data = await resolveTimeTrackingEntryApi(api).createTimeTrackingEntry(
+				taskGid,
+				fields,
+				readOptionsFromCli(opts),
+			)
 			output(data, () => {
 				fmtEntry(data as Entry)
 				printNextSteps([`cyber-asana time-entry for-task ${taskGid} — list the task's entries`])
@@ -199,7 +204,7 @@ export function timeTrackingEntryCommand(api?: TimeTrackingEntryApi | (() => Tim
 			if (Object.keys(fields).length === 0) {
 				throw new Error('Nothing to update: give at least one of --hours, --minutes, --entered-on')
 			}
-			const data = await resolveTimeTrackingEntryApi(api).updateTimeTrackingEntry(gid, fields)
+			const data = await resolveTimeTrackingEntryApi(api).updateTimeTrackingEntry(gid, fields, readOptionsFromCli(opts))
 			output(data, () => fmtEntry(data as Entry))
 		},
 	)

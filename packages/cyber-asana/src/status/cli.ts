@@ -212,7 +212,8 @@ export function statusCommand(api?: StatusApi | (() => StatusApi)) {
 			)
 			.option('--text <text>', 'Status update body as plain text')
 			.option('--html-text <html>', 'Status update body as Asana rich text HTML')
-			.option('--title <title>', 'Status update title'),
+			.option('--title <title>', 'Status update title')
+			.option('--opt-fields <fields>', 'Comma-separated optional Asana fields to include'),
 		'parent',
 		'Parent GID (project, portfolio, or goal)',
 	).action(
@@ -224,6 +225,7 @@ export function statusCommand(api?: StatusApi | (() => StatusApi)) {
 			text?: string
 			htmlText?: string
 			title?: string
+			optFields?: string
 		}) => {
 			const fields = {
 				status_type: opts.statusType,
@@ -232,8 +234,12 @@ export function statusCommand(api?: StatusApi | (() => StatusApi)) {
 				...(opts.title !== undefined && { title: opts.title }),
 			}
 			const parent = requiredGid(opts, 'parent', 'Parent GID')
-			const data = await (opts.parentType
-				? resolveStatusApi(api).createStatus(parent, fields, { parentType: opts.parentType })
+			const createOpts = {
+				...(opts.parentType && { parentType: opts.parentType }),
+				...readOptionsFromCli(opts),
+			}
+			const data = await (Object.keys(createOpts).length > 0
+				? resolveStatusApi(api).createStatus(parent, fields, createOpts)
 				: resolveStatusApi(api).createStatus(parent, fields))
 			output(data, () => fmtStatus(data))
 		},

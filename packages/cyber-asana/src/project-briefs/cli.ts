@@ -22,10 +22,10 @@ function resolveProjectBriefApi(api?: ProjectBriefApi | (() => ProjectBriefApi))
 	return api ?? { getProjectBrief, createProjectBrief, updateProjectBrief, deleteProjectBrief }
 }
 
-type WriteOpts = { title?: string; text?: string; htmlText?: string }
+type WriteOpts = { title?: string; text?: string; htmlText?: string; optFields?: string }
 
 function addWriteOptions<T extends Command>(cmd: T) {
-	return cmd
+	return addReadOptions(cmd)
 		.option('--title <title>', 'Brief title')
 		.option('--text <text>', 'Brief body as plain text')
 		.option(
@@ -62,7 +62,11 @@ export function projectBriefCommand(api?: ProjectBriefApi | (() => ProjectBriefA
 		),
 	).action(async (opts: WriteOpts & { project?: string; projectGid?: string }) => {
 		const projectGid = requiredGid(opts, 'project', 'Project GID')
-		const data = await resolveProjectBriefApi(api).createProjectBrief(projectGid, fieldsFrom(opts))
+		const data = await resolveProjectBriefApi(api).createProjectBrief(
+			projectGid,
+			fieldsFrom(opts),
+			readOptionsFromCli(opts),
+		)
 		output(data, () => {
 			fmtBrief(data)
 			printNextSteps([`cyber-asana project-brief get ${data.gid} — read the brief back`])
@@ -75,7 +79,7 @@ export function projectBriefCommand(api?: ProjectBriefApi | (() => ProjectBriefA
 			if (Object.keys(fields).length === 0) {
 				throw new Error('Nothing to update: give at least one of --title, --text, --html-text')
 			}
-			const data = await resolveProjectBriefApi(api).updateProjectBrief(gid, fields)
+			const data = await resolveProjectBriefApi(api).updateProjectBrief(gid, fields, readOptionsFromCli(opts))
 			output(data, () => fmtBrief(data))
 		},
 	)

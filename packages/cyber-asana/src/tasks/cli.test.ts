@@ -157,14 +157,19 @@ describe('tasks/cli', () => {
 			{ from: 'node' },
 		)
 
-		expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', {
-			html_notes: '<body>Hi</body>',
-			projects: ['111', '222'],
-			followers: ['u1', 'u2'],
-			parent: 'parent1',
-			resource_subtype: 'milestone',
-			custom_fields: { cf1: 'json', cf2: 'value' },
-		})
+		expect(createTaskMock).toHaveBeenCalledWith(
+			'ws1',
+			'Task',
+			{
+				html_notes: '<body>Hi</body>',
+				projects: ['111', '222'],
+				followers: ['u1', 'u2'],
+				parent: 'parent1',
+				resource_subtype: 'milestone',
+				custom_fields: { cf1: 'json', cf2: 'value' },
+			},
+			undefined,
+		)
 	})
 
 	it('task update normalizes html notes, parent, and custom fields', async () => {
@@ -190,12 +195,16 @@ describe('tasks/cli', () => {
 			{ from: 'node' },
 		)
 
-		expect(updateTaskMock).toHaveBeenCalledWith('123', {
-			html_notes: '<body>Updated</body>',
-			parent: 'parent1',
-			resource_subtype: 'milestone',
-			custom_fields: { cf2: 'value' },
-		})
+		expect(updateTaskMock).toHaveBeenCalledWith(
+			'123',
+			{
+				html_notes: '<body>Updated</body>',
+				parent: 'parent1',
+				resource_subtype: 'milestone',
+				custom_fields: { cf2: 'value' },
+			},
+			undefined,
+		)
 	})
 
 	it('task update --parent --insert-after sends the position with the parent', async () => {
@@ -206,7 +215,7 @@ describe('tasks/cli', () => {
 			from: 'node',
 		})
 
-		expect(updateTaskMock).toHaveBeenCalledWith('123', { parent: 'p1', insert_after: 's1' })
+		expect(updateTaskMock).toHaveBeenCalledWith('123', { parent: 'p1', insert_after: 's1' }, undefined)
 	})
 
 	it('task update --insert-before without --parent is rejected before any call', async () => {
@@ -224,7 +233,7 @@ describe('tasks/cli', () => {
 
 		await program.parseAsync(['node', 'test', 'task', 'reorder', '123', '--insert-before', 's1'], { from: 'node' })
 
-		expect(reorderSubtaskMock).toHaveBeenCalledWith('123', { insertBefore: 's1' })
+		expect(reorderSubtaskMock).toHaveBeenCalledWith('123', { insertBefore: 's1' }, undefined)
 	})
 
 	it('task create --custom-type sends custom_type', async () => {
@@ -236,7 +245,7 @@ describe('tasks/cli', () => {
 			{ from: 'node' },
 		)
 
-		expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { custom_type: 'ct1' })
+		expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { custom_type: 'ct1' }, undefined)
 	})
 
 	it('task update --custom-type sends custom_type', async () => {
@@ -245,7 +254,7 @@ describe('tasks/cli', () => {
 
 		await program.parseAsync(['node', 'test', 'task', 'update', '123', '--custom-type', 'ct1'], { from: 'node' })
 
-		expect(updateTaskMock).toHaveBeenCalledWith('123', { custom_type: 'ct1' })
+		expect(updateTaskMock).toHaveBeenCalledWith('123', { custom_type: 'ct1' }, undefined)
 	})
 
 	it('task update --no-completed sends completed false', async () => {
@@ -254,7 +263,7 @@ describe('tasks/cli', () => {
 
 		await program.parseAsync(['node', 'test', 'task', 'update', '123', '--no-completed'], { from: 'node' })
 
-		expect(updateTaskMock).toHaveBeenCalledWith('123', { completed: false })
+		expect(updateTaskMock).toHaveBeenCalledWith('123', { completed: false }, undefined)
 	})
 
 	it('task update --completed sends completed true', async () => {
@@ -263,7 +272,7 @@ describe('tasks/cli', () => {
 
 		await program.parseAsync(['node', 'test', 'task', 'update', '123', '--completed'], { from: 'node' })
 
-		expect(updateTaskMock).toHaveBeenCalledWith('123', { completed: true })
+		expect(updateTaskMock).toHaveBeenCalledWith('123', { completed: true }, undefined)
 	})
 
 	it('task update without a completion flag leaves completed untouched', async () => {
@@ -272,7 +281,7 @@ describe('tasks/cli', () => {
 
 		await program.parseAsync(['node', 'test', 'task', 'update', '123', '--name', 'Renamed'], { from: 'node' })
 
-		expect(updateTaskMock).toHaveBeenCalledWith('123', { name: 'Renamed' })
+		expect(updateTaskMock).toHaveBeenCalledWith('123', { name: 'Renamed' }, undefined)
 	})
 
 	it('task update maps clear due flag to due_on null', async () => {
@@ -281,9 +290,13 @@ describe('tasks/cli', () => {
 
 		await program.parseAsync(['node', 'test', 'task', 'update', '123', '--clear-due-on'], { from: 'node' })
 
-		expect(updateTaskMock).toHaveBeenCalledWith('123', {
-			due_on: null,
-		})
+		expect(updateTaskMock).toHaveBeenCalledWith(
+			'123',
+			{
+				due_on: null,
+			},
+			undefined,
+		)
 	})
 
 	it('task create sets start_on alongside due_on', async () => {
@@ -307,10 +320,15 @@ describe('tasks/cli', () => {
 			{ from: 'node' },
 		)
 
-		expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', {
-			start_on: '2026-09-01',
-			due_on: '2026-10-31',
-		})
+		expect(createTaskMock).toHaveBeenCalledWith(
+			'ws1',
+			'Task',
+			{
+				start_on: '2026-09-01',
+				due_on: '2026-10-31',
+			},
+			undefined,
+		)
 	})
 
 	it('task create sets due_at and start_at', async () => {
@@ -334,10 +352,15 @@ describe('tasks/cli', () => {
 			{ from: 'node' },
 		)
 
-		expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', {
-			start_at: '2026-09-01T09:00:00.000Z',
-			due_at: '2026-10-31T17:00:00.000Z',
-		})
+		expect(createTaskMock).toHaveBeenCalledWith(
+			'ws1',
+			'Task',
+			{
+				start_at: '2026-09-01T09:00:00.000Z',
+				due_at: '2026-10-31T17:00:00.000Z',
+			},
+			undefined,
+		)
 	})
 
 	it('task update maps the clear date-time flags to null', async () => {
@@ -348,10 +371,14 @@ describe('tasks/cli', () => {
 			from: 'node',
 		})
 
-		expect(updateTaskMock).toHaveBeenCalledWith('123', {
-			due_at: null,
-			start_at: null,
-		})
+		expect(updateTaskMock).toHaveBeenCalledWith(
+			'123',
+			{
+				due_at: null,
+				start_at: null,
+			},
+			undefined,
+		)
 	})
 
 	it('task update maps clear assignee flag to assignee null', async () => {
@@ -360,9 +387,13 @@ describe('tasks/cli', () => {
 
 		await program.parseAsync(['node', 'test', 'task', 'update', '123', '--clear-assignee'], { from: 'node' })
 
-		expect(updateTaskMock).toHaveBeenCalledWith('123', {
-			assignee: null,
-		})
+		expect(updateTaskMock).toHaveBeenCalledWith(
+			'123',
+			{
+				assignee: null,
+			},
+			undefined,
+		)
 	})
 
 	it('task create marks the new task complete', async () => {
@@ -373,7 +404,7 @@ describe('tasks/cli', () => {
 			from: 'node',
 		})
 
-		expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { completed: true })
+		expect(createTaskMock).toHaveBeenCalledWith('ws1', 'Task', { completed: true }, undefined)
 	})
 
 	it('task subtask create forwards the same write fields as task create', async () => {
@@ -405,14 +436,19 @@ describe('tasks/cli', () => {
 			{ from: 'node' },
 		)
 
-		expect(createSubtaskMock).toHaveBeenCalledWith('123', 'Sub Task', {
-			html_notes: '<body>Sub</body>',
-			start_on: '2026-05-01',
-			due_on: '2026-06-01',
-			resource_subtype: 'milestone',
-			custom_fields: { cf1: 'value' },
-			followers: ['u1'],
-		})
+		expect(createSubtaskMock).toHaveBeenCalledWith(
+			'123',
+			'Sub Task',
+			{
+				html_notes: '<body>Sub</body>',
+				start_on: '2026-05-01',
+				due_on: '2026-06-01',
+				resource_subtype: 'milestone',
+				custom_fields: { cf1: 'value' },
+				followers: ['u1'],
+			},
+			undefined,
+		)
 	})
 
 	it('task update sets start_on alongside due_on', async () => {
@@ -424,10 +460,14 @@ describe('tasks/cli', () => {
 			{ from: 'node' },
 		)
 
-		expect(updateTaskMock).toHaveBeenCalledWith('123', {
-			start_on: '2026-09-01',
-			due_on: '2026-10-31',
-		})
+		expect(updateTaskMock).toHaveBeenCalledWith(
+			'123',
+			{
+				start_on: '2026-09-01',
+				due_on: '2026-10-31',
+			},
+			undefined,
+		)
 	})
 
 	it('task update maps clear start flag to start_on null', async () => {
@@ -436,9 +476,13 @@ describe('tasks/cli', () => {
 
 		await program.parseAsync(['node', 'test', 'task', 'update', '123', '--clear-start-on'], { from: 'node' })
 
-		expect(updateTaskMock).toHaveBeenCalledWith('123', {
-			start_on: null,
-		})
+		expect(updateTaskMock).toHaveBeenCalledWith(
+			'123',
+			{
+				start_on: null,
+			},
+			undefined,
+		)
 	})
 
 	it('task follower add calls follower API helper', async () => {
@@ -792,7 +836,7 @@ describe('tasks/cli', () => {
 
 		await program.parseAsync(['node', 'test', 'task', 'create', 'New Task', '--workspace-gid', 'ws1'], { from: 'node' })
 
-		expect(injectedCreateTask).toHaveBeenCalledWith('ws1', 'New Task', {})
+		expect(injectedCreateTask).toHaveBeenCalledWith('ws1', 'New Task', {}, undefined)
 	})
 
 	// `--completed` / `--no-completed` (and `--subtask` / `--no-subtask`) are a
@@ -973,7 +1017,7 @@ describe('tasks/cli', () => {
 				},
 			)
 
-			expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ assignee: '100' }))
+			expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ assignee: '100' }), undefined)
 		})
 
 		it('task update --assignee <email> sends the registered GID', async () => {
@@ -985,7 +1029,7 @@ describe('tasks/cli', () => {
 				from: 'node',
 			})
 
-			expect(updateTaskMock).toHaveBeenCalledWith('t1', expect.objectContaining({ assignee: '100' }))
+			expect(updateTaskMock).toHaveBeenCalledWith('t1', expect.objectContaining({ assignee: '100' }), undefined)
 		})
 
 		it('task subtask create --assignee <name> sends the registered GID', async () => {
@@ -1000,7 +1044,12 @@ describe('tasks/cli', () => {
 				},
 			)
 
-			expect(createSubtaskMock).toHaveBeenCalledWith('t1', 'Sub', expect.objectContaining({ assignee: '100' }))
+			expect(createSubtaskMock).toHaveBeenCalledWith(
+				't1',
+				'Sub',
+				expect.objectContaining({ assignee: '100' }),
+				undefined,
+			)
 		})
 
 		it('task create --assignee <unknown> fails before calling Asana', async () => {
@@ -1037,7 +1086,12 @@ describe('tasks/cli', () => {
 					['node', 'test', 'task', 'create', 'Task', '--workspace-gid', 'w1', '--assignee', 'bobby'],
 					{ from: 'node' },
 				)
-				expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ assignee: '200' }))
+				expect(createTaskMock).toHaveBeenCalledWith(
+					'w1',
+					'Task',
+					expect.objectContaining({ assignee: '200' }),
+					undefined,
+				)
 			} finally {
 				if (previousGlobal === undefined) delete process.env.CYBER_ASANA_GLOBAL_CONFIG
 				else process.env.CYBER_ASANA_GLOBAL_CONFIG = previousGlobal
@@ -1095,7 +1149,12 @@ describe('tasks/cli', () => {
 			)
 
 			expect(listTagsMock).not.toHaveBeenCalled()
-			expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ tags: ['900', '901'] }))
+			expect(createTaskMock).toHaveBeenCalledWith(
+				'w1',
+				'Task',
+				expect.objectContaining({ tags: ['900', '901'] }),
+				undefined,
+			)
 		})
 
 		it('resolves a --tag name against the workspace', async () => {
@@ -1109,7 +1168,7 @@ describe('tasks/cli', () => {
 				{ from: 'node' },
 			)
 
-			expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ tags: ['900'] }))
+			expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ tags: ['900'] }), undefined)
 		})
 
 		it('applies conventions.default_tags when --tag is not given', async () => {
@@ -1120,7 +1179,12 @@ describe('tasks/cli', () => {
 
 			await program.parseAsync(['node', 'test', 'task', 'create', 'Task', '--workspace-gid', 'w1'], { from: 'node' })
 
-			expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ tags: ['900', '901'] }))
+			expect(createTaskMock).toHaveBeenCalledWith(
+				'w1',
+				'Task',
+				expect.objectContaining({ tags: ['900', '901'] }),
+				undefined,
+			)
 		})
 
 		it('resolves a conventions.default_tags name against the workspace', async () => {
@@ -1132,7 +1196,7 @@ describe('tasks/cli', () => {
 
 			await program.parseAsync(['node', 'test', 'task', 'create', 'Task', '--workspace-gid', 'w1'], { from: 'node' })
 
-			expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ tags: ['900'] }))
+			expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ tags: ['900'] }), undefined)
 		})
 
 		it('lets --tag override conventions.default_tags', async () => {
@@ -1145,7 +1209,7 @@ describe('tasks/cli', () => {
 				from: 'node',
 			})
 
-			expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ tags: ['909'] }))
+			expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ tags: ['909'] }), undefined)
 		})
 
 		it('seeds notes from conventions.description_template when no notes are given', async () => {
@@ -1160,6 +1224,7 @@ describe('tasks/cli', () => {
 				'w1',
 				'Task',
 				expect.objectContaining({ notes: '## Problem\n\n## Plan' }),
+				undefined,
 			)
 		})
 
@@ -1175,6 +1240,7 @@ describe('tasks/cli', () => {
 				'w1',
 				'Task',
 				expect.objectContaining({ html_notes: '<body><h1>Problem</h1></body>' }),
+				undefined,
 			)
 		})
 
@@ -1188,7 +1254,7 @@ describe('tasks/cli', () => {
 				from: 'node',
 			})
 
-			expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ notes: 'Mine' }))
+			expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ notes: 'Mine' }), undefined)
 		})
 
 		it('uses the project marked default when --project is not given', async () => {
@@ -1201,7 +1267,12 @@ describe('tasks/cli', () => {
 
 			await program.parseAsync(['node', 'test', 'task', 'create', 'Task', '--workspace-gid', 'w1'], { from: 'node' })
 
-			expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ projects: ['p9'] }))
+			expect(createTaskMock).toHaveBeenCalledWith(
+				'w1',
+				'Task',
+				expect.objectContaining({ projects: ['p9'] }),
+				undefined,
+			)
 		})
 
 		it('resolves --project through the project registry', async () => {
@@ -1219,7 +1290,12 @@ describe('tasks/cli', () => {
 				},
 			)
 
-			expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ projects: ['p9'] }))
+			expect(createTaskMock).toHaveBeenCalledWith(
+				'w1',
+				'Task',
+				expect.objectContaining({ projects: ['p9'] }),
+				undefined,
+			)
 		})
 
 		it('sends --project-gid to Asana untouched, as the registry escape hatch', async () => {
@@ -1232,7 +1308,12 @@ describe('tasks/cli', () => {
 				{ from: 'node' },
 			)
 
-			expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ projects: ['unregistered'] }))
+			expect(createTaskMock).toHaveBeenCalledWith(
+				'w1',
+				'Task',
+				expect.objectContaining({ projects: ['unregistered'] }),
+				undefined,
+			)
 		})
 
 		it('uses defaults.assignee when --assignee is not given', async () => {
@@ -1247,7 +1328,7 @@ describe('tasks/cli', () => {
 
 			await program.parseAsync(['node', 'test', 'task', 'create', 'Task', '--workspace-gid', 'w1'], { from: 'node' })
 
-			expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ assignee: '100' }))
+			expect(createTaskMock).toHaveBeenCalledWith('w1', 'Task', expect.objectContaining({ assignee: '100' }), undefined)
 		})
 
 		it('leaves task update unassigned when only defaults.assignee is set', async () => {
@@ -1262,7 +1343,11 @@ describe('tasks/cli', () => {
 
 			await program.parseAsync(['node', 'test', 'task', 'update', 't1', '--name', 'Renamed'], { from: 'node' })
 
-			expect(updateTaskMock).toHaveBeenCalledWith('t1', expect.not.objectContaining({ assignee: expect.anything() }))
+			expect(updateTaskMock).toHaveBeenCalledWith(
+				't1',
+				expect.not.objectContaining({ assignee: expect.anything() }),
+				undefined,
+			)
 		})
 	})
 })

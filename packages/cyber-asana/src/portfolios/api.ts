@@ -23,11 +23,11 @@ export function createPortfolioApi(gateway: PortfolioGateway) {
 		getPortfolio(portfolioGid: string, opts?: ReadOptions) {
 			return gateway.getPortfolio(portfolioGid, opts)
 		},
-		createPortfolio(workspaceGid: string, name: string) {
-			return gateway.createPortfolio(workspaceGid, name)
+		createPortfolio(workspaceGid: string, name: string, opts?: ReadOptions) {
+			return gateway.createPortfolio(workspaceGid, name, opts)
 		},
-		updatePortfolio(portfolioGid: string, fields: { name?: string }) {
-			return gateway.updatePortfolio(portfolioGid, fields)
+		updatePortfolio(portfolioGid: string, fields: { name?: string }, opts?: ReadOptions) {
+			return gateway.updatePortfolio(portfolioGid, fields, opts)
 		},
 		deletePortfolio(portfolioGid: string) {
 			return gateway.deletePortfolio(portfolioGid)

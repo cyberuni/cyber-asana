@@ -69,11 +69,11 @@ export function createProjectApi(gateway: ProjectGateway, deps: ProjectDeps = {}
 		getProjectTaskCounts(projectGid: string, opts?: { optFields?: string }) {
 			return gateway.getProjectTaskCounts(projectGid, opts)
 		},
-		createProject(workspaceGid: string, name: string, opts?: CreateProjectFields) {
-			return gateway.createProject(workspaceGid, name, opts)
+		createProject(workspaceGid: string, name: string, opts?: CreateProjectFields, readOpts?: ReadOptions) {
+			return gateway.createProject(workspaceGid, name, opts, readOpts)
 		},
-		updateProject(projectGid: string, fields: UpdateProjectFields) {
-			return gateway.updateProject(projectGid, fields)
+		updateProject(projectGid: string, fields: UpdateProjectFields, opts?: ReadOptions) {
+			return gateway.updateProject(projectGid, fields, opts)
 		},
 		deleteProject(projectGid: string) {
 			return gateway.deleteProject(projectGid)

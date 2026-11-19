@@ -68,7 +68,7 @@ describe('createStatusApi', () => {
 		const result = await api.createStatus('proj1', { status_type: 'on_track', text: 'All good' })
 
 		expect(result).toEqual(mockStatus)
-		expect(mockCreateStatus).toHaveBeenCalledWith('proj1', { status_type: 'on_track', text: 'All good' })
+		expect(mockCreateStatus).toHaveBeenCalledWith('proj1', { status_type: 'on_track', text: 'All good' }, undefined)
 	})
 })
 

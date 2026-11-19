@@ -17,8 +17,8 @@ export type TagWriteFields = {
 export type TagGateway = {
 	listTags(workspaceGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.Tag>>
 	getTag(tagGid: string, opts?: ReadOptions): Promise<Asana.Tag>
-	createTag(workspaceGid: string, name: string, fields?: TagCreateFields): Promise<Asana.Tag>
-	updateTag(tagGid: string, fields: TagWriteFields): Promise<Asana.Tag>
+	createTag(workspaceGid: string, name: string, fields?: TagCreateFields, opts?: ReadOptions): Promise<Asana.Tag>
+	updateTag(tagGid: string, fields: TagWriteFields, opts?: ReadOptions): Promise<Asana.Tag>
 	deleteTag(tagGid: string): Promise<void>
 	listTagsForTask(taskGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.Tag>>
 	listTasksForTag(tagGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.Task>>
@@ -39,12 +39,16 @@ export function createAsanaTagGateway(client: Asana.ApiClient): TagGateway {
 			const res = await tagsApi.getTag(tagGid, toAsanaReadOptions(opts))
 			return res.data
 		},
-		async createTag(workspaceGid, name, fields) {
-			const res = await tagsApi.createTagForWorkspace({ data: { name, ...fields } }, workspaceGid)
+		async createTag(workspaceGid, name, fields, opts) {
+			const res = await tagsApi.createTagForWorkspace(
+				{ data: { name, ...fields } },
+				workspaceGid,
+				toAsanaReadOptions(opts),
+			)
 			return res.data
 		},
-		async updateTag(tagGid, fields) {
-			const res = await tagsApi.updateTag({ data: fields }, tagGid, {})
+		async updateTag(tagGid, fields, opts) {
+			const res = await tagsApi.updateTag({ data: fields }, tagGid, toAsanaReadOptions(opts))
 			return res.data
 		},
 		async deleteTag(tagGid) {

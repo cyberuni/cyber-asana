@@ -67,17 +67,18 @@ export type SupportingRelationshipOptions = {
 export type GoalGateway = {
 	listGoals(workspaceGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.Goal>>
 	getGoal(goalGid: string, opts?: ReadOptions): Promise<Asana.Goal>
-	createGoal(workspaceGid: string, name: string, opts?: CreateGoalFields): Promise<Asana.Goal>
-	updateGoal(goalGid: string, fields: UpdateGoalFields): Promise<Asana.Goal>
+	createGoal(workspaceGid: string, name: string, opts?: CreateGoalFields, read?: ReadOptions): Promise<Asana.Goal>
+	updateGoal(goalGid: string, fields: UpdateGoalFields, opts?: ReadOptions): Promise<Asana.Goal>
 	deleteGoal(goalGid: string): Promise<void>
 	listTimePeriods(workspaceGid: string, opts?: PaginationOptions): Promise<ListResult<Asana.TimePeriod>>
 	getTimePeriod(timePeriodGid: string, opts?: ReadOptions): Promise<Asana.TimePeriod>
-	setGoalMetric(goalGid: string, metric: GoalMetricInput): Promise<GoalMetric>
-	setGoalMetricCurrentValue(goalGid: string, currentNumberValue: number): Promise<GoalMetric>
+	setGoalMetric(goalGid: string, metric: GoalMetricInput, opts?: ReadOptions): Promise<GoalMetric>
+	setGoalMetricCurrentValue(goalGid: string, currentNumberValue: number, opts?: ReadOptions): Promise<GoalMetric>
 	addSupportingRelationship(
 		goalGid: string,
 		supportingResourceGid: string,
 		opts?: SupportingRelationshipOptions,
+		read?: ReadOptions,
 	): Promise<{ gid?: string; [key: string]: unknown }>
 	removeSupportingRelationship(goalGid: string, supportingResourceGid: string): Promise<void>
 	addGoalFollowers(goalGid: string, followerGids: string[]): Promise<Asana.Goal>
@@ -98,12 +99,15 @@ export function createAsanaGoalGateway(client: Asana.ApiClient): GoalGateway {
 			const res = await goalsApi.getGoal(goalGid, toAsanaReadOptions(opts))
 			return res.data
 		},
-		async createGoal(workspaceGid, name, opts) {
-			const res = await goalsApi.createGoal({ data: { name, workspace: workspaceGid, ...opts } })
+		async createGoal(workspaceGid, name, opts, read) {
+			const res = await goalsApi.createGoal(
+				{ data: { name, workspace: workspaceGid, ...opts } },
+				toAsanaReadOptions(read),
+			)
 			return res.data
 		},
-		async updateGoal(goalGid, fields) {
-			const res = await goalsApi.updateGoal({ data: fields }, goalGid, {})
+		async updateGoal(goalGid, fields, opts) {
+			const res = await goalsApi.updateGoal({ data: fields }, goalGid, toAsanaReadOptions(opts))
 			return res.data
 		},
 		async deleteGoal(goalGid) {
@@ -117,7 +121,7 @@ export function createAsanaGoalGateway(client: Asana.ApiClient): GoalGateway {
 			const res = await timePeriodsApi.getTimePeriod(timePeriodGid, toAsanaReadOptions(opts))
 			return res.data
 		},
-		async setGoalMetric(goalGid, metric) {
+		async setGoalMetric(goalGid, metric, opts) {
 			const res = await goalsApi.createGoalMetric(
 				{
 					data: {
@@ -131,15 +135,19 @@ export function createAsanaGoalGateway(client: Asana.ApiClient): GoalGateway {
 					},
 				},
 				goalGid,
-				{},
+				toAsanaReadOptions(opts),
 			)
 			return res.data
 		},
-		async setGoalMetricCurrentValue(goalGid, currentNumberValue) {
-			const res = await goalsApi.updateGoalMetric({ data: { current_number_value: currentNumberValue } }, goalGid, {})
+		async setGoalMetricCurrentValue(goalGid, currentNumberValue, opts) {
+			const res = await goalsApi.updateGoalMetric(
+				{ data: { current_number_value: currentNumberValue } },
+				goalGid,
+				toAsanaReadOptions(opts),
+			)
 			return res.data
 		},
-		async addSupportingRelationship(goalGid, supportingResourceGid, opts) {
+		async addSupportingRelationship(goalGid, supportingResourceGid, opts, read) {
 			const res = await relationshipsApi.addSupportingRelationship(
 				{
 					data: {
@@ -150,7 +158,7 @@ export function createAsanaGoalGateway(client: Asana.ApiClient): GoalGateway {
 					},
 				},
 				goalGid,
-				{},
+				toAsanaReadOptions(read),
 			)
 			return res.data
 		},

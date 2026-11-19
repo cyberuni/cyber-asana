@@ -101,12 +101,15 @@ export function registerPortfolioTools(server: McpServer, api?: PortfolioApi | (
 		{
 			workspace_gid: z.string().describe('Workspace GID'),
 			name: z.string().describe('Portfolio name'),
+			...readParams,
 		},
-		async ({ workspace_gid, name }) => ({
+		async ({ workspace_gid, name, opt_fields }) => ({
 			content: [
 				{
 					type: 'text',
-					text: JSON.stringify(await resolvePortfolioApi(api).createPortfolio(workspace_gid, name)),
+					text: JSON.stringify(
+						await resolvePortfolioApi(api).createPortfolio(workspace_gid, name, readOptions({ opt_fields })),
+					),
 				},
 			],
 		}),
@@ -118,12 +121,15 @@ export function registerPortfolioTools(server: McpServer, api?: PortfolioApi | (
 		{
 			portfolio_gid: z.string().describe('Portfolio GID'),
 			name: z.string().optional().describe('New name'),
+			...readParams,
 		},
-		async ({ portfolio_gid, name }) => ({
+		async ({ portfolio_gid, name, opt_fields }) => ({
 			content: [
 				{
 					type: 'text',
-					text: JSON.stringify(await resolvePortfolioApi(api).updatePortfolio(portfolio_gid, { name })),
+					text: JSON.stringify(
+						await resolvePortfolioApi(api).updatePortfolio(portfolio_gid, { name }, readOptions({ opt_fields })),
+					),
 				},
 			],
 		}),

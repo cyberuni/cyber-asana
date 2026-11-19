@@ -11,12 +11,12 @@ export async function getProjectBrief(projectBriefGid: string, opts?: ReadOption
 	return defaultProjectBriefApi().getProjectBrief(projectBriefGid, opts)
 }
 
-export async function createProjectBrief(projectGid: string, fields: ProjectBriefFields) {
-	return defaultProjectBriefApi().createProjectBrief(projectGid, fields)
+export async function createProjectBrief(projectGid: string, fields: ProjectBriefFields, opts?: ReadOptions) {
+	return defaultProjectBriefApi().createProjectBrief(projectGid, fields, opts)
 }
 
-export async function updateProjectBrief(projectBriefGid: string, fields: ProjectBriefFields) {
-	return defaultProjectBriefApi().updateProjectBrief(projectBriefGid, fields)
+export async function updateProjectBrief(projectBriefGid: string, fields: ProjectBriefFields, opts?: ReadOptions) {
+	return defaultProjectBriefApi().updateProjectBrief(projectBriefGid, fields, opts)
 }
 
 export async function deleteProjectBrief(projectBriefGid: string) {
