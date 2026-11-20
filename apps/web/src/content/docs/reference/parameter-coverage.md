@@ -24,6 +24,14 @@ Skipped on every operation:
 `pnpm --filter @cyberuni/gap-analysis test` fails when the committed API baseline has a parameter
 this table does not classify, so refreshing the baseline after Asana adds one surfaces it here.
 
+## Where the API disagrees with its spec
+
+Each row is a live probe that contradicts the OpenAPI definition. cyber-asana follows the live API.
+
+| Endpoint | Parameters | The spec says | The live API does |
+| --- | --- | --- | --- |
+| `getTasks` | `project`, `section`, `assignee`, `workspace` | The scope filters combine. | On a free workspace, each scope (project, section, or assignee with workspace) returns 200 alone. Project with assignee, project with assignee and workspace, section with project, and section with assignee and workspace all return 400. A non-scope filter still combines with a scope: project with completed_since returns 200. The tag and user task list scopes the error names are served by other operations (`tag tasks`, `task my-tasks list`). Probed 2026-11-19: `Must specify exactly one of project, tag, section, user task list, or assignee + workspace` |
+
 ## Gaps
 
 None.
@@ -896,16 +904,16 @@ None.
 | `getSubtasksForTask` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
 | `getTask` | `task_gid` | path | `<gid>` | `task_gid` | ✅ |
 | `getTask` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ Defaults to a fixed field set when omitted |
-| `getTasks` | `assignee` | query | `--assignee-gid / --assignee` | `assignee_gid / assignee` | ✅ |
+| `getTasks` | `assignee` | query | `--assignee-gid / --assignee` | `assignee_gid / assignee` | ✅ The live API accepts exactly one scope and returns 400 otherwise, despite the spec; see [Where the API disagrees with its spec](#where-the-api-disagrees-with-its-spec) |
 | `getTasks` | `completed_since` | query | `--completed-since / --incomplete-or-completed-since / --incomplete` | `completed_since / incomplete_or_completed_since / incomplete` | ✅ Sent only when --custom-type / custom_type routes the list through GET /tasks |
 | `getTasks` | `custom_type` | query | `--custom-type` | `custom_type` | ✅ |
 | `getTasks` | `limit` | query | `--limit` | `limit` | ✅ |
 | `getTasks` | `modified_since` | query | `--modified-since` | `modified_since` | ✅ |
 | `getTasks` | `offset` | query | `--offset` | `offset` | ✅ |
 | `getTasks` | `opt_fields` | query | `--opt-fields` | `opt_fields` | ✅ |
-| `getTasks` | `project` | query | `--project-gid (or --project)` | `project_gid` | ✅ |
-| `getTasks` | `section` | query | `--section-gid / --section` | `section_gid` | ✅ |
-| `getTasks` | `workspace` | query | `--workspace-gid / --workspace` | `workspace_gid` | ✅ |
+| `getTasks` | `project` | query | `--project-gid (or --project)` | `project_gid` | ✅ The live API accepts exactly one scope and returns 400 otherwise, despite the spec; see [Where the API disagrees with its spec](#where-the-api-disagrees-with-its-spec) |
+| `getTasks` | `section` | query | `--section-gid / --section` | `section_gid` | ✅ The live API accepts exactly one scope and returns 400 otherwise, despite the spec; see [Where the API disagrees with its spec](#where-the-api-disagrees-with-its-spec) |
+| `getTasks` | `workspace` | query | `--workspace-gid / --workspace` | `workspace_gid` | ✅ The live API accepts exactly one scope and returns 400 otherwise, despite the spec; see [Where the API disagrees with its spec](#where-the-api-disagrees-with-its-spec) |
 | `getTasksForProject` | `project_gid` | path | `--project-gid (or --project)` | `project_gid` | ✅ |
 | `getTasksForProject` | `completed_since` | query | `--completed-since / --incomplete-or-completed-since / --incomplete` | `completed_since / incomplete_or_completed_since / incomplete` | ✅ |
 | `getTasksForProject` | `limit` | query | `--limit` | `limit` | ✅ |

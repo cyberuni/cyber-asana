@@ -14,10 +14,25 @@ type OperationCoverage = {
 	parameters: Record<string, ParameterStatus>
 }
 
+/** A place where the live API behaves otherwise than its OpenAPI definition says, found by a probe. */
+type Discrepancy = {
+	operation: string
+	parameters: string[]
+	/** What the OpenAPI definition says. */
+	spec: string
+	/** What the live API did. */
+	observed: string
+	/** Date of the probe, YYYY-MM-DD. */
+	probed: string
+	/** The error the live API returned, verbatim. */
+	error: string
+}
+
 export type ParameterCoverage = {
 	/** Parameters skipped on every operation, with the reason. */
 	global: Record<string, string>
 	operations: Record<string, OperationCoverage>
+	discrepancies?: Discrepancy[]
 }
 
 const SDK_CALL = /\b\w+Api\.(\w+)\s*\(/g
@@ -88,6 +103,18 @@ export function checkParameterCoverage(catalog: RestCatalog, coverage: Parameter
 			if (problem) problems.push(problem)
 		}
 	}
+	for (const discrepancy of coverage.discrepancies ?? []) {
+		const entry = coverage.operations[discrepancy.operation]
+		if (!entry) {
+			problems.push(`discrepancy on ${discrepancy.operation}: the operation has no entry in parameter-coverage.json`)
+			continue
+		}
+		for (const name of discrepancy.parameters) {
+			if (!entry.parameters[name]) {
+				problems.push(`discrepancy on ${discrepancy.operation}: parameter ${name} is not classified`)
+			}
+		}
+	}
 	return problems
 }
 
@@ -106,6 +133,20 @@ function row(operation: RestOperation, name: string, location: string, status: P
 				? ['—', '—', `➖ ${status.reason}`]
 				: ['—', '—', `❌ ${issueLink(status.issue)}${status.note ? ` ${status.note}` : ''}`]
 	return `| ${code(operation.operationId)} | ${code(name)} | ${location} | ${cells.join(' | ')} |`
+}
+
+function discrepancyLines(discrepancies: Discrepancy[]) {
+	if (discrepancies.length === 0) return ['None found.']
+	return [
+		'Each row is a live probe that contradicts the OpenAPI definition. cyber-asana follows the live API.',
+		'',
+		'| Endpoint | Parameters | The spec says | The live API does |',
+		'| --- | --- | --- | --- |',
+		...discrepancies.map(
+			(d) =>
+				`| ${code(d.operation)} | ${d.parameters.map(code).join(', ')} | ${d.spec} | ${d.observed} Probed ${d.probed}: ${code(d.error)} |`,
+		),
+	]
 }
 
 const HEADER = '| Endpoint | Parameter | In | CLI | MCP | Status |\n| --- | --- | --- | --- | --- | --- |'
@@ -149,6 +190,10 @@ export function renderParameterReport(catalog: RestCatalog, coverage: ParameterC
 		'',
 		'`pnpm --filter @cyberuni/gap-analysis test` fails when the committed API baseline has a parameter',
 		'this table does not classify, so refreshing the baseline after Asana adds one surfaces it here.',
+		'',
+		'## Where the API disagrees with its spec',
+		'',
+		...discrepancyLines(coverage.discrepancies ?? []),
 		'',
 		'## Gaps',
 		'',

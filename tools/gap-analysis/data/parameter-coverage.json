@@ -3279,7 +3279,8 @@
 				"assignee": {
 					"status": "covered",
 					"cli": "--assignee-gid / --assignee",
-					"mcp": "assignee_gid / assignee"
+					"mcp": "assignee_gid / assignee",
+					"note": "The live API accepts exactly one scope and returns 400 otherwise, despite the spec; see [Where the API disagrees with its spec](#where-the-api-disagrees-with-its-spec)"
 				},
 				"completed_since": {
 					"status": "covered",
@@ -3315,17 +3316,20 @@
 				"project": {
 					"status": "covered",
 					"cli": "--project-gid (or --project)",
-					"mcp": "project_gid"
+					"mcp": "project_gid",
+					"note": "The live API accepts exactly one scope and returns 400 otherwise, despite the spec; see [Where the API disagrees with its spec](#where-the-api-disagrees-with-its-spec)"
 				},
 				"section": {
 					"status": "covered",
 					"cli": "--section-gid / --section",
-					"mcp": "section_gid"
+					"mcp": "section_gid",
+					"note": "The live API accepts exactly one scope and returns 400 otherwise, despite the spec; see [Where the API disagrees with its spec](#where-the-api-disagrees-with-its-spec)"
 				},
 				"workspace": {
 					"status": "covered",
 					"cli": "--workspace-gid / --workspace",
-					"mcp": "workspace_gid"
+					"mcp": "workspace_gid",
+					"note": "The live API accepts exactly one scope and returns 400 otherwise, despite the spec; see [Where the API disagrees with its spec](#where-the-api-disagrees-with-its-spec)"
 				}
 			}
 		},
@@ -5719,5 +5723,15 @@
 				}
 			}
 		}
-	}
+	},
+	"discrepancies": [
+		{
+			"operation": "getTasks",
+			"parameters": ["project", "section", "assignee", "workspace"],
+			"spec": "The scope filters combine.",
+			"observed": "On a free workspace, each scope (project, section, or assignee with workspace) returns 200 alone. Project with assignee, project with assignee and workspace, section with project, and section with assignee and workspace all return 400. A non-scope filter still combines with a scope: project with completed_since returns 200. The tag and user task list scopes the error names are served by other operations (`tag tasks`, `task my-tasks list`).",
+			"probed": "2026-11-19",
+			"error": "Must specify exactly one of project, tag, section, user task list, or assignee + workspace"
+		}
+	]
 }

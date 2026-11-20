@@ -110,4 +110,54 @@ describe('renderParameterReport', () => {
 		expect(report).toContain('`opt_pretty`')
 		expect(report.indexOf('## Gaps')).toBeLessThan(report.indexOf('## Tasks'))
 	})
+
+	it('lists each discrepancy between the API and its spec, with the probe date and the error', () => {
+		const report = renderParameterReport(baseline, {
+			...coverage,
+			discrepancies: [
+				{
+					operation: 'setParentForTask',
+					parameters: ['insert_after', 'parent'],
+					spec: 'The spec says they combine.',
+					observed: 'The live API refuses both together.',
+					probed: '2026-11-19',
+					error: 'Must specify one',
+				},
+			],
+		})
+		const section = report.indexOf('## Where the API disagrees with its spec')
+		expect(section).toBeGreaterThan(-1)
+		expect(section).toBeLessThan(report.indexOf('## Gaps'))
+		expect(report).toContain(
+			'| `setParentForTask` | `insert_after`, `parent` | The spec says they combine. | The live API refuses both together. Probed 2026-11-19: `Must specify one` |',
+		)
+	})
+
+	it('says so when the API matches its spec everywhere it was probed', () => {
+		const report = renderParameterReport(baseline, coverage)
+		expect(report).toContain('## Where the API disagrees with its spec\n\nNone found.')
+	})
+})
+
+describe('checkParameterCoverage discrepancies', () => {
+	it('reports a discrepancy naming an operation or parameter the coverage does not classify', () => {
+		const bad: ParameterCoverage = {
+			...coverage,
+			discrepancies: [
+				{ operation: 'getTags', parameters: [], spec: 's', observed: 'o', probed: '2026-11-19', error: 'e' },
+				{
+					operation: 'setParentForTask',
+					parameters: ['nope'],
+					spec: 's',
+					observed: 'o',
+					probed: '2026-11-19',
+					error: 'e',
+				},
+			],
+		}
+		expect(checkParameterCoverage(baseline, bad, ['setParentForTask'])).toEqual([
+			'discrepancy on getTags: the operation has no entry in parameter-coverage.json',
+			'discrepancy on setParentForTask: parameter nope is not classified',
+		])
+	})
 })
