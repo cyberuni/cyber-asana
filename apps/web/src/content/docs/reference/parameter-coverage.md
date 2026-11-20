@@ -24,6 +24,10 @@ Skipped on every operation:
 `pnpm --filter @cyberuni/gap-analysis test` fails when the committed API baseline has a parameter
 this table does not classify, so refreshing the baseline after Asana adds one surfaces it here.
 
+## Where the API disagrees with its spec
+
+None found.
+
 ## Gaps
 
 None.
