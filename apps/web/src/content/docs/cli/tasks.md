@@ -33,7 +33,7 @@ cyber-asana task my-tasks list --workspace-gid <gid>
 | `--incomplete-or-completed-since <date>` | `list`, `my-tasks list` | Asana's own `completed_since`: incomplete tasks plus tasks completed since the date (`now` for incomplete only) |
 | `--custom-type <gid>` | `list` | Only tasks of this custom type; an empty value selects tasks with no custom type |
 
-`task list` needs exactly one of `--project`, `--section`, or `--assignee` with its workspace; a missing or doubled filter, or an `--assignee` without a workspace, is caught locally before a request is sent.
+`task list` needs exactly one of `--project`, `--section`, or `--assignee` with its workspace. These are alternatives, not filters that combine: Asana's OpenAPI definition says they combine, but the live API returns 400 for any two of them together (see [Where the API disagrees with its spec](/cyber-asana/reference/parameter-coverage/#where-the-api-disagrees-with-its-spec)). A missing or doubled filter, or an `--assignee` without a workspace, is caught locally before a request is sent.
 
 ## Reading tasks
 
