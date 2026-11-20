@@ -1,5 +1,5 @@
 // Written by `universal-plugin plugin build` to forward to the cyber-asana CLI of cyber-asana. Edit plugin.json, not this file.
-globalThis.__SKILL_SCRIPT__ = {"package":"cyber-asana","bin":"cyber-asana","version":"0.30.0","entry":"skills/init-asana-scrum/scripts/cyber-asana.mjs","commands":{},"forward":"own"};
+globalThis.__SKILL_SCRIPT__ = {"package":"cyber-asana","bin":"cyber-asana","version":"0.31.0","entry":"skills/init-asana-scrum/scripts/cyber-asana.mjs","commands":{},"forward":"own"};
 import { spawnSync } from 'node:child_process'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
