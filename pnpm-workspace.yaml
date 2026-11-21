@@ -51,5 +51,3 @@ minimumReleaseAgeExclude:
   - "cyber-agentkit@2.0.0"
   # First-party (cyberuni). universal-plugin 0.23.0 ships CLI forwarders (universal-plugin#287);
   # published 2026-11-18T17:20Z, removable after 2026-11-19T17:20Z.
-  # min-release-age: lift universal-plugin@0.23.0 until 2026-11-19T18:00:00Z
-  - "universal-plugin@0.23.0"
